@@ -12,3 +12,5 @@ This repo powers Ember’s web app.
 - Create the app skeleton with Next.js
 - Host on Vercel
 - Connect a Supabase database
+
+_Last updated: <today’s date>_
