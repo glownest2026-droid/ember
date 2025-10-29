@@ -53,12 +53,12 @@ export default function Home() {
             disabled={status === "saving"}
             className="rounded-md border px-4 py-2"
           >
-            {status === "saving" ? "Adding…" : "Join waitlist"}
+            {status === "saving" ? "Adding…" : "Join waitlist now"}
           </button>
         </form>
 
         {message && (
-          <p className={status === "error" ? "text-red-600 text-sm" : "text-green-700 text-sm"}>
+          <p className={status === "error" ? "text-red-  B                 ZL600 text-sm" : "text-green-700 text-sm"}>
             {message}
           </p>
         )}
