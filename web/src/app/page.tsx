@@ -1,52 +1,78 @@
-// web/src/app/play/page.tsx
-import { createClient } from "@supabase/supabase-js";
+"use client";
 
-// Always fetch fresh on server
-export const revalidate = 0;
+import * as React from "react";
+import { useState } from "react";
+import Link from "next/link";
+import { getSupabase } from "../lib/supabase";
 
-function getServerSupabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) throw new Error("Supabase env vars missing");
-  return createClient(url, key);
-}
+export default function Home() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<null | "idle" | "saving" | "ok" | "error">("idle");
+  const [message, setMessage] = useState<string | null>(null);
 
-export default async function Play() {
-  const supabase = getServerSupabase();
-  const { data, error } = await supabase
-    .from("play_idea")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(20);
+  async function joinWaitlist(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
 
-  if (error) {
-    return (
-      <main className="max-w-2xl mx-auto p-6">
-        <h1 className="text-2xl font-semibold">Play Ideas</h1>
-        <p className="mt-4 text-red-600">Error: {error.message}</p>
-      </main>
-    );
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!ok) {
+      setStatus("error");
+      setMessage("Please enter a valid email address.");
+      return;
+    }
+
+    const supabase = getSupabase();
+    if (!supabase) {
+      setStatus("error");
+      setMessage("Setup issue: missing site configuration. Please try again later.");
+      return;
+    }
+
+    setStatus("saving");
+    setMessage(null);
+
+    const { error } = await supabase.from("waitlist").insert({ email, source: "homepage" });
+    if (error) {
+      setStatus("error");
+      setMessage(/duplicate|unique/i.test(error.message)
+        ? "You're already on the list — thank you!"
+        : "Something went wrong. Please try again.");
+    } else {
+      setStatus("ok");
+      setMessage("You're on the list! 🎉");
+      setEmail("");
+    }
   }
 
   return (
-    <main className="max-w-2xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Play Ideas</h1>
-      <ul className="space-y-3">
-        {(data ?? []).map((p) => (
-          <li key={p.id} className="rounded-xl border p-4">
-            <div className="font-medium">{p.title}</div>
-            <div className="text-sm opacity-80">{p.age_band}</div>
-            {p.why && <p className="text-sm mt-1">{p.why}</p>}
-            {Array.isArray(p.steps) && p.steps.length > 0 && (
-              <ul className="list-disc ml-5 mt-2 text-sm">
-                {p.steps.map((s: string) => (
-                  <li key={s}>{s}</li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ))}
-      </ul>
+    <main className="min-h-screen p-6">
+      <header className="max-w-3xl mx-auto flex items-center justify-between py-2">
+        <h1 className="text-2xl font-bold">Ember</h1>
+        <nav className="text-sm">
+          <Link href="/play" className="underline">Play ideas</Link>
+        </nav>
+      </header>
+
+      <section className="max-w-xl mx-auto text-center space-y-6 mt-12">
+        <p className="text-lg">Simple, trusted guidance from bump to big steps.</p>
+
+        <form onSubmit={joinWaitlist} className="flex gap-2 justify-center" noValidate>
+          <input
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="flex-1 max-w-xs border rounded-md p-2"
+            required
+          />
+          <button type="submit" disabled={status === "saving"} className="rounded-md border px-4 py-2">
+            {status === "saving" ? "Adding…" : "Join waitlist"}
+          </button>
+        </form>
+
+        {message && (
+          <p className={status === "error" ? "text-red-600 text-sm" : "text-green-700 text-sm"}>{message}</p>
+        )}
+      </section>
     </main>
   );
 }
