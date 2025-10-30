@@ -2,14 +2,16 @@
 "use client";
 
 import * as React from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Header from "../components/Header";
+import { getSupabase } from "../lib/supabase";
 
-export default function HomePage() {
+export default function Home() {
   const router = useRouter();
-  const [email, setEmail] = React.useState("");
-  const [submitting, setSubmitting] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-  const [ok, setOk] = React.useState(false);
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<null | "idle" | "saving" | "ok" | "error">("idle");
+  const [message, setMessage] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -34,34 +36,24 @@ export default function HomePage() {
         .from("waitlist")
         .insert({ email: val });
 
-      if (insertError) {
-        setError("Sorry, something went wrong. Please try again.");
-        setSubmitting(false);
-        return;
-      }
-      setOk(true);
+    const { error } = await supabase.from("waitlist").insert({ email, source: "homepage" });
+    if (error) {
+      setStatus("error");
+      setMessage(/duplicate|unique/i.test(error.message)
+        ? "You're already on the list — thank you!"
+        : "Something went wrong. Please try again.");
+    } else {
+      setStatus("ok");
+      setEmail("");
       router.push("/success");
-    } catch {
-      setError("Network hiccup. Please try again.");
-      setSubmitting(false);
     }
   }
 
   return (
-    <main>
-      {/* Hero */}
-      <section className="bg-gradient-to-b from-ember-50 to-cream-50 border-b border-stone-200">
-        <div className="container-wrap py-10 sm:py-14">
-          <span className="kicker">Simple, trusted guidance from bump to big steps.</span>
-          <h1 className="mt-3 text-3xl sm:text-4xl font-semibold leading-tight max-w-[36rem]">
-            Never behind the curve{" "}
-            <span className="bg-gradient-to-r from-ember-400 via-apricot-400 to-blush-400 bg-clip-text text-transparent">
-              — Know what’s next. Buy smart. Move it on.
-            </span>
-          </h1>
-          <p className="mt-3 text-stone-700 max-w-[36rem]">
-            Ember helps you support your child’s development with research-backed play ideas and clutter-free shopping tips.
-          </p>
+    <main className="min-h-screen p-6">
+      <Header />
+      <section className="max-w-xl mx-auto text-center space-y-6 mt-12">
+        <p className="text-lg">Simple, trusted guidance from bump to big steps.</p>
 
           {/* Waitlist form */}
           <div className="mt-6 card p-4 sm:p-5 max-w-[36rem]">
