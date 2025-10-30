@@ -24,8 +24,7 @@ export default function HomePage() {
 
     setSubmitting(true);
     try {
-      // Use the lazy factory without assuming named/default export shape.
-      // (Works with { getSupabase } or default export)
+      // Lazy import Supabase factory
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mod: any = await import("../lib/supabase");
       const supabase =
@@ -54,18 +53,18 @@ export default function HomePage() {
       <section className="bg-gradient-to-b from-ember-50 to-cream-50 border-b border-stone-200">
         <div className="container-wrap py-10 sm:py-14">
           <span className="kicker">Simple, trusted guidance from bump to big steps.</span>
-          <h1 className="mt-3 text-3xl sm:text-4xl font-semibold leading-tight max-w-text">
-            Never behind the curve.{" "}
+          <h1 className="mt-3 text-3xl sm:text-4xl font-semibold leading-tight max-w-[36rem]">
+            Never behind the curve{" "}
             <span className="bg-gradient-to-r from-ember-400 via-apricot-400 to-blush-400 bg-clip-text text-transparent">
-              Know what’s next. Buy smart. Move it on.
+              — Know what’s next. Buy smart. Move it on.
             </span>
           </h1>
-          <p className="mt-3 text-stone-700 max-w-text">
+          <p className="mt-3 text-stone-700 max-w-[36rem]">
             Ember helps you support your child’s development with research-backed play ideas and clutter-free shopping tips.
           </p>
 
           {/* Waitlist form */}
-          <div className="mt-6 card p-4 sm:p-5 max-w-text">
+          <div className="mt-6 card p-4 sm:p-5 max-w-[36rem]">
             <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <label htmlFor="email" className="sr-only">Email</label>
               <input
