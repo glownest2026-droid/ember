@@ -1,48 +1,33 @@
-"use client";
+// web/src/app/play/page.tsx
+import { createClient } from "@supabase/supabase-js";
 
 import * as React from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { getSupabase } from "../lib/supabase";
 
-export default function Home() {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<null | "idle" | "saving" | "ok" | "error">("idle");
-  const [message, setMessage] = useState<string | null>(null);
+function getServerSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) throw new Error("Supabase env vars missing");
+  return createClient(url, key);
+}
 
-  async function joinWaitlist(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+export default async function Play() {
+  const supabase = getServerSupabase();
+  const { data, error } = await supabase
+    .from("play_idea")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(20);
 
-    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!ok) {
-      setStatus("error");
-      setMessage("Please enter a valid email address.");
-      return;
-    }
-
-    const supabase = getSupabase();
-    if (!supabase) {
-      setStatus("error");
-      setMessage("Setup issue: missing site configuration. Please try again later.");
-      return;
-    }
-
-    setStatus("saving");
-    setMessage(null);
-
-    const { error } = await supabase.from("waitlist").insert({ email, source: "homepage" });
-    if (error) {
-      setStatus("error");
-      setMessage(
-        /duplicate|unique/i.test(error.message)
-          ? "You're already on the list — thank you!"
-          : "Something went wrong. Please try again."
-      );
-    } else {
-      setStatus("ok");
-      setMessage("You're on the list! 🎉");
-      setEmail("");
-    }
+  if (error) {
+    return (
+      <main className="max-w-2xl mx-auto p-6">
+        <h1 className="text-2xl font-semibold">Play Ideas</h1>
+        <p className="mt-4 text-red-600">Error: {error.message}</p>
+      </main>
+    );
   }
 
   return (
