@@ -1,4 +1,5 @@
-// web/src/app/play/page.tsx
+"use client";
+
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 
