@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Header from "../components/Header";
+import Link from "next/link";
 import { getSupabase } from "../lib/supabase";
 
 export default function Home() {
@@ -48,7 +47,13 @@ export default function Home() {
 
   return (
     <main className="min-h-screen p-6">
-      <Header />
+      <header className="max-w-3xl mx-auto flex items-center justify-between py-2">
+        <h1 className="text-2xl font-bold">Ember</h1>
+        <nav className="text-sm">
+          <Link href="/play" className="underline">Play ideas</Link>
+        </nav>
+      </header>
+
       <section className="max-w-xl mx-auto text-center space-y-6 mt-12">
         <p className="text-lg">Simple, trusted guidance from bump to big steps.</p>
 

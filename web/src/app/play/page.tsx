@@ -1,8 +1,10 @@
-import Header from "../../components/Header";
+// web/src/app/play/page.tsx
+import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 
 export const revalidate = 0;
 
+// Server-side Supabase client for public SELECTs
 function getServerSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -21,7 +23,10 @@ export default async function Play() {
   if (error) {
     return (
       <main className="max-w-2xl mx-auto p-6">
-        <Header />
+        <header className="flex items-center justify-between py-2">
+          <h1 className="text-2xl font-semibold">Play Ideas</h1>
+          <nav className="text-sm"><Link href="/" className="underline">Home</Link></nav>
+        </header>
         <p className="mt-4 text-red-600">Error: {error.message}</p>
       </main>
     );
@@ -29,7 +34,11 @@ export default async function Play() {
 
   return (
     <main className="max-w-2xl mx-auto p-6 space-y-6">
-      <Header />
+      <header className="flex items-center justify-between py-2">
+        <h1 className="text-2xl font-semibold">Play Ideas</h1>
+        <nav className="text-sm"><Link href="/" className="underline">Home</Link></nav>
+      </header>
+
       <ul className="space-y-3">
         {(data ?? []).map((p: any) => (
           <li key={p.id} className="rounded-xl border p-4">
