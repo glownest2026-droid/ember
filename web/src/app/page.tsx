@@ -2,9 +2,12 @@
 
 import * as React from "react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Header from "../components/Header";
 import { getSupabase } from "../lib/supabase";
 
 export default function Home() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<null | "idle" | "saving" | "ok" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
@@ -32,25 +35,24 @@ export default function Home() {
     const { error } = await supabase.from("waitlist").insert({ email, source: "homepage" });
     if (error) {
       setStatus("error");
-      setMessage(
-        /duplicate|unique/i.test(error.message)
-          ? "You're already on the list — thank you!"
-          : "Something went wrong. Please try again."
-      );
+      setMessage(/duplicate|unique/i.test(error.message)
+        ? "You're already on the list — thank you!"
+        : "Something went wrong. Please try again.");
     } else {
       setStatus("ok");
-      setMessage("You're on the list! 🎉");
       setEmail("");
+      router.push("/success");
+      return;
     }
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-8">
-      <div className="max-w-xl w-full text-center space-y-6">
-        <h1 className="text-4xl font-bold">Ember</h1>
+    <main className="min-h-screen p-6">
+      <Header />
+      <section className="max-w-xl mx-auto text-center space-y-6 mt-12">
         <p className="text-lg">Simple, trusted guidance from bump to big steps.</p>
 
-        <form onSubmit={joinWaitlist} className="flex gap-2 justify-center">
+        <form onSubmit={joinWaitlist} className="flex gap-2 justify-center" noValidate>
           <input
             type="email"
             placeholder="you@example.com"
@@ -67,11 +69,7 @@ export default function Home() {
         {message && (
           <p className={status === "error" ? "text-red-600 text-sm" : "text-green-700 text-sm"}>{message}</p>
         )}
-
-        <a href="/play" className="inline-block rounded-xl border px-4 py-2">
-          Explore play ideas
-        </a>
-      </div>
+      </section>
     </main>
   );
 }
