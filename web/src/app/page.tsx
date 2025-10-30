@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Header from "../components/Header";
 import { getSupabase } from "../lib/supabase";
 
 export default function Home() {
@@ -41,19 +42,12 @@ export default function Home() {
       setStatus("ok");
       setEmail("");
       router.push("/success");
-      return;
     }
   }
 
   return (
     <main className="min-h-screen p-6">
-      <header className="max-w-3xl mx-auto flex items-center justify-between py-2">
-        <h1 className="text-2xl font-bold">Ember</h1>
-        <nav className="text-sm">
-          <Link href="/play" className="underline">Play ideas</Link>
-        </nav>
-      </header>
-
+      <Header />
       <section className="max-w-xl mx-auto text-center space-y-6 mt-12">
         <p className="text-lg">Simple, trusted guidance from bump to big steps.</p>
 
