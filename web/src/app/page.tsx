@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getSupabase } from "../lib/supabase";
 
 export default function Home() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<null | "idle" | "saving" | "ok" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
@@ -38,8 +39,9 @@ export default function Home() {
         : "Something went wrong. Please try again.");
     } else {
       setStatus("ok");
-      setMessage("You're on the list! 🎉");
       setEmail("");
+      router.push("/success");
+      return;
     }
   }
 
