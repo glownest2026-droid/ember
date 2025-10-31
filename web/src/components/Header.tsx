@@ -4,7 +4,7 @@
 import * as React from "react";
 import Link from "next/link";
 
-export default function Header(): JSX.Element {
+export default function Header() {
   const [open, setOpen] = React.useState(false);
 
   return (
