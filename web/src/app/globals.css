@@ -1,6 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* web/src/app/globals.css */
+@import "tailwindcss";
+
 
 /* Brand tokens */
 @theme {
