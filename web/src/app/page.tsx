@@ -47,27 +47,45 @@ export default function HomePage() {
 
   return (
     <main>
-      {/* Hero */}
-      <section className="bg-gradient-to-b from-ember-50 to-cream-50 border-b border-stone-200">
-        <div className="container-wrap py-10 sm:py-14">
+      {/* HERO */}
+      <section className="relative overflow-hidden border-b border-stone-200">
+        {/* Decorative blobs */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -top-24 -left-20 h-[36rem] w-[36rem] rounded-full blur-3xl opacity-30"
+          style={{
+            background:
+              "radial-gradient(closest-side, var(--color-ember-200), transparent 70%)",
+          }}
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -top-28 right-[-6rem] h-[28rem] w-[28rem] rounded-full blur-3xl opacity-30"
+          style={{
+            background:
+              "radial-gradient(closest-side, var(--color-blush-200), transparent 70%)",
+          }}
+        />
+
+        <div className="container-wrap relative py-14 sm:py-20">
           <span className="kicker">
             Simple, trusted guidance from bump to big steps.
           </span>
 
-          <h1 className="mt-3 text-3xl sm:text-4xl font-semibold leading-tight max-w-[36rem]">
+          <h1 className="mt-4 text-4xl sm:text-5xl font-semibold leading-tight max-w-[38rem] tracking-tight">
             Never behind the curve{" "}
             <span className="bg-gradient-to-r from-ember-400 via-apricot-400 to-blush-400 bg-clip-text text-transparent">
-              - Know what's next. Buy smart. Move it on.
+              — know what’s next. Buy smart. Move it on.
             </span>
           </h1>
 
-          <p className="mt-3 text-stone-700 max-w-[36rem]">
-            Ember helps you support your child's development with research-backed
-            play ideas and clutter-free shopping tips.
+          <p className="mt-4 text-[1.05rem] text-stone-700 max-w-[42rem]">
+            Ember helps you support your child’s development with clear, research-backed
+            play ideas and clutter-smart shopping tips.
           </p>
 
           {/* Waitlist form */}
-          <div className="mt-6 card p-4 sm:p-5 max-w-[36rem]">
+          <div className="mt-8 card p-5 sm:p-6 max-w-[36rem]">
             <form
               onSubmit={onSubmit}
               className="flex flex-col gap-3 sm:flex-row sm:items-center"
@@ -89,37 +107,37 @@ export default function HomePage() {
               />
               <button
                 type="submit"
-                className="btn-primary"
+                className="btn btn-primary"
                 disabled={submitting}
                 aria-live="polite"
               >
-                {submitting ? "Joining..." : "Join waitlist"}
+                {submitting ? "Joining…" : "Join waitlist"}
               </button>
             </form>
             {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
           </div>
 
           {/* Value props */}
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="card p-4">
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="card p-5">
               <div className="text-2xl">🧠</div>
               <h3 className="mt-2 font-semibold">Guidance you can trust</h3>
               <p className="mt-1 text-sm text-stone-700">
                 Clear, research-backed tips for every stage.
               </p>
             </div>
-            <div className="card p-4">
+            <div className="card p-5">
               <div className="text-2xl">🎈</div>
               <h3 className="mt-2 font-semibold">Play ideas that click</h3>
               <p className="mt-1 text-sm text-stone-700">
-                Tailored activities matched to your child's age and interests.
+                Tailored activities matched to your child’s age & interests.
               </p>
             </div>
-            <div className="card p-4">
+            <div className="card p-5">
               <div className="text-2xl">🛒</div>
               <h3 className="mt-2 font-semibold">Buy smart, reduce clutter</h3>
               <p className="mt-1 text-sm text-stone-700">
-                What's worth it now, and how to pass it on later.
+                What’s worth it now — and how to pass it on later.
               </p>
             </div>
           </div>
