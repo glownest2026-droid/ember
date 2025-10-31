@@ -128,7 +128,7 @@ export default function HomePage() {
               <div className="text-2xl">🎈</div>
               <h3 className="mt-2 font-semibold">Play ideas that click</h3>
               <p className="mt-1 text-sm text-stone-700">
-                Tailored activities matched to your child's age and interests.
+                Tailored activities matched to your child’s age & interests.
               </p>
             </div>
             <div className="card p-5">
