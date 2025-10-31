@@ -4,7 +4,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 
-export default function HomePage(): JSX.Element {
+export default function HomePage() {
   const router = useRouter();
   const [email, setEmail] = React.useState<string>("");
   const [submitting, setSubmitting] = React.useState(false);
