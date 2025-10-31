@@ -2,21 +2,17 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "../components/Header";
-import { getSupabase } from "../lib/supabase";
 
-export default function Home() {
+export default function HomePage(): JSX.Element {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<null | "idle" | "saving" | "ok" | "error">("idle");
-  const [message, setMessage] = useState<string | null>(null);
+  const [email, setEmail] = React.useState<string>("");
+  const [submitting, setSubmitting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
-    setOk(false);
 
     const val = email.trim();
     if (!val || !/.+@.+\..+/.test(val)) {
@@ -26,7 +22,7 @@ export default function Home() {
 
     setSubmitting(true);
     try {
-      // Lazy import Supabase factory
+      // Lazy import for the Supabase client factory
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mod: any = await import("../lib/supabase");
       const supabase =
@@ -36,29 +32,49 @@ export default function Home() {
         .from("waitlist")
         .insert({ email: val });
 
-    const { error } = await supabase.from("waitlist").insert({ email, source: "homepage" });
-    if (error) {
-      setStatus("error");
-      setMessage(/duplicate|unique/i.test(error.message)
-        ? "You're already on the list — thank you!"
-        : "Something went wrong. Please try again.");
-    } else {
-      setStatus("ok");
-      setEmail("");
+      if (insertError) {
+        setError("Sorry, something went wrong. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+
       router.push("/success");
+    } catch {
+      setError("Network hiccup. Please try again.");
+      setSubmitting(false);
     }
   }
 
   return (
-    <main className="min-h-screen p-6">
-      <Header />
-      <section className="max-w-xl mx-auto text-center space-y-6 mt-12">
-        <p className="text-lg">Simple, trusted guidance from bump to big steps.</p>
+    <main>
+      {/* Hero */}
+      <section className="bg-gradient-to-b from-ember-50 to-cream-50 border-b border-stone-200">
+        <div className="container-wrap py-10 sm:py-14">
+          <span className="kicker">
+            Simple, trusted guidance from bump to big steps.
+          </span>
+
+          <h1 className="mt-3 text-3xl sm:text-4xl font-semibold leading-tight max-w-[36rem]">
+            Never behind the curve{" "}
+            <span className="bg-gradient-to-r from-ember-400 via-apricot-400 to-blush-400 bg-clip-text text-transparent">
+              - Know what's next. Buy smart. Move it on.
+            </span>
+          </h1>
+
+          <p className="mt-3 text-stone-700 max-w-[36rem]">
+            Ember helps you support your child's development with research-backed
+            play ideas and clutter-free shopping tips.
+          </p>
 
           {/* Waitlist form */}
           <div className="mt-6 card p-4 sm:p-5 max-w-[36rem]">
-            <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <label htmlFor="email" className="sr-only">Email</label>
+            <form
+              onSubmit={onSubmit}
+              className="flex flex-col gap-3 sm:flex-row sm:items-center"
+            >
+              <label htmlFor="email" className="sr-only">
+                Email
+              </label>
               <input
                 id="email"
                 type="email"
@@ -81,7 +97,6 @@ export default function Home() {
               </button>
             </form>
             {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-            {ok && <p className="mt-2 text-sm text-stone-700">Success! Redirecting…</p>}
           </div>
 
           {/* Value props */}
@@ -97,14 +112,14 @@ export default function Home() {
               <div className="text-2xl">🎈</div>
               <h3 className="mt-2 font-semibold">Play ideas that click</h3>
               <p className="mt-1 text-sm text-stone-700">
-                Tailored activities matched to your child’s age & interests.
+                Tailored activities matched to your child's age and interests.
               </p>
             </div>
             <div className="card p-4">
               <div className="text-2xl">🛒</div>
               <h3 className="mt-2 font-semibold">Buy smart, reduce clutter</h3>
               <p className="mt-1 text-sm text-stone-700">
-                What’s worth it now—and how to pass it on later.
+                What's worth it now, and how to pass it on later.
               </p>
             </div>
           </div>
