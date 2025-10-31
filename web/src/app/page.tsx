@@ -49,7 +49,7 @@ export default function HomePage() {
     <main>
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-stone-200">
-        {/* Decorative blobs */}
+        {/* Ambient blobs */}
         <span
           aria-hidden
           className="pointer-events-none absolute -top-24 -left-20 h-[36rem] w-[36rem] rounded-full blur-3xl opacity-30"
@@ -67,32 +67,30 @@ export default function HomePage() {
           }}
         />
 
-        <div className="container-wrap relative py-14 sm:py-20">
+        <div className="container-wrap relative py-12 sm:py-20">
           <span className="kicker">
             Simple, trusted guidance from bump to big steps.
           </span>
 
-          <h1 className="mt-4 text-4xl sm:text-5xl font-semibold leading-tight max-w-[38rem] tracking-tight">
+          <h1 className="mt-4 text-4xl sm:text-5xl font-semibold leading-tight max-w-[42rem] tracking-tight">
             Never behind the curve{" "}
             <span className="bg-gradient-to-r from-ember-400 via-apricot-400 to-blush-400 bg-clip-text text-transparent">
               — know what’s next. Buy smart. Move it on.
             </span>
           </h1>
 
-          <p className="mt-4 text-[1.05rem] text-stone-700 max-w-[42rem]">
+          <p className="mt-4 text-[1.05rem] text-stone-700 max-w-[44rem]">
             Ember helps you support your child’s development with clear, research-backed
             play ideas and clutter-smart shopping tips.
           </p>
 
           {/* Waitlist form */}
-          <div className="mt-8 card p-5 sm:p-6 max-w-[36rem]">
+          <div id="waitlist" className="mt-8 card p-5 sm:p-6 max-w-[36rem]">
             <form
               onSubmit={onSubmit}
               className="flex flex-col gap-3 sm:flex-row sm:items-center"
             >
-              <label htmlFor="email" className="sr-only">
-                Email
-              </label>
+              <label htmlFor="email" className="sr-only">Email</label>
               <input
                 id="email"
                 type="email"
@@ -141,6 +139,9 @@ export default function HomePage() {
               </p>
             </div>
           </div>
+
+          {/* Anchor section for About (optional stub) */}
+          <div id="about" className="sr-only">About section coming soon</div>
         </div>
       </section>
     </main>
