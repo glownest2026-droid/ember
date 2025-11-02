@@ -1,17 +1,25 @@
+// web/src/app/auth/callback/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '../../../utils/supabase/server';
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/app';
+  const url = new URL(request.url);
+  const code = url.searchParams.get('code');
+  const next = url.searchParams.get('next') ?? '/app';
+  const origin = url.origin;
 
   if (code) {
     const supabase = createClient();
+    // Exchange the code for a session (sets cookies)
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) return NextResponse.redirect(new URL('/signin', request.url));
-    return NextResponse.redirect(new URL(next, request.url));
+    if (error) {
+      // If it fails, go to /signin with an error message
+      url.pathname = '/signin';
+      url.searchParams.set('error', error.message);
+      return NextResponse.redirect(url);
+    }
   }
 
-  return NextResponse.redirect(new URL('/signin', request.url));
+  // Success or no code: continue to target (default /app)
+  return NextResponse.redirect(`${origin}${next}`);
 }
