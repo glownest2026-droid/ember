@@ -8,24 +8,23 @@ export default function SignInPage() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
+async function handleSubmit(e: React.FormEvent) {
+  e.preventDefault();
+  setError(null);
 
-    // Lazy init here (NOT at module scope)
   const supabase = createClient();
-const origin = window.location.origin; // e.g. https://ember-mocha-eight.vercel.app
-const redirectTo = `${origin}/auth/callback?next=/app`;
 
-const { error } = await supabase.auth.signInWithOtp({
-  email,
-  options: { emailRedirectTo: redirectTo },
-});
+  const origin = window.location.origin; // e.g. https://ember-mocha-eight.vercel.app (preview)
+  const redirectTo = `${origin}/auth/callback?next=/app`;
 
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: redirectTo },
+  });
 
-    if (error) setError(error.message);
-    else setSent(true);
-  }
+  if (error) setError(error.message);
+  else setSent(true);
+}
 
   if (sent) {
     return (
