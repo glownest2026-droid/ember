@@ -7,8 +7,8 @@ import Link from "next/link";
 /** Shared theme tokens for quick inline styling */
 export const THEME = {
   ink: "#1C1C1E",
-  primary: "#FFC7AE",      // Peach Glow
-  primaryLight: "#FFE5D7", // Blush Glow
+  primary: "#FFC7AE",
+  primaryLight: "#FFE5D7",
   cloud: "#FAFAFB",
   sky: "#EAF3FF",
   sprout: "#5EC57E",
@@ -70,7 +70,26 @@ export function Button({
       </button>
     );
   }
-  export function ButtonLink({
+  if (variant === "ghost") {
+    return (
+      <button
+        className={`${base} border ${className}`}
+        style={{ background: THEME.cloud, color: THEME.ink, borderColor: THEME.pebble }}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  }
+  return (
+    <button className={`${base} ${className}`} {...props}>
+      {children}
+    </button>
+  );
+}
+
+/** Anchor-based button (keeps styling). NOTE: top-level const, not export. */
+const ButtonLink = ({
   children,
   variant = "primary",
   href,
@@ -80,7 +99,7 @@ export function Button({
   variant?: "primary" | "ghost";
   href: string;
   className?: string;
-}) {
+}) => {
   const base = "px-5 py-3 rounded-xl transition font-semibold inline-flex items-center justify-center";
   if (variant === "primary") {
     return (
@@ -109,25 +128,7 @@ export function Button({
       {children}
     </Link>
   );
-}
-
-  if (variant === "ghost") {
-    return (
-      <button
-        className={`${base} border ${className}`}
-        style={{ background: THEME.cloud, color: THEME.ink, borderColor: THEME.pebble }}
-        {...props}
-      >
-        {children}
-      </button>
-    );
-  }
-  return (
-    <button className={`${base} ${className}`} {...props}>
-      {children}
-    </button>
-  );
-}
+};
 
 export default function Header() {
   const [open, setOpen] = React.useState(false);
@@ -178,9 +179,9 @@ export default function Header() {
             <a href="#features" className="py-1" onClick={() => setOpen(false)}>Features</a>
             <a href="#trust" className="py-1" onClick={() => setOpen(false)}>Trust</a>
             <a href="#faq" className="py-1" onClick={() => setOpen(false)}>FAQ</a>
-              <Link href="/signin" onClick={() => setOpen(false)} className="w-full">
+            <Link href="/signin" onClick={() => setOpen(false)} className="w-full">
               <Button variant="ghost" className="w-full">Sign in</Button>
-              </Link>
+            </Link>
             <a href="#waitlist" onClick={() => setOpen(false)} className="w-full">
               <Button className="w-full">Join free</Button>
             </a>
