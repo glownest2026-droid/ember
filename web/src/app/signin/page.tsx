@@ -14,7 +14,6 @@ export default function SignInPage() {
 
     // Lazy init here (NOT at module scope)
     const supabase = createClient();
-
     const origin = window.location.origin;
     const redirectTo = `${origin}/auth/callback?next=/app`;
 
