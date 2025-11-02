@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { createClient } from '../../utils/supabase/client';
 
 export default function SignInPage() {
-  const supabase = createClient();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -12,6 +11,9 @@ export default function SignInPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    // Lazy init here (NOT at module scope)
+    const supabase = createClient();
 
     const origin = window.location.origin;
     const redirectTo = `${origin}/auth/callback?next=/app`;
