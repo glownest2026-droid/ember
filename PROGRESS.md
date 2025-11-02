@@ -8,3 +8,10 @@
 - Verified Supabase RLS policies per module objective (waitlist: INSERT anon+authenticated, no SELECT; play_idea: SELECT anon+authenticated).
 - Merged PR via **Rebase and merge**: `chore: baseline audit & guardrails (module 1)`.
 - Production validation: https://ember-mocha-eight.vercel.app/
+
+## 2025-11-01 — Module 2: Auth + Protected App Shell
+- Added cookie-based auth via `@supabase/ssr` (App Router).
+- Added `/signin` (magic link) and `/auth/callback` (code exchange).
+- Protected `/app/*` via middleware; added private shell with user email + sign out.
+- Verified Supabase URL configuration (Site URL + Additional Redirect URLs) and Vercel envs.
+- Local build passed; PR merged via **Rebase and merge**.
