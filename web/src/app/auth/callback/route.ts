@@ -10,16 +10,13 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = createClient();
-    // Exchange the code for a session (sets cookies)
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
-      // If it fails, go to /signin with an error message
       url.pathname = '/signin';
       url.searchParams.set('error', error.message);
       return NextResponse.redirect(url);
     }
   }
 
-  // Success or no code: continue to target (default /app)
   return NextResponse.redirect(`${origin}${next}`);
 }
