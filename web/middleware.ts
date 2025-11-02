@@ -25,13 +25,13 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Always refresh session cookies
+  // refresh session cookies on every request
   await supabase.auth.getUser();
 
-  // Allow callback to proceed
+  // do not gate the callback
   if (pathname.startsWith('/auth/callback')) return response;
 
-  // Gate /app/*
+  // only gate /app/*
   if (pathname.startsWith('/app')) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
