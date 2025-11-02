@@ -13,14 +13,15 @@ export default function SignInPage() {
     setError(null);
 
     // Lazy init here (NOT at module scope)
-    const supabase = createClient();
-    const origin = window.location.origin;
-    const redirectTo = `${origin}/auth/callback?next=/app`;
+  const supabase = createClient();
+const origin = window.location.origin; // e.g. https://ember-mocha-eight.vercel.app
+const redirectTo = `${origin}/auth/callback?next=/app`;
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: redirectTo },
-    });
+const { error } = await supabase.auth.signInWithOtp({
+  email,
+  options: { emailRedirectTo: redirectTo },
+});
+
 
     if (error) setError(error.message);
     else setSent(true);
