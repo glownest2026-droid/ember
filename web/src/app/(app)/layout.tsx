@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
 import SignOutButton from '../components/SignOutButton';
-import { createClient } from '../../utils/supabase/server';
+import { createClient } from '../../../utils/supabase/server';
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const supabase = createClient();
