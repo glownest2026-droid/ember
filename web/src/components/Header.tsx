@@ -70,6 +70,47 @@ export function Button({
       </button>
     );
   }
+  export function ButtonLink({
+  children,
+  variant = "primary",
+  href,
+  className = "",
+}: {
+  children: React.ReactNode;
+  variant?: "primary" | "ghost";
+  href: string;
+  className?: string;
+}) {
+  const base = "px-5 py-3 rounded-xl transition font-semibold inline-flex items-center justify-center";
+  if (variant === "primary") {
+    return (
+      <Link
+        href={href}
+        className={`${base} shadow border ${className}`}
+        style={{ background: THEME.primary, color: THEME.ink, borderColor: THEME.pebble }}
+      >
+        {children}
+      </Link>
+    );
+  }
+  if (variant === "ghost") {
+    return (
+      <Link
+        href={href}
+        className={`${base} border ${className}`}
+        style={{ background: THEME.cloud, color: THEME.ink, borderColor: THEME.pebble }}
+      >
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <Link href={href} className={`${base} ${className}`}>
+      {children}
+    </Link>
+  );
+}
+
   if (variant === "ghost") {
     return (
       <button
@@ -111,7 +152,7 @@ export default function Header() {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost">Sign in</Button>
+          <ButtonLink variant="ghost" href="/signin">Sign in</ButtonLink>
           <a href="#waitlist"><Button>Join free</Button></a>
         </div>
 
@@ -137,6 +178,9 @@ export default function Header() {
             <a href="#features" className="py-1" onClick={() => setOpen(false)}>Features</a>
             <a href="#trust" className="py-1" onClick={() => setOpen(false)}>Trust</a>
             <a href="#faq" className="py-1" onClick={() => setOpen(false)}>FAQ</a>
+              <Link href="/signin" onClick={() => setOpen(false)} className="w-full">
+              <Button variant="ghost" className="w-full">Sign in</Button>
+              </Link>
             <a href="#waitlist" onClick={() => setOpen(false)} className="w-full">
               <Button className="w-full">Join free</Button>
             </a>
