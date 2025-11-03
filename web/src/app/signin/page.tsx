@@ -56,3 +56,8 @@ async function handleSubmit(e: React.FormEvent) {
     </div>
   );
 }
+
+<p className="text-sm mt-3">
+  Email link not working?{" "}
+  <a href="/verify" className="underline">Use a 6-digit code instead</a>.
+</p>
