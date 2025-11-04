@@ -62,5 +62,12 @@ If build errors mention **PostCSS config undefined** or **unknown at-rule**, fix
 ## Incident Response (quick)
 
 - Suspected public data leak: revoke anon key, disable affected policies, rotate keys, redeploy, and audit access logs.
+
+## Auth surfaces (Module 2)
+- `/signin` — public magic-link entry point
+- `/auth/callback` — exchanges PKCE code for session (cookies)
+- `/app/*` — protected by middleware; unauthenticated users → `/signin`
+- Sessions: cookie-based via `@supabase/ssr`; refreshed in `middleware.ts`
+
 - Production build misconfig: revert last PR, redeploy previous build from Vercel **Deployments** tab.
 
