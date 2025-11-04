@@ -15,3 +15,10 @@
 - Protected `/app/*` via middleware; added private shell with user email + sign out.
 - Verified Supabase URL configuration (Site URL + Additional Redirect URLs) and Vercel envs.
 - Local build passed; PR merged via **Rebase and merge**.
+
+## 2025-11-04 — Module 2b: Auth + Protected App Shell
+- Magic-link email sign-in via Supabase (PKCE)
+- `/auth/callback` exchanges code and redirects to `/app`
+- Middleware gates `/app/*`; header “Sign in” fixed to be a real link
+- Added `/verify` code fallback to bypass email scanners
+- Local and preview builds green
