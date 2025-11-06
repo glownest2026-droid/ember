@@ -1,4 +1,3 @@
-// web/middleware.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
@@ -10,9 +9,7 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
+        get(name: string) { return request.cookies.get(name)?.value; },
         set(name: string, value: string, options: CookieOptions) {
           response.cookies.set({ name, value, ...options });
         },
@@ -25,21 +22,20 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // refresh session cookies on every request
+  // Always refresh session cookies
   await supabase.auth.getUser();
 
-  // do not gate the callback
+  // Allow callback to proceed
   if (pathname.startsWith('/auth/callback')) return response;
 
-  // only gate /app/*
-  if (pathname.startsWith('/app')) {
+  // Gate /admin/*
+  if (pathname.startsWith('/admin')) {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.redirect(new URL('/signin', request.url));
-    }
+    if (!user) return NextResponse.redirect(new URL('/signin', request.url));
   }
 
+  // (Your existing gate for /app/* can be added here if you like)
   return response;
 }
 
-export const config = { matcher: ['/app/:path*', '/auth/callback'] };
+export const config = { matcher: ['/admin/:path*', '/auth/callback'] };
