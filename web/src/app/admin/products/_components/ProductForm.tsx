@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { validateImage } from '@/lib/imagePolicy';
+import { validateImage } from '../../../../lib/imagePolicy';
 import type { Product } from '../../../../types/product';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '../../../../utils/supabase/client';
 
 const SOURCES = ['ebay_api','awin_feed','cj_feed','brand_licensed','own_photo','stock_lifestyle'] as const;
 
@@ -14,29 +14,52 @@ export default function ProductForm({ initial }: { initial?: Partial<Product> })
   const [error, setError] = useState<string | null>(null);
 
   async function onUploadToBucket(file: File) {
-    const path = `manual/${Date.now()}-${file.name}`;
-    const { data, error } = await supabase.storage.from('product-images').upload(path, file, { upsert: false });
+    // Ensure a filename exists
+    const safeName = file.name?.trim() || 'image.jpg';
+    const path = `manual/${Date.now()}-${safeName}`;
+    const { data, error } = await supabase.storage
+      .from('product-images')
+      .upload(path, file, { upsert: false });
     if (error) throw error;
     const { data: pub } = supabase.storage.from('product-images').getPublicUrl(data.path);
     return pub.publicUrl;
   }
 
-  async function onSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setError(null);
+    setSaving(true);
     try {
-      setSaving(true);
+      const form = e.currentTarget;
+      const fd = new FormData(form);
+
+      const image_source = String(fd.get('image_source') || '');
+      const fileInput = form.elements.namedItem('file') as HTMLInputElement | null;
+      const file = fileInput?.files?.[0] || null;
+
+      let image_url = String(fd.get('image_url') || '');
+      if (['brand_licensed','own_photo','stock_lifestyle'].includes(image_source)) {
+        if (!file) {
+          throw new Error('Please upload an image for this image source.');
+        }
+        image_url = await onUploadToBucket(file);
+      }
+
       const p: any = {
         id: initial?.id,
-        name: (formData.get('name') as string)?.trim(),
-        rating: Number(formData.get('rating')),
-        age_band: (formData.get('age_band') as string)?.trim(),
-        tags: ((formData.get('tags') as string) || '').split(',').map(t => t.trim()).filter(Boolean),
-        why_it_matters: (formData.get('why_it_matters') as string) || null,
-        affiliate_program: (formData.get('affiliate_program') as string) || null,
-        affiliate_deeplink: (formData.get('affiliate_deeplink') as string) || null,
-        image_source: formData.get('image_source') as string,
-        image_url: (formData.get('image_url') as string) || null,
-        proof_of_rights_url: (formData.get('proof_of_rights_url') as string) || null
+        name: String(fd.get('name') || '').trim(),
+        rating: Number(fd.get('rating')),
+        age_band: String(fd.get('age_band') || '').trim(),
+        tags: String(fd.get('tags') || '')
+          .split(',')
+          .map(t => t.trim())
+          .filter(Boolean),
+        why_it_matters: String(fd.get('why_it_matters') || '') || null,
+        affiliate_program: String(fd.get('affiliate_program') || '') || null,
+        affiliate_deeplink: String(fd.get('affiliate_deeplink') || '') || null,
+        image_source,
+        image_url: image_url || null,
+        proof_of_rights_url: String(fd.get('proof_of_rights_url') || '') || null,
       };
 
       if (!p.name) throw new Error('Name is required');
@@ -44,16 +67,10 @@ export default function ProductForm({ initial }: { initial?: Partial<Product> })
       if (!Number.isFinite(p.rating)) throw new Error('Rating is required');
       if (p.rating < 4) throw new Error('Rating must be ≥ 4');
 
-      const file = (formData.get('file') as File | null);
-      if (file && ['brand_licensed','own_photo','stock_lifestyle'].includes(p.image_source)) {
-        p.image_url = await onUploadToBucket(file);
-      }
-
       const ok = validateImage(p.image_source, p.image_url ?? undefined, {
         affiliate_program: p.affiliate_program ?? undefined,
-        proof: p.proof_of_rights_url ?? undefined
+        proof: p.proof_of_rights_url ?? undefined,
       });
-
       if (!ok && p.image_source !== 'stock_lifestyle') {
         throw new Error('Image URL not permitted for selected source. Use bucket upload for own/brand images, or allowed feed/API URLs.');
       }
@@ -63,13 +80,15 @@ export default function ProductForm({ initial }: { initial?: Partial<Product> })
 
       router.push('/admin/products');
       router.refresh();
-    } catch (e:any) {
+    } catch (e: any) {
       setError(e.message || 'Failed to save product');
-    } finally { setSaving(false); }
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
-    <form action={onSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4">
       {error && <div className="rounded bg-red-100 p-2 text-red-700">{error}</div>}
       <div><label className="block text-sm">Name</label><input name="name" defaultValue={initial?.name} className="w-full border p-2 rounded" required /></div>
       <div className="grid grid-cols-2 gap-4">
