@@ -1,22 +1,25 @@
 'use client';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 
 const AGE_OPTIONS = ['0-6m','6-12m','12-18m','18-24m','2-3y','3-4y','4-5y'];
 const TAG_SUGGESTIONS = ['sensory','stacking','outdoor','bath','musical'];
 
 export default function Filters() {
   const router = useRouter();
+  const pathname = usePathname();
   const sp = useSearchParams();
   const age = sp.get('age') || '';
   const tag = sp.get('tag') || '';
 
-  function update(params: Record<string,string>) {
-    const next = new URL(window.location.href);
-    for (const [k,v] of Object.entries(params)) {
-      if (!v) next.searchParams.delete(k);
-      else next.searchParams.set(k, v);
+  function go(nextParams: Record<string, string>) {
+    const params = new URLSearchParams(sp.toString());
+    for (const [k,v] of Object.entries(nextParams)) {
+      if (!v) params.delete(k); else params.set(k, v);
     }
-    router.push(next.pathname + (next.search ? next.search : ''));
+    const qs = params.toString();
+    const href = qs ? `${pathname}?${qs}` : pathname;
+    router.push(href);
+    router.refresh(); // <-- force server component to refetch with new searchParams
   }
 
   return (
@@ -24,7 +27,7 @@ export default function Filters() {
       <label className="text-sm">Age:&nbsp;
         <select
           value={age}
-          onChange={e => update({ age: e.target.value })}
+          onChange={e => go({ age: e.target.value })}
           className="border rounded px-2 py-1"
         >
           <option value="">All</option>
@@ -39,7 +42,8 @@ export default function Filters() {
           return (
             <button
               key={t}
-              onClick={() => update({ tag: active ? '' : t })}
+              type="button"
+              onClick={() => go({ tag: active ? '' : t })}
               className={`px-2 py-1 rounded text-sm border ${active ? 'bg-black text-white' : 'bg-white'}`}
             >
               {t}
@@ -49,7 +53,7 @@ export default function Filters() {
       </div>
 
       {(age || tag) && (
-        <button onClick={() => update({ age:'', tag:'' })}
+        <button type="button" onClick={() => go({ age:'', tag:'' })}
           className="ml-auto text-sm underline">Clear</button>
       )}
     </div>
