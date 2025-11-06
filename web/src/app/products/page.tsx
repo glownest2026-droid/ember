@@ -20,16 +20,18 @@ export default async function ProductsPage() {
             affiliate_program: p.affiliate_program,
             proof: p.proof_of_rights_url
           });
-          const src = ok ? p.image_url : '/placeholder.png';
+          const src = ok ? p.image_url : '/placeholder.svg';
           return (
             <div key={p.id} className="rounded-2xl shadow p-4">
-              <div className="w-full aspect-square overflow-hidden rounded">
-                <img src={src} alt={p.name}
-                     style={{ width:'100%', height:'100%', objectFit:'cover' }}
-                     loading="lazy" />
+              <div className="w-full aspect-square overflow-hidden rounded bg-gray-100">
+                <img
+                  src={src}
+                  alt={p.name}
+                  style={{ width:'100%', height:'100%', objectFit:'cover' }}
+                  loading="lazy"
+                />
               </div>
-
-              {/* BIG DEBUG BANNER: click this URL in the preview */}
+              {/* Debug banner (clickable URL) */}
               <div className="mt-1 p-1 text-xs bg-yellow-50 text-yellow-800 break-all border border-yellow-200 rounded">
                 IMG SRC: {src}
               </div>
