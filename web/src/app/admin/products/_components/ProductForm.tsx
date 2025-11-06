@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { validateImage } from '@/lib/imagePolicy';
-import type { Product } from '@/types/product';
+import type { Product } from '../../../../types/product';
 import { createClient } from '@/utils/supabase/client';
 
 const SOURCES = ['ebay_api','awin_feed','cj_feed','brand_licensed','own_photo','stock_lifestyle'] as const;
