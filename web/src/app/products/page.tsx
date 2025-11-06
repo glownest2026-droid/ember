@@ -1,5 +1,4 @@
 export const dynamic = "force-dynamic";
-import Image from 'next/image';
 import Link from 'next/link';
 import { validateImage } from '../../lib/imagePolicy';
 import { createClient } from '../../utils/supabase/server';
@@ -24,10 +23,18 @@ export default async function ProductsPage() {
           const src = ok ? p.image_url : '/placeholder.png';
           return (
             <div key={p.id} className="rounded-2xl shadow p-4">
-              <div className="relative w-full aspect-square">
-                <Image src={src} alt={p.name} fill sizes="(max-width:768px) 100vw, 33vw" />
+              <div className="w-full aspect-square overflow-hidden rounded">
+                <img src={src} alt={p.name}
+                     style={{ width:'100%', height:'100%', objectFit:'cover' }}
+                     loading="lazy" />
               </div>
-              <h3 className="mt-3 font-semibold">{p.name}</h3>
+
+              {/* BIG DEBUG BANNER: click this URL in the preview */}
+              <div className="mt-1 p-1 text-xs bg-yellow-50 text-yellow-800 break-all border border-yellow-200 rounded">
+                IMG SRC: {src}
+              </div>
+
+              <h3 className="mt-2 font-semibold">{p.name}</h3>
               <p className="text-sm opacity-80">⭐ {p.rating?.toFixed?.(1)} · {p.age_band}</p>
               {p.why_it_matters && <p className="mt-2 text-sm">{p.why_it_matters}</p>}
               {p.affiliate_deeplink && (
