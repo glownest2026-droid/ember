@@ -4,25 +4,44 @@ import Filters from './_components/Filters';
 import { validateImage } from '../../lib/imagePolicy';
 import { createClient } from '../../utils/supabase/server';
 
+function hasTag(val: any, needle: string) {
+  if (!needle) return true;
+  const t = needle.toLowerCase();
+  if (Array.isArray(val)) return val.map(String).some(x => x.toLowerCase() === t);
+  if (typeof val === 'string') return val.toLowerCase().includes(t);
+  if (val && typeof val === 'object') {
+    try {
+      const arr = Array.isArray(val) ? val : Object.values(val);
+      return arr.map(String).some(x => x.toLowerCase() === t || x.toLowerCase().includes(t));
+    } catch {}
+  }
+  return false;
+}
+
 export default async function ProductsPage({ searchParams }: { searchParams?: { age?: string; tag?: string } }) {
   const supabase = createClient();
-  let query = supabase.from('products').select('*').order('updated_at', { ascending: false }).limit(100);
+  const { data: allData, error } = await supabase
+    .from('products').select('*')
+    .order('updated_at', { ascending: false }).limit(200);
 
-  // Apply filters
-  const age = searchParams?.age?.trim();
-  const tag = searchParams?.tag?.trim();
-  if (age) query = query.eq('age_band', age);
-  if (tag) query = query.contains('tags', [tag]); // requires tags to be an array column
-
-  const { data: rows, error } = await query;
   if (error) return <div className="p-6 text-red-600">Error: {error.message}</div>;
+
+  const all = allData ?? [];
+  const age = (searchParams?.age || '').trim();
+  const tag = (searchParams?.tag || '').trim();
+
+  const rows = all.filter((p: any) => {
+    const ageOk = !age || p.age_band === age;
+    const tagOk = !tag || hasTag(p.tags, tag);
+    return ageOk && tagOk;
+  });
 
   return (
     <div className="p-6">
       <h1 className="text-xl font-semibold mb-2">Products</h1>
       <Filters />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {(rows ?? []).map((p: any) => {
+        {rows.map((p: any) => {
           const ok = validateImage(p.image_source, p.image_url, {
             affiliate_program: p.affiliate_program,
             proof: p.proof_of_rights_url
