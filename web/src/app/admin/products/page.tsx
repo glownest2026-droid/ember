@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import Link from 'next/link';
-import { createClient } from '@/utils/supabase/server';
-import { validateImage } from '@/lib/imagePolicy';
+import { validateImage } from '../../../lib/imagePolicy';
+import { createClient } from '../../../utils/supabase/server';
 
 export default async function AdminProductsPage() {
   const supabase = createClient();

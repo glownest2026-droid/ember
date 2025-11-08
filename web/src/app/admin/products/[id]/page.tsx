@@ -1,5 +1,5 @@
 export const dynamic = "force-dynamic";
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '../../../../utils/supabase/server';
 import ProductForm from '../_components/ProductForm';
 export default async function EditProductPage({ params }: { params: { id: string }}) {
   const supabase = createClient();

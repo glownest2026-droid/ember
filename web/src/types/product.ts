@@ -1,10 +1,9 @@
-import type { ImageSource } from '@/lib/imagePolicy';
-
+import type { ImageSource } from '../lib/imagePolicy';
 export interface Product {
   id?: string;
   name: string;
-  rating: number;              // >= 4 enforced by DB trigger + client guard
-  age_band: string;            // e.g., "12-18m"
+  rating: number;          // >= 4
+  age_band: string;        // e.g., "12-18m"
   tags?: string[];
   why_it_matters?: string;
   affiliate_program?: 'ebay'|'awin'|'cj'|'skimlinks'|'sovrn'|'amazon'|'direct';
