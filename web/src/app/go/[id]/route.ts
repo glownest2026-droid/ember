@@ -60,9 +60,14 @@ async function insertClick(params: {
   }).catch(() => {});
 }
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const product = await fetchProduct(params.id);
-  if (!product?.deep_link_url) return NextResponse.json({ error: "Product not found" }, { status: 404 });
+// ✅ Next 16 typed routes expect Promise for params; await it
+export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const { id } = await ctx.params;
+
+  const product = await fetchProduct(id);
+  if (!product?.deep_link_url) {
+    return NextResponse.json({ error: "Product not found" }, { status: 404 });
+  }
 
   const utms = mergeUtms(req);
   const finalUrl = decorateUrl(product.deep_link_url, utms);
