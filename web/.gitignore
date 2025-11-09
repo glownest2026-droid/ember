@@ -40,3 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env.local
+
+# backup
+
+web/_orphan_web_backup_*/
+**/_orphan_web_backup_*/
