@@ -8,28 +8,6 @@ const serviceKey  = process.env.SUPABASE_SERVICE_ROLE!;
 const defaultUtm  = process.env.AFFILIATE_DEFAULT_UTM || "utm_source=ember&utm_medium=affiliate&utm_campaign=default";
 
 type Product = { id: string; name: string; deep_link_url: string | null };
-cat > "$APP_DIR/src/app/go/[id]/route.ts" <<'TS'
-import { NextRequest, NextResponse } from "next/server";
-
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-const supabaseUrl = process.env.SUPABASE_URL!;
-const serviceKey  = process.env.SUPABASE_SERVICE_ROLE!;
-const defaultUtm  = process.env.AFFILIATE_DEFAULT_UTM || "utm_source=ember&utm_medium=affiliate&utm_campaign=default";
-
-type Product = { id: string; name: string; deep_link_url: string | null };
-cat > "$APP_DIR/src/app/go/[id]/route.ts" <<'TS'
-import { NextRequest, NextResponse } from "next/server";
-
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
-const supabaseUrl = process.env.SUPABASE_URL!;
-const serviceKey  = process.env.SUPABASE_SERVICE_ROLE!;
-const defaultUtm  = process.env.AFFILIATE_DEFAULT_UTM || "utm_source=ember&utm_medium=affiliate&utm_campaign=default";
-
-type Product = { id: string; name: string; deep_link_url: string | null };
 
 async function fetchProduct(id: string): Promise<Product | null> {
   const url = `${supabaseUrl}/rest/v1/products?id=eq.${encodeURIComponent(id)}&select=id,name,deep_link_url&limit=1`;
