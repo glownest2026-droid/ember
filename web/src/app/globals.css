@@ -119,3 +119,5 @@ html, body {
   border-radius: 9999px;
   padding: 0.35rem 0.85rem;
 }
+
+@import "./../styles/theme.css";
