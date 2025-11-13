@@ -1,0 +1,28 @@
+/* Ember Design Tokens (v1) */
+:root {
+  /* Brand */
+  --color-brand-50:#fff7ed; --color-brand-100:#ffedd5; --color-brand-200:#fed7aa;
+  --color-brand-300:#fdba74; --color-brand-400:#fb923c; --color-brand-500:#f97316;
+  --color-brand-600:#ea580c; --color-brand-700:#c2410c; --color-brand-800:#9a3412; --color-brand-900:#7c2d12;
+
+  /* Neutrals */
+  --color-bg:#ffffff; --color-fg:#0f172a; --color-muted:#475569; --color-border:#e2e8f0;
+
+  /* Radii */
+  --radius-sm:.375rem; --radius-md:.5rem; --radius-lg:.75rem; --radius-2xl:1rem;
+
+  /* Shadows */
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 10px rgba(0,0,0,.08);
+
+  /* Typography */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans";
+  --font-size-sm:.875rem; --font-size-base:1rem; --font-size-lg:1.125rem; --font-size-xl:1.25rem; --font-size-2xl:1.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root { --color-bg:#0b1020; --color-fg:#e2e8f0; --color-muted:#94a3b8; --color-border:#1f2937; }
+}
+
+/* Base hooks */
+:root { color: var(--color-fg); background: var(--color-bg); font-family: var(--font-sans); }
