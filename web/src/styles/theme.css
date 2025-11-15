@@ -26,3 +26,17 @@
 
 /* Base hooks */
 :root { color: var(--color-fg); background: var(--color-bg); font-family: var(--font-sans); }
+
+/* Motion tokens */
+:root {
+  --motion-fast: 160ms;
+  --motion-normal: 240ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Motion tokens */
+:root {
+  --motion-fast: 160ms;
+  --motion-normal: 240ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
