@@ -4,6 +4,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Button, BrandIcon, Wordmark, THEME } from "../components/Header";
+import { Button as UiButton } from "@/components/ui/Button";
 
 export default function HomePage() {
   return (
@@ -76,6 +77,14 @@ function Hero() {
           <p className="mt-4 text-base md:text-lg max-w-xl text-neutral-800">
             Daily, hand-held recommendations for play, weekends, and the things you didn’t know you needed—so you feel confident at every step.
           </p>
+          
+          <div className="mt-6">
+          <UiButton onClick={() => (window.location.href = "/products")}>
+          Browse picks
+          </UiButton>
+          </div>
+
+          
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <a href="#waitlist"><Button>Start your confidence journey</Button></a>
             <a href="#how"><Button variant="ghost">See how it works</Button></a>
