@@ -1,41 +1,35 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { NextResponse } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  const response = NextResponse.next();
+export function middleware(req: Request) {
+  const url = new URL(req.url);
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) { return request.cookies.get(name)?.value; },
-        set(name: string, value: string, options: CookieOptions) {
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          response.cookies.set({ name, value: '', ...options, expires: new Date(0) });
-        },
-      },
-    }
-  );
-
-  const { pathname } = request.nextUrl;
-
-  // Always refresh session cookies
-  await supabase.auth.getUser();
-
-  // Allow callback to proceed
-  if (pathname.startsWith('/auth/callback')) return response;
-
-  // Gate /admin/*
-  if (pathname.startsWith('/admin')) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.redirect(new URL('/signin', request.url));
+  // Only care about /cms/* requests
+  if (!url.pathname.startsWith("/cms")) {
+    return NextResponse.next();
   }
 
-  // (Your existing gate for /app/* can be added here if you like)
-  return response;
+  const secret = url.searchParams.get("secret");
+  const pathParam = url.searchParams.get("path");
+
+  // If the editor hit /cms/* with a ?secret=... (missing /api/preview),
+  // redirect to our proper preview endpoint.
+  if (secret) {
+    // If path is missing or contains braces (e.g. {{content.data.url}}),
+    // use the actual pathname the editor is viewing.
+    const needsFallback = !pathParam || /[{]/.test(pathParam);
+    const effectivePath = needsFallback ? url.pathname : pathParam!;
+    const normalizedPath = effectivePath.startsWith("/") ? effectivePath : `/${effectivePath}`;
+
+    const dest = new URL("/api/preview", url.origin);
+    dest.searchParams.set("secret", secret);
+    dest.searchParams.set("path", normalizedPath);
+    return NextResponse.redirect(dest, 307);
+  }
+
+  return NextResponse.next();
 }
 
-export const config = { matcher: ['/admin/:path*', '/auth/callback'] };
+// Only run on /cms/*
+export const config = {
+  matcher: ["/cms/:path*"],
+};
