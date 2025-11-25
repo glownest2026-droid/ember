@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { draftMode } from "next/headers";
-import { fetchOneEntry } from "@builder.io/sdk-react-nextjs";
+import { fetchOneEntry } from "@builder.io/sdk-react";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);

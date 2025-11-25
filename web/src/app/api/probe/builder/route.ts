@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { draftMode } from "next/headers";
-import { fetchOneEntry } from "@builder.io/sdk-react-nextjs";
+import { fetchOneEntry } from "@builder.io/sdk-react";
 
 /** GET /api/probe/builder?path=/cms/hello2[&secret=Olivia2027] */
 export async function GET(req: NextRequest) {
