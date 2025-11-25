@@ -1,29 +1,46 @@
-import { Content } from "@builder.io/sdk-react-nextjs";
-import { getBuilderPage, BUILDER_API_KEY } from "@/lib/builder";
+import { draftMode } from "next/headers";
+import { notFound } from "next/navigation";
+import { Content, fetchOneEntry } from "@builder.io/sdk-react-nextjs";
 
 export const revalidate = 60;
 
-type Props = { params: { path?: string[] } };
+type Params = { path?: string[] };
+type Search = { [key: string]: string | string[] | undefined };
 
-function Fallback() {
-  return (
-    <div className="p-6 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-white">
-      <div className="h-6 w-48 mb-3 bg-[var(--color-border)] rounded" />
-      <div className="h-4 w-80 mb-2 bg-[var(--color-border)] rounded" />
-      <div className="h-4 w-64 bg-[var(--color-border)] rounded" />
-    </div>
-  );
-}
+export default async function CmsPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams?: Search;
+}) {
+  const { isEnabled } = await draftMode();
 
-export default async function CMSPage({ params }: Props) {
   const urlPath = "/" + (params.path?.join("/") ?? "");
-  const content = await getBuilderPage(urlPath);
-  if (!content) return <Fallback />;
+  const forcePreview = typeof searchParams?.["builder.preview"] !== "undefined";
+
+  // Try to fetch the matching entry; include drafts if preview mode is on
+  const entry = await fetchOneEntry({
+    model: "page",
+    apiKey: process.env.NEXT_PUBLIC_BUILDER_API_KEY!,
+    userAttributes: { urlPath },
+    options: {
+      includeUnpublished: !!isEnabled,
+      cacheSeconds: isEnabled ? 0 : 60,
+    },
+  }).catch(() => null);
+
+  // If not previewing AND no entry exists, show a normal 404
+  if (!entry && !isEnabled && !forcePreview) {
+    return notFound();
+  }
+
+  // Always mount <Content> in preview/editing so the editor can handshake
   return (
     <Content
       model="page"
-      apiKey={BUILDER_API_KEY}
-      content={content}
+      apiKey={process.env.NEXT_PUBLIC_BUILDER_API_KEY!}
+      content={entry || undefined}
     />
   );
 }
