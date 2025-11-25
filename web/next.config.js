@@ -12,8 +12,11 @@ const nextConfig = {
   },
   async headers() {
     return [
+      // keep these
       { source: '/go/:path*',  headers: [{ key: 'X-Robots-Tag', value: 'noindex' }] },
       { source: '/_ds/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex' }] },
+
+      // ✅ allow Builder editor to embed your pages
       {
         source: '/cms/:path*',
         headers: [
