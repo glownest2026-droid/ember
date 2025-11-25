@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { draftMode } from "next/headers";
 
-/** /api/preview?secret=...&path=/cms/hello2 -> 307 to /cms/hello2?builder.preview=true */
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const secret = url.searchParams.get("secret") || "";
