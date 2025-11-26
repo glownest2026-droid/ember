@@ -1,8 +1,8 @@
+export const dynamic = "force-dynamic";
+
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
-import { Content, fetchOneEntry } from "@builder.io/sdk-react-nextjs";
-
-export const revalidate = 60;
+import { Content, fetchOneEntry } from "@builder.io/sdk-react";
 
 type Params = { path?: string[] };
 type Search = { [key: string]: string | string[] | undefined };
@@ -14,33 +14,39 @@ export default async function CmsPage({
   params: Params;
   searchParams?: Search;
 }) {
-  const { isEnabled } = await draftMode();
-
   const urlPath = "/" + (params.path?.join("/") ?? "");
-  const forcePreview = typeof searchParams?.["builder.preview"] !== "undefined";
 
-  // Try to fetch the matching entry; include drafts if preview mode is on
-  const entry = await fetchOneEntry({
-    model: "page",
-    apiKey: process.env.NEXT_PUBLIC_BUILDER_API_KEY!,
-    userAttributes: { urlPath },
-    options: {
-      includeUnpublished: !!isEnabled,
-      cacheSeconds: isEnabled ? 0 : 60,
-    },
-  }).catch(() => null);
+  // Preview is true if either the Next draft cookie is set OR the URL includes ?builder.preview
+  const dm = await draftMode();
+  const isCookiePreview = dm.isEnabled;
+  const isQueryPreview = typeof searchParams?.["builder.preview"] !== "undefined";
+  const includeDrafts = isCookiePreview || isQueryPreview;
 
-  // If not previewing AND no entry exists, show a normal 404
-  if (!entry && !isEnabled && !forcePreview) {
-    return notFound();
+  const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY!;
+  let entry: any = null;
+
+  try {
+    entry = await fetchOneEntry({
+      model: "page",
+      apiKey,
+      userAttributes: { urlPath },
+      options: { includeUnpublished: includeDrafts, cacheSeconds: includeDrafts ? 0 : 60 },
+    });
+  } catch {
+    // swallow; we'll still mount <Content/> so the editor can load
   }
 
-  // Always mount <Content> in preview/editing so the editor can handshake
+  // If not previewing and we truly have no entry, return 404
+  if (!entry && !includeDrafts) return notFound();
+
   return (
-    <Content
-      model="page"
-      apiKey={process.env.NEXT_PUBLIC_BUILDER_API_KEY!}
-      content={entry || undefined}
-    />
+    <div style={{ minHeight: "50vh" }}>
+      <Content model="page" apiKey={apiKey} content={entry || undefined} />
+      {!entry && includeDrafts && (
+        <div style={{ padding: 16, opacity: 0.6 }}>
+          Builder preview mode — no content yet. Drop a block in the editor.
+        </div>
+      )}
+    </div>
   );
 }
