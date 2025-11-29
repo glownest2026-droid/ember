@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
@@ -15,12 +15,14 @@ export default async function CmsPage({
   searchParams?: Search;
 }) {
   const urlPath = "/" + (params.path?.join("/") ?? "");
-
-  // Preview is true if either the Next draft cookie is set OR the URL includes ?builder.preview
-  const dm = await draftMode();
-  const isCookiePreview = dm.isEnabled;
   const isQueryPreview = typeof searchParams?.["builder.preview"] !== "undefined";
-  const includeDrafts = isCookiePreview || isQueryPreview;
+
+  // Only touch draftMode() when explicitly previewing
+  let includeDrafts = false;
+  if (isQueryPreview) {
+    const dm = await draftMode();
+    includeDrafts = dm.isEnabled || true; // include drafts even without cookie
+  }
 
   const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY!;
   let entry: any = null;
@@ -32,11 +34,8 @@ export default async function CmsPage({
       userAttributes: { urlPath },
       options: { includeUnpublished: includeDrafts, cacheSeconds: includeDrafts ? 0 : 60 },
     });
-  } catch {
-    // swallow; we'll still mount <Content/> so the editor can load
-  }
+  } catch {}
 
-  // If not previewing and we truly have no entry, return 404
   if (!entry && !includeDrafts) return notFound();
 
   return (
