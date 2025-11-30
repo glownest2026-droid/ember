@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { draftMode } from "next/headers";
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
   const url = new URL(req.url);
   const secret = url.searchParams.get("secret") || "";
-  const path = url.searchParams.get("path") || "/cms";
+  const path = url.searchParams.get("path") || "/";
 
-  if (!process.env.BUILDER_PREVIEW_SECRET || secret !== process.env.BUILDER_PREVIEW_SECRET) {
+  if (process.env.BUILDER_PREVIEW_SECRET && secret !== process.env.BUILDER_PREVIEW_SECRET) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
