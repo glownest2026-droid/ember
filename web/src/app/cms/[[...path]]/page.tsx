@@ -6,6 +6,15 @@ import { Content, fetchOneEntry } from "@builder.io/sdk-react";
 type Params = { path?: string[] };
 type Search = { [key: string]: string | string[] | undefined };
 
+function isBuilderPreview(sp?: Search): boolean {
+  if (!sp) return false;
+  const keys = Object.keys(sp);
+  if (!keys.length) return false;
+  // Normalise keys so we match builder.preview / builder_preview / builderPreview, etc.
+  const norm = keys.map(k => k.toLowerCase().replace(/[^a-z]/g, "")); // drop dots/underscores/hyphens
+  return norm.includes("builderpreview");
+}
+
 export default async function CmsPage({
   params,
   searchParams,
@@ -13,9 +22,12 @@ export default async function CmsPage({
   params: Params;
   searchParams?: Search;
 }) {
-  const urlPath = "/" + (params.path?.join("/") ?? "");
+  // Keep the /cms prefix so it matches Builder entry URLs like /cms/hello2
+  const suffix = params.path?.length ? `/${params.path.join("/")}` : "";
+  const urlPath = `/cms${suffix}`;
+
   const dm = await draftMode();
-  const includeDrafts = dm.isEnabled || typeof searchParams?.["builder.preview"] !== "undefined";
+  const includeDrafts = dm.isEnabled || isBuilderPreview(searchParams);
 
   const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY!;
   let entry: any = null;
@@ -26,7 +38,9 @@ export default async function CmsPage({
       userAttributes: { urlPath },
       options: { includeUnpublished: includeDrafts, cacheSeconds: includeDrafts ? 0 : 60 },
     });
-  } catch {}
+  } catch {
+    // ignore; we'll still mount <Content/> so the editor can load
+  }
 
   if (!entry && !includeDrafts) return notFound();
 
