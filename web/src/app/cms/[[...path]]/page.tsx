@@ -1,5 +1,4 @@
-export const revalidate = 60;
-
+export const dynamic = "force-dynamic";
 import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import { Content, fetchOneEntry } from "@builder.io/sdk-react";
@@ -15,18 +14,11 @@ export default async function CmsPage({
   searchParams?: Search;
 }) {
   const urlPath = "/" + (params.path?.join("/") ?? "");
-  const isQueryPreview = typeof searchParams?.["builder.preview"] !== "undefined";
-
-  // Only touch draftMode() when explicitly previewing
-  let includeDrafts = false;
-  if (isQueryPreview) {
-    const dm = await draftMode();
-    includeDrafts = dm.isEnabled || true; // include drafts even without cookie
-  }
+  const dm = await draftMode();
+  const includeDrafts = dm.isEnabled || typeof searchParams?.["builder.preview"] !== "undefined";
 
   const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY!;
   let entry: any = null;
-
   try {
     entry = await fetchOneEntry({
       model: "page",
