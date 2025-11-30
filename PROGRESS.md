@@ -23,6 +23,98 @@
 - Added `/verify` code fallback to bypass email scanners
 - Local and preview builds green
 
+Module 3 — Core Schema & Security Baseline
+
+Goal: Design the core Supabase/Postgres schema for Ember and lock it down with RLS so that parent/child data is properly isolated.
+
+What we did
+
+Defined the initial core tables to support Ember:
+
+Parent / user profile data.
+
+Child profiles (with links to parent).
+
+Product metadata and classification (age bands, tags, etc.).
+
+Relationship tables (e.g. product ↔ tags) to keep things normalised.
+
+Added standard columns (ids, created_at/updated_at, foreign keys) and agreed conventions for naming and UUID usage.
+
+Implemented Row Level Security (RLS) on all sensitive tables so:
+
+A user can only see and modify their own rows.
+
+System/“service” contexts can still do the necessary admin tasks.
+
+Wrote and tested RLS policies using curl requests against the Supabase REST endpoints, checking:
+
+Anonymous access behaviour with SUPABASE_ANON_KEY.
+
+Behaviour when passing a signed user JWT (Bearer $U1_TOKEN).
+
+That operations either succeed or correctly fail with permission errors.
+
+Captured security assumptions for future modules:
+
+Never bypass RLS with “quick fixes”.
+
+Treat parent/child identity data as business-critical and design everything else around that.
+
+Hooks / follow-ups
+
+Future modules should reuse this schema rather than adding ad-hoc tables.
+
+Any new table that touches user data must ship with RLS + tests as standard.
+
+Module 4 — Seed & Browse (50 Products)
+
+Goal: Get a credible first browse experience live by seeding ~50 products and exposing them in a public grid with basic filters.
+
+What we did
+
+Finalised the product schema to support:
+
+Name, brand, age_band, tags.
+
+Rating and a short “why_it_matters” explanation.
+
+affiliate_url / outbound “Buy” link.
+
+Image URL and any key display fields needed for a card.
+
+Seeded an initial 50 high-quality sample products into Supabase:
+
+Imported via CSV/SQL (Supabase UI) rather than manual row entry.
+
+Ensured seeded data respects the schema and constraints.
+
+Built the first public /products browse page (Next.js App Router + TS + Tailwind):
+
+Responsive grid of product cards.
+
+Each card shows image, name, rating, why_it_matters snippet and a “Buy” button wired to affiliate_url.
+
+Added simple filters:
+
+Age band filter.
+
+Tag chips so parents can refine what they’re seeing.
+
+Ensured the browse experience stays RLS-safe & performant:
+
+Only reads from public/product-safe views.
+
+No exposure of user data or internal fields.
+
+Hooks / follow-ups
+
+Product detail page (single-product experience).
+
+Better empty states, loading states, and facet UX.
+
+Future modules to refine rankings and highlight “editor’s picks”.
+
 ## 2025-11-30 — Module 8: Builder.io Install & Wiring
 
 ### Summary
