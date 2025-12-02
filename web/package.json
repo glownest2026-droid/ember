@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@builder.io/react": "^9.0.0",
     "@builder.io/sdk-react": "^4.2.4",
     "@builder.io/sdk-react-nextjs": "^0.22.2",
     "@supabase/ssr": "^0.7.0",
