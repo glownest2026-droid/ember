@@ -6,14 +6,14 @@ import { brandedBlocks } from "./blocks/brandedComponents";
 type Props = {
   apiKey: string;
   content: BuilderContent | null;
-  candidates: string[];
+  urlPath: string;
   builderError: string | null;
 };
 
 export function BuilderPageClient({
   apiKey,
   content,
-  candidates,
+  urlPath,
   builderError,
 }: Props) {
   if (!apiKey) {
@@ -40,7 +40,7 @@ export function BuilderPageClient({
       )}
       {!builderError && !content && (
         <div style={{ opacity: 0.7, marginTop: 12 }}>
-          No Builder entry found for URL candidates: {candidates.join(", ")}
+          No Builder entry found for urlPath={urlPath}
         </div>
       )}
     </>
