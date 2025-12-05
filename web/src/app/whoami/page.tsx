@@ -1,11 +1,34 @@
-import { createClient } from '../../utils/supabase/server';
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export default async function WhoAmI() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+import { headers } from "next/headers";
+
+export default async function WhoAmIPage() {
+  const headerList = await headers();
+  const userAgent = headerList.get("user-agent") ?? "unknown";
+
   return (
-    <pre style={{padding:16, whiteSpace:'pre-wrap'}}>
-{JSON.stringify(user ? { id: user.id, email: user.email } : null, null, 2)}
-    </pre>
+    <main style={{ minHeight: "100vh", padding: 16 }}>
+      <h1 style={{ fontSize: 20, marginBottom: 12 }}>whoami debug</h1>
+      <pre
+        style={{
+          fontSize: 12,
+          whiteSpace: "pre-wrap",
+          background: "#0f172a",
+          color: "#e5e7eb",
+          padding: 12,
+          borderRadius: 8,
+        }}
+      >
+        {JSON.stringify(
+          {
+            now: new Date().toISOString(),
+            userAgent,
+          },
+          null,
+          2
+        )}
+      </pre>
+    </main>
   );
 }
