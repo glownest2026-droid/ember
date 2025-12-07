@@ -119,3 +119,6 @@
   - `web/src/app/cms/BuilderPageClient.tsx`
   - `web/src/app/cms/blocks/*`
   - `web/middleware.ts`
+MD
+
+sed -n '1,220p' PROGRESS.md
