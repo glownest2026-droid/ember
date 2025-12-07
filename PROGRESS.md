@@ -68,7 +68,6 @@
 - Start in: `web/src/components/builder/` (register tokenized blocks), update Builder model inputs
 - Keep `PROGRESS.md` + `state/latest.json` up to date for continuity
 
-
 ## 2025-12-05 — Module 8: Register Branded Blocks (8-Pack)
 
 ### Summary
