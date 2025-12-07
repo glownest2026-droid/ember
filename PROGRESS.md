@@ -81,7 +81,6 @@
 - `/cms/[[...path]]` — public (Builder-driven CMS pages)
 - `/cms/diag` — private (branded blocks debug / sanity page)
 - `/api/probe/builder` — private (Builder content probe, draft-aware)
-- `/_ds/builder` — private (diagnostic probe for the `page` model)
 - `/whoami` — private (Next 16-safe debug route)
 
 ### Env & Secrets
@@ -103,7 +102,6 @@
 - Visit `/cms/lego-kit-demo` on the Vercel preview → Builder-driven Lego kit demo renders with branded blocks.
 - Visit `/cms/diag` → diagnostic page renders branded test blocks without error.
 - Visit `/api/probe/builder` → JSON probe reports `contentFound: yes` and lists `page` entries.
-- Visit `/_ds/builder` → probe confirms `page` model entries and URL attributes.
 - `/whoami` renders without dynamic-server usage errors and shows debug info.
 
 ### Known debt / risks (carried forward)

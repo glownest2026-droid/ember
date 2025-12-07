@@ -7,7 +7,6 @@
     "/cms/[[...path]]",
     "/cms/diag",
     "/api/probe/builder",
-    "/_ds/builder",
     "/whoami"
   ],
   "env": {
@@ -34,7 +33,6 @@
       "/cms/lego-kit-demo",
       "/cms/diag",
       "/api/probe/builder",
-      "/_ds/builder",
       "/whoami"
     ],
     "notes": "Builder 'page' model wired to /cms catch-all with branded blocks and preview-safe middleware."
