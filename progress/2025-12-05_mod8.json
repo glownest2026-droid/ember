@@ -1,0 +1,47 @@
+{
+  "module": { "number": 8, "name": "Register Branded Blocks (8-Pack)" },
+  "branch": "main",
+  "commit": "<LATEST_SHA>",
+  "preview_url": "https://<latest-vercel-preview-domain>",
+  "routes": [
+    "/cms/[[...path]]",
+    "/cms/diag",
+    "/api/probe/builder",
+    "/_ds/builder",
+    "/whoami"
+  ],
+  "env": {
+    "local": [
+      "NEXT_PUBLIC_BUILDER_API_KEY",
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    ],
+    "vercel_preview": [
+      "NEXT_PUBLIC_BUILDER_API_KEY",
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    ],
+    "vercel_production": [
+      "NEXT_PUBLIC_BUILDER_API_KEY",
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    ]
+  },
+  "cron": { "paths": [], "schedule": null },
+  "db": { "migrations": [], "policies": [] },
+  "proof": {
+    "urls_200": [
+      "/cms/lego-kit-demo",
+      "/cms/diag",
+      "/api/probe/builder",
+      "/_ds/builder",
+      "/whoami"
+    ],
+    "notes": "Builder 'page' model wired to /cms catch-all with branded blocks and preview-safe middleware."
+  },
+  "debt": [
+    "Preview popup still depends on correct model preview URL; needs care when adding new models.",
+    "Additional CMS models (blog/docs/etc.) not yet wired."
+  ],
+  "timestamp": "2025-12-05T00:00:00.000Z"
+}
