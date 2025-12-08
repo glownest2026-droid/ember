@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getSupabase } from '@/lib/supabase';
@@ -16,7 +16,8 @@ import {
 } from '@/lib/children';
 
 export default function ChildrenPage() {
-  const supabase = getSupabase();
+  // Memoise the client so it only gets created once per mount
+  const supabase = useMemo(() => getSupabase(), []);
 
   const [children, setChildren] = useState<Child[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
@@ -65,9 +66,22 @@ export default function ChildrenPage() {
         }
 
         const { data: authData, error: authError } = await supabase.auth.getUser();
+
+        // If there is no session, treat it as "not signed in" instead of hard error
         if (authError) {
+          const msg = authError.message ?? '';
+          if (
+            msg.includes('Auth session missing') ||
+            authError.name === 'AuthSessionMissingError'
+          ) {
+            setLoadingError('You need to be signed in to view child profiles.');
+            return;
+          }
+
+          // Anything else we treat as a real error
           throw authError;
         }
+
         if (!authData?.user) {
           setLoadingError('You need to be signed in to view child profiles.');
           return;
