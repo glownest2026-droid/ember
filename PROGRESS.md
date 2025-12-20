@@ -44,7 +44,7 @@
 
 ### 3rd-party wiring
 - Builder **Model:** `page`
-- Builder **Preview URL:** `/api/preview?secret=Olivia2027&path={{content.data.url}}`
+- Builder **Preview URL:** `/api/preview?secret=__SET_IN_VERCEL__&path={{content.data.url}}` (ROTATE THIS VALUE - set `BUILDER_PREVIEW_SECRET` in Vercel env vars)
 - Page target example: `/cms/hello2`
 
 ### DB & RLS
@@ -52,9 +52,9 @@
 
 ### Verification (Proof-of-Done)
 - `/ping` → **200**
-- `/api/preview?secret=Olivia2027&path=/cms/hello2` → **307** to `/cms/hello2?builder.preview=true`
+- `/api/preview?secret=<BUILDER_PREVIEW_SECRET>&path=/cms/hello2` → **307** to `/cms/hello2?builder.preview=true` (use secret set in Vercel env vars)
 - `/cms/hello2?builder.preview=true` (in dev/preview) → **200** (renders draft)
-- `/api/probe/builder?path=/cms/hello2&secret=Olivia2027` → `{ ok: true, preview: true, hasContent: true }` when draft exists
+- `/api/probe/builder?path=/cms/hello2&secret=<BUILDER_PREVIEW_SECRET>` → `{ ok: true, preview: true, hasContent: true }` when draft exists (use secret set in Vercel env vars)
 - Published content: `/cms/hello2` → **200** (if published), **404** (if not)
 
 ### Known debt / risks (carried forward)
