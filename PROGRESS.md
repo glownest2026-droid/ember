@@ -117,6 +117,35 @@
   - `web/src/app/cms/BuilderPageClient.tsx`
   - `web/src/app/cms/blocks/*`
   - `web/middleware.ts`
-MD
 
-sed -n '1,220p' PROGRESS.md
+## 2025-12-20 — Module 10A: Privacy Hotfix — Remove Child Name Collection
+
+### Summary
+- Privacy compliance: Removed child name field from `children` table schema (privacy promise: never collect child's name)
+- Database migration: Renamed `name` column to `legacy_name` and made it nullable to preserve legacy data while preventing new collection
+- No code changes required: No application code was referencing the `children` table or `name` field
+
+### Routes touched/added
+- N/A (database-only change)
+
+### Env & Secrets
+- No changes to environment variables
+
+### DB & RLS
+- Migration file: `supabase/sql/2025-12-20_module_10A_remove_child_name.sql`
+- Change: `children.name` → `legacy_name` (nullable, deprecated)
+- RLS policies unchanged: Existing policies only check `user_id` ownership, not name field
+
+### Verification (Proof-of-Done)
+- Migration file exists: `supabase/sql/2025-12-20_module_10A_remove_child_name.sql`
+- No code references: `rg "children.name|from\('children'\)" web/src` returns zero matches
+- Supabase schema: `children` table no longer has required `name` column (renamed to `legacy_name` nullable)
+- Existing routes still work: `/signin`, `/app` redirects logged out, `/cms/lego-kit-demo`, `/ping`
+
+### Known debt / risks (carried forward)
+- Legacy data may still contain names in `legacy_name` column (existing data preserved for compatibility)
+- Future Module 10 implementation must use birthdate/stage-based age calculation, not name collection
+
+### Migration Application Steps
+- Apply migration via Supabase Dashboard → SQL Editor → paste and run migration SQL
+- No application deployment required (database-only change)
