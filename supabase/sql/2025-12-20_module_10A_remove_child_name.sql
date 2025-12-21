@@ -2,7 +2,6 @@
 -- Date: 2025-12-20
 -- Reason: Privacy promise - never collect child's name
 -- Migration: Rename name column to legacy_name and make nullable
--- Safe in environments where name/legacy_name never existed.
 
 -- Step 1: Rename column (if it exists)
 do $$
@@ -26,18 +25,7 @@ begin
   end if;
 end $$;
 
--- Step 3: Add comment to document deprecation (only if column exists)
-do $$
-begin
-  if exists (
-    select 1 from information_schema.columns
-    where table_schema = 'public'
-      and table_name = 'children'
-      and column_name = 'legacy_name'
-  ) then
-    execute $$comment on column public.children.legacy_name is
-      'Deprecated: do not collect child name (privacy promise). This column exists only for legacy data compatibility and must not be used in new code.'$$;
-  end if;
-end $$;
+-- Step 3: Add comment to document deprecation
+comment on column public.children.legacy_name is 'Deprecated: do not collect child name (privacy promise). This column exists only for legacy data compatibility and must not be used in new code.';
 
 -- Note: RLS policies are unchanged - they only check user_id ownership, not name field.

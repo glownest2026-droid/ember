@@ -149,4 +149,3 @@
 ### Migration Application Steps
 - Apply migration via Supabase Dashboard → SQL Editor → paste and run migration SQL
 - No application deployment required (database-only change)
-- Schema truth alignment: core schema snapshot (`supabase/sql/2025-11-04_core_schema.sql`) updated to remove child name column, aligning with live DB state
