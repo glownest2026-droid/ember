@@ -149,3 +149,47 @@
 ### Migration Application Steps
 - Apply migration via Supabase Dashboard → SQL Editor → paste and run migration SQL
 - No application deployment required (database-only change)
+
+## 2025-12-20 — Module 10B: Child Profile UI (Stage, Not Name)
+
+### Summary
+- Built CRUD interface for child profiles under `/app/children` routes
+- Privacy compliance: No name fields, labels, placeholders, or event payloads (privacy promise: never collect child's name)
+- Age band calculation: Server-side computation from birthdate (Option A - preferred approach)
+- RLS enforcement: All operations respect `user_id = auth.uid()` via Supabase RLS policies
+
+### Routes touched/added
+- `/app/children` — list child profiles (birthdate, computed age band, gender)
+- `/app/children/new` — create new child profile form
+- `/app/children/[id]` — edit and delete existing child profile (ownership verified)
+
+### Env & Secrets
+- No changes to environment variables
+- Uses existing Supabase configuration
+
+### DB & RLS
+- Uses existing `children` table: `id`, `user_id`, `birthdate`, `gender`, `age_band`, `preferences`, `created_at`, `updated_at`
+- RLS policies unchanged: Existing policies enforce `user_id = auth.uid()` for all operations
+- Age band computed server-side from `birthdate` and stored in `age_band` column
+
+### Implementation Details
+- Server actions: `/app/children/_actions.ts` handles save/delete with server-side `user_id` assignment (never accepts from client)
+- Age band utility: `/lib/ageBand.ts` calculates age bands (0-6m, 6-12m, 12-18m, 18-24m, 2-3y, 3-4y, 4-5y, 5-6y, 6+)
+- Form component: Client-side form with server actions for data submission
+- List page: Displays birthdate, computed age band, and gender with edit links
+
+### Verification (Proof-of-Done)
+- Logged out: `/app/children` redirects to `/signin?next=/app/children` (middleware protection)
+- Logged in: Can create, view, edit, and delete child profiles
+- Age band: Automatically calculated from birthdate on save
+- Ownership: Users can only access their own child profiles (RLS enforced)
+- Existing routes still pass: `/signin`, `/app` redirects logged out, `/cms/lego-kit-demo`, `/ping`
+
+### Known debt / risks (carried forward)
+- Age band calculation assumes current date; may need timezone handling for edge cases
+- Preferences field exists but is not exposed in UI (hidden for MVP as specified)
+- Gender field is optional; may need validation or additional options in future
+
+### Next module handoff
+- Branch: `feat/module-10B-child-profiles`
+- Routes ready for integration with product recommendations based on child age bands
