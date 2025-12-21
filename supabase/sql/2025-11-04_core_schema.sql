@@ -17,10 +17,10 @@ create table if not exists public.products (
 );
 
 -- CHILDREN (owner-only)
+-- Privacy promise: never collect a child's name. No name column.
 create table if not exists public.children (
   id          uuid primary key default gen_random_uuid(),
   user_id     uuid not null references auth.users(id) on delete cascade,
-  name        text not null,
   birthdate   date,
   gender      text,
   age_band    text,
