@@ -35,8 +35,8 @@ begin
       and table_name = 'children'
       and column_name = 'legacy_name'
   ) then
-    execute $$comment on column public.children.legacy_name is
-      'Deprecated: do not collect child name (privacy promise). This column exists only for legacy data compatibility and must not be used in new code.'$$;
+    execute
+      'comment on column public.children.legacy_name is ''Deprecated: do not collect child name (privacy promise). This column exists only for legacy data compatibility and must not be used in new code.''';
   end if;
 end $$;
 
