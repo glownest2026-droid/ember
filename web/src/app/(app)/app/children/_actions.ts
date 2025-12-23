@@ -1,7 +1,7 @@
 'use server';
 
-import { createClient } from '../../../utils/supabase/server';
-import { calculateAgeBand } from '../../../lib/ageBand';
+import { createClient } from '../../../../utils/supabase/server';
+import { calculateAgeBand } from '../../../../lib/ageBand';
 import { redirect } from 'next/navigation';
 
 export async function saveChild(formData: FormData, childId?: string) {

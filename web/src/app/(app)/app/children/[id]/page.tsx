@@ -1,5 +1,5 @@
 export const dynamic = "force-dynamic";
-import { createClient } from '../../../../utils/supabase/server';
+import { createClient } from '../../../../../utils/supabase/server';
 import ChildForm from '../_components/ChildForm';
 import { redirect } from 'next/navigation';
 
