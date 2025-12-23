@@ -12,45 +12,49 @@ export async function saveChild(formData: FormData, childId?: string) {
     redirect('/signin?next=/app/children');
   }
 
-  const birthdate = String(formData.get('birthdate') || '').trim() || null;
-  const gender = String(formData.get('gender') || '').trim() || null;
-  
-  // Calculate age band from birthdate if provided
-  const computedAgeBand = birthdate ? calculateAgeBand(birthdate) : null;
-  const age_band = computedAgeBand || null;
-
-  const childData: any = {
-    user_id: user.id, // Set from server, never from client
-    birthdate: birthdate || null,
-    gender: gender || null,
-    age_band: age_band,
-    preferences: {},
-  };
-
-  if (childId) {
-    // Update existing
-    const { error } = await supabase
-      .from('children')
-      .update(childData)
-      .eq('id', childId)
-      .eq('user_id', user.id);
+  try {
+    const birthdate = String(formData.get('birthdate') || '').trim() || null;
+    const gender = String(formData.get('gender') || '').trim() || null;
     
-    if (error) {
-      return { error: error.message };
+    // Calculate age band from birthdate if provided
+    const computedAgeBand = birthdate ? calculateAgeBand(birthdate) : null;
+    const age_band = computedAgeBand || null;
+
+    const childData: any = {
+      user_id: user.id, // Set from server, never from client
+      birthdate: birthdate || null,
+      gender: gender || null,
+      age_band: age_band,
+      preferences: {},
+    };
+
+    if (childId) {
+      // Update existing
+      const { error } = await supabase
+        .from('children')
+        .update(childData)
+        .eq('id', childId)
+        .eq('user_id', user.id);
+      
+      if (error) {
+        return { ok: false, message: error.message };
+      }
+    } else {
+      // Insert new
+      const { error } = await supabase
+        .from('children')
+        .insert(childData);
+      
+      if (error) {
+        return { ok: false, message: error.message };
+      }
     }
-  } else {
-    // Insert new
-    const { error } = await supabase
-      .from('children')
-      .insert(childData);
-    
-    if (error) {
-      return { error: error.message };
-    }
+
+    // Redirect on success (throws internally, which is expected)
+    redirect('/app/children?saved=1');
+  } catch (err: any) {
+    return { ok: false, message: err.message || 'Failed to save profile' };
   }
-
-  // Redirect on success (throws internally, which is expected)
-  redirect('/app/children');
 }
 
 export async function deleteChild(childId: string) {
@@ -61,17 +65,21 @@ export async function deleteChild(childId: string) {
     redirect('/signin?next=/app/children');
   }
 
-  const { error } = await supabase
-    .from('children')
-    .delete()
-    .eq('id', childId)
-    .eq('user_id', user.id);
+  try {
+    const { error } = await supabase
+      .from('children')
+      .delete()
+      .eq('id', childId)
+      .eq('user_id', user.id);
 
-  if (error) {
-    return { error: error.message };
+    if (error) {
+      return { ok: false, message: error.message };
+    }
+
+    // Redirect on success (throws internally, which is expected)
+    redirect('/app/children?deleted=1');
+  } catch (err: any) {
+    return { ok: false, message: err.message || 'Failed to delete profile' };
   }
-
-  // Redirect on success (throws internally, which is expected)
-  redirect('/app/children');
 }
 

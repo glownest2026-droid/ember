@@ -19,8 +19,8 @@ export default function ChildForm({ initial }: { initial?: ChildData }) {
     setError(null);
     startTransition(async () => {
       const result = await saveChild(formData, initial?.id);
-      if (result?.error) {
-        setError(result.error);
+      if (result && !result.ok) {
+        setError(result.message || 'Failed to save profile');
       }
     });
   }
@@ -37,8 +37,8 @@ export default function ChildForm({ initial }: { initial?: ChildData }) {
 
     startTransition(async () => {
       const result = await deleteChild(initial.id!);
-      if (result?.error) {
-        setError(result.error);
+      if (result && !result.ok) {
+        setError(result.message || 'Failed to delete profile');
         setDeleting(false);
       }
     });
@@ -46,10 +46,6 @@ export default function ChildForm({ initial }: { initial?: ChildData }) {
 
   return (
     <form action={handleSubmit} className="space-y-4">
-      {error && (
-        <div className="rounded bg-red-100 p-2 text-red-700">{error}</div>
-      )}
-
       <div>
         <label className="block text-sm mb-1">Birthdate</label>
         <input
@@ -104,6 +100,9 @@ export default function ChildForm({ initial }: { initial?: ChildData }) {
           </button>
         )}
       </div>
+      {error && (
+        <div className="text-sm text-red-600 mt-2">{error}</div>
+      )}
     </form>
   );
 }
