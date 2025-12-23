@@ -293,3 +293,37 @@
 - Archived handling: if `is_archived` exists → archived excluded; if not → page still works (graceful fallback)
 - CTA link precedence: deep_link_url > affiliate_url > affiliate_deeplink > none (disabled button)
 - All proof routes pass: `/signin`, `/auth/callback`, `/app` (logged out → redirect), `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
+
+## 2025-12-23 — Module 11B: Click Tracking v0 (Recs CTA)
+
+### Summary
+- Added click tracking for "View product" clicks on `/app/recs` product cards.
+- Best-effort, non-blocking tracking using `navigator.sendBeacon` with `fetch` fallback.
+- Stores safe metadata only: product_id, child_id, age_band, dest_host (domain only, not full URL), source.
+- Privacy promise: no child name collection; only child_id (UUID) and age_band.
+
+### Routes added
+- `/api/click` — POST endpoint for click tracking (returns 204, best-effort insert)
+
+### Key code
+- `web/src/app/api/click/route.ts` — API route with auth check and best-effort Supabase insert
+- `web/src/app/(app)/app/recs/_components/ProductCard.tsx` — converted to client component with click handler
+- `web/src/app/(app)/app/recs/page.tsx` — updated to pass selectedChild info to ProductCard
+
+### Implementation Details
+- API route: validates user session, product_id (UUID format), optional child_id/age_band/dest_host.
+- Best-effort insert: if table missing or RLS blocks, error is swallowed and 204 is still returned (doesn't block navigation).
+- Client tracking: uses `navigator.sendBeacon` (preferred) with `fetch` + `keepalive` fallback.
+- URL safety: only stores `dest_host` (domain) extracted via `new URL(outboundUrl).host`, never full URLs.
+- Non-blocking: click handler does NOT preventDefault; link opens normally even if tracking fails.
+
+### Database
+- Table: `public.product_clicks` (created via Supabase SQL Editor, not in repo migrations)
+- Schema: `id`, `user_id`, `child_id`, `product_id`, `age_band`, `dest_host`, `source`, `clicked_at`
+- RLS: insert/select own (enforced by Supabase, code resilient if missing)
+
+### Verification (Proof-of-Done)
+- Clicking "View product" triggers POST to `/api/click` and still opens product link (non-blocking)
+- Click rows appear in Supabase `product_clicks` for signed-in user (when table exists)
+- No child name collection (only child_id UUID and age_band string)
+- All proof routes pass: `/signin`, `/auth/callback`, `/app`, `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
