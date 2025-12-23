@@ -259,3 +259,37 @@
 ### CTO Receipt
 - Latest shipped: child profiles + UX + auth-aware /app header.
 - Next focus: personalised products v0 by child age band + click tracking.
+
+## 2025-12-23 — Module 11A: Recommendations v0 (Age-Band)
+
+### Summary
+- Added `/app/recs` route for product recommendations filtered by selected child's age band.
+- MVP filter rules: product.age_band == selectedChild.age_band, rating >= 4.0, exclude null ratings, exclude archived if field exists (with graceful fallback).
+- Empty state for 0 children with CTA to `/app/children/new`.
+- Child selector dropdown with query param navigation (`?child=<uuid>`).
+- Product cards with link precedence: deep_link_url > affiliate_url > affiliate_deeplink > none.
+
+### Routes added
+- `/app/recs` — recommendations page (protected by existing `/app/*` middleware)
+
+### Key code
+- `web/src/app/(app)/app/recs/page.tsx` — server component with auth, children fetch, product query
+- `web/src/app/(app)/app/recs/_components/ChildSelector.tsx` — client component for child selection
+- `web/src/app/(app)/app/recs/_components/ProductCard.tsx` — product card with image validation and link precedence
+- `web/src/app/(app)/layout.tsx` — added "Recommendations" nav link
+
+### Implementation Details
+- Server-side age band derivation reuses existing `calculateAgeBand` helper from `/lib/ageBand.ts`.
+- Default child selection: most recently updated (updated_at desc), fallback to first child.
+- Product query: filters by age_band, rating >= 4.0, excludes null ratings, attempts to exclude archived products with graceful fallback if column doesn't exist.
+- Image rendering: uses `validateImage` from `/lib/imagePolicy.ts` with fallback to no image (no Next/Image config changes).
+- Link precedence: deep_link_url > affiliate_url > affiliate_deeplink (no click tracking yet per requirements).
+
+### Verification (Proof-of-Done)
+- `/app/recs` exists and is accessible only when signed in (via existing `/app/*` protection)
+- Empty state: 0 children → shows CTA to `/app/children/new`
+- Child selector: >=1 child → dropdown appears, default selection works, selection updates via `?child=` query param
+- Recommendations: only shows products with matching age_band AND rating >= 4 AND non-null rating
+- Archived handling: if `is_archived` exists → archived excluded; if not → page still works (graceful fallback)
+- CTA link precedence: deep_link_url > affiliate_url > affiliate_deeplink > none (disabled button)
+- All proof routes pass: `/signin`, `/auth/callback`, `/app` (logged out → redirect), `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
