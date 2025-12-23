@@ -104,6 +104,9 @@ export default function ChildForm({ initial }: { initial?: ChildData }) {
           </button>
         )}
       </div>
+      {error && (
+        <div className="text-sm text-red-600 mt-2">{error}</div>
+      )}
     </form>
   );
 }

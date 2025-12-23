@@ -50,7 +50,7 @@ export async function saveChild(formData: FormData, childId?: string) {
   }
 
   // Redirect on success (throws internally, which is expected)
-  redirect('/app/children');
+  redirect('/app/children?saved=1');
 }
 
 export async function deleteChild(childId: string) {
@@ -72,6 +72,6 @@ export async function deleteChild(childId: string) {
   }
 
   // Redirect on success (throws internally, which is expected)
-  redirect('/app/children');
+  redirect('/app/children?deleted=1');
 }
 
