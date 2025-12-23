@@ -41,6 +41,7 @@
 - Local `.env.local`: `NEXT_PUBLIC_BUILDER_API_KEY`, `BUILDER_PREVIEW_SECRET`
 - Vercel (Preview): `NEXT_PUBLIC_BUILDER_API_KEY`, `BUILDER_PREVIEW_SECRET`
 - Vercel (Production): (optional for now — add before publishing CMS content to prod)
+- **Note:** Secret values must be set in Vercel; never commit secrets to the repository.
 
 ### 3rd-party wiring
 - Builder **Model:** `page`
@@ -60,7 +61,7 @@
 ### Known debt / risks (carried forward)
 - Ensure `NEXT_PUBLIC_BUILDER_API_KEY` is a **real key** in all envs (not a placeholder).
 - Re-apply CSP headers any time `next.config.*` is replaced.
-- Keep `BUILDER_PREVIEW_SECRET` private (rotate if leaked).
+- Keep `BUILDER_PREVIEW_SECRET` private (rotate if leaked). **Secret value must be set in Vercel; never commit secrets.**
 - Vercel Hobby cron remains **daily**; upgrade to Pro before switching to hourly.
 
 ### Next module handoff
@@ -193,3 +194,68 @@
 ### Next module handoff
 - Branch: `feat/module-10B-child-profiles`
 - Routes ready for integration with product recommendations based on child age bands
+
+## 2025-12-20 — Module 10A: Privacy Promise Enforcement (No Child Name)
+
+### Summary
+- Enforced privacy promise: we never collect a child's name.
+- Repo schema snapshot aligned so `children` table has NO `name` column.
+- Migration hardened to be idempotent + safe in environments where `name/legacy_name` never existed.
+
+### Files changed
+- `supabase/sql/2025-11-04_core_schema.sql` — removed `children.name` and added privacy comment
+- `supabase/sql/2025-12-20_module_10A_remove_child_name.sql` — guarded rename/nullability/comment so it never errors when columns don't exist
+
+### Verification (Proof-of-Done)
+- Supabase SQL:
+  - Confirm no child name columns:
+    `select column_name from information_schema.columns where table_schema='public' and table_name='children' and column_name in ('name','legacy_name');`
+    Expected: no rows (or legacy_name only in truly legacy environments)
+- Production smoke:
+  - `/app` redirects to `/signin?next=/app` when logged out
+
+### Decision log
+- Decision: No child names anywhere (schema, UI, analytics). Only stage inputs (birthdate/gender/age band/preferences).
+
+## 2025-12-23 — Module 10B: Child Profiles (Stage, Not Name)
+
+### Summary
+- Built child profile CRUD under `/app/children` using birthdate + optional gender.
+- Age band computed server-side from birthdate (no name fields anywhere).
+- Ownership enforced via RLS; user_id set server-side only.
+
+### Routes added
+- `/app/children` — list + CTA to add profile
+- `/app/children/new` — create
+- `/app/children/[id]` — edit/delete
+
+### Key code
+- `web/src/app/(app)/app/children/page.tsx`
+- `web/src/app/(app)/app/children/new/page.tsx`
+- `web/src/app/(app)/app/children/[id]/page.tsx`
+- `web/src/app/(app)/app/children/_actions.ts`
+- `web/src/app/(app)/app/children/_components/ChildForm.tsx`
+- `web/src/lib/ageBand.ts`
+
+### Verification (Proof-of-Done)
+- Logged out: `/app/children` → redirects to `/signin?next=/app/children`
+- Logged in:
+  - Create profile → appears in list
+  - Edit birthdate → age band updates
+  - Delete profile → removed from list
+
+## 2025-12-23 — Module 10B.1: UX Polish + /app Header Auth State
+
+### Summary
+- Added visible success/error messaging for child profile save/delete.
+- Fixed `/app` navbar to reflect signed-in state (email + Sign out).
+
+### Verification (Proof-of-Done)
+- Save child → redirect to `/app/children?saved=1` and banner shows "Profile saved"
+- Delete child → redirect to `/app/children?deleted=1` and banner shows "Profile deleted"
+- Signed in: `/app` header shows email + Sign out (not "Sign in")
+- Existing proof routes still work: `/signin`, `/auth/callback`, `/ping`, `/cms/lego-kit-demo`
+
+### CTO Receipt
+- Latest shipped: child profiles + UX + auth-aware /app header.
+- Next focus: personalised products v0 by child age band + click tracking.
