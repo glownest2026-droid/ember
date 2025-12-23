@@ -3,12 +3,7 @@ import Link from 'next/link';
 import { createClient } from '../../../../utils/supabase/server';
 import { calculateAgeBand } from '../../../../lib/ageBand';
 
-export default async function ChildrenPage({ 
-  searchParams 
-}: { 
-  searchParams: Promise<{ saved?: string; deleted?: string }> 
-}) {
-  const params = await searchParams;
+export default async function ChildrenPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -36,17 +31,6 @@ export default async function ChildrenPage({
 
   return (
     <div className="p-6 space-y-4">
-      {params.saved === '1' && (
-        <div className="rounded bg-green-100 p-3 text-green-700">
-          Profile saved
-        </div>
-      )}
-      {params.deleted === '1' && (
-        <div className="rounded bg-green-100 p-3 text-green-700">
-          Profile deleted
-        </div>
-      )}
-      
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Child Profiles</h1>
         <Link href="/app/children/new" className="px-3 py-2 rounded bg-black text-white">
