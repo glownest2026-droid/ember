@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 import Link from 'next/link';
-import { createClient } from '../../../utils/supabase/server';
-import { calculateAgeBand } from '../../../lib/ageBand';
+import { createClient } from '../../../../utils/supabase/server';
+import { calculateAgeBand } from '../../../../lib/ageBand';
 
 export default async function ChildrenPage() {
   const supabase = createClient();
