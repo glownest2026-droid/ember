@@ -13,8 +13,15 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
       <header className="container-wrap py-4 flex items-center justify-between">
         <Link href="/app" className="font-semibold">Ember — Dashboard</Link>
         <div className="flex items-center gap-3 text-sm">
-          <span>{user?.email}</span>
-          <SignOutButton />
+          {user ? (
+            <>
+              <Link href="/app/children" className="hover:underline">Child Profiles</Link>
+              <span className="text-gray-600">Signed in as {user.email}</span>
+              <SignOutButton />
+            </>
+          ) : (
+            <Link href="/signin" className="hover:underline">Sign in</Link>
+          )}
         </div>
       </header>
       <main className="container-wrap py-6">{children}</main>
