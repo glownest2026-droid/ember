@@ -1,11 +1,8 @@
 // web/src/app/layout.tsx
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConditionalHeader from "../components/ConditionalHeader";
-
-const geistSans = Geist({ subsets: ["latin"] });
-const geistMono = Geist_Mono({ subsets: ["latin"] });
+import { ThemeProvider } from "../components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Ember — Simple, trusted guidance from bump to big steps.",
@@ -15,9 +12,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.className} antialiased`}>
-        <ConditionalHeader />
-        {children}
+      <body className="antialiased">
+        <ThemeProvider>
+          <ConditionalHeader />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

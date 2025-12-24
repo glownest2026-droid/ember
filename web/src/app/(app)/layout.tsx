@@ -2,11 +2,13 @@ import { ReactNode } from 'react';
 import Link from 'next/link';
 import SignOutButton from '../components/SignOutButton';
 import { createClient } from '../../utils/supabase/server';
+import { isAdmin } from '../../lib/admin';
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   // Middleware already redirects if no user; this is defensive.
+  const admin = await isAdmin();
 
   return (
     <div>
@@ -17,6 +19,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
             <>
               <Link href="/app/children" className="hover:underline">Child Profiles</Link>
               <Link href="/app/recs" className="hover:underline">Recommendations</Link>
+              {admin && (
+                <Link href="/app/admin/theme" className="hover:underline">Theme</Link>
+              )}
               <span className="text-gray-600">Signed in as {user.email}</span>
               <SignOutButton />
             </>

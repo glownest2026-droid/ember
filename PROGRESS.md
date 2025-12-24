@@ -260,6 +260,48 @@
 - Latest shipped: child profiles + UX + auth-aware /app header.
 - Next focus: personalised products v0 by child age band + click tracking.
 
+## 2025-12-24 — Module 11C: Self-Serve Theme System (Admin) — Option B
+
+### Summary
+- Added admin theme settings page at `/app/admin/theme` for founder/admin to change global colors and fonts without redeploys.
+- Theme applied globally via CSS variables (`--brand-primary`, `--brand-accent`, `--brand-font-body`, `--brand-font-head`).
+- Predefined font pairs: Inter+Plus Jakarta Sans, DM Sans+Space Grotesk, Nunito+Source Sans 3.
+- Safe defaults applied if DB read fails or row missing.
+
+### Routes added
+- `/app/admin/theme` — admin-only theme settings page (protected by admin role check)
+
+### Key code
+- `web/src/lib/theme.ts` — server-side theme loader with safe defaults
+- `web/src/lib/admin.ts` — admin role check utility
+- `web/src/components/ThemeProvider.tsx` — applies theme via CSS variables and loads fonts
+- `web/src/app/(app)/app/admin/theme/page.tsx` — admin theme page
+- `web/src/app/(app)/app/admin/theme/_components/ThemeForm.tsx` — theme form component
+- `web/src/app/api/admin/theme/route.ts` — POST endpoint for saving theme settings
+- `web/src/app/layout.tsx` — updated to use ThemeProvider
+- `web/src/app/(app)/layout.tsx` — conditionally shows "Theme" nav link for admins
+
+### Database
+- Relies on existing tables (created via Supabase SQL Editor):
+  - `public.site_settings` (singleton row `id='global'`, `theme` jsonb column)
+  - `public.user_roles` (`user_id`, `role='admin'|'user'`)
+- RLS: site_settings select allowed; updates only for admins (enforced by Supabase)
+
+### Implementation Details
+- Theme shape: `{ primary: string, accent: string, fontPair: string }`
+- Defaults: primary `#FFBEAB` (ember-400), accent `#FFC26E` (apricot-400), fontPair `inter_plusjakarta`
+- Font pairs loaded via `next/font/google` with CSS variables
+- CSS variables injected in root layout via `<style>` tag
+- Admin gating: server-side check via `isAdmin()` helper, redirects non-admins to `/app`
+- Theme save: merges with existing theme, updates `updated_at` and `updated_by` fields
+
+### Verification (Proof-of-Done)
+- Non-admin user cannot access `/app/admin/theme` (redirects to `/app`)
+- Admin user can access and save theme changes
+- After save, refresh any `/app` page: styles reflect new primary/accent/font
+- If DB temporarily fails, app still loads with defaults
+- All proof routes pass: `/signin`, `/auth/callback`, `/app`, `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
+
 ## 2025-12-23 — Module 11A: Recommendations v0 (Age-Band)
 
 ### Summary
