@@ -327,3 +327,54 @@
 - Click rows appear in Supabase `product_clicks` for signed-in user (when table exists)
 - No child name collection (only child_id UUID and age_band string)
 - All proof routes pass: `/signin`, `/auth/callback`, `/app`, `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
+
+## 2025-12-24 — Module 11C: Theme v0 (Global Apply + Live Preview)
+
+### Summary
+- Upgraded theme system to v0 with expanded token set (colors, typography, components).
+- Theme applies globally across entire site via root layout CSS variables.
+- Added live preview panel in admin theme editor (changes visible before saving).
+- Fixed caching with `revalidatePath` so theme changes are immediately visible.
+
+### Routes added
+- `/app/admin/theme` — admin-only theme settings page with live preview
+
+### Key code
+- `web/src/lib/theme.ts` — theme loader with v0 schema and safe defaults
+- `web/src/lib/admin.ts` — admin role check utility
+- `web/src/components/ThemeProvider.tsx` — applies theme globally via CSS variables
+- `web/src/app/layout.tsx` — root layout wraps app with ThemeProvider
+- `web/src/app/(app)/app/admin/theme/page.tsx` — admin theme page
+- `web/src/app/(app)/app/admin/theme/_components/ThemeEditor.tsx` — theme editor with live preview
+- `web/src/app/(app)/app/admin/theme/_components/ThemePreview.tsx` — live preview component
+- `web/src/app/api/admin/theme/route.ts` — POST endpoint with revalidatePath
+
+### Theme v0 Schema
+```typescript
+{
+  colors: { primary, accent, background, surface, text, muted, border },
+  typography: { fontHeading, fontBody, baseFontSize },
+  components: { radius }
+}
+```
+
+### CSS Variables Applied
+- `--brand-primary`, `--brand-accent`, `--brand-bg`, `--brand-surface`, `--brand-text`, `--brand-muted`, `--brand-border`
+- `--brand-font-body`, `--brand-font-head`
+- `--brand-font-size-base`
+- `--brand-radius`
+
+### Implementation Details
+- Global apply: ThemeProvider in root layout covers all routes (signin, cms, app)
+- Live preview: Draft state updates preview panel without affecting page
+- Caching fix: `revalidatePath('/')` and `revalidatePath('/app')` on save
+- Font pairs: Inter+Plus Jakarta, DM Sans+Space Grotesk, Nunito+Source Sans 3
+- UI updates: `.btn-primary`, `.card` use theme vars; nav links use theme colors
+
+### Verification (Proof-of-Done)
+- Non-admin cannot access `/app/admin/theme` (redirects to `/app`)
+- Admin can save theme changes and see immediate effect after refresh
+- Live preview updates as admin changes values (before saving)
+- Theme applies globally: `/signin`, `/app/recs` show theme changes
+- Safe defaults if DB fails: app loads with fallback theme
+- All proof routes pass: `/signin`, `/auth/callback`, `/app`, `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
