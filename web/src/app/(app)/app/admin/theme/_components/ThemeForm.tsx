@@ -1,6 +1,6 @@
 'use client';
 import { useState, useTransition } from 'react';
-import type { ThemeSettings } from '../../../../../lib/theme';
+import type { ThemeSettings } from '@/lib/theme';
 
 export default function ThemeForm({ initial }: { initial: ThemeSettings }) {
   const [isPending, startTransition] = useTransition();
