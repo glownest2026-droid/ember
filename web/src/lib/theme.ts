@@ -20,6 +20,26 @@ export type ThemeSettings = {
   };
 };
 
+export type RequiredThemeSettings = {
+  colors: {
+    primary: string;
+    accent: string;
+    background: string;
+    surface: string;
+    text: string;
+    muted: string;
+    border: string;
+  };
+  typography: {
+    fontHeading: string;
+    fontBody: string;
+    baseFontSize: number;
+  };
+  components: {
+    radius: number;
+  };
+};
+
 const DEFAULT_THEME: RequiredThemeSettings = {
   colors: {
     primary: '#FFBEAB', // ember-400
@@ -40,7 +60,7 @@ const DEFAULT_THEME: RequiredThemeSettings = {
   },
 };
 
-export function mergeTheme(partial?: ThemeSettings | null): Required<ThemeSettings> {
+export function mergeTheme(partial?: ThemeSettings | null): RequiredThemeSettings {
   if (!partial) return DEFAULT_THEME;
 
   return {
