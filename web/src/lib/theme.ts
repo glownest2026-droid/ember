@@ -21,6 +21,9 @@ export type ThemeSettings = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 4b270fd (fix(11c): export RequiredThemeSettings)
 export type RequiredThemeSettings = {
   colors: {
     primary: string;
@@ -41,8 +44,11 @@ export type RequiredThemeSettings = {
   };
 };
 
+<<<<<<< HEAD
 =======
 >>>>>>> c8aa39b (feat(11c): theme v0 tokens with global apply and live preview)
+=======
+>>>>>>> 4b270fd (fix(11c): export RequiredThemeSettings)
 const DEFAULT_THEME: RequiredThemeSettings = {
   colors: {
     primary: '#FFBEAB', // ember-400
@@ -64,10 +70,14 @@ const DEFAULT_THEME: RequiredThemeSettings = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export function mergeTheme(partial?: ThemeSettings | null): RequiredThemeSettings {
 =======
 export function mergeTheme(partial?: ThemeSettings | null): Required<ThemeSettings> {
 >>>>>>> c8aa39b (feat(11c): theme v0 tokens with global apply and live preview)
+=======
+export function mergeTheme(partial?: ThemeSettings | null): RequiredThemeSettings {
+>>>>>>> 4b270fd (fix(11c): export RequiredThemeSettings)
   if (!partial) return DEFAULT_THEME;
 
   return {
