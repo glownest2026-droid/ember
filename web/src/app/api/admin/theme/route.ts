@@ -1,0 +1,133 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '../../../../utils/supabase/server';
+import { isAdmin } from '../../../../lib/admin';
+import { revalidatePath } from 'next/cache';
+
+export const dynamic = 'force-dynamic';
+
+export async function POST(req: NextRequest) {
+  try {
+    const supabase = createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const admin = await isAdmin();
+    if (!admin) {
+      return new NextResponse('Forbidden', { status: 403 });
+    }
+
+    // Parse request body
+    let body;
+    try {
+      body = await req.json();
+    } catch {
+      return new NextResponse('Invalid JSON', { status: 400 });
+    }
+
+    // Validate and extract theme values
+    const themeUpdate: any = {};
+
+    // Colors
+    if (body.colors) {
+      themeUpdate.colors = {};
+      const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+      const colorFields = ['primary', 'accent', 'background', 'surface', 'text', 'muted', 'border'] as const;
+      for (const field of colorFields) {
+        const value = body.colors[field];
+        if (value && typeof value === 'string') {
+          if (!hexRegex.test(value.trim())) {
+            return new NextResponse(`Invalid ${field} color format`, { status: 400 });
+          }
+          themeUpdate.colors[field] = value.trim();
+        }
+      }
+    }
+
+    // Typography
+    if (body.typography) {
+      themeUpdate.typography = {};
+      const validFontPairs = ['inter_plusjakarta', 'dmSans_spaceGrotesk', 'nunito_sourceSans'];
+      if (body.typography.fontHeading && validFontPairs.includes(body.typography.fontHeading)) {
+        themeUpdate.typography.fontHeading = body.typography.fontHeading;
+      }
+      if (body.typography.fontBody && validFontPairs.includes(body.typography.fontBody)) {
+        themeUpdate.typography.fontBody = body.typography.fontBody;
+      }
+      if (body.typography.baseFontSize && typeof body.typography.baseFontSize === 'number') {
+        const size = Math.max(12, Math.min(20, body.typography.baseFontSize));
+        themeUpdate.typography.baseFontSize = size;
+      }
+    }
+
+    // Components
+    if (body.components) {
+      themeUpdate.components = {};
+      if (body.components.radius && typeof body.components.radius === 'number') {
+        const radius = Math.max(0, Math.min(24, body.components.radius));
+        themeUpdate.components.radius = radius;
+      }
+    }
+
+    // Get current theme to merge
+    const { data: current } = await supabase
+      .from('site_settings')
+      .select('theme')
+      .eq('id', 'global')
+      .single();
+
+    const currentTheme = (current?.theme as any) || {};
+    
+    // Deep merge
+    const mergedTheme = {
+      colors: { ...currentTheme.colors, ...themeUpdate.colors },
+      typography: { ...currentTheme.typography, ...themeUpdate.typography },
+      components: { ...currentTheme.components, ...themeUpdate.components },
+    };
+
+    // Update site_settings
+    const { error: updateError } = await supabase
+      .from('site_settings')
+      .update({
+        theme: mergedTheme,
+        updated_at: new Date().toISOString(),
+        updated_by: user.id,
+      })
+      .eq('id', 'global');
+
+    if (updateError) {
+      // If row doesn't exist, try to insert
+      if (updateError.code === 'PGRST116') {
+        const { error: insertError } = await supabase
+          .from('site_settings')
+          .insert({
+            id: 'global',
+            theme: mergedTheme,
+            updated_at: new Date().toISOString(),
+            updated_by: user.id,
+          });
+
+        if (insertError) {
+          return new NextResponse(insertError.message, { status: 500 });
+        }
+      } else {
+        return new NextResponse(updateError.message, { status: 500 });
+      }
+    }
+
+    // Revalidate paths to clear cache
+    revalidatePath('/');
+    revalidatePath('/app');
+    revalidatePath('/signin');
+
+    return new NextResponse(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err: any) {
+    return new NextResponse(err.message || 'Internal server error', { status: 500 });
+  }
+}
+
