@@ -30,10 +30,10 @@
 /* Background wash + crisp text rendering */
 html, body {
   background:
-    radial-gradient(1200px 600px at 10% -10%, var(--color-ember-100), transparent 60%),
-    radial-gradient(1000px 520px at 90% -10%, var(--color-blush-100), transparent 55%),
-    linear-gradient(to bottom, var(--color-cream-50), var(--color-ember-50));
-  color: var(--color-ink);
+    radial-gradient(1200px 600px at 10% -10%, var(--brand-primary, var(--color-ember-100)), transparent 60%),
+    radial-gradient(1000px 520px at 90% -10%, var(--brand-accent, var(--color-blush-100)), transparent 55%),
+    linear-gradient(to bottom, var(--brand-bg, var(--color-cream-50)), var(--color-ember-50));
+  color: var(--brand-text, var(--color-ink));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

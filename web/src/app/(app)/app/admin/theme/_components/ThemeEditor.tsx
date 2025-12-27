@@ -1,9 +1,11 @@
 'use client';
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import type { ThemeSettings, RequiredThemeSettings } from '@/lib/theme';
 import ThemePreview from './ThemePreview';
 
 export default function ThemeEditor({ initial }: { initial: RequiredThemeSettings }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -75,10 +77,8 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
         }
 
         setSuccess(true);
-        // Refresh page to apply new theme
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        // Refresh to apply new theme
+        router.refresh();
       } catch (err: any) {
         setError(err.message || 'Failed to save theme');
       }
