@@ -18,9 +18,9 @@ const sizes: Record<Size,string> = {
 };
 
 const variants: Record<Variant,string> = {
-  primary: "bg-[var(--color-brand-600)] text-white hover:bg-[var(--color-brand-700)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]",
-  secondary: "bg-white text-[var(--color-fg)] border border-[var(--color-border)] hover:bg-[var(--color-brand-50)]",
-  ghost: "bg-transparent text-[var(--color-fg)] hover:bg-[var(--color-brand-50)]",
+  primary: "bg-[var(--brand-primary)] text-[var(--brand-text)] hover:opacity-90 shadow-sm hover:shadow-md",
+  secondary: "bg-[var(--brand-surface)] text-[var(--brand-text)] border border-[var(--brand-border)] hover:bg-[var(--brand-bg)]",
+  ghost: "bg-transparent text-[var(--brand-text)] hover:bg-[var(--brand-bg)]",
 };
 
 export function Button({ variant="primary", size="md", className="", ...props }: Props) {

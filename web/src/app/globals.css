@@ -29,13 +29,16 @@
 
 /* Background wash + crisp text rendering */
 html, body {
-  background:
-    radial-gradient(1200px 600px at 10% -10%, var(--brand-primary, var(--color-ember-100)), transparent 60%),
-    radial-gradient(1000px 520px at 90% -10%, var(--brand-accent, var(--color-blush-100)), transparent 55%),
-    linear-gradient(to bottom, var(--brand-bg, var(--color-cream-50)), var(--color-ember-50));
+  background: var(--brand-bg, var(--color-cream-50));
   color: var(--brand-text, var(--color-ink));
+  font-family: var(--brand-font-body, var(--font-inter), system-ui, sans-serif);
+  font-size: var(--brand-font-size-base, 16px);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--brand-font-head, var(--font-plusjakarta), system-ui, sans-serif);
 }
 ::selection {
   background-color: var(--color-apricot-200);

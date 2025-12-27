@@ -4,6 +4,27 @@ import { useRouter } from 'next/navigation';
 import type { ThemeSettings, RequiredThemeSettings } from '@/lib/theme';
 import ThemePreview from './ThemePreview';
 
+// Factory defaults (duplicated from theme.ts to avoid server import in client component)
+const FACTORY_THEME: RequiredThemeSettings = {
+  colors: {
+    primary: '#FFBEAB',
+    accent: '#FFC26E',
+    background: '#FFFCF8',
+    surface: '#FFFFFF',
+    text: '#27303F',
+    muted: '#57534E',
+    border: '#D6D3D1',
+  },
+  typography: {
+    fontHeading: 'inter_plusjakarta',
+    fontBody: 'inter_plusjakarta',
+    baseFontSize: 16,
+  },
+  components: {
+    radius: 12,
+  },
+};
+
 export default function ThemeEditor({ initial }: { initial: RequiredThemeSettings }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -53,7 +74,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
       }
     }
 
-    const validFontPairs = ['inter_plusjakarta', 'dmSans_spaceGrotesk', 'nunito_sourceSans'];
+    const validFontPairs = ['inter_plusjakarta', 'dmsans_inter', 'manrope_inter', 'worksans_inter', 'nunito_sourcesans3', 'lexend_inter', 'outfit_inter', 'sourcesans3_sourcesans3', 'inter_inter', 'fraunces_inter'];
     if (themeUpdate.typography?.fontHeading && !validFontPairs.includes(themeUpdate.typography.fontHeading)) {
       setError('Invalid heading font');
       return;
@@ -94,6 +115,36 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
         [key]: value,
       },
     }));
+  }
+
+  async function handleReset() {
+    if (!confirm('Reset to Ember factory defaults? This will overwrite your current theme.')) {
+      return;
+    }
+
+    setError(null);
+    setSuccess(false);
+
+    startTransition(async () => {
+      try {
+        const response = await fetch('/api/admin/theme', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(FACTORY_THEME),
+        });
+
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text || 'Failed to reset theme');
+        }
+
+        setDraft(FACTORY_THEME);
+        setSuccess(true);
+        router.refresh();
+      } catch (err: any) {
+        setError(err.message || 'Failed to reset theme');
+      }
+    });
   }
 
   return (
@@ -148,9 +199,16 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
                   onChange={(e) => updateDraft('typography.fontHeading', e.target.value)}
                   className="w-full border p-2 rounded"
                 >
-                  <option value="inter_plusjakarta">Inter + Plus Jakarta Sans</option>
-                  <option value="dmSans_spaceGrotesk">DM Sans + Space Grotesk</option>
-                  <option value="nunito_sourceSans">Nunito + Source Sans 3</option>
+                  <option value="inter_plusjakarta">Plus Jakarta + Inter</option>
+                  <option value="dmsans_inter">DM Sans + Inter</option>
+                  <option value="manrope_inter">Manrope + Inter</option>
+                  <option value="worksans_inter">Work Sans + Inter</option>
+                  <option value="nunito_sourcesans3">Nunito + Source Sans 3</option>
+                  <option value="lexend_inter">Lexend + Inter</option>
+                  <option value="outfit_inter">Outfit + Inter</option>
+                  <option value="sourcesans3_sourcesans3">Source Sans 3 + Source Sans 3</option>
+                  <option value="inter_inter">Inter + Inter</option>
+                  <option value="fraunces_inter">Fraunces + Inter</option>
                 </select>
               </div>
               <div>
@@ -161,9 +219,16 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
                   onChange={(e) => updateDraft('typography.fontBody', e.target.value)}
                   className="w-full border p-2 rounded"
                 >
-                  <option value="inter_plusjakarta">Inter + Plus Jakarta Sans</option>
-                  <option value="dmSans_spaceGrotesk">DM Sans + Space Grotesk</option>
-                  <option value="nunito_sourceSans">Nunito + Source Sans 3</option>
+                  <option value="inter_plusjakarta">Plus Jakarta + Inter</option>
+                  <option value="dmsans_inter">DM Sans + Inter</option>
+                  <option value="manrope_inter">Manrope + Inter</option>
+                  <option value="worksans_inter">Work Sans + Inter</option>
+                  <option value="nunito_sourcesans3">Nunito + Source Sans 3</option>
+                  <option value="lexend_inter">Lexend + Inter</option>
+                  <option value="outfit_inter">Outfit + Inter</option>
+                  <option value="sourcesans3_sourcesans3">Source Sans 3 + Source Sans 3</option>
+                  <option value="inter_inter">Inter + Inter</option>
+                  <option value="fraunces_inter">Fraunces + Inter</option>
                 </select>
               </div>
               <div>
@@ -204,6 +269,14 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
               className="px-4 py-2 rounded bg-black text-white disabled:opacity-50"
             >
               {isPending ? 'Saving…' : 'Save Theme'}
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={isPending}
+              className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              Reset to Factory
             </button>
           </div>
         </form>
