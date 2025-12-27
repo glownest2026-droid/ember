@@ -118,9 +118,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Revalidate paths to clear cache
-    revalidatePath('/');
-    revalidatePath('/app');
-    revalidatePath('/signin');
+    revalidatePath('/', 'layout');
+    revalidatePath('/app', 'layout');
+    revalidatePath('/signin', 'layout');
 
     return new NextResponse(JSON.stringify({ success: true }), {
       status: 200,

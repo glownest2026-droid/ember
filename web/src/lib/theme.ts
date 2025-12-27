@@ -1,4 +1,5 @@
 import { createClient } from '../utils/supabase/server';
+import { unstable_noStore as noStore } from 'next/cache';
 
 export type ThemeSettings = {
   colors?: {
@@ -102,6 +103,7 @@ export function mergeTheme(partial?: ThemeSettings | null): RequiredThemeSetting
 }
 
 export async function loadTheme(): Promise<RequiredThemeSettings> {
+  noStore(); // Prevent caching to ensure fresh theme data
   try {
     const supabase = createClient();
     const { data, error } = await supabase
