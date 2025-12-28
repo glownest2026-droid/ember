@@ -326,7 +326,7 @@ function FeatureSection() {
 
 function Trust() {
   return (
-    <section id="trust" className="py-16" style={{ background: 'var(--brand-bg, #FAFAFB)' }}>
+    <section id="trust" className="py-16" style={{ background: 'linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%)' }}>
       <div className="mx-auto max-w-6xl px-6">
         <h2 className="text-3xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>Why parents trust Ember</h2>
         <div className="mt-8 grid md:grid-cols-3 gap-6">
@@ -380,7 +380,7 @@ function FAQ() {
     { q: "Where does Ember work?", a: "We’re building for the UK first with global expansion in mind. Weekends will localise to your area." },
   ];
   return (
-    <section id="faq" className="py-16" style={{ background: 'var(--brand-bg, #FAFAFB)' }}>
+    <section id="faq" className="py-16" style={{ background: 'linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%)' }}>
       <div className="mx-auto max-w-6xl px-6">
         <h2 className="text-3xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>FAQs</h2>
         <div className="mt-6 grid md:grid-cols-2 gap-6">
