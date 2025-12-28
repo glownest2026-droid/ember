@@ -153,7 +153,7 @@ export default function Header() {
     <header
       className="sticky top-0 z-40 backdrop-blur border-b"
       style={{ 
-        backgroundColor: 'var(--brand-surface, rgba(255, 255, 255, 0.7))',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
         borderColor: 'var(--brand-border, #E6E6EA)',
       }}
     >
@@ -192,7 +192,7 @@ export default function Header() {
 
       {/* Mobile panel */}
       {open && (
-        <div className="md:hidden border-t bg-white/90 backdrop-blur" style={{ borderColor: 'var(--brand-border, #E6E6EA)' }}>
+        <div className="md:hidden border-t backdrop-blur" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderColor: 'var(--brand-border, #E6E6EA)' }}>
           <div className="mx-auto max-w-6xl px-6 py-3 flex flex-col gap-3">
             <a href="#how" className="py-1" onClick={() => setOpen(false)}>How it works</a>
             <a href="#features" className="py-1" onClick={() => setOpen(false)}>Features</a>
