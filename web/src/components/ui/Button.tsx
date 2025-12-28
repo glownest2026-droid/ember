@@ -18,7 +18,7 @@ const sizes: Record<Size,string> = {
 };
 
 const variants: Record<Variant,string> = {
-  primary: "bg-[var(--brand-primary)] text-[var(--brand-text)] hover:opacity-90 shadow-sm hover:shadow-md",
+  primary: "bg-[var(--brand-primary)] text-[var(--brand-primary-foreground)] hover:opacity-90 shadow-sm hover:shadow-md",
   secondary: "bg-[var(--brand-surface)] text-[var(--brand-text)] border border-[var(--brand-border)] hover:bg-[var(--brand-bg)]",
   ghost: "bg-transparent text-[var(--brand-text)] hover:bg-[var(--brand-bg)]",
 };

@@ -51,16 +51,24 @@ const fontPairMap: Record<string, { body: string; head: string }> = {
     body: 'var(--font-inter)',
     head: 'var(--font-inter)',
   },
-  fraunces_inter: {
-    body: 'var(--font-inter)',
-    head: 'var(--font-fraunces)',
-  },
-  // Legacy support
-  dmSans_spaceGrotesk: {
-    body: 'var(--font-dmsans)',
-    head: 'var(--font-spacegrotesk)',
-  },
-};
+    fraunces_inter: {
+      body: 'var(--font-inter)',
+      head: 'var(--font-fraunces)',
+    },
+    inter_outfit: {
+      body: 'var(--font-outfit)',
+      head: 'var(--font-inter)',
+    },
+    inter_fraunces: {
+      body: 'var(--font-fraunces)',
+      head: 'var(--font-inter)',
+    },
+    // Legacy support
+    dmSans_spaceGrotesk: {
+      body: 'var(--font-dmsans)',
+      head: 'var(--font-spacegrotesk)',
+    },
+  };
 
 export default function ThemePreview({ theme }: { theme: RequiredThemeSettings }) {
   const bodyFont = fontPairMap[theme.typography.fontBody] || fontPairMap.inter_plusjakarta;
@@ -73,9 +81,13 @@ export default function ThemePreview({ theme }: { theme: RequiredThemeSettings }
     '--brand-accent': escapeCss(theme.colors.accent),
     '--brand-bg': escapeCss(theme.colors.background),
     '--brand-surface': escapeCss(theme.colors.surface),
+    '--brand-section': escapeCss(theme.colors.section),
     '--brand-text': escapeCss(theme.colors.text),
     '--brand-muted': escapeCss(theme.colors.muted),
     '--brand-border': escapeCss(theme.colors.border),
+    '--brand-primary-foreground': escapeCss(theme.colors.primaryForeground),
+    '--brand-accent-foreground': escapeCss(theme.colors.accentForeground),
+    '--brand-scrollbar-thumb': escapeCss(theme.colors.scrollbarThumb),
     '--brand-font-body': bodyFont.body,
     '--brand-font-head': headFont.head,
     '--brand-font-size-base': `${escapeCss(theme.typography.baseFontSize)}px`,
@@ -127,7 +139,7 @@ export default function ThemePreview({ theme }: { theme: RequiredThemeSettings }
           className="px-4 py-2 rounded font-semibold"
           style={{
             backgroundColor: 'var(--brand-primary)',
-            color: 'var(--brand-text)',
+            color: 'var(--brand-primary-foreground)',
             border: `1px solid var(--brand-border)`,
             borderRadius: 'var(--brand-radius)',
           }}
@@ -138,7 +150,7 @@ export default function ThemePreview({ theme }: { theme: RequiredThemeSettings }
           className="px-4 py-2 rounded font-semibold ml-2"
           style={{
             backgroundColor: 'var(--brand-accent)',
-            color: 'var(--brand-text)',
+            color: 'var(--brand-accent-foreground)',
             border: `1px solid var(--brand-border)`,
             borderRadius: 'var(--brand-radius)',
           }}

@@ -60,6 +60,14 @@ export async function ThemeProvider({ children }: { children: React.ReactNode })
       body: 'var(--font-inter)',
       head: 'var(--font-fraunces)',
     },
+    inter_outfit: {
+      body: 'var(--font-outfit)',
+      head: 'var(--font-inter)',
+    },
+    inter_fraunces: {
+      body: 'var(--font-fraunces)',
+      head: 'var(--font-inter)',
+    },
     // Legacy support
     dmSans_spaceGrotesk: {
       body: 'var(--font-dmsans)',
@@ -84,9 +92,13 @@ export async function ThemeProvider({ children }: { children: React.ReactNode })
             --brand-accent: ${escapeCss(theme.colors.accent)};
             --brand-bg: ${escapeCss(theme.colors.background)};
             --brand-surface: ${escapeCss(theme.colors.surface)};
+            --brand-section: ${escapeCss(theme.colors.section)};
             --brand-text: ${escapeCss(theme.colors.text)};
             --brand-muted: ${escapeCss(theme.colors.muted)};
             --brand-border: ${escapeCss(theme.colors.border)};
+            --brand-primary-foreground: ${escapeCss(theme.colors.primaryForeground)};
+            --brand-accent-foreground: ${escapeCss(theme.colors.accentForeground)};
+            --brand-scrollbar-thumb: ${escapeCss(theme.colors.scrollbarThumb)};
             --brand-font-body: ${bodyFont.body};
             --brand-font-head: ${headFont.head};
             --brand-font-size-base: ${escapeCss(theme.typography.baseFontSize)}px;

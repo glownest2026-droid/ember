@@ -40,6 +40,23 @@ html, body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--brand-font-head, var(--font-plusjakarta), system-ui, sans-serif);
 }
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand-scrollbar-thumb, #D6D3D1);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-muted, #57534E);
+}
+
 ::selection {
   background-color: var(--brand-accent, #FFE3AD);
   color: var(--brand-text, #27303F);
@@ -86,7 +103,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-primary {
   background: var(--brand-primary, #FFBEAB);
-  color: var(--brand-text, #27303F);
+  color: var(--brand-primary-foreground, #27303F);
   border: 1px solid var(--brand-border, rgba(214, 211, 209, 0.9));
   border-radius: var(--brand-radius, 12px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);

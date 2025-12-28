@@ -65,7 +65,7 @@ export function Button({
         className={`${base} shadow border ${className}`}
         style={{ 
           background: 'var(--brand-primary, #FFC7AE)', 
-          color: 'var(--brand-text, #1C1C1E)', 
+          color: 'var(--brand-primary-foreground, #27303F)', 
           borderColor: 'var(--brand-border, #E6E6EA)' 
         }}
         {...props}
@@ -116,7 +116,7 @@ const ButtonLink = ({
         className={`${base} shadow border ${className}`}
         style={{ 
           background: 'var(--brand-primary, #FFC7AE)', 
-          color: 'var(--brand-text, #1C1C1E)', 
+          color: 'var(--brand-primary-foreground, #27303F)', 
           borderColor: 'var(--brand-border, #E6E6EA)' 
         }}
       >

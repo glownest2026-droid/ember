@@ -189,7 +189,7 @@ function Badge({ children }: { children: React.ReactNode }) {
 
 function HowItWorks() {
   return (
-    <section id="how" className="py-16 bg-white">
+    <section id="how" className="py-16" style={{ background: 'var(--brand-section, #FFF8F0)' }}>
       <div className="mx-auto max-w-6xl px-6">
         <h2 className="text-3xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>How Ember helps</h2>
         <p className="mt-2 text-neutral-700 max-w-2xl">Small, clear steps that build confidence—without overwhelm.</p>
@@ -303,7 +303,7 @@ function FeatureSection() {
     { tag: "Marketplace (soon)", title: "Buy smart. Move it on.", body: "Quality first; pass things forward locally when you’re done.", bullets: ["Trusted listings", "Sustainability filters", "Pickup-friendly"] },
   ];
   return (
-    <section id="features" className="py-16 bg-white">
+    <section id="features" className="py-16" style={{ background: 'var(--brand-section, #FFF8F0)' }}>
       <div className="mx-auto max-w-6xl px-6">
         <h2 className="text-3xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>What you get</h2>
         <p className="mt-2 text-neutral-700 max-w-2xl">Know what’s next. Buy smart. Move it on.</p>
@@ -354,7 +354,7 @@ function Testimonials() {
     { name: "Amelia, expecting", body: "I sleep better knowing I’ve ticked the simple essentials for the hospital." },
   ];
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16" style={{ background: 'var(--brand-section, #FFF8F0)' }}>
       <div className="mx-auto max-w-6xl px-6">
         <h2 className="text-3xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>What parents say</h2>
         <div className="mt-8 grid md:grid-cols-3 gap-6">

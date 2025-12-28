@@ -11,9 +11,13 @@ const FACTORY_THEME: RequiredThemeSettings = {
     accent: '#FFC26E',
     background: '#FFFCF8',
     surface: '#FFFFFF',
+    section: '#FFF8F0',
     text: '#27303F',
     muted: '#57534E',
     border: '#D6D3D1',
+    primaryForeground: '#27303F',
+    accentForeground: '#27303F',
+    scrollbarThumb: '#D6D3D1',
   },
   typography: {
     fontHeading: 'inter_plusjakarta',
@@ -49,9 +53,13 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
         accent: String(fd.get('accent') || '').trim() || undefined,
         background: String(fd.get('background') || '').trim() || undefined,
         surface: String(fd.get('surface') || '').trim() || undefined,
+        section: String(fd.get('section') || '').trim() || undefined,
         text: String(fd.get('text') || '').trim() || undefined,
         muted: String(fd.get('muted') || '').trim() || undefined,
         border: String(fd.get('border') || '').trim() || undefined,
+        primaryForeground: String(fd.get('primaryForeground') || '').trim() || undefined,
+        accentForeground: String(fd.get('accentForeground') || '').trim() || undefined,
+        scrollbarThumb: String(fd.get('scrollbarThumb') || '').trim() || undefined,
       },
       typography: {
         fontHeading: String(fd.get('fontHeading') || '').trim() || undefined,
@@ -65,7 +73,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
 
     // Validate hex colors
     const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-    const colorFields = ['primary', 'accent', 'background', 'surface', 'text', 'muted', 'border'] as const;
+    const colorFields = ['primary', 'accent', 'background', 'surface', 'section', 'text', 'muted', 'border', 'primaryForeground', 'accentForeground', 'scrollbarThumb'] as const;
     for (const field of colorFields) {
       const value = themeUpdate.colors?.[field];
       if (value && !hexRegex.test(value)) {
@@ -74,7 +82,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
       }
     }
 
-    const validFontPairs = ['inter_plusjakarta', 'dmsans_inter', 'manrope_inter', 'worksans_inter', 'nunito_sourcesans3', 'lexend_inter', 'outfit_inter', 'sourcesans3_sourcesans3', 'inter_inter', 'fraunces_inter'];
+    const validFontPairs = ['inter_plusjakarta', 'dmsans_inter', 'manrope_inter', 'worksans_inter', 'nunito_sourcesans3', 'lexend_inter', 'outfit_inter', 'inter_outfit', 'sourcesans3_sourcesans3', 'inter_inter', 'fraunces_inter', 'inter_fraunces'];
     if (themeUpdate.typography?.fontHeading && !validFontPairs.includes(themeUpdate.typography.fontHeading)) {
       setError('Invalid heading font');
       return;
@@ -150,7 +158,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div className="space-y-4">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           {error && (
             <div className="rounded bg-red-100 p-3 text-red-700">{error}</div>
           )}
@@ -163,7 +171,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
           <div>
             <h2 className="text-lg font-semibold mb-3">Colors</h2>
             <div className="space-y-3">
-              {(['primary', 'accent', 'background', 'surface', 'text', 'muted', 'border'] as const).map((color) => (
+              {(['primary', 'accent', 'background', 'surface', 'section', 'text', 'muted', 'border', 'primaryForeground', 'accentForeground', 'scrollbarThumb'] as const).map((color) => (
                 <div key={color}>
                   <label className="block text-sm mb-1 capitalize">{color}</label>
                   <div className="flex items-center gap-2">
@@ -199,16 +207,16 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
                   onChange={(e) => updateDraft('typography.fontHeading', e.target.value)}
                   className="w-full border p-2 rounded"
                 >
-                  <option value="inter_plusjakarta">Plus Jakarta + Inter</option>
-                  <option value="dmsans_inter">DM Sans + Inter</option>
-                  <option value="manrope_inter">Manrope + Inter</option>
-                  <option value="worksans_inter">Work Sans + Inter</option>
-                  <option value="nunito_sourcesans3">Nunito + Source Sans 3</option>
-                  <option value="lexend_inter">Lexend + Inter</option>
-                  <option value="outfit_inter">Outfit + Inter</option>
-                  <option value="sourcesans3_sourcesans3">Source Sans 3 + Source Sans 3</option>
-                  <option value="inter_inter">Inter + Inter</option>
-                  <option value="fraunces_inter">Fraunces + Inter</option>
+                  <option value="inter_plusjakarta">Plus Jakarta (head) + Inter (body)</option>
+                  <option value="dmsans_inter">DM Sans (head) + Inter (body)</option>
+                  <option value="manrope_inter">Manrope (head) + Inter (body)</option>
+                  <option value="worksans_inter">Work Sans (head) + Inter (body)</option>
+                  <option value="nunito_sourcesans3">Nunito (head) + Source Sans 3 (body)</option>
+                  <option value="lexend_inter">Lexend (head) + Inter (body)</option>
+                  <option value="outfit_inter">Outfit (head) + Inter (body)</option>
+                  <option value="sourcesans3_sourcesans3">Source Sans 3 (both)</option>
+                  <option value="inter_inter">Inter (both)</option>
+                  <option value="fraunces_inter">Fraunces (head) + Inter (body)</option>
                 </select>
               </div>
               <div>
@@ -219,16 +227,18 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
                   onChange={(e) => updateDraft('typography.fontBody', e.target.value)}
                   className="w-full border p-2 rounded"
                 >
-                  <option value="inter_plusjakarta">Plus Jakarta + Inter</option>
-                  <option value="dmsans_inter">DM Sans + Inter</option>
-                  <option value="manrope_inter">Manrope + Inter</option>
-                  <option value="worksans_inter">Work Sans + Inter</option>
-                  <option value="nunito_sourcesans3">Nunito + Source Sans 3</option>
-                  <option value="lexend_inter">Lexend + Inter</option>
-                  <option value="outfit_inter">Outfit + Inter</option>
+                  <option value="inter_plusjakarta">Inter + Plus Jakarta</option>
+                  <option value="dmsans_inter">Inter + DM Sans</option>
+                  <option value="manrope_inter">Inter + Manrope</option>
+                  <option value="worksans_inter">Inter + Work Sans</option>
+                  <option value="nunito_sourcesans3">Source Sans 3 + Nunito</option>
+                  <option value="lexend_inter">Inter + Lexend</option>
+                  <option value="outfit_inter">Inter + Outfit</option>
+                  <option value="inter_outfit">Outfit + Inter</option>
                   <option value="sourcesans3_sourcesans3">Source Sans 3 + Source Sans 3</option>
                   <option value="inter_inter">Inter + Inter</option>
-                  <option value="fraunces_inter">Fraunces + Inter</option>
+                  <option value="fraunces_inter">Inter + Fraunces</option>
+                  <option value="inter_fraunces">Fraunces + Inter</option>
                 </select>
               </div>
               <div>
@@ -254,7 +264,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
             </div>
           </div>
 
-          <div>
+          <div className="mt-4">
             <h2 className="text-lg font-semibold mb-3">Components</h2>
             <div>
               <label className="block text-sm mb-1">Border Radius (px)</label>
@@ -270,7 +280,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-4">
             <button
               type="submit"
               disabled={isPending}
@@ -290,7 +300,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
         </form>
       </div>
 
-      <div>
+      <div className="lg:sticky lg:top-4 self-start">
         <h2 className="text-lg font-semibold mb-3">Live Preview</h2>
         <ThemePreview theme={draft} />
       </div>

@@ -1,15 +1,45 @@
 import { createClient } from '../utils/supabase/server';
 import { unstable_noStore as noStore } from 'next/cache';
 
+// Helper to determine if a hex color is light
+function isLight(hex: string): boolean {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return false;
+  // Calculate relative luminance
+  const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+  return luminance > 0.5;
+}
+
+// Helper to convert hex to RGB
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : null;
+}
+
+// Pick appropriate foreground color based on background
+function pickForeground(backgroundColor: string): string {
+  return isLight(backgroundColor) ? '#111111' : '#FFFFFF';
+}
+
 export type ThemeSettings = {
   colors?: {
     primary?: string;
     accent?: string;
     background?: string;
     surface?: string;
+    section?: string;
     text?: string;
     muted?: string;
     border?: string;
+    primaryForeground?: string;
+    accentForeground?: string;
+    scrollbarThumb?: string;
   };
   typography?: {
     fontHeading?: string;
@@ -21,19 +51,19 @@ export type ThemeSettings = {
   };
 };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 4b270fd (fix(11c): export RequiredThemeSettings)
 export type RequiredThemeSettings = {
   colors: {
     primary: string;
     accent: string;
     background: string;
     surface: string;
+    section: string;
     text: string;
     muted: string;
     border: string;
+    primaryForeground: string;
+    accentForeground: string;
+    scrollbarThumb: string;
   };
   typography: {
     fontHeading: string;
@@ -45,20 +75,19 @@ export type RequiredThemeSettings = {
   };
 };
 
-<<<<<<< HEAD
-=======
->>>>>>> c8aa39b (feat(11c): theme v0 tokens with global apply and live preview)
-=======
->>>>>>> 4b270fd (fix(11c): export RequiredThemeSettings)
-const DEFAULT_THEME: RequiredThemeSettings = {
+export const DEFAULT_THEME: RequiredThemeSettings = {
   colors: {
     primary: '#FFBEAB', // ember-400
     accent: '#FFC26E',  // apricot-400
     background: '#FFFCF8', // cream-50
     surface: '#FFFFFF',
+    section: '#FFF8F0', // slightly tinted variant of background
     text: '#27303F', // ink
     muted: '#57534E', // stone-600
     border: '#D6D3D1', // stone-300
+    primaryForeground: pickForeground('#FFBEAB'),
+    accentForeground: pickForeground('#FFC26E'),
+    scrollbarThumb: '#D6D3D1', // same as border for subtlety
   },
   typography: {
     fontHeading: 'inter_plusjakarta',
@@ -70,26 +99,25 @@ const DEFAULT_THEME: RequiredThemeSettings = {
   },
 };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 export function mergeTheme(partial?: ThemeSettings | null): RequiredThemeSettings {
-=======
-export function mergeTheme(partial?: ThemeSettings | null): Required<ThemeSettings> {
->>>>>>> c8aa39b (feat(11c): theme v0 tokens with global apply and live preview)
-=======
-export function mergeTheme(partial?: ThemeSettings | null): RequiredThemeSettings {
->>>>>>> 4b270fd (fix(11c): export RequiredThemeSettings)
   if (!partial) return DEFAULT_THEME;
+
+  const mergedPrimary = partial.colors?.primary || DEFAULT_THEME.colors.primary;
+  const mergedAccent = partial.colors?.accent || DEFAULT_THEME.colors.accent;
 
   return {
     colors: {
-      primary: partial.colors?.primary || DEFAULT_THEME.colors.primary,
-      accent: partial.colors?.accent || DEFAULT_THEME.colors.accent,
+      primary: mergedPrimary,
+      accent: mergedAccent,
       background: partial.colors?.background || DEFAULT_THEME.colors.background,
       surface: partial.colors?.surface || DEFAULT_THEME.colors.surface,
+      section: partial.colors?.section || partial.colors?.background || DEFAULT_THEME.colors.section,
       text: partial.colors?.text || DEFAULT_THEME.colors.text,
       muted: partial.colors?.muted || DEFAULT_THEME.colors.muted,
       border: partial.colors?.border || DEFAULT_THEME.colors.border,
+      primaryForeground: partial.colors?.primaryForeground || pickForeground(mergedPrimary),
+      accentForeground: partial.colors?.accentForeground || pickForeground(mergedAccent),
+      scrollbarThumb: partial.colors?.scrollbarThumb || partial.colors?.border || DEFAULT_THEME.colors.scrollbarThumb,
     },
     typography: {
       fontHeading: partial.typography?.fontHeading || DEFAULT_THEME.typography.fontHeading,
