@@ -41,8 +41,8 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--brand-font-head, var(--font-plusjakarta), system-ui, sans-serif);
 }
 ::selection {
-  background-color: var(--color-apricot-200);
-  color: var(--color-ink);
+  background-color: var(--brand-accent, #FFE3AD);
+  color: var(--brand-text, #27303F);
 }
 
 /* Container (no @apply) */
@@ -107,8 +107,9 @@ h1, h2, h3, h4, h5, h6 {
   transition: box-shadow .15s ease, border-color .15s ease, background-color .15s ease;
 }
 .input:focus {
-  box-shadow: 0 0 0 3px rgba(255, 227, 173, 0.8); /* apricot ring */
-  background-color: white;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-accent, #FFC26E) 80%, transparent);
+  background-color: var(--brand-surface, white);
+  border-color: var(--brand-border, rgba(214,211,209,0.9));
 }
 
 .kicker {
