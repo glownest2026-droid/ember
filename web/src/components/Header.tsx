@@ -153,7 +153,7 @@ export default function Header() {
     <header
       className="sticky top-0 z-40 backdrop-blur border-b"
       style={{ 
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        backgroundColor: 'var(--brand-surface, rgba(255, 255, 255, 0.7))',
         borderColor: 'var(--brand-border, #E6E6EA)',
       }}
     >
