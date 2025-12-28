@@ -67,7 +67,7 @@ function Hero() {
   return (
     <section
       className="relative overflow-hidden"
-      style={{ background: `linear-gradient(180deg, var(--brand-bg, #FFFCF8) 0%, var(--brand-surface, #FFFFFF) 60%, var(--brand-surface, #FFFFFF) 100%)` }}
+      style={{ background: `linear-gradient(180deg, var(--brand-bg, #FFFCF8) 0%, var(--brand-bg, #FFFCF8) 100%)` }}
     >
       <div className="mx-auto max-w-6xl px-6 pt-24 pb-16 grid md:grid-cols-2 gap-10 items-center">
         <div>

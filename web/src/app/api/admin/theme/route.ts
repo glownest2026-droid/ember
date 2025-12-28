@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     // Typography
     if (body.typography) {
       themeUpdate.typography = {};
-      const validFontPairs = ['inter_plusjakarta', 'dmSans_spaceGrotesk', 'nunito_sourceSans'];
+      const validFontPairs = ['inter_plusjakarta', 'dmsans_inter', 'manrope_inter', 'worksans_inter', 'nunito_sourcesans3', 'lexend_inter', 'outfit_inter', 'sourcesans3_sourcesans3', 'inter_inter', 'fraunces_inter'];
       if (body.typography.fontHeading && validFontPairs.includes(body.typography.fontHeading)) {
         themeUpdate.typography.fontHeading = body.typography.fontHeading;
       }
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
         themeUpdate.typography.fontBody = body.typography.fontBody;
       }
       if (body.typography.baseFontSize && typeof body.typography.baseFontSize === 'number') {
-        const size = Math.max(12, Math.min(20, body.typography.baseFontSize));
+        const size = Math.max(12, Math.min(72, body.typography.baseFontSize));
         themeUpdate.typography.baseFontSize = size;
       }
     }

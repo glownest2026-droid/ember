@@ -11,7 +11,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   const admin = await isAdmin();
 
   return (
-    <div style={{ background: 'linear-gradient(90deg, var(--brand-bg, #FFFCF8) 0%, var(--brand-surface, #FFFFFF) 100%)', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--brand-bg, #FFFCF8)', minHeight: '100vh' }}>
       <header className="container-wrap py-4 flex items-center justify-between">
         <Link href="/app" className="font-semibold" style={{ fontFamily: 'var(--brand-font-head, inherit)' }}>Ember — Dashboard</Link>
         <div className="flex items-center gap-3 text-sm">

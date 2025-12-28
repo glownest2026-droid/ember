@@ -239,8 +239,16 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
                   defaultValue={initial.typography.baseFontSize}
                   onChange={(e) => updateDraft('typography.baseFontSize', Number(e.target.value))}
                   min="12"
-                  max="20"
+                  max="72"
                   className="w-full border p-2 rounded"
+                />
+                <input
+                  type="range"
+                  min="14"
+                  max="48"
+                  defaultValue={initial.typography.baseFontSize}
+                  onChange={(e) => updateDraft('typography.baseFontSize', Number(e.target.value))}
+                  className="w-full mt-2"
                 />
               </div>
             </div>

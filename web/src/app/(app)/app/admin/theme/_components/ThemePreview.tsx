@@ -1,6 +1,6 @@
 'use client';
 import type { RequiredThemeSettings } from '@/lib/theme';
-import { Inter, Plus_Jakarta_Sans, DM_Sans, Space_Grotesk, Nunito, Source_Sans_3 } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans, DM_Sans, Space_Grotesk, Nunito, Source_Sans_3, Manrope, Work_Sans, Lexend, Outfit, Fraunces } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-plusjakarta' });
@@ -8,19 +8,57 @@ const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-spacegrotesk' });
 const nunito = Nunito({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-nunito' });
 const sourceSans = Source_Sans_3({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-sourcesans' });
+const manrope = Manrope({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-manrope' });
+const workSans = Work_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-worksans' });
+const lexend = Lexend({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-lexend' });
+const outfit = Outfit({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-outfit' });
+const fraunces = Fraunces({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-fraunces' });
 
 const fontPairMap: Record<string, { body: string; head: string }> = {
   inter_plusjakarta: {
     body: 'var(--font-inter)',
     head: 'var(--font-plusjakarta)',
   },
+  dmsans_inter: {
+    body: 'var(--font-dmsans)',
+    head: 'var(--font-inter)',
+  },
+  manrope_inter: {
+    body: 'var(--font-inter)',
+    head: 'var(--font-manrope)',
+  },
+  worksans_inter: {
+    body: 'var(--font-worksans)',
+    head: 'var(--font-inter)',
+  },
+  nunito_sourcesans3: {
+    body: 'var(--font-sourcesans)',
+    head: 'var(--font-nunito)',
+  },
+  lexend_inter: {
+    body: 'var(--font-inter)',
+    head: 'var(--font-lexend)',
+  },
+  outfit_inter: {
+    body: 'var(--font-inter)',
+    head: 'var(--font-outfit)',
+  },
+  sourcesans3_sourcesans3: {
+    body: 'var(--font-sourcesans)',
+    head: 'var(--font-sourcesans)',
+  },
+  inter_inter: {
+    body: 'var(--font-inter)',
+    head: 'var(--font-inter)',
+  },
+  fraunces_inter: {
+    body: 'var(--font-inter)',
+    head: 'var(--font-fraunces)',
+  },
+  // Legacy support
   dmSans_spaceGrotesk: {
     body: 'var(--font-dmsans)',
     head: 'var(--font-spacegrotesk)',
-  },
-  nunito_sourceSans: {
-    body: 'var(--font-nunito)',
-    head: 'var(--font-sourcesans)',
   },
 };
 
@@ -44,7 +82,7 @@ export default function ThemePreview({ theme }: { theme: RequiredThemeSettings }
     '--brand-radius': `${escapeCss(theme.components.radius)}px`,
   } as React.CSSProperties;
 
-  const fontClasses = `${inter.variable} ${plusJakarta.variable} ${dmSans.variable} ${spaceGrotesk.variable} ${nunito.variable} ${sourceSans.variable}`;
+  const fontClasses = `${inter.variable} ${plusJakarta.variable} ${dmSans.variable} ${spaceGrotesk.variable} ${nunito.variable} ${sourceSans.variable} ${manrope.variable} ${workSans.variable} ${lexend.variable} ${outfit.variable} ${fraunces.variable}`;
 
   return (
     <div className={`${fontClasses} border rounded p-6`} style={previewStyles}>
