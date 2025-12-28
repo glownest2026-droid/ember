@@ -67,7 +67,7 @@ function Hero() {
   return (
     <section
       className="relative overflow-hidden"
-      style={{ background: `linear-gradient(180deg, var(--brand-bg, #FFFCF8) 0%, var(--brand-bg, #FFFCF8) 100%)` }}
+      style={{ background: 'linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%)' }}
     >
       <div className="mx-auto max-w-6xl px-6 pt-24 pb-16 grid md:grid-cols-2 gap-10 items-center">
         <div>
@@ -226,7 +226,7 @@ function Demo() {
   const [stage, setStage] = React.useState("1-2y");
   const ideas = getSampleIdeas(stage);
   return (
-    <section className="py-16" style={{ background: 'var(--brand-bg, #FAFAFB)' }}>
+    <section className="py-16" style={{ background: 'linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%)' }}>
       <div className="mx-auto max-w-6xl px-6">
         <h2 className="text-3xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>Try a quick sample</h2>
         <p className="mt-2 text-neutral-700 max-w-2xl">Pick your stage to see three bite-size ideas you could use this week.</p>
