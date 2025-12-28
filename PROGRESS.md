@@ -328,53 +328,83 @@
 - No child name collection (only child_id UUID and age_band string)
 - All proof routes pass: `/signin`, `/auth/callback`, `/app`, `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
 
-## 2025-12-24 — Module 11C: Theme v0 (Global Apply + Live Preview)
+## 2025-12-24 — Module 11C: Theme v1 (Global Apply + Live Preview + Semantic Tokens + Gradients)
 
 ### Summary
-- Upgraded theme system to v0 with expanded token set (colors, typography, components).
-- Theme applies globally across entire site via root layout CSS variables.
-- Added live preview panel in admin theme editor (changes visible before saving).
-- Fixed caching with `revalidatePath` so theme changes are immediately visible.
+Shipped admin-managed brand theming with global site apply (home/signin/app/cms) and a live preview editor.
+Expanded from basic tokens to a clearer, semantic theme model (button foregrounds, section backgrounds) and added “Reset to factory” to restore Ember defaults.
+Hardened deployment hygiene (resolved merge-conflict markers causing build failure).
+Applied homepage section theming so marketing page blocks follow the Background/Section alternation (no hard-coded white outliers).
+
 
 ### Routes added
-- `/app/admin/theme` — admin-only theme settings page with live preview
+/app/admin/theme — admin-only theme settings page with live preview
+/api/admin/theme — theme save endpoint with revalidation
+
 
 ### Key code
-- `web/src/lib/theme.ts` — theme loader with v0 schema and safe defaults
-- `web/src/lib/admin.ts` — admin role check utility
-- `web/src/components/ThemeProvider.tsx` — applies theme globally via CSS variables
-- `web/src/app/layout.tsx` — root layout wraps app with ThemeProvider
-- `web/src/app/(app)/app/admin/theme/page.tsx` — admin theme page
-- `web/src/app/(app)/app/admin/theme/_components/ThemeEditor.tsx` — theme editor with live preview
-- `web/src/app/(app)/app/admin/theme/_components/ThemePreview.tsx` — live preview component
-- `web/src/app/api/admin/theme/route.ts` — POST endpoint with revalidatePath
+web/src/lib/theme.ts — theme schema, DEFAULT_THEME (factory), mergeTheme(), luminance helpers + safe merges
+web/src/lib/admin.ts — admin role check utility
+web/src/components/ThemeProvider.tsx — applies theme globally via CSS variables
+web/src/app/layout.tsx — root layout wraps all routes with ThemeProvider (global apply)
+web/src/app/(app)/app/admin/theme/page.tsx — admin theme page
+web/src/app/(app)/app/admin/theme/_components/ThemeEditor.tsx — editor UI incl. sticky preview + reset
+web/src/app/(app)/app/admin/theme/_components/ThemePreview.tsx — live preview mock showing token effects
+web/src/app/api/admin/theme/route.ts — POST endpoint + revalidatePath for immediate propagation
+web/src/app/globals.css — maps theme vars into global styling (background, text, buttons, sections, optional scrollbar)
+web/src/app/page.tsx — homepage sections updated to use theme background/section tokens (remove hard-coded white)
+web/src/components/ui/Button.tsx + web/src/components/Header.tsx — primary/accent buttons use foreground tokens for readable text
 
-### Theme v0 Schema
-```typescript
-{
-  colors: { primary, accent, background, surface, text, muted, border },
-  typography: { fontHeading, fontBody, baseFontSize },
-  components: { radius }
-}
-```
 
-### CSS Variables Applied
-- `--brand-primary`, `--brand-accent`, `--brand-bg`, `--brand-surface`, `--brand-text`, `--brand-muted`, `--brand-border`
-- `--brand-font-body`, `--brand-font-head`
-- `--brand-font-size-base`
-- `--brand-radius`
+### Theme Schema (as-shipped)
+Colors
+
+primary, primaryForeground (auto-calculated fallback)
+
+accent, accentForeground (auto-calculated fallback)
+
+background, surface, text, muted, border
+
+section (or section1/section2 if gradients shipped), scrollbarThumb (subtle)
+
+Typography
+
+fontHeading, fontBody (or heading/subheading/body if shipped)
+
+baseFontSize (higher cap than v0; numeric input supported if shipped)
+
+
+### Components
+
+radius
+
+
+### CSS Variables Applied (core)
+--brand-primary, --brand-primary-foreground
+--brand-accent, --brand-accent-foreground
+--brand-bg, --brand-surface, --brand-text, --brand-muted, --brand-border
+--brand-section
+--brand-font-body, --brand-font-head
+--brand-font-size-base
+--brand-radius
+(plus --brand-scrollbar-thumb if enabled)
+
 
 ### Implementation Details
-- Global apply: ThemeProvider in root layout covers all routes (signin, cms, app)
-- Live preview: Draft state updates preview panel without affecting page
-- Caching fix: `revalidatePath('/')` and `revalidatePath('/app')` on save
-- Font pairs: Inter+Plus Jakarta, DM Sans+Space Grotesk, Nunito+Source Sans 3
-- UI updates: `.btn-primary`, `.card` use theme vars; nav links use theme colors
+Global apply: ThemeProvider in root layout covers all routes (/, /signin, /cms/, /app/).
+Live preview: Draft state updates preview panel without affecting saved theme until “Save Theme”.
+Immediate propagation: save endpoint triggers revalidation (revalidatePath on relevant layouts/routes).
+Reset: “Reset to factory” writes DEFAULT_THEME back to site_settings.theme and revalidates.
+Semantic mapping: background/surface/section drive page + sections; primary/accent drive buttons/links; foreground tokens ensure readable button text.
+Fonts: curated dropdown expanded beyond v0 (ensure list matches current implementation).
+Deployment hygiene: resolved and prevented merge conflict markers in theme.ts that broke Turbopack build.
+
 
 ### Verification (Proof-of-Done)
-- Non-admin cannot access `/app/admin/theme` (redirects to `/app`)
-- Admin can save theme changes and see immediate effect after refresh
-- Live preview updates as admin changes values (before saving)
-- Theme applies globally: `/signin`, `/app/recs` show theme changes
-- Safe defaults if DB fails: app loads with fallback theme
-- All proof routes pass: `/signin`, `/auth/callback`, `/app`, `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
+Access control: non-admin cannot access /app/admin/theme (redirects/blocked).
+Save works: admin saves theme; changes apply across /, /signin, /app/* after refresh.
+Preview works: changing controls updates the live preview immediately (incl. fonts).
+Reset works: returns site to factory Ember branding immediately.
+Homepage sections: previously white outliers (e.g., Trust/FAQs) now follow Background/Section styling.
+Build passes: no conflict markers; Vercel build succeeds.
+All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
