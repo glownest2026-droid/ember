@@ -21,8 +21,8 @@ export function BrandIcon({ size = 20 }: { size?: number }) {
     <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`} role="img" aria-label="Ember icon">
       <defs>
         <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={THEME.primary} />
-          <stop offset="100%" stopColor={THEME.primaryLight} />
+          <stop offset="0%" stopColor="var(--brand-primary, #FFC7AE)" />
+          <stop offset="100%" stopColor="var(--brand-accent, #FFE5D7)" />
         </linearGradient>
       </defs>
       <g stroke="url(#g)" strokeWidth={s * 0.12} strokeLinecap="round">
@@ -41,11 +41,11 @@ export function Wordmark() {
     <div className="inline-flex items-center gap-2 select-none">
       <div
         className="w-7 h-7 rounded-full grid place-items-center"
-        style={{ background: `linear-gradient(160deg, ${THEME.primary}, ${THEME.primaryLight})` }}
+        style={{ background: `linear-gradient(160deg, var(--brand-primary, #FFC7AE), var(--brand-accent, #FFE5D7))` }}
       >
         <BrandIcon size={18} />
       </div>
-      <span className="text-xl font-semibold tracking-tight" style={{ color: THEME.ink }}>
+      <span className="text-xl font-semibold tracking-tight" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
         Ember
       </span>
     </div>
@@ -63,7 +63,11 @@ export function Button({
     return (
       <button
         className={`${base} shadow border ${className}`}
-        style={{ background: THEME.primary, color: THEME.ink, borderColor: THEME.pebble }}
+        style={{ 
+          background: 'var(--brand-primary, #FFC7AE)', 
+          color: 'var(--brand-primary-foreground, #27303F)', 
+          borderColor: 'var(--brand-border, #E6E6EA)' 
+        }}
         {...props}
       >
         {children}
@@ -74,7 +78,11 @@ export function Button({
     return (
       <button
         className={`${base} border ${className}`}
-        style={{ background: THEME.cloud, color: THEME.ink, borderColor: THEME.pebble }}
+        style={{ 
+          background: 'var(--brand-bg, #FAFAFB)', 
+          color: 'var(--brand-text, #1C1C1E)', 
+          borderColor: 'var(--brand-border, #E6E6EA)' 
+        }}
         {...props}
       >
         {children}
@@ -106,7 +114,11 @@ const ButtonLink = ({
       <Link
         href={href}
         className={`${base} shadow border ${className}`}
-        style={{ background: THEME.primary, color: THEME.ink, borderColor: THEME.pebble }}
+        style={{ 
+          background: 'var(--brand-primary, #FFC7AE)', 
+          color: 'var(--brand-primary-foreground, #27303F)', 
+          borderColor: 'var(--brand-border, #E6E6EA)' 
+        }}
       >
         {children}
       </Link>
@@ -117,7 +129,11 @@ const ButtonLink = ({
       <Link
         href={href}
         className={`${base} border ${className}`}
-        style={{ background: THEME.cloud, color: THEME.ink, borderColor: THEME.pebble }}
+        style={{ 
+          background: 'var(--brand-bg, #FAFAFB)', 
+          color: 'var(--brand-text, #1C1C1E)', 
+          borderColor: 'var(--brand-border, #E6E6EA)' 
+        }}
       >
         {children}
       </Link>
@@ -135,8 +151,11 @@ export default function Header() {
 
   return (
     <header
-      className="sticky top-0 z-40 backdrop-blur bg-white/70 border-b"
-      style={{ borderColor: THEME.pebble }}
+      className="sticky top-0 z-40 backdrop-blur border-b"
+      style={{ 
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        borderColor: 'var(--brand-border, #E6E6EA)',
+      }}
     >
       <div className="mx-auto max-w-6xl px-6 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
@@ -144,7 +163,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: THEME.ink }}>
+        <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
           <a className="opacity-80 hover:opacity-100" href="#how">How it works</a>
           <a className="opacity-80 hover:opacity-100" href="#features">Features</a>
           <a className="opacity-80 hover:opacity-100" href="#trust">Trust</a>
@@ -163,7 +182,7 @@ export default function Header() {
           aria-expanded={open}
           onClick={() => setOpen(v => !v)}
           className="md:hidden inline-flex items-center justify-center rounded-xl border px-3 py-2"
-          style={{ borderColor: THEME.pebble, color: THEME.ink }}
+          style={{ borderColor: 'var(--brand-border, #E6E6EA)', color: 'var(--brand-text, #1C1C1E)' }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
             <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -173,7 +192,7 @@ export default function Header() {
 
       {/* Mobile panel */}
       {open && (
-        <div className="md:hidden border-t bg-white/90 backdrop-blur" style={{ borderColor: THEME.pebble }}>
+        <div className="md:hidden border-t backdrop-blur" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderColor: 'var(--brand-border, #E6E6EA)' }}>
           <div className="mx-auto max-w-6xl px-6 py-3 flex flex-col gap-3">
             <a href="#how" className="py-1" onClick={() => setOpen(false)}>How it works</a>
             <a href="#features" className="py-1" onClick={() => setOpen(false)}>Features</a>

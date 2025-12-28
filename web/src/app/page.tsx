@@ -3,12 +3,12 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Button, BrandIcon, Wordmark, THEME } from "../components/Header";
+import { Button, BrandIcon, Wordmark } from "../components/Header";
 import { Button as UiButton } from "@/components/ui/Button";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen" style={{ background: THEME.cloud }}>
+    <main className="min-h-screen" style={{ background: 'linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%)' }}>
       <Hero />
       <FeaturedStrip />
       <HowItWorks />
@@ -67,11 +67,11 @@ function Hero() {
   return (
     <section
       className="relative overflow-hidden"
-      style={{ background: `linear-gradient(180deg, ${THEME.primary} 0%, ${THEME.primaryLight} 60%, #FFFFFF 100%)` }}
+      style={{ background: 'linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%)' }}
     >
       <div className="mx-auto max-w-6xl px-6 pt-24 pb-16 grid md:grid-cols-2 gap-10 items-center">
         <div>
-          <h1 className="text-4xl md:text-5xl font-semibold leading-tight" style={{ color: THEME.ink }}>
+          <h1 className="text-4xl md:text-5xl font-semibold leading-tight" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
             Simple, trusted guidance from bump to big steps.
           </h1>
           <p className="mt-4 text-base md:text-lg max-w-xl text-neutral-800">
@@ -96,9 +96,9 @@ function Hero() {
             id="waitlist"
             onSubmit={onSubmit}
             className="mt-8 bg-white/80 backdrop-blur border rounded-2xl p-3 sm:p-4 max-w-xl"
-            style={{ borderColor: THEME.pebble }}
+            style={{ borderColor: 'var(--brand-border, #E6E6EA)' }}
           >
-            <div className="text-sm font-medium mb-2" style={{ color: THEME.ink }}>
+            <div className="text-sm font-medium mb-2" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
               Join the early access list
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
@@ -110,7 +110,7 @@ function Hero() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 className="flex-1 px-4 py-3 rounded-xl border focus:outline-none focus:ring"
-                style={{ borderColor: THEME.pebble }}
+                style={{ borderColor: 'var(--brand-border, #E6E6EA)' }}
                 disabled={submitting}
                 type="email"
                 autoComplete="email"
@@ -125,7 +125,7 @@ function Hero() {
 
         {/* App icon showcase */}
         <div className="relative">
-          <div className="absolute -top-24 -right-28 w-80 h-80 rounded-full opacity-40 blur-2xl" style={{ background: THEME.primaryLight }} />
+          <div className="absolute -top-24 -right-28 w-80 h-80 rounded-full opacity-40 blur-2xl" style={{ background: 'var(--brand-accent, #FFE5D7)' }} />
           <div className="flex items-end gap-6 justify-center md:justify-end">
             <AppIcon size={180} />
             <div className="flex flex-col gap-4">
@@ -149,14 +149,14 @@ function AppIcon({ size = 128 }: { size?: number }) {
   return (
     <div
       className="rounded-2xl shadow-lg relative border"
-      style={{ width: s, height: s, background: `linear-gradient(160deg, ${THEME.primary}, ${THEME.primaryLight})`, borderColor: THEME.pebble }}
+      style={{ width: s, height: s, background: `linear-gradient(160deg, var(--brand-primary, #FFC7AE), var(--brand-accent, #FFE5D7))`, borderColor: 'var(--brand-border, #E6E6EA)' }}
     >
       <div className="absolute inset-0 grid place-items-center">
         <BrandIcon size={Math.floor(s * 0.62)} />
       </div>
       <div
         className="absolute bottom-2 right-2 text-[10px] uppercase tracking-wide font-medium px-2 py-1 rounded-md"
-        style={{ background: "rgba(28,28,30,0.06)", color: THEME.ink, border: `1px solid ${THEME.pebble}` }}
+        style={{ background: "rgba(28,28,30,0.06)", color: 'var(--brand-text, #1C1C1E)', border: '1px solid var(--brand-border, #E6E6EA)' }}
       >
         {size} px
       </div>
@@ -181,7 +181,7 @@ function FeaturedStrip() {
 }
 function Badge({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-sm px-3 py-2 rounded-xl border bg-white" style={{ borderColor: THEME.pebble }}>
+    <div className="text-sm px-3 py-2 rounded-xl border bg-white" style={{ borderColor: 'var(--brand-border, #E6E6EA)' }}>
       {children}
     </div>
   );
@@ -189,9 +189,9 @@ function Badge({ children }: { children: React.ReactNode }) {
 
 function HowItWorks() {
   return (
-    <section id="how" className="py-16 bg-white">
+    <section id="how" className="py-16" style={{ background: 'linear-gradient(180deg, var(--brand-section-1, #FFF8F0) 0%, var(--brand-section-2, #FFFCF8) 100%)' }}>
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl font-semibold" style={{ color: THEME.ink }}>How Ember helps</h2>
+        <h2 className="text-3xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>How Ember helps</h2>
         <p className="mt-2 text-neutral-700 max-w-2xl">Small, clear steps that build confidence—without overwhelm.</p>
         <div className="mt-8 grid md:grid-cols-3 gap-6">
           <StepCard index={1} title="Create your family" body="Add due date or birthdate, and optional interests. We tailor recommendations to your stage." />
@@ -204,11 +204,11 @@ function HowItWorks() {
 }
 function StepCard({ index, title, body }: { index: number; title: string; body: string }) {
   return (
-    <div className="rounded-2xl border bg-white p-5" style={{ borderColor: THEME.pebble }}>
-      <div className="w-8 h-8 rounded-lg grid place-items-center font-semibold" style={{ background: THEME.primaryLight, color: THEME.ink }}>
+    <div className="rounded-2xl border bg-white p-5" style={{ borderColor: 'var(--brand-border, #E6E6EA)' }}>
+      <div className="w-8 h-8 rounded-lg grid place-items-center font-semibold" style={{ background: 'var(--brand-accent, #FFE5D7)', color: 'var(--brand-text, #1C1C1E)' }}>
         {index}
       </div>
-      <h3 className="mt-4 text-lg font-semibold" style={{ color: THEME.ink }}>{title}</h3>
+      <h3 className="mt-4 text-lg font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>{title}</h3>
       <p className="mt-2 text-sm text-neutral-700">{body}</p>
     </div>
   );
@@ -226,9 +226,9 @@ function Demo() {
   const [stage, setStage] = React.useState("1-2y");
   const ideas = getSampleIdeas(stage);
   return (
-    <section className="py-16" style={{ background: THEME.cloud }}>
+    <section className="py-16" style={{ background: 'linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%)' }}>
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl font-semibold" style={{ color: THEME.ink }}>Try a quick sample</h2>
+        <h2 className="text-3xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>Try a quick sample</h2>
         <p className="mt-2 text-neutral-700 max-w-2xl">Pick your stage to see three bite-size ideas you could use this week.</p>
 
         <div className="mt-5 flex flex-wrap gap-2">
@@ -237,7 +237,7 @@ function Demo() {
               key={s.key}
               onClick={() => setStage(s.key)}
               className={`px-4 py-2 rounded-xl text-sm border ${stage === s.key ? "shadow" : ""}`}
-              style={{ background: stage === s.key ? THEME.primary : "white", color: THEME.ink, borderColor: THEME.pebble }}
+              style={{ background: stage === s.key ? 'var(--brand-primary, #FFC7AE)' : "white", color: 'var(--brand-text, #1C1C1E)', borderColor: 'var(--brand-border, #E6E6EA)' }}
             >
               {s.label}
             </button>
@@ -246,9 +246,9 @@ function Demo() {
 
         <div className="mt-6 grid md:grid-cols-3 gap-4">
           {ideas.map((it, i) => (
-            <div key={i} className="rounded-2xl border bg-white p-5 flex flex-col" style={{ borderColor: THEME.pebble }}>
+            <div key={i} className="rounded-2xl border bg-white p-5 flex flex-col" style={{ borderColor: 'var(--brand-border, #E6E6EA)' }}>
               <div className="text-sm uppercase tracking-wide text-neutral-500">{it.type}</div>
-              <h4 className="mt-2 text-lg font-semibold" style={{ color: THEME.ink }}>{it.title}</h4>
+              <h4 className="mt-2 text-lg font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>{it.title}</h4>
               <p className="mt-2 text-sm text-neutral-700 flex-1">{it.desc}</p>
               <div className="mt-4 text-xs text-neutral-500">Est. {it.time} min • Confidence +{it.confidence}</div>
             </div>
@@ -303,15 +303,15 @@ function FeatureSection() {
     { tag: "Marketplace (soon)", title: "Buy smart. Move it on.", body: "Quality first; pass things forward locally when you’re done.", bullets: ["Trusted listings", "Sustainability filters", "Pickup-friendly"] },
   ];
   return (
-    <section id="features" className="py-16 bg-white">
+    <section id="features" className="py-16" style={{ background: 'linear-gradient(180deg, var(--brand-section-1, #FFF8F0) 0%, var(--brand-section-2, #FFFCF8) 100%)' }}>
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl font-semibold" style={{ color: THEME.ink }}>What you get</h2>
+        <h2 className="text-3xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>What you get</h2>
         <p className="mt-2 text-neutral-700 max-w-2xl">Know what’s next. Buy smart. Move it on.</p>
         <div className="mt-8 grid md:grid-cols-2 gap-6">
           {features.map((f, i) => (
-            <div key={i} className="rounded-2xl border bg-white p-5" style={{ borderColor: THEME.pebble }}>
+            <div key={i} className="rounded-2xl border bg-white p-5" style={{ borderColor: 'var(--brand-border, #E6E6EA)' }}>
               <div className="text-xs uppercase tracking-wide text-neutral-500">{f.tag}</div>
-              <h3 className="mt-1 text-xl font-semibold" style={{ color: THEME.ink }}>{f.title}</h3>
+              <h3 className="mt-1 text-xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>{f.title}</h3>
               <p className="mt-2 text-sm text-neutral-700">{f.body}</p>
               <ul className="mt-3 text-sm text-neutral-700 list-disc ml-5 space-y-1">
                 {f.bullets.map((b, j) => <li key={j}>{b}</li>)}
@@ -326,9 +326,9 @@ function FeatureSection() {
 
 function Trust() {
   return (
-    <section id="trust" className="py-16" style={{ background: THEME.cloud }}>
+    <section id="trust" className="py-16" style={{ background: 'linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%)' }}>
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl font-semibold" style={{ color: THEME.ink }}>Why parents trust Ember</h2>
+        <h2 className="text-3xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>Why parents trust Ember</h2>
         <div className="mt-8 grid md:grid-cols-3 gap-6">
           <TrustCard title="Clear, not noisy" body="We simplify the next step. No doom-scrolling, no guilt trips." />
           <TrustCard title="Private by default" body="We ask for only what helps, store it safely, and never sell your data." />
@@ -340,8 +340,8 @@ function Trust() {
 }
 function TrustCard({ title, body }: { title: string; body: string }) {
   return (
-    <div className="rounded-2xl border bg-white p-5" style={{ borderColor: THEME.pebble }}>
-      <h3 className="text-lg font-semibold" style={{ color: THEME.ink }}>{title}</h3>
+    <div className="rounded-2xl border bg-white p-5" style={{ borderColor: 'var(--brand-border, #E6E6EA)' }}>
+      <h3 className="text-lg font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>{title}</h3>
       <p className="mt-2 text-sm text-neutral-700">{body}</p>
     </div>
   );
@@ -354,12 +354,12 @@ function Testimonials() {
     { name: "Amelia, expecting", body: "I sleep better knowing I’ve ticked the simple essentials for the hospital." },
   ];
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16" style={{ background: 'linear-gradient(180deg, var(--brand-section-1, #FFF8F0) 0%, var(--brand-section-2, #FFFCF8) 100%)' }}>
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl font-semibold" style={{ color: THEME.ink }}>What parents say</h2>
+        <h2 className="text-3xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>What parents say</h2>
         <div className="mt-8 grid md:grid-cols-3 gap-6">
           {quotes.map((q, i) => (
-            <div key={i} className="rounded-2xl border bg-white p-5" style={{ borderColor: THEME.pebble }}>
+            <div key={i} className="rounded-2xl border bg-white p-5" style={{ borderColor: 'var(--brand-border, #E6E6EA)' }}>
               <p className="text-sm text-neutral-800">“{q.body}”</p>
               <div className="mt-3 text-xs text-neutral-500">{q.name}</div>
             </div>
@@ -380,13 +380,13 @@ function FAQ() {
     { q: "Where does Ember work?", a: "We’re building for the UK first with global expansion in mind. Weekends will localise to your area." },
   ];
   return (
-    <section id="faq" className="py-16" style={{ background: THEME.cloud }}>
+    <section id="faq" className="py-16" style={{ background: 'linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%)' }}>
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl font-semibold" style={{ color: THEME.ink }}>FAQs</h2>
+        <h2 className="text-3xl font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>FAQs</h2>
         <div className="mt-6 grid md:grid-cols-2 gap-6">
           {items.map((it, i) => (
-            <div key={i} className="rounded-2xl border bg-white p-5" style={{ borderColor: THEME.pebble }}>
-              <h3 className="text-lg font-semibold" style={{ color: THEME.ink }}>{it.q}</h3>
+            <div key={i} className="rounded-2xl border bg-white p-5" style={{ borderColor: 'var(--brand-border, #E6E6EA)' }}>
+              <h3 className="text-lg font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>{it.q}</h3>
               <p className="mt-2 text-sm text-neutral-700">{it.a}</p>
             </div>
           ))}
@@ -398,7 +398,7 @@ function FAQ() {
 
 function Footer() {
   return (
-    <footer className="pt-14 pb-10 bg-white border-t" style={{ borderColor: THEME.pebble }}>
+    <footer className="pt-14 pb-10 bg-white border-t" style={{ borderColor: 'var(--brand-border, #E6E6EA)' }}>
       <div className="mx-auto max-w-6xl px-6 grid md:grid-cols-4 gap-8">
         <div>
           <Wordmark />
@@ -407,7 +407,7 @@ function Footer() {
           </p>
         </div>
         <div>
-          <div className="text-sm font-semibold" style={{ color: THEME.ink }}>Product</div>
+          <div className="text-sm font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>Product</div>
           <ul className="mt-2 text-sm text-neutral-700 space-y-1">
             <li><a href="#how">How it works</a></li>
             <li><a href="#features">Features</a></li>
@@ -415,7 +415,7 @@ function Footer() {
           </ul>
         </div>
         <div>
-          <div className="text-sm font-semibold" style={{ color: THEME.ink }}>Company</div>
+          <div className="text-sm font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>Company</div>
           <ul className="mt-2 text-sm text-neutral-700 space-y-1">
             <li>Privacy</li>
             <li>Terms</li>
@@ -423,12 +423,12 @@ function Footer() {
           </ul>
         </div>
         <div>
-          <div className="text-sm font-semibold" style={{ color: THEME.ink }}>Get updates</div>
+          <div className="text-sm font-semibold" style={{ color: 'var(--brand-text, #1C1C1E)' }}>Get updates</div>
           <div className="mt-2 flex gap-2">
             <input
               placeholder="you@example.com"
               className="flex-1 px-4 py-3 rounded-xl border focus:outline-none focus:ring"
-              style={{ borderColor: THEME.pebble }}
+              style={{ borderColor: 'var(--brand-border, #E6E6EA)' }}
             />
             <Button>Subscribe</Button>
           </div>

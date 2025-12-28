@@ -29,17 +29,41 @@
 
 /* Background wash + crisp text rendering */
 html, body {
-  background:
-    radial-gradient(1200px 600px at 10% -10%, var(--color-ember-100), transparent 60%),
-    radial-gradient(1000px 520px at 90% -10%, var(--color-blush-100), transparent 55%),
-    linear-gradient(to bottom, var(--color-cream-50), var(--color-ember-50));
-  color: var(--color-ink);
+  background: linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%);
+  color: var(--brand-text, var(--color-ink));
+  font-family: var(--brand-font-body, var(--font-inter), system-ui, sans-serif);
+  font-size: var(--brand-font-size-base, 16px);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+h1 {
+  font-family: var(--brand-font-heading, var(--font-plusjakarta), system-ui, sans-serif);
+}
+
+h2, h3, h4, h5, h6 {
+  font-family: var(--brand-font-subheading, var(--font-plusjakarta), system-ui, sans-serif);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand-scrollbar-thumb, #D6D3D1);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-muted, #57534E);
+}
+
 ::selection {
-  background-color: var(--color-apricot-200);
-  color: var(--color-ink);
+  background-color: var(--brand-accent, #FFE3AD);
+  color: var(--brand-text, #27303F);
 }
 
 /* Container (no @apply) */
@@ -83,7 +107,7 @@ html, body {
 
 .btn-primary {
   background: var(--brand-primary, #FFBEAB);
-  color: var(--brand-text, #27303F);
+  color: var(--brand-primary-foreground, #27303F);
   border: 1px solid var(--brand-border, rgba(214, 211, 209, 0.9));
   border-radius: var(--brand-radius, 12px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
@@ -104,8 +128,9 @@ html, body {
   transition: box-shadow .15s ease, border-color .15s ease, background-color .15s ease;
 }
 .input:focus {
-  box-shadow: 0 0 0 3px rgba(255, 227, 173, 0.8); /* apricot ring */
-  background-color: white;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-accent, #FFC26E) 80%, transparent);
+  background-color: var(--brand-surface, white);
+  border-color: var(--brand-border, rgba(214,211,209,0.9));
 }
 
 .kicker {

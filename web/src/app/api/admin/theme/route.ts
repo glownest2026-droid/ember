@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '../../../../utils/supabase/server';
 import { isAdmin } from '../../../../lib/admin';
+import { mergeTheme } from '../../../../lib/theme';
 import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest) {
     if (body.colors) {
       themeUpdate.colors = {};
       const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-      const colorFields = ['primary', 'accent', 'background', 'surface', 'text', 'muted', 'border'] as const;
+      const colorFields = ['primary', 'accent', 'background1', 'background2', 'surface', 'section1', 'section2', 'text', 'muted', 'border', 'primaryForeground', 'accentForeground', 'scrollbarThumb'] as const;
       for (const field of colorFields) {
         const value = body.colors[field];
         if (value && typeof value === 'string') {
@@ -49,15 +50,18 @@ export async function POST(req: NextRequest) {
     // Typography
     if (body.typography) {
       themeUpdate.typography = {};
-      const validFontPairs = ['inter_plusjakarta', 'dmSans_spaceGrotesk', 'nunito_sourceSans'];
+      const validFontPairs = ['inter_plusjakarta', 'dmsans_inter', 'manrope_inter', 'worksans_inter', 'nunito_sourcesans3', 'lexend_inter', 'outfit_inter', 'inter_outfit', 'sourcesans3_sourcesans3', 'inter_inter', 'fraunces_inter', 'inter_fraunces'];
       if (body.typography.fontHeading && validFontPairs.includes(body.typography.fontHeading)) {
         themeUpdate.typography.fontHeading = body.typography.fontHeading;
+      }
+      if (body.typography.fontSubheading && validFontPairs.includes(body.typography.fontSubheading)) {
+        themeUpdate.typography.fontSubheading = body.typography.fontSubheading;
       }
       if (body.typography.fontBody && validFontPairs.includes(body.typography.fontBody)) {
         themeUpdate.typography.fontBody = body.typography.fontBody;
       }
       if (body.typography.baseFontSize && typeof body.typography.baseFontSize === 'number') {
-        const size = Math.max(12, Math.min(20, body.typography.baseFontSize));
+        const size = Math.max(12, Math.min(72, body.typography.baseFontSize));
         themeUpdate.typography.baseFontSize = size;
       }
     }
@@ -80,12 +84,13 @@ export async function POST(req: NextRequest) {
 
     const currentTheme = (current?.theme as any) || {};
     
-    // Deep merge
-    const mergedTheme = {
+    // Use mergeTheme helper to ensure defaults and proper merging
+    const mergedTheme = mergeTheme({
+      ...currentTheme,
       colors: { ...currentTheme.colors, ...themeUpdate.colors },
       typography: { ...currentTheme.typography, ...themeUpdate.typography },
       components: { ...currentTheme.components, ...themeUpdate.components },
-    };
+    });
 
     // Update site_settings
     const { error: updateError } = await supabase
@@ -118,9 +123,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Revalidate paths to clear cache
-    revalidatePath('/');
-    revalidatePath('/app');
-    revalidatePath('/signin');
+    revalidatePath('/', 'layout');
+    revalidatePath('/app', 'layout');
+    revalidatePath('/signin', 'layout');
 
     return new NextResponse(JSON.stringify({ success: true }), {
       status: 200,
