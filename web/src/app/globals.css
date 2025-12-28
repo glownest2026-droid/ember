@@ -29,7 +29,7 @@
 
 /* Background wash + crisp text rendering */
 html, body {
-  background: var(--brand-bg, var(--color-cream-50));
+  background: linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%);
   color: var(--brand-text, var(--color-ink));
   font-family: var(--brand-font-body, var(--font-inter), system-ui, sans-serif);
   font-size: var(--brand-font-size-base, 16px);
@@ -37,8 +37,12 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--brand-font-head, var(--font-plusjakarta), system-ui, sans-serif);
+h1 {
+  font-family: var(--brand-font-heading, var(--font-plusjakarta), system-ui, sans-serif);
+}
+
+h2, h3, h4, h5, h6 {
+  font-family: var(--brand-font-subheading, var(--font-plusjakarta), system-ui, sans-serif);
 }
 
 /* Scrollbar styling */

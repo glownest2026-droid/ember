@@ -76,7 +76,8 @@ export async function ThemeProvider({ children }: { children: React.ReactNode })
   };
 
   const bodyFont = fontPairMap[theme.typography.fontBody] || fontPairMap.inter_plusjakarta;
-  const headFont = fontPairMap[theme.typography.fontHeading] || fontPairMap.inter_plusjakarta;
+  const headingFont = fontPairMap[theme.typography.fontHeading] || fontPairMap.inter_plusjakarta;
+  const subheadingFont = fontPairMap[theme.typography.fontSubheading] || fontPairMap.inter_plusjakarta;
 
   // Escape CSS values safely
   const escapeCss = (value: string | number) => String(value).replace(/[<>"']/g, '');
@@ -90,17 +91,20 @@ export async function ThemeProvider({ children }: { children: React.ReactNode })
           :root {
             --brand-primary: ${escapeCss(theme.colors.primary)};
             --brand-accent: ${escapeCss(theme.colors.accent)};
-            --brand-bg: ${escapeCss(theme.colors.background)};
+            --brand-bg-1: ${escapeCss(theme.colors.background1)};
+            --brand-bg-2: ${escapeCss(theme.colors.background2)};
             --brand-surface: ${escapeCss(theme.colors.surface)};
-            --brand-section: ${escapeCss(theme.colors.section)};
+            --brand-section-1: ${escapeCss(theme.colors.section1)};
+            --brand-section-2: ${escapeCss(theme.colors.section2)};
             --brand-text: ${escapeCss(theme.colors.text)};
             --brand-muted: ${escapeCss(theme.colors.muted)};
             --brand-border: ${escapeCss(theme.colors.border)};
             --brand-primary-foreground: ${escapeCss(theme.colors.primaryForeground)};
             --brand-accent-foreground: ${escapeCss(theme.colors.accentForeground)};
             --brand-scrollbar-thumb: ${escapeCss(theme.colors.scrollbarThumb)};
+            --brand-font-heading: ${headingFont.head};
+            --brand-font-subheading: ${subheadingFont.head};
             --brand-font-body: ${bodyFont.body};
-            --brand-font-head: ${headFont.head};
             --brand-font-size-base: ${escapeCss(theme.typography.baseFontSize)}px;
             --brand-radius: ${escapeCss(theme.components.radius)}px;
           }

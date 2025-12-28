@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     if (body.colors) {
       themeUpdate.colors = {};
       const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-      const colorFields = ['primary', 'accent', 'background', 'surface', 'section', 'text', 'muted', 'border', 'primaryForeground', 'accentForeground', 'scrollbarThumb'] as const;
+      const colorFields = ['primary', 'accent', 'background1', 'background2', 'surface', 'section1', 'section2', 'text', 'muted', 'border', 'primaryForeground', 'accentForeground', 'scrollbarThumb'] as const;
       for (const field of colorFields) {
         const value = body.colors[field];
         if (value && typeof value === 'string') {
@@ -53,6 +53,9 @@ export async function POST(req: NextRequest) {
       const validFontPairs = ['inter_plusjakarta', 'dmsans_inter', 'manrope_inter', 'worksans_inter', 'nunito_sourcesans3', 'lexend_inter', 'outfit_inter', 'inter_outfit', 'sourcesans3_sourcesans3', 'inter_inter', 'fraunces_inter', 'inter_fraunces'];
       if (body.typography.fontHeading && validFontPairs.includes(body.typography.fontHeading)) {
         themeUpdate.typography.fontHeading = body.typography.fontHeading;
+      }
+      if (body.typography.fontSubheading && validFontPairs.includes(body.typography.fontSubheading)) {
+        themeUpdate.typography.fontSubheading = body.typography.fontSubheading;
       }
       if (body.typography.fontBody && validFontPairs.includes(body.typography.fontBody)) {
         themeUpdate.typography.fontBody = body.typography.fontBody;
