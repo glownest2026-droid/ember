@@ -331,80 +331,80 @@
 ## 2025-12-24 — Module 11C: Theme v1 (Global Apply + Live Preview + Semantic Tokens + Gradients)
 
 ### Summary
-Shipped admin-managed brand theming with global site apply (home/signin/app/cms) and a live preview editor.
-Expanded from basic tokens to a clearer, semantic theme model (button foregrounds, section backgrounds) and added “Reset to factory” to restore Ember defaults.
-Hardened deployment hygiene (resolved merge-conflict markers causing build failure).
-Applied homepage section theming so marketing page blocks follow the Background/Section alternation (no hard-coded white outliers).
+- Shipped admin-managed brand theming with global site apply (home/signin/app/cms) and a live preview editor.
+- Expanded from basic tokens to a clearer, semantic theme model (button foregrounds, section backgrounds) and added “Reset to factory” to restore Ember defaults.
+- Hardened deployment hygiene (resolved merge-conflict markers causing build failure).
+- Applied homepage section theming so marketing page blocks follow the Background/Section alternation (no hard-coded white outliers).
 
 
 ### Routes added
-/app/admin/theme — admin-only theme settings page with live preview
-/api/admin/theme — theme save endpoint with revalidation
+- /app/admin/theme — admin-only theme settings page with live preview
+- /api/admin/theme — theme save endpoint with revalidation
 
 
 ### Key code
-web/src/lib/theme.ts — theme schema, DEFAULT_THEME (factory), mergeTheme(), luminance helpers + safe merges
-web/src/lib/admin.ts — admin role check utility
-web/src/components/ThemeProvider.tsx — applies theme globally via CSS variables
-web/src/app/layout.tsx — root layout wraps all routes with ThemeProvider (global apply)
-web/src/app/(app)/app/admin/theme/page.tsx — admin theme page
-web/src/app/(app)/app/admin/theme/_components/ThemeEditor.tsx — editor UI incl. sticky preview + reset
-web/src/app/(app)/app/admin/theme/_components/ThemePreview.tsx — live preview mock showing token effects
-web/src/app/api/admin/theme/route.ts — POST endpoint + revalidatePath for immediate propagation
-web/src/app/globals.css — maps theme vars into global styling (background, text, buttons, sections, optional scrollbar)
-web/src/app/page.tsx — homepage sections updated to use theme background/section tokens (remove hard-coded white)
-web/src/components/ui/Button.tsx + web/src/components/Header.tsx — primary/accent buttons use foreground tokens for readable text
+- web/src/lib/theme.ts — theme schema, DEFAULT_THEME (factory), mergeTheme(), luminance helpers + safe merges
+- web/src/lib/admin.ts — admin role check utility
+- web/src/components/ThemeProvider.tsx — applies theme globally via CSS variables
+- web/src/app/layout.tsx — root layout wraps all routes with ThemeProvider (global apply)
+- web/src/app/(app)/app/admin/theme/page.tsx — admin theme page
+- web/src/app/(app)/app/admin/theme/_components/ThemeEditor.tsx — editor UI incl. sticky preview + reset
+- web/src/app/(app)/app/admin/theme/_components/ThemePreview.tsx — live preview mock showing token effects
+- web/src/app/api/admin/theme/route.ts — POST endpoint + revalidatePath for immediate propagation
+- web/src/app/globals.css — maps theme vars into global styling (background, text, buttons, sections, optional scrollbar)
+- web/src/app/page.tsx — homepage sections updated to use theme background/section tokens (remove hard-coded white)
+- web/src/components/ui/Button.tsx + web/src/components/Header.tsx — primary/accent buttons use foreground tokens for readable text
 
 
 ### Theme Schema (as-shipped)
-Colors
+#### Colors
 
-primary, primaryForeground (auto-calculated fallback)
+- primary, primaryForeground (auto-calculated fallback)
 
-accent, accentForeground (auto-calculated fallback)
+- accent, accentForeground (auto-calculated fallback)
 
-background, surface, text, muted, border
+- background, surface, text, muted, border
 
-section (or section1/section2 if gradients shipped), scrollbarThumb (subtle)
+- section (or section1/section2 if gradients shipped), scrollbarThumb (subtle)
 
-Typography
+#### Typography
 
-fontHeading, fontBody (or heading/subheading/body if shipped)
+- fontHeading, fontBody (or heading/subheading/body if shipped)
 
-baseFontSize (higher cap than v0; numeric input supported if shipped)
+- baseFontSize (higher cap than v0; numeric input supported if shipped)
 
 
-### Components
+#### Components
 
-radius
+- radius
 
 
 ### CSS Variables Applied (core)
---brand-primary, --brand-primary-foreground
---brand-accent, --brand-accent-foreground
---brand-bg, --brand-surface, --brand-text, --brand-muted, --brand-border
---brand-section
---brand-font-body, --brand-font-head
---brand-font-size-base
---brand-radius
+-- brand-primary, --brand-primary-foreground
+-- brand-accent, --brand-accent-foreground
+-- brand-bg, --brand-surface, --brand-text, --brand-muted, --brand-border
+-- brand-section
+-- brand-font-body, --brand-font-head
+-- brand-font-size-base
+-- brand-radius
 (plus --brand-scrollbar-thumb if enabled)
 
 
 ### Implementation Details
-Global apply: ThemeProvider in root layout covers all routes (/, /signin, /cms/, /app/).
-Live preview: Draft state updates preview panel without affecting saved theme until “Save Theme”.
-Immediate propagation: save endpoint triggers revalidation (revalidatePath on relevant layouts/routes).
-Reset: “Reset to factory” writes DEFAULT_THEME back to site_settings.theme and revalidates.
-Semantic mapping: background/surface/section drive page + sections; primary/accent drive buttons/links; foreground tokens ensure readable button text.
-Fonts: curated dropdown expanded beyond v0 (ensure list matches current implementation).
-Deployment hygiene: resolved and prevented merge conflict markers in theme.ts that broke Turbopack build.
+- Global apply: ThemeProvider in root layout covers all routes (/, /signin, /cms/, /app/).
+- Live preview: Draft state updates preview panel without affecting saved theme until “Save Theme”.
+- Immediate propagation: save endpoint triggers revalidation (revalidatePath on relevant layouts/routes).
+- Reset: “Reset to factory” writes DEFAULT_THEME back to site_settings.theme and revalidates.
+- Semantic mapping: background/surface/section drive page + sections; primary/accent drive buttons/links; foreground tokens ensure readable button text.
+- Fonts: curated dropdown expanded beyond v0 (ensure list matches current implementation).
+- Deployment hygiene: resolved and prevented merge conflict markers in theme.ts that broke Turbopack build.
 
 
 ### Verification (Proof-of-Done)
-Access control: non-admin cannot access /app/admin/theme (redirects/blocked).
-Save works: admin saves theme; changes apply across /, /signin, /app/* after refresh.
-Preview works: changing controls updates the live preview immediately (incl. fonts).
-Reset works: returns site to factory Ember branding immediately.
-Homepage sections: previously white outliers (e.g., Trust/FAQs) now follow Background/Section styling.
-Build passes: no conflict markers; Vercel build succeeds.
-All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
+- Access control: non-admin cannot access /app/admin/theme (redirects/blocked).
+- Save works: admin saves theme; changes apply across /, /signin, /app/* after refresh.
+- Preview works: changing controls updates the live preview immediately (incl. fonts).
+- Reset works: returns site to factory Ember branding immediately.
+- Homepage sections: previously white outliers (e.g., Trust/FAQs) now follow Background/Section styling.
+- Build passes: no conflict markers; Vercel build succeeds.
+- All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
