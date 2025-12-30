@@ -16,7 +16,17 @@ const fraunces = Fraunces({ subsets: ['latin'], weight: ['400', '500', '600', '7
 export const dynamic = 'force-dynamic';
 
 export async function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = await loadTheme();
+  // Always load theme, fallback to DEFAULT_THEME if database query fails
+  // This ensures branding works for logged-out users (RLS may block anonymous access)
+  let theme;
+  try {
+    theme = await loadTheme();
+  } catch (err) {
+    // If loadTheme throws (shouldn't happen due to internal try-catch, but be defensive)
+    // Import DEFAULT_THEME directly as fallback
+    const { DEFAULT_THEME: fallbackTheme } = await import('../lib/theme');
+    theme = fallbackTheme;
+  }
 
   // Map font pairs to CSS variable names
   const fontPairMap: Record<string, { body: string; head: string }> = {
