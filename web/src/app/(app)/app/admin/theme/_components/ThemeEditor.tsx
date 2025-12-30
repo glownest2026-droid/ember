@@ -111,8 +111,19 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
         });
 
         if (!response.ok) {
-          const text = await response.text();
-          throw new Error(text || 'Failed to save theme');
+          let errorText: string;
+          try {
+            const data = await response.json();
+            errorText = data.error || 'Failed to save theme';
+          } catch {
+            errorText = await response.text() || 'Failed to save theme';
+          }
+          throw new Error(errorText);
+        }
+
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to save theme');
         }
 
         setSuccess(true);
@@ -152,8 +163,19 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
         });
 
         if (!response.ok) {
-          const text = await response.text();
-          throw new Error(text || 'Failed to reset theme');
+          let errorText: string;
+          try {
+            const data = await response.json();
+            errorText = data.error || 'Failed to reset theme';
+          } catch {
+            errorText = await response.text() || 'Failed to reset theme';
+          }
+          throw new Error(errorText);
+        }
+
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to reset theme');
         }
 
         setDraft(FACTORY_THEME);

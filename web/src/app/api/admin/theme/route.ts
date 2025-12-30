@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '../../../../utils/supabase/server';
-import { isAdmin } from '../../../../lib/admin';
+import { getServerUser } from '../../../../lib/auth';
+import { isAdminEmail } from '../../../../lib/admin';
 import { mergeTheme } from '../../../../lib/theme';
 import { revalidatePath } from 'next/cache';
 
@@ -8,17 +9,24 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { user, email } = await getServerUser();
     
-    if (authError || !user) {
-      return new NextResponse('Unauthorized', { status: 401 });
+    if (!user) {
+      return new NextResponse(JSON.stringify({ success: false, error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    const admin = await isAdmin();
+    const admin = isAdminEmail(email);
     if (!admin) {
-      return new NextResponse('Forbidden', { status: 403 });
+      return new NextResponse(JSON.stringify({ success: false, error: 'Forbidden' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
+
+    const supabase = createClient();
 
     // Parse request body
     let body;
@@ -115,19 +123,31 @@ export async function POST(req: NextRequest) {
           });
 
         if (insertError) {
-          return new NextResponse(insertError.message, { status: 500 });
+          return new NextResponse(JSON.stringify({ success: false, error: insertError.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          });
         }
       } else {
-        return new NextResponse(updateError.message, { status: 500 });
+        return new NextResponse(JSON.stringify({ success: false, error: updateError.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
     }
 
     // Revalidate paths to clear cache
     revalidatePath('/', 'layout');
     revalidatePath('/app', 'layout');
-    revalidatePath('/signin', 'layout');
+    revalidatePath('/cms', 'layout');
 
-    return new NextResponse(JSON.stringify({ success: true }), {
+    // Return success with saved theme and timestamp
+    const updatedAt = new Date().toISOString();
+    return new NextResponse(JSON.stringify({
+      success: true,
+      theme: mergedTheme,
+      updated_at: updatedAt,
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

@@ -1,16 +1,10 @@
-'use client';
+import HeaderServer from './HeaderServer';
 
-import { usePathname } from 'next/navigation';
-import Header from './Header';
-
+/**
+ * Unified header that's auth-aware on all routes.
+ * Always uses HeaderServer for consistent auth state.
+ */
 export default function ConditionalHeader() {
-  const pathname = usePathname();
-  
-  // Don't show marketing header on /app routes (they have their own header)
-  if (pathname?.startsWith('/app')) {
-    return null;
-  }
-  
-  return <Header />;
+  return <HeaderServer />;
 }
 
