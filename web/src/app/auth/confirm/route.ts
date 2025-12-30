@@ -6,7 +6,8 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const tokenHash = url.searchParams.get('token_hash');
   const type = url.searchParams.get('type');
-  let next = url.searchParams.get('next') ?? '/app';
+  // Default to /reset-password for recovery type, otherwise /app
+  let next = url.searchParams.get('next') ?? (type === 'recovery' ? '/reset-password' : '/app');
   const origin = url.origin;
 
   // Validate next is a safe internal path (must start with /)
