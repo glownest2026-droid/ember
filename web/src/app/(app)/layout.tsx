@@ -17,6 +17,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <div className="flex items-center gap-3 text-sm">
           {user ? (
             <>
+              <Link href="/" className="hover:underline" style={{ color: 'var(--brand-text, inherit)' }}>Home</Link>
               <Link href="/app/children" className="hover:underline" style={{ color: 'var(--brand-text, inherit)' }}>Child Profiles</Link>
               <Link href="/app/recs" className="hover:underline" style={{ color: 'var(--brand-text, inherit)' }}>Recommendations</Link>
               {admin && (

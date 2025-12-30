@@ -5,22 +5,18 @@ export async function isAdmin(): Promise<boolean> {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) {
+    if (!user || !user.email) {
       return false;
     }
 
-    const { data, error } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'admin')
-      .single();
-
-    if (error || !data) {
+    // Use env var allowlist (comma-separated emails)
+    const adminEmails = process.env.EMBER_ADMIN_EMAILS;
+    if (!adminEmails) {
       return false;
     }
 
-    return data.role === 'admin';
+    const allowedEmails = adminEmails.split(',').map(e => e.trim().toLowerCase());
+    return allowedEmails.includes(user.email.toLowerCase());
   } catch (err) {
     return false;
   }
