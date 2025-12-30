@@ -153,8 +153,9 @@ export default function Header() {
     <header
       className="sticky top-0 z-40 backdrop-blur border-b"
       style={{ 
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
         borderColor: 'var(--brand-border, #E6E6EA)',
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -224,8 +225,9 @@ export function AppHeader({ userEmail, isAdmin, signOutButton }: AppHeaderProps)
     <header
       className="sticky top-0 z-40 backdrop-blur border-b"
       style={{ 
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
         borderColor: 'var(--brand-border, #E6E6EA)',
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between">
