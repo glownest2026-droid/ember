@@ -146,34 +146,62 @@ const ButtonLink = ({
   );
 };
 
-export default function Header() {
+export interface HeaderProps {
+  userEmail?: string;
+  isAdmin?: boolean;
+  signOutButton?: React.ReactNode;
+  homeHref?: string;
+}
+
+export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '/' }: HeaderProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
     <header
-      className="sticky top-0 z-40 backdrop-blur border-b"
+      className="fixed top-0 left-0 right-0 z-50 backdrop-blur border-b"
       style={{ 
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
         borderColor: 'var(--brand-border, #E6E6EA)',
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href={homeHref} className="flex items-center gap-2">
           <Wordmark />
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
-          <a className="opacity-80 hover:opacity-100" href="#how">How it works</a>
-          <a className="opacity-80 hover:opacity-100" href="#features">Features</a>
-          <a className="opacity-80 hover:opacity-100" href="#trust">Trust</a>
-          <a className="opacity-80 hover:opacity-100" href="#faq">FAQ</a>
-        </nav>
+        {userEmail ? (
+          <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
+            <Link href="/app" className="opacity-80 hover:opacity-100">Dashboard</Link>
+            <Link href="/app/children" className="opacity-80 hover:opacity-100">Child Profiles</Link>
+            <Link href="/app/recs" className="opacity-80 hover:opacity-100">Recommendations</Link>
+            {isAdmin && (
+              <Link href="/app/admin/theme" className="opacity-80 hover:opacity-100" style={{ color: 'var(--brand-primary, #FFBEAB)' }}>Theme</Link>
+            )}
+          </nav>
+        ) : (
+          <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
+            <a className="opacity-80 hover:opacity-100" href="#how">How it works</a>
+            <a className="opacity-80 hover:opacity-100" href="#features">Features</a>
+            <a className="opacity-80 hover:opacity-100" href="#trust">Trust</a>
+            <a className="opacity-80 hover:opacity-100" href="#faq">FAQ</a>
+          </nav>
+        )}
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-3">
-          <ButtonLink variant="ghost" href="/signin">Sign in</ButtonLink>
-          <a href="#waitlist"><Button>Join free</Button></a>
+          {userEmail ? (
+            <>
+              <span className="text-sm" style={{ color: 'var(--brand-muted, #6b7280)' }}>Signed in as {userEmail}</span>
+              {signOutButton}
+            </>
+          ) : (
+            <>
+              <ButtonLink variant="ghost" href="/signin">Sign in</ButtonLink>
+              <a href="#waitlist"><Button>Join free</Button></a>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -192,18 +220,35 @@ export default function Header() {
 
       {/* Mobile panel */}
       {open && (
-        <div className="md:hidden border-t backdrop-blur" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderColor: 'var(--brand-border, #E6E6EA)' }}>
+        <div className="md:hidden border-t backdrop-blur" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: 'var(--brand-border, #E6E6EA)' }}>
           <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex flex-col gap-3">
-            <a href="#how" className="py-1" onClick={() => setOpen(false)}>How it works</a>
-            <a href="#features" className="py-1" onClick={() => setOpen(false)}>Features</a>
-            <a href="#trust" className="py-1" onClick={() => setOpen(false)}>Trust</a>
-            <a href="#faq" className="py-1" onClick={() => setOpen(false)}>FAQ</a>
-            <Link href="/signin" onClick={() => setOpen(false)} className="w-full">
-              <Button variant="ghost" className="w-full">Sign in</Button>
-            </Link>
-            <a href="#waitlist" onClick={() => setOpen(false)} className="w-full">
-              <Button className="w-full">Join free</Button>
-            </a>
+            {userEmail ? (
+              <>
+                <Link href="/app" className="py-1" onClick={() => setOpen(false)}>Dashboard</Link>
+                <Link href="/app/children" className="py-1" onClick={() => setOpen(false)}>Child Profiles</Link>
+                <Link href="/app/recs" className="py-1" onClick={() => setOpen(false)}>Recommendations</Link>
+                {isAdmin && (
+                  <Link href="/app/admin/theme" className="py-1" onClick={() => setOpen(false)} style={{ color: 'var(--brand-primary, #FFBEAB)' }}>Theme</Link>
+                )}
+                <span className="py-1 text-sm" style={{ color: 'var(--brand-muted, #6b7280)' }}>Signed in as {userEmail}</span>
+                {signOutButton && (
+                  <div onClick={() => setOpen(false)}>{signOutButton}</div>
+                )}
+              </>
+            ) : (
+              <>
+                <a href="#how" className="py-1" onClick={() => setOpen(false)}>How it works</a>
+                <a href="#features" className="py-1" onClick={() => setOpen(false)}>Features</a>
+                <a href="#trust" className="py-1" onClick={() => setOpen(false)}>Trust</a>
+                <a href="#faq" className="py-1" onClick={() => setOpen(false)}>FAQ</a>
+                <Link href="/signin" onClick={() => setOpen(false)} className="w-full">
+                  <Button variant="ghost" className="w-full">Sign in</Button>
+                </Link>
+                <a href="#waitlist" onClick={() => setOpen(false)} className="w-full">
+                  <Button className="w-full">Join free</Button>
+                </a>
+              </>
+            )}
           </div>
         </div>
       )}
