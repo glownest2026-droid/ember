@@ -79,6 +79,11 @@ export default function SignInPage() {
         Email link not working?{' '}
         <a href="/verify" className="underline">Use a 6-digit code instead</a>.
       </p>
+      <p className="text-sm mt-3">
+        <a href={`/signin/password${next !== '/app' ? `?next=${encodeURIComponent(next)}` : ''}`} className="underline">
+          Admin password sign-in
+        </a>
+      </p>
     </div>
   );
 }
