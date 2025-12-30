@@ -1,3 +1,62 @@
+# CTO Snapshot (Source of Truth)
+_Last updated: 2025-12-30_
+
+## Environments
+- Production URL: https://ember-mocha-eight.vercel.app
+- Git default branch: main
+- Current active Preview (auth testing): https://ember-git-feat-auth-password-12a-tims-projects-cd69a894.vercel.app
+
+## Core stack
+- Web: Next.js App Router under /web (Vercel Root Directory = web)
+- Hosting: Vercel (Free / Hobby)
+- Auth + DB: Supabase (project ref: shjccflwlayacppuyskl)
+- CMS: Builder.io under /cms/* with preview via /api/preview and CSP allowlist for Builder editor
+- Theme: Theme v1 via ThemeProvider + CSS variables, editable in /app/admin/theme (merged)
+
+## Auth posture (as of today)
+- Invite-only: ✅ Signups disabled in Supabase Auth
+- Friends sign-in: ✅ Magic link (existing users only; no auto-create)
+- Admin sign-in: ✅ Email + Password (admin user created directly in Supabase Auth Users)
+- Forgot password / email recovery: ❌ NOT reliable in current maturity state (no custom domain; email delivery inconsistent)
+- Resend: ✅ Account created | ❌ NOT wired into Supabase (deferred)
+
+## Supabase Auth redirect allowlist (high level)
+- Includes: localhost, production, wildcard Vercel previews, /auth/callback, /reset-password
+- Note: allowlist is NOT the blocker; current blocker is reliable auth email delivery + appropriate maturity gates.
+
+## Proof-of-done routes (source of truth)
+- /signin
+- /auth/callback
+- /app (logged out → redirect to /signin?next=/app)
+- /app/children
+- /app/recs
+- /ping
+- /cms/lego-kit-demo
+- (optional) /cms/diag
+
+## Open PR policy
+- Keep ≤ 1 open “feature PR” at a time (currently: #79 only).
+- Merge strategy: Rebase & merge.
+- Conflict strategy: resolve locally via rebase (never GitHub UI conflict buttons).
+
+## Current open PRs
+- #79 feat(auth): admin password login + reset flows (12A) — OPEN
+
+## Known issues (active)
+1) Branding/theme only renders after sign-in on some public routes (reported: / and /signin at minimum). Must be fixed so logged-out users see correct branding.
+2) Forgot-password emails not reliable (logs show recovery requested, but delivery inconsistent). Deferred until custom domain + proper sender is in place.
+
+---
+
+# Decision Log (dated)
+## 2025-12-30
+- Decision: Defer “forgot password email reliability” work until Ember has a custom domain and deliberate email sender setup. For now, unblock admin access by creating admin user with password directly in Supabase Auth Users.
+- Decision: Maintain invite-only access (no auto-create users; friends must be pre-created in Supabase Auth).
+- Decision: Keep PR hygiene strict: one open feature PR at a time; close stale PRs promptly.
+
+
+------
+
 ## 2025-11-01 — Module 1: Baseline Audit & Guardrails
 
 - Added `/SECURITY.md` documenting surfaces, env vars, and RLS (waitlist insert-only; play_idea public select).
