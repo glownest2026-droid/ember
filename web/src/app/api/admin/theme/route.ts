@@ -115,10 +115,16 @@ export async function POST(req: NextRequest) {
           });
 
         if (insertError) {
-          return new NextResponse(insertError.message, { status: 500 });
+          return new NextResponse(JSON.stringify({ success: false, error: insertError.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          });
         }
       } else {
-        return new NextResponse(updateError.message, { status: 500 });
+        return new NextResponse(JSON.stringify({ success: false, error: updateError.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
     }
 
@@ -126,6 +132,7 @@ export async function POST(req: NextRequest) {
     revalidatePath('/', 'layout');
     revalidatePath('/app', 'layout');
     revalidatePath('/signin', 'layout');
+    revalidatePath('/cms', 'layout');
 
     return new NextResponse(JSON.stringify({ success: true }), {
       status: 200,
