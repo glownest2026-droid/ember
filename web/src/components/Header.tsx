@@ -157,7 +157,7 @@ export default function Header() {
         borderColor: 'var(--brand-border, #E6E6EA)',
       }}
     >
-      <div className="mx-auto max-w-6xl px-6 py-3 flex items-center justify-between">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Wordmark />
         </Link>
@@ -193,7 +193,7 @@ export default function Header() {
       {/* Mobile panel */}
       {open && (
         <div className="md:hidden border-t backdrop-blur" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderColor: 'var(--brand-border, #E6E6EA)' }}>
-          <div className="mx-auto max-w-6xl px-6 py-3 flex flex-col gap-3">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex flex-col gap-3">
             <a href="#how" className="py-1" onClick={() => setOpen(false)}>How it works</a>
             <a href="#features" className="py-1" onClick={() => setOpen(false)}>Features</a>
             <a href="#trust" className="py-1" onClick={() => setOpen(false)}>Trust</a>
