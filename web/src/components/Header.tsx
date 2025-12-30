@@ -157,7 +157,7 @@ export default function Header() {
         borderColor: 'var(--brand-border, #E6E6EA)',
       }}
     >
-      <div className="mx-auto max-w-6xl px-6 py-3 flex items-center justify-between">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Wordmark />
         </Link>
@@ -193,7 +193,7 @@ export default function Header() {
       {/* Mobile panel */}
       {open && (
         <div className="md:hidden border-t backdrop-blur" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderColor: 'var(--brand-border, #E6E6EA)' }}>
-          <div className="mx-auto max-w-6xl px-6 py-3 flex flex-col gap-3">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex flex-col gap-3">
             <a href="#how" className="py-1" onClick={() => setOpen(false)}>How it works</a>
             <a href="#features" className="py-1" onClick={() => setOpen(false)}>Features</a>
             <a href="#trust" className="py-1" onClick={() => setOpen(false)}>Trust</a>
@@ -204,6 +204,81 @@ export default function Header() {
             <a href="#waitlist" onClick={() => setOpen(false)} className="w-full">
               <Button className="w-full">Join free</Button>
             </a>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
+
+export interface AppHeaderProps {
+  userEmail?: string;
+  isAdmin?: boolean;
+  signOutButton?: React.ReactNode;
+}
+
+export function AppHeader({ userEmail, isAdmin, signOutButton }: AppHeaderProps) {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <header
+      className="sticky top-0 z-40 backdrop-blur border-b"
+      style={{ 
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        borderColor: 'var(--brand-border, #E6E6EA)',
+      }}
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2">
+          <Wordmark />
+        </Link>
+
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
+          <Link href="/app/children" className="opacity-80 hover:opacity-100">Child Profiles</Link>
+          <Link href="/app/recs" className="opacity-80 hover:opacity-100">Recommendations</Link>
+          {isAdmin && (
+            <Link href="/app/admin/theme" className="opacity-80 hover:opacity-100" style={{ color: 'var(--brand-primary, #FFBEAB)' }}>Theme</Link>
+          )}
+        </nav>
+
+        {/* Desktop user info */}
+        <div className="hidden md:flex items-center gap-3 text-sm">
+          {userEmail && (
+            <span style={{ color: 'var(--brand-muted, #6b7280)' }}>Signed in as {userEmail}</span>
+          )}
+          {signOutButton}
+        </div>
+
+        {/* Mobile toggle */}
+        <button
+          aria-label="Toggle menu"
+          aria-expanded={open}
+          onClick={() => setOpen(v => !v)}
+          className="md:hidden inline-flex items-center justify-center rounded-xl border px-3 py-2"
+          style={{ borderColor: 'var(--brand-border, #E6E6EA)', color: 'var(--brand-text, #1C1C1E)' }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile panel */}
+      {open && (
+        <div className="md:hidden border-t backdrop-blur" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderColor: 'var(--brand-border, #E6E6EA)' }}>
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex flex-col gap-3">
+            <Link href="/app/children" className="py-1" onClick={() => setOpen(false)}>Child Profiles</Link>
+            <Link href="/app/recs" className="py-1" onClick={() => setOpen(false)}>Recommendations</Link>
+            {isAdmin && (
+              <Link href="/app/admin/theme" className="py-1" onClick={() => setOpen(false)} style={{ color: 'var(--brand-primary, #FFBEAB)' }}>Theme</Link>
+            )}
+            {userEmail && (
+              <span className="py-1 text-sm" style={{ color: 'var(--brand-muted, #6b7280)' }}>Signed in as {userEmail}</span>
+            )}
+            {signOutButton && (
+              <div onClick={() => setOpen(false)}>{signOutButton}</div>
+            )}
           </div>
         </div>
       )}
