@@ -146,14 +146,19 @@ const ButtonLink = ({
   );
 };
 
-export default function Header() {
+export interface HeaderProps {
+  userEmail?: string | null;
+}
+
+export default function Header({ userEmail }: HeaderProps = {}) {
   const [open, setOpen] = React.useState(false);
+  const isLoggedIn = !!userEmail;
 
   return (
     <header
-      className="sticky top-0 z-40 backdrop-blur border-b"
+      className="sticky top-0 z-50 backdrop-blur border-b"
       style={{ 
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
         borderColor: 'var(--brand-border, #E6E6EA)',
       }}
     >
@@ -171,9 +176,18 @@ export default function Header() {
         </nav>
 
         {/* Desktop CTAs */}
-        <div className="hidden md:flex items-center gap-3">
-          <ButtonLink variant="ghost" href="/signin">Sign in</ButtonLink>
-          <a href="#waitlist"><Button>Join free</Button></a>
+        <div className="hidden md:flex items-center gap-3 text-sm">
+          {isLoggedIn ? (
+            <>
+              <Link href="/app" className="opacity-80 hover:opacity-100">Dashboard</Link>
+              {userEmail && <span style={{ color: 'var(--brand-muted, #6b7280)' }}>Signed in as {userEmail}</span>}
+            </>
+          ) : (
+            <>
+              <ButtonLink variant="ghost" href="/signin">Sign in</ButtonLink>
+              <a href="#waitlist"><Button>Join free</Button></a>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -192,18 +206,27 @@ export default function Header() {
 
       {/* Mobile panel */}
       {open && (
-        <div className="md:hidden border-t backdrop-blur" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderColor: 'var(--brand-border, #E6E6EA)' }}>
+        <div className="md:hidden border-t backdrop-blur" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: 'var(--brand-border, #E6E6EA)' }}>
           <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex flex-col gap-3">
-            <a href="#how" className="py-1" onClick={() => setOpen(false)}>How it works</a>
-            <a href="#features" className="py-1" onClick={() => setOpen(false)}>Features</a>
-            <a href="#trust" className="py-1" onClick={() => setOpen(false)}>Trust</a>
-            <a href="#faq" className="py-1" onClick={() => setOpen(false)}>FAQ</a>
-            <Link href="/signin" onClick={() => setOpen(false)} className="w-full">
-              <Button variant="ghost" className="w-full">Sign in</Button>
-            </Link>
-            <a href="#waitlist" onClick={() => setOpen(false)} className="w-full">
-              <Button className="w-full">Join free</Button>
-            </a>
+            {isLoggedIn ? (
+              <>
+                <Link href="/app" className="py-1" onClick={() => setOpen(false)}>Dashboard</Link>
+                {userEmail && <span className="py-1 text-sm" style={{ color: 'var(--brand-muted, #6b7280)' }}>Signed in as {userEmail}</span>}
+              </>
+            ) : (
+              <>
+                <a href="#how" className="py-1" onClick={() => setOpen(false)}>How it works</a>
+                <a href="#features" className="py-1" onClick={() => setOpen(false)}>Features</a>
+                <a href="#trust" className="py-1" onClick={() => setOpen(false)}>Trust</a>
+                <a href="#faq" className="py-1" onClick={() => setOpen(false)}>FAQ</a>
+                <Link href="/signin" onClick={() => setOpen(false)} className="w-full">
+                  <Button variant="ghost" className="w-full">Sign in</Button>
+                </Link>
+                <a href="#waitlist" onClick={() => setOpen(false)} className="w-full">
+                  <Button className="w-full">Join free</Button>
+                </a>
+              </>
+            )}
           </div>
         </div>
       )}

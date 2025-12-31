@@ -1,16 +1,14 @@
-'use client';
-
-import { usePathname } from 'next/navigation';
+import { createClient } from '../utils/supabase/server';
 import Header from './Header';
 
-export default function ConditionalHeader() {
-  const pathname = usePathname();
+/**
+ * Server-side header wrapper for public pages.
+ * App routes have their own header in (app)/layout.tsx.
+ */
+export default async function ConditionalHeader() {
+  // Read session server-side for public pages
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
   
-  // Don't show marketing header on /app routes (they have their own header)
-  if (pathname?.startsWith('/app')) {
-    return null;
-  }
-  
-  return <Header />;
+  return <Header userEmail={user?.email || null} />;
 }
-
