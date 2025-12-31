@@ -126,8 +126,9 @@ export async function POST(req: NextRequest) {
     revalidatePath('/', 'layout');
     revalidatePath('/app', 'layout');
     revalidatePath('/signin', 'layout');
+    revalidatePath('/cms', 'layout');
 
-    return new NextResponse(JSON.stringify({ success: true }), {
+    return new NextResponse(JSON.stringify({ success: true, theme: mergedTheme }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
