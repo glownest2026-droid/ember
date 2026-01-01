@@ -7,7 +7,6 @@ import { ThemeProvider } from "../components/ThemeProvider";
 export const metadata: Metadata = {
   title: "Ember — Simple, trusted guidance from bump to big steps.",
   description: "Never behind the curve. Know what's next. Buy smart. Move it on.",
-  themeColor: "#FFBEAB",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -22,6 +21,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#FFBEAB",
 };
 
 export const dynamic = 'force-dynamic';

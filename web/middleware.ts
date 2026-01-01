@@ -6,9 +6,12 @@ export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const pathname = url.pathname;
 
+  // Refresh session for ALL routes (allows cookie mutation in middleware)
+  // This prevents server components from trying to mutate cookies
+  const { supabase, response } = await updateSession(req);
+
   // 1) Protect /app/* routes - require authentication
   if (pathname.startsWith("/app")) {
-    const { supabase, response } = await updateSession(req);
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
@@ -24,11 +27,9 @@ export async function middleware(req: NextRequest) {
   }
 
   // 2) Handle /cms and /api/preview routes (Builder CMS)
-  const res = NextResponse.next();
-
   // Add CSP for Builder iframe
   if (pathname === "/api/preview" || pathname === "/cms" || pathname.startsWith("/cms/")) {
-    res.headers.set(
+    response.headers.set(
       "Content-Security-Policy",
       "frame-ancestors 'self' https://*.builder.io https://builder.io https://app.builder.io"
     );
@@ -52,9 +53,19 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  return res;
+  // Return response with refreshed session cookies for all routes
+  return response;
 }
 
 export const config = {
-  matcher: ["/app/:path*", "/cms/:path*", "/api/preview"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files (public folder)
+     */
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };

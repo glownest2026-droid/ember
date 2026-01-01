@@ -1,4 +1,5 @@
 // Server client using cookies from App Router (Next 16: cookies() is async)
+// READ-ONLY: This client does NOT mutate cookies (middleware handles that)
 import { cookies } from 'next/headers';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
@@ -13,13 +14,13 @@ export function createClient() {
           const store = await cookies();
           return store.get(name)?.value;
         },
-        set: async (name: string, value: string, options: CookieOptions) => {
-          const store = await cookies();
-          store.set({ name, value, ...options });
+        // READ-ONLY: No-op setters to prevent cookie mutation in server components
+        // Middleware is responsible for cookie refresh/cleanup
+        set: async (_name: string, _value: string, _options: CookieOptions) => {
+          // No-op: cookies can only be modified in middleware or route handlers
         },
-        remove: async (name: string, options: CookieOptions) => {
-          const store = await cookies();
-          store.set({ name, value: '', ...options, expires: new Date(0) });
+        remove: async (_name: string, _options: CookieOptions) => {
+          // No-op: cookies can only be modified in middleware or route handlers
         },
       },
     }
