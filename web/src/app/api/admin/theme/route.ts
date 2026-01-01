@@ -115,20 +115,43 @@ export async function POST(req: NextRequest) {
           });
 
         if (insertError) {
-          return new NextResponse(insertError.message, { status: 500 });
+          return new NextResponse(JSON.stringify({ success: false, error: insertError.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          });
         }
       } else {
-        return new NextResponse(updateError.message, { status: 500 });
+        return new NextResponse(JSON.stringify({ success: false, error: updateError.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
+    }
+
+    // Verify the write actually happened by selecting back the row
+    const { data: saved, error: selectError } = await supabase
+      .from('site_settings')
+      .select('theme, updated_at')
+      .eq('id', 'global')
+      .single();
+
+    if (selectError || !saved) {
+      return new NextResponse(JSON.stringify({ success: false, error: 'Failed to verify theme save' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // Revalidate paths to clear cache
     revalidatePath('/', 'layout');
     revalidatePath('/app', 'layout');
     revalidatePath('/signin', 'layout');
-    revalidatePath('/cms', 'layout');
 
-    return new NextResponse(JSON.stringify({ success: true, theme: mergedTheme }), {
+    return new NextResponse(JSON.stringify({ 
+      success: true, 
+      updated_at: saved.updated_at,
+      theme: saved.theme 
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
