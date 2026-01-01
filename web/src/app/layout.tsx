@@ -1,7 +1,7 @@
 // web/src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import ConditionalHeader from "../components/ConditionalHeader";
+import HeaderServer from "../components/HeaderServer";
 import { ThemeProvider } from "../components/ThemeProvider";
 
 export const metadata: Metadata = {
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="antialiased" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
         <ThemeProvider>
-          <ConditionalHeader />
+          <HeaderServer />
           {children}
         </ThemeProvider>
       </body>

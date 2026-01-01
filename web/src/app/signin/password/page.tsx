@@ -30,7 +30,7 @@ export default function PasswordSignInPage() {
   }
 
   return (
-    <div className="container-wrap">
+    <div className="container-wrap min-h-dvh py-8">
       <h1 className="text-2xl font-semibold mb-4">Sign in with password</h1>
       <form onSubmit={handleSubmit} className="card p-4 space-y-3 max-w-md">
         <label className="block">

@@ -111,6 +111,10 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
         });
 
         if (!response.ok) {
+          if (response.status === 403) {
+            setError('Not authorized. You don\'t have permission to save theme settings.');
+            return;
+          }
           const text = await response.text();
           throw new Error(text || 'Failed to save theme');
         }
@@ -152,6 +156,10 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
         });
 
         if (!response.ok) {
+          if (response.status === 403) {
+            setError('Not authorized. You don\'t have permission to reset theme settings.');
+            return;
+          }
           const text = await response.text();
           throw new Error(text || 'Failed to reset theme');
         }

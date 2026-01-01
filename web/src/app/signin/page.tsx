@@ -44,7 +44,7 @@ export default function SignInPage() {
 
   if (sent) {
     return (
-      <div className="container-wrap">
+      <div className="container-wrap min-h-dvh py-8">
         <h1 className="text-2xl font-semibold mb-2">Check your email</h1>
         <p className="text-sm mt-3">
           If you&apos;re invited, you&apos;ll receive an email with a sign-in link shortly.
@@ -58,7 +58,7 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="container-wrap">
+    <div className="container-wrap min-h-dvh py-8">
       <h1 className="text-2xl font-semibold mb-4">Sign in</h1>
       <form onSubmit={handleSubmit} className="card p-4 space-y-3 max-w-md">
         <label className="block">
