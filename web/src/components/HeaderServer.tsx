@@ -1,6 +1,6 @@
 import Header from './Header';
 import { createClient } from '../utils/supabase/server';
-import { isAdmin } from '../lib/admin';
+import { isAdminEmail } from '../lib/admin';
 import SignOutButton from '../app/components/SignOutButton';
 
 export default async function HeaderServer({ homeHref = '/' }: { homeHref?: string }) {
@@ -13,7 +13,7 @@ export default async function HeaderServer({ homeHref = '/' }: { homeHref?: stri
     const supabase = createClient();
     const { data: { user: authUser } } = await supabase.auth.getUser();
     user = authUser;
-    admin = user ? await isAdmin() : false;
+    admin = user?.email ? isAdminEmail(user.email) : false;
   } catch (err) {
     // On any error, treat as signed out (render logged-out header)
     // Do NOT attempt to clear cookies here - middleware handles that

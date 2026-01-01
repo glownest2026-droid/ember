@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '../../../../utils/supabase/server';
-import { isAdmin } from '../../../../lib/admin';
+import { isAdminEmail } from '../../../../lib/admin';
 import { mergeTheme } from '../../../../lib/theme';
 import { revalidatePath } from 'next/cache';
 
@@ -12,12 +12,18 @@ export async function POST(req: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return new NextResponse('Unauthorized', { status: 401 });
+      return new NextResponse(JSON.stringify({ success: false, error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    const admin = await isAdmin();
+    const admin = isAdminEmail(user.email);
     if (!admin) {
-      return new NextResponse('Forbidden', { status: 403 });
+      return new NextResponse(JSON.stringify({ success: false, error: 'Forbidden' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // Parse request body
@@ -115,11 +121,31 @@ export async function POST(req: NextRequest) {
           });
 
         if (insertError) {
-          return new NextResponse(insertError.message, { status: 500 });
+          return new NextResponse(JSON.stringify({ success: false, error: insertError.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          });
         }
       } else {
-        return new NextResponse(updateError.message, { status: 500 });
+        return new NextResponse(JSON.stringify({ success: false, error: updateError.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
+    }
+
+    // Verify the write actually happened by selecting back the row
+    const { data: saved, error: selectError } = await supabase
+      .from('site_settings')
+      .select('theme, updated_at')
+      .eq('id', 'global')
+      .single();
+
+    if (selectError || !saved) {
+      return new NextResponse(JSON.stringify({ success: false, error: 'Failed to verify theme save' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // Revalidate paths to clear cache
@@ -128,7 +154,11 @@ export async function POST(req: NextRequest) {
     revalidatePath('/signin', 'layout');
     revalidatePath('/cms', 'layout');
 
-    return new NextResponse(JSON.stringify({ success: true, theme: mergedTheme }), {
+    return new NextResponse(JSON.stringify({ 
+      success: true, 
+      theme: saved.theme,
+      updated_at: saved.updated_at
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
