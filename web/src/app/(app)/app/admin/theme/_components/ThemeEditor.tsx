@@ -37,6 +37,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [savedAt, setSavedAt] = useState<string | null>(null);
   
   // Draft state for live preview
   const [draft, setDraft] = useState<RequiredThemeSettings>(initial);
@@ -112,14 +113,31 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
 
         if (!response.ok) {
           const text = await response.text();
-          throw new Error(text || 'Failed to save theme');
+          let errorMessage = text || 'Failed to save theme';
+          try {
+            const errorJson = JSON.parse(text);
+            if (errorJson.error) {
+              errorMessage = errorJson.error;
+            }
+          } catch {
+            // Use text as-is if not JSON
+          }
+          throw new Error(errorMessage);
         }
 
-        setSuccess(true);
-        // Refresh to apply new theme
-        router.refresh();
+        const result = await response.json();
+        if (result.success && result.updated_at) {
+          setSuccess(true);
+          setSavedAt(result.updated_at);
+          // Refresh to apply new theme
+          router.refresh();
+        } else {
+          throw new Error('Save failed: invalid response');
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to save theme');
+        setSuccess(false);
+        setSavedAt(null);
       }
     });
   }
@@ -142,6 +160,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
 
     setError(null);
     setSuccess(false);
+    setSavedAt(null);
 
     startTransition(async () => {
       try {
@@ -153,14 +172,31 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
 
         if (!response.ok) {
           const text = await response.text();
-          throw new Error(text || 'Failed to reset theme');
+          let errorMessage = text || 'Failed to reset theme';
+          try {
+            const errorJson = JSON.parse(text);
+            if (errorJson.error) {
+              errorMessage = errorJson.error;
+            }
+          } catch {
+            // Use text as-is if not JSON
+          }
+          throw new Error(errorMessage);
         }
 
-        setDraft(FACTORY_THEME);
-        setSuccess(true);
-        router.refresh();
+        const result = await response.json();
+        if (result.success && result.updated_at) {
+          setDraft(FACTORY_THEME);
+          setSuccess(true);
+          setSavedAt(result.updated_at);
+          router.refresh();
+        } else {
+          throw new Error('Reset failed: invalid response');
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to reset theme');
+        setSuccess(false);
+        setSavedAt(null);
       }
     });
   }
@@ -172,9 +208,12 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
           {error && (
             <div className="rounded bg-red-100 p-3 text-red-700">{error}</div>
           )}
-          {success && (
+          {success && savedAt && (
             <div className="rounded bg-green-100 p-3 text-green-700">
-              Theme saved! Refreshing...
+              <div className="font-semibold">Saved ✓</div>
+              <div className="text-xs mt-1">
+                {new Date(savedAt).toLocaleString()}
+              </div>
             </div>
           )}
 
