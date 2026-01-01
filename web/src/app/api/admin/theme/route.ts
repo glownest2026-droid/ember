@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '../../../../utils/supabase/server';
-import { isAdmin } from '../../../../lib/admin';
+import { isAdminEmail } from '../../../../lib/admin';
 import { mergeTheme } from '../../../../lib/theme';
 import { revalidatePath } from 'next/cache';
 
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const admin = await isAdmin();
+    const admin = isAdminEmail(user.email);
     if (!admin) {
       return new NextResponse('Forbidden', { status: 403 });
     }

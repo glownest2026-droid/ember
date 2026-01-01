@@ -173,6 +173,7 @@ export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '
         {/* Desktop nav */}
         {userEmail ? (
           <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
+            <Link href="/" className="opacity-80 hover:opacity-100">Home</Link>
             <Link href="/app" className="opacity-80 hover:opacity-100">Dashboard</Link>
             <Link href="/app/children" className="opacity-80 hover:opacity-100">Child Profiles</Link>
             <Link href="/app/recs" className="opacity-80 hover:opacity-100">Recommendations</Link>
@@ -182,6 +183,7 @@ export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '
           </nav>
         ) : (
           <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
+            <Link href="/" className="opacity-80 hover:opacity-100">Home</Link>
             <a className="opacity-80 hover:opacity-100" href="#how">How it works</a>
             <a className="opacity-80 hover:opacity-100" href="#features">Features</a>
             <a className="opacity-80 hover:opacity-100" href="#trust">Trust</a>
@@ -224,6 +226,7 @@ export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '
           <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex flex-col gap-3">
             {userEmail ? (
               <>
+                <Link href="/" className="py-1" onClick={() => setOpen(false)}>Home</Link>
                 <Link href="/app" className="py-1" onClick={() => setOpen(false)}>Dashboard</Link>
                 <Link href="/app/children" className="py-1" onClick={() => setOpen(false)}>Child Profiles</Link>
                 <Link href="/app/recs" className="py-1" onClick={() => setOpen(false)}>Recommendations</Link>
@@ -237,6 +240,7 @@ export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '
               </>
             ) : (
               <>
+                <Link href="/" className="py-1" onClick={() => setOpen(false)}>Home</Link>
                 <a href="#how" className="py-1" onClick={() => setOpen(false)}>How it works</a>
                 <a href="#features" className="py-1" onClick={() => setOpen(false)}>Features</a>
                 <a href="#trust" className="py-1" onClick={() => setOpen(false)}>Trust</a>
