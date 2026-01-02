@@ -34,9 +34,11 @@ export default async function ThemeAdminPage() {
   const theme = await loadTheme();
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-xl font-semibold" style={{ fontFamily: 'var(--brand-font-head, inherit)' }}>Theme Settings</h1>
-      <ThemeEditor initial={theme} />
+    <div className="space-y-4">
+      <h1 className="text-xl font-semibold px-6 pt-6" style={{ fontFamily: 'var(--brand-font-head, inherit)' }}>Theme Settings</h1>
+      <div className="px-6 pb-6">
+        <ThemeEditor initial={theme} />
+      </div>
     </div>
   );
 }
