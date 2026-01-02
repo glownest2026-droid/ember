@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '../../../../utils/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { isAdminEmail } from '../../../../lib/admin';
 import { mergeTheme } from '../../../../lib/theme';
 import { revalidatePath } from 'next/cache';
@@ -98,28 +99,56 @@ export async function POST(req: NextRequest) {
       components: { ...currentTheme.components, ...themeUpdate.components },
     });
 
-    // Upsert site_settings singleton row
-    const upsertPayload = {
-      id: 'global',
-      theme: mergedTheme,
-      updated_by: user.id,
-    };
+    // Create service role client to bypass RLS for admin writes
+    const supabaseAdmin = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
-    const { data: upsertedData, error: upsertError } = await supabase
+    // Update-first approach (avoids insert-policy edge cases)
+    const { data: updatedData, error: updateError } = await supabaseAdmin
       .from('site_settings')
-      .upsert(upsertPayload, { onConflict: 'id' })
+      .update({
+        theme: mergedTheme,
+        updated_by: user.id,
+      })
+      .eq('id', 'global')
       .select('id, theme, updated_at, updated_by')
       .single();
 
-    if (upsertError) {
-      return new NextResponse(JSON.stringify({ success: false, error: upsertError.message }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    let savedData = updatedData;
+
+    // If update returned no row, insert as fallback
+    if (updateError || !savedData) {
+      const { data: insertedData, error: insertError } = await supabaseAdmin
+        .from('site_settings')
+        .insert({
+          id: 'global',
+          theme: mergedTheme,
+          updated_by: user.id,
+        })
+        .select('id, theme, updated_at, updated_by')
+        .single();
+
+      if (insertError) {
+        return new NextResponse(JSON.stringify({ success: false, error: insertError.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      if (!insertedData) {
+        return new NextResponse(JSON.stringify({ success: false, error: 'No row returned from insert' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      savedData = insertedData;
     }
 
-    if (!upsertedData) {
-      return new NextResponse(JSON.stringify({ success: false, error: 'No row returned from upsert' }), {
+    if (!savedData) {
+      return new NextResponse(JSON.stringify({ success: false, error: 'No row returned from database write' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -133,8 +162,8 @@ export async function POST(req: NextRequest) {
 
     return new NextResponse(JSON.stringify({ 
       success: true, 
-      theme: upsertedData.theme,
-      updated_at: upsertedData.updated_at
+      theme: savedData.theme,
+      updated_at: savedData.updated_at
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
