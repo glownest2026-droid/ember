@@ -98,51 +98,28 @@ export async function POST(req: NextRequest) {
       components: { ...currentTheme.components, ...themeUpdate.components },
     });
 
-    // Update site_settings
-    const { error: updateError } = await supabase
+    // Upsert site_settings singleton row
+    const upsertPayload = {
+      id: 'global',
+      theme: mergedTheme,
+      updated_by: user.id,
+    };
+
+    const { data: upsertedData, error: upsertError } = await supabase
       .from('site_settings')
-      .update({
-        theme: mergedTheme,
-        updated_at: new Date().toISOString(),
-        updated_by: user.id,
-      })
-      .eq('id', 'global');
-
-    if (updateError) {
-      // If row doesn't exist, try to insert
-      if (updateError.code === 'PGRST116') {
-        const { error: insertError } = await supabase
-          .from('site_settings')
-          .insert({
-            id: 'global',
-            theme: mergedTheme,
-            updated_at: new Date().toISOString(),
-            updated_by: user.id,
-          });
-
-        if (insertError) {
-          return new NextResponse(JSON.stringify({ success: false, error: insertError.message }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-          });
-        }
-      } else {
-        return new NextResponse(JSON.stringify({ success: false, error: updateError.message }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
-        });
-      }
-    }
-
-    // Verify the write actually happened by selecting back the row
-    const { data: saved, error: selectError } = await supabase
-      .from('site_settings')
-      .select('theme, updated_at')
-      .eq('id', 'global')
+      .upsert(upsertPayload, { onConflict: 'id' })
+      .select('id, theme, updated_at, updated_by')
       .single();
 
-    if (selectError || !saved) {
-      return new NextResponse(JSON.stringify({ success: false, error: 'Failed to verify theme save' }), {
+    if (upsertError) {
+      return new NextResponse(JSON.stringify({ success: false, error: upsertError.message }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!upsertedData) {
+      return new NextResponse(JSON.stringify({ success: false, error: 'No row returned from upsert' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -156,14 +133,17 @@ export async function POST(req: NextRequest) {
 
     return new NextResponse(JSON.stringify({ 
       success: true, 
-      theme: saved.theme,
-      updated_at: saved.updated_at
+      theme: upsertedData.theme,
+      updated_at: upsertedData.updated_at
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err: any) {
-    return new NextResponse(err.message || 'Internal server error', { status: 500 });
+    return new NextResponse(JSON.stringify({ success: false, error: err.message || 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 

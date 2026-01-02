@@ -126,13 +126,13 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
         }
 
         const result = await response.json();
-        if (result.success && result.updated_at) {
+        if (result.success === true && result.updated_at) {
           setSuccess(true);
           setSavedAt(result.updated_at);
           // Refresh to apply new theme
           router.refresh();
         } else {
-          throw new Error('Save failed: invalid response');
+          throw new Error(result.error || 'Save failed: invalid response');
         }
       } catch (err: any) {
         setError(err.message || 'Failed to save theme');
@@ -185,13 +185,13 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
         }
 
         const result = await response.json();
-        if (result.success && result.updated_at) {
+        if (result.success === true && result.updated_at) {
           setDraft(FACTORY_THEME);
           setSuccess(true);
           setSavedAt(result.updated_at);
           router.refresh();
         } else {
-          throw new Error('Reset failed: invalid response');
+          throw new Error(result.error || 'Reset failed: invalid response');
         }
       } catch (err: any) {
         setError(err.message || 'Failed to reset theme');
