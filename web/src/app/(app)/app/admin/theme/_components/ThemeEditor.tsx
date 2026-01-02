@@ -202,7 +202,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:items-start" style={{ alignContent: 'start' }}>
       <div className="space-y-4">
         <form onSubmit={handleSubmit} className="space-y-3">
           {error && (
