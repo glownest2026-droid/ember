@@ -202,7 +202,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:items-start">
       <div className="space-y-4">
         <form onSubmit={handleSubmit} className="space-y-3">
           {error && (
@@ -546,7 +546,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
         </form>
       </div>
 
-      <div className="lg:sticky lg:top-[calc(var(--header-height,56px)+16px)] lg:self-start lg:max-h-[calc(100vh-var(--header-height,56px)-24px)] lg:overflow-y-auto">
+      <div className="lg:sticky lg:top-[calc(var(--header-height,56px)+24px)] lg:max-h-[calc(100vh-var(--header-height,56px)-48px)] lg:overflow-y-auto">
         <h2 className="text-lg font-semibold mb-3">Live Preview</h2>
         <ThemePreview theme={draft} />
       </div>
