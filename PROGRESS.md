@@ -499,3 +499,23 @@ _Last updated: 2025-12-30_
 - Manifest served: `/manifest.webmanifest` accessible (check via DevTools → Application → Manifest).
 - Mobile layout: no horizontal overflow, buttons/inputs tappable (44px minimum), inputs don't trigger iOS zoom (16px font).
 - All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
+
+## 2025-12-30 — UI Polish: Sticky Live Preview Pane on Theme Page
+
+### Summary
+- Made the "Live Preview" pane sticky on `/app/admin/theme` so it remains visible while scrolling through theme controls.
+
+### Key code
+- `web/src/app/(app)/app/admin/theme/_components/ThemeEditor.tsx` — refined sticky positioning with proper top offset and max-height constraints
+
+### Implementation Details
+- Preview pane uses `lg:sticky` with `top-[calc(var(--header-height,56px)+16px)]` to sit below the fixed header.
+- Max height set to `calc(100vh-var(--header-height,56px)-24px)` with `overflow-y-auto` for scrollable content.
+- Sticky behavior only applies on desktop (`lg:` breakpoint); mobile stacks normally.
+- Verified parent containers don't have overflow that would block sticky positioning.
+
+### Verification (Proof-of-Done)
+- Build passes: `pnpm build` succeeds.
+- Desktop: preview pane stays visible while scrolling controls.
+- Mobile: layout remains usable (no sticky behavior, normal stacking).
+- No layout overlap with header (respects safe top offset).
