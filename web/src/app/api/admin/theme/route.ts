@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '../../../../utils/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { isAdminEmail } from '../../../../lib/admin';
 import { mergeTheme } from '../../../../lib/theme';
 import { revalidatePath } from 'next/cache';
@@ -98,51 +99,56 @@ export async function POST(req: NextRequest) {
       components: { ...currentTheme.components, ...themeUpdate.components },
     });
 
-    // Update site_settings
-    const { error: updateError } = await supabase
+    // Create service role client to bypass RLS for admin writes
+    const supabaseAdmin = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    // Update-first approach (avoids insert-policy edge cases)
+    const { data: updatedData, error: updateError } = await supabaseAdmin
       .from('site_settings')
       .update({
         theme: mergedTheme,
-        updated_at: new Date().toISOString(),
         updated_by: user.id,
       })
-      .eq('id', 'global');
+      .eq('id', 'global')
+      .select('id, theme, updated_at, updated_by')
+      .single();
 
-    if (updateError) {
-      // If row doesn't exist, try to insert
-      if (updateError.code === 'PGRST116') {
-        const { error: insertError } = await supabase
-          .from('site_settings')
-          .insert({
-            id: 'global',
-            theme: mergedTheme,
-            updated_at: new Date().toISOString(),
-            updated_by: user.id,
-          });
+    let savedData = updatedData;
 
-        if (insertError) {
-          return new NextResponse(JSON.stringify({ success: false, error: insertError.message }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-          });
-        }
-      } else {
-        return new NextResponse(JSON.stringify({ success: false, error: updateError.message }), {
+    // If update returned no row, insert as fallback
+    if (updateError || !savedData) {
+      const { data: insertedData, error: insertError } = await supabaseAdmin
+        .from('site_settings')
+        .insert({
+          id: 'global',
+          theme: mergedTheme,
+          updated_by: user.id,
+        })
+        .select('id, theme, updated_at, updated_by')
+        .single();
+
+      if (insertError) {
+        return new NextResponse(JSON.stringify({ success: false, error: insertError.message }), {
           status: 500,
           headers: { 'Content-Type': 'application/json' },
         });
       }
+
+      if (!insertedData) {
+        return new NextResponse(JSON.stringify({ success: false, error: 'No row returned from insert' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      savedData = insertedData;
     }
 
-    // Verify the write actually happened by selecting back the row
-    const { data: saved, error: selectError } = await supabase
-      .from('site_settings')
-      .select('theme, updated_at')
-      .eq('id', 'global')
-      .single();
-
-    if (selectError || !saved) {
-      return new NextResponse(JSON.stringify({ success: false, error: 'Failed to verify theme save' }), {
+    if (!savedData) {
+      return new NextResponse(JSON.stringify({ success: false, error: 'No row returned from database write' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -156,14 +162,17 @@ export async function POST(req: NextRequest) {
 
     return new NextResponse(JSON.stringify({ 
       success: true, 
-      theme: saved.theme,
-      updated_at: saved.updated_at
+      theme: savedData.theme,
+      updated_at: savedData.updated_at
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err: any) {
-    return new NextResponse(err.message || 'Internal server error', { status: 500 });
+    return new NextResponse(JSON.stringify({ success: false, error: err.message || 'Internal server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
 
