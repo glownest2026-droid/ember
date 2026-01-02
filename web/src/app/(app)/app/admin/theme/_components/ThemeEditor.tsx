@@ -546,7 +546,7 @@ export default function ThemeEditor({ initial }: { initial: RequiredThemeSetting
         </form>
       </div>
 
-      <div className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
+      <div className="lg:sticky lg:top-[80px] lg:max-h-[calc(100vh-80px-1rem)] lg:overflow-y-auto">
         <h2 className="text-lg font-semibold mb-3">Live Preview</h2>
         <ThemePreview theme={draft} />
       </div>
