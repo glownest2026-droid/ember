@@ -1,5 +1,5 @@
 # CTO Snapshot (Source of Truth)
-_Last updated: 2025-12-30_
+_Last updated: 2026-01-04_
 
 ## Environments
 - Production URL: https://ember-mocha-eight.vercel.app
@@ -56,6 +56,48 @@ _Last updated: 2025-12-30_
 
 
 ------
+
+## 2026-01-04 — PL-0: Product Library Ground Truth & Guardrails
+
+### Summary
+- Added PL-0 Supabase SQL migration with pl_* tables and hardened products table RLS
+- Created admin-only route `/app/admin/pl` that lists pl_age_bands and pl_moments
+- Products table write access (INSERT/UPDATE/DELETE) now requires admin role via user_roles table
+
+### Routes added
+- `/app/admin/pl` — admin-only product library stub page (lists age bands + moments)
+
+### DB & RLS
+- Migration file: `supabase/sql/202601041654_pl0_product_library.sql`
+- Products table: SELECT remains public, INSERT/UPDATE/DELETE are admin-only (via user_roles.role='admin')
+- New tables: pl_age_bands, pl_moments, pl_dev_tags, pl_category_types, pl_age_moment_sets, pl_reco_cards, pl_evidence
+- All pl_* tables: Admin has full CRUD access
+- Public SELECT allowed ONLY for published sets and their related cards/evidence
+
+### Key code
+- `supabase/sql/202601041654_pl0_product_library.sql` — complete migration with RLS policies
+- `web/src/app/(app)/app/admin/pl/page.tsx` — admin page with graceful handling for unmigrated DB
+
+### Implementation Details
+- Products RLS: Dropped all existing policies, recreated SELECT (public) and INSERT/UPDATE/DELETE (admin-only)
+- Helper function: `is_admin()` SECURITY DEFINER function checks user_roles table
+- Admin page: Uses `isAdmin()` from `web/src/lib/admin.ts` (checks email allowlist + user_roles)
+- Graceful degradation: Page shows "DB not migrated yet" message if tables don't exist
+
+### Verification (Proof-of-Done)
+- Build passes: `pnpm build` succeeds, `/app/admin/pl` route registered
+- SQL migration: File created with all required tables, enums, RLS policies
+- Admin access: Non-admin users see "Not authorized" screen
+- DB migration: Page handles missing tables gracefully (shows migration message)
+- All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
+
+### Migration Application Steps
+- Apply migration via Supabase Dashboard → SQL Editor → paste and run migration SQL
+- After migration: `/app/admin/pl` will display age bands and moments tables
+
+### Rollback
+- Revert PR to remove admin page
+- If SQL already applied: Drop pl_* tables/types and restore products policies to public select + authenticated write (if needed)
 
 ## 2025-11-01 — Module 1: Baseline Audit & Guardrails
 
