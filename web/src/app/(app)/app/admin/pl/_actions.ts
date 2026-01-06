@@ -264,3 +264,85 @@ export async function unpublishSet(setId: string, ageBandId: string) {
   return { success: true };
 }
 
+// Add item to pool
+export async function addPoolItem(
+  ageBandId: string,
+  momentId: string,
+  data: {
+    category_type_id: string;
+    note?: string;
+  }
+) {
+  const { supabase, user } = await requireAdmin();
+
+  const { error } = await supabase
+    .from('pl_pool_items')
+    .insert({
+      age_band_id: ageBandId,
+      moment_id: momentId,
+      category_type_id: data.category_type_id,
+      note: data.note || null,
+      created_by: user.id,
+    });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(`/app/admin/pl/${ageBandId}`);
+  return { success: true };
+}
+
+// Remove item from pool
+export async function removePoolItem(poolItemId: string, ageBandId: string) {
+  const { supabase } = await requireAdmin();
+
+  const { error } = await supabase
+    .from('pl_pool_items')
+    .delete()
+    .eq('id', poolItemId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(`/app/admin/pl/${ageBandId}`);
+  return { success: true };
+}
+
+// Use pool item in card (assigns category_type_id to card)
+export async function usePoolItemInCard(
+  poolItemId: string,
+  cardId: string,
+  ageBandId: string
+) {
+  const { supabase } = await requireAdmin();
+
+  // Get pool item to get category_type_id
+  const { data: poolItem, error: poolError } = await supabase
+    .from('pl_pool_items')
+    .select('category_type_id')
+    .eq('id', poolItemId)
+    .single();
+
+  if (poolError || !poolItem) {
+    return { error: poolError?.message || 'Pool item not found' };
+  }
+
+  // Update card with category_type_id from pool item
+  const { error: updateError } = await supabase
+    .from('pl_reco_cards')
+    .update({
+      category_type_id: poolItem.category_type_id,
+      product_id: null, // Clear product_id when using category_type_id
+    })
+    .eq('id', cardId);
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  revalidatePath(`/app/admin/pl/${ageBandId}`);
+  return { success: true };
+}
+
