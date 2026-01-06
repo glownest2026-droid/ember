@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic";
 import { redirect } from 'next/navigation';
 import { createClient } from '../../../../../utils/supabase/server';
-import { isAdminEmail } from '../../../../../lib/admin';
 import { loadTheme } from '../../../../../lib/theme';
 import ThemeEditor from './_components/ThemeEditor';
 
@@ -13,8 +12,17 @@ export default async function ThemeAdminPage() {
     redirect('/signin?next=/app/admin/theme');
   }
 
-  const admin = isAdminEmail(user.email);
-  if (!admin) {
+  // Defense in depth: Check canonical admin (user_roles.role='admin' only)
+  // Note: Layout already enforces this, but keeping for consistency
+  const { data: roleData, error: roleError } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .eq('role', 'admin')
+    .limit(1)
+    .single();
+
+  if (roleError || !roleData || roleData.role !== 'admin') {
     // Show clear "Not authorized" screen instead of silent redirect
     return (
       <div className="container-wrap py-8">
