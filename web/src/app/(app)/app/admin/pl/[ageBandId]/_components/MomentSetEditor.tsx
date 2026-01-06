@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { createDraftSet, updateCard, addEvidence, updateEvidence, deleteEvidence, publishSet, unpublishSet } from '../../_actions';
+import { createDraftSet, updateCard, addEvidence, updateEvidence, deleteEvidence, publishSet, unpublishSet, addPoolItem, removePoolItem, usePoolItemInCard } from '../../_actions';
 
 type Moment = {
   id: string;
@@ -47,18 +47,27 @@ type Product = {
   name: string;
 };
 
+type PoolItem = {
+  id: string;
+  category_type_id: string;
+  note?: string;
+  pl_category_types?: CategoryType;
+};
+
 export default function MomentSetEditor({
   ageBandId,
   moment,
   set,
   categoryTypes,
   products,
+  poolItems,
 }: {
   ageBandId: string;
   moment: Moment;
   set?: Set;
   categoryTypes: CategoryType[];
   products: Product[];
+  poolItems: PoolItem[];
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -166,6 +175,52 @@ export default function MomentSetEditor({
     });
   }
 
+  async function handleAddPoolItem(formData: FormData) {
+    setError(null);
+    setSuccess(null);
+    startTransition(async () => {
+      const result = await addPoolItem(ageBandId, moment.id, {
+        category_type_id: formData.get('category_type_id') as string,
+        note: formData.get('note') as string,
+      });
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setSuccess('Added to pool');
+        window.location.reload();
+      }
+    });
+  }
+
+  async function handleRemovePoolItem(poolItemId: string) {
+    if (!confirm('Remove this item from the pool?')) return;
+    setError(null);
+    setSuccess(null);
+    startTransition(async () => {
+      const result = await removePoolItem(poolItemId, ageBandId);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setSuccess('Removed from pool');
+        window.location.reload();
+      }
+    });
+  }
+
+  async function handleUsePoolItemInCard(poolItemId: string, cardId: string) {
+    setError(null);
+    setSuccess(null);
+    startTransition(async () => {
+      const result = await usePoolItemInCard(poolItemId, cardId, ageBandId);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setSuccess('Product type assigned to card');
+        window.location.reload();
+      }
+    });
+  }
+
   return (
     <div className="card p-6 space-y-4">
       <div className="flex items-center justify-between">
@@ -243,6 +298,91 @@ export default function MomentSetEditor({
               />
             ))
           )}
+
+          {/* Product Type Pool Section */}
+          <div className="border-t pt-6 mt-6">
+            <h3 className="text-lg font-semibold mb-4">Product Type Pool</h3>
+            
+            {/* Add to Pool Form */}
+            <form
+              action={handleAddPoolItem}
+              className="mb-4 p-4 border rounded space-y-3"
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm mb-1">Product type</label>
+                  <select
+                    name="category_type_id"
+                    className="w-full border p-2 rounded"
+                    required
+                  >
+                    <option value="">Select...</option>
+                    {categoryTypes.map((ct) => (
+                      <option key={ct.id} value={ct.id}>{ct.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm mb-1">Note (optional)</label>
+                  <input
+                    type="text"
+                    name="note"
+                    placeholder="Short note..."
+                    className="w-full border p-2 rounded text-sm"
+                  />
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={isPending}
+                className="px-3 py-1 text-sm bg-black text-white rounded hover:bg-gray-800 disabled:opacity-50"
+              >
+                Add to pool
+              </button>
+            </form>
+
+            {/* Pool Items List */}
+            {poolItems.length === 0 ? (
+              <p className="text-sm text-gray-500">No items in pool yet. Add product types above.</p>
+            ) : (
+              <div className="space-y-2">
+                {poolItems.map((item) => {
+                  const categoryType = item.pl_category_types;
+                  const categoryTypeLabel = categoryType?.label || 'Unknown';
+                  return (
+                    <div key={item.id} className="border rounded p-3 flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="font-medium">{categoryTypeLabel}</div>
+                        {item.note && (
+                          <div className="text-sm text-gray-600 mt-1">{item.note}</div>
+                        )}
+                      </div>
+                      <div className="flex gap-2 ml-4">
+                        {set && sortedCards.map((card) => (
+                          <button
+                            key={card.id}
+                            onClick={() => handleUsePoolItemInCard(item.id, card.id)}
+                            disabled={isPending}
+                            className="px-2 py-1 text-xs border rounded hover:bg-gray-50 disabled:opacity-50"
+                            title={`Use in Card ${card.rank}`}
+                          >
+                            Card {card.rank}
+                          </button>
+                        ))}
+                        <button
+                          onClick={() => handleRemovePoolItem(item.id)}
+                          disabled={isPending}
+                          className="px-2 py-1 text-xs text-red-600 hover:underline disabled:opacity-50"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -313,7 +453,7 @@ function CardEditor({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm mb-1">Category Type</label>
+            <label className="block text-sm mb-1">Product type</label>
             <select
               name="category_type_id"
               defaultValue={card.category_type_id || ''}

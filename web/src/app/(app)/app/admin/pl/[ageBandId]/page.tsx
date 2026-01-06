@@ -38,6 +38,7 @@ export default async function AgeBandAdminPage({
   let sets: any[] = [];
   let categoryTypes: any[] = [];
   let products: any[] = [];
+  let poolItems: any[] = [];
   let dbError: string | null = null;
 
   try {
@@ -118,6 +119,24 @@ export default async function AgeBandAdminPage({
     if (productsData) {
       products = productsData;
     }
+
+    // Load pool items for this age band
+    const { data: poolItemsData } = await supabase
+      .from('pl_pool_items')
+      .select(`
+        *,
+        pl_category_types (
+          id,
+          label,
+          slug
+        )
+      `)
+      .eq('age_band_id', ageBandId)
+      .order('created_at', { ascending: true });
+
+    if (poolItemsData) {
+      poolItems = poolItemsData;
+    }
   } catch (err: any) {
     dbError = `Unexpected error: ${err.message || 'Unknown error'}`;
   }
@@ -153,6 +172,15 @@ export default async function AgeBandAdminPage({
     setsByMoment[set.moment_id] = set;
   }
 
+  // Group pool items by moment_id
+  const poolItemsByMoment: Record<string, any[]> = {};
+  for (const item of poolItems) {
+    if (!poolItemsByMoment[item.moment_id]) {
+      poolItemsByMoment[item.moment_id] = [];
+    }
+    poolItemsByMoment[item.moment_id].push(item);
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div>
@@ -180,6 +208,7 @@ export default async function AgeBandAdminPage({
                 set={set}
                 categoryTypes={categoryTypes}
                 products={products}
+                poolItems={poolItemsByMoment[moment.id] || []}
               />
             );
           })}
