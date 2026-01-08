@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
       affiliate_url: body.affiliate_url?.trim() || body.deep_link_url?.trim() || null,
     };
 
-    // Handle rating: optional, but if provided must be >= 4
+    // Handle rating: optional, if provided must be between 0 and 5
     if (body.rating !== undefined && body.rating !== null && body.rating !== '') {
       const ratingNum = Number(body.rating);
       if (!isNaN(ratingNum) && ratingNum >= 0 && ratingNum <= 5) {

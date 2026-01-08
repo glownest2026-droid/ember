@@ -47,6 +47,7 @@ type CategoryType = {
 type Product = {
   id: string;
   name: string;
+  category_type_id: string | null;
 };
 
 type PoolItem = {
@@ -411,6 +412,12 @@ function CardEditor({
   isPending: boolean;
 }) {
   const [showEvidenceForm, setShowEvidenceForm] = useState(false);
+  const [selectedCategoryTypeId, setSelectedCategoryTypeId] = useState<string>(card.category_type_id || '');
+
+  // Filter products by selected category type
+  const filteredProducts = selectedCategoryTypeId
+    ? products.filter((p) => p.category_type_id === selectedCategoryTypeId)
+    : [];
 
   return (
     <div className="border rounded p-4 space-y-4">
@@ -460,6 +467,14 @@ function CardEditor({
               name="category_type_id"
               defaultValue={card.category_type_id || ''}
               className="w-full border p-2 rounded"
+              onChange={(e) => {
+                setSelectedCategoryTypeId(e.target.value);
+                // Clear product selection when category type changes
+                const productSelect = e.target.closest('form')?.querySelector('select[name="product_id"]') as HTMLSelectElement;
+                if (productSelect) {
+                  productSelect.value = '';
+                }
+              }}
             >
               <option value="">None</option>
               {categoryTypes.map((ct) => (
@@ -474,12 +489,23 @@ function CardEditor({
               name="product_id"
               defaultValue={card.product_id || ''}
               className="w-full border p-2 rounded"
+              disabled={!selectedCategoryTypeId}
             >
-              <option value="">None</option>
-              {products.map((p) => (
+              <option value="">{selectedCategoryTypeId ? 'Select a product...' : 'Select Category Type first'}</option>
+              {filteredProducts.map((p) => (
                 <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
+            {!selectedCategoryTypeId && (
+              <p className="text-xs mt-1" style={{ color: 'var(--brand-muted, #6b7280)' }}>
+                Select a Category Type to see available products
+              </p>
+            )}
+            {selectedCategoryTypeId && filteredProducts.length === 0 && (
+              <p className="text-xs mt-1" style={{ color: 'var(--brand-muted, #6b7280)' }}>
+                No products found for this category type
+              </p>
+            )}
           </div>
         </div>
 

@@ -108,14 +108,14 @@ export default async function AgeBandAdminPage({
       categoryTypes = categoryTypesData;
     }
 
-    // Load products for dropdowns (limit to reasonable number)
+    // Load products for dropdowns (include category_type_id for filtering)
     // Note: age_band in products is text (e.g., "12-18m"), not UUID
-    // For now, load all products; can filter by age_band text match later if needed
+    // Products will be filtered by category_type_id in the client component
     const { data: productsData } = await supabase
       .from('products')
-      .select('id, name, age_band')
+      .select('id, name, age_band, category_type_id')
       .order('name', { ascending: true })
-      .limit(100);
+      .limit(200);
 
     if (productsData) {
       products = productsData;
