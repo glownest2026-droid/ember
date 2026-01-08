@@ -52,10 +52,13 @@ export default function ProductForm({ initial }: { initial?: Partial<Product> })
         }
       }
 
+      const ratingValue = fd.get('rating');
+      const ratingNum = ratingValue && String(ratingValue).trim() !== '' ? Number(ratingValue) : null;
+
       const p: any = {
         id: initial?.id,
         name: String(fd.get('name') || '').trim(),
-        rating: Number(fd.get('rating')),
+        rating: ratingNum,
         age_band: String(fd.get('age_band') || '').trim(),
         tags: String(fd.get('tags') || '').split(',').map(t => t.trim()).filter(Boolean),
         why_it_matters: String(fd.get('why_it_matters') || '') || null,
@@ -69,7 +72,7 @@ export default function ProductForm({ initial }: { initial?: Partial<Product> })
       if (!p.name) throw new Error('Name is required');
       if (!p.age_band) throw new Error('Age band is required');
       // Rating is optional, but if provided must be between 0 and 5
-      if (p.rating !== undefined && p.rating !== null) {
+      if (p.rating !== null && p.rating !== undefined) {
         if (!Number.isFinite(p.rating)) throw new Error('Rating must be a number');
         if (p.rating < 0 || p.rating > 5) throw new Error('Rating must be between 0 and 5');
       }
