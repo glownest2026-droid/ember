@@ -9,6 +9,13 @@ type CategoryType = {
   slug: string;
 };
 
+type AgeBand = {
+  id: string;
+  label: string;
+  min_months: number;
+  max_months: number;
+};
+
 type Product = {
   id: string;
   name: string;
@@ -27,6 +34,7 @@ type Product = {
 export default function ProductsAdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categoryTypes, setCategoryTypes] = useState<CategoryType[]>([]);
+  const [ageBands, setAgeBands] = useState<AgeBand[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -39,13 +47,15 @@ export default function ProductsAdminPage() {
   async function loadData() {
     try {
       setLoading(true);
-      const [productsRes, categoryTypesRes] = await Promise.all([
+      const [productsRes, categoryTypesRes, ageBandsRes] = await Promise.all([
         fetch('/api/admin/products'),
         fetch('/api/admin/category-types'),
+        fetch('/api/admin/age-bands'),
       ]);
 
       const productsJson = await productsRes.json();
       const categoryTypesJson = await categoryTypesRes.json();
+      const ageBandsJson = await ageBandsRes.json();
 
       if (productsJson.success) {
         setProducts(productsJson.data || []);
@@ -55,6 +65,10 @@ export default function ProductsAdminPage() {
 
       if (categoryTypesJson.success) {
         setCategoryTypes(categoryTypesJson.data || []);
+      }
+
+      if (ageBandsJson.success) {
+        setAgeBands(ageBandsJson.data || []);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load data');
@@ -189,13 +203,16 @@ export default function ProductsAdminPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm mb-1">Age Band *</label>
-                <input
-                  type="text"
+                <select
                   name="age_band"
                   required
                   className="w-full border p-2 rounded"
-                  placeholder="e.g., 12-18m"
-                />
+                >
+                  <option value="">Select age band...</option>
+                  {ageBands.map((ab) => (
+                    <option key={ab.id} value={ab.id}>{ab.label}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm mb-1">Category Type</label>
@@ -210,14 +227,28 @@ export default function ProductsAdminPage() {
                 </select>
               </div>
             </div>
-            <div>
-              <label className="block text-sm mb-1">Image URL</label>
-              <input
-                type="url"
-                name="image_url"
-                className="w-full border p-2 rounded"
-                placeholder="https://example.com/image.jpg"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm mb-1">Rating (optional, 0-5)</label>
+                <input
+                  type="number"
+                  name="rating"
+                  min="0"
+                  max="5"
+                  step="0.1"
+                  className="w-full border p-2 rounded"
+                  placeholder="e.g., 4.5"
+                />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Image URL</label>
+                <input
+                  type="url"
+                  name="image_url"
+                  className="w-full border p-2 rounded"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm mb-1">Why It Matters</label>
@@ -292,13 +323,17 @@ export default function ProductsAdminPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm mb-1">Age Band *</label>
-                      <input
-                        type="text"
+                      <select
                         name="age_band"
                         defaultValue={product.age_band}
                         required
                         className="w-full border p-2 rounded"
-                      />
+                      >
+                        <option value="">Select age band...</option>
+                        {ageBands.map((ab) => (
+                          <option key={ab.id} value={ab.id}>{ab.label}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm mb-1">Category Type</label>
@@ -314,14 +349,29 @@ export default function ProductsAdminPage() {
                       </select>
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm mb-1">Image URL</label>
-                    <input
-                      type="url"
-                      name="image_url"
-                      defaultValue={product.image_url || ''}
-                      className="w-full border p-2 rounded"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm mb-1">Rating (optional, 0-5)</label>
+                      <input
+                        type="number"
+                        name="rating"
+                        min="0"
+                        max="5"
+                        step="0.1"
+                        defaultValue={product.rating || ''}
+                        className="w-full border p-2 rounded"
+                        placeholder="e.g., 4.5"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm mb-1">Image URL</label>
+                      <input
+                        type="url"
+                        name="image_url"
+                        defaultValue={product.image_url || ''}
+                        className="w-full border p-2 rounded"
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm mb-1">Why It Matters</label>

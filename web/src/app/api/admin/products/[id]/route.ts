@@ -74,7 +74,19 @@ export async function PATCH(
       updateData.category_type_id = body.category_type_id?.trim() || null;
     }
     if (body.rating !== undefined) {
-      updateData.rating = body.rating ? Number(body.rating) : null;
+      if (body.rating === null || body.rating === '' || body.rating === undefined) {
+        updateData.rating = null;
+      } else {
+        const ratingNum = Number(body.rating);
+        if (!isNaN(ratingNum) && ratingNum >= 0 && ratingNum <= 5) {
+          updateData.rating = ratingNum;
+        } else {
+          return new NextResponse(JSON.stringify({ success: false, error: 'Rating must be between 0 and 5' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      }
     }
     if (body.affiliate_url !== undefined) {
       updateData.affiliate_url = body.affiliate_url?.trim() || null;

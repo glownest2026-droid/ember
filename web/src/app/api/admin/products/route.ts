@@ -111,9 +111,23 @@ export async function POST(req: NextRequest) {
       why_it_matters: body.why_it_matters?.trim() || null,
       tags: Array.isArray(body.tags) ? body.tags : (body.tags ? body.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : []),
       category_type_id: body.category_type_id?.trim() || null,
-      rating: body.rating ? Number(body.rating) : null,
       affiliate_url: body.affiliate_url?.trim() || body.deep_link_url?.trim() || null,
     };
+
+    // Handle rating: optional, but if provided must be >= 4
+    if (body.rating !== undefined && body.rating !== null && body.rating !== '') {
+      const ratingNum = Number(body.rating);
+      if (!isNaN(ratingNum) && ratingNum >= 0 && ratingNum <= 5) {
+        insertData.rating = ratingNum;
+      } else {
+        return new NextResponse(JSON.stringify({ success: false, error: 'Rating must be between 0 and 5' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+    } else {
+      insertData.rating = null;
+    }
 
     const { data, error } = await supabaseAdmin
       .from('products')
