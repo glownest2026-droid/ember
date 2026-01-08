@@ -412,13 +412,19 @@ function CardEditor({
   isPending: boolean;
 }) {
   const [showEvidenceForm, setShowEvidenceForm] = useState(false);
-  const [selectedCategoryTypeId, setSelectedCategoryTypeId] = useState<string>(card.category_type_id || '');
+  // Initialize category type from card, or from product's category if card has product but no category
+  const initialCategoryTypeId = card.category_type_id || 
+    (card.product_id ? products.find((p) => p.id === card.product_id)?.category_type_id || '' : '');
+  const [selectedCategoryTypeId, setSelectedCategoryTypeId] = useState<string>(initialCategoryTypeId);
   const [selectedProductId, setSelectedProductId] = useState<string>(card.product_id || '');
 
-  // Filter products by selected category type
-  // Only show products that match the selected category type
+  // Filter products by selected category type - strict match only
   const filteredProducts = selectedCategoryTypeId
-    ? products.filter((p) => p.category_type_id === selectedCategoryTypeId)
+    ? products.filter((p) => {
+        // Strict string comparison (handle null/undefined)
+        return p.category_type_id !== null && p.category_type_id !== undefined && 
+               String(p.category_type_id) === String(selectedCategoryTypeId);
+      })
     : [];
 
   return (
@@ -472,9 +478,15 @@ function CardEditor({
               onChange={(e) => {
                 const newCategoryTypeId = e.target.value;
                 setSelectedCategoryTypeId(newCategoryTypeId);
-                // Clear product selection when category type changes (unless current product matches new category)
-                const currentProduct = products.find((p) => p.id === card.product_id);
-                if (newCategoryTypeId && currentProduct?.category_type_id !== newCategoryTypeId) {
+                // Clear product selection when category type changes if current product doesn't match new category
+                const currentProduct = products.find((p) => p.id === selectedProductId);
+                if (newCategoryTypeId) {
+                  // Check if current selected product matches new category type
+                  if (!currentProduct || String(currentProduct.category_type_id) !== String(newCategoryTypeId)) {
+                    setSelectedProductId('');
+                  }
+                } else {
+                  // Category type cleared, clear product too
                   setSelectedProductId('');
                 }
               }}
