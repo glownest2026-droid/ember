@@ -1,17 +1,31 @@
 -- PL Taxonomy: Category Types + Products Link
 -- Date: 2026-01-05
--- Purpose: Create pl_category_types table and link products to category types
+-- Purpose: Add name column to pl_category_types (if missing) and link products to category types
 
--- Create pl_category_types table
-CREATE TABLE IF NOT EXISTS public.pl_category_types (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL UNIQUE,
-  slug TEXT NOT NULL UNIQUE,
-  description TEXT,
-  image_url TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
+-- Note: pl_category_types table already exists from PL-0 migration with 'label' column
+-- Add 'name' column if it doesn't exist (for consistency with requirements)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+    AND table_name = 'pl_category_types'
+    AND column_name = 'name'
+  ) THEN
+    ALTER TABLE public.pl_category_types ADD COLUMN name TEXT;
+    -- Populate name from label for existing rows
+    UPDATE public.pl_category_types SET name = label WHERE name IS NULL;
+    -- Make name required
+    ALTER TABLE public.pl_category_types ALTER COLUMN name SET NOT NULL;
+    -- Add unique constraint if it doesn't exist
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_constraint
+      WHERE conname = 'pl_category_types_name_unique'
+    ) THEN
+      ALTER TABLE public.pl_category_types ADD CONSTRAINT pl_category_types_name_unique UNIQUE (name);
+    END IF;
+  END IF;
+END $$;
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS pl_category_types_slug_idx ON public.pl_category_types(slug);
