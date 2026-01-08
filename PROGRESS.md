@@ -649,7 +649,9 @@ _Last updated: 2026-01-04_
 4. Added age band dropdown: replaced text input with dropdown from `pl_age_bands` table
 5. Added optional rating field: products can have rating 0-5 or null (removed >= 4 requirement from UI/API)
 6. Fixed product filtering: PL curation UI now filters products by selected category type (controlled components)
-7. Fixed ProductForm.tsx: properly handles empty ratings as null
+7. Fixed ProductForm.tsx: properly handles empty ratings as null (empty string converts to null, not 0)
+8. Added migration to remove any database constraint requiring rating >= 4 (if exists)
+9. Improved product filtering: strict category type matching with controlled component state management
 
 ### Verification (Proof-of-Done)
 - Migration applies cleanly (DROP IF EXISTS for triggers/policies, handles existing `label` column)
