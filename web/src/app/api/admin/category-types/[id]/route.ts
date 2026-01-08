@@ -61,7 +61,9 @@ export async function PATCH(
           headers: { 'Content-Type': 'application/json' },
         });
       }
-      updateData.name = body.name.trim();
+      const nameValue = body.name.trim();
+      updateData.name = nameValue;
+      updateData.label = nameValue; // Keep label in sync with name (legacy column)
       // Auto-generate slug if name changed and slug not explicitly provided
       if (body.slug === undefined) {
         updateData.slug = generateSlug(body.name);

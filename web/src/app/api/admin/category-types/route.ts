@@ -110,10 +110,12 @@ export async function POST(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
+    const nameValue = body.name.trim();
     const { data, error } = await supabaseAdmin
       .from('pl_category_types')
       .insert({
-        name: body.name.trim(),
+        name: nameValue,
+        label: nameValue, // Keep label in sync with name (legacy column)
         slug,
         description: body.description?.trim() || null,
         image_url: body.image_url?.trim() || null,
