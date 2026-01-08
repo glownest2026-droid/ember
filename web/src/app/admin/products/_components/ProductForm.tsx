@@ -68,8 +68,11 @@ export default function ProductForm({ initial }: { initial?: Partial<Product> })
 
       if (!p.name) throw new Error('Name is required');
       if (!p.age_band) throw new Error('Age band is required');
-      if (!Number.isFinite(p.rating)) throw new Error('Rating is required');
-      if (p.rating < 4) throw new Error('Rating must be ≥ 4');
+      // Rating is optional, but if provided must be between 0 and 5
+      if (p.rating !== undefined && p.rating !== null) {
+        if (!Number.isFinite(p.rating)) throw new Error('Rating must be a number');
+        if (p.rating < 0 || p.rating > 5) throw new Error('Rating must be between 0 and 5');
+      }
 
       const ok = validateImage(p.image_source, p.image_url ?? undefined, {
         affiliate_program: p.affiliate_program ?? undefined,
@@ -100,8 +103,8 @@ export default function ProductForm({ initial }: { initial?: Partial<Product> })
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div><label className="block text-sm">Rating (≥4)</label>
-          <input type="number" step="0.1" min="0" max="5" name="rating" defaultValue={initial?.rating ?? 4} className="w-full border p-2 rounded" required />
+        <div><label className="block text-sm">Rating (optional, 0-5)</label>
+          <input type="number" step="0.1" min="0" max="5" name="rating" defaultValue={initial?.rating ?? ''} className="w-full border p-2 rounded" />
         </div>
         <div><label className="block text-sm">Age band</label>
           <input name="age_band" placeholder="12-18m" defaultValue={initial?.age_band} className="w-full border p-2 rounded" required />

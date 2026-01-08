@@ -413,13 +413,12 @@ function CardEditor({
 }) {
   const [showEvidenceForm, setShowEvidenceForm] = useState(false);
   const [selectedCategoryTypeId, setSelectedCategoryTypeId] = useState<string>(card.category_type_id || '');
+  const [selectedProductId, setSelectedProductId] = useState<string>(card.product_id || '');
 
   // Filter products by selected category type
-  // Include current product even if it doesn't match the filter (in case category type changed)
+  // Only show products that match the selected category type
   const filteredProducts = selectedCategoryTypeId
-    ? products.filter((p) => p.category_type_id === selectedCategoryTypeId || p.id === card.product_id)
-    : card.product_id
-    ? products.filter((p) => p.id === card.product_id)
+    ? products.filter((p) => p.category_type_id === selectedCategoryTypeId)
     : [];
 
   return (
@@ -468,14 +467,15 @@ function CardEditor({
             <label className="block text-sm mb-1">Category Type</label>
             <select
               name="category_type_id"
-              defaultValue={card.category_type_id || ''}
+              value={selectedCategoryTypeId}
               className="w-full border p-2 rounded"
               onChange={(e) => {
-                setSelectedCategoryTypeId(e.target.value);
-                // Clear product selection when category type changes
-                const productSelect = e.target.closest('form')?.querySelector('select[name="product_id"]') as HTMLSelectElement;
-                if (productSelect) {
-                  productSelect.value = '';
+                const newCategoryTypeId = e.target.value;
+                setSelectedCategoryTypeId(newCategoryTypeId);
+                // Clear product selection when category type changes (unless current product matches new category)
+                const currentProduct = products.find((p) => p.id === card.product_id);
+                if (newCategoryTypeId && currentProduct?.category_type_id !== newCategoryTypeId) {
+                  setSelectedProductId('');
                 }
               }}
             >
@@ -490,9 +490,11 @@ function CardEditor({
             <label className="block text-sm mb-1">Product (SKU)</label>
             <select
               name="product_id"
-              defaultValue={card.product_id || ''}
+              value={selectedProductId}
               className="w-full border p-2 rounded"
               disabled={!selectedCategoryTypeId}
+              onChange={(e) => setSelectedProductId(e.target.value)}
+              key={`product-select-${selectedCategoryTypeId}`}
             >
               <option value="">{selectedCategoryTypeId ? 'Select a product...' : 'Select Category Type first'}</option>
               {filteredProducts.map((p) => (
