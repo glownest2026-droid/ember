@@ -95,6 +95,7 @@ export default function ProductsAdminPage() {
           tags: formData.get('tags') ? String(formData.get('tags')).split(',').map(t => t.trim()) : [],
           category_type_id: formData.get('category_type_id') || null,
           deep_link_url: formData.get('deep_link_url'),
+          rating: formData.get('rating') || null,
         }),
       });
 
@@ -129,6 +130,7 @@ export default function ProductsAdminPage() {
           tags: formData.get('tags') ? String(formData.get('tags')).split(',').map(t => t.trim()) : [],
           category_type_id: formData.get('category_type_id') || null,
           deep_link_url: formData.get('deep_link_url'),
+          rating: formData.get('rating') || null,
         }),
       });
 
