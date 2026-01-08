@@ -39,7 +39,9 @@ type Evidence = {
 type CategoryType = {
   id: string;
   slug: string;
-  label: string;
+  name: string;
+  description?: string | null;
+  image_url?: string | null;
 };
 
 type Product = {
@@ -310,7 +312,7 @@ export default function MomentSetEditor({
             >
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm mb-1">Product type</label>
+                  <label className="block text-sm mb-1">Category Type</label>
                   <select
                     name="category_type_id"
                     className="w-full border p-2 rounded"
@@ -318,7 +320,7 @@ export default function MomentSetEditor({
                   >
                     <option value="">Select...</option>
                     {categoryTypes.map((ct) => (
-                      <option key={ct.id} value={ct.id}>{ct.label}</option>
+                      <option key={ct.id} value={ct.id}>{ct.name}</option>
                     ))}
                   </select>
                 </div>
@@ -348,7 +350,7 @@ export default function MomentSetEditor({
               <div className="space-y-2">
                 {poolItems.map((item) => {
                   const categoryType = item.pl_category_types;
-                  const categoryTypeLabel = categoryType?.label || 'Unknown';
+                  const categoryTypeLabel = categoryType?.name || 'Unknown';
                   return (
                     <div key={item.id} className="border rounded p-3 flex items-start justify-between">
                       <div className="flex-1">
@@ -453,7 +455,7 @@ function CardEditor({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm mb-1">Product type</label>
+            <label className="block text-sm mb-1">Category Type</label>
             <select
               name="category_type_id"
               defaultValue={card.category_type_id || ''}
@@ -461,13 +463,13 @@ function CardEditor({
             >
               <option value="">None</option>
               {categoryTypes.map((ct) => (
-                <option key={ct.id} value={ct.id}>{ct.label}</option>
+                <option key={ct.id} value={ct.id}>{ct.name}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Product</label>
+            <label className="block text-sm mb-1">Product (SKU)</label>
             <select
               name="product_id"
               defaultValue={card.product_id || ''}

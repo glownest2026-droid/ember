@@ -594,3 +594,46 @@ _Last updated: 2026-01-04_
 - Manifest served: `/manifest.webmanifest` accessible (check via DevTools → Application → Manifest).
 - Mobile layout: no horizontal overflow, buttons/inputs tappable (44px minimum), inputs don't trigger iOS zoom (16px font).
 - All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
+
+## 2026-01-05 — PL Taxonomy: Category Types + Products Admin + Curation Control
+
+### Summary
+- Implemented founder-facing admin capabilities for Category Types and Products (SKUs)
+- Created `pl_category_types` table and linked `products` via `category_type_id`
+- Built admin API routes (service role, admin-guarded) for CRUD operations
+- Created admin UI pages for managing category types and products
+- Fixed PL curation UI dropdowns (populated from real data, proper labels)
+- Removed mutual exclusivity: cards can have both `category_type_id` and `product_id`
+
+### Routes added
+- `/app/admin/category-types` — Category Types admin (list + create/edit)
+- `/app/admin/products` — Products admin (list + create/edit with category_type_id)
+- `/api/admin/category-types` — Category Types API (GET, POST)
+- `/api/admin/category-types/[id]` — Category Type API (PATCH)
+- `/api/admin/products` — Products API (GET, POST)
+- `/api/admin/products/[id]` — Product API (PATCH)
+
+### Key code
+- `supabase/sql/202601050000_pl_category_types_and_products.sql` — Migration: pl_category_types table + category_type_id column on products
+- `web/src/app/api/admin/category-types/**` — Category Types API routes (admin-guarded, service role writes)
+- `web/src/app/api/admin/products/**` — Products API routes (admin-guarded, service role writes)
+- `web/src/app/(app)/app/admin/category-types/page.tsx` — Category Types admin UI
+- `web/src/app/(app)/app/admin/products/page.tsx` — Products admin UI
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MomentSetEditor.tsx` — Fixed dropdowns to use `name` field and proper labels
+- `web/src/app/(app)/app/admin/pl/_actions.ts` — Removed mutual exclusivity from card updates
+
+### Implementation Details
+- Category Types: name (required, unique), slug (auto-generated from name), description (optional), image_url (optional)
+- Products: linked to category types via `category_type_id` (one-to-many, nullable)
+- Admin API: all writes use service role client; admin check via `isAdminEmail()` from `EMBER_ADMIN_EMAILS`
+- RLS: authenticated read for category types (for dropdowns); admin writes via API routes only
+- PL Curation UI: dropdowns now show real data (category types and products), labels updated to "Category Type" and "Product (SKU)"
+- Cards: can pin both `category_type_id` (preferred) and `product_id` (optional override)
+
+### Verification (Proof-of-Done)
+- Migration applies cleanly (DROP IF EXISTS for triggers/policies)
+- Category Types admin: create/edit works, slug auto-generates
+- Products admin: create/edit works, category_type_id dropdown populates
+- PL curation UI: dropdowns show real data (no "None only" bug), both category_type_id and product_id can be set
+- All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
+- Theme admin still works: /app/admin/theme

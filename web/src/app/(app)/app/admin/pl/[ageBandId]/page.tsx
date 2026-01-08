@@ -102,17 +102,18 @@ export default async function AgeBandAdminPage({
     const { data: categoryTypesData } = await supabase
       .from('pl_category_types')
       .select('*')
-      .order('label', { ascending: true });
+      .order('name', { ascending: true });
 
     if (categoryTypesData) {
       categoryTypes = categoryTypesData;
     }
 
     // Load products for dropdowns (limit to reasonable number)
+    // Note: age_band in products is text (e.g., "12-18m"), not UUID
+    // For now, load all products; can filter by age_band text match later if needed
     const { data: productsData } = await supabase
       .from('products')
       .select('id, name, age_band')
-      .eq('age_band', ageBandId)
       .order('name', { ascending: true })
       .limit(100);
 
@@ -127,7 +128,7 @@ export default async function AgeBandAdminPage({
         *,
         pl_category_types (
           id,
-          label,
+          name,
           slug
         )
       `)

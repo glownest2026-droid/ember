@@ -76,17 +76,15 @@ export async function updateCard(
 ) {
   const { supabase } = await requireAdmin();
 
-  // Clear one if the other is set (mutually exclusive)
+  // Allow both category_type_id and product_id to be set (v1: both can be set)
   const updateData: any = {};
   if (data.lane !== undefined) updateData.lane = data.lane;
   if (data.because !== undefined) updateData.because = data.because;
   if (data.category_type_id !== undefined) {
-    updateData.category_type_id = data.category_type_id;
-    if (data.category_type_id) updateData.product_id = null;
+    updateData.category_type_id = data.category_type_id || null;
   }
   if (data.product_id !== undefined) {
-    updateData.product_id = data.product_id;
-    if (data.product_id) updateData.category_type_id = null;
+    updateData.product_id = data.product_id || null;
   }
 
   const { error } = await supabase
@@ -330,11 +328,11 @@ export async function usePoolItemInCard(
   }
 
   // Update card with category_type_id from pool item
+  // Note: product_id is not cleared, allowing both to be set if needed
   const { error: updateError } = await supabase
     .from('pl_reco_cards')
     .update({
       category_type_id: poolItem.category_type_id,
-      product_id: null, // Clear product_id when using category_type_id
     })
     .eq('id', cardId);
 
