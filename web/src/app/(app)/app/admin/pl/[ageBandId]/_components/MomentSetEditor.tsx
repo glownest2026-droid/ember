@@ -415,8 +415,11 @@ function CardEditor({
   const [selectedCategoryTypeId, setSelectedCategoryTypeId] = useState<string>(card.category_type_id || '');
 
   // Filter products by selected category type
+  // Include current product even if it doesn't match the filter (in case category type changed)
   const filteredProducts = selectedCategoryTypeId
-    ? products.filter((p) => p.category_type_id === selectedCategoryTypeId)
+    ? products.filter((p) => p.category_type_id === selectedCategoryTypeId || p.id === card.product_id)
+    : card.product_id
+    ? products.filter((p) => p.id === card.product_id)
     : [];
 
   return (
