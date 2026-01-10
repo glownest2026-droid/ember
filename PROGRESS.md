@@ -99,6 +99,57 @@ _Last updated: 2026-01-04_
 - Revert PR to remove admin page
 - If SQL already applied: Drop pl_* tables/types and restore products policies to public select + authenticated write (if needed)
 
+## 2026-01-06 — Manus-ready: Scoring and Gating Logic
+
+### Summary
+- Added Manus scoring columns to products and pl_category_types tables
+- Created general-purpose pl_evidence table for entity evidence (category_types/products)
+- Implemented gating rules in `/app/recs`:
+  * Quality gate: (quality_score >= 8) OR (amazon_rating >= 4)
+  * Confidence gate: confidence_score >= 5 (or fallback: amazon_rating >= 4.2 AND review_count >= 50 for NULL confidence_score)
+- Updated sorting: quality_score desc nulls last, amazon_rating desc nulls last, confidence_score desc nulls last
+- Updated empty state message for zero products passing gating
+
+### Routes modified
+- `/app/recs` — updated product filtering and sorting logic
+
+### Key code
+- `supabase/sql/202601060000_manus_ready_scoring_and_evidence.sql` — idempotent migration with scoring columns and pl_evidence table
+- `web/src/app/(app)/app/recs/page.tsx` — updated gating logic and sorting
+
+### Implementation Details
+- Migration is idempotent: uses ADD COLUMN IF NOT EXISTS, CREATE TABLE IF NOT EXISTS, DROP POLICY IF EXISTS
+- Products table: Added amazon_rating, amazon_review_count, confidence_score, quality_score, primary_url, source_name, source_run_id, manus_payload
+- pl_category_types: Added min_month, max_month, evidence_urls, confidence_score (all optional)
+- pl_evidence: New table with entity_type/entity_id pattern (handles existing pl_evidence table by renaming to pl_card_evidence if needed)
+- RLS: pl_evidence allows authenticated read only; writes via service role server-side
+- Gating logic: Applied in-memory after fetching products (fetches up to 200, filters, sorts, limits to top 50)
+- Sorting: Multi-level sort with nulls last for all score fields
+
+### Database
+- Migration file: `supabase/sql/202601060000_manus_ready_scoring_and_evidence.sql`
+- Products table: Added 8 new columns (all nullable for backward compatibility)
+- pl_category_types: Added 4 new optional columns
+- pl_evidence: New table with index on (entity_type, entity_id)
+- All changes are additive and idempotent
+
+### Verification (Proof-of-Done)
+- Migration file exists and runs without errors in Supabase (idempotent)
+- products table has new columns (amazon_rating, confidence_score, quality_score, etc.)
+- `/app/recs` applies gating rules: products pass only if (quality_score >= 8 OR amazon_rating >= 4) AND (confidence_score >= 5 OR fallback criteria)
+- Sorting works correctly: products ordered by quality_score, then amazon_rating, then confidence_score (nulls last)
+- Empty state shows helpful message when zero products pass gating
+- All proof routes pass: `/signin`, `/auth/callback`, `/app`, `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
+
+### Migration Application Steps
+- Apply migration via Supabase Dashboard → SQL Editor → paste and run migration SQL
+- After migration: products table will have new scoring columns; pl_evidence table will be available for evidence storage
+
+### Rollback
+- Revert PR to restore previous recs query logic
+- Migration is additive, so no data loss (new columns are nullable)
+- If needed: ALTER TABLE to drop new columns (but not recommended if data has been populated)
+
 ## 2025-11-01 — Module 1: Baseline Audit & Guardrails
 
 - Added `/SECURITY.md` documenting surfaces, env vars, and RLS (waitlist insert-only; play_idea public select).
