@@ -33,6 +33,8 @@ _Last updated: 2026-01-04_
 - /ping
 - /cms/lego-kit-demo
 - (optional) /cms/diag
+- /new (public landing page, redirects to /new/26)
+- /new/[months] (public landing page with age preload, e.g. /new/25)
 
 ## Open PR policy
 - Keep ≤ 1 open “feature PR” at a time (currently: #79 only).

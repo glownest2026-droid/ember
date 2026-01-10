@@ -160,4 +160,38 @@ h2, h3, h4, h5, h6 {
   padding: 0.35rem 0.85rem;
 }
 
+/* New landing page slider styling (matching mockup) */
+.new-age-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(227,91,63,.65) 0%, rgba(244,167,122,.45) 35%, rgba(23,17,14,.08) 100%);
+  outline: none;
+  margin: 4px 0 8px;
+}
+.new-age-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 38%),
+               linear-gradient(180deg, rgba(227,91,63,.98) 0%, rgba(185,67,52,.98) 100%);
+  border: 2px solid rgba(255,255,255,.9);
+  box-shadow: 0 18px 36px rgba(227,91,63,.28);
+  cursor: pointer;
+}
+.new-age-slider::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 38%),
+               linear-gradient(180deg, rgba(227,91,63,.98) 0%, rgba(185,67,52,.98) 100%);
+  border: 2px solid rgba(255,255,255,.9);
+  box-shadow: 0 18px 36px rgba(227,91,63,.28);
+  cursor: pointer;
+}
+
 @import "./../styles/theme.css";
