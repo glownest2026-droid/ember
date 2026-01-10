@@ -594,3 +594,73 @@ _Last updated: 2026-01-04_
 - Manifest served: `/manifest.webmanifest` accessible (check via DevTools → Application → Manifest).
 - Mobile layout: no horizontal overflow, buttons/inputs tappable (44px minimum), inputs don't trigger iOS zoom (16px font).
 - All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
+
+## 2026-01-05 — PL Taxonomy: Category Types + Products Admin + Curation Control
+
+### Summary
+- Implemented founder-facing admin capabilities for Category Types and Products (SKUs)
+- Created `pl_category_types` table and linked `products` via `category_type_id`
+- Built admin API routes (service role, admin-guarded) for CRUD operations
+- Created admin UI pages for managing category types and products
+- Fixed PL curation UI dropdowns (populated from real data, proper labels, conditional filtering)
+- Removed mutual exclusivity: cards can have both `category_type_id` and `product_id`
+- Added age band dropdown and optional rating field to products admin
+
+### Routes added
+- `/app/admin/category-types` — Category Types admin (list + create/edit)
+- `/app/admin/products` — Products admin (list + create/edit with category_type_id, age_band dropdown, optional rating)
+- `/api/admin/category-types` — Category Types API (GET, POST)
+- `/api/admin/category-types/[id]` — Category Type API (PATCH)
+- `/api/admin/products` — Products API (GET, POST)
+- `/api/admin/products/[id]` — Product API (PATCH)
+- `/api/admin/age-bands` — Age Bands API (GET, for products dropdown)
+
+### Key code
+- `supabase/sql/202601050000_pl_category_types_and_products.sql` — Migration: pl_category_types table + category_type_id column on products (handles existing `label` column gracefully)
+- `supabase/sql/202601050001_remove_rating_min_constraint.sql` — Migration to remove any rating >= 4 constraint (if exists)
+- `web/src/app/api/admin/category-types/**` — Category Types API routes (admin-guarded, service role writes)
+- `web/src/app/api/admin/products/**` — Products API routes (admin-guarded, service role writes, rating optional 0-5)
+- `web/src/app/api/admin/age-bands/route.ts` — Age Bands API route for dropdown
+- `web/src/app/(app)/app/admin/category-types/page.tsx` — Category Types admin UI
+- `web/src/app/(app)/app/admin/products/page.tsx` — Products admin UI (with age_band dropdown from pl_age_bands, optional rating field)
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MomentSetEditor.tsx` — Fixed dropdowns to use `name` field, proper labels, controlled components, conditional product filtering by category type
+- `web/src/app/(app)/app/admin/pl/_actions.ts` — Removed mutual exclusivity from card updates
+
+### Implementation Details
+- Category Types: name (required, unique), slug (auto-generated from name), description (optional), image_url (optional)
+  - Migration handles existing `label` column (from PL-0) by adding `name` column and syncing values
+- Products: linked to category types via `category_type_id` (one-to-many, nullable)
+  - Age Band: dropdown populated from `pl_age_bands` table (not free-text)
+  - Rating: optional field (0-5), can be null or any value in range (no minimum requirement)
+- Admin API: all writes use service role client; admin check via `isAdminEmail()` from `EMBER_ADMIN_EMAILS`
+- RLS: authenticated read for category types (for dropdowns); admin writes via API routes only
+- PL Curation UI: 
+  - Dropdowns show real data (category types and products), labels updated to "Category Type" and "Product (SKU)"
+  - Product dropdown is disabled until Category Type is selected
+  - Products filtered by selected category_type_id (strict matching)
+  - Controlled components with proper state management
+- Cards: can pin both `category_type_id` (preferred) and `product_id` (optional override)
+- ProductForm.tsx: updated to handle empty ratings as null (not 0) and allow 0-5 range
+
+### Bug Fixes & Iterations
+1. Fixed SQL migration idempotency (DROP IF EXISTS for triggers/policies)
+2. Fixed schema mismatch: `pl_category_types` had `label` column from PL-0, added `name` column with data sync
+3. Fixed category type creation: ensure both `name` and `label` are set during create/update
+4. Added age band dropdown: replaced text input with dropdown from `pl_age_bands` table
+5. Added optional rating field: products can have rating 0-5 or null (removed >= 4 requirement from UI/API)
+6. Fixed product filtering: PL curation UI now filters products by selected category type (controlled components)
+7. Fixed ProductForm.tsx: properly handles empty ratings as null (empty string converts to null, not 0)
+8. Added migration to remove any database constraint requiring rating >= 4 (if exists)
+9. Improved product filtering: strict category type matching with controlled component state management
+
+### Verification (Proof-of-Done)
+- Migration applies cleanly (DROP IF EXISTS for triggers/policies, handles existing `label` column)
+- Category Types admin: create/edit works, slug auto-generates, both `name` and `label` fields maintained
+- Products admin: create/edit works, category_type_id dropdown populates, age_band is dropdown (not text), rating is optional
+- PL curation UI: 
+  - Dropdowns show real data (no "None only" bug)
+  - Product dropdown disabled until Category Type selected
+  - Products filtered by selected category type
+  - Both category_type_id and product_id can be set (no mutual exclusivity)
+- All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
+- Theme admin still works: /app/admin/theme

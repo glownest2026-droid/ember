@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '../../../../../utils/supabase/server';
 import { isAdmin } from '../../../../../lib/admin';
 
@@ -75,10 +76,10 @@ export default async function ProductLibraryAdminPage() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-xl font-semibold" style={{ fontFamily: 'var(--brand-font-head, inherit)' }}>
-          Product Library (PL-0)
+          Product Library (PL-1)
         </h1>
         <p className="text-sm mt-1" style={{ color: 'var(--brand-muted, #6b7280)' }}>
-          Ground truth & guardrails — coming next
+          Manual draft review publish workflow
         </p>
       </div>
 
@@ -117,7 +118,14 @@ export default async function ProductLibraryAdminPage() {
                     {ageBands.map((band) => (
                       <tr key={band.id} className="border-b">
                         <td className="p-2 font-mono text-xs">{band.id}</td>
-                        <td className="p-2">{band.label}</td>
+                        <td className="p-2">
+                          <Link 
+                            href={`/app/admin/pl/${band.id}`}
+                            className="text-blue-600 hover:underline"
+                          >
+                            {band.label}
+                          </Link>
+                        </td>
                         <td className="p-2">{band.min_months}</td>
                         <td className="p-2">{band.max_months}</td>
                         <td className="p-2">{band.is_active ? '✓' : '✗'}</td>
