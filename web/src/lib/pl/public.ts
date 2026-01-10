@@ -175,6 +175,47 @@ export async function getAgeBandByRange(minMonths: number, maxMonths: number) {
 }
 
 /**
+ * Type for a transformed reco card with normalized foreign key relations
+ */
+export type TransformedRecoCard = {
+  id: string;
+  set_id: string;
+  lane: 'obvious' | 'nearby' | 'surprise';
+  rank: number;
+  category_type_id: string | null;
+  product_id: string | null;
+  because: string;
+  why_tags: string[] | null;
+  created_at: string;
+  updated_at: string;
+  pl_category_types: {
+    id: string;
+    name?: string;
+    label?: string;
+    slug?: string;
+  } | null;
+  products: {
+    id: string;
+    name: string;
+  } | null;
+};
+
+/**
+ * Type for a transformed age moment set
+ */
+export type TransformedAgeMomentSet = {
+  id: string;
+  age_band_id: string;
+  moment_id: string;
+  status: string;
+  headline: string | null;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  pl_reco_cards: TransformedRecoCard[] | null;
+};
+
+/**
  * Fetch a single published set for a specific age band and moment.
  * Returns the set with cards, or null if not found or error.
  * Used for the /new landing page to show top 3 picks.
@@ -186,7 +227,7 @@ export async function getAgeBandByRange(minMonths: number, maxMonths: number) {
 export async function getPublishedSetForAgeBandAndMoment(
   ageBandId: string,
   momentId: string
-) {
+): Promise<TransformedAgeMomentSet | null> {
   const supabase = createClient();
 
   const { data, error } = await supabase
@@ -234,11 +275,66 @@ export async function getPublishedSetForAgeBandAndMoment(
     return null;
   }
 
+  // Transform data to match expected types
+  // Supabase returns arrays for foreign key relations, but we expect single objects
+  const transformedData: TransformedAgeMomentSet = {
+    id: data.id,
+    age_band_id: data.age_band_id,
+    moment_id: data.moment_id,
+    status: data.status,
+    headline: data.headline ?? null,
+    published_at: data.published_at ?? null,
+    created_at: data.created_at,
+    updated_at: data.updated_at,
+    pl_reco_cards: data.pl_reco_cards
+      ? (data.pl_reco_cards as any[]).map((card: any): TransformedRecoCard => ({
+          id: card.id,
+          set_id: card.set_id,
+          lane: card.lane,
+          rank: card.rank,
+          category_type_id: card.category_type_id ?? null,
+          product_id: card.product_id ?? null,
+          because: card.because,
+          why_tags: card.why_tags ?? null,
+          created_at: card.created_at,
+          updated_at: card.updated_at,
+          // Transform pl_category_types from array to single object
+          pl_category_types: Array.isArray(card.pl_category_types) && card.pl_category_types.length > 0
+            ? {
+                id: card.pl_category_types[0].id,
+                name: card.pl_category_types[0].name,
+                label: card.pl_category_types[0].label,
+                slug: card.pl_category_types[0].slug,
+              }
+            : (card.pl_category_types && !Array.isArray(card.pl_category_types))
+            ? {
+                id: card.pl_category_types.id,
+                name: card.pl_category_types.name,
+                label: card.pl_category_types.label,
+                slug: card.pl_category_types.slug,
+              }
+            : null,
+          // Transform products from array to single object
+          products: Array.isArray(card.products) && card.products.length > 0
+            ? {
+                id: card.products[0].id,
+                name: card.products[0].name,
+              }
+            : (card.products && !Array.isArray(card.products))
+            ? {
+                id: card.products.id,
+                name: card.products.name,
+              }
+            : null,
+        }))
+      : null,
+  };
+
   // Sort cards by rank (obvious, nearby, surprise)
-  if (data.pl_reco_cards) {
-    data.pl_reco_cards.sort((a, b) => a.rank - b.rank);
+  if (transformedData.pl_reco_cards) {
+    transformedData.pl_reco_cards.sort((a, b) => a.rank - b.rank);
   }
 
-  return data;
+  return transformedData;
 }
 

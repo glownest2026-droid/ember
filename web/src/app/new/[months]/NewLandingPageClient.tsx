@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import type { TransformedAgeMomentSet, TransformedRecoCard } from '../../../lib/pl/public';
 
 interface AgeBand {
   id: string;
@@ -17,37 +18,9 @@ interface Moment {
   description?: string;
 }
 
-interface CategoryType {
-  id: string;
-  label?: string;
-  slug?: string;
-  name?: string;
-}
-
-interface Product {
-  id: string;
-  name: string;
-}
-
-interface RecoCard {
-  id: string;
-  lane: 'obvious' | 'nearby' | 'surprise';
-  rank: number;
-  because: string;
-  why_tags?: string[] | null;
-  category_type_id?: string | null;
-  product_id?: string | null;
-  pl_category_types?: CategoryType | null;
-  products?: Product | null;
-}
-
-interface AgeMomentSet {
-  id: string;
-  age_band_id: string;
-  moment_id: string;
-  headline?: string | null;
-  pl_reco_cards?: RecoCard[] | null;
-}
+// Alias the imported types for easier use in the component
+type AgeMomentSet = TransformedAgeMomentSet;
+type RecoCard = TransformedRecoCard;
 
 interface NewLandingPageClientProps {
   ageBand: AgeBand | null;
@@ -148,11 +121,9 @@ export default function NewLandingPageClient({
 
   // Get card title (from category type or product)
   const getCardTitle = (card: RecoCard) => {
-    if (card.pl_category_types?.label) {
-      return card.pl_category_types.label;
-    }
-    if (card.pl_category_types?.name) {
-      return card.pl_category_types.name;
+    if (card.pl_category_types) {
+      if (card.pl_category_types.label) return card.pl_category_types.label;
+      if (card.pl_category_types.name) return card.pl_category_types.name;
     }
     if (card.products?.name) {
       return card.products.name;
