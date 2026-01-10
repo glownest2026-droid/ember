@@ -74,17 +74,14 @@ export default async function RecommendationsPage({
   }
 
   // Query products with filters
-  // Try to exclude archived products if field exists
+  // Age band is required; other gating applied in-memory below
+  // Fetch a larger set to allow for in-memory filtering (we'll apply gating rules below)
   let productsQuery = supabase
     .from('products')
     .select('*')
     .eq('age_band', selectedChildAgeBand)
-    .gte('rating', 4.0)
-    .not('rating', 'is', null)
     .eq('is_archived', false)
-    .order('rating', { ascending: false })
-    .order('updated_at', { ascending: false })
-    .limit(50);
+    .limit(200);
 
   let { data: products, error: productsError } = await productsQuery;
   
@@ -97,11 +94,7 @@ export default async function RecommendationsPage({
       .from('products')
       .select('*')
       .eq('age_band', selectedChildAgeBand)
-      .gte('rating', 4.0)
-      .not('rating', 'is', null)
-      .order('rating', { ascending: false })
-      .order('updated_at', { ascending: false })
-      .limit(50);
+      .limit(200);
     
     const retryResult = await productsQuery;
     products = retryResult.data;
@@ -120,21 +113,76 @@ export default async function RecommendationsPage({
     );
   }
 
-  // Defensive filter: exclude any products with null rating (shouldn't happen but be safe)
-  const filteredProducts = (products || []).filter((p: any) => p.rating != null && p.rating >= 4.0);
+  // Apply Manus-ready gating rules:
+  // 1. Quality gate: (quality_score >= 8) OR (amazon_rating >= 4)
+  // 2. Confidence gate: 
+  //    - If confidence_score is present: require confidence_score >= 5
+  //    - If confidence_score is NULL: require amazon_rating >= 4.2 AND amazon_review_count >= 50 (fallback)
+  const filteredProducts = (products || []).filter((p: any) => {
+    // Quality gate: pass if quality_score >= 8 OR amazon_rating >= 4
+    const passesQualityGate = 
+      (p.quality_score != null && p.quality_score >= 8) ||
+      (p.amazon_rating != null && p.amazon_rating >= 4);
+    
+    if (!passesQualityGate) return false;
+    
+    // Confidence gate
+    if (p.confidence_score != null) {
+      // If confidence_score exists, require >= 5
+      return p.confidence_score >= 5;
+    } else {
+      // If confidence_score is NULL, use fallback: amazon_rating >= 4.2 AND review_count >= 50
+      return (
+        p.amazon_rating != null && 
+        p.amazon_rating >= 4.2 && 
+        p.amazon_review_count != null && 
+        p.amazon_review_count >= 50
+      );
+    }
+  });
+
+  // Sort: quality_score desc nulls last, amazon_rating desc nulls last, confidence_score desc nulls last
+  filteredProducts.sort((a: any, b: any) => {
+    // Primary: quality_score (desc, nulls last)
+    if (a.quality_score != null && b.quality_score != null) {
+      if (b.quality_score !== a.quality_score) {
+        return b.quality_score - a.quality_score;
+      }
+    } else if (a.quality_score != null) return -1;
+    else if (b.quality_score != null) return 1;
+    
+    // Secondary: amazon_rating (desc, nulls last)
+    if (a.amazon_rating != null && b.amazon_rating != null) {
+      if (b.amazon_rating !== a.amazon_rating) {
+        return b.amazon_rating - a.amazon_rating;
+      }
+    } else if (a.amazon_rating != null) return -1;
+    else if (b.amazon_rating != null) return 1;
+    
+    // Tertiary: confidence_score (desc, nulls last)
+    if (a.confidence_score != null && b.confidence_score != null) {
+      return b.confidence_score - a.confidence_score;
+    } else if (a.confidence_score != null) return -1;
+    else if (b.confidence_score != null) return 1;
+    
+    return 0;
+  });
+
+  // Limit to top 50 after sorting
+  const topProducts = filteredProducts.slice(0, 50);
 
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-xl font-semibold">Recommendations</h1>
       <ChildSelector children={children} selectedChildId={selectedChildId} />
       
-      {filteredProducts.length === 0 ? (
+      {topProducts.length === 0 ? (
         <div className="p-6 text-center text-gray-500">
-          <p>No recommendations found for age band "{selectedChildAgeBand}".</p>
+          <p>No high-confidence picks yet for this stage — we're still building the pool.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {filteredProducts.map((product: any) => (
+          {topProducts.map((product: any) => (
             <ProductCard 
               key={product.id} 
               product={product}
