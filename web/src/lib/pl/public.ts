@@ -1,0 +1,340 @@
+import { createClient } from '../../utils/supabase/server';
+
+/**
+ * Map age in months to the best matching active age band.
+ * Returns the age band ID if found, or null if no match.
+ * 
+ * @param ageMonths - Age in months
+ * @returns Age band object or null
+ */
+export async function getAgeBandForAge(ageMonths: number) {
+  const supabase = createClient();
+
+  // Find age bands where min_months <= ageMonths <= max_months
+  const { data, error } = await supabase
+    .from('pl_age_bands')
+    .select('id, min_months, max_months, label')
+    .eq('is_active', true)
+    .lte('min_months', ageMonths)
+    .gte('max_months', ageMonths)
+    .order('min_months', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Fetch active moments that have at least one published set for a given age band.
+ * Server-side only. Returns only active moments with published content.
+ * 
+ * @param ageBandId - The age band ID
+ * @returns Array of moments with published sets, or empty array
+ */
+export async function getActiveMomentsForAgeBand(ageBandId: string) {
+  const supabase = createClient();
+
+  // First get all published sets for this age band
+  const { data: sets, error: setsError } = await supabase
+    .from('pl_age_moment_sets')
+    .select('moment_id')
+    .eq('age_band_id', ageBandId)
+    .eq('status', 'published');
+
+  if (setsError || !sets || sets.length === 0) {
+    return [];
+  }
+
+  // Get unique moment IDs that have published sets
+  const momentIds = [...new Set(sets.map(s => s.moment_id))];
+
+  // Fetch the moments
+  const { data: moments, error: momentsError } = await supabase
+    .from('pl_moments')
+    .select('id, label, description')
+    .eq('is_active', true)
+    .in('id', momentIds)
+    .order('label', { ascending: true });
+
+  if (momentsError) {
+    return [];
+  }
+
+  return moments || [];
+}
+
+/**
+ * Fetch published sets, cards, and evidence for an age band.
+ * Server-side only. Returns only status='published' sets (in addition to RLS).
+ * Includes category type and product display text.
+ * 
+ * @param ageBandId - The age band ID to fetch sets for
+ * @returns Published sets with their cards, evidence, and display text, or null if error
+ */
+export async function getPublishedSetsForAgeBand(ageBandId: string) {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('pl_age_moment_sets')
+    .select(`
+      id,
+      age_band_id,
+      moment_id,
+      status,
+      headline,
+      published_at,
+      created_at,
+      updated_at,
+      pl_reco_cards (
+        id,
+        set_id,
+        lane,
+        rank,
+        category_type_id,
+        product_id,
+        because,
+        why_tags,
+        created_at,
+        updated_at,
+        pl_category_types:category_type_id (
+          id,
+          name,
+          label,
+          slug
+        ),
+        products:product_id (
+          id,
+          name
+        ),
+        pl_evidence (
+          id,
+          card_id,
+          source_type,
+          url,
+          quote_snippet,
+          captured_at,
+          confidence,
+          created_at,
+          updated_at
+        )
+      )
+    `)
+    .eq('age_band_id', ageBandId)
+    .eq('status', 'published') // Explicit filter for published only
+    .order('published_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching published sets:', error);
+    return null;
+  }
+
+  return data || [];
+}
+
+/**
+ * Parse age band slug like "24-30-months" to {min: 24, max: 30}.
+ * Returns null if parsing fails.
+ */
+export function parseAgeBandSlug(slug: string): { min: number; max: number } | null {
+  const match = slug.match(/^(\d+)-(\d+)-months$/);
+  if (!match) {
+    return null;
+  }
+  const min = parseInt(match[1], 10);
+  const max = parseInt(match[2], 10);
+  if (isNaN(min) || isNaN(max) || min >= max) {
+    return null;
+  }
+  return { min, max };
+}
+
+/**
+ * Find age band by min_months and max_months.
+ * Returns the age band if found, or null.
+ */
+export async function getAgeBandByRange(minMonths: number, maxMonths: number) {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('pl_age_bands')
+    .select('id, min_months, max_months, label')
+    .eq('is_active', true)
+    .eq('min_months', minMonths)
+    .eq('max_months', maxMonths)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Type for a transformed reco card with normalized foreign key relations
+ */
+export type TransformedRecoCard = {
+  id: string;
+  set_id: string;
+  lane: 'obvious' | 'nearby' | 'surprise';
+  rank: number;
+  category_type_id: string | null;
+  product_id: string | null;
+  because: string;
+  why_tags: string[] | null;
+  created_at: string;
+  updated_at: string;
+  pl_category_types: {
+    id: string;
+    name?: string;
+    label?: string;
+    slug?: string;
+  } | null;
+  products: {
+    id: string;
+    name: string;
+  } | null;
+};
+
+/**
+ * Type for a transformed age moment set
+ */
+export type TransformedAgeMomentSet = {
+  id: string;
+  age_band_id: string;
+  moment_id: string;
+  status: string;
+  headline: string | null;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  pl_reco_cards: TransformedRecoCard[] | null;
+};
+
+/**
+ * Fetch a single published set for a specific age band and moment.
+ * Returns the set with cards, or null if not found or error.
+ * Used for the /new landing page to show top 3 picks.
+ * 
+ * @param ageBandId - The age band ID
+ * @param momentId - The moment ID
+ * @returns Published set with cards, or null
+ */
+export async function getPublishedSetForAgeBandAndMoment(
+  ageBandId: string,
+  momentId: string
+): Promise<TransformedAgeMomentSet | null> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('pl_age_moment_sets')
+    .select(`
+      id,
+      age_band_id,
+      moment_id,
+      status,
+      headline,
+      published_at,
+      created_at,
+      updated_at,
+      pl_reco_cards (
+        id,
+        set_id,
+        lane,
+        rank,
+        category_type_id,
+        product_id,
+        because,
+        why_tags,
+        created_at,
+        updated_at,
+        pl_category_types:category_type_id (
+          id,
+          name,
+          label,
+          slug
+        ),
+        products:product_id (
+          id,
+          name
+        )
+      )
+    `)
+    .eq('age_band_id', ageBandId)
+    .eq('moment_id', momentId)
+    .eq('status', 'published')
+    .order('published_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  // Transform data to match expected types
+  // Supabase returns arrays for foreign key relations, but we expect single objects
+  const transformedData: TransformedAgeMomentSet = {
+    id: data.id,
+    age_band_id: data.age_band_id,
+    moment_id: data.moment_id,
+    status: data.status,
+    headline: data.headline ?? null,
+    published_at: data.published_at ?? null,
+    created_at: data.created_at,
+    updated_at: data.updated_at,
+    pl_reco_cards: data.pl_reco_cards
+      ? (data.pl_reco_cards as any[]).map((card: any): TransformedRecoCard => ({
+          id: card.id,
+          set_id: card.set_id,
+          lane: card.lane,
+          rank: card.rank,
+          category_type_id: card.category_type_id ?? null,
+          product_id: card.product_id ?? null,
+          because: card.because,
+          why_tags: card.why_tags ?? null,
+          created_at: card.created_at,
+          updated_at: card.updated_at,
+          // Transform pl_category_types from array to single object
+          pl_category_types: Array.isArray(card.pl_category_types) && card.pl_category_types.length > 0
+            ? {
+                id: card.pl_category_types[0].id,
+                name: card.pl_category_types[0].name,
+                label: card.pl_category_types[0].label,
+                slug: card.pl_category_types[0].slug,
+              }
+            : (card.pl_category_types && !Array.isArray(card.pl_category_types))
+            ? {
+                id: card.pl_category_types.id,
+                name: card.pl_category_types.name,
+                label: card.pl_category_types.label,
+                slug: card.pl_category_types.slug,
+              }
+            : null,
+          // Transform products from array to single object
+          products: Array.isArray(card.products) && card.products.length > 0
+            ? {
+                id: card.products[0].id,
+                name: card.products[0].name,
+              }
+            : (card.products && !Array.isArray(card.products))
+            ? {
+                id: card.products.id,
+                name: card.products.name,
+              }
+            : null,
+        }))
+      : null,
+  };
+
+  // Sort cards by rank (obvious, nearby, surprise)
+  if (transformedData.pl_reco_cards) {
+    transformedData.pl_reco_cards.sort((a, b) => a.rank - b.rank);
+  }
+
+  return transformedData;
+}
+

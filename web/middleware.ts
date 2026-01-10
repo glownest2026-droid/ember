@@ -9,6 +9,9 @@ export async function middleware(req: NextRequest) {
   // Refresh session for ALL routes (allows cookie mutation in middleware)
   // This prevents server components from trying to mutate cookies
   const { supabase, response } = await updateSession(req);
+  
+  // Add pathname to headers so server components can read it
+  response.headers.set('x-pathname', pathname);
 
   // 1) Protect /app/* routes - require authentication
   if (pathname.startsWith("/app")) {
