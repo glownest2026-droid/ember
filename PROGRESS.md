@@ -664,3 +664,36 @@ _Last updated: 2026-01-04_
   - Both category_type_id and product_id can be set (no mutual exclusivity)
 - All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
 - Theme admin still works: /app/admin/theme
+
+## 2026-01-10 — FT-1: Public /new landing page (age slider) + signup gate
+
+### Founder Exec Summary
+
+We shipped the public acquisition page that lets a brand-new visitor set their child’s age (slider), pick a “moment”, instantly see curated picks, and then hit a natural conversion gate (“Save to shortlist” → sign in). This is the MVP “paid landing page” surface for TikTok/ads.
+
+### Summary
+
+- Added public landing routes /new and /new/[months] (deep linkable from ads)
+- Slider is preloaded from the URL (e.g. /new/25) and updates the URL as you change it
+- Moment selection is reflected in the URL via query params (shareable / consistent refresh)
+- Integrates with PL curation: shows “top 3 picks” only when a published set exists for that age+moment
+- “Save to shortlist” triggers sign-in immediately and preserves return state (month + moment)
+- Routes added
+- /new — public landing (default age range)
+- /new/[months] — deep-link landing (preloads slider)
+- (No new auth routes; uses existing /signin?next=... flow)
+
+### Key code
+
+- web/src/app/new/page.tsx and/or web/src/app/new/[months]/page.tsx — public landing routes
+- web/src/components/*NewLandingPage* — client component implementing slider + moment + cards UI
+- PL fetch integration (published sets only): uses pl_age_moment_sets + related cards/evidence (read-only)
+- Header behaviour: header/logo remains inside the experience; signup redirects preserve state
+- Verification (Proof-of-Done)
+- /new loads logged-out and renders the slider + moment UI
+- /new/25 preloads age to 25 months
+- Changing slider updates URL and refreshes picks deterministically
+- If no published set exists for chosen age+moment: show premium empty state (no crash)
+- “Save to shortlist” redirects to /signin?next=<return-to-same-new-url>
+- All proof routes still pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
+- Theme still applies globally (no regression): /app/admin/theme works for admins
