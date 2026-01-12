@@ -698,6 +698,78 @@ We shipped the public acquisition page that lets a brand-new visitor set their c
 - All proof routes still pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
 - Theme still applies globally (no regression): /app/admin/theme works for admins
 
+## 2026-01-12 — PL-ADMIN-4: Merchandising Office v1 (Shopfront + Factory)
+
+### Founder Exec Summary
+
+Merchandising Office v1 is a two-pane workspace (Shopfront 40% + Factory 60%) designed for founders to merchandise moment sets quickly and confidently. The Shopfront pane shows what parents will see (populated cards only), while the Factory pane provides full catalogue browsing with search, filters, and quick "Place into" actions. Slot labels use parent-friendly language ("Great fit", "Also good", "Fresh idea") while maintaining internal lane values in the database.
+
+### Summary
+
+- **Two-pane layout**: Shopfront (40% left) shows moment header, status strip, and populated cards only; Factory (60% right) shows full product catalogue with search/filters
+- **Only populated cards shown**: No placeholder cards; clean empty state when no cards exist
+- **Slot label mapping**: Display labels "Great fit" / "Also good" / "Fresh idea" mapped from internal lanes (obvious/nearby/surprise)
+- **Factory pane**: Product table with search (product name + brand), category filter, publish readiness filter (All/Ready/Needs 2nd source), and sorting (Confidence/Quality/Evidence)
+- **Product drawer**: Click product row to open drawer with details and "Place into" buttons for each slot
+- **Place product into slot**: Auto-creates card if missing, auto-aligns category, shows replace confirmation if slot already has product
+- **UI labels**: Renamed "Because" to "Why it can work" throughout UI (DB column unchanged)
+- **Status strip**: Shows publish readiness summary (SKU cards ready/total, needs 2nd source count, missing "Why it can work" count)
+- **Add card CTA**: Button to create new card (prefers missing lanes first)
+- **Server actions**: Added `createCard()` and `placeProductIntoSlot()` with category auto-align
+
+### Key code
+
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MerchandisingOffice.tsx`: New two-pane component replacing MomentSetEditor
+  - Shopfront pane: moment header, status strip, card list (populated only), "Add card" CTA
+  - Factory pane: product table, search/filters, product drawer, "Place into" buttons
+  - Slot label mapping: LANE_TO_LABEL mapping (obvious → "Great fit", etc.)
+  - Product drawer: slide-out drawer with product details and slot placement buttons
+- `web/src/app/(app)/app/admin/pl/_actions.ts`:
+  - `createCard()`: Creates new card for a set with specified lane and rank
+  - `placeProductIntoSlot()`: Places product into card slot, auto-aligns category from product's category_type_slug
+  - `publishSet()`: Updated error message to use "Why it can work" instead of "because"
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/page.tsx`: Updated to use MerchandisingOffice instead of MomentSetEditor
+
+### Implementation Details
+
+- **Two-pane layout**: Uses flexbox with flex-[0.4] and flex-[0.6] for responsive 40/60 split
+- **Sticky headers**: Shopfront header and Factory filter bar use `sticky top-0` for visibility while scrolling
+- **Only populated cards**: Filters cards to show only those with category_type_id OR product_id
+- **Product filtering**: Factory pane filters by search query (product name + brand), category slug, and publish readiness
+- **Product sorting**: Defaults to confidence (desc), with options for quality and evidence count
+- **Slot placement**: When placing product, finds or creates card for lane, auto-aligns category, shows replace confirmation if needed
+- **Category auto-align**: `placeProductIntoSlot` server action looks up category_type_id from category_type_slug to ensure category matches product
+
+### Verification (Proof-of-Done)
+
+- Open `/app/admin/pl/25-27m` on preview URL
+- Two-pane layout visible (Shopfront left, Factory right)
+- Shopfront pane: moment header, status strip, populated cards only (no placeholders)
+- Factory pane: product table loads, search and filters work
+- Click product row: drawer opens with product details and "Place into" buttons
+- Click "Place into Great fit": Card updates (or created), category auto-aligns, toast shown
+- If replacing existing product: confirmation modal appears
+- Status strip shows correct counts (publish-ready, needs 2nd source, missing "Why it can work")
+- "Add card" button creates new card (prefers missing lanes first)
+- Save Card works with empty "Why it can work" (draft-friendly)
+- Publish blocks if any card missing "Why it can work" or any SKU not publish-ready
+- Category-only cards can publish
+- No scary red banners on load; warnings are inline and actionable
+
+### Known limitations
+
+- ShopfrontCard editing form needs refinement (category/product filtering may need state management improvements)
+- Product drawer positioning may need adjustment for mobile
+- "Place into" functionality may need additional error handling
+- Product table pagination not implemented (shows all filtered products)
+
+### Next up
+
+- Iterate on ShopfrontCard form handling and state management
+- Add product table pagination for large catalogues
+- Refine mobile responsive behavior
+- Consider adding evidence management UI (currently handled separately)
+
 ## 2026-01-10 — PL-ADMIN-2: Conditional SKU filtering + merchandising UX tweaks
 
 ### Founder Exec Summary
