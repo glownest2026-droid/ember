@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { createDraftSet, updateCard, addEvidence, updateEvidence, deleteEvidence, publishSet, unpublishSet, addPoolItem, removePoolItem, usePoolItemInCard } from '../../_actions';
 
 type Moment = {
@@ -483,6 +483,28 @@ function CardEditor({
     ? selectedProduct.category_type_slug === selectedCategory.slug
     : false;
 
+  // Self-heal legacy mismatches on load
+  useEffect(() => {
+    // Only check if card has both category_type_id and product_id
+    if (initialCategoryTypeId && card.product_id) {
+      const cardCategory = categoryTypes.find((ct) => ct.id === initialCategoryTypeId);
+      const cardProduct = products.find((p) => p.id === card.product_id);
+      
+      // If both exist, check if they match
+      if (cardCategory && cardProduct) {
+        const matches = cardProduct.category_type_slug === cardCategory.slug;
+        
+        // If mismatch, clear product_id in state and show notice
+        if (!matches) {
+          setSelectedProductId('');
+          setProductClearedMessage('We cleared your previous SKU because it didn\'t match this category.');
+          // Clear message after 5 seconds
+          setTimeout(() => setProductClearedMessage(null), 5000);
+        }
+      }
+    }
+  }, []); // Run once on mount
+
   return (
     <div className="border rounded p-4 space-y-4">
       <div className="flex items-center justify-between">
@@ -520,7 +542,6 @@ function CardEditor({
             defaultValue={card.because}
             className="w-full border p-2 rounded"
             rows={2}
-            required
           />
         </div>
 
