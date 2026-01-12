@@ -293,7 +293,7 @@ export async function publishSet(setId: string, ageBandId: string) {
   // Validation: each card must have a target (category_type_id OR product_id) and non-empty because
   for (const card of cards) {
     if (!card.because || card.because.trim() === '') {
-      return { error: `Card at rank ${card.rank} must have a "because" field` };
+      return { error: `Card at rank ${card.rank} must have a "Why it can work" field` };
     }
     if (!card.category_type_id && !card.product_id) {
       return { error: `Card at rank ${card.rank} must have either a category type or a product` };
@@ -490,6 +490,76 @@ export async function usePoolItemInCard(
     .from('pl_reco_cards')
     .update({
       category_type_id: poolItem.category_type_id,
+    })
+    .eq('id', cardId);
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  revalidatePath(`/app/admin/pl/${ageBandId}`);
+  return { success: true };
+}
+
+// Create a new card for a set
+export async function createCard(
+  setId: string,
+  ageBandId: string,
+  data: {
+    lane: string;
+    rank: number;
+  }
+) {
+  const { supabase } = await requireAdmin();
+
+  // Insert the card
+  const { data: card, error: cardError } = await supabase
+    .from('pl_reco_cards')
+    .insert({
+      set_id: setId,
+      lane: data.lane,
+      rank: data.rank,
+      because: '',
+    })
+    .select()
+    .single();
+
+  if (cardError || !card) {
+    return { error: cardError?.message || 'Failed to create card' };
+  }
+
+  revalidatePath(`/app/admin/pl/${ageBandId}`);
+  return { success: true, cardId: card.id };
+}
+
+// Place a product into a card slot (with category auto-align)
+export async function placeProductIntoSlot(
+  cardId: string,
+  ageBandId: string,
+  data: {
+    product_id: string;
+    category_type_slug: string;
+  }
+) {
+  const { supabase } = await requireAdmin();
+
+  // Find category_type_id that matches the product's category_type_slug
+  const { data: categoryType, error: categoryError } = await supabase
+    .from('pl_category_types')
+    .select('id')
+    .eq('slug', data.category_type_slug)
+    .single();
+
+  if (categoryError || !categoryType) {
+    return { error: `Category type not found for slug: ${data.category_type_slug}` };
+  }
+
+  // Update the card with product_id and category_type_id
+  const { error: updateError } = await supabase
+    .from('pl_reco_cards')
+    .update({
+      product_id: data.product_id,
+      category_type_id: categoryType.id,
     })
     .eq('id', cardId);
 

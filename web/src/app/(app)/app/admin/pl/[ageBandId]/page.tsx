@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '../../../../../../utils/supabase/server';
 import { isAdmin } from '../../../../../../lib/admin';
-import MomentSetEditor from './_components/MomentSetEditor';
+import MerchandisingOffice from './_components/MerchandisingOffice';
 
 export default async function AgeBandAdminPage({ 
   params 
@@ -257,14 +257,13 @@ export default async function AgeBandAdminPage({
           {moments.map((moment) => {
             const set = setsByMoment[moment.id];
             return (
-              <MomentSetEditor
+              <MerchandisingOffice
                 key={moment.id}
                 ageBandId={ageBandId}
                 moment={moment}
                 set={set}
                 categoryTypes={categoryTypes}
                 products={products}
-                poolItems={poolItemsByMoment[moment.id] || []}
               />
             );
           })}
