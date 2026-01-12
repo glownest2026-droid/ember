@@ -762,3 +762,86 @@ Fixed critical bug where selecting a Category Type (e.g., "Play dough") allowed 
 
 - Consider adding bulk operations for category assignment
 - Consider adding product search/filter within category dropdown
+
+## 2026-01-12 — PL-ADMIN-1: Admin dropdowns populated + publish gating (evidence-aware)
+### Founder Exec Summary
+
+We unblocked the Product Library admin workflow so it can finally “see” the real catalogue seeded from Manus. Category Type and Product dropdowns now populate from the new fit-based sources (age-band aware), and publishing is protected by an evidence gate (products cannot be published unless they have sufficient evidence). This gets us to a usable merch admin surface while we iterate toward the “Virtual Merchandising Office” layout.
+
+### Summary
+
+Admin PL page now loads Category Types from pl_category_type_fits (age-band specific) joined to pl_category_types for label/slug.
+
+Admin PL page now loads Products (SKUs) from v_pl_product_fits_ready_for_recs filtered by age_band_id and is_ready_for_recs = true.
+
+UI now displays product metadata when selected:
+
+Confidence score and quality score (from pl_product_fits)
+
+Evidence count + publish readiness badge (“Needs 2nd source”)
+
+Publish action now enforces a server-side gate:
+
+If any selected product is not is_ready_for_publish, publish is blocked with a clear error listing the offending product names.
+
+Category-only cards can still publish (no SKU evidence requirement).
+
+Known limitation (carried forward):
+
+Product dropdown is not yet conditional on selected Category Type (can select mismatched SKU). This will be fixed in the next PR (PL-ADMIN-2).
+
+### Key code
+
+web/src/app/(app)/app/admin/pl/[ageBandId]/page.tsx
+
+Updated category query: pl_category_type_fits → join pl_category_types → sort by label
+
+Updated product query: v_pl_product_fits_ready_for_recs filtered by age band + ready-for-recs
+
+Fetches confidence_score_0_to_10 + quality_score_0_to_10 from pl_product_fits for UI display
+
+web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MomentSetEditor.tsx
+
+Product selection UI updated to show publish readiness badge + evidence count + confidence/quality metadata
+
+web/src/app/(app)/app/admin/pl/_actions.ts
+
+Added publish-time validation against v_pl_product_fits_ready_for_recs.is_ready_for_publish
+
+Blocks publish with explicit error messaging
+
+Data / Supabase notes (manual actions taken)
+
+Catalogue seeded successfully for 25–27m:
+
+products total: 186
+
+pl_product_fits for 25–27m: 163
+
+pl_category_type_fits for 25–27m: 38
+
+Evidence gating view implemented:
+
+v_pl_product_fits_ready_for_recs
+
+is_ready_for_recs = true (>= 1 evidence)
+
+is_ready_for_publish = false currently for all 25–27m (requires 2nd independent source)
+
+Removed/disabled insert-time enforcement that conflicted with “store wide, gate later”:
+
+Disabled trg_min_rating / check_min_rating() on products (publish gating replaces this)
+
+### Verification (Proof-of-Done)
+
+Admin PL page loads for 25–27m and dropdowns show real options (not just “None”).
+
+Selecting a SKU shows evidence badge and confidence/quality metadata.
+
+Attempting to Publish a set containing any non-publish-ready SKU is blocked with a clear error message.
+
+Category-only cards remain publishable.
+
+### Preview URL used for validation:
+
+/app/admin/pl/25-27m (Vercel preview) loads and renders as expected.
