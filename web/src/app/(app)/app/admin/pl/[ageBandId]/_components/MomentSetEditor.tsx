@@ -40,6 +40,7 @@ type CategoryType = {
   id: string;
   slug: string;
   name: string;
+  label?: string;
   description?: string | null;
   image_url?: string | null;
 };
@@ -47,7 +48,14 @@ type CategoryType = {
 type Product = {
   id: string;
   name: string;
-  category_type_id: string | null;
+  brand?: string;
+  category_type_id?: string | null;
+  category_type_slug?: string;
+  evidence_count?: number;
+  evidence_domain_count?: number;
+  is_ready_for_publish?: boolean;
+  confidence_score_0_to_10?: number | null;
+  quality_score_0_to_10?: number | null;
 };
 
 type PoolItem = {
@@ -412,20 +420,14 @@ function CardEditor({
   isPending: boolean;
 }) {
   const [showEvidenceForm, setShowEvidenceForm] = useState(false);
-  // Initialize category type from card, or from product's category if card has product but no category
-  const initialCategoryTypeId = card.category_type_id || 
-    (card.product_id ? products.find((p) => p.id === card.product_id)?.category_type_id || '' : '');
+  // Initialize category type and product from card
+  const initialCategoryTypeId = card.category_type_id || '';
   const [selectedCategoryTypeId, setSelectedCategoryTypeId] = useState<string>(initialCategoryTypeId);
   const [selectedProductId, setSelectedProductId] = useState<string>(card.product_id || '');
 
-  // Filter products by selected category type - strict match only
-  const filteredProducts = selectedCategoryTypeId
-    ? products.filter((p) => {
-        // Strict string comparison (handle null/undefined)
-        return p.category_type_id !== null && p.category_type_id !== undefined && 
-               String(p.category_type_id) === String(selectedCategoryTypeId);
-      })
-    : [];
+  // Products are already filtered by age_band_id and is_ready_for_recs from the server
+  // No need to filter by category type - show all eligible products
+  const eligibleProducts = products;
 
   return (
     <div className="border rounded p-4 space-y-4">
@@ -478,23 +480,17 @@ function CardEditor({
               onChange={(e) => {
                 const newCategoryTypeId = e.target.value;
                 setSelectedCategoryTypeId(newCategoryTypeId);
-                // Clear product selection when category type changes if current product doesn't match new category
-                const currentProduct = products.find((p) => p.id === selectedProductId);
-                if (newCategoryTypeId) {
-                  // Check if current selected product matches new category type
-                  if (!currentProduct || String(currentProduct.category_type_id) !== String(newCategoryTypeId)) {
-                    setSelectedProductId('');
-                  }
-                } else {
-                  // Category type cleared, clear product too
-                  setSelectedProductId('');
-                }
+                // Products are independent of category selection now, so we don't clear product
               }}
             >
               <option value="">None</option>
-              {categoryTypes.map((ct) => (
-                <option key={ct.id} value={ct.id}>{ct.name}</option>
-              ))}
+              {categoryTypes.map((ct) => {
+                const displayLabel = ct.label || ct.name;
+                // TODO: Add anchor text helper if available (e.g., "(anchor 26m)")
+                return (
+                  <option key={ct.id} value={ct.id}>{displayLabel}</option>
+                );
+              })}
             </select>
           </div>
 
@@ -504,25 +500,56 @@ function CardEditor({
               name="product_id"
               value={selectedProductId}
               className="w-full border p-2 rounded"
-              disabled={!selectedCategoryTypeId}
               onChange={(e) => setSelectedProductId(e.target.value)}
-              key={`product-select-${selectedCategoryTypeId}`}
             >
-              <option value="">{selectedCategoryTypeId ? 'Select a product...' : 'Select Category Type first'}</option>
-              {filteredProducts.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
+              <option value="">Select a product...</option>
+              {eligibleProducts.map((p) => {
+                const productName = p.name || 'Unknown';
+                const brand = p.brand ? ` — ${p.brand}` : '';
+                const displayText = `${productName}${brand}`;
+                return (
+                  <option key={p.id} value={p.id} title={displayText}>
+                    {displayText}
+                  </option>
+                );
+              })}
             </select>
-            {!selectedCategoryTypeId && (
+            {eligibleProducts.length === 0 && (
               <p className="text-xs mt-1" style={{ color: 'var(--brand-muted, #6b7280)' }}>
-                Select a Category Type to see available products
+                No products available for this age band
               </p>
             )}
-            {selectedCategoryTypeId && filteredProducts.length === 0 && (
-              <p className="text-xs mt-1" style={{ color: 'var(--brand-muted, #6b7280)' }}>
-                No products found for this category type
-              </p>
-            )}
+            {/* Product metadata display when a product is selected */}
+            {selectedProductId && (() => {
+              const selectedProduct = eligibleProducts.find((p) => p.id === selectedProductId);
+              if (!selectedProduct) return null;
+              return (
+                <div className="mt-2 p-2 bg-gray-50 rounded text-xs space-y-1">
+                  <div className="flex items-center gap-2">
+                    {selectedProduct.is_ready_for_publish ? (
+                      <span className="px-1.5 py-0.5 bg-green-100 text-green-800 rounded text-xs font-medium">
+                        Ready to Publish
+                      </span>
+                    ) : (
+                      <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">
+                        Needs 2nd source
+                      </span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-gray-600">
+                    {selectedProduct.confidence_score_0_to_10 !== null && selectedProduct.confidence_score_0_to_10 !== undefined && (
+                      <div>Confidence: {selectedProduct.confidence_score_0_to_10}/10</div>
+                    )}
+                    {selectedProduct.quality_score_0_to_10 !== null && selectedProduct.quality_score_0_to_10 !== undefined && (
+                      <div>Quality: {selectedProduct.quality_score_0_to_10}/10</div>
+                    )}
+                    {selectedProduct.evidence_count !== undefined && (
+                      <div>Evidence: {selectedProduct.evidence_count} source{selectedProduct.evidence_count !== 1 ? 's' : ''}</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
