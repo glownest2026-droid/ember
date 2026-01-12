@@ -697,3 +697,68 @@ We shipped the public acquisition page that lets a brand-new visitor set their c
 - “Save to shortlist” redirects to /signin?next=<return-to-same-new-url>
 - All proof routes still pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
 - Theme still applies globally (no regression): /app/admin/theme works for admins
+
+## 2026-01-10 — PL-ADMIN-2: Conditional SKU filtering + merchandising UX tweaks
+
+### Founder Exec Summary
+
+Fixed critical bug where selecting a Category Type (e.g., "Play dough") allowed selecting unrelated products (e.g., drum). Product dropdown now strictly filters by selected category. Added server-side validation to prevent mismatched saves. Improved merchandising UX with status strip, better card layout density, and quick "Clear" buttons.
+
+### Summary
+
+- **Hard fix**: Product dropdown is now conditional on Category Type selection
+  - Products filtered by matching `category_type_slug` to selected category's `slug`
+  - Product dropdown disabled until category is selected
+  - When category changes, SKU auto-clears if it doesn't match (with helper text)
+- **Server-side safety**: Added validation in `updateCard` and `publishSet` to prevent mismatched category+product combinations
+- **Merchandising UX improvements**:
+  - Status strip at top showing: set status, publish-ready SKU count, publish blockers
+  - Improved card layout: hide evidence badge when no SKU selected, show inline with SKU selector
+  - Added "Clear" (SKU only) and "Clear all" (category+SKU) buttons
+
+### Key code
+
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MomentSetEditor.tsx`:
+  - `CardEditor`: Filters products by `category_type_slug` matching selected category's `slug`
+  - Auto-clears SKU when category changes if mismatch detected
+  - Status strip component showing publish-ready counts and blockers
+  - Evidence section hidden when no SKU selected
+  - Product metadata shown inline with SKU selector
+  - Clear/Clear all buttons for quick SKU management
+- `web/src/app/(app)/app/admin/pl/_actions.ts`:
+  - `updateCard`: Validates product matches category before saving (checks `products.category_type_id`)
+  - `publishSet`: Validates all cards with both category and product have matching relationships
+
+### Implementation Details
+
+- **Product filtering**: Uses `category_type_slug` from `v_pl_product_fits_ready_for_recs` view, matched to category's `slug` from `pl_category_types`
+- **Server validation**: Queries `products` table's `category_type_id` column to validate matches
+- **Status strip**: Calculates publish-ready count by checking `is_ready_for_publish` flag from products
+- **UX improvements**: Reduced visual noise by hiding evidence section when no SKU, showing product metadata inline
+
+### Bug Fixes & Iterations
+
+1. Fixed product dropdown to filter by selected category type (was showing all products)
+2. Added auto-clear of SKU when category changes and product doesn't match
+3. Added server-side validation to prevent mismatched saves at both card update and publish time
+4. Improved layout density by hiding evidence badge when no SKU selected
+5. Added status strip for better visibility of publish readiness
+
+### Verification (Proof-of-Done)
+
+- Go to `/app/admin/pl/25-27m` on preview URL
+- Pick Category Type A; confirm SKU dropdown only shows SKUs belonging to that category
+- Select a SKU; then change category type to B; confirm SKU clears automatically and shows helper text
+- Attempt to publish with a "Needs 2nd source" SKU; confirm publish blocked with clear error listing product names
+- Create a category-only card (no SKU) and publish; confirm it can publish (if all SKU cards are publish-ready or empty)
+- Status strip shows correct publish-ready count and blockers
+- Clear buttons work correctly to reset SKU selections
+
+### Known limitations
+
+- None identified
+
+### Next up
+
+- Consider adding bulk operations for category assignment
+- Consider adding product search/filter within category dropdown
