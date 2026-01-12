@@ -292,6 +292,50 @@ export default function MomentSetEditor({
         </div>
       ) : (
         <div className="space-y-6">
+          {/* Status Strip */}
+          {set && sortedCards.length > 0 && (() => {
+            const cardsWithProducts = sortedCards.filter((card) => card.product_id);
+            const productIds = cardsWithProducts.map((card) => card.product_id).filter((id): id is string => !!id);
+            const productsMap = new Map(products.map((p) => [p.id, p]));
+            
+            const publishReadyCount = cardsWithProducts.filter((card) => {
+              const product = productsMap.get(card.product_id!);
+              return product?.is_ready_for_publish === true;
+            }).length;
+            
+            const notReadyCards = cardsWithProducts.filter((card) => {
+              const product = productsMap.get(card.product_id!);
+              return product && product.is_ready_for_publish !== true;
+            });
+            
+            return (
+              <div className="border rounded p-3 bg-gray-50 space-y-2">
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">Status:</span>
+                    <span className={`px-2 py-1 rounded text-xs ${
+                      set.status === 'published' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {set.status}
+                    </span>
+                  </div>
+                  {cardsWithProducts.length > 0 && (
+                    <div className="text-sm text-gray-600">
+                      SKU cards: {publishReadyCount}/{cardsWithProducts.length} publish-ready
+                    </div>
+                  )}
+                </div>
+                {notReadyCards.length > 0 && (
+                  <div className="rounded bg-yellow-100 p-2 text-yellow-800 text-sm">
+                    {notReadyCards.length} card{notReadyCards.length !== 1 ? 's' : ''} need{notReadyCards.length === 1 ? 's' : ''} a 2nd source
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+          
           {sortedCards.length === 0 ? (
             <p className="text-sm text-gray-500">No cards yet (this should not happen)</p>
           ) : (
@@ -424,10 +468,20 @@ function CardEditor({
   const initialCategoryTypeId = card.category_type_id || '';
   const [selectedCategoryTypeId, setSelectedCategoryTypeId] = useState<string>(initialCategoryTypeId);
   const [selectedProductId, setSelectedProductId] = useState<string>(card.product_id || '');
+  const [productClearedMessage, setProductClearedMessage] = useState<string | null>(null);
 
-  // Products are already filtered by age_band_id and is_ready_for_recs from the server
-  // No need to filter by category type - show all eligible products
-  const eligibleProducts = products;
+  // Filter products by selected category type
+  // Match products' category_type_slug to selected category's slug
+  const selectedCategory = categoryTypes.find((ct) => ct.id === selectedCategoryTypeId);
+  const eligibleProducts = selectedCategoryTypeId && selectedCategory
+    ? products.filter((p) => p.category_type_slug === selectedCategory.slug)
+    : [];
+
+  // Check if currently selected product matches the selected category
+  const selectedProduct = products.find((p) => p.id === selectedProductId);
+  const productMatchesCategory = selectedProduct && selectedCategory
+    ? selectedProduct.category_type_slug === selectedCategory.slug
+    : false;
 
   return (
     <div className="border rounded p-4 space-y-4">
@@ -479,8 +533,25 @@ function CardEditor({
               className="w-full border p-2 rounded"
               onChange={(e) => {
                 const newCategoryTypeId = e.target.value;
+                const newCategory = categoryTypes.find((ct) => ct.id === newCategoryTypeId);
+                
+                // Check if current product matches the NEW category
+                const currentProduct = products.find((p) => p.id === selectedProductId);
+                const productMatchesNewCategory = currentProduct && newCategory
+                  ? currentProduct.category_type_slug === newCategory.slug
+                  : false;
+                
                 setSelectedCategoryTypeId(newCategoryTypeId);
-                // Products are independent of category selection now, so we don't clear product
+                
+                // If category changes and current product doesn't match new category, clear it
+                if (selectedProductId && newCategoryTypeId && !productMatchesNewCategory) {
+                  setSelectedProductId('');
+                  setProductClearedMessage('Product cleared because it didn\'t match the selected category.');
+                  // Clear message after 5 seconds
+                  setTimeout(() => setProductClearedMessage(null), 5000);
+                } else {
+                  setProductClearedMessage(null);
+                }
               }}
             >
               <option value="">None</option>
@@ -495,14 +566,49 @@ function CardEditor({
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Product (SKU)</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm">Product (SKU)</label>
+              {selectedProductId && (
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedProductId('');
+                      setProductClearedMessage(null);
+                    }}
+                    className="text-xs text-gray-600 hover:text-gray-800 underline"
+                    title="Clear SKU only"
+                  >
+                    Clear
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategoryTypeId('');
+                      setSelectedProductId('');
+                      setProductClearedMessage(null);
+                    }}
+                    className="text-xs text-gray-600 hover:text-gray-800 underline"
+                    title="Clear category and SKU"
+                  >
+                    Clear all
+                  </button>
+                </div>
+              )}
+            </div>
             <select
               name="product_id"
               value={selectedProductId}
               className="w-full border p-2 rounded"
-              onChange={(e) => setSelectedProductId(e.target.value)}
+              disabled={!selectedCategoryTypeId}
+              onChange={(e) => {
+                setSelectedProductId(e.target.value);
+                setProductClearedMessage(null);
+              }}
             >
-              <option value="">Select a product...</option>
+              <option value="">
+                {!selectedCategoryTypeId ? 'Select a category first...' : 'Select a product...'}
+              </option>
               {eligibleProducts.map((p) => {
                 const productName = p.name || 'Unknown';
                 const brand = p.brand ? ` — ${p.brand}` : '';
@@ -514,42 +620,43 @@ function CardEditor({
                 );
               })}
             </select>
-            {eligibleProducts.length === 0 && (
+            {productClearedMessage && (
+              <p className="text-xs mt-1 text-amber-600 italic">{productClearedMessage}</p>
+            )}
+            {selectedCategoryTypeId && eligibleProducts.length === 0 && (
               <p className="text-xs mt-1" style={{ color: 'var(--brand-muted, #6b7280)' }}>
-                No products available for this age band
+                No products available for this category
               </p>
             )}
-            {/* Product metadata display when a product is selected */}
-            {selectedProductId && (() => {
-              const selectedProduct = eligibleProducts.find((p) => p.id === selectedProductId);
-              if (!selectedProduct) return null;
-              return (
-                <div className="mt-2 p-2 bg-gray-50 rounded text-xs space-y-1">
-                  <div className="flex items-center gap-2">
-                    {selectedProduct.is_ready_for_publish ? (
-                      <span className="px-1.5 py-0.5 bg-green-100 text-green-800 rounded text-xs font-medium">
-                        Ready to Publish
-                      </span>
-                    ) : (
-                      <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">
-                        Needs 2nd source
-                      </span>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-gray-600">
-                    {selectedProduct.confidence_score_0_to_10 !== null && selectedProduct.confidence_score_0_to_10 !== undefined && (
-                      <div>Confidence: {selectedProduct.confidence_score_0_to_10}/10</div>
-                    )}
-                    {selectedProduct.quality_score_0_to_10 !== null && selectedProduct.quality_score_0_to_10 !== undefined && (
-                      <div>Quality: {selectedProduct.quality_score_0_to_10}/10</div>
-                    )}
-                    {selectedProduct.evidence_count !== undefined && (
-                      <div>Evidence: {selectedProduct.evidence_count} source{selectedProduct.evidence_count !== 1 ? 's' : ''}</div>
-                    )}
-                  </div>
-                </div>
-              );
-            })()}
+            {/* Product metadata display when a product is selected - inline with SKU selector */}
+            {selectedProductId && selectedProduct && productMatchesCategory && (
+              <div className="mt-2 flex items-center gap-2 flex-wrap">
+                {selectedProduct.is_ready_for_publish ? (
+                  <span className="px-1.5 py-0.5 bg-green-100 text-green-800 rounded text-xs font-medium">
+                    Ready to Publish
+                  </span>
+                ) : (
+                  <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">
+                    Needs 2nd source
+                  </span>
+                )}
+                {selectedProduct.evidence_count !== undefined && (
+                  <span className="text-xs text-gray-600">
+                    Evidence: {selectedProduct.evidence_count} source{selectedProduct.evidence_count !== 1 ? 's' : ''}
+                  </span>
+                )}
+                {selectedProduct.confidence_score_0_to_10 !== null && selectedProduct.confidence_score_0_to_10 !== undefined && (
+                  <span className="text-xs text-gray-600">
+                    Confidence: {selectedProduct.confidence_score_0_to_10}/10
+                  </span>
+                )}
+                {selectedProduct.quality_score_0_to_10 !== null && selectedProduct.quality_score_0_to_10 !== undefined && (
+                  <span className="text-xs text-gray-600">
+                    Quality: {selectedProduct.quality_score_0_to_10}/10
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -562,40 +669,42 @@ function CardEditor({
         </button>
       </form>
 
-      {/* Evidence List */}
-      <div className="mt-4">
-        <h4 className="text-sm font-semibold mb-2">Evidence ({card.pl_evidence?.length || 0})</h4>
-        {card.pl_evidence && card.pl_evidence.length > 0 ? (
-          <div className="space-y-2">
-            {card.pl_evidence.map((ev) => (
-              <div key={ev.id} className="border rounded p-2 text-sm">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="font-medium">{ev.source_type}</div>
-                    {ev.url && (
-                      <a href={ev.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs">
-                        {ev.url}
-                      </a>
-                    )}
-                    {ev.quote_snippet && (
-                      <div className="mt-1 text-gray-600 italic">"{ev.quote_snippet}"</div>
-                    )}
-                    <div className="mt-1 text-xs text-gray-500">Confidence: {ev.confidence}/5</div>
+      {/* Evidence List - only show if SKU is selected */}
+      {selectedProductId && (
+        <div className="mt-4">
+          <h4 className="text-sm font-semibold mb-2">Evidence ({card.pl_evidence?.length || 0})</h4>
+          {card.pl_evidence && card.pl_evidence.length > 0 ? (
+            <div className="space-y-2">
+              {card.pl_evidence.map((ev) => (
+                <div key={ev.id} className="border rounded p-2 text-sm">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="font-medium">{ev.source_type}</div>
+                      {ev.url && (
+                        <a href={ev.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs">
+                          {ev.url}
+                        </a>
+                      )}
+                      {ev.quote_snippet && (
+                        <div className="mt-1 text-gray-600 italic">"{ev.quote_snippet}"</div>
+                      )}
+                      <div className="mt-1 text-xs text-gray-500">Confidence: {ev.confidence}/5</div>
+                    </div>
+                    <button
+                      onClick={() => onDeleteEvidence(ev.id)}
+                      className="ml-2 text-red-600 hover:underline text-xs"
+                    >
+                      Delete
+                    </button>
                   </div>
-                  <button
-                    onClick={() => onDeleteEvidence(ev.id)}
-                    className="ml-2 text-red-600 hover:underline text-xs"
-                  >
-                    Delete
-                  </button>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-gray-500">No evidence yet. Add at least 1 to publish.</p>
-        )}
-      </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-gray-500">No evidence yet. Add at least 1 to publish.</p>
+          )}
+        </div>
+      )}
 
       {/* Add Evidence Form */}
       {showEvidenceForm && (

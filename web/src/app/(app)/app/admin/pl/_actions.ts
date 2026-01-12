@@ -76,6 +76,81 @@ export async function updateCard(
 ) {
   const { supabase } = await requireAdmin();
 
+  // Server-side validation: if both category_type_id and product_id are set, validate they match
+  const finalCategoryTypeId = data.category_type_id !== undefined 
+    ? (data.category_type_id || null)
+    : null; // Will fetch from existing card if not provided
+  const finalProductId = data.product_id !== undefined 
+    ? (data.product_id || null)
+    : null; // Will fetch from existing card if not provided
+
+  // If both are being set, we need to validate
+  if (finalCategoryTypeId && finalProductId) {
+    // Get the product's category_type_id from products table
+    const { data: product, error: productError } = await supabase
+      .from('products')
+      .select('category_type_id')
+      .eq('id', finalProductId)
+      .single();
+
+    if (productError || !product) {
+      return { error: `Product not found: ${productError?.message || 'Unknown error'}` };
+    }
+
+    // Check if product's category matches the selected category
+    if (product.category_type_id !== finalCategoryTypeId) {
+      return { error: 'Selected product does not belong to selected category type for this age band.' };
+    }
+  } else if (finalProductId && !finalCategoryTypeId) {
+    // If only product is being set, fetch current category from card
+    const { data: card, error: cardError } = await supabase
+      .from('pl_reco_cards')
+      .select('category_type_id')
+      .eq('id', cardId)
+      .single();
+
+    if (!cardError && card?.category_type_id) {
+      // Validate product matches existing category
+      const { data: product, error: productError } = await supabase
+        .from('products')
+        .select('category_type_id')
+        .eq('id', finalProductId)
+        .single();
+
+      if (productError || !product) {
+        return { error: `Product not found: ${productError?.message || 'Unknown error'}` };
+      }
+
+      if (product.category_type_id !== card.category_type_id) {
+        return { error: 'Selected product does not belong to selected category type for this age band.' };
+      }
+    }
+  } else if (finalCategoryTypeId && !finalProductId) {
+    // If only category is being set, fetch current product from card
+    const { data: card, error: cardError } = await supabase
+      .from('pl_reco_cards')
+      .select('product_id')
+      .eq('id', cardId)
+      .single();
+
+    if (!cardError && card?.product_id) {
+      // Validate existing product matches new category
+      const { data: product, error: productError } = await supabase
+        .from('products')
+        .select('category_type_id')
+        .eq('id', card.product_id)
+        .single();
+
+      if (productError || !product) {
+        return { error: `Product not found: ${productError?.message || 'Unknown error'}` };
+      }
+
+      if (product.category_type_id !== finalCategoryTypeId) {
+        return { error: 'Selected product does not belong to selected category type for this age band.' };
+      }
+    }
+  }
+
   // Allow both category_type_id and product_id to be set (v1: both can be set)
   const updateData: any = {};
   if (data.lane !== undefined) updateData.lane = data.lane;
@@ -222,6 +297,41 @@ export async function publishSet(setId: string, ageBandId: string) {
     }
     if (!card.category_type_id && !card.product_id) {
       return { error: `Card at rank ${card.rank} must have either a category type or a product` };
+    }
+  }
+
+  // Validation: if both category_type_id and product_id are set, validate they match
+  const cardsWithBoth = cards.filter((card: any) => card.category_type_id && card.product_id);
+  if (cardsWithBoth.length > 0) {
+    const productIds = cardsWithBoth.map((card: any) => card.product_id);
+    
+    // Fetch products to get their category_type_id
+    const { data: productsData, error: productsError } = await supabase
+      .from('products')
+      .select('id, category_type_id')
+      .in('id', productIds);
+
+    if (productsError) {
+      return { error: `Error validating product-category match: ${productsError.message}` };
+    }
+
+    const productsMap = new Map(
+      (productsData || []).map((p: any) => [p.id, p.category_type_id])
+    );
+
+    // Check each card for mismatch
+    const mismatchedCards: string[] = [];
+    for (const card of cardsWithBoth) {
+      const productCategoryId = productsMap.get(card.product_id);
+      if (productCategoryId !== card.category_type_id) {
+        mismatchedCards.push(`Card at rank ${card.rank}`);
+      }
+    }
+
+    if (mismatchedCards.length > 0) {
+      return { 
+        error: `Cannot publish: Selected product does not belong to selected category type for this age band in ${mismatchedCards.join(', ')}.` 
+      };
     }
   }
 
