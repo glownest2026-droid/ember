@@ -225,6 +225,53 @@ export async function publishSet(setId: string, ageBandId: string) {
     }
   }
 
+  // Validation: product publish readiness gating
+  // For cards with product_id, check if product is publish-ready (is_ready_for_publish = true)
+  const cardsWithProducts = cards.filter((card: any) => card.product_id);
+  if (cardsWithProducts.length > 0) {
+    const productIds = cardsWithProducts.map((card: any) => card.product_id);
+    
+    // Query v_pl_product_fits_ready_for_recs to check publish readiness
+    const { data: productFitsData, error: productFitsError } = await supabase
+      .from('v_pl_product_fits_ready_for_recs')
+      .select('product_id, product_name, is_ready_for_publish')
+      .eq('age_band_id', ageBandId)
+      .in('product_id', productIds);
+
+    if (productFitsError) {
+      return { error: `Error checking product publish readiness: ${productFitsError.message}` };
+    }
+
+    // Build map of product_id -> publish readiness
+    const productReadinessMap: Record<string, { name: string; isReady: boolean }> = {};
+    if (productFitsData) {
+      productFitsData.forEach((fit: any) => {
+        productReadinessMap[fit.product_id] = {
+          name: fit.product_name || 'Unknown Product',
+          isReady: fit.is_ready_for_publish === true,
+        };
+      });
+    }
+
+    // Check each card's product for publish readiness
+    const notReadyProducts: string[] = [];
+    for (const card of cardsWithProducts) {
+      const productInfo = productReadinessMap[card.product_id];
+      if (!productInfo) {
+        // Product not found in view - treat as not ready
+        notReadyProducts.push(`Product ID ${card.product_id} (not found in catalogue)`);
+      } else if (!productInfo.isReady) {
+        notReadyProducts.push(productInfo.name);
+      }
+    }
+
+    if (notReadyProducts.length > 0) {
+      return { 
+        error: `Cannot publish: The following products are not publish-ready (need >=2 evidence AND >=2 domains): ${notReadyProducts.join(', ')}` 
+      };
+    }
+  }
+
   // All validations passed, publish
   const { error: updateError } = await supabase
     .from('pl_age_moment_sets')

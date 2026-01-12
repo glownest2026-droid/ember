@@ -98,27 +98,82 @@ export default async function AgeBandAdminPage({
       sets = setsData || [];
     }
 
-    // Load category types for dropdowns
+    // Load category types for dropdowns: only those with fits for this age_band_id
+    // Query pl_category_type_fits filtered by age_band_id, joined to pl_category_types
     const { data: categoryTypesData } = await supabase
-      .from('pl_category_types')
-      .select('*')
-      .order('name', { ascending: true });
+      .from('pl_category_type_fits')
+      .select(`
+        category_type_id,
+        pl_category_types (
+          id,
+          name,
+          label,
+          slug
+        )
+      `)
+      .eq('age_band_id', ageBandId);
 
     if (categoryTypesData) {
-      categoryTypes = categoryTypesData;
+      // Transform to match expected format, extracting category type data
+      categoryTypes = categoryTypesData
+        .map((fit: any) => fit.pl_category_types)
+        .filter((ct: any) => ct !== null)
+        .map((ct: any) => ({
+          id: ct.id,
+          name: ct.name || ct.label,
+          label: ct.label,
+          slug: ct.slug,
+        }))
+        .sort((a, b) => (a.label || a.name || '').localeCompare(b.label || b.name || ''));
     }
 
-    // Load products for dropdowns (include category_type_id for filtering)
-    // Note: age_band in products is text (e.g., "12-18m"), not UUID
-    // Products will be filtered by category_type_id in the client component
+    // Load products for dropdowns: eligible for internal selection (is_ready_for_recs = true)
+    // Query v_pl_product_fits_ready_for_recs filtered by age_band_id and is_ready_for_recs
     const { data: productsData } = await supabase
-      .from('products')
-      .select('id, name, age_band, category_type_id')
-      .order('name', { ascending: true })
-      .limit(200);
+      .from('v_pl_product_fits_ready_for_recs')
+      .select('*')
+      .eq('age_band_id', ageBandId)
+      .eq('is_ready_for_recs', true)
+      .order('product_name', { ascending: true });
 
-    if (productsData) {
-      products = productsData;
+    if (productsData && productsData.length > 0) {
+      // Get product_ids from the view (assuming it has product_id column)
+      // If not, we may need to join to products table by name/brand
+      const productIds = productsData
+        .map((p: any) => p.product_id)
+        .filter((id: any) => id !== null && id !== undefined);
+
+      // Fetch confidence_score and quality_score from pl_product_fits
+      let productFitsMap: Record<string, any> = {};
+      if (productIds.length > 0) {
+        const { data: productFitsData } = await supabase
+          .from('pl_product_fits')
+          .select('product_id, confidence_score_0_to_10, quality_score_0_to_10')
+          .eq('age_band_id', ageBandId)
+          .in('product_id', productIds);
+
+        if (productFitsData) {
+          productFitsData.forEach((fit: any) => {
+            productFitsMap[fit.product_id] = {
+              confidence_score_0_to_10: fit.confidence_score_0_to_10,
+              quality_score_0_to_10: fit.quality_score_0_to_10,
+            };
+          });
+        }
+      }
+
+      // Transform to include all needed fields
+      products = productsData.map((p: any) => ({
+        id: p.product_id, // View should have product_id
+        name: p.product_name,
+        brand: p.product_brand,
+        category_type_slug: p.category_type_slug,
+        evidence_count: p.evidence_count,
+        evidence_domain_count: p.evidence_domain_count,
+        is_ready_for_publish: p.is_ready_for_publish,
+        confidence_score_0_to_10: productFitsMap[p.product_id]?.confidence_score_0_to_10,
+        quality_score_0_to_10: productFitsMap[p.product_id]?.quality_score_0_to_10,
+      }));
     }
 
     // Load pool items for this age band
