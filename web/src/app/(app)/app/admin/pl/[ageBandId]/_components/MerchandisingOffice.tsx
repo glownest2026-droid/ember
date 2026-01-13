@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useTransition, useMemo } from 'react';
-import { createDraftSet, updateCard, publishSet, unpublishSet, createCard, placeProductIntoSlot } from '../../_actions';
+import { useState, useTransition, useMemo, useEffect } from 'react';
+import { createDraftSet, updateCard, publishSet, unpublishSet, createCard, placeProductIntoSlot, getAutopilotWeights, saveAutopilotWeights, regenerateDraftSet } from '../../_actions';
 
 type Moment = {
   id: string;
@@ -24,6 +24,14 @@ type Card = {
   because: string;
   category_type_id?: string;
   product_id?: string;
+  is_locked?: boolean;
+  pl_evidence?: Array<{
+    id: string;
+    source_type: string;
+    url?: string;
+    quote_snippet?: string;
+    confidence: number;
+  }>;
 };
 
 type CategoryType = {
@@ -86,6 +94,22 @@ export default function MerchandisingOffice({
   const [selectedCategorySlug, setSelectedCategorySlug] = useState<string>('');
   const [filterType, setFilterType] = useState<'all' | 'ready' | 'needs_source'>('all');
   const [sortBy, setSortBy] = useState<'confidence' | 'quality' | 'evidence'>('confidence');
+
+  // Algorithm weights panel state
+  const [showAlgorithm, setShowAlgorithm] = useState(false);
+  const [weights, setWeights] = useState({ confidence: 0.45, quality: 0.45, anchor: 0.10 });
+  const [weightsLoading, setWeightsLoading] = useState(true);
+  const [weightsSaving, setWeightsSaving] = useState(false);
+
+  // Load autopilot weights on mount
+  useEffect(() => {
+    getAutopilotWeights().then((result) => {
+      if (result.success && result.weights) {
+        setWeights(result.weights);
+      }
+      setWeightsLoading(false);
+    });
+  }, []);
 
   // Get populated cards only (no placeholders)
   const cards = set?.pl_reco_cards || [];
@@ -202,10 +226,59 @@ export default function MerchandisingOffice({
         setError(result.error);
       } else {
         setSuccess('Card added');
+        // Use router refresh instead of window.location.reload for better UX
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }
+    });
+  }
+
+  async function handleSaveWeights() {
+    setWeightsSaving(true);
+    setError(null);
+    const result = await saveAutopilotWeights(weights);
+    if (result.error) {
+      setError(result.error);
+    } else if (result.success && result.weights) {
+      setWeights(result.weights);
+      setSuccess('Weights saved');
+      setTimeout(() => setSuccess(null), 2000);
+    }
+    setWeightsSaving(false);
+  }
+
+  async function handleResetWeights() {
+    setWeights({ confidence: 0.45, quality: 0.45, anchor: 0.10 });
+    setSuccess('Weights reset to defaults');
+    setTimeout(() => setSuccess(null), 2000);
+  }
+
+  async function handleRegenerateDraft() {
+    if (!set) return;
+    setError(null);
+    setSuccess(null);
+    startTransition(async () => {
+      const result = await regenerateDraftSet(set.id, ageBandId, moment.id);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setSuccess('Draft regenerated');
         window.location.reload();
       }
     });
   }
+
+  // Normalize weights to sum to 1.0
+  const normalizedWeights = useMemo(() => {
+    const total = weights.confidence + weights.quality + weights.anchor;
+    if (total === 0) return { confidence: 0.45, quality: 0.45, anchor: 0.10 };
+    return {
+      confidence: weights.confidence / total,
+      quality: weights.quality / total,
+      anchor: weights.anchor / total,
+    };
+  }, [weights]);
 
   async function handlePlaceProduct(productId: string, lane: string) {
     if (!set) return;
@@ -374,7 +447,7 @@ export default function MerchandisingOffice({
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2 mt-3">
+            <div className="flex gap-2 mt-3 flex-wrap">
               {set.status === 'published' ? (
                 <button
                   onClick={handleUnpublish}
@@ -384,15 +457,100 @@ export default function MerchandisingOffice({
                   Unpublish
                 </button>
               ) : (
-                <button
-                  onClick={handlePublish}
-                  disabled={isPending}
-                  className="px-3 py-1.5 text-sm bg-black text-white rounded hover:bg-gray-800 disabled:opacity-50"
-                >
-                  Publish
-                </button>
+                <>
+                  <button
+                    onClick={handlePublish}
+                    disabled={isPending}
+                    className="px-3 py-1.5 text-sm bg-black text-white rounded hover:bg-gray-800 disabled:opacity-50"
+                  >
+                    Publish
+                  </button>
+                  <button
+                    onClick={handleRegenerateDraft}
+                    disabled={isPending}
+                    className="px-3 py-1.5 text-sm border rounded hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    Regenerate draft
+                  </button>
+                </>
               )}
+              <button
+                onClick={() => setShowAlgorithm(!showAlgorithm)}
+                className="px-3 py-1.5 text-sm border rounded hover:bg-gray-50"
+              >
+                {showAlgorithm ? 'Hide' : 'Show'} algorithm
+              </button>
             </div>
+
+            {/* Algorithm Weights Panel */}
+            {showAlgorithm && (
+              <div className="mt-4 border rounded p-4 bg-gray-50 space-y-4">
+                <h4 className="font-semibold text-sm">Algorithm Weights</h4>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs mb-1">
+                      Confidence: {normalizedWeights.confidence.toFixed(2)} ({weights.confidence.toFixed(2)})
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={weights.confidence}
+                      onChange={(e) => setWeights({ ...weights, confidence: parseFloat(e.target.value) })}
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs mb-1">
+                      Quality: {normalizedWeights.quality.toFixed(2)} ({weights.quality.toFixed(2)})
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={weights.quality}
+                      onChange={(e) => setWeights({ ...weights, quality: parseFloat(e.target.value) })}
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs mb-1">
+                      Anchor: {normalizedWeights.anchor.toFixed(2)} ({weights.anchor.toFixed(2)})
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={weights.anchor}
+                      onChange={(e) => setWeights({ ...weights, anchor: parseFloat(e.target.value) })}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="text-xs" style={{ color: 'var(--brand-muted, #6b7280)' }}>
+                    Normalized sum: {(normalizedWeights.confidence + normalizedWeights.quality + normalizedWeights.anchor).toFixed(2)}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSaveWeights}
+                    disabled={weightsSaving || weightsLoading}
+                    className="px-3 py-1.5 text-sm bg-black text-white rounded hover:bg-gray-800 disabled:opacity-50"
+                  >
+                    {weightsSaving ? 'Saving...' : 'Save weights'}
+                  </button>
+                  <button
+                    onClick={handleResetWeights}
+                    disabled={weightsSaving || weightsLoading}
+                    className="px-3 py-1.5 text-sm border rounded hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    Reset defaults
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Card List - Only populated cards */}
@@ -412,6 +570,8 @@ export default function MerchandisingOffice({
                   products={products}
                   ageBandId={ageBandId}
                   isPending={isPending}
+                  showAlgorithm={showAlgorithm}
+                  weights={normalizedWeights}
                 />
               ))
             )}
@@ -617,12 +777,16 @@ function ShopfrontCard({
   products,
   ageBandId,
   isPending,
+  showAlgorithm,
+  weights,
 }: {
   card: Card;
   categoryTypes: CategoryType[];
   products: Product[];
   ageBandId: string;
   isPending: boolean;
+  showAlgorithm: boolean;
+  weights: { confidence: number; quality: number; anchor: number };
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [localPending, startTransition] = useTransition();
@@ -630,6 +794,8 @@ function ShopfrontCard({
   const slotLabel = LANE_TO_LABEL[card.lane] || card.lane;
   const category = card.category_type_id ? categoryTypes.find(ct => ct.id === card.category_type_id) : null;
   const product = card.product_id ? products.find(p => p.id === card.product_id) : null;
+  const evidence = card.pl_evidence || [];
+  const evidenceCount = evidence.length;
 
   const selectedCategory = categoryTypes.find(ct => ct.id === selectedCategoryId);
   const eligibleProducts = selectedCategory
@@ -652,17 +818,66 @@ function ShopfrontCard({
     });
   }
 
+  async function handleToggleLock() {
+    startTransition(async () => {
+      const result = await updateCard(card.id, ageBandId, {
+        is_locked: !card.is_locked,
+      });
+      if (result.error) {
+        alert(result.error);
+      } else {
+        window.location.reload();
+      }
+    });
+  }
+
+  // Calculate score breakdown if product exists and algorithm is shown
+  const scoreBreakdown = useMemo(() => {
+    if (!showAlgorithm || !product) return null;
+    const confidenceNorm = (product.confidence_score_0_to_10 ?? 0) / 10;
+    const qualityNorm = (product.quality_score_0_to_10 ?? 0) / 10;
+    const anchorNorm = 0.5; // Simplified for now
+    const total = weights.confidence + weights.quality + weights.anchor;
+    const normalizedWeights = {
+      confidence: weights.confidence / total,
+      quality: weights.quality / total,
+      anchor: weights.anchor / total,
+    };
+    return {
+      confidence: confidenceNorm * normalizedWeights.confidence,
+      quality: qualityNorm * normalizedWeights.quality,
+      anchor: anchorNorm * normalizedWeights.anchor,
+      evidence: product.is_ready_for_publish ? 0.1 : (product.evidence_count && product.evidence_count >= 1 ? 0.05 : 0),
+      total: (confidenceNorm * normalizedWeights.confidence) + (qualityNorm * normalizedWeights.quality) + (anchorNorm * normalizedWeights.anchor) + (product.is_ready_for_publish ? 0.1 : (product.evidence_count && product.evidence_count >= 1 ? 0.05 : 0)),
+    };
+  }, [showAlgorithm, product, weights]);
+
   if (!isEditing) {
     return (
       <div className="border rounded p-4 space-y-2">
         <div className="flex items-center justify-between">
           <h4 className="font-semibold">{slotLabel}</h4>
-          <button
-            onClick={() => setIsEditing(true)}
-            className="text-xs text-blue-600 hover:underline"
-          >
-            Edit
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleToggleLock}
+              disabled={localPending || isPending}
+              className={`text-xs px-2 py-1 rounded ${
+                card.is_locked
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              } disabled:opacity-50`}
+              title={card.is_locked ? 'Unlock card (allow autopilot to update)' : 'Lock card (prevent autopilot updates)'}
+            >
+              {card.is_locked ? '🔒 Locked' : '🔓 Unlocked'}
+            </button>
+            <button
+              onClick={() => setIsEditing(true)}
+              className="text-xs text-blue-600 hover:underline"
+              disabled={card.is_locked}
+            >
+              Edit
+            </button>
+          </div>
         </div>
         {category && (
           <div className="text-sm">
@@ -671,13 +886,46 @@ function ShopfrontCard({
           </div>
         )}
         {product && (
-          <div className="text-sm">
-            <span className="font-medium">Product: </span>
-            {product.name}{product.brand ? ` — ${product.brand}` : ''}
-            {product.is_ready_for_publish && (
-              <span className="ml-2 px-1.5 py-0.5 bg-green-100 text-green-800 rounded text-xs">
-                Ready
+          <div className="text-sm space-y-1">
+            <div>
+              <span className="font-medium">Product: </span>
+              {product.name}{product.brand ? ` — ${product.brand}` : ''}
+              {product.is_ready_for_publish && (
+                <span className="ml-2 px-1.5 py-0.5 bg-green-100 text-green-800 rounded text-xs">
+                  Ready
+                </span>
+              )}
+            </div>
+            {/* Evidence chips */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs" style={{ color: 'var(--brand-muted, #6b7280)' }}>
+                Sources: {evidenceCount}
               </span>
+              {evidenceCount < 2 && product.product_id && (
+                <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs">
+                  Needs 2nd source
+                </span>
+              )}
+              {product.is_ready_for_publish && (
+                <span className="px-1.5 py-0.5 bg-green-100 text-green-800 rounded text-xs">
+                  Ready to publish
+                </span>
+              )}
+            </div>
+            {/* Score breakdown */}
+            {showAlgorithm && scoreBreakdown && (
+              <div className="mt-2 p-2 bg-gray-50 rounded text-xs space-y-1">
+                <div className="font-medium">Score breakdown:</div>
+                <div className="grid grid-cols-2 gap-1">
+                  <div>Confidence: {scoreBreakdown.confidence.toFixed(3)}</div>
+                  <div>Quality: {scoreBreakdown.quality.toFixed(3)}</div>
+                  <div>Anchor: {scoreBreakdown.anchor.toFixed(3)}</div>
+                  <div>Evidence: {scoreBreakdown.evidence.toFixed(3)}</div>
+                </div>
+                <div className="font-medium pt-1 border-t">
+                  Total: {scoreBreakdown.total.toFixed(3)}
+                </div>
+              </div>
             )}
           </div>
         )}
@@ -728,10 +976,10 @@ function ShopfrontCard({
             name="product_id"
             defaultValue={card.product_id || ''}
             className="w-full border p-2 rounded text-sm"
-            disabled={!selectedCategoryId}
+            disabled={!selectedCategoryId || card.is_locked}
           >
             <option value="">
-              {!selectedCategoryId ? 'Select a category first...' : 'Select a product...'}
+              {!selectedCategoryId ? 'Select a category first...' : card.is_locked ? 'Card is locked' : 'Select a product...'}
             </option>
             {eligibleProducts.map(p => (
               <option key={p.id} value={p.id}>
@@ -739,6 +987,11 @@ function ShopfrontCard({
               </option>
             ))}
           </select>
+          {card.is_locked && (
+            <p className="text-xs mt-1" style={{ color: 'var(--brand-muted, #6b7280)' }}>
+              Card is locked. Unlock to edit.
+            </p>
+          )}
         </div>
 
         <div>
@@ -751,13 +1004,20 @@ function ShopfrontCard({
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={isPending || localPending}
-          className="px-3 py-1.5 text-sm bg-black text-white rounded hover:bg-gray-800 disabled:opacity-50"
-        >
-          Save Card
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="submit"
+            disabled={isPending || localPending || card.is_locked}
+            className="px-3 py-1.5 text-sm bg-black text-white rounded hover:bg-gray-800 disabled:opacity-50"
+          >
+            Save Card
+          </button>
+          {card.is_locked && (
+            <span className="text-xs" style={{ color: 'var(--brand-muted, #6b7280)' }}>
+              Card is locked
+            </span>
+          )}
+        </div>
       </form>
     </div>
   );
@@ -834,13 +1094,16 @@ function ProductDrawer({
               const label = LANE_TO_LABEL[lane];
               const existingCard = cards.find(c => c.lane === lane);
               const hasProduct = existingCard?.product_id;
+              const isLocked = existingCard?.is_locked;
               return (
                 <button
                   key={lane}
                   onClick={() => onPlace(lane)}
-                  className="w-full px-3 py-2 border rounded hover:bg-gray-50 text-left text-sm"
+                  disabled={isLocked}
+                  className="w-full px-3 py-2 border rounded hover:bg-gray-50 text-left text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={isLocked ? 'Card is locked - unlock to replace' : hasProduct ? `Replace in ${label}` : `Place into ${label}`}
                 >
-                  {hasProduct ? `Replace in ${label}` : `Place into ${label}`}
+                  {isLocked ? `${label} (locked)` : hasProduct ? `Replace in ${label}` : `Place into ${label}`}
                 </button>
               );
             })}

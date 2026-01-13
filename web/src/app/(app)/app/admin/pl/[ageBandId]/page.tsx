@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '../../../../../../utils/supabase/server';
 import { isAdmin } from '../../../../../../lib/admin';
+import { ensureDraftSetPopulated } from '../../_actions';
 import MerchandisingOffice from './_components/MerchandisingOffice';
 
 export default async function AgeBandAdminPage({ 
@@ -81,6 +82,7 @@ export default async function AgeBandAdminPage({
           because,
           category_type_id,
           product_id,
+          is_locked,
           pl_evidence (
             id,
             source_type,
@@ -235,6 +237,15 @@ export default async function AgeBandAdminPage({
       poolItemsByMoment[item.moment_id] = [];
     }
     poolItemsByMoment[item.moment_id].push(item);
+  }
+
+  // Auto-populate draft sets for each moment (non-blocking)
+  for (const moment of moments) {
+    // Don't await - let it run in background
+    ensureDraftSetPopulated(ageBandId, moment.id).catch((err) => {
+      // Silently fail - this is best-effort auto-population
+      console.error(`Failed to auto-populate draft for moment ${moment.id}:`, err);
+    });
   }
 
   return (

@@ -698,6 +698,85 @@ We shipped the public acquisition page that lets a brand-new visitor set their c
 - All proof routes still pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
 - Theme still applies globally (no regression): /app/admin/theme works for admins
 
+## 2026-01-12 — PL-ADMIN-5: Autopilot v0 + Algorithm Controls
+
+### Founder Exec Summary
+
+Autopilot v0 is now fully wired and operational. The admin runs itself ("Ramsay-mode"): for each moment in an age band, Ember has an AUTO-GENERATED draft set ready to go. Founder sees Published vs Draft, blockers, and can do quick swaps. Founder can adjust algorithm weights (the secret sauce) via a toggle panel. This is deterministic and explainable (no LLM).
+
+### Summary
+
+- **Autopilot v0 algorithm**: Deterministic scoring using confidence_score, quality_score, stage_anchor_month (if available), and evidence bonuses
+- **Algorithm weights panel**: Toggle "Show algorithm" reveals sliders for confidence/quality/anchor weights, with normalization and save/reset controls
+- **Score breakdown**: When algorithm toggle is on, each card shows score breakdown (confidence component, quality component, anchor component, evidence bonus, total score)
+- **Draft auto-population**: On page load, draft sets are automatically created and populated using autopilot if missing or empty
+- **Regenerate controls**: "Regenerate draft" button re-runs autopilot for the current moment (respects locks)
+- **Locks/overrides**: Persistent lock toggle on each card prevents autopilot from overwriting founder choices
+- **Auto-fill "Why it can work"**: When autopilot assigns a SKU, it pre-fills card.because from products.why_it_matters
+- **Evidence chips**: Cards show evidence count chips ("Sources: 1", "Needs 2nd source", "Ready to publish")
+- **Fixed add card persistence**: Add card now properly persists and refreshes UI
+
+### Key code
+
+- `web/src/lib/pl/autopilot.ts`: 
+  - Updated `calculateAnchorScore()` to use `stage_anchor_month` if available (distance-based scoring)
+  - Added `stage_anchor_month` to `ProductCandidate` type
+- `web/src/app/(app)/app/admin/pl/_actions.ts`:
+  - Updated `regenerateDraftSet()` to fetch `stage_anchor_month` from `pl_product_fits`
+  - Updated `updateCard()` to support `is_locked` with `locked_at` and `locked_by` tracking
+  - `ensureDraftSetPopulated()` called on page load for each moment
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MerchandisingOffice.tsx`:
+  - Added algorithm weights panel (toggle, sliders, save, reset)
+  - Added score breakdown display when algorithm toggle is on
+  - Added lock toggle on cards with visual indicators
+  - Added evidence chips showing source count and publish readiness
+  - Added "Regenerate draft" button
+  - Fixed add card persistence (proper reload timing)
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/page.tsx`:
+  - Calls `ensureDraftSetPopulated()` for each moment on load (non-blocking)
+  - Loads `is_locked`, `locked_at`, `locked_by` from database
+- `supabase/sql/202601060001_pl_autopilot_locks.sql`: Migration to add `is_locked`, `locked_at`, `locked_by` columns to `pl_reco_cards`
+
+### Implementation Details
+
+- **Anchor scoring**: Uses `stage_anchor_month` from `pl_product_fits` if available, calculates distance from age band midpoint, normalizes to 0.5-1.0 range
+- **Weights normalization**: Weights are normalized to sum to 1.0 when saved, but displayed as raw values with normalized preview
+- **Lock persistence**: Locks are stored in database with `is_locked` boolean, `locked_at` timestamp, and `locked_by` user ID
+- **Autopilot respects locks**: `regenerateDraftSet()` skips locked cards when updating
+- **Auto-population**: Runs in background on page load, doesn't block UI rendering
+- **Score breakdown**: Calculated client-side using current weights and product scores
+
+### Database
+
+- Migration file: `supabase/sql/202601060001_pl_autopilot_locks.sql`
+- Adds `is_locked BOOLEAN NOT NULL DEFAULT false`, `locked_at TIMESTAMPTZ`, `locked_by UUID` to `pl_reco_cards`
+- Index on `is_locked` for filtering
+
+### Verification (Proof-of-Done)
+
+1. **Autopilot exists and runs**: Opening `/app/admin/pl/25-27m` shows populated draft for Bath time without manual card creation
+2. **Algorithm panel exists and is wired**: 
+   - Change weights → Save → Regenerate → at least one slot changes (or explanation given why not)
+   - Weights normalize to sum to 1.0
+3. **Score breakdown visible**: When algorithm toggle is on, cards show score breakdown with confidence/quality/anchor/evidence components
+4. **Locks prevent overwrite**: Lock a card, regenerate draft → locked card unchanged
+5. **Why auto-fills**: Autopilot-assigned cards have "Why it can work" pre-filled from product database
+6. **Evidence chips**: Cards show "Sources: X", "Needs 2nd source", "Ready to publish" chips
+7. **Add card works**: Add card button creates card and persists (no disappearing toast)
+8. **Moments integrated**: All moments shown in single list (no "moment islands")
+
+### Known limitations
+
+- Score breakdown is calculated client-side (may not match server-side calculation exactly if weights differ)
+- Top 3 alternatives not yet displayed in UI (algorithm calculates them but doesn't show)
+- Auto-population runs in background (may take a moment to appear)
+
+### Next up
+
+- Add top 3 alternatives display in score breakdown panel
+- Consider adding "Regenerate all moments" button (performance permitting)
+- Add pool warning when no pool exists ("No pool set; autopilot using full catalogue")
+
 ## 2026-01-12 — PL-ADMIN-4: Merchandising Office v1 (Shopfront + Factory)
 
 ### Founder Exec Summary
