@@ -239,6 +239,31 @@ export default async function AgeBandAdminPage({
     poolItemsByMoment[item.moment_id].push(item);
   }
 
+  // Calculate counts for system status
+  const setsCount = sets.length;
+  const cardsCount = sets.reduce((total, set) => {
+    return total + (set.pl_reco_cards?.length || 0);
+  }, 0);
+
+  // System status info
+  const buildCommit = process.env.VERCEL_GIT_COMMIT_SHA || 'unknown';
+  const vercelEnv = process.env.VERCEL_ENV || 'development';
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseRef = supabaseUrl.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1] || 'unknown';
+  
+  // Check if autopilot module is present (feature detection)
+  let autopilotPresent = 'no';
+  try {
+    // Try to import - if it fails, module is not present
+    await import('@/lib/pl/autopilot');
+    autopilotPresent = 'yes';
+  } catch (err) {
+    autopilotPresent = 'no';
+  }
+
+  // Log system status (server-side)
+  console.log(`[System Status] ageBand=${ageBandId} commit=${buildCommit} env=${vercelEnv} supabaseRef=${supabaseRef} sets=${setsCount} cards=${cardsCount} autopilot=${autopilotPresent}`);
+
   // Auto-populate draft sets for each moment (non-blocking)
   for (const moment of moments) {
     // Don't await - let it run in background
@@ -250,6 +275,31 @@ export default async function AgeBandAdminPage({
 
   return (
     <div className="p-6 space-y-6">
+      {/* System Status Strip */}
+      <div className="bg-gray-100 border rounded p-3 text-xs space-y-1" style={{ fontFamily: 'monospace' }}>
+        <div className="font-semibold mb-2">System Status</div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+          <div>
+            <span className="font-medium">Build commit:</span> {buildCommit.substring(0, 7)}
+          </div>
+          <div>
+            <span className="font-medium">Vercel env:</span> {vercelEnv}
+          </div>
+          <div>
+            <span className="font-medium">Supabase ref:</span> {supabaseRef}
+          </div>
+          <div>
+            <span className="font-medium">Sets loaded:</span> {setsCount}
+          </div>
+          <div>
+            <span className="font-medium">Cards loaded:</span> {cardsCount}
+          </div>
+        </div>
+        <div>
+          <span className="font-medium">Autopilot module present:</span> {autopilotPresent}
+        </div>
+      </div>
+
       <div>
         <Link href="/app/admin/pl" className="text-blue-600 hover:underline">← Back to Product Library</Link>
         <h1 className="text-xl font-semibold mt-2" style={{ fontFamily: 'var(--brand-font-head, inherit)' }}>
