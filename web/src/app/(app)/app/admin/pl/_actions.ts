@@ -4,6 +4,7 @@ import { createClient } from '../../../../../utils/supabase/server';
 import { isAdmin } from '../../../../../lib/admin';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { selectProductsForSlots, calculateAgeBandMidpoint } from '@/lib/pl/autopilot';
 
 // Helper to check admin and get user
 async function requireAdmin() {
@@ -789,9 +790,6 @@ export async function regenerateDraftSet(
   candidates.forEach((c: any) => {
     c.category_type_id = categoryMap[c.id] || null;
   });
-
-  // Import autopilot functions
-  const { selectProductsForSlots, calculateAgeBandMidpoint } = await import('../../../../lib/pl/autopilot');
 
   const midpoint = calculateAgeBandMidpoint(ageBand.min_months, ageBand.max_months);
   const selected = selectProductsForSlots(candidates, weights, midpoint, poolCategoryIds);

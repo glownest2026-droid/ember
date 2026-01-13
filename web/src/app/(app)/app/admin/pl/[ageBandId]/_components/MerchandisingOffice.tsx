@@ -901,7 +901,7 @@ function ShopfrontCard({
               <span className="text-xs" style={{ color: 'var(--brand-muted, #6b7280)' }}>
                 Sources: {evidenceCount}
               </span>
-              {evidenceCount < 2 && product.product_id && (
+              {evidenceCount < 2 && product.id && (
                 <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded text-xs">
                   Needs 2nd source
                 </span>
