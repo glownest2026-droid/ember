@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '../../../../../../utils/supabase/server';
 import { isAdmin } from '../../../../../../lib/admin';
-import { ensureDraftSetPopulated } from '../../_actions';
+import { ensureDraftSetPopulated } from '../_actions';
 import MerchandisingOffice from './_components/MerchandisingOffice';
 
 export default async function AgeBandAdminPage({ 
