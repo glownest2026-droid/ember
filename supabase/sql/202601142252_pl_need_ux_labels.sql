@@ -23,40 +23,19 @@ BEGIN
       AND table_name = 'pl_development_needs'
       AND column_name = 'slug'
     ) THEN
-      -- Add slug column
+      -- Add slug column (nullable - must be populated separately)
       ALTER TABLE public.pl_development_needs ADD COLUMN slug TEXT;
       
-      -- Backfill slugs from need_name (slugify: lowercase, hyphens, alnum only)
-      -- Pattern: lowercase, keep alnum and spaces, replace spaces with hyphens, collapse multiple hyphens
-      UPDATE public.pl_development_needs
-      SET slug = regexp_replace(
-        regexp_replace(
-          regexp_replace(
-            lower(trim(need_name)),
-            '[^a-z0-9\s]', '', 'g'
-          ),
-          '\s+', '-', 'g'
-        ),
-        '-+', '-', 'g'
-      )
-      WHERE slug IS NULL;
-      
-      -- Remove leading/trailing hyphens
-      UPDATE public.pl_development_needs
-      SET slug = trim(both '-' from slug)
-      WHERE slug IS NOT NULL;
-      
-      -- Add unique constraint on slug
+      -- Note: Backfill skipped - slug column must be populated separately before use
+      -- Add unique constraint on slug (only on non-null values)
       IF NOT EXISTS (
         SELECT 1 FROM pg_constraint
         WHERE conname = 'pl_development_needs_slug_unique'
       ) THEN
-        ALTER TABLE public.pl_development_needs
-        ADD CONSTRAINT pl_development_needs_slug_unique UNIQUE (slug);
+        CREATE UNIQUE INDEX pl_development_needs_slug_unique 
+        ON public.pl_development_needs(slug)
+        WHERE slug IS NOT NULL;
       END IF;
-      
-      -- Make slug NOT NULL after backfill
-      ALTER TABLE public.pl_development_needs ALTER COLUMN slug SET NOT NULL;
     END IF;
   END IF;
 END $$;
@@ -101,7 +80,7 @@ CREATE TRIGGER trg_pl_need_ux_labels_updated_at BEFORE UPDATE ON public.pl_need_
 -- PART 3: Seed the 12 brand director mappings
 -- ============================================================================
 
--- Note: Prefer slug lookup, fallback to exact need_name match
+-- Note: Uses slug lookup only (slug column must exist in pl_development_needs)
 DO $$
 DECLARE
   need_id UUID;
@@ -115,7 +94,6 @@ BEGIN
     -- Color and shape recognition → Shapes & colours (shapes-colours)
     SELECT id INTO need_id FROM public.pl_development_needs
     WHERE slug = 'color-and-shape-recognition'
-       OR need_name = 'Color and shape recognition'
     LIMIT 1;
     IF need_id IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM public.pl_need_ux_labels
@@ -131,7 +109,6 @@ BEGIN
     -- Creative expression and mark-making → Drawing & making (drawing-making)
     SELECT id INTO need_id FROM public.pl_development_needs
     WHERE slug = 'creative-expression-and-mark-making'
-       OR need_name = 'Creative expression and mark-making'
     LIMIT 1;
     IF need_id IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM public.pl_need_ux_labels
@@ -147,7 +124,6 @@ BEGIN
     -- Emotional regulation and self-awareness → Big feelings (big-feelings)
     SELECT id INTO need_id FROM public.pl_development_needs
     WHERE slug = 'emotional-regulation-and-self-awareness'
-       OR need_name = 'Emotional regulation and self-awareness'
     LIMIT 1;
     IF need_id IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM public.pl_need_ux_labels
@@ -163,7 +139,6 @@ BEGIN
     -- Fine motor control and hand coordination → Little hands (little-hands)
     SELECT id INTO need_id FROM public.pl_development_needs
     WHERE slug = 'fine-motor-control-and-hand-coordination'
-       OR need_name = 'Fine motor control and hand coordination'
     LIMIT 1;
     IF need_id IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM public.pl_need_ux_labels
@@ -179,7 +154,6 @@ BEGIN
     -- Gross motor skills and physical confidence → Burn energy (burn-energy)
     SELECT id INTO need_id FROM public.pl_development_needs
     WHERE slug = 'gross-motor-skills-and-physical-confidence'
-       OR need_name = 'Gross motor skills and physical confidence'
     LIMIT 1;
     IF need_id IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM public.pl_need_ux_labels
@@ -195,7 +169,6 @@ BEGIN
     -- Independence and practical life skills → Let me help (let-me-help)
     SELECT id INTO need_id FROM public.pl_development_needs
     WHERE slug = 'independence-and-practical-life-skills'
-       OR need_name = 'Independence and practical life skills'
     LIMIT 1;
     IF need_id IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM public.pl_need_ux_labels
@@ -211,7 +184,6 @@ BEGIN
     -- Language development and communication → Talk & understand (talk-understand)
     SELECT id INTO need_id FROM public.pl_development_needs
     WHERE slug = 'language-development-and-communication'
-       OR need_name = 'Language development and communication'
     LIMIT 1;
     IF need_id IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM public.pl_need_ux_labels
@@ -227,7 +199,6 @@ BEGIN
     -- Pretend play and imagination → Pretend & stories (pretend-stories)
     SELECT id INTO need_id FROM public.pl_development_needs
     WHERE slug = 'pretend-play-and-imagination'
-       OR need_name = 'Pretend play and imagination'
     LIMIT 1;
     IF need_id IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM public.pl_need_ux_labels
@@ -243,7 +214,6 @@ BEGIN
     -- Problem-solving and cognitive skills → Figuring things out (figuring-things-out)
     SELECT id INTO need_id FROM public.pl_development_needs
     WHERE slug = 'problem-solving-and-cognitive-skills'
-       OR need_name = 'Problem-solving and cognitive skills'
     LIMIT 1;
     IF need_id IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM public.pl_need_ux_labels
@@ -259,7 +229,6 @@ BEGIN
     -- Routine understanding and cooperation → Transitions (transitions)
     SELECT id INTO need_id FROM public.pl_development_needs
     WHERE slug = 'routine-understanding-and-cooperation'
-       OR need_name = 'Routine understanding and cooperation'
     LIMIT 1;
     IF need_id IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM public.pl_need_ux_labels
@@ -275,7 +244,6 @@ BEGIN
     -- Social skills and peer interaction → Playing with others (playing-with-others)
     SELECT id INTO need_id FROM public.pl_development_needs
     WHERE slug = 'social-skills-and-peer-interaction'
-       OR need_name = 'Social skills and peer interaction'
     LIMIT 1;
     IF need_id IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM public.pl_need_ux_labels
@@ -291,7 +259,6 @@ BEGIN
     -- Spatial reasoning and construction play → Build & puzzles (build-puzzles)
     SELECT id INTO need_id FROM public.pl_development_needs
     WHERE slug = 'spatial-reasoning-and-construction-play'
-       OR need_name = 'Spatial reasoning and construction play'
     LIMIT 1;
     IF need_id IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM public.pl_need_ux_labels
@@ -311,7 +278,6 @@ END $$;
 -- ============================================================================
 -- Run this to verify all primary active mappings:
 -- SELECT
---   dn.need_name,
 --   dn.slug AS need_slug,
 --   ul.ux_label,
 --   ul.ux_slug
