@@ -698,6 +698,58 @@ We shipped the public acquisition page that lets a brand-new visitor set their c
 - All proof routes still pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
 - Theme still applies globally (no regression): /app/admin/theme works for admins
 
+## 2026-01-13 — PL-ADMIN-5: Build Fixes + System Status Panel + UX Improvements
+
+### Founder Exec Summary
+
+Fixed critical build errors preventing Vercel deployment, added comprehensive System Status / Truth Panel for debugging, and improved UX behaviors (autofill, persistence, sourcing visibility). The admin now self-identifies build commit, database state, and feature presence, eliminating guesswork about why data isn't showing.
+
+### Summary
+
+- **Build fixes**: Fixed import paths using `@/` alias for autopilot module; fixed TypeScript errors
+- **System Status / Truth Panel**: Added admin-only panel showing build commit, Vercel env, Supabase ref, authenticated user ID, isAdmin status, and raw database counts with error handling
+- **Server-side logging**: Added console.log with all system status info for Vercel logs
+- **UI rendering**: Confirmed Merchandising Office (two-pane shopfront + factory) renders correctly, not legacy islands view
+- **UX improvements**:
+  - "Why it can work" auto-fills from `products.why_it_matters` when placing/selecting SKU
+  - Add-card button now uses `router.refresh()` for immediate persistence (no disappearing)
+  - Sources count and "Needs 2nd source" badge visible on cards using `card.pl_evidence` count
+
+### Key code
+
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/page.tsx`:
+  - Enhanced System Status panel with auth/user info and raw counts (sets, cards, category_fits, product_fits)
+  - Raw count queries with error handling (displays errors in panel if queries fail)
+  - Server-side logging of system status
+- `web/src/app/(app)/app/admin/pl/_actions.ts`:
+  - `placeProductIntoSlot()` now auto-fills `because` from `products.why_it_matters`
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MerchandisingOffice.tsx`:
+  - Add-card uses `router.refresh()` instead of `window.location.reload()` for better persistence
+  - Sources count uses `card.pl_evidence.length` correctly
+  - "Needs 2nd source" badge shows when `evidenceCount < 2`
+
+### Implementation Details
+
+- **System Status Panel**: Shows build commit (first 7 chars), Vercel env, Supabase ref (parsed from URL), user ID (first 8 chars), isAdmin boolean, and raw counts with error messages if queries fail
+- **Raw counts**: Uses `select('*', { count: 'exact', head: true })` for efficient counting
+- **Error handling**: All count queries wrapped in try/catch; errors displayed in panel (not swallowed)
+- **Autofill**: `placeProductIntoSlot` fetches `products.why_it_matters` and sets `card.because` automatically
+- **Persistence**: `router.refresh()` provides immediate UI update without full page reload
+
+### Verification (Proof-of-Done)
+
+1. **Vercel build passes**: Build completes successfully locally and on Vercel
+2. **System Status panel visible**: Shows real commit SHA, user ID, isAdmin=true, and non-zero counts when DB has rows
+3. **Merchandising Office renders**: `/app/admin/pl/25-27m` shows two-pane layout (not legacy islands)
+4. **Add card persists**: Clicking "+ Add card" immediately shows new card (no disappearing)
+5. **Why autofills**: Placing/selecting SKU auto-fills "Why it can work" from product database
+6. **Sources visible**: Cards show "Sources: X" count and "Needs 2nd source" badge when evidence < 2
+
+### Known limitations
+
+- System Status panel shows first 7 chars of commit SHA (full SHA available in logs)
+- User ID truncated to first 8 chars for display (full ID in logs)
+
 ## 2026-01-12 — PL-ADMIN-5: Autopilot v0 + Algorithm Controls
 
 ### Founder Exec Summary
