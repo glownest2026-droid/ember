@@ -239,30 +239,89 @@ export default async function AgeBandAdminPage({
     poolItemsByMoment[item.moment_id].push(item);
   }
 
-  // Calculate counts for system status
-  const setsCount = sets.length;
-  const cardsCount = sets.reduce((total, set) => {
-    return total + (set.pl_reco_cards?.length || 0);
-  }, 0);
-
   // System status info
   const buildCommit = process.env.VERCEL_GIT_COMMIT_SHA || 'unknown';
   const vercelEnv = process.env.VERCEL_ENV || 'development';
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const supabaseRef = supabaseUrl.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1] || 'unknown';
-  
-  // Check if autopilot module is present (feature detection)
-  let autopilotPresent = 'no';
+  const userId = user?.id || 'not authenticated';
+  const isAdminValue = admin;
+
+  // Raw count queries for truth panel (with error handling)
+  let setsCount = 0;
+  let setsCountError: string | null = null;
+  let cardsCount = 0;
+  let cardsCountError: string | null = null;
+  let categoryFitsCount = 0;
+  let categoryFitsError: string | null = null;
+  let productFitsCount = 0;
+  let productFitsError: string | null = null;
+
   try {
-    // Try to import - if it fails, module is not present
-    await import('@/lib/pl/autopilot');
-    autopilotPresent = 'yes';
-  } catch (err) {
-    autopilotPresent = 'no';
+    // Count pl_age_moment_sets
+    const { count: setsCountData, error: setsCountErr } = await supabase
+      .from('pl_age_moment_sets')
+      .select('*', { count: 'exact', head: true })
+      .eq('age_band_id', ageBandId);
+    
+    if (setsCountErr) {
+      setsCountError = setsCountErr.message;
+    } else {
+      setsCount = setsCountData || 0;
+    }
+
+    // Get set IDs for card count
+    const { data: setIdsData } = await supabase
+      .from('pl_age_moment_sets')
+      .select('id')
+      .eq('age_band_id', ageBandId);
+    
+    const setIds = setIdsData?.map(s => s.id) || [];
+
+    // Count pl_reco_cards
+    if (setIds.length > 0) {
+      const { count: cardsCountData, error: cardsCountErr } = await supabase
+        .from('pl_reco_cards')
+        .select('*', { count: 'exact', head: true })
+        .in('set_id', setIds);
+      
+      if (cardsCountErr) {
+        cardsCountError = cardsCountErr.message;
+      } else {
+        cardsCount = cardsCountData || 0;
+      }
+    }
+
+    // Count pl_category_type_fits
+    const { count: categoryFitsData, error: categoryFitsErr } = await supabase
+      .from('pl_category_type_fits')
+      .select('*', { count: 'exact', head: true })
+      .eq('age_band_id', ageBandId);
+    
+    if (categoryFitsErr) {
+      categoryFitsError = categoryFitsErr.message;
+    } else {
+      categoryFitsCount = categoryFitsData || 0;
+    }
+
+    // Count pl_product_fits
+    const { count: productFitsData, error: productFitsErr } = await supabase
+      .from('pl_product_fits')
+      .select('*', { count: 'exact', head: true })
+      .eq('age_band_id', ageBandId);
+    
+    if (productFitsErr) {
+      productFitsError = productFitsErr.message;
+    } else {
+      productFitsCount = productFitsData || 0;
+    }
+  } catch (err: any) {
+    // Catch any unexpected errors
+    console.error('Error fetching raw counts:', err);
   }
 
   // Log system status (server-side)
-  console.log(`[System Status] ageBand=${ageBandId} commit=${buildCommit} env=${vercelEnv} supabaseRef=${supabaseRef} sets=${setsCount} cards=${cardsCount} autopilot=${autopilotPresent}`);
+  console.log(`[System Status] ageBand=${ageBandId} commit=${buildCommit} env=${vercelEnv} supabaseRef=${supabaseRef} userId=${userId} isAdmin=${isAdminValue} sets=${setsCount} cards=${cardsCount} categoryFits=${categoryFitsCount} productFits=${productFitsCount}`);
 
   // Auto-populate draft sets for each moment (non-blocking)
   for (const moment of moments) {
@@ -275,10 +334,10 @@ export default async function AgeBandAdminPage({
 
   return (
     <div className="p-6 space-y-6">
-      {/* System Status Strip */}
-      <div className="bg-gray-100 border rounded p-3 text-xs space-y-1" style={{ fontFamily: 'monospace' }}>
-        <div className="font-semibold mb-2">System Status</div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+      {/* System Status / Truth Panel */}
+      <div className="bg-gray-100 border rounded p-3 text-xs space-y-2" style={{ fontFamily: 'monospace' }}>
+        <div className="font-semibold mb-2">System Status / Truth Panel</div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
           <div>
             <span className="font-medium">Build commit:</span> {buildCommit.substring(0, 7)}
           </div>
@@ -289,14 +348,48 @@ export default async function AgeBandAdminPage({
             <span className="font-medium">Supabase ref:</span> {supabaseRef}
           </div>
           <div>
-            <span className="font-medium">Sets loaded:</span> {setsCount}
+            <span className="font-medium">User ID:</span> {userId.substring(0, 8)}...
           </div>
           <div>
-            <span className="font-medium">Cards loaded:</span> {cardsCount}
+            <span className="font-medium">isAdmin:</span> {isAdminValue ? 'true' : 'false'}
           </div>
         </div>
-        <div>
-          <span className="font-medium">Autopilot module present:</span> {autopilotPresent}
+        <div className="border-t pt-2 mt-2">
+          <div className="font-medium mb-1">Raw Counts (age_band_id={ageBandId}):</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div>
+              <span className="font-medium">pl_age_moment_sets:</span>{' '}
+              {setsCountError ? (
+                <span className="text-red-600">ERROR: {setsCountError}</span>
+              ) : (
+                setsCount
+              )}
+            </div>
+            <div>
+              <span className="font-medium">pl_reco_cards:</span>{' '}
+              {cardsCountError ? (
+                <span className="text-red-600">ERROR: {cardsCountError}</span>
+              ) : (
+                cardsCount
+              )}
+            </div>
+            <div>
+              <span className="font-medium">pl_category_type_fits:</span>{' '}
+              {categoryFitsError ? (
+                <span className="text-red-600">ERROR: {categoryFitsError}</span>
+              ) : (
+                categoryFitsCount
+              )}
+            </div>
+            <div>
+              <span className="font-medium">pl_product_fits:</span>{' '}
+              {productFitsError ? (
+                <span className="text-red-600">ERROR: {productFitsError}</span>
+              ) : (
+                productFitsCount
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

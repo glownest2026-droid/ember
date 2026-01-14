@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { createDraftSet, updateCard, publishSet, unpublishSet, createCard, placeProductIntoSlot, getAutopilotWeights, saveAutopilotWeights, regenerateDraftSet } from '../../_actions';
 
 type Moment = {
@@ -83,6 +84,7 @@ export default function MerchandisingOffice({
   categoryTypes: CategoryType[];
   products: Product[];
 }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -226,10 +228,8 @@ export default function MerchandisingOffice({
         setError(result.error);
       } else {
         setSuccess('Card added');
-        // Use router refresh instead of window.location.reload for better UX
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
+        // Refresh to show new card immediately
+        router.refresh();
       }
     });
   }

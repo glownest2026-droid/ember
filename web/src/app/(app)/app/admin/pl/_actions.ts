@@ -569,12 +569,22 @@ export async function placeProductIntoSlot(
     return { error: `Category type not found for slug: ${data.category_type_slug}` };
   }
 
-  // Update the card with product_id and category_type_id
+  // Get product's why_it_matters for auto-fill
+  const { data: product, error: productError } = await supabase
+    .from('products')
+    .select('why_it_matters')
+    .eq('id', data.product_id)
+    .single();
+
+  const whyItMatters = product?.why_it_matters || '';
+
+  // Update the card with product_id, category_type_id, and auto-fill because
   const { error: updateError } = await supabase
     .from('pl_reco_cards')
     .update({
       product_id: data.product_id,
       category_type_id: categoryType.id,
+      because: whyItMatters, // Auto-fill from product
     })
     .eq('id', cardId);
 
