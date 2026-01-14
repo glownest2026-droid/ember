@@ -59,6 +59,75 @@ _Last updated: 2026-01-04_
 
 ------
 
+## 2026-01-14 — PL Need UX Labels: Scalable UX Wrapper Mapping Table
+
+### Founder Exec Summary
+
+Implemented Option B: a scalable UX wrapper mapping table from development needs (Layer A) to parent-friendly labels ("moments"). Created `pl_need_ux_labels` table and seeded 12 brand director mappings for 25–27m. This enables flexible UX labeling without changing core development needs data.
+
+### Summary
+
+- Added `slug` column to `pl_development_needs` table (if missing) with backfill from `need_name`
+- Created `pl_need_ux_labels` table with constraints for primary labels and active slugs
+- Seeded 12 brand director mappings for 25–27m (development needs → UX labels)
+- Migration is idempotent and handles cases where table/column may not exist
+
+### DB & RLS
+
+- Migration file: `supabase/sql/202601142252_pl_need_ux_labels.sql`
+- `pl_development_needs.slug`: Added if missing, backfilled from `need_name` (slugify: lowercase, hyphens, alnum only)
+- `pl_need_ux_labels` table: New mapping table with unique constraints for primary labels per need and active slugs
+- Constraints: Unique primary label per need, unique active ux_slug
+- Updated_at trigger: Uses existing `set_updated_at()` function
+
+### Key code
+
+- `supabase/sql/202601142252_pl_need_ux_labels.sql` — complete migration with slug column logic, table creation, and seeding
+
+### Implementation Details
+
+- Slug generation: Lowercase, keep alnum and spaces, replace spaces with hyphens, collapse multiple hyphens
+- Seeding logic: Prefers slug lookup, falls back to exact `need_name` match
+- Idempotent: Migration checks for table/column existence before modifying
+- Seeded mappings: 12 brand director mappings (e.g., "Color and shape recognition" → "Shapes & colours")
+
+### Verification (Proof-of-Done)
+
+- Migration file exists: `supabase/sql/202601142252_pl_need_ux_labels.sql`
+- Verification SQL included in migration file (commented out)
+- Expected results: 12 primary active mappings when verification SQL is run
+- Migration is idempotent: Can be run multiple times without errors
+- All proof routes pass: `/signin`, `/auth/callback`, `/app`, `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
+
+### Verification SQL
+
+Run this in Supabase SQL Editor to verify all primary active mappings:
+
+```sql
+SELECT
+  dn.need_name,
+  dn.slug AS need_slug,
+  ul.ux_label,
+  ul.ux_slug
+FROM public.pl_need_ux_labels ul
+JOIN public.pl_development_needs dn ON ul.development_need_id = dn.id
+WHERE ul.is_primary = true AND ul.is_active = true
+ORDER BY ul.sort_order NULLS LAST, ul.ux_label;
+```
+
+Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
+
+### Migration Application Steps
+
+1. Apply migration via Supabase Dashboard → SQL Editor → paste and run `supabase/sql/202601142252_pl_need_ux_labels.sql`
+2. Verify: Run verification SQL to confirm 12 mappings are seeded
+3. After migration: `pl_development_needs` has `slug` column (if it didn't before), `pl_need_ux_labels` table exists with 12 seeded rows
+
+### Rollback
+
+- Revert PR to remove migration file
+- If SQL already applied: Drop `pl_need_ux_labels` table and remove `slug` column from `pl_development_needs` (if added by this migration)
+
 ## 2026-01-04 — PL-0: Product Library Ground Truth & Guardrails
 
 ### Summary
