@@ -71,6 +71,7 @@ export default async function AgeBandAdminPage({
     }
 
     // Load existing sets for this age band with cards and evidence
+    // Get all sets (both draft and published) to find the latest draft per moment
     const { data: setsData, error: setsError } = await supabase
       .from('pl_age_moment_sets')
       .select(`
@@ -94,7 +95,7 @@ export default async function AgeBandAdminPage({
         )
       `)
       .eq('age_band_id', ageBandId)
-      .order('created_at', { ascending: true });
+      .order('updated_at', { ascending: false });
 
     if (!setsError) {
       sets = setsData || [];
@@ -224,11 +225,34 @@ export default async function AgeBandAdminPage({
     );
   }
 
-  // Group sets by moment_id for easier lookup
+  // Group sets by moment_id, picking the latest draft set per moment
+  // If multiple sets exist per moment, prefer draft status, then newest by updated_at
   const setsByMoment: Record<string, any> = {};
   for (const set of sets) {
-    setsByMoment[set.moment_id] = set;
+    const existing = setsByMoment[set.moment_id];
+    if (!existing) {
+      setsByMoment[set.moment_id] = set;
+    } else {
+      // Prefer draft sets, then newer updated_at
+      const existingIsDraft = existing.status === 'draft';
+      const currentIsDraft = set.status === 'draft';
+      if (currentIsDraft && !existingIsDraft) {
+        setsByMoment[set.moment_id] = set;
+      } else if (currentIsDraft === existingIsDraft) {
+        // Same status, pick newer updated_at
+        const existingDate = new Date(existing.updated_at || existing.created_at || 0).getTime();
+        const currentDate = new Date(set.updated_at || set.created_at || 0).getTime();
+        if (currentDate > existingDate) {
+          setsByMoment[set.moment_id] = set;
+        }
+      }
+    }
   }
+
+  // Debug: Calculate stats for first moment
+  const firstMoment = moments.length > 0 ? moments[0] : null;
+  const firstMomentSet = firstMoment ? setsByMoment[firstMoment.id] : null;
+  const firstMomentCardsCount = firstMomentSet?.pl_reco_cards?.length || 0;
 
   // Group pool items by moment_id
   const poolItemsByMoment: Record<string, any[]> = {};
@@ -322,6 +346,10 @@ export default async function AgeBandAdminPage({
 
   // Log system status (server-side)
   console.log(`[System Status] ageBand=${ageBandId} commit=${buildCommit} env=${vercelEnv} supabaseRef=${supabaseRef} userId=${userId} isAdmin=${isAdminValue} sets=${setsCount} cards=${cardsCount} categoryFits=${categoryFitsCount} productFits=${productFitsCount}`);
+  console.log(`[Sets Debug] Total sets fetched: ${sets.length}, Moments: ${moments.length}, SetsByMoment keys: ${Object.keys(setsByMoment).join(', ')}`);
+  if (sets.length > 0) {
+    console.log(`[Sets Debug] Sample set: moment_id=${sets[0]?.moment_id}, status=${sets[0]?.status}, id=${sets[0]?.id}`);
+  }
 
   // Auto-populate draft sets for each moment (non-blocking)
   for (const moment of moments) {
@@ -337,6 +365,23 @@ export default async function AgeBandAdminPage({
       {/* System Status / Truth Panel */}
       <div className="bg-gray-100 border rounded p-3 text-xs space-y-2" style={{ fontFamily: 'monospace' }}>
         <div className="font-semibold mb-2">System Status / Truth Panel</div>
+        {/* Debug info (temporary) */}
+        {firstMoment && (
+          <div className="border-t pt-2 mt-2 text-xs">
+            <div className="font-medium mb-1">Debug (first moment):</div>
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <span className="font-medium">selectedMomentId:</span> {firstMoment.id}
+              </div>
+              <div>
+                <span className="font-medium">selectedSetId:</span> {firstMomentSet?.id || 'none'}
+              </div>
+              <div>
+                <span className="font-medium">cardsInSelectedSet:</span> {firstMomentCardsCount}
+              </div>
+            </div>
+          </div>
+        )}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
           <div>
             <span className="font-medium">Build commit:</span> {buildCommit.substring(0, 7)}
