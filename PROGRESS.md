@@ -109,6 +109,16 @@ _Last updated: 2026-01-04_
 ### Known Debt
 - None — migration is complete and production-ready
 
+### Patch (2026-01-15, same day)
+- **Issue**: Migration failed with `ERROR 23502: null value in column "name" of relation "pl_development_needs" violates not-null constraint`
+- **Root Cause**: Legacy schema drift — live table has NOT NULL `name` column that wasn't being populated
+- **Fix**: 
+  - Added schema reconciliation: detect and add `name` column if missing (for backwards compatibility)
+  - Changed from "only if table empty" to UPSERT-based loader using `ON CONFLICT (need_name) DO UPDATE`
+  - Added preflight/backfill step: populate `name` from `need_name` (and vice versa) for existing rows
+  - UPSERT now populates both `need_name` and `name` (if `name` column exists) to handle legacy schema
+- **Result**: Migration is now truly idempotent and robust to legacy schema drift
+
 ### Rollback
 - Revert PR to remove migration file
 - If SQL already applied: Drop `pl_development_needs_public_read` policy if you need to restrict access (but this breaks MVP landing page)
