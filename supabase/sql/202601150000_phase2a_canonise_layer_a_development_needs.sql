@@ -175,6 +175,17 @@ BEGIN
   END IF;
 END $$;
 
+-- Add name column if missing (for backwards compatibility with legacy schema)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'pl_development_needs' AND column_name = 'name'
+  ) THEN
+    ALTER TABLE public.pl_development_needs ADD COLUMN name TEXT;
+  END IF;
+END $$;
+
 -- ============================================================================
 -- PART 4: ADD CONSTRAINTS AND INDEXES
 -- ============================================================================
@@ -294,211 +305,115 @@ END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
 -- ============================================================================
--- PART 6: POPULATE FROM MANUS LAYER A CSV DATA
+-- PART 6: PREFLIGHT / BACKFILL (handle legacy schema drift)
 -- ============================================================================
 
--- Only insert if table is empty (idempotent)
+-- Backfill: If name column exists, populate from need_name where name is NULL
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM public.pl_development_needs LIMIT 1) THEN
-    
-    -- 1. Gross motor skills and physical confidence
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'pl_development_needs' AND column_name = 'name'
+  ) THEN
+    UPDATE public.pl_development_needs
+    SET name = need_name
+    WHERE name IS NULL AND need_name IS NOT NULL;
+  END IF;
+END $$;
+
+-- Backfill: If need_name is NULL but name exists, populate need_name from name
+DO $$
+BEGIN
+  UPDATE public.pl_development_needs
+  SET need_name = name
+  WHERE need_name IS NULL AND name IS NOT NULL;
+END $$;
+
+-- ============================================================================
+-- PART 7: POPULATE FROM MANUS LAYER A CSV DATA (UPSERT-based)
+-- ============================================================================
+
+-- UPSERT: Use ON CONFLICT to handle re-runs gracefully
+-- Handles legacy name column if it exists
+DO $$
+DECLARE
+  has_name_column BOOLEAN;
+BEGIN
+  -- Check if name column exists
+  SELECT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'pl_development_needs' AND column_name = 'name'
+  ) INTO has_name_column;
+  
+  -- UPSERT with conflict on need_name (unique constraint created in PART 4)
+  IF has_name_column THEN
+    -- Insert with both need_name and name (for legacy compatibility)
+    INSERT INTO public.pl_development_needs (
+      need_name, name, slug, plain_english_description, why_it_matters,
+      min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
+      evidence_urls, evidence_notes
+    ) VALUES
+    ('Gross motor skills and physical confidence', 'Gross motor skills and physical confidence', 'gross-motor-skills-and-physical-confidence', 'Running, jumping, kicking balls, climbing stairs, and moving with increasing coordination and control.', 'Builds physical confidence, supports exploration, and provides foundation for active play and outdoor activities.', 24, 36, 26, 'consolidating', 'Children at 24 months can run and kick balls; by 30 months most can jump with both feet, showing steady progression.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://cambspborochildrenshealth.nhs.uk/child-development-and-growing-up/milestones/2-years/'], 'CDC lists running and kicking at 24 months.|NHS describes jumping with both feet and steering toys around objects at 2 years.'),
+    ('Fine motor control and hand coordination', 'Fine motor control and hand coordination', 'fine-motor-control-and-hand-coordination', 'Using both hands together for tasks, manipulating small objects, turning pages, and operating buttons and switches.', 'Enables self-care tasks, supports learning through hands-on exploration, and prepares for writing and tool use.', 24, 36, 26, 'consolidating', 'At 24 months children hold containers while removing lids; by 30 months they twist doorknobs and turn pages individually.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://www.cdc.gov/act-early/milestones/30-months.html'], 'CDC 24m milestone: holds something in one hand while using other.|CDC 30m milestone: uses hands to twist things like doorknobs.'),
+    ('Language development and communication', 'Language development and communication', 'language-development-and-communication', 'Speaking in two-word phrases, rapidly expanding vocabulary, naming objects, and using personal pronouns.', 'Enables children to express needs and feelings, reduces frustration, and supports social interaction and learning.', 24, 36, 26, 'emerging', 'At 24 months children say two words together; by 30 months vocabulary expands to about 50 words with action words.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://www.zerotothree.org/resource/24-30-months-your-childs-development/'], 'CDC notes 2-word phrases and pointing to body parts at 24 months.|Zero to Three describes using growing language skills to express thoughts and feelings.'),
+    ('Pretend play and imagination', 'Pretend play and imagination', 'pretend-play-and-imagination', 'Using objects symbolically, engaging in role-play, and creating simple pretend scenarios.', 'Builds language, thinking, and social skills; helps children process experiences and develop creativity.', 24, 36, 26, 'emerging', 'Pretend play shows real explosion during this period as children begin symbolic thinking and role-taking.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://www.zerotothree.org/resource/24-36-months-social-emotional-development/'], 'CDC 24m: plays with more than one toy at same time.|Zero to Three describes ''real explosion in pretend play'' as critical developmental aspect.'),
+    ('Social skills and peer interaction', 'Social skills and peer interaction', 'social-skills-and-peer-interaction', 'Beginning to play with other children, learning to share and take turns, and forming early friendships.', 'Develops cooperation, empathy, and relationship skills essential for school readiness and lifelong social success.', 24, 36, 26, 'emerging', 'At 24 months children play alongside peers; by 30 months they sometimes play with them, showing gradual shift.', ARRAY['https://www.cdc.gov/act-early/milestones/30-months.html', 'https://www.zerotothree.org/resource/24-36-months-social-emotional-development/'], 'CDC 30m: plays next to other children and sometimes plays with them.|Zero to Three notes children really begin to play interactively with peers as two-year-olds.'),
+    ('Emotional regulation and self-awareness', 'Emotional regulation and self-awareness', 'emotional-regulation-and-self-awareness', 'Experiencing and expressing a wide range of emotions, developing empathy, and beginning to understand own feelings.', 'Supports mental well-being, helps children manage frustration, and builds foundation for healthy relationships.', 24, 36, 26, 'emerging', 'Two-year-olds show broad emotional range but limited impulse control; empathy is emerging but self-regulation still developing.', ARRAY['https://www.healthychildren.org/English/ages-stages/toddler/Pages/emotional-development-2-year-olds.aspx', 'https://www.zerotothree.org/resource/24-36-months-social-emotional-development/'], 'AAP describes wide range of emotions with limited impulse control at age two.|Zero to Three notes two-year-olds are capable of empathy and understanding others'' feelings.'),
+    ('Independence and practical life skills', 'Independence and practical life skills', 'independence-and-practical-life-skills', 'Wanting to help with everyday tasks, feeding self with utensils, and participating in self-care routines.', 'Builds confidence, cooperation, and sense of competence; reduces daily routine struggles and supports autonomy.', 24, 36, 26, 'emerging', 'Strong increase in desire to participate in practical tasks around age two, aligned with ''Helper'' developmental stage.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://lovevery.co.uk/products/the-play-kits-the-helper'], 'CDC lists eating with spoon as 24-month milestone.|Lovevery frames 25-27 months as ''Helper'' stage focused on Montessori practical life skills.'),
+    ('Problem-solving and cognitive skills', 'Problem-solving and cognitive skills', 'problem-solving-and-cognitive-skills', 'Figuring out how things work, following simple instructions, and using tools or strategies to reach goals.', 'Develops thinking skills, persistence, and confidence in tackling challenges; supports school readiness.', 24, 36, 26, 'consolidating', 'At 24 months children use switches and buttons; by 30 months they follow two-step instructions and solve simple problems.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://www.cdc.gov/act-early/milestones/30-months.html'], 'CDC 24m: tries to use switches, knobs, or buttons on toy.|CDC 30m: shows simple problem-solving like standing on stool to reach something.'),
+    ('Spatial reasoning and construction play', 'Spatial reasoning and construction play', 'spatial-reasoning-and-construction-play', 'Building with blocks, completing simple puzzles, and understanding spatial relationships.', 'Develops visual-spatial skills, problem-solving, and foundation for math and engineering concepts.', 24, 36, 26, 'emerging', 'Children begin building simple structures and solving spatial puzzles, with increasing complexity through this period.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://lovevery.co.uk/products/the-play-kits-the-helper'], 'CDC mentions playing with more than one toy at same time.|Lovevery includes puzzles requiring mental and physical rotation for 25-27 months.'),
+    ('Color and shape recognition', 'Color and shape recognition', 'color-and-shape-recognition', 'Beginning to identify and name colors and shapes in their environment.', 'Supports categorization skills, language development, and prepares for early academic learning.', 24, 36, 27, 'emerging', 'Color recognition typically emerges around 30 months, making 27 months an early emerging stage for this skill.', ARRAY['https://www.cdc.gov/act-early/milestones/30-months.html', 'https://cambspborochildrenshealth.nhs.uk/child-development-and-growing-up/milestones/2-years/'], 'CDC 30m milestone: shows he knows at least one color.|NHS mentions simple puzzles with shapes, colors, or animals for 2-year-olds.'),
+    ('Routine understanding and cooperation', 'Routine understanding and cooperation', 'routine-understanding-and-cooperation', 'Following simple daily routines, understanding sequences, and participating in structured activities.', 'Reduces anxiety, supports transitions, and helps children feel secure and capable in daily life.', 24, 36, 26, 'emerging', 'Children begin to follow simple routines when told and can participate in planning routines around this age.', ARRAY['https://www.cdc.gov/act-early/milestones/30-months.html', 'https://lovevery.co.uk/products/the-play-kits-the-helper'], 'CDC 30m: follows simple routines when told, like helping pick up toys.|Lovevery includes routine cards for planning bedtime and daily routines together.'),
+    ('Creative expression and mark-making', 'Creative expression and mark-making', 'creative-expression-and-mark-making', 'Scribbling, painting, and exploring art materials to express ideas and feelings.', 'Develops fine motor skills, self-expression, and foundation for writing; supports emotional processing.', 24, 36, 26, 'emerging', 'Children begin purposeful mark-making and exploring art materials with increasing interest and control during this period.', ARRAY['https://cambspborochildrenshealth.nhs.uk/child-development-and-growing-up/milestones/2-years/', 'https://lovevery.co.uk/products/the-play-kits-the-helper'], 'NHS lists crayons as appropriate activity for 2-year-olds.|Lovevery includes no-mess painting kit for creative expression at 25-27 months.')
+    ON CONFLICT (need_name) DO UPDATE SET
+      name = EXCLUDED.need_name,
+      slug = EXCLUDED.slug,
+      plain_english_description = EXCLUDED.plain_english_description,
+      why_it_matters = EXCLUDED.why_it_matters,
+      min_month = EXCLUDED.min_month,
+      max_month = EXCLUDED.max_month,
+      stage_anchor_month = EXCLUDED.stage_anchor_month,
+      stage_phase = EXCLUDED.stage_phase,
+      stage_reason = EXCLUDED.stage_reason,
+      evidence_urls = EXCLUDED.evidence_urls,
+      evidence_notes = EXCLUDED.evidence_notes,
+      updated_at = now();
+  ELSE
+    -- Insert without name column (standard Manus schema)
     INSERT INTO public.pl_development_needs (
       need_name, slug, plain_english_description, why_it_matters,
       min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
       evidence_urls, evidence_notes
-    ) VALUES (
-      'Gross motor skills and physical confidence',
-      'gross-motor-skills-and-physical-confidence',
-      'Running, jumping, kicking balls, climbing stairs, and moving with increasing coordination and control.',
-      'Builds physical confidence, supports exploration, and provides foundation for active play and outdoor activities.',
-      24, 36, 26, 'consolidating',
-      'Children at 24 months can run and kick balls; by 30 months most can jump with both feet, showing steady progression.',
-      ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://cambspborochildrenshealth.nhs.uk/child-development-and-growing-up/milestones/2-years/'],
-      'CDC lists running and kicking at 24 months.|NHS describes jumping with both feet and steering toys around objects at 2 years.'
-    );
-
-    -- 2. Fine motor control and hand coordination
-    INSERT INTO public.pl_development_needs (
-      need_name, slug, plain_english_description, why_it_matters,
-      min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
-      evidence_urls, evidence_notes
-    ) VALUES (
-      'Fine motor control and hand coordination',
-      'fine-motor-control-and-hand-coordination',
-      'Using both hands together for tasks, manipulating small objects, turning pages, and operating buttons and switches.',
-      'Enables self-care tasks, supports learning through hands-on exploration, and prepares for writing and tool use.',
-      24, 36, 26, 'consolidating',
-      'At 24 months children hold containers while removing lids; by 30 months they twist doorknobs and turn pages individually.',
-      ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://www.cdc.gov/act-early/milestones/30-months.html'],
-      'CDC 24m milestone: holds something in one hand while using other.|CDC 30m milestone: uses hands to twist things like doorknobs.'
-    );
-
-    -- 3. Language development and communication
-    INSERT INTO public.pl_development_needs (
-      need_name, slug, plain_english_description, why_it_matters,
-      min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
-      evidence_urls, evidence_notes
-    ) VALUES (
-      'Language development and communication',
-      'language-development-and-communication',
-      'Speaking in two-word phrases, rapidly expanding vocabulary, naming objects, and using personal pronouns.',
-      'Enables children to express needs and feelings, reduces frustration, and supports social interaction and learning.',
-      24, 36, 26, 'emerging',
-      'At 24 months children say two words together; by 30 months vocabulary expands to about 50 words with action words.',
-      ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://www.zerotothree.org/resource/24-30-months-your-childs-development/'],
-      'CDC notes 2-word phrases and pointing to body parts at 24 months.|Zero to Three describes using growing language skills to express thoughts and feelings.'
-    );
-
-    -- 4. Pretend play and imagination
-    INSERT INTO public.pl_development_needs (
-      need_name, slug, plain_english_description, why_it_matters,
-      min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
-      evidence_urls, evidence_notes
-    ) VALUES (
-      'Pretend play and imagination',
-      'pretend-play-and-imagination',
-      'Using objects symbolically, engaging in role-play, and creating simple pretend scenarios.',
-      'Builds language, thinking, and social skills; helps children process experiences and develop creativity.',
-      24, 36, 26, 'emerging',
-      'Pretend play shows real explosion during this period as children begin symbolic thinking and role-taking.',
-      ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://www.zerotothree.org/resource/24-36-months-social-emotional-development/'],
-      'CDC 24m: plays with more than one toy at same time.|Zero to Three describes ''real explosion in pretend play'' as critical developmental aspect.'
-    );
-
-    -- 5. Social skills and peer interaction
-    INSERT INTO public.pl_development_needs (
-      need_name, slug, plain_english_description, why_it_matters,
-      min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
-      evidence_urls, evidence_notes
-    ) VALUES (
-      'Social skills and peer interaction',
-      'social-skills-and-peer-interaction',
-      'Beginning to play with other children, learning to share and take turns, and forming early friendships.',
-      'Develops cooperation, empathy, and relationship skills essential for school readiness and lifelong social success.',
-      24, 36, 26, 'emerging',
-      'At 24 months children play alongside peers; by 30 months they sometimes play with them, showing gradual shift.',
-      ARRAY['https://www.cdc.gov/act-early/milestones/30-months.html', 'https://www.zerotothree.org/resource/24-36-months-social-emotional-development/'],
-      'CDC 30m: plays next to other children and sometimes plays with them.|Zero to Three notes children really begin to play interactively with peers as two-year-olds.'
-    );
-
-    -- 6. Emotional regulation and self-awareness
-    INSERT INTO public.pl_development_needs (
-      need_name, slug, plain_english_description, why_it_matters,
-      min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
-      evidence_urls, evidence_notes
-    ) VALUES (
-      'Emotional regulation and self-awareness',
-      'emotional-regulation-and-self-awareness',
-      'Experiencing and expressing a wide range of emotions, developing empathy, and beginning to understand own feelings.',
-      'Supports mental well-being, helps children manage frustration, and builds foundation for healthy relationships.',
-      24, 36, 26, 'emerging',
-      'Two-year-olds show broad emotional range but limited impulse control; empathy is emerging but self-regulation still developing.',
-      ARRAY['https://www.healthychildren.org/English/ages-stages/toddler/Pages/emotional-development-2-year-olds.aspx', 'https://www.zerotothree.org/resource/24-36-months-social-emotional-development/'],
-      'AAP describes wide range of emotions with limited impulse control at age two.|Zero to Three notes two-year-olds are capable of empathy and understanding others'' feelings.'
-    );
-
-    -- 7. Independence and practical life skills
-    INSERT INTO public.pl_development_needs (
-      need_name, slug, plain_english_description, why_it_matters,
-      min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
-      evidence_urls, evidence_notes
-    ) VALUES (
-      'Independence and practical life skills',
-      'independence-and-practical-life-skills',
-      'Wanting to help with everyday tasks, feeding self with utensils, and participating in self-care routines.',
-      'Builds confidence, cooperation, and sense of competence; reduces daily routine struggles and supports autonomy.',
-      24, 36, 26, 'emerging',
-      'Strong increase in desire to participate in practical tasks around age two, aligned with ''Helper'' developmental stage.',
-      ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://lovevery.co.uk/products/the-play-kits-the-helper'],
-      'CDC lists eating with spoon as 24-month milestone.|Lovevery frames 25-27 months as ''Helper'' stage focused on Montessori practical life skills.'
-    );
-
-    -- 8. Problem-solving and cognitive skills
-    INSERT INTO public.pl_development_needs (
-      need_name, slug, plain_english_description, why_it_matters,
-      min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
-      evidence_urls, evidence_notes
-    ) VALUES (
-      'Problem-solving and cognitive skills',
-      'problem-solving-and-cognitive-skills',
-      'Figuring out how things work, following simple instructions, and using tools or strategies to reach goals.',
-      'Develops thinking skills, persistence, and confidence in tackling challenges; supports school readiness.',
-      24, 36, 26, 'consolidating',
-      'At 24 months children use switches and buttons; by 30 months they follow two-step instructions and solve simple problems.',
-      ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://www.cdc.gov/act-early/milestones/30-months.html'],
-      'CDC 24m: tries to use switches, knobs, or buttons on toy.|CDC 30m: shows simple problem-solving like standing on stool to reach something.'
-    );
-
-    -- 9. Spatial reasoning and construction play
-    INSERT INTO public.pl_development_needs (
-      need_name, slug, plain_english_description, why_it_matters,
-      min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
-      evidence_urls, evidence_notes
-    ) VALUES (
-      'Spatial reasoning and construction play',
-      'spatial-reasoning-and-construction-play',
-      'Building with blocks, completing simple puzzles, and understanding spatial relationships.',
-      'Develops visual-spatial skills, problem-solving, and foundation for math and engineering concepts.',
-      24, 36, 26, 'emerging',
-      'Children begin building simple structures and solving spatial puzzles, with increasing complexity through this period.',
-      ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://lovevery.co.uk/products/the-play-kits-the-helper'],
-      'CDC mentions playing with more than one toy at same time.|Lovevery includes puzzles requiring mental and physical rotation for 25-27 months.'
-    );
-
-    -- 10. Color and shape recognition
-    INSERT INTO public.pl_development_needs (
-      need_name, slug, plain_english_description, why_it_matters,
-      min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
-      evidence_urls, evidence_notes
-    ) VALUES (
-      'Color and shape recognition',
-      'color-and-shape-recognition',
-      'Beginning to identify and name colors and shapes in their environment.',
-      'Supports categorization skills, language development, and prepares for early academic learning.',
-      24, 36, 27, 'emerging',
-      'Color recognition typically emerges around 30 months, making 27 months an early emerging stage for this skill.',
-      ARRAY['https://www.cdc.gov/act-early/milestones/30-months.html', 'https://cambspborochildrenshealth.nhs.uk/child-development-and-growing-up/milestones/2-years/'],
-      'CDC 30m milestone: shows he knows at least one color.|NHS mentions simple puzzles with shapes, colors, or animals for 2-year-olds.'
-    );
-
-    -- 11. Routine understanding and cooperation
-    INSERT INTO public.pl_development_needs (
-      need_name, slug, plain_english_description, why_it_matters,
-      min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
-      evidence_urls, evidence_notes
-    ) VALUES (
-      'Routine understanding and cooperation',
-      'routine-understanding-and-cooperation',
-      'Following simple daily routines, understanding sequences, and participating in structured activities.',
-      'Reduces anxiety, supports transitions, and helps children feel secure and capable in daily life.',
-      24, 36, 26, 'emerging',
-      'Children begin to follow simple routines when told and can participate in planning routines around this age.',
-      ARRAY['https://www.cdc.gov/act-early/milestones/30-months.html', 'https://lovevery.co.uk/products/the-play-kits-the-helper'],
-      'CDC 30m: follows simple routines when told, like helping pick up toys.|Lovevery includes routine cards for planning bedtime and daily routines together.'
-    );
-
-    -- 12. Creative expression and mark-making
-    INSERT INTO public.pl_development_needs (
-      need_name, slug, plain_english_description, why_it_matters,
-      min_month, max_month, stage_anchor_month, stage_phase, stage_reason,
-      evidence_urls, evidence_notes
-    ) VALUES (
-      'Creative expression and mark-making',
-      'creative-expression-and-mark-making',
-      'Scribbling, painting, and exploring art materials to express ideas and feelings.',
-      'Develops fine motor skills, self-expression, and foundation for writing; supports emotional processing.',
-      24, 36, 26, 'emerging',
-      'Children begin purposeful mark-making and exploring art materials with increasing interest and control during this period.',
-      ARRAY['https://cambspborochildrenshealth.nhs.uk/child-development-and-growing-up/milestones/2-years/', 'https://lovevery.co.uk/products/the-play-kits-the-helper'],
-      'NHS lists crayons as appropriate activity for 2-year-olds.|Lovevery includes no-mess painting kit for creative expression at 25-27 months.'
-    );
-
+    ) VALUES
+    ('Gross motor skills and physical confidence', 'gross-motor-skills-and-physical-confidence', 'Running, jumping, kicking balls, climbing stairs, and moving with increasing coordination and control.', 'Builds physical confidence, supports exploration, and provides foundation for active play and outdoor activities.', 24, 36, 26, 'consolidating', 'Children at 24 months can run and kick balls; by 30 months most can jump with both feet, showing steady progression.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://cambspborochildrenshealth.nhs.uk/child-development-and-growing-up/milestones/2-years/'], 'CDC lists running and kicking at 24 months.|NHS describes jumping with both feet and steering toys around objects at 2 years.'),
+    ('Fine motor control and hand coordination', 'fine-motor-control-and-hand-coordination', 'Using both hands together for tasks, manipulating small objects, turning pages, and operating buttons and switches.', 'Enables self-care tasks, supports learning through hands-on exploration, and prepares for writing and tool use.', 24, 36, 26, 'consolidating', 'At 24 months children hold containers while removing lids; by 30 months they twist doorknobs and turn pages individually.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://www.cdc.gov/act-early/milestones/30-months.html'], 'CDC 24m milestone: holds something in one hand while using other.|CDC 30m milestone: uses hands to twist things like doorknobs.'),
+    ('Language development and communication', 'language-development-and-communication', 'Speaking in two-word phrases, rapidly expanding vocabulary, naming objects, and using personal pronouns.', 'Enables children to express needs and feelings, reduces frustration, and supports social interaction and learning.', 24, 36, 26, 'emerging', 'At 24 months children say two words together; by 30 months vocabulary expands to about 50 words with action words.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://www.zerotothree.org/resource/24-30-months-your-childs-development/'], 'CDC notes 2-word phrases and pointing to body parts at 24 months.|Zero to Three describes using growing language skills to express thoughts and feelings.'),
+    ('Pretend play and imagination', 'pretend-play-and-imagination', 'Using objects symbolically, engaging in role-play, and creating simple pretend scenarios.', 'Builds language, thinking, and social skills; helps children process experiences and develop creativity.', 24, 36, 26, 'emerging', 'Pretend play shows real explosion during this period as children begin symbolic thinking and role-taking.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://www.zerotothree.org/resource/24-36-months-social-emotional-development/'], 'CDC 24m: plays with more than one toy at same time.|Zero to Three describes ''real explosion in pretend play'' as critical developmental aspect.'),
+    ('Social skills and peer interaction', 'social-skills-and-peer-interaction', 'Beginning to play with other children, learning to share and take turns, and forming early friendships.', 'Develops cooperation, empathy, and relationship skills essential for school readiness and lifelong social success.', 24, 36, 26, 'emerging', 'At 24 months children play alongside peers; by 30 months they sometimes play with them, showing gradual shift.', ARRAY['https://www.cdc.gov/act-early/milestones/30-months.html', 'https://www.zerotothree.org/resource/24-36-months-social-emotional-development/'], 'CDC 30m: plays next to other children and sometimes plays with them.|Zero to Three notes children really begin to play interactively with peers as two-year-olds.'),
+    ('Emotional regulation and self-awareness', 'emotional-regulation-and-self-awareness', 'Experiencing and expressing a wide range of emotions, developing empathy, and beginning to understand own feelings.', 'Supports mental well-being, helps children manage frustration, and builds foundation for healthy relationships.', 24, 36, 26, 'emerging', 'Two-year-olds show broad emotional range but limited impulse control; empathy is emerging but self-regulation still developing.', ARRAY['https://www.healthychildren.org/English/ages-stages/toddler/Pages/emotional-development-2-year-olds.aspx', 'https://www.zerotothree.org/resource/24-36-months-social-emotional-development/'], 'AAP describes wide range of emotions with limited impulse control at age two.|Zero to Three notes two-year-olds are capable of empathy and understanding others'' feelings.'),
+    ('Independence and practical life skills', 'independence-and-practical-life-skills', 'Wanting to help with everyday tasks, feeding self with utensils, and participating in self-care routines.', 'Builds confidence, cooperation, and sense of competence; reduces daily routine struggles and supports autonomy.', 24, 36, 26, 'emerging', 'Strong increase in desire to participate in practical tasks around age two, aligned with ''Helper'' developmental stage.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://lovevery.co.uk/products/the-play-kits-the-helper'], 'CDC lists eating with spoon as 24-month milestone.|Lovevery frames 25-27 months as ''Helper'' stage focused on Montessori practical life skills.'),
+    ('Problem-solving and cognitive skills', 'problem-solving-and-cognitive-skills', 'Figuring out how things work, following simple instructions, and using tools or strategies to reach goals.', 'Develops thinking skills, persistence, and confidence in tackling challenges; supports school readiness.', 24, 36, 26, 'consolidating', 'At 24 months children use switches and buttons; by 30 months they follow two-step instructions and solve simple problems.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://www.cdc.gov/act-early/milestones/30-months.html'], 'CDC 24m: tries to use switches, knobs, or buttons on toy.|CDC 30m: shows simple problem-solving like standing on stool to reach something.'),
+    ('Spatial reasoning and construction play', 'spatial-reasoning-and-construction-play', 'Building with blocks, completing simple puzzles, and understanding spatial relationships.', 'Develops visual-spatial skills, problem-solving, and foundation for math and engineering concepts.', 24, 36, 26, 'emerging', 'Children begin building simple structures and solving spatial puzzles, with increasing complexity through this period.', ARRAY['https://www.cdc.gov/act-early/milestones/2-years.html', 'https://lovevery.co.uk/products/the-play-kits-the-helper'], 'CDC mentions playing with more than one toy at same time.|Lovevery includes puzzles requiring mental and physical rotation for 25-27 months.'),
+    ('Color and shape recognition', 'color-and-shape-recognition', 'Beginning to identify and name colors and shapes in their environment.', 'Supports categorization skills, language development, and prepares for early academic learning.', 24, 36, 27, 'emerging', 'Color recognition typically emerges around 30 months, making 27 months an early emerging stage for this skill.', ARRAY['https://www.cdc.gov/act-early/milestones/30-months.html', 'https://cambspborochildrenshealth.nhs.uk/child-development-and-growing-up/milestones/2-years/'], 'CDC 30m milestone: shows he knows at least one color.|NHS mentions simple puzzles with shapes, colors, or animals for 2-year-olds.'),
+    ('Routine understanding and cooperation', 'routine-understanding-and-cooperation', 'Following simple daily routines, understanding sequences, and participating in structured activities.', 'Reduces anxiety, supports transitions, and helps children feel secure and capable in daily life.', 24, 36, 26, 'emerging', 'Children begin to follow simple routines when told and can participate in planning routines around this age.', ARRAY['https://www.cdc.gov/act-early/milestones/30-months.html', 'https://lovevery.co.uk/products/the-play-kits-the-helper'], 'CDC 30m: follows simple routines when told, like helping pick up toys.|Lovevery includes routine cards for planning bedtime and daily routines together.'),
+    ('Creative expression and mark-making', 'creative-expression-and-mark-making', 'Scribbling, painting, and exploring art materials to express ideas and feelings.', 'Develops fine motor skills, self-expression, and foundation for writing; supports emotional processing.', 24, 36, 26, 'emerging', 'Children begin purposeful mark-making and exploring art materials with increasing interest and control during this period.', ARRAY['https://cambspborochildrenshealth.nhs.uk/child-development-and-growing-up/milestones/2-years/', 'https://lovevery.co.uk/products/the-play-kits-the-helper'], 'NHS lists crayons as appropriate activity for 2-year-olds.|Lovevery includes no-mess painting kit for creative expression at 25-27 months.')
+    ON CONFLICT (need_name) DO UPDATE SET
+      slug = EXCLUDED.slug,
+      plain_english_description = EXCLUDED.plain_english_description,
+      why_it_matters = EXCLUDED.why_it_matters,
+      min_month = EXCLUDED.min_month,
+      max_month = EXCLUDED.max_month,
+      stage_anchor_month = EXCLUDED.stage_anchor_month,
+      stage_phase = EXCLUDED.stage_phase,
+      stage_reason = EXCLUDED.stage_reason,
+      evidence_urls = EXCLUDED.evidence_urls,
+      evidence_notes = EXCLUDED.evidence_notes,
+      updated_at = now();
   END IF;
 END $$;
 
 -- ============================================================================
--- PART 7: UPDATE SLUGS FOR EXISTING ROWS (if any exist without slugs)
+-- PART 8: UPDATE SLUGS FOR EXISTING ROWS (if any exist without slugs)
 -- ============================================================================
 
 UPDATE public.pl_development_needs
@@ -506,7 +421,7 @@ SET slug = public.slugify_need_name(need_name)
 WHERE slug IS NULL OR slug = '';
 
 -- ============================================================================
--- PART 8: ADD UPDATED_AT TRIGGER
+-- PART 9: ADD UPDATED_AT TRIGGER
 -- ============================================================================
 
 DROP TRIGGER IF EXISTS trg_pl_development_needs_updated_at ON public.pl_development_needs;
@@ -514,7 +429,7 @@ CREATE TRIGGER trg_pl_development_needs_updated_at BEFORE UPDATE ON public.pl_de
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 -- ============================================================================
--- PART 9: ENABLE RLS
+-- PART 10: ENABLE RLS
 -- ============================================================================
 
 ALTER TABLE public.pl_development_needs ENABLE ROW LEVEL SECURITY;
@@ -538,7 +453,7 @@ CREATE POLICY "pl_development_needs_public_read" ON public.pl_development_needs
   USING (true);
 
 -- ============================================================================
--- PART 10: PROOF BUNDLE (run this entire block to verify migration)
+-- PART 11: PROOF BUNDLE (run this entire block to verify migration)
 -- ============================================================================
 
 DO $$
