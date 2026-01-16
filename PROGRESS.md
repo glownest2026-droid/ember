@@ -52,10 +52,66 @@ _Last updated: 2026-01-04_
 
 # Decision Log (dated)
 ## 2025-12-30
-- Decision: Defer “forgot password email reliability” work until Ember has a custom domain and deliberate email sender setup. For now, unblock admin access by creating admin user with password directly in Supabase Auth Users.
+- Decision: Defer "forgot password email reliability" work until Ember has a custom domain and deliberate email sender setup. For now, unblock admin access by creating admin user with password directly in Supabase Auth Users.
 - Decision: Maintain invite-only access (no auto-create users; friends must be pre-created in Supabase Auth).
 - Decision: Keep PR hygiene strict: one open feature PR at a time; close stale PRs promptly.
 
+
+------
+
+## 2026-01-15 — Phase 2A: Canonise Layer A (Development Needs)
+
+### Summary
+- Canonised Layer A (Development Needs) table with full Manus Layer A CSV data
+- Added public read RLS policy (required for MVP landing page with anonymous access)
+- Added proof bundle at end of migration for single-paste verification
+- Migration is idempotent and safe to re-run
+
+### DB & RLS
+- **Migration**: `supabase/sql/202601150000_phase2a_canonise_layer_a_development_needs.sql`
+- **Table**: `pl_development_needs` (12 development needs from Manus Layer A CSV)
+- **RLS Policies**:
+  - `pl_development_needs_admin_all`: Admin CRUD (FOR ALL using is_admin())
+  - `pl_development_needs_authenticated_read`: Authenticated users can read
+  - `pl_development_needs_public_read`: **Public read (anon + authenticated)** — required for MVP landing page
+- **Schema**: 14 columns including need_name, slug, plain_english_description, why_it_matters, min_month, max_month, stage_anchor_month, stage_phase, stage_reason, evidence_urls, evidence_notes
+- **Constraints**: UNIQUE on need_name and slug
+- **Proof Bundle**: Included at end of migration (prints row count, sample rows, duplicate checks, null checks, RLS policies)
+
+### Key Changes
+- **Public Read Access**: Added `pl_development_needs_public_read` policy with `USING (true)` to allow anonymous users to read development needs (required for public MVP landing page)
+- **Proof Bundle**: Added DO block at end of migration that prints verification results (row count, samples, duplicates, nulls, policies) — founder runs ONE paste and sees all outputs
+- **Idempotent**: Migration safely handles existing table and skips inserts if data already exists
+
+### Implementation Details
+- Source of Truth: Manus_LayerA-Sample-Development-Needs.csv (12 development needs)
+- Slug generation: Auto-generated from need_name using `slugify_need_name()` function
+- Evidence URLs: Stored as TEXT[] array (converted from pipe-separated CSV format)
+- All 12 needs populated with complete data (need_name, descriptions, age ranges, stage info, evidence)
+
+### Verification (Proof-of-Done)
+- **Proof Bundle Output**: Run migration and check NOTICE messages for:
+  - Row count = 12
+  - 5 sample rows displayed
+  - Duplicate checks = 0 for both need_name and slug
+  - Null checks = 0 for all required fields
+  - 3 RLS policies listed (admin_all, authenticated_read, public_read)
+- **Build Status**: ✅ Build passes (`pnpm run build` succeeds)
+- **PR**: https://github.com/glownest2026-droid/ember/compare/main...feat/pl-admin-4-merch-office-v1
+
+### Migration Application Steps
+1. Open Supabase Dashboard → SQL Editor
+2. Paste entire contents of `supabase/sql/202601150000_phase2a_canonise_layer_a_development_needs.sql`
+3. Execute
+4. Check NOTICE messages in output (proof bundle runs automatically)
+5. Verify: Row count = 12, no duplicates, no nulls, 3 policies
+
+### Known Debt
+- None — migration is complete and production-ready
+
+### Rollback
+- Revert PR to remove migration file
+- If SQL already applied: Drop `pl_development_needs_public_read` policy if you need to restrict access (but this breaks MVP landing page)
 
 ------
 
