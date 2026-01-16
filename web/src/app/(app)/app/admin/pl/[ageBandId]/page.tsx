@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '../../../../../../utils/supabase/server';
 import { isAdmin } from '../../../../../../lib/admin';
-import MomentSetEditor from './_components/MomentSetEditor';
+import { ensureDraftSetPopulated } from '../_actions';
+import MerchandisingOffice from './_components/MerchandisingOffice';
 
 export default async function AgeBandAdminPage({ 
   params 
@@ -70,6 +71,7 @@ export default async function AgeBandAdminPage({
     }
 
     // Load existing sets for this age band with cards and evidence
+    // Get all sets (both draft and published) to find the latest draft per moment
     const { data: setsData, error: setsError } = await supabase
       .from('pl_age_moment_sets')
       .select(`
@@ -81,6 +83,7 @@ export default async function AgeBandAdminPage({
           because,
           category_type_id,
           product_id,
+          is_locked,
           pl_evidence (
             id,
             source_type,
@@ -92,7 +95,7 @@ export default async function AgeBandAdminPage({
         )
       `)
       .eq('age_band_id', ageBandId)
-      .order('created_at', { ascending: true });
+      .order('updated_at', { ascending: false });
 
     if (!setsError) {
       sets = setsData || [];
@@ -222,11 +225,34 @@ export default async function AgeBandAdminPage({
     );
   }
 
-  // Group sets by moment_id for easier lookup
+  // Group sets by moment_id, picking the latest draft set per moment
+  // If multiple sets exist per moment, prefer draft status, then newest by updated_at
   const setsByMoment: Record<string, any> = {};
   for (const set of sets) {
-    setsByMoment[set.moment_id] = set;
+    const existing = setsByMoment[set.moment_id];
+    if (!existing) {
+      setsByMoment[set.moment_id] = set;
+    } else {
+      // Prefer draft sets, then newer updated_at
+      const existingIsDraft = existing.status === 'draft';
+      const currentIsDraft = set.status === 'draft';
+      if (currentIsDraft && !existingIsDraft) {
+        setsByMoment[set.moment_id] = set;
+      } else if (currentIsDraft === existingIsDraft) {
+        // Same status, pick newer updated_at
+        const existingDate = new Date(existing.updated_at || existing.created_at || 0).getTime();
+        const currentDate = new Date(set.updated_at || set.created_at || 0).getTime();
+        if (currentDate > existingDate) {
+          setsByMoment[set.moment_id] = set;
+        }
+      }
+    }
   }
+
+  // Debug: Calculate stats for first moment
+  const firstMoment = moments.length > 0 ? moments[0] : null;
+  const firstMomentSet = firstMoment ? setsByMoment[firstMoment.id] : null;
+  const firstMomentCardsCount = firstMomentSet?.pl_reco_cards?.length || 0;
 
   // Group pool items by moment_id
   const poolItemsByMoment: Record<string, any[]> = {};
@@ -237,8 +263,181 @@ export default async function AgeBandAdminPage({
     poolItemsByMoment[item.moment_id].push(item);
   }
 
+  // System status info
+  const buildCommit = process.env.VERCEL_GIT_COMMIT_SHA || 'unknown';
+  const vercelEnv = process.env.VERCEL_ENV || 'development';
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseRef = supabaseUrl.match(/https?:\/\/([^.]+)\.supabase\.co/)?.[1] || 'unknown';
+  const userId = user?.id || 'not authenticated';
+  const isAdminValue = admin;
+
+  // Raw count queries for truth panel (with error handling)
+  let setsCount = 0;
+  let setsCountError: string | null = null;
+  let cardsCount = 0;
+  let cardsCountError: string | null = null;
+  let categoryFitsCount = 0;
+  let categoryFitsError: string | null = null;
+  let productFitsCount = 0;
+  let productFitsError: string | null = null;
+
+  try {
+    // Count pl_age_moment_sets
+    const { count: setsCountData, error: setsCountErr } = await supabase
+      .from('pl_age_moment_sets')
+      .select('*', { count: 'exact', head: true })
+      .eq('age_band_id', ageBandId);
+    
+    if (setsCountErr) {
+      setsCountError = setsCountErr.message;
+    } else {
+      setsCount = setsCountData || 0;
+    }
+
+    // Get set IDs for card count
+    const { data: setIdsData } = await supabase
+      .from('pl_age_moment_sets')
+      .select('id')
+      .eq('age_band_id', ageBandId);
+    
+    const setIds = setIdsData?.map(s => s.id) || [];
+
+    // Count pl_reco_cards
+    if (setIds.length > 0) {
+      const { count: cardsCountData, error: cardsCountErr } = await supabase
+        .from('pl_reco_cards')
+        .select('*', { count: 'exact', head: true })
+        .in('set_id', setIds);
+      
+      if (cardsCountErr) {
+        cardsCountError = cardsCountErr.message;
+      } else {
+        cardsCount = cardsCountData || 0;
+      }
+    }
+
+    // Count pl_category_type_fits
+    const { count: categoryFitsData, error: categoryFitsErr } = await supabase
+      .from('pl_category_type_fits')
+      .select('*', { count: 'exact', head: true })
+      .eq('age_band_id', ageBandId);
+    
+    if (categoryFitsErr) {
+      categoryFitsError = categoryFitsErr.message;
+    } else {
+      categoryFitsCount = categoryFitsData || 0;
+    }
+
+    // Count pl_product_fits
+    const { count: productFitsData, error: productFitsErr } = await supabase
+      .from('pl_product_fits')
+      .select('*', { count: 'exact', head: true })
+      .eq('age_band_id', ageBandId);
+    
+    if (productFitsErr) {
+      productFitsError = productFitsErr.message;
+    } else {
+      productFitsCount = productFitsData || 0;
+    }
+  } catch (err: any) {
+    // Catch any unexpected errors
+    console.error('Error fetching raw counts:', err);
+  }
+
+  // Log system status (server-side)
+  console.log(`[System Status] ageBand=${ageBandId} commit=${buildCommit} env=${vercelEnv} supabaseRef=${supabaseRef} userId=${userId} isAdmin=${isAdminValue} sets=${setsCount} cards=${cardsCount} categoryFits=${categoryFitsCount} productFits=${productFitsCount}`);
+  console.log(`[Sets Debug] Total sets fetched: ${sets.length}, Moments: ${moments.length}, SetsByMoment keys: ${Object.keys(setsByMoment).join(', ')}`);
+  if (sets.length > 0) {
+    console.log(`[Sets Debug] Sample set: moment_id=${sets[0]?.moment_id}, status=${sets[0]?.status}, id=${sets[0]?.id}`);
+  }
+
+  // Auto-populate draft sets for each moment (non-blocking)
+  for (const moment of moments) {
+    // Don't await - let it run in background
+    ensureDraftSetPopulated(ageBandId, moment.id).catch((err) => {
+      // Silently fail - this is best-effort auto-population
+      console.error(`Failed to auto-populate draft for moment ${moment.id}:`, err);
+    });
+  }
+
   return (
     <div className="p-6 space-y-6">
+      {/* System Status / Truth Panel */}
+      <div className="bg-gray-100 border rounded p-3 text-xs space-y-2" style={{ fontFamily: 'monospace' }}>
+        <div className="font-semibold mb-2">System Status / Truth Panel</div>
+        {/* Debug info (temporary) */}
+        {firstMoment && (
+          <div className="border-t pt-2 mt-2 text-xs">
+            <div className="font-medium mb-1">Debug (first moment):</div>
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <span className="font-medium">selectedMomentId:</span> {firstMoment.id}
+              </div>
+              <div>
+                <span className="font-medium">selectedSetId:</span> {firstMomentSet?.id || 'none'}
+              </div>
+              <div>
+                <span className="font-medium">cardsInSelectedSet:</span> {firstMomentCardsCount}
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+          <div>
+            <span className="font-medium">Build commit:</span> {buildCommit.substring(0, 7)}
+          </div>
+          <div>
+            <span className="font-medium">Vercel env:</span> {vercelEnv}
+          </div>
+          <div>
+            <span className="font-medium">Supabase ref:</span> {supabaseRef}
+          </div>
+          <div>
+            <span className="font-medium">User ID:</span> {userId.substring(0, 8)}...
+          </div>
+          <div>
+            <span className="font-medium">isAdmin:</span> {isAdminValue ? 'true' : 'false'}
+          </div>
+        </div>
+        <div className="border-t pt-2 mt-2">
+          <div className="font-medium mb-1">Raw Counts (age_band_id={ageBandId}):</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div>
+              <span className="font-medium">pl_age_moment_sets:</span>{' '}
+              {setsCountError ? (
+                <span className="text-red-600">ERROR: {setsCountError}</span>
+              ) : (
+                setsCount
+              )}
+            </div>
+            <div>
+              <span className="font-medium">pl_reco_cards:</span>{' '}
+              {cardsCountError ? (
+                <span className="text-red-600">ERROR: {cardsCountError}</span>
+              ) : (
+                cardsCount
+              )}
+            </div>
+            <div>
+              <span className="font-medium">pl_category_type_fits:</span>{' '}
+              {categoryFitsError ? (
+                <span className="text-red-600">ERROR: {categoryFitsError}</span>
+              ) : (
+                categoryFitsCount
+              )}
+            </div>
+            <div>
+              <span className="font-medium">pl_product_fits:</span>{' '}
+              {productFitsError ? (
+                <span className="text-red-600">ERROR: {productFitsError}</span>
+              ) : (
+                productFitsCount
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div>
         <Link href="/app/admin/pl" className="text-blue-600 hover:underline">← Back to Product Library</Link>
         <h1 className="text-xl font-semibold mt-2" style={{ fontFamily: 'var(--brand-font-head, inherit)' }}>
@@ -257,14 +456,13 @@ export default async function AgeBandAdminPage({
           {moments.map((moment) => {
             const set = setsByMoment[moment.id];
             return (
-              <MomentSetEditor
+              <MerchandisingOffice
                 key={moment.id}
                 ageBandId={ageBandId}
                 moment={moment}
                 set={set}
                 categoryTypes={categoryTypes}
                 products={products}
-                poolItems={poolItemsByMoment[moment.id] || []}
               />
             );
           })}
