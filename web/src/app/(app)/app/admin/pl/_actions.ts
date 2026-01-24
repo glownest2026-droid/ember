@@ -4,6 +4,7 @@ import { createClient } from '../../../../../utils/supabase/server';
 import { isAdmin } from '../../../../../lib/admin';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { selectProductsForSlots, calculateAgeBandMidpoint } from '@/lib/pl/autopilot';
 
 // Helper to check admin and get user
 async function requireAdmin() {
@@ -72,6 +73,7 @@ export async function updateCard(
     because?: string;
     category_type_id?: string | null;
     product_id?: string | null;
+    is_locked?: boolean;
   }
 ) {
   const { supabase } = await requireAdmin();
@@ -160,6 +162,19 @@ export async function updateCard(
   }
   if (data.product_id !== undefined) {
     updateData.product_id = data.product_id || null;
+  }
+  if (data.is_locked !== undefined) {
+    updateData.is_locked = data.is_locked;
+    if (data.is_locked) {
+      updateData.locked_at = new Date().toISOString();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        updateData.locked_by = user.id;
+      }
+    } else {
+      updateData.locked_at = null;
+      updateData.locked_by = null;
+    }
   }
 
   const { error } = await supabase
@@ -293,7 +308,7 @@ export async function publishSet(setId: string, ageBandId: string) {
   // Validation: each card must have a target (category_type_id OR product_id) and non-empty because
   for (const card of cards) {
     if (!card.because || card.because.trim() === '') {
-      return { error: `Card at rank ${card.rank} must have a "because" field` };
+      return { error: `Card at rank ${card.rank} must have a "Why it can work" field` };
     }
     if (!card.category_type_id && !card.product_id) {
       return { error: `Card at rank ${card.rank} must have either a category type or a product` };
@@ -498,6 +513,403 @@ export async function usePoolItemInCard(
   }
 
   revalidatePath(`/app/admin/pl/${ageBandId}`);
+  return { success: true };
+}
+
+// Create a new card for a set
+export async function createCard(
+  setId: string,
+  ageBandId: string,
+  data: {
+    lane: string;
+    rank: number;
+  }
+) {
+  const { supabase } = await requireAdmin();
+
+  // Insert the card
+  const { data: card, error: cardError } = await supabase
+    .from('pl_reco_cards')
+    .insert({
+      set_id: setId,
+      lane: data.lane,
+      rank: data.rank,
+      because: '',
+    })
+    .select()
+    .single();
+
+  if (cardError || !card) {
+    return { error: cardError?.message || 'Failed to create card' };
+  }
+
+  revalidatePath(`/app/admin/pl/${ageBandId}`);
+  return { success: true, cardId: card.id };
+}
+
+// Place a product into a card slot (with category auto-align)
+export async function placeProductIntoSlot(
+  cardId: string,
+  ageBandId: string,
+  data: {
+    product_id: string;
+    category_type_slug: string;
+  }
+) {
+  const { supabase } = await requireAdmin();
+
+  // Find category_type_id that matches the product's category_type_slug
+  const { data: categoryType, error: categoryError } = await supabase
+    .from('pl_category_types')
+    .select('id')
+    .eq('slug', data.category_type_slug)
+    .single();
+
+  if (categoryError || !categoryType) {
+    return { error: `Category type not found for slug: ${data.category_type_slug}` };
+  }
+
+  // Get product's why_it_matters for auto-fill
+  const { data: product, error: productError } = await supabase
+    .from('products')
+    .select('why_it_matters')
+    .eq('id', data.product_id)
+    .single();
+
+  const whyItMatters = product?.why_it_matters || '';
+
+  // Update the card with product_id, category_type_id, and auto-fill because
+  const { error: updateError } = await supabase
+    .from('pl_reco_cards')
+    .update({
+      product_id: data.product_id,
+      category_type_id: categoryType.id,
+      because: whyItMatters, // Auto-fill from product
+    })
+    .eq('id', cardId);
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  revalidatePath(`/app/admin/pl/${ageBandId}`);
+  return { success: true };
+}
+
+// ============================================================================
+// AUTOPILOT ACTIONS
+// ============================================================================
+
+// Get autopilot weights from site_settings
+export async function getAutopilotWeights() {
+  const { supabase } = await requireAdmin();
+
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('theme')
+    .eq('id', 'global')
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    // PGRST116 = no rows returned, which is OK (use defaults)
+    return { error: error.message };
+  }
+
+  const theme = (data?.theme as any) || {};
+  const plAutopilot = theme.pl_autopilot || {};
+  const weights = plAutopilot.weights;
+
+  // Default weights if not set
+  const defaultWeights = {
+    confidence: 0.45,
+    quality: 0.45,
+    anchor: 0.10,
+  };
+
+  return {
+    success: true,
+    weights: weights || defaultWeights,
+  };
+}
+
+// Save autopilot weights to site_settings
+export async function saveAutopilotWeights(weights: { confidence: number; quality: number; anchor: number }) {
+  const { supabase, user } = await requireAdmin();
+
+  // Normalize weights to sum to 1.0
+  const total = weights.confidence + weights.quality + weights.anchor;
+  const normalized = {
+    confidence: weights.confidence / total,
+    quality: weights.quality / total,
+    anchor: weights.anchor / total,
+  };
+
+  // Get current theme
+  const { data: currentData } = await supabase
+    .from('site_settings')
+    .select('theme')
+    .eq('id', 'global')
+    .single();
+
+  const currentTheme = (currentData?.theme as any) || {};
+  const updatedTheme = {
+    ...currentTheme,
+    pl_autopilot: {
+      ...currentTheme.pl_autopilot,
+      weights: normalized,
+    },
+  };
+
+  // Update or insert
+  const { error: updateError } = await supabase
+    .from('site_settings')
+    .update({
+      theme: updatedTheme,
+      updated_by: user.id,
+    })
+    .eq('id', 'global');
+
+  if (updateError) {
+    // Try insert if update fails
+    const { error: insertError } = await supabase
+      .from('site_settings')
+      .insert({
+        id: 'global',
+        theme: updatedTheme,
+        updated_by: user.id,
+      });
+
+    if (insertError) {
+      return { error: insertError.message };
+    }
+  }
+
+  return { success: true, weights: normalized };
+}
+
+// Regenerate draft set using autopilot
+export async function regenerateDraftSet(
+  setId: string,
+  ageBandId: string,
+  momentId: string
+) {
+  const { supabase } = await requireAdmin();
+
+  // Get age band to calculate midpoint
+  const { data: ageBand, error: ageBandError } = await supabase
+    .from('pl_age_bands')
+    .select('min_months, max_months')
+    .eq('id', ageBandId)
+    .single();
+
+  if (ageBandError || !ageBand) {
+    return { error: 'Age band not found' };
+  }
+
+  const ageBandMidpoint = (ageBand.min_months + ageBand.max_months) / 2;
+
+  // Get autopilot weights
+  const weightsResult = await getAutopilotWeights();
+  if (weightsResult.error) {
+    return { error: weightsResult.error };
+  }
+  const weights = weightsResult.weights!;
+
+  // Get pool items for this moment (if any)
+  const { data: poolItems } = await supabase
+    .from('pl_pool_items')
+    .select('category_type_id')
+    .eq('age_band_id', ageBandId)
+    .eq('moment_id', momentId);
+
+  const poolCategoryIds = poolItems?.map((p) => p.category_type_id).filter(Boolean) as string[] | undefined;
+
+  // Get eligible products
+  const { data: productsData } = await supabase
+    .from('v_pl_product_fits_ready_for_recs')
+    .select('*')
+    .eq('age_band_id', ageBandId)
+    .eq('is_ready_for_recs', true);
+
+  if (!productsData || productsData.length === 0) {
+    return { error: 'No eligible products found' };
+  }
+
+  // Get product fits for scores (including stage_anchor_month if available)
+  const productIds = productsData.map((p: any) => p.product_id).filter(Boolean);
+  const { data: productFitsData } = await supabase
+    .from('pl_product_fits')
+    .select('product_id, confidence_score_0_to_10, quality_score_0_to_10, stage_anchor_month')
+    .eq('age_band_id', ageBandId)
+    .in('product_id', productIds);
+
+  const productFitsMap: Record<string, any> = {};
+  if (productFitsData) {
+    productFitsData.forEach((fit: any) => {
+      productFitsMap[fit.product_id] = {
+        confidence_score_0_to_10: fit.confidence_score_0_to_10,
+        quality_score_0_to_10: fit.quality_score_0_to_10,
+        stage_anchor_month: fit.stage_anchor_month,
+      };
+    });
+  }
+
+  // Get products table for why_it_matters
+  const { data: productsTableData } = await supabase
+    .from('products')
+    .select('id, why_it_matters')
+    .in('id', productIds);
+
+  const whyItMattersMap: Record<string, string | null> = {};
+  if (productsTableData) {
+    productsTableData.forEach((p: any) => {
+      whyItMattersMap[p.id] = p.why_it_matters;
+    });
+  }
+
+  // Transform to candidates
+  const candidates = productsData.map((p: any) => ({
+    id: p.product_id,
+    name: p.product_name,
+    brand: p.product_brand,
+    category_type_id: null, // Will need to get from products table
+    category_type_slug: p.category_type_slug,
+    confidence_score_0_to_10: productFitsMap[p.product_id]?.confidence_score_0_to_10,
+    quality_score_0_to_10: productFitsMap[p.product_id]?.quality_score_0_to_10,
+    stage_anchor_month: productFitsMap[p.product_id]?.stage_anchor_month,
+    evidence_count: p.evidence_count,
+    evidence_domain_count: p.evidence_domain_count,
+    is_ready_for_publish: p.is_ready_for_publish,
+    why_it_matters: whyItMattersMap[p.id] || null,
+  }));
+
+  // Get category_type_id for each product
+  const { data: productsWithCategory } = await supabase
+    .from('products')
+    .select('id, category_type_id')
+    .in('id', productIds);
+
+  const categoryMap: Record<string, string | null> = {};
+  if (productsWithCategory) {
+    productsWithCategory.forEach((p: any) => {
+      categoryMap[p.id] = p.category_type_id;
+    });
+  }
+
+  // Update candidates with category_type_id
+  candidates.forEach((c: any) => {
+    c.category_type_id = categoryMap[c.id] || null;
+  });
+
+  const midpoint = calculateAgeBandMidpoint(ageBand.min_months, ageBand.max_months);
+  const selected = selectProductsForSlots(candidates, weights, midpoint, poolCategoryIds);
+
+  // Get existing cards (only update unlocked ones)
+  const { data: existingCards } = await supabase
+    .from('pl_reco_cards')
+    .select('id, lane, rank, is_locked')
+    .eq('set_id', setId)
+    .order('rank', { ascending: true });
+
+  if (!existingCards || existingCards.length < 3) {
+    return { error: 'Set must have 3 cards' };
+  }
+
+  // Map slots to lanes
+  const laneMap: Record<string, 'obvious' | 'nearby' | 'surprise'> = {
+    slot1: 'obvious',
+    slot2: 'nearby',
+    slot3: 'surprise',
+  };
+
+  // Update cards (only unlocked ones)
+  for (let i = 0; i < 3; i++) {
+    const card = existingCards[i];
+    const slotKey = `slot${i + 1}` as 'slot1' | 'slot2' | 'slot3';
+    const selectedProduct = selected[slotKey];
+
+    if (!card || card.is_locked) {
+      continue; // Skip locked cards
+    }
+
+    if (!selectedProduct) {
+      continue; // No product selected for this slot
+    }
+
+    // Get category_type_id for the product
+    const categoryTypeId = categoryMap[selectedProduct.id] || null;
+
+    // Update card
+    const { error: updateError } = await supabase
+      .from('pl_reco_cards')
+      .update({
+        product_id: selectedProduct.id,
+        category_type_id: categoryTypeId,
+        because: selectedProduct.why_it_matters || '', // Auto-fill from product
+      })
+      .eq('id', card.id);
+
+    if (updateError) {
+      return { error: `Failed to update card ${card.id}: ${updateError.message}` };
+    }
+  }
+
+  revalidatePath(`/app/admin/pl/${ageBandId}`);
+  return { success: true };
+}
+
+// Ensure draft set exists and is populated (auto-populate if needed)
+export async function ensureDraftSetPopulated(
+  ageBandId: string,
+  momentId: string
+) {
+  const { supabase } = await requireAdmin();
+
+  // Check if set exists
+  const { data: existingSet } = await supabase
+    .from('pl_age_moment_sets')
+    .select(`
+      id,
+      status,
+      pl_reco_cards (id, is_locked, product_id, category_type_id)
+    `)
+    .eq('age_band_id', ageBandId)
+    .eq('moment_id', momentId)
+    .single();
+
+  let setId: string;
+
+  if (!existingSet) {
+    // Create draft set
+    const createResult = await createDraftSet(ageBandId, momentId);
+    if (createResult.error || !createResult.setId) {
+      return { error: createResult.error || 'Failed to create set' };
+    }
+    setId = createResult.setId;
+  } else {
+    setId = existingSet.id;
+    
+    // If set is published, don't auto-populate
+    if (existingSet.status === 'published') {
+      return { success: true, skipped: true };
+    }
+
+    // Check if cards exist and are populated
+    const cards = existingSet.pl_reco_cards || [];
+    const populatedCards = cards.filter((c: any) => c.product_id || c.category_type_id);
+    
+    // If we have 3+ populated cards, we're done
+    if (populatedCards.length >= 3) {
+      return { success: true, skipped: true };
+    }
+  }
+
+  // Auto-populate using autopilot
+  const regenerateResult = await regenerateDraftSet(setId, ageBandId, momentId);
+  if (regenerateResult.error) {
+    return { error: regenerateResult.error };
+  }
+
   return { success: true };
 }
 

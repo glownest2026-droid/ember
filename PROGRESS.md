@@ -52,12 +52,200 @@ _Last updated: 2026-01-04_
 
 # Decision Log (dated)
 ## 2025-12-30
-- Decision: Defer “forgot password email reliability” work until Ember has a custom domain and deliberate email sender setup. For now, unblock admin access by creating admin user with password directly in Supabase Auth Users.
+- Decision: Defer "forgot password email reliability" work until Ember has a custom domain and deliberate email sender setup. For now, unblock admin access by creating admin user with password directly in Supabase Auth Users.
 - Decision: Maintain invite-only access (no auto-create users; friends must be pre-created in Supabase Auth).
 - Decision: Keep PR hygiene strict: one open feature PR at a time; close stale PRs promptly.
 
 
 ------
+
+## 2026-01-15 — Phase A: Ground Truth + Gateway Schema (No Migrations)
+
+### Summary
+- Audited current gateway implementation (`/new` and `/new/[months]` routes)
+- Documented current data flow (legacy `pl_age_moment_sets` / `pl_reco_cards` pattern)
+- Created ground truth documentation and Phase A gateway schema design
+- No migrations in this PR (write-only plan for PR #2)
+
+### Routes Audited
+- `/new` — Redirects to `/new/26` (default age)
+- `/new/[months]` — Main gateway landing page with age slider (24–30 months), moment selection, and top 3 picks display
+
+### Data Fetching (Current)
+- Server-side data fetching via `web/src/lib/pl/public.ts`
+- Reads from: `pl_age_bands`, `pl_moments`, `pl_age_moment_sets`, `pl_reco_cards`, `pl_category_types`, `products`
+- Uses legacy pattern: age band + moment → published set → cards → category types/products
+
+### Legacy Freeze
+- **FROZEN** (no new writes for Phase A): `pl_age_moment_sets`, `pl_reco_cards`, `pl_evidence` (legacy), `pl_pool_items`
+- Phase A will use new tables: `pl_ux_wrappers`, `pl_age_band_ux_wrappers`, mapping tables
+
+### Documentation Added
+- `web/docs/PHASE_A_GROUND_TRUTH.md` — Current state audit:
+  - Gateway routes and UI components
+  - Supabase read paths
+  - Legacy freeze declaration
+  - DB reality summary (canonical tables, seed tables, delimiter formats)
+  - Discovered surprises (no mock HTML, legacy tables still in use, seed table delimiters)
+- `web/docs/PHASE_A_GATEWAY_SCHEMA.md` — Schema design:
+  - ERD in text (age band → UX wrapper → development need → category types → products)
+  - New tables to be created in PR #2 (7 tables + optional `pl_product_sources`)
+  - Curated public views (`v_gateway_*_public`) for anonymous access
+  - Updated_at triggers plan (shared function)
+  - Immutability plan for `pl_age_bands.id` (trigger prevents updates)
+  - RLS stance (canonical tables protected, public reads via curated views only)
+
+### Discovered Surprises
+1. **No mock HTML files**: Current implementation appears production-ready
+2. **Legacy tables still in use**: Current `/new` route uses legacy `pl_age_moment_sets` / `pl_reco_cards` pattern
+3. **Public read policies exist**: `pl_category_types` and `products` have public read policies, but CTO Alex requires curated views instead
+4. **Seed table delimiters**: Different formats (comma for `mapped_developmental_needs`, pipe for `evidence_urls`/`evidence_notes`)
+5. **Stage metadata in seed tables**: `stage_anchor_month`, `stage_phase`, `stage_reason` exist in seed tables but not on base canonical tables (will be moved to age-specific mapping tables in Phase A)
+
+### Next Step
+- **PR #2**: Create migrations for new Phase A tables (`pl_ux_wrappers`, mapping tables, curated public views) + triggers + RLS policies
+
+### Verification (Proof-of-Done)
+- Documentation files created: `web/docs/PHASE_A_GROUND_TRUTH.md`, `web/docs/PHASE_A_GATEWAY_SCHEMA.md`
+- PROGRESS.md updated with Phase A section
+- Build verification: TBD (run `pnpm run build` in `/web`)
+
+------
+
+## 2026-01-15 — Phase 2A: Canonise Layer A (Development Needs)
+
+### Summary
+- Canonised Layer A (Development Needs) table with full Manus Layer A CSV data
+- Added public read RLS policy (required for MVP landing page with anonymous access)
+- Added proof bundle at end of migration for single-paste verification
+- Migration is idempotent and safe to re-run
+
+### DB & RLS
+- **Migration**: `supabase/sql/202601150000_phase2a_canonise_layer_a_development_needs.sql`
+- **Table**: `pl_development_needs` (12 development needs from Manus Layer A CSV)
+- **RLS Policies**:
+  - `pl_development_needs_admin_all`: Admin CRUD (FOR ALL using is_admin())
+  - `pl_development_needs_authenticated_read`: Authenticated users can read
+  - `pl_development_needs_public_read`: **Public read (anon + authenticated)** — required for MVP landing page
+- **Schema**: 14 columns including need_name, slug, plain_english_description, why_it_matters, min_month, max_month, stage_anchor_month, stage_phase, stage_reason, evidence_urls, evidence_notes
+- **Constraints**: UNIQUE on need_name and slug
+- **Proof Bundle**: Included at end of migration (prints row count, sample rows, duplicate checks, null checks, RLS policies)
+
+### Key Changes
+- **Public Read Access**: Added `pl_development_needs_public_read` policy with `USING (true)` to allow anonymous users to read development needs (required for public MVP landing page)
+- **Proof Bundle**: Added DO block at end of migration that prints verification results (row count, samples, duplicates, nulls, policies) — founder runs ONE paste and sees all outputs
+- **Idempotent**: Migration safely handles existing table and skips inserts if data already exists
+
+### Implementation Details
+- Source of Truth: Manus_LayerA-Sample-Development-Needs.csv (12 development needs)
+- Slug generation: Auto-generated from need_name using `slugify_need_name()` function
+- Evidence URLs: Stored as TEXT[] array (converted from pipe-separated CSV format)
+- All 12 needs populated with complete data (need_name, descriptions, age ranges, stage info, evidence)
+
+### Verification (Proof-of-Done)
+- **Proof Bundle Output**: Run migration and check NOTICE messages for:
+  - Row count = 12
+  - 5 sample rows displayed
+  - Duplicate checks = 0 for both need_name and slug
+  - Null checks = 0 for all required fields
+  - 3 RLS policies listed (admin_all, authenticated_read, public_read)
+- **Build Status**: ✅ Build passes (`pnpm run build` succeeds)
+- **PR**: https://github.com/glownest2026-droid/ember/compare/main...feat/pl-admin-4-merch-office-v1
+
+### Migration Application Steps
+1. Open Supabase Dashboard → SQL Editor
+2. Paste entire contents of `supabase/sql/202601150000_phase2a_canonise_layer_a_development_needs.sql`
+3. Execute
+4. Check NOTICE messages in output (proof bundle runs automatically)
+5. Verify: Row count = 12, no duplicates, no nulls, 3 policies
+
+### Known Debt
+- None — migration is complete and production-ready
+
+### Patch (2026-01-15, same day)
+- **Issue**: Migration failed with `ERROR 23502: null value in column "name" of relation "pl_development_needs" violates not-null constraint`
+- **Root Cause**: Legacy schema drift — live table has NOT NULL `name` column that wasn't being populated
+- **Fix**: 
+  - Added schema reconciliation: detect and add `name` column if missing (for backwards compatibility)
+  - Changed from "only if table empty" to UPSERT-based loader using `ON CONFLICT (need_name) DO UPDATE`
+  - Added preflight/backfill step: populate `name` from `need_name` (and vice versa) for existing rows
+  - UPSERT now populates both `need_name` and `name` (if `name` column exists) to handle legacy schema
+- **Result**: Migration is now truly idempotent and robust to legacy schema drift
+
+### Rollback
+- Revert PR to remove migration file
+- If SQL already applied: Drop `pl_development_needs_public_read` policy if you need to restrict access (but this breaks MVP landing page)
+
+------
+
+## 2026-01-14 — PL Need UX Labels: Scalable UX Wrapper Mapping Table
+
+### Founder Exec Summary
+
+Implemented Option B: a scalable UX wrapper mapping table from development needs (Layer A) to parent-friendly labels ("moments"). Created `pl_need_ux_labels` table and seeded 12 brand director mappings for 25–27m. This enables flexible UX labeling without changing core development needs data.
+
+### Summary
+
+- Added `slug` column to `pl_development_needs` table (if missing) with backfill from `need_name`
+- Created `pl_need_ux_labels` table with constraints for primary labels and active slugs
+- Seeded 12 brand director mappings for 25–27m (development needs → UX labels)
+- Migration is idempotent and handles cases where table/column may not exist
+
+### DB & RLS
+
+- Migration file: `supabase/sql/202601142252_pl_need_ux_labels.sql`
+- `pl_development_needs.slug`: Added if missing, backfilled from `need_name` (slugify: lowercase, hyphens, alnum only)
+- `pl_need_ux_labels` table: New mapping table with unique constraints for primary labels per need and active slugs
+- Constraints: Unique primary label per need, unique active ux_slug
+- Updated_at trigger: Uses existing `set_updated_at()` function
+
+### Key code
+
+- `supabase/sql/202601142252_pl_need_ux_labels.sql` — complete migration with slug column logic, table creation, and seeding
+
+### Implementation Details
+
+- Slug generation: Lowercase, keep alnum and spaces, replace spaces with hyphens, collapse multiple hyphens
+- Seeding logic: Prefers slug lookup, falls back to exact `need_name` match
+- Idempotent: Migration checks for table/column existence before modifying
+- Seeded mappings: 12 brand director mappings (e.g., "Color and shape recognition" → "Shapes & colours")
+
+### Verification (Proof-of-Done)
+
+- Migration file exists: `supabase/sql/202601142252_pl_need_ux_labels.sql`
+- Verification SQL included in migration file (commented out)
+- Expected results: 12 primary active mappings when verification SQL is run
+- Migration is idempotent: Can be run multiple times without errors
+- All proof routes pass: `/signin`, `/auth/callback`, `/app`, `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
+
+### Verification SQL
+
+Run this in Supabase SQL Editor to verify all primary active mappings:
+
+```sql
+SELECT
+  dn.need_name,
+  dn.slug AS need_slug,
+  ul.ux_label,
+  ul.ux_slug
+FROM public.pl_need_ux_labels ul
+JOIN public.pl_development_needs dn ON ul.development_need_id = dn.id
+WHERE ul.is_primary = true AND ul.is_active = true
+ORDER BY ul.sort_order NULLS LAST, ul.ux_label;
+```
+
+Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
+
+### Migration Application Steps
+
+1. Apply migration via Supabase Dashboard → SQL Editor → paste and run `supabase/sql/202601142252_pl_need_ux_labels.sql`
+2. Verify: Run verification SQL to confirm 12 mappings are seeded
+3. After migration: `pl_development_needs` has `slug` column (if it didn't before), `pl_need_ux_labels` table exists with 12 seeded rows
+
+### Rollback
+
+- Revert PR to remove migration file
+- If SQL already applied: Drop `pl_need_ux_labels` table and remove `slug` column from `pl_development_needs` (if added by this migration)
 
 ## 2026-01-04 — PL-0: Product Library Ground Truth & Guardrails
 
@@ -697,6 +885,209 @@ We shipped the public acquisition page that lets a brand-new visitor set their c
 - “Save to shortlist” redirects to /signin?next=<return-to-same-new-url>
 - All proof routes still pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
 - Theme still applies globally (no regression): /app/admin/theme works for admins
+
+## 2026-01-13 — PL-ADMIN-5: Build Fixes + System Status Panel + UX Improvements
+
+### Founder Exec Summary
+
+Fixed critical build errors preventing Vercel deployment, added comprehensive System Status / Truth Panel for debugging, and improved UX behaviors (autofill, persistence, sourcing visibility). The admin now self-identifies build commit, database state, and feature presence, eliminating guesswork about why data isn't showing.
+
+### Summary
+
+- **Build fixes**: Fixed import paths using `@/` alias for autopilot module; fixed TypeScript errors
+- **System Status / Truth Panel**: Added admin-only panel showing build commit, Vercel env, Supabase ref, authenticated user ID, isAdmin status, and raw database counts with error handling
+- **Server-side logging**: Added console.log with all system status info for Vercel logs
+- **UI rendering**: Confirmed Merchandising Office (two-pane shopfront + factory) renders correctly, not legacy islands view
+- **UX improvements**:
+  - "Why it can work" auto-fills from `products.why_it_matters` when placing/selecting SKU
+  - Add-card button now uses `router.refresh()` for immediate persistence (no disappearing)
+  - Sources count and "Needs 2nd source" badge visible on cards using `card.pl_evidence` count
+
+### Key code
+
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/page.tsx`:
+  - Enhanced System Status panel with auth/user info and raw counts (sets, cards, category_fits, product_fits)
+  - Raw count queries with error handling (displays errors in panel if queries fail)
+  - Server-side logging of system status
+- `web/src/app/(app)/app/admin/pl/_actions.ts`:
+  - `placeProductIntoSlot()` now auto-fills `because` from `products.why_it_matters`
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MerchandisingOffice.tsx`:
+  - Add-card uses `router.refresh()` instead of `window.location.reload()` for better persistence
+  - Sources count uses `card.pl_evidence.length` correctly
+  - "Needs 2nd source" badge shows when `evidenceCount < 2`
+
+### Implementation Details
+
+- **System Status Panel**: Shows build commit (first 7 chars), Vercel env, Supabase ref (parsed from URL), user ID (first 8 chars), isAdmin boolean, and raw counts with error messages if queries fail
+- **Raw counts**: Uses `select('*', { count: 'exact', head: true })` for efficient counting
+- **Error handling**: All count queries wrapped in try/catch; errors displayed in panel (not swallowed)
+- **Autofill**: `placeProductIntoSlot` fetches `products.why_it_matters` and sets `card.because` automatically
+- **Persistence**: `router.refresh()` provides immediate UI update without full page reload
+
+### Verification (Proof-of-Done)
+
+1. **Vercel build passes**: Build completes successfully locally and on Vercel
+2. **System Status panel visible**: Shows real commit SHA, user ID, isAdmin=true, and non-zero counts when DB has rows
+3. **Merchandising Office renders**: `/app/admin/pl/25-27m` shows two-pane layout (not legacy islands)
+4. **Add card persists**: Clicking "+ Add card" immediately shows new card (no disappearing)
+5. **Why autofills**: Placing/selecting SKU auto-fills "Why it can work" from product database
+6. **Sources visible**: Cards show "Sources: X" count and "Needs 2nd source" badge when evidence < 2
+
+### Known limitations
+
+- System Status panel shows first 7 chars of commit SHA (full SHA available in logs)
+- User ID truncated to first 8 chars for display (full ID in logs)
+
+## 2026-01-12 — PL-ADMIN-5: Autopilot v0 + Algorithm Controls
+
+### Founder Exec Summary
+
+Autopilot v0 is now fully wired and operational. The admin runs itself ("Ramsay-mode"): for each moment in an age band, Ember has an AUTO-GENERATED draft set ready to go. Founder sees Published vs Draft, blockers, and can do quick swaps. Founder can adjust algorithm weights (the secret sauce) via a toggle panel. This is deterministic and explainable (no LLM).
+
+### Summary
+
+- **Autopilot v0 algorithm**: Deterministic scoring using confidence_score, quality_score, stage_anchor_month (if available), and evidence bonuses
+- **Algorithm weights panel**: Toggle "Show algorithm" reveals sliders for confidence/quality/anchor weights, with normalization and save/reset controls
+- **Score breakdown**: When algorithm toggle is on, each card shows score breakdown (confidence component, quality component, anchor component, evidence bonus, total score)
+- **Draft auto-population**: On page load, draft sets are automatically created and populated using autopilot if missing or empty
+- **Regenerate controls**: "Regenerate draft" button re-runs autopilot for the current moment (respects locks)
+- **Locks/overrides**: Persistent lock toggle on each card prevents autopilot from overwriting founder choices
+- **Auto-fill "Why it can work"**: When autopilot assigns a SKU, it pre-fills card.because from products.why_it_matters
+- **Evidence chips**: Cards show evidence count chips ("Sources: 1", "Needs 2nd source", "Ready to publish")
+- **Fixed add card persistence**: Add card now properly persists and refreshes UI
+
+### Key code
+
+- `web/src/lib/pl/autopilot.ts`: 
+  - Updated `calculateAnchorScore()` to use `stage_anchor_month` if available (distance-based scoring)
+  - Added `stage_anchor_month` to `ProductCandidate` type
+- `web/src/app/(app)/app/admin/pl/_actions.ts`:
+  - Updated `regenerateDraftSet()` to fetch `stage_anchor_month` from `pl_product_fits`
+  - Updated `updateCard()` to support `is_locked` with `locked_at` and `locked_by` tracking
+  - `ensureDraftSetPopulated()` called on page load for each moment
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MerchandisingOffice.tsx`:
+  - Added algorithm weights panel (toggle, sliders, save, reset)
+  - Added score breakdown display when algorithm toggle is on
+  - Added lock toggle on cards with visual indicators
+  - Added evidence chips showing source count and publish readiness
+  - Added "Regenerate draft" button
+  - Fixed add card persistence (proper reload timing)
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/page.tsx`:
+  - Calls `ensureDraftSetPopulated()` for each moment on load (non-blocking)
+  - Loads `is_locked`, `locked_at`, `locked_by` from database
+- `supabase/sql/202601060001_pl_autopilot_locks.sql`: Migration to add `is_locked`, `locked_at`, `locked_by` columns to `pl_reco_cards`
+
+### Implementation Details
+
+- **Anchor scoring**: Uses `stage_anchor_month` from `pl_product_fits` if available, calculates distance from age band midpoint, normalizes to 0.5-1.0 range
+- **Weights normalization**: Weights are normalized to sum to 1.0 when saved, but displayed as raw values with normalized preview
+- **Lock persistence**: Locks are stored in database with `is_locked` boolean, `locked_at` timestamp, and `locked_by` user ID
+- **Autopilot respects locks**: `regenerateDraftSet()` skips locked cards when updating
+- **Auto-population**: Runs in background on page load, doesn't block UI rendering
+- **Score breakdown**: Calculated client-side using current weights and product scores
+
+### Database
+
+- Migration file: `supabase/sql/202601060001_pl_autopilot_locks.sql`
+- Adds `is_locked BOOLEAN NOT NULL DEFAULT false`, `locked_at TIMESTAMPTZ`, `locked_by UUID` to `pl_reco_cards`
+- Index on `is_locked` for filtering
+
+### Verification (Proof-of-Done)
+
+1. **Autopilot exists and runs**: Opening `/app/admin/pl/25-27m` shows populated draft for Bath time without manual card creation
+2. **Algorithm panel exists and is wired**: 
+   - Change weights → Save → Regenerate → at least one slot changes (or explanation given why not)
+   - Weights normalize to sum to 1.0
+3. **Score breakdown visible**: When algorithm toggle is on, cards show score breakdown with confidence/quality/anchor/evidence components
+4. **Locks prevent overwrite**: Lock a card, regenerate draft → locked card unchanged
+5. **Why auto-fills**: Autopilot-assigned cards have "Why it can work" pre-filled from product database
+6. **Evidence chips**: Cards show "Sources: X", "Needs 2nd source", "Ready to publish" chips
+7. **Add card works**: Add card button creates card and persists (no disappearing toast)
+8. **Moments integrated**: All moments shown in single list (no "moment islands")
+
+### Known limitations
+
+- Score breakdown is calculated client-side (may not match server-side calculation exactly if weights differ)
+- Top 3 alternatives not yet displayed in UI (algorithm calculates them but doesn't show)
+- Auto-population runs in background (may take a moment to appear)
+
+### Next up
+
+- Add top 3 alternatives display in score breakdown panel
+- Consider adding "Regenerate all moments" button (performance permitting)
+- Add pool warning when no pool exists ("No pool set; autopilot using full catalogue")
+
+## 2026-01-12 — PL-ADMIN-4: Merchandising Office v1 (Shopfront + Factory)
+
+### Founder Exec Summary
+
+Merchandising Office v1 is a two-pane workspace (Shopfront 40% + Factory 60%) designed for founders to merchandise moment sets quickly and confidently. The Shopfront pane shows what parents will see (populated cards only), while the Factory pane provides full catalogue browsing with search, filters, and quick "Place into" actions. Slot labels use parent-friendly language ("Great fit", "Also good", "Fresh idea") while maintaining internal lane values in the database.
+
+### Summary
+
+- **Two-pane layout**: Shopfront (40% left) shows moment header, status strip, and populated cards only; Factory (60% right) shows full product catalogue with search/filters
+- **Only populated cards shown**: No placeholder cards; clean empty state when no cards exist
+- **Slot label mapping**: Display labels "Great fit" / "Also good" / "Fresh idea" mapped from internal lanes (obvious/nearby/surprise)
+- **Factory pane**: Product table with search (product name + brand), category filter, publish readiness filter (All/Ready/Needs 2nd source), and sorting (Confidence/Quality/Evidence)
+- **Product drawer**: Click product row to open drawer with details and "Place into" buttons for each slot
+- **Place product into slot**: Auto-creates card if missing, auto-aligns category, shows replace confirmation if slot already has product
+- **UI labels**: Renamed "Because" to "Why it can work" throughout UI (DB column unchanged)
+- **Status strip**: Shows publish readiness summary (SKU cards ready/total, needs 2nd source count, missing "Why it can work" count)
+- **Add card CTA**: Button to create new card (prefers missing lanes first)
+- **Server actions**: Added `createCard()` and `placeProductIntoSlot()` with category auto-align
+
+### Key code
+
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MerchandisingOffice.tsx`: New two-pane component replacing MomentSetEditor
+  - Shopfront pane: moment header, status strip, card list (populated only), "Add card" CTA
+  - Factory pane: product table, search/filters, product drawer, "Place into" buttons
+  - Slot label mapping: LANE_TO_LABEL mapping (obvious → "Great fit", etc.)
+  - Product drawer: slide-out drawer with product details and slot placement buttons
+- `web/src/app/(app)/app/admin/pl/_actions.ts`:
+  - `createCard()`: Creates new card for a set with specified lane and rank
+  - `placeProductIntoSlot()`: Places product into card slot, auto-aligns category from product's category_type_slug
+  - `publishSet()`: Updated error message to use "Why it can work" instead of "because"
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/page.tsx`: Updated to use MerchandisingOffice instead of MomentSetEditor
+
+### Implementation Details
+
+- **Two-pane layout**: Uses flexbox with flex-[0.4] and flex-[0.6] for responsive 40/60 split
+- **Sticky headers**: Shopfront header and Factory filter bar use `sticky top-0` for visibility while scrolling
+- **Only populated cards**: Filters cards to show only those with category_type_id OR product_id
+- **Product filtering**: Factory pane filters by search query (product name + brand), category slug, and publish readiness
+- **Product sorting**: Defaults to confidence (desc), with options for quality and evidence count
+- **Slot placement**: When placing product, finds or creates card for lane, auto-aligns category, shows replace confirmation if needed
+- **Category auto-align**: `placeProductIntoSlot` server action looks up category_type_id from category_type_slug to ensure category matches product
+
+### Verification (Proof-of-Done)
+
+- Open `/app/admin/pl/25-27m` on preview URL
+- Two-pane layout visible (Shopfront left, Factory right)
+- Shopfront pane: moment header, status strip, populated cards only (no placeholders)
+- Factory pane: product table loads, search and filters work
+- Click product row: drawer opens with product details and "Place into" buttons
+- Click "Place into Great fit": Card updates (or created), category auto-aligns, toast shown
+- If replacing existing product: confirmation modal appears
+- Status strip shows correct counts (publish-ready, needs 2nd source, missing "Why it can work")
+- "Add card" button creates new card (prefers missing lanes first)
+- Save Card works with empty "Why it can work" (draft-friendly)
+- Publish blocks if any card missing "Why it can work" or any SKU not publish-ready
+- Category-only cards can publish
+- No scary red banners on load; warnings are inline and actionable
+
+### Known limitations
+
+- ShopfrontCard editing form needs refinement (category/product filtering may need state management improvements)
+- Product drawer positioning may need adjustment for mobile
+- "Place into" functionality may need additional error handling
+- Product table pagination not implemented (shows all filtered products)
+
+### Next up
+
+- Iterate on ShopfrontCard form handling and state management
+- Add product table pagination for large catalogues
+- Refine mobile responsive behavior
+- Consider adding evidence management UI (currently handled separately)
 
 ## 2026-01-10 — PL-ADMIN-2: Conditional SKU filtering + merchandising UX tweaks
 
