@@ -1,5 +1,8 @@
 # Phase A: DB Foundation (Gateway Spine + Curated Public Views)
 
+**PR URL**: _[Will be added after PR creation]_  
+**Vercel Preview URL**: _[Will be added after Vercel deployment]_
+
 ## Summary
 
 This PR creates the Phase A database foundation: gateway spine tables, curated public views, triggers, RLS policies, and data population from seed tables for MVP age bands (23-25m and 25-27m).
