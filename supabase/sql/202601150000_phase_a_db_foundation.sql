@@ -16,6 +16,19 @@ BEGIN
   END IF;
 END $$;
 
+-- Check that products.is_archived column exists (required for products view)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+      AND table_name = 'products' 
+      AND column_name = 'is_archived'
+  ) THEN
+    RAISE EXCEPTION 'Required column products.is_archived does not exist. Please add this column to the products table before running this migration.';
+  END IF;
+END $$;
+
 -- ============================================================================
 -- PART 1: HELPER FUNCTIONS
 -- ============================================================================
@@ -66,6 +79,7 @@ CREATE TABLE IF NOT EXISTS public.pl_ux_wrappers (
   ux_label TEXT NOT NULL,
   ux_slug TEXT NOT NULL,
   ux_description TEXT,
+  is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -113,6 +127,7 @@ CREATE TABLE IF NOT EXISTS public.pl_age_band_development_need_category_types (
   development_need_id UUID NOT NULL REFERENCES public.pl_development_needs(id) ON DELETE CASCADE,
   category_type_id UUID NOT NULL REFERENCES public.pl_category_types(id) ON DELETE CASCADE,
   rank INTEGER NOT NULL,
+  rationale TEXT,
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -126,11 +141,55 @@ CREATE TABLE IF NOT EXISTS public.pl_age_band_category_type_products (
   category_type_id UUID NOT NULL REFERENCES public.pl_category_types(id) ON DELETE CASCADE,
   product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
   rank INTEGER NOT NULL,
+  rationale TEXT,
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT pl_age_band_category_type_products_unique UNIQUE (age_band_id, category_type_id, product_id)
 );
+
+-- ============================================================================
+-- PART 2B: ADD RATIONALE COLUMNS IF MISSING (idempotent)
+-- ============================================================================
+
+-- Add rationale column to pl_age_band_development_need_category_types if missing
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' 
+      AND table_name = 'pl_age_band_development_need_category_types' 
+      AND column_name = 'rationale'
+  ) THEN
+    ALTER TABLE public.pl_age_band_development_need_category_types ADD COLUMN rationale TEXT;
+  END IF;
+END $$;
+
+-- Add rationale column to pl_age_band_category_type_products if missing
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' 
+      AND table_name = 'pl_age_band_category_type_products' 
+      AND column_name = 'rationale'
+  ) THEN
+    ALTER TABLE public.pl_age_band_category_type_products ADD COLUMN rationale TEXT;
+  END IF;
+END $$;
+
+-- Add is_active column to pl_ux_wrappers if missing
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' 
+      AND table_name = 'pl_ux_wrappers' 
+      AND column_name = 'is_active'
+  ) THEN
+    ALTER TABLE public.pl_ux_wrappers ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT true;
+  END IF;
+END $$;
 
 -- ============================================================================
 -- PART 3: CREATE INDEXES
@@ -315,7 +374,7 @@ INNER JOIN public.pl_age_band_ux_wrappers abuw ON ab.id = abuw.age_band_id
 WHERE ab.is_active = true
   AND abuw.is_active = true;
 
--- v_gateway_wrappers_public: UX wrappers with rank per age band (unchanged, already scoped)
+-- v_gateway_wrappers_public: UX wrappers with rank per age band
 CREATE VIEW public.v_gateway_wrappers_public AS
 SELECT 
   uw.id AS ux_wrapper_id,
@@ -326,7 +385,8 @@ SELECT
   abuw.rank
 FROM public.pl_ux_wrappers uw
 JOIN public.pl_age_band_ux_wrappers abuw ON uw.id = abuw.ux_wrapper_id
-WHERE abuw.is_active = true
+WHERE uw.is_active = true
+  AND abuw.is_active = true
 ORDER BY abuw.age_band_id, abuw.rank;
 
 -- v_gateway_wrapper_detail_public: Wrapper + linked need + age-band need meta (stage fields)
@@ -354,7 +414,8 @@ LEFT JOIN public.pl_age_band_development_need_meta meta
   ON dn.id = meta.development_need_id 
   AND abuw.age_band_id = meta.age_band_id
   AND meta.is_active = true
-WHERE abuw.is_active = true
+WHERE uw.is_active = true
+  AND abuw.is_active = true
 ORDER BY abuw.age_band_id, abuw.rank;
 
 -- v_gateway_development_needs_public: Only needs reachable from active gateway wrappers
@@ -376,6 +437,7 @@ SELECT
   abdnct.age_band_id,
   abdnct.development_need_id,
   abdnct.rank,
+  abdnct.rationale,
   ct.id,
   ct.slug,
   ct.label,
@@ -389,12 +451,12 @@ WHERE abdnct.is_active = true
 ORDER BY abdnct.age_band_id, abdnct.development_need_id, abdnct.rank;
 
 -- v_gateway_products_public: Age-band scoped, only reachable via active mappings
--- Filter: products.is_archived = false (if column exists)
 CREATE VIEW public.v_gateway_products_public AS
 SELECT 
   abctp.age_band_id,
   abctp.category_type_id,
   abctp.rank,
+  abctp.rationale,
   p.id,
   p.name,
   p.brand,
@@ -406,16 +468,7 @@ SELECT
 FROM public.products p
 INNER JOIN public.pl_age_band_category_type_products abctp ON p.id = abctp.product_id
 WHERE abctp.is_active = true
-  AND (
-    -- Filter out archived products if column exists
-    NOT EXISTS (
-      SELECT 1 FROM information_schema.columns 
-      WHERE table_schema = 'public' 
-        AND table_name = 'products' 
-        AND column_name = 'is_archived'
-    )
-    OR p.is_archived = false
-  )
+  AND p.is_archived = false
 ORDER BY abctp.age_band_id, abctp.category_type_id, abctp.rank;
 
 -- ============================================================================
