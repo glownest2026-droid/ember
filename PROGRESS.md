@@ -59,6 +59,59 @@ _Last updated: 2026-01-04_
 
 ------
 
+## 2026-01-15 — Phase A: Ground Truth + Gateway Schema (No Migrations)
+
+### Summary
+- Audited current gateway implementation (`/new` and `/new/[months]` routes)
+- Documented current data flow (legacy `pl_age_moment_sets` / `pl_reco_cards` pattern)
+- Created ground truth documentation and Phase A gateway schema design
+- No migrations in this PR (write-only plan for PR #2)
+
+### Routes Audited
+- `/new` — Redirects to `/new/26` (default age)
+- `/new/[months]` — Main gateway landing page with age slider (24–30 months), moment selection, and top 3 picks display
+
+### Data Fetching (Current)
+- Server-side data fetching via `web/src/lib/pl/public.ts`
+- Reads from: `pl_age_bands`, `pl_moments`, `pl_age_moment_sets`, `pl_reco_cards`, `pl_category_types`, `products`
+- Uses legacy pattern: age band + moment → published set → cards → category types/products
+
+### Legacy Freeze
+- **FROZEN** (no new writes for Phase A): `pl_age_moment_sets`, `pl_reco_cards`, `pl_evidence` (legacy), `pl_pool_items`
+- Phase A will use new tables: `pl_ux_wrappers`, `pl_age_band_ux_wrappers`, mapping tables
+
+### Documentation Added
+- `web/docs/PHASE_A_GROUND_TRUTH.md` — Current state audit:
+  - Gateway routes and UI components
+  - Supabase read paths
+  - Legacy freeze declaration
+  - DB reality summary (canonical tables, seed tables, delimiter formats)
+  - Discovered surprises (no mock HTML, legacy tables still in use, seed table delimiters)
+- `web/docs/PHASE_A_GATEWAY_SCHEMA.md` — Schema design:
+  - ERD in text (age band → UX wrapper → development need → category types → products)
+  - New tables to be created in PR #2 (7 tables + optional `pl_product_sources`)
+  - Curated public views (`v_gateway_*_public`) for anonymous access
+  - Updated_at triggers plan (shared function)
+  - Immutability plan for `pl_age_bands.id` (trigger prevents updates)
+  - RLS stance (canonical tables protected, public reads via curated views only)
+
+### Discovered Surprises
+1. **No mock HTML files**: Current implementation appears production-ready
+2. **Legacy tables still in use**: Current `/new` route uses legacy `pl_age_moment_sets` / `pl_reco_cards` pattern
+3. **Public read policies exist**: `pl_category_types` and `products` have public read policies, but CTO Alex requires curated views instead
+4. **Seed table delimiters**: Different formats (comma for `mapped_developmental_needs`, pipe for `evidence_urls`/`evidence_notes`)
+5. **Stage metadata in seed tables**: `stage_anchor_month`, `stage_phase`, `stage_reason` exist in seed tables but not on base canonical tables (will be moved to age-specific mapping tables in Phase A)
+
+### Next Step
+- **PR #2**: Create migrations for new Phase A tables (`pl_ux_wrappers`, mapping tables, curated public views) + triggers + RLS policies
+
+### Verification (Proof-of-Done)
+- Documentation files created: `web/docs/PHASE_A_GROUND_TRUTH.md`, `web/docs/PHASE_A_GATEWAY_SCHEMA.md`
+- PROGRESS.md updated with Phase A section
+- Build verification: TBD (run `pnpm run build` in `/web`)
+
+------
+
 ## 2026-01-15 — Phase 2A: Canonise Layer A (Development Needs)
 
 ### Summary
