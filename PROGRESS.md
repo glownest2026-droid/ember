@@ -78,12 +78,13 @@ _Last updated: 2026-01-04_
   - `pl_age_band_development_need_meta` — Age-band-specific stage metadata
   - `pl_age_band_development_need_category_types` — Age-band-specific need → category mapping
   - `pl_age_band_category_type_products` — Age-band-specific category → product mapping
-- **Curated Public Views**:
-  - `v_gateway_age_bands_public` — Safe age band columns
+- **Curated Public Views** (gateway-scoped for security):
+  - `v_gateway_age_bands_public` — Only age bands with active wrapper rankings
   - `v_gateway_wrappers_public` — UX wrappers with rank per age band
-  - `v_gateway_development_needs_public` — Safe development need columns
-  - `v_gateway_category_types_public` — Safe category type columns
-  - `v_gateway_products_public` — Safe product columns (affiliate/deeplink fields only)
+  - `v_gateway_wrapper_detail_public` — Wrapper + need + stage metadata (NEW)
+  - `v_gateway_development_needs_public` — Only needs reachable from active wrappers
+  - `v_gateway_category_types_public` — Age-band scoped, only via active mappings (includes age_band_id, development_need_id, rank)
+  - `v_gateway_products_public` — Age-band scoped, only via active mappings, excludes archived (includes age_band_id, category_type_id, rank)
 - **RLS Policies**: Admin CRUD on base tables, public SELECT on curated views only
 - **Triggers**: Updated_at triggers on all new tables, immutability trigger for `pl_age_bands.id`
 
@@ -97,15 +98,17 @@ _Last updated: 2026-01-04_
 
 ### Key Features
 - **Idempotent**: Safe to re-run (uses IF NOT EXISTS, ON CONFLICT, etc.)
-- **Security-first**: Canonical tables remain protected; anonymous users read from curated views only
+- **Security-first**: Canonical tables remain protected; anonymous users read from gateway-scoped curated views only (no broad exposure)
+- **Preflight check**: Verifies `is_admin()` function exists before creating RLS policies
 - **Operational toggles**: `is_active` on mapping tables for soft delete pattern
 - **Stage metadata**: Stored per age band per need (not on base tables)
 - **Immutability**: Trigger prevents updates to `pl_age_bands.id`
+- **Gateway-scoped views**: Views only expose content reachable via active mappings (not all needs/category types/products)
 
 ### Verification (Proof-of-Done)
 - **Build Status**: ✅ Build passes (`pnpm run build` succeeds)
 - **Proof Bundle**: Migration includes embedded proof bundle with counts and sample data
-- **Migration File**: `supabase/sql/202601150000_phase_a_db_foundation.sql` (862 lines)
+- **Migration File**: `supabase/sql/202601150000_phase_a_db_foundation.sql` (updated with gateway-scoped views and security fixes)
 
 ### Migration Application Steps
 1. Open Supabase Dashboard → SQL Editor

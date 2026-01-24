@@ -5,6 +5,18 @@
 -- Idempotent: Safe to re-run (uses IF NOT EXISTS, ON CONFLICT, etc.)
 
 -- ============================================================================
+-- PART 0: PREFLIGHT CHECKS
+-- ============================================================================
+
+-- Check that is_admin() function exists (required for RLS policies)
+DO $$
+BEGIN
+  IF to_regprocedure('public.is_admin()') IS NULL THEN
+    RAISE EXCEPTION 'Required function public.is_admin() does not exist. Please run the migration that creates this function first (typically in pl0_product_library.sql or similar).';
+  END IF;
+END $$;
+
+-- ============================================================================
 -- PART 1: HELPER FUNCTIONS
 -- ============================================================================
 
@@ -289,18 +301,21 @@ DROP VIEW IF EXISTS public.v_gateway_wrappers_public;
 DROP VIEW IF EXISTS public.v_gateway_development_needs_public;
 DROP VIEW IF EXISTS public.v_gateway_category_types_public;
 DROP VIEW IF EXISTS public.v_gateway_products_public;
+DROP VIEW IF EXISTS public.v_gateway_wrapper_detail_public;
 
--- v_gateway_age_bands_public: Safe age band columns
+-- v_gateway_age_bands_public: Only age bands with at least one active wrapper ranking
 CREATE VIEW public.v_gateway_age_bands_public AS
-SELECT 
-  id,
-  label,
-  min_months,
-  max_months
-FROM public.pl_age_bands
-WHERE is_active = true;
+SELECT DISTINCT
+  ab.id,
+  ab.label,
+  ab.min_months,
+  ab.max_months
+FROM public.pl_age_bands ab
+INNER JOIN public.pl_age_band_ux_wrappers abuw ON ab.id = abuw.age_band_id
+WHERE ab.is_active = true
+  AND abuw.is_active = true;
 
--- v_gateway_wrappers_public: UX wrappers with rank per age band
+-- v_gateway_wrappers_public: UX wrappers with rank per age band (unchanged, already scoped)
 CREATE VIEW public.v_gateway_wrappers_public AS
 SELECT 
   uw.id AS ux_wrapper_id,
@@ -314,50 +329,94 @@ JOIN public.pl_age_band_ux_wrappers abuw ON uw.id = abuw.ux_wrapper_id
 WHERE abuw.is_active = true
 ORDER BY abuw.age_band_id, abuw.rank;
 
--- v_gateway_development_needs_public: Safe development need columns
-CREATE VIEW public.v_gateway_development_needs_public AS
+-- v_gateway_wrapper_detail_public: Wrapper + linked need + age-band need meta (stage fields)
+CREATE VIEW public.v_gateway_wrapper_detail_public AS
 SELECT 
-  id,
-  name,
-  slug,
-  plain_english_description,
-  why_it_matters
-FROM public.pl_development_needs;
+  abuw.age_band_id,
+  abuw.rank,
+  uw.id AS ux_wrapper_id,
+  uw.ux_label,
+  uw.ux_slug,
+  uw.ux_description,
+  dn.id AS development_need_id,
+  dn.name AS development_need_name,
+  dn.slug AS development_need_slug,
+  dn.plain_english_description,
+  dn.why_it_matters,
+  meta.stage_anchor_month,
+  meta.stage_phase,
+  meta.stage_reason
+FROM public.pl_ux_wrappers uw
+INNER JOIN public.pl_age_band_ux_wrappers abuw ON uw.id = abuw.ux_wrapper_id
+INNER JOIN public.pl_ux_wrapper_needs uwn ON uw.id = uwn.ux_wrapper_id
+INNER JOIN public.pl_development_needs dn ON uwn.development_need_id = dn.id
+LEFT JOIN public.pl_age_band_development_need_meta meta 
+  ON dn.id = meta.development_need_id 
+  AND abuw.age_band_id = meta.age_band_id
+  AND meta.is_active = true
+WHERE abuw.is_active = true
+ORDER BY abuw.age_band_id, abuw.rank;
 
--- v_gateway_category_types_public: Safe category type columns
+-- v_gateway_development_needs_public: Only needs reachable from active gateway wrappers
+CREATE VIEW public.v_gateway_development_needs_public AS
+SELECT DISTINCT
+  dn.id,
+  dn.name,
+  dn.slug,
+  dn.plain_english_description,
+  dn.why_it_matters
+FROM public.pl_development_needs dn
+INNER JOIN public.pl_ux_wrapper_needs uwn ON dn.id = uwn.development_need_id
+INNER JOIN public.pl_age_band_ux_wrappers abuw ON uwn.ux_wrapper_id = abuw.ux_wrapper_id
+WHERE abuw.is_active = true;
+
+-- v_gateway_category_types_public: Age-band scoped, only reachable via active mappings
 CREATE VIEW public.v_gateway_category_types_public AS
 SELECT 
-  id,
-  slug,
-  label,
-  name,
-  description,
-  image_url,
-  safety_notes
-FROM public.pl_category_types;
+  abdnct.age_band_id,
+  abdnct.development_need_id,
+  abdnct.rank,
+  ct.id,
+  ct.slug,
+  ct.label,
+  ct.name,
+  ct.description,
+  ct.image_url,
+  ct.safety_notes
+FROM public.pl_category_types ct
+INNER JOIN public.pl_age_band_development_need_category_types abdnct ON ct.id = abdnct.category_type_id
+WHERE abdnct.is_active = true
+ORDER BY abdnct.age_band_id, abdnct.development_need_id, abdnct.rank;
 
--- v_gateway_products_public: Safe product columns (affiliate/deeplink fields only)
--- Note: Handles case where deep_link_url column may not exist
+-- v_gateway_products_public: Age-band scoped, only reachable via active mappings
+-- Filter: products.is_archived = false (if column exists)
 CREATE VIEW public.v_gateway_products_public AS
 SELECT 
-  id,
-  name,
-  brand,
-  image_url,
-  canonical_url,
-  amazon_uk_url,
-  affiliate_url,
-  affiliate_deeplink,
-  CASE 
-    WHEN EXISTS (
+  abctp.age_band_id,
+  abctp.category_type_id,
+  abctp.rank,
+  p.id,
+  p.name,
+  p.brand,
+  p.image_url,
+  p.canonical_url,
+  p.amazon_uk_url,
+  p.affiliate_url,
+  p.affiliate_deeplink
+FROM public.products p
+INNER JOIN public.pl_age_band_category_type_products abctp ON p.id = abctp.product_id
+WHERE abctp.is_active = true
+  AND (
+    -- Filter out archived products if column exists
+    NOT EXISTS (
       SELECT 1 FROM information_schema.columns 
       WHERE table_schema = 'public' 
         AND table_name = 'products' 
-        AND column_name = 'deep_link_url'
-    ) THEN deep_link_url
-    ELSE NULL
-  END AS deep_link_url
-FROM public.products;
+        AND column_name = 'is_archived'
+    )
+    OR p.is_archived = false
+  )
+ORDER BY abctp.age_band_id, abctp.category_type_id, abctp.rank;
 
 -- ============================================================================
 -- PART 8: GRANT SELECT ON VIEWS TO ANON/AUTHENTICATED
@@ -366,6 +425,7 @@ FROM public.products;
 -- Grant SELECT on all curated views to anon and authenticated roles
 GRANT SELECT ON public.v_gateway_age_bands_public TO anon, authenticated;
 GRANT SELECT ON public.v_gateway_wrappers_public TO anon, authenticated;
+GRANT SELECT ON public.v_gateway_wrapper_detail_public TO anon, authenticated;
 GRANT SELECT ON public.v_gateway_development_needs_public TO anon, authenticated;
 GRANT SELECT ON public.v_gateway_category_types_public TO anon, authenticated;
 GRANT SELECT ON public.v_gateway_products_public TO anon, authenticated;
@@ -753,6 +813,7 @@ DECLARE
   view_need_count INTEGER;
   view_category_count INTEGER;
   view_product_count INTEGER;
+  view_wrapper_detail_count INTEGER;
   rec RECORD;
 BEGIN
   RAISE NOTICE '';
@@ -828,6 +889,9 @@ BEGIN
   
   SELECT COUNT(*) INTO view_product_count FROM public.v_gateway_products_public;
   RAISE NOTICE 'v_gateway_products_public rows: %', view_product_count;
+  
+  SELECT COUNT(*) INTO view_wrapper_detail_count FROM public.v_gateway_wrapper_detail_public;
+  RAISE NOTICE 'v_gateway_wrapper_detail_public rows: %', view_wrapper_detail_count;
   
   -- Sample rows from key views
   RAISE NOTICE '';

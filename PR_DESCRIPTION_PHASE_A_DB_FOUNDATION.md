@@ -27,12 +27,13 @@ This PR creates the Phase A database foundation: gateway spine tables, curated p
 3. **Indexes**: Performance indexes on all foreign keys and common query patterns
 4. **Triggers**: Updated_at triggers on all new tables, immutability trigger for `pl_age_bands.id`
 5. **RLS Policies**: Admin CRUD on base tables, public SELECT on curated views only
-6. **Curated Public Views** (5 views):
-   - `v_gateway_age_bands_public`
-   - `v_gateway_wrappers_public`
-   - `v_gateway_development_needs_public`
-   - `v_gateway_category_types_public`
-   - `v_gateway_products_public`
+6. **Curated Public Views** (6 views, gateway-scoped for security):
+   - `v_gateway_age_bands_public` — Only age bands with active wrapper rankings
+   - `v_gateway_wrappers_public` — UX wrappers with rank per age band
+   - `v_gateway_wrapper_detail_public` — Wrapper + need + stage metadata (NEW)
+   - `v_gateway_development_needs_public` — Only needs reachable from active wrappers
+   - `v_gateway_category_types_public` — Age-band scoped, only via active mappings
+   - `v_gateway_products_public` — Age-band scoped, only via active mappings, excludes archived
 7. **Data Population**: Idempotent population from seed tables for 23-25m and 25-27m
 8. **Proof Bundle**: Embedded verification output with counts and sample data
 
@@ -82,9 +83,10 @@ pnpm run build
 ## Security
 
 - **Canonical Tables**: Protected by default (admin CRUD only, no public read)
-- **Curated Views**: Public SELECT granted to anon and authenticated roles
-- **RLS**: All new tables have RLS enabled with admin-only policies
+- **Curated Views**: Gateway-scoped (only content reachable via active mappings), public SELECT granted to anon and authenticated roles
+- **RLS**: All new tables have RLS enabled with admin-only policies (preflight check ensures `is_admin()` exists)
 - **Views**: Read-only (no INSERT/UPDATE/DELETE)
+- **No Broad Exposure**: Views do not expose all needs/category types/products — only gateway-reachable content
 
 ## Known Limitations
 
