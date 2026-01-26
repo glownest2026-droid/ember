@@ -83,8 +83,8 @@ _Last updated: 2026-01-04_
   - `v_gateway_wrappers_public` — UX wrappers with rank per age band
   - `v_gateway_wrapper_detail_public` — Wrapper + need + stage metadata (NEW)
   - `v_gateway_development_needs_public` — Only needs reachable from active wrappers
-  - `v_gateway_category_types_public` — Age-band scoped, only via active mappings (includes age_band_id, development_need_id, rank)
-  - `v_gateway_products_public` — Age-band scoped, only via active mappings, excludes archived (includes age_band_id, category_type_id, rank)
+  - `v_gateway_category_types_public` — Age-band scoped, only via active mappings (includes age_band_id, development_need_id, rank, rationale)
+  - `v_gateway_products_public` — Age-band scoped, only via active mappings, excludes archived (includes age_band_id, category_type_id, rank, rationale)
 - **RLS Policies**: Admin CRUD on base tables, public SELECT on curated views only
 - **Triggers**: Updated_at triggers on all new tables, immutability trigger for `pl_age_bands.id`
 
@@ -100,15 +100,17 @@ _Last updated: 2026-01-04_
 - **Idempotent**: Safe to re-run (uses IF NOT EXISTS, ON CONFLICT, etc.)
 - **Security-first**: Canonical tables remain protected; anonymous users read from gateway-scoped curated views only (no broad exposure)
 - **Preflight check**: Verifies `is_admin()` function exists before creating RLS policies
-- **Operational toggles**: `is_active` on mapping tables for soft delete pattern
+- **Preflight check**: Verifies `products.is_archived` column exists before creating products view
+- **Operational toggles**: `is_active` on mapping tables and `pl_ux_wrappers` for soft delete pattern
 - **Stage metadata**: Stored per age band per need (not on base tables)
 - **Immutability**: Trigger prevents updates to `pl_age_bands.id`
 - **Gateway-scoped views**: Views only expose content reachable via active mappings (not all needs/category types/products)
+- **Rationale fields**: Added to category types and products views for gateway context
 
 ### Verification (Proof-of-Done)
 - **Build Status**: ✅ Build passes (`pnpm run build` succeeds)
 - **Proof Bundle**: Migration includes embedded proof bundle with counts and sample data
-- **Migration File**: `supabase/sql/202601150000_phase_a_db_foundation.sql` (updated with gateway-scoped views and security fixes)
+- **Migration File**: `supabase/sql/202601150000_phase_a_db_foundation.sql` (updated with gateway-scoped views, security fixes, and rationale fields)
 
 ### Migration Application Steps
 1. Open Supabase Dashboard → SQL Editor
