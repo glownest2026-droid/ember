@@ -59,6 +59,76 @@ _Last updated: 2026-01-04_
 
 ------
 
+## 2026-01-15 — Phase A: DB Foundation (Gateway Spine + Curated Public Views)
+
+### Summary
+- Created comprehensive SQL migration for Phase A gateway spine tables
+- Added curated public views (`v_gateway_*_public`) for anonymous access
+- Implemented RLS policies (admin CRUD, public read on views only)
+- Added triggers (updated_at, immutability for pl_age_bands.id)
+- Populated data from seed tables for MVP age bands (23-25m and 25-27m)
+- Included proof bundle for verification
+
+### DB & RLS
+- **Migration**: `supabase/sql/202601150000_phase_a_db_foundation.sql`
+- **New Tables**:
+  - `pl_ux_wrappers` — UX wrapper vocabulary
+  - `pl_ux_wrapper_needs` — Wrapper → need mapping (1:1 via UNIQUE)
+  - `pl_age_band_ux_wrappers` — Age-band-specific wrapper ranking
+  - `pl_age_band_development_need_meta` — Age-band-specific stage metadata
+  - `pl_age_band_development_need_category_types` — Age-band-specific need → category mapping
+  - `pl_age_band_category_type_products` — Age-band-specific category → product mapping
+- **Curated Public Views** (gateway-scoped for security):
+  - `v_gateway_age_bands_public` — Only age bands with active wrapper rankings
+  - `v_gateway_wrappers_public` — UX wrappers with rank per age band
+  - `v_gateway_wrapper_detail_public` — Wrapper + need + stage metadata (NEW)
+  - `v_gateway_development_needs_public` — Only needs reachable from active wrappers
+  - `v_gateway_category_types_public` — Age-band scoped, only via active mappings (includes age_band_id, development_need_id, rank, rationale)
+  - `v_gateway_products_public` — Age-band scoped, only via active mappings, excludes archived (includes age_band_id, category_type_id, rank, rationale)
+- **RLS Policies**: Admin CRUD on base tables, public SELECT on curated views only
+- **Triggers**: Updated_at triggers on all new tables, immutability trigger for `pl_age_bands.id`
+
+### Data Population
+- Ensures age bands "23-25m" and "25-27m" exist
+- Populates `pl_development_needs` from `pl_seed_development_needs` (idempotent, only fills missing descriptions)
+- Creates UX wrappers from `pl_need_ux_labels` (if exists) for 25-27m
+- Populates stage metadata from seed tables for both age bands
+- Maps category types to development needs based on `mapped_developmental_needs` (comma-separated)
+- Maps products to category types from `pl_seed_products` for both age bands
+
+### Key Features
+- **Idempotent**: Safe to re-run (uses IF NOT EXISTS, ON CONFLICT, etc.)
+- **Security-first**: Canonical tables remain protected; anonymous users read from gateway-scoped curated views only (no broad exposure)
+- **Preflight check**: Verifies `is_admin()` function exists before creating RLS policies
+- **Preflight check**: Verifies `products.is_archived` column exists before creating products view
+- **Operational toggles**: `is_active` on mapping tables and `pl_ux_wrappers` for soft delete pattern
+- **Stage metadata**: Stored per age band per need (not on base tables)
+- **Immutability**: Trigger prevents updates to `pl_age_bands.id`
+- **Gateway-scoped views**: Views only expose content reachable via active mappings (not all needs/category types/products)
+- **Rationale fields**: Added to category types and products views for gateway context
+
+### Verification (Proof-of-Done)
+- **Build Status**: ✅ Build passes (`pnpm run build` succeeds)
+- **Proof Bundle**: Migration includes embedded proof bundle with counts and sample data
+- **Migration File**: `supabase/sql/202601150000_phase_a_db_foundation.sql` (updated with gateway-scoped views, security fixes, and rationale fields)
+
+### Migration Application Steps
+1. Open Supabase Dashboard → SQL Editor
+2. Paste entire contents of `supabase/sql/202601150000_phase_a_db_foundation.sql`
+3. Execute
+4. Check NOTICE messages in output (proof bundle runs automatically)
+5. Verify: Age bands exist, UX wrappers created, mappings populated, views accessible
+
+### Known Limitations
+- Data population is best-effort (matches by name/slug, may miss some products if names don't match exactly)
+- UX wrapper creation depends on `pl_need_ux_labels` table existing (gracefully handles if missing)
+- Product matching uses name + brand (may need refinement for exact matching)
+
+### Next Step
+- **PR #3**: Wire new Phase A data flow into `/new/[months]` route (read from curated views instead of legacy tables)
+
+------
+
 ## 2026-01-15 — Phase A: Ground Truth + Gateway Schema (No Migrations)
 
 ### Summary
