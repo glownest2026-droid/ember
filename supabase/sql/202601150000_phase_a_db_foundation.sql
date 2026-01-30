@@ -921,6 +921,8 @@ BEGIN
   RAISE NOTICE '=== AGE BANDS ===';
   RAISE NOTICE 'Age bands (23-25m, 25-27m): % (expected: 2)', age_band_count;
   
+<<<<<<< HEAD
+  -- Development needs (seed import verification)
   -- Development needs (seed import verification)
   SELECT COUNT(*) INTO development_needs_count FROM public.pl_development_needs;
   RAISE NOTICE '';
@@ -947,12 +949,23 @@ BEGIN
   RAISE NOTICE '=== AGE BAND WRAPPER RANKINGS ===';
   RAISE NOTICE 'Age band wrapper rankings (23-25m, 25-27m): %', age_band_wrapper_count;
   
+<<<<<<< HEAD
   -- Wrappers for 25-27m (seed import verification)
   SELECT COUNT(*) INTO view_wrapper_count_25_27
   FROM public.v_gateway_wrappers_public
   WHERE age_band_id = '25-27m';
   RAISE NOTICE 'Wrappers for 25-27m: % (seed import succeeded if > 0)', view_wrapper_count_25_27;
   
+  -- Development need meta (seed import verification)
+  SELECT COUNT(*) INTO meta_count 
+  FROM public.pl_age_band_development_need_meta 
+  WHERE age_band_id IN ('23-25m', '25-27m');
+  SELECT COUNT(*) INTO meta_count_23_25
+  FROM public.pl_age_band_development_need_meta 
+  WHERE age_band_id = '23-25m';
+  SELECT COUNT(*) INTO meta_count_25_27
+  FROM public.pl_age_band_development_need_meta 
+  WHERE age_band_id = '25-27m';
   -- Development need meta (seed import verification)
   SELECT COUNT(*) INTO meta_count 
   FROM public.pl_age_band_development_need_meta 
