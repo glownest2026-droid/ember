@@ -890,6 +890,84 @@ BEGIN
 END $$;
 
 -- ============================================================================
+-- PART 10.6: ENSURE WRAPPERS + WRAPPER MAPPINGS + RANKINGS EXIST (FALLBACK)
+-- ============================================================================
+-- Fallback wrapper population using canonical/meta tables when pl_need_ux_labels is missing or empty.
+-- This ensures wrappers exist for all development needs in the gateway (from pl_age_band_development_need_meta).
+-- All operations are idempotent and set-based (no PL/pgSQL loops).
+
+-- 10.6.1: Create wrappers from gateway development needs (idempotent)
+-- Source: distinct development_need_id from pl_age_band_development_need_meta where age_band_id in ('23-25m','25-27m') and is_active = true
+INSERT INTO public.pl_ux_wrappers (ux_slug, ux_label, ux_description, is_active)
+SELECT DISTINCT
+  dn.slug AS ux_slug,
+  CASE
+    WHEN dn.name = 'Color and shape recognition' THEN 'Shapes & colours'
+    WHEN dn.name = 'Creative expression and mark-making' THEN 'Drawing & making'
+    WHEN dn.name = 'Emotional regulation and self-awareness' THEN 'Big feelings'
+    WHEN dn.name = 'Fine motor control and hand coordination' THEN 'Little hands'
+    WHEN dn.name = 'Gross motor skills and physical confidence' THEN 'Burn energy'
+    WHEN dn.name ILIKE 'Independence and practical%' THEN 'Do it myself'
+    ELSE dn.name
+  END AS ux_label,
+  NULLIF(dn.plain_english_description, '') AS ux_description,
+  true AS is_active
+FROM public.pl_age_band_development_need_meta meta
+INNER JOIN public.pl_development_needs dn ON meta.development_need_id = dn.id
+WHERE meta.age_band_id IN ('23-25m', '25-27m')
+  AND meta.is_active = true
+ON CONFLICT (ux_slug) DO UPDATE SET
+  is_active = true,
+  ux_label = COALESCE(NULLIF(pl_ux_wrappers.ux_label, ''), EXCLUDED.ux_label),
+  ux_description = COALESCE(NULLIF(pl_ux_wrappers.ux_description, ''), EXCLUDED.ux_description),
+  updated_at = now();
+
+-- 10.6.2: Map wrappers to development needs (idempotent)
+-- Only include needs in the gateway need set (from meta table)
+INSERT INTO public.pl_ux_wrapper_needs (ux_wrapper_id, development_need_id)
+SELECT DISTINCT
+  uw.id AS ux_wrapper_id,
+  dn.id AS development_need_id
+FROM public.pl_age_band_development_need_meta meta
+INNER JOIN public.pl_development_needs dn ON meta.development_need_id = dn.id
+INNER JOIN public.pl_ux_wrappers uw ON uw.ux_slug = dn.slug
+WHERE meta.age_band_id IN ('23-25m', '25-27m')
+  AND meta.is_active = true
+ON CONFLICT (ux_wrapper_id) DO UPDATE SET
+  development_need_id = EXCLUDED.development_need_id,
+  updated_at = now();
+
+-- 10.6.3: Create age-band wrapper rankings (idempotent)
+-- Rank wrappers deterministically using stage_anchor_month proximity to band midpoint
+INSERT INTO public.pl_age_band_ux_wrappers (age_band_id, ux_wrapper_id, rank, is_active)
+SELECT
+  ranked.age_band_id,
+  ranked.ux_wrapper_id,
+  ranked.rank,
+  true AS is_active
+FROM (
+  SELECT
+    meta.age_band_id,
+    uw.id AS ux_wrapper_id,
+    ROW_NUMBER() OVER (
+      PARTITION BY meta.age_band_id
+      ORDER BY 
+        ABS(COALESCE(meta.stage_anchor_month, (ab.min_months + ab.max_months) / 2.0) - (ab.min_months + ab.max_months) / 2.0),
+        dn.name
+    ) AS rank
+  FROM public.pl_age_band_development_need_meta meta
+  INNER JOIN public.pl_age_bands ab ON meta.age_band_id = ab.id
+  INNER JOIN public.pl_development_needs dn ON meta.development_need_id = dn.id
+  INNER JOIN public.pl_ux_wrappers uw ON uw.ux_slug = dn.slug
+  WHERE meta.age_band_id IN ('23-25m', '25-27m')
+    AND meta.is_active = true
+) ranked
+ON CONFLICT (age_band_id, ux_wrapper_id) DO UPDATE SET
+  rank = EXCLUDED.rank,
+  is_active = true,
+  updated_at = now();
+
+-- ============================================================================
 -- PART 11: PROOF BUNDLE (verification output)
 -- ============================================================================
 
@@ -912,6 +990,7 @@ DECLARE
   view_category_count INTEGER;
   view_product_count INTEGER;
   view_wrapper_detail_count INTEGER;
+  rec RECORD;
 BEGIN
   RAISE NOTICE '';
   RAISE NOTICE '============================================================================';
@@ -1009,6 +1088,29 @@ BEGIN
   
   SELECT COUNT(*) INTO view_wrapper_detail_count FROM public.v_gateway_wrapper_detail_public;
   RAISE NOTICE 'v_gateway_wrapper_detail_public rows: %', view_wrapper_detail_count;
+  
+  -- Sample wrapper detail data for 25-27m
+  RAISE NOTICE '';
+  RAISE NOTICE '=== SAMPLE: v_gateway_wrapper_detail_public (first 5 for 25-27m) ===';
+  FOR rec IN (
+    SELECT 
+      age_band_id,
+      rank,
+      ux_wrapper_id,
+      ux_label,
+      ux_slug,
+      development_need_id,
+      development_need_name
+    FROM public.v_gateway_wrapper_detail_public
+    WHERE age_band_id = '25-27m'
+    ORDER BY rank
+    LIMIT 5
+  )
+  LOOP
+    RAISE NOTICE '  age_band_id: %, rank: %, ux_wrapper_id: %, ux_label: %, ux_slug: %, need: %',
+      rec.age_band_id, rec.rank, rec.ux_wrapper_id, 
+      rec.ux_label, rec.ux_slug, rec.development_need_name;
+  END LOOP;
   
   RAISE NOTICE '';
   RAISE NOTICE '============================================================================';

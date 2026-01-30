@@ -135,6 +135,23 @@ _Last updated: 2026-01-04_
   - **Safety**: Added comment at top of Part 10 documenting variable naming convention
   - **PR**: `feat/phase-a-db-foundation-supabase-fix-2`
   - **Verification**: Run migration in Supabase SQL Editor; proof bundle should complete without errors
+- **Hotfix #3 (2026-01-15, same day)**:
+  - **Issue**: Migration ran successfully but wrappers are empty (pl_ux_wrappers = 0, pl_ux_wrapper_needs = 0, pl_age_band_ux_wrappers = 0)
+  - **Root Cause**: Wrapper population (Part 10.2) depends on `pl_need_ux_labels` table which was missing or empty
+  - **Fix**: Added Part 10.6 fallback wrapper population:
+    * Creates wrappers from gateway development needs (from `pl_age_band_development_need_meta`)
+    * Uses deterministic naming: `ux_slug = dn.slug` (stable), `ux_label` with CASE mapping for known needs
+    * Maps wrappers to needs (1:1 via `pl_ux_wrapper_needs`)
+    * Ranks wrappers per age band using `stage_anchor_month` proximity to band midpoint
+    * All operations are set-based and idempotent
+  - **Updated**: Proof bundle now includes wrapper counts and sample wrapper detail data
+  - **PR**: `feat/phase-a-wrapper-population-fix`
+  - **Verification**: 
+    * Run migration in Supabase SQL Editor
+    * Check: `SELECT COUNT(*) FROM pl_ux_wrappers;` (should be > 0, matches distinct needs in meta)
+    * Check: `SELECT COUNT(*) FROM pl_age_band_ux_wrappers WHERE age_band_id IN ('23-25m','25-27m');` (should be > 0)
+    * Check: `SELECT COUNT(*) FROM v_gateway_wrappers_public;` (should be > 0)
+  - **Next Step**: UI cutover to use gateway views (`v_gateway_*_public`) instead of legacy tables
 
 ### Migration Application Steps
 1. Open Supabase Dashboard → SQL Editor
