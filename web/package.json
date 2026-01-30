@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/check-no-conflict-markers.js",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "check:conflicts": "node scripts/check-no-conflict-markers.js"
   },
   "dependencies": {
     "@builder.io/react": "^9.0.0",
