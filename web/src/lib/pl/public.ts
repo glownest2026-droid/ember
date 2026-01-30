@@ -1,9 +1,168 @@
 import { createClient } from '../../utils/supabase/server';
 
+// ============================================================================
+// PHASE A GATEWAY VIEWS (New - replaces legacy pl_age_moment_sets / pl_reco_cards)
+// ============================================================================
+// Legacy gateway tables (pl_age_moment_sets, pl_reco_cards) are deprecated.
+// Phase A uses curated public views: v_gateway_*_public
+
+/**
+ * Get all gateway age bands for the age slider.
+ * Returns age bands ordered by min_months.
+ * 
+ * @returns Array of age bands
+ */
+export async function getGatewayAgeBands() {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('v_gateway_age_bands_public')
+    .select('id, label, min_months, max_months')
+    .order('min_months', { ascending: true });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data;
+}
+
+/**
+ * Map age in months to the best matching gateway age band.
+ * Returns the age band ID if found, or null if no match.
+ * 
+ * @param ageMonths - Age in months
+ * @returns Age band object or null
+ */
+export async function getGatewayAgeBandForAge(ageMonths: number) {
+  const supabase = createClient();
+
+  // Find age bands where min_months <= ageMonths <= max_months
+  const { data, error } = await supabase
+    .from('v_gateway_age_bands_public')
+    .select('id, min_months, max_months, label')
+    .lte('min_months', ageMonths)
+    .gte('max_months', ageMonths)
+    .order('min_months', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Get gateway wrappers (UX wrapper cards) for an age band.
+ * Returns wrappers ordered by rank.
+ * 
+ * @param ageBandId - The age band ID
+ * @returns Array of wrappers
+ */
+export async function getGatewayWrappersForAgeBand(ageBandId: string) {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('v_gateway_wrappers_public')
+    .select('ux_wrapper_id, ux_label, ux_slug, ux_description, age_band_id, rank')
+    .eq('age_band_id', ageBandId)
+    .order('rank', { ascending: true });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data;
+}
+
+/**
+ * Get gateway wrapper detail (wrapper + need + stage metadata) for an age band and wrapper.
+ * 
+ * @param ageBandId - The age band ID
+ * @param uxWrapperId - The UX wrapper ID
+ * @returns Wrapper detail object or null
+ */
+export async function getGatewayWrapperDetail(ageBandId: string, uxWrapperId: string) {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('v_gateway_wrapper_detail_public')
+    .select('*')
+    .eq('age_band_id', ageBandId)
+    .eq('ux_wrapper_id', uxWrapperId)
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Get gateway category types for an age band and development need.
+ * Returns category types ordered by rank.
+ * 
+ * @param ageBandId - The age band ID
+ * @param developmentNeedId - The development need ID
+ * @returns Array of category types
+ */
+export async function getGatewayCategoryTypes(ageBandId: string, developmentNeedId: string) {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('v_gateway_category_types_public')
+    .select('*')
+    .eq('age_band_id', ageBandId)
+    .eq('development_need_id', developmentNeedId)
+    .order('rank', { ascending: true });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data;
+}
+
+/**
+ * Get gateway products for an age band and category type.
+ * Returns products ordered by rank.
+ * 
+ * @param ageBandId - The age band ID
+ * @param categoryTypeId - The category type ID
+ * @returns Array of products
+ */
+export async function getGatewayProducts(ageBandId: string, categoryTypeId: string) {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('v_gateway_products_public')
+    .select('*')
+    .eq('age_band_id', ageBandId)
+    .eq('category_type_id', categoryTypeId)
+    .order('rank', { ascending: true });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data;
+}
+
+// ============================================================================
+// LEGACY GATEWAY FUNCTIONS (Deprecated - kept for reference)
+// ============================================================================
+// Legacy gateway tables (pl_age_moment_sets, pl_reco_cards) are deprecated.
+// Phase A uses curated public views: v_gateway_*_public
+
 /**
  * Map age in months to the best matching active age band.
  * Returns the age band ID if found, or null if no match.
  * 
+ * @deprecated Use getGatewayAgeBandForAge() instead
  * @param ageMonths - Age in months
  * @returns Age band object or null
  */
@@ -32,6 +191,7 @@ export async function getAgeBandForAge(ageMonths: number) {
  * Fetch active moments that have at least one published set for a given age band.
  * Server-side only. Returns only active moments with published content.
  * 
+ * @deprecated Use getGatewayWrappersForAgeBand() instead
  * @param ageBandId - The age band ID
  * @returns Array of moments with published sets, or empty array
  */
