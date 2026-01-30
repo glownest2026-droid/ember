@@ -502,7 +502,7 @@ ON CONFLICT (id) DO NOTHING;
 -- The population logic is idempotent (uses ON CONFLICT or checks before insert).
 
 -- 10.1: Populate pl_development_needs from pl_seed_development_needs (if not already populated)
--- This is idempotent - only inserts if need_name doesn't exist
+-- This is idempotent - only inserts if name doesn't exist, updates only NULL/empty descriptions
 DO $$
 DECLARE
   seed_rec RECORD;
@@ -518,14 +518,7 @@ BEGIN
       SELECT DISTINCT ON (need_name)
         need_name,
         plain_english_description,
-        why_it_matters,
-        min_month,
-        max_month,
-        stage_anchor_month,
-        stage_phase,
-        stage_reason,
-        evidence_urls,
-        evidence_notes
+        why_it_matters
       FROM public.pl_seed_development_needs
       WHERE need_name IS NOT NULL
       ORDER BY need_name, imported_at DESC NULLS LAST
@@ -538,48 +531,45 @@ BEGIN
         need_slug := public.slugify_ux_label(seed_rec.need_name);
       END;
       
-      -- Upsert development need (match by need_name)
-      INSERT INTO public.pl_development_needs (
-        need_name,
-        slug,
-        plain_english_description,
-        why_it_matters,
-        min_month,
-        max_month,
-        stage_anchor_month,
-        stage_phase,
-        stage_reason,
-        evidence_urls,
-        evidence_notes
-      )
-      VALUES (
-        seed_rec.need_name,
-        need_slug,
-        COALESCE(seed_rec.plain_english_description, ''),
-        COALESCE(seed_rec.why_it_matters, ''),
-        COALESCE(seed_rec.min_month, 0),
-        COALESCE(seed_rec.max_month, 72),
-        seed_rec.stage_anchor_month,
-        seed_rec.stage_phase,
-        seed_rec.stage_reason,
-        CASE 
-          WHEN seed_rec.evidence_urls IS NOT NULL AND seed_rec.evidence_urls != '' 
-          THEN string_to_array(seed_rec.evidence_urls, '|')
-          ELSE NULL
-        END,
-        seed_rec.evidence_notes
-      )
-      ON CONFLICT (need_name) DO UPDATE SET
-        -- Only update if current values are NULL or empty
-        plain_english_description = COALESCE(
-          NULLIF(pl_development_needs.plain_english_description, ''),
-          EXCLUDED.plain_english_description
-        ),
-        why_it_matters = COALESCE(
-          NULLIF(pl_development_needs.why_it_matters, ''),
-          EXCLUDED.why_it_matters
-        ),
-        slug = COALESCE(pl_development_needs.slug, EXCLUDED.slug);
+      -- Check if need already exists (by name or slug)
+      SELECT id INTO need_id
+      FROM public.pl_development_needs
+      WHERE name = seed_rec.need_name
+         OR slug = need_slug
+      LIMIT 1;
+      
+      IF need_id IS NULL THEN
+        -- Insert new development need (only canonical columns)
+        INSERT INTO public.pl_development_needs (
+          name,
+          slug,
+          plain_english_description,
+          why_it_matters
+        )
+        VALUES (
+          seed_rec.need_name,
+          need_slug,
+          COALESCE(seed_rec.plain_english_description, ''),
+          COALESCE(seed_rec.why_it_matters, '')
+        )
+        RETURNING id INTO need_id;
+      ELSE
+        -- Update existing need only if descriptions are NULL/empty
+        UPDATE public.pl_development_needs
+        SET 
+          plain_english_description = COALESCE(
+            NULLIF(plain_english_description, ''),
+            seed_rec.plain_english_description,
+            ''
+          ),
+          why_it_matters = COALESCE(
+            NULLIF(why_it_matters, ''),
+            seed_rec.why_it_matters,
+            ''
+          ),
+          slug = COALESCE(slug, need_slug)
+        WHERE id = need_id;
+      END IF;
     END LOOP;
   END IF;
 END $$;
@@ -643,60 +633,87 @@ BEGIN
 END $$;
 
 -- 10.3: Populate pl_age_band_development_need_meta from seed tables for 23-25m and 25-27m
+-- Filter seed needs by age band overlap (seed.min_month <= band.max_months AND seed.max_month >= band.min_months)
 DO $$
 DECLARE
   seed_rec RECORD;
   need_id UUID;
-  age_band_id TEXT;
+  v_age_band_id TEXT;
+  band_min_months INTEGER;
+  band_max_months INTEGER;
 BEGIN
   -- Only proceed if pl_seed_development_needs table exists
   IF EXISTS (
     SELECT 1 FROM information_schema.tables 
     WHERE table_schema = 'public' AND table_name = 'pl_seed_development_needs'
   ) THEN
-    FOR age_band_id IN SELECT unnest(ARRAY['23-25m', '25-27m'])
+    FOR v_age_band_id IN SELECT unnest(ARRAY['23-25m', '25-27m'])
     LOOP
-      FOR seed_rec IN (
-        SELECT DISTINCT ON (need_name)
-          need_name,
-          stage_anchor_month,
-          stage_phase,
-          stage_reason
-        FROM public.pl_seed_development_needs
-        WHERE need_name IS NOT NULL
-        ORDER BY need_name, imported_at DESC NULLS LAST
-      )
-      LOOP
-        -- Find development need by name
-        SELECT id INTO need_id 
-        FROM public.pl_development_needs 
-        WHERE need_name = seed_rec.need_name
-        LIMIT 1;
-        
-        -- Insert meta if need found
-        IF need_id IS NOT NULL THEN
-          INSERT INTO public.pl_age_band_development_need_meta (
-            age_band_id,
-            development_need_id,
+      -- Get age band min/max months for overlap check
+      SELECT min_months, max_months INTO band_min_months, band_max_months
+      FROM public.pl_age_bands
+      WHERE id = v_age_band_id
+      LIMIT 1;
+      
+      -- Only proceed if age band found
+      IF band_min_months IS NOT NULL AND band_max_months IS NOT NULL THEN
+        FOR seed_rec IN (
+          SELECT DISTINCT ON (need_name)
+            need_name,
+            min_month,
+            max_month,
             stage_anchor_month,
             stage_phase,
-            stage_reason,
-            is_active
-          )
-          VALUES (
-            age_band_id,
-            need_id,
-            seed_rec.stage_anchor_month,
-            seed_rec.stage_phase,
-            seed_rec.stage_reason,
-            true
-          )
-          ON CONFLICT (age_band_id, development_need_id) DO UPDATE SET
-            stage_anchor_month = COALESCE(EXCLUDED.stage_anchor_month, pl_age_band_development_need_meta.stage_anchor_month),
-            stage_phase = COALESCE(EXCLUDED.stage_phase, pl_age_band_development_need_meta.stage_phase),
-            stage_reason = COALESCE(EXCLUDED.stage_reason, pl_age_band_development_need_meta.stage_reason);
-        END IF;
-      END LOOP;
+            stage_reason
+          FROM public.pl_seed_development_needs
+          WHERE need_name IS NOT NULL
+            -- Filter by age band overlap
+            AND min_month <= band_max_months
+            AND max_month >= band_min_months
+          ORDER BY need_name, imported_at DESC NULLS LAST
+        )
+        LOOP
+          -- Find development need by name
+          SELECT id INTO need_id 
+          FROM public.pl_development_needs 
+          WHERE name = seed_rec.need_name
+          LIMIT 1;
+          
+          -- Insert meta if need found
+          IF need_id IS NOT NULL THEN
+            INSERT INTO public.pl_age_band_development_need_meta (
+              age_band_id,
+              development_need_id,
+              stage_anchor_month,
+              stage_phase,
+              stage_reason,
+              is_active
+            )
+            VALUES (
+              v_age_band_id,
+              need_id,
+              seed_rec.stage_anchor_month,
+              seed_rec.stage_phase,
+              seed_rec.stage_reason,
+              true
+            )
+            ON CONFLICT (age_band_id, development_need_id) DO UPDATE SET
+              -- Only overwrite if existing is NULL/empty
+              stage_anchor_month = COALESCE(
+                pl_age_band_development_need_meta.stage_anchor_month,
+                EXCLUDED.stage_anchor_month
+              ),
+              stage_phase = COALESCE(
+                NULLIF(pl_age_band_development_need_meta.stage_phase, ''),
+                EXCLUDED.stage_phase
+              ),
+              stage_reason = COALESCE(
+                NULLIF(pl_age_band_development_need_meta.stage_reason, ''),
+                EXCLUDED.stage_reason
+              );
+          END IF;
+        END LOOP;
+      END IF;
     END LOOP;
   END IF;
 END $$;
@@ -707,9 +724,9 @@ DO $$
 DECLARE
   seed_rec RECORD;
   category_id UUID;
-  need_name TEXT;
+  v_need_name TEXT;
   need_id UUID;
-  age_band_id TEXT;
+  v_age_band_id TEXT;
   rank_counter INTEGER;
 BEGIN
   -- Only proceed if pl_seed_category_types table exists
@@ -717,13 +734,14 @@ BEGIN
     SELECT 1 FROM information_schema.tables 
     WHERE table_schema = 'public' AND table_name = 'pl_seed_category_types'
   ) THEN
-    FOR age_band_id IN SELECT unnest(ARRAY['23-25m', '25-27m'])
+    FOR v_age_band_id IN SELECT unnest(ARRAY['23-25m', '25-27m'])
     LOOP
       FOR seed_rec IN (
         SELECT DISTINCT ON (slug)
           slug,
           name,
-          mapped_developmental_needs
+          mapped_developmental_needs,
+          stage_reason
         FROM public.pl_seed_category_types
         WHERE slug IS NOT NULL
         ORDER BY slug, imported_at DESC NULLS LAST
@@ -740,14 +758,14 @@ BEGIN
           rank_counter := 1;
           
           -- Parse comma-separated need names
-          FOR need_name IN (
+          FOR v_need_name IN (
             SELECT trim(unnest(string_to_array(seed_rec.mapped_developmental_needs, ',')))
           )
           LOOP
             -- Find development need by name
             SELECT id INTO need_id 
             FROM public.pl_development_needs 
-            WHERE need_name = trim(need_name)
+            WHERE name = trim(v_need_name)
             LIMIT 1;
             
             -- Insert mapping if need found
@@ -757,13 +775,15 @@ BEGIN
                 development_need_id,
                 category_type_id,
                 rank,
+                rationale,
                 is_active
               )
               VALUES (
-                age_band_id,
+                v_age_band_id,
                 need_id,
                 category_id,
                 rank_counter,
+                seed_rec.stage_reason,
                 true
               )
               ON CONFLICT (age_band_id, development_need_id, category_type_id) DO NOTHING;
@@ -784,26 +804,29 @@ DECLARE
   seed_rec RECORD;
   category_id UUID;
   product_id UUID;
-  age_band_id TEXT;
+  v_age_band_id TEXT;
   rank_counter INTEGER;
+  v_rationale TEXT;
 BEGIN
   -- Only proceed if pl_seed_products table exists
   IF EXISTS (
     SELECT 1 FROM information_schema.tables 
     WHERE table_schema = 'public' AND table_name = 'pl_seed_products'
   ) THEN
-    FOR age_band_id IN SELECT unnest(ARRAY['23-25m', '25-27m'])
+    FOR v_age_band_id IN SELECT unnest(ARRAY['23-25m', '25-27m'])
     LOOP
       FOR seed_rec IN (
         SELECT DISTINCT ON (name, brand)
           name,
           brand,
           category_type_slug,
-          age_band_id AS seed_age_band_id
+          age_band_id AS seed_age_band_id,
+          stage_reason,
+          age_suitability_note
         FROM public.pl_seed_products
         WHERE name IS NOT NULL 
           AND category_type_slug IS NOT NULL
-          AND age_band_id = age_band_id
+          AND age_band_id = v_age_band_id
         ORDER BY name, brand, imported_at DESC NULLS LAST
       )
       LOOP
@@ -825,20 +848,35 @@ BEGIN
           -- Get next rank for this age band + category
           SELECT COALESCE(MAX(rank), 0) + 1 INTO rank_counter
           FROM public.pl_age_band_category_type_products
-          WHERE age_band_id = age_band_id AND category_type_id = category_id;
+          WHERE age_band_id = v_age_band_id AND category_type_id = category_id;
+          
+          -- Build rationale: stage_reason || ' | ' || age_suitability_note (safe concat)
+          v_rationale := NULL;
+          IF seed_rec.stage_reason IS NOT NULL AND seed_rec.stage_reason != '' THEN
+            v_rationale := seed_rec.stage_reason;
+          END IF;
+          IF seed_rec.age_suitability_note IS NOT NULL AND seed_rec.age_suitability_note != '' THEN
+            IF v_rationale IS NOT NULL THEN
+              v_rationale := v_rationale || ' | ' || seed_rec.age_suitability_note;
+            ELSE
+              v_rationale := seed_rec.age_suitability_note;
+            END IF;
+          END IF;
           
           INSERT INTO public.pl_age_band_category_type_products (
             age_band_id,
             category_type_id,
             product_id,
             rank,
+            rationale,
             is_active
           )
           VALUES (
-            age_band_id,
+            v_age_band_id,
             category_id,
             product_id,
             rank_counter,
+            v_rationale,
             true
           )
           ON CONFLICT (age_band_id, category_type_id, product_id) DO NOTHING;
@@ -859,15 +897,18 @@ DECLARE
   wrapper_need_count INTEGER;
   age_band_wrapper_count INTEGER;
   meta_count INTEGER;
+  meta_count_23_25 INTEGER;
+  meta_count_25_27 INTEGER;
   need_category_count INTEGER;
   category_product_count INTEGER;
+  development_needs_count INTEGER;
   view_age_band_count INTEGER;
   view_wrapper_count INTEGER;
+  view_wrapper_count_25_27 INTEGER;
   view_need_count INTEGER;
   view_category_count INTEGER;
   view_product_count INTEGER;
   view_wrapper_detail_count INTEGER;
-  rec RECORD;
 BEGIN
   RAISE NOTICE '';
   RAISE NOTICE '============================================================================';
@@ -879,6 +920,14 @@ BEGIN
   SELECT COUNT(*) INTO age_band_count FROM public.pl_age_bands WHERE id IN ('23-25m', '25-27m');
   RAISE NOTICE '=== AGE BANDS ===';
   RAISE NOTICE 'Age bands (23-25m, 25-27m): % (expected: 2)', age_band_count;
+  
+<<<<<<< HEAD
+  -- Development needs (seed import verification)
+  -- Development needs (seed import verification)
+  SELECT COUNT(*) INTO development_needs_count FROM public.pl_development_needs;
+  RAISE NOTICE '';
+  RAISE NOTICE '=== SEED IMPORT: DEVELOPMENT NEEDS ===';
+  RAISE NOTICE 'Total pl_development_needs rows: % (seed import succeeded if > 0)', development_needs_count;
   
   -- UX wrappers
   SELECT COUNT(*) INTO ux_wrapper_count FROM public.pl_ux_wrappers;
@@ -900,13 +949,38 @@ BEGIN
   RAISE NOTICE '=== AGE BAND WRAPPER RANKINGS ===';
   RAISE NOTICE 'Age band wrapper rankings (23-25m, 25-27m): %', age_band_wrapper_count;
   
-  -- Development need meta
+<<<<<<< HEAD
+  -- Wrappers for 25-27m (seed import verification)
+  SELECT COUNT(*) INTO view_wrapper_count_25_27
+  FROM public.v_gateway_wrappers_public
+  WHERE age_band_id = '25-27m';
+  RAISE NOTICE 'Wrappers for 25-27m: % (seed import succeeded if > 0)', view_wrapper_count_25_27;
+  
+  -- Development need meta (seed import verification)
   SELECT COUNT(*) INTO meta_count 
   FROM public.pl_age_band_development_need_meta 
   WHERE age_band_id IN ('23-25m', '25-27m');
+  SELECT COUNT(*) INTO meta_count_23_25
+  FROM public.pl_age_band_development_need_meta 
+  WHERE age_band_id = '23-25m';
+  SELECT COUNT(*) INTO meta_count_25_27
+  FROM public.pl_age_band_development_need_meta 
+  WHERE age_band_id = '25-27m';
+  -- Development need meta (seed import verification)
+  SELECT COUNT(*) INTO meta_count 
+  FROM public.pl_age_band_development_need_meta 
+  WHERE age_band_id IN ('23-25m', '25-27m');
+  SELECT COUNT(*) INTO meta_count_23_25
+  FROM public.pl_age_band_development_need_meta 
+  WHERE age_band_id = '23-25m';
+  SELECT COUNT(*) INTO meta_count_25_27
+  FROM public.pl_age_band_development_need_meta 
+  WHERE age_band_id = '25-27m';
   RAISE NOTICE '';
-  RAISE NOTICE '=== DEVELOPMENT NEED META ===';
+  RAISE NOTICE '=== SEED IMPORT: DEVELOPMENT NEED META ===';
   RAISE NOTICE 'Development need meta records (23-25m, 25-27m): %', meta_count;
+  RAISE NOTICE '  - 23-25m: %', meta_count_23_25;
+  RAISE NOTICE '  - 25-27m: %', meta_count_25_27;
   
   -- Need-category mappings
   SELECT COUNT(*) INTO need_category_count 
@@ -946,34 +1020,9 @@ BEGIN
   SELECT COUNT(*) INTO view_wrapper_detail_count FROM public.v_gateway_wrapper_detail_public;
   RAISE NOTICE 'v_gateway_wrapper_detail_public rows: %', view_wrapper_detail_count;
   
-  -- Sample rows from key views
-  RAISE NOTICE '';
-  RAISE NOTICE '=== SAMPLE: v_gateway_wrappers_public (first 5 for 25-27m) ===';
-  FOR rec IN (
-    SELECT ux_wrapper_id, ux_label, ux_slug, age_band_id, rank
-    FROM public.v_gateway_wrappers_public
-    WHERE age_band_id = '25-27m'
-    ORDER BY rank
-    LIMIT 5
-  ) LOOP
-    RAISE NOTICE 'ux_wrapper_id: %, ux_label: %, ux_slug: %, rank: %',
-      rec.ux_wrapper_id, rec.ux_label, rec.ux_slug, rec.rank;
-  END LOOP;
-  
-  RAISE NOTICE '';
-  RAISE NOTICE '=== SAMPLE: v_gateway_development_needs_public (first 3) ===';
-  FOR rec IN (
-    SELECT id, name, slug
-    FROM public.v_gateway_development_needs_public
-    ORDER BY name
-    LIMIT 3
-  ) LOOP
-    RAISE NOTICE 'id: %, name: %, slug: %', rec.id, rec.name, rec.slug;
-  END LOOP;
-  
   RAISE NOTICE '';
   RAISE NOTICE '============================================================================';
   RAISE NOTICE 'PROOF BUNDLE COMPLETE';
   RAISE NOTICE '============================================================================';
+  RAISE NOTICE '';
 END $$;
-

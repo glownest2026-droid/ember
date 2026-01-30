@@ -112,6 +112,20 @@ _Last updated: 2026-01-04_
 - **Proof Bundle**: Migration includes embedded proof bundle with counts and sample data
 - **Migration File**: `supabase/sql/202601150000_phase_a_db_foundation.sql` (updated with gateway-scoped views, security fixes, and rationale fields)
 
+<<<<<<< HEAD
+### Hotfix (2026-01-15, same day)
+- **Issue**: Migration failed in Supabase with `ERROR: column "need_name" of relation "pl_development_needs" does not exist`
+- **Root Cause**: Migration attempted to use `need_name` column (seed table) instead of `name` (canonical table), and tried to insert seed-only columns into canonical table
+- **Fix**: 
+  - Replaced all `need_name` references with `name` in `pl_development_needs` operations
+  - Only insert canonical columns: `name`, `slug`, `plain_english_description`, `why_it_matters`
+  - Stage fields stored only in `pl_age_band_development_need_meta` with age band overlap filtering
+  - Fixed variable shadowing bug in product population (`v_age_band_id`)
+  - Populated rationale fields in category and product mappings
+  - Updated proof bundle with seed import verification indicators
+- **PR**: `feat/phase-a-db-foundation-supabase-fix` (hotfix branch)
+- **Conflicts resolved by Cursor**: Merged with latest main, kept hotfix changes (name vs need_name), maintained security hardening
+
 ### Migration Application Steps
 1. Open Supabase Dashboard → SQL Editor
 2. Paste entire contents of `supabase/sql/202601150000_phase_a_db_foundation.sql`
