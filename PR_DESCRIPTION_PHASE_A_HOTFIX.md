@@ -46,9 +46,21 @@ The migration attempted to:
   - Count of meta rows for '23-25m' and '25-27m' separately
   - Count of wrappers for '25-27m'
 
+## Conflict Resolution
+
+**Conflicts resolved by Cursor** (2026-01-15):
+- Merged with latest `origin/main` while preserving all hotfix changes
+- Kept security/view hardening from main (gateway-scoped views, wrapper is_active filters, rationale fields)
+- Applied hotfix changes to seed-population sections only:
+  * Development needs upsert uses `name` (not `need_name`)
+  * Only canonical columns inserted into `pl_development_needs`
+  * Stage fields stored only in `pl_age_band_development_need_meta` with age band overlap filtering
+  * Fixed variable shadowing bugs (`v_age_band_id`, `v_need_name`)
+  * Populated rationale fields in category and product mappings
+
 ## Verification
 
-✅ **Build passes**: `pnpm run build` succeeds
+✅ **Build passes**: `pnpm run build` succeeds (15.9s)
 
 ✅ **Migration uses canonical schema**:
 - Uses `pl_development_needs.name` (not `need_name`)
@@ -57,6 +69,7 @@ The migration attempted to:
 ✅ **Migration is runnable end-to-end**:
 - Can be pasted as single block in Supabase SQL Editor
 - No errors expected when run against canonical schema
+- All conflict markers removed, idempotency maintained
 
 ## Files Changed
 
