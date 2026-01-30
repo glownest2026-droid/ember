@@ -500,13 +500,16 @@ ON CONFLICT (id) DO NOTHING;
 
 -- Note: This section assumes seed tables exist and have data.
 -- The population logic is idempotent (uses ON CONFLICT or checks before insert).
+--
+-- IMPORTANT: All PL/pgSQL variables must be prefixed with v_ to avoid ambiguity
+-- with column names in INSERT statements (e.g., v_product_id, v_category_id, v_need_id).
 
 -- 10.1: Populate pl_development_needs from pl_seed_development_needs (if not already populated)
 -- This is idempotent - only inserts if name doesn't exist, updates only NULL/empty descriptions
 DO $$
 DECLARE
   seed_rec RECORD;
-  need_id UUID;
+  v_need_id UUID;
   need_slug TEXT;
 BEGIN
   -- Only proceed if pl_seed_development_needs table exists
@@ -532,13 +535,13 @@ BEGIN
       END;
       
       -- Check if need already exists (by name or slug)
-      SELECT id INTO need_id
+      SELECT id INTO v_need_id
       FROM public.pl_development_needs
       WHERE name = seed_rec.need_name
          OR slug = need_slug
       LIMIT 1;
       
-      IF need_id IS NULL THEN
+      IF v_need_id IS NULL THEN
         -- Insert new development need (only canonical columns)
         INSERT INTO public.pl_development_needs (
           name,
@@ -552,7 +555,7 @@ BEGIN
           COALESCE(seed_rec.plain_english_description, ''),
           COALESCE(seed_rec.why_it_matters, '')
         )
-        RETURNING id INTO need_id;
+        RETURNING id INTO v_need_id;
       ELSE
         -- Update existing need only if descriptions are NULL/empty
         UPDATE public.pl_development_needs
@@ -568,7 +571,7 @@ BEGIN
             ''
           ),
           slug = COALESCE(slug, need_slug)
-        WHERE id = need_id;
+        WHERE id = v_need_id;
       END IF;
     END LOOP;
   END IF;
@@ -579,7 +582,7 @@ END $$;
 DO $$
 DECLARE
   ux_rec RECORD;
-  wrapper_id UUID;
+  v_wrapper_id UUID;
   wrapper_slug TEXT;
 BEGIN
   -- Only proceed if pl_need_ux_labels table exists
@@ -607,16 +610,16 @@ BEGIN
       ON CONFLICT (ux_slug) DO UPDATE SET
         ux_label = EXCLUDED.ux_label,
         ux_description = COALESCE(pl_ux_wrappers.ux_description, EXCLUDED.ux_description)
-      RETURNING id INTO wrapper_id;
+      RETURNING id INTO v_wrapper_id;
       
-      -- Get wrapper_id if it already existed
-      IF wrapper_id IS NULL THEN
-        SELECT id INTO wrapper_id FROM public.pl_ux_wrappers WHERE ux_slug = wrapper_slug;
+      -- Get v_wrapper_id if it already existed
+      IF v_wrapper_id IS NULL THEN
+        SELECT id INTO v_wrapper_id FROM public.pl_ux_wrappers WHERE ux_slug = wrapper_slug;
       END IF;
       
       -- Link wrapper to development need (1:1, idempotent)
       INSERT INTO public.pl_ux_wrapper_needs (ux_wrapper_id, development_need_id)
-      VALUES (wrapper_id, ux_rec.development_need_id)
+      VALUES (v_wrapper_id, ux_rec.development_need_id)
       ON CONFLICT (ux_wrapper_id) DO NOTHING;
       
       -- Link wrapper to age band 25-27m (idempotent)
@@ -624,7 +627,7 @@ BEGIN
       INSERT INTO public.pl_age_band_ux_wrappers (age_band_id, ux_wrapper_id, rank, is_active)
       SELECT 
         '25-27m',
-        wrapper_id,
+        v_wrapper_id,
         COALESCE((SELECT MAX(rank) FROM public.pl_age_band_ux_wrappers WHERE age_band_id = '25-27m'), 0) + 1,
         true
       ON CONFLICT (age_band_id, ux_wrapper_id) DO NOTHING;
@@ -637,7 +640,7 @@ END $$;
 DO $$
 DECLARE
   seed_rec RECORD;
-  need_id UUID;
+  v_need_id UUID;
   v_age_band_id TEXT;
   band_min_months INTEGER;
   band_max_months INTEGER;
@@ -674,13 +677,13 @@ BEGIN
         )
         LOOP
           -- Find development need by name
-          SELECT id INTO need_id 
+          SELECT id INTO v_need_id 
           FROM public.pl_development_needs 
           WHERE name = seed_rec.need_name
           LIMIT 1;
           
           -- Insert meta if need found
-          IF need_id IS NOT NULL THEN
+          IF v_need_id IS NOT NULL THEN
             INSERT INTO public.pl_age_band_development_need_meta (
               age_band_id,
               development_need_id,
@@ -691,7 +694,7 @@ BEGIN
             )
             VALUES (
               v_age_band_id,
-              need_id,
+              v_need_id,
               seed_rec.stage_anchor_month,
               seed_rec.stage_phase,
               seed_rec.stage_reason,
@@ -723,9 +726,9 @@ END $$;
 DO $$
 DECLARE
   seed_rec RECORD;
-  category_id UUID;
+  v_category_id UUID;
   v_need_name TEXT;
-  need_id UUID;
+  v_need_id UUID;
   v_age_band_id TEXT;
   rank_counter INTEGER;
 BEGIN
@@ -748,13 +751,13 @@ BEGIN
       )
       LOOP
         -- Find category type by slug
-        SELECT id INTO category_id 
+        SELECT id INTO v_category_id 
         FROM public.pl_category_types 
         WHERE slug = seed_rec.slug
         LIMIT 1;
         
         -- If category found and has mapped needs
-        IF category_id IS NOT NULL AND seed_rec.mapped_developmental_needs IS NOT NULL THEN
+        IF v_category_id IS NOT NULL AND seed_rec.mapped_developmental_needs IS NOT NULL THEN
           rank_counter := 1;
           
           -- Parse comma-separated need names
@@ -763,13 +766,13 @@ BEGIN
           )
           LOOP
             -- Find development need by name
-            SELECT id INTO need_id 
+            SELECT id INTO v_need_id 
             FROM public.pl_development_needs 
             WHERE name = trim(v_need_name)
             LIMIT 1;
             
             -- Insert mapping if need found
-            IF need_id IS NOT NULL THEN
+            IF v_need_id IS NOT NULL THEN
               INSERT INTO public.pl_age_band_development_need_category_types (
                 age_band_id,
                 development_need_id,
@@ -780,8 +783,8 @@ BEGIN
               )
               VALUES (
                 v_age_band_id,
-                need_id,
-                category_id,
+                v_need_id,
+                v_category_id,
                 rank_counter,
                 seed_rec.stage_reason,
                 true
@@ -802,8 +805,8 @@ END $$;
 DO $$
 DECLARE
   seed_rec RECORD;
-  category_id UUID;
-  product_id UUID;
+  v_category_id UUID;
+  v_product_id UUID;
   v_age_band_id TEXT;
   rank_counter INTEGER;
   v_rationale TEXT;
@@ -831,24 +834,24 @@ BEGIN
       )
       LOOP
         -- Find category type by slug
-        SELECT id INTO category_id 
+        SELECT id INTO v_category_id 
         FROM public.pl_category_types 
         WHERE slug = seed_rec.category_type_slug
         LIMIT 1;
         
         -- Find product by name and brand (best-effort match)
-        SELECT id INTO product_id 
+        SELECT id INTO v_product_id 
         FROM public.products 
         WHERE name = seed_rec.name
           AND (brand = seed_rec.brand OR (brand IS NULL AND seed_rec.brand IS NULL))
         LIMIT 1;
         
         -- If both found, create mapping
-        IF category_id IS NOT NULL AND product_id IS NOT NULL THEN
+        IF v_category_id IS NOT NULL AND v_product_id IS NOT NULL THEN
           -- Get next rank for this age band + category
           SELECT COALESCE(MAX(rank), 0) + 1 INTO rank_counter
           FROM public.pl_age_band_category_type_products
-          WHERE age_band_id = v_age_band_id AND category_type_id = category_id;
+          WHERE age_band_id = v_age_band_id AND category_type_id = v_category_id;
           
           -- Build rationale: stage_reason || ' | ' || age_suitability_note (safe concat)
           v_rationale := NULL;
@@ -873,8 +876,8 @@ BEGIN
           )
           VALUES (
             v_age_band_id,
-            category_id,
-            product_id,
+            v_category_id,
+            v_product_id,
             rank_counter,
             v_rationale,
             true
