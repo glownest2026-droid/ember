@@ -167,6 +167,26 @@ _Last updated: 2026-01-04_
 
 ### Next Step
 - **PR #3**: Wire new Phase A data flow into `/new/[months]` route (read from curated views instead of legacy tables)
+- **Phase A UI Cutover (2026-01-15)**:
+  - **Summary**: Updated `/new` and `/new/[months]` routes to use Phase A curated public views instead of legacy gateway tables
+  - **Data Sources**: 
+    * `v_gateway_age_bands_public` - Age bands for slider
+    * `v_gateway_wrappers_public` - UX wrapper cards (replaces moments)
+    * `v_gateway_wrapper_detail_public` - Wrapper detail with development need metadata
+    * `v_gateway_category_types_public` - Category types for development needs
+    * `v_gateway_products_public` - Products for category types
+  - **Changes**:
+    * Added new gateway functions in `web/src/lib/pl/public.ts` (getGatewayAgeBands, getGatewayWrappersForAgeBand, etc.)
+    * Updated `web/src/app/new/[months]/page.tsx` to use gateway functions
+    * Updated `web/src/app/new/[months]/NewLandingPageClient.tsx` to display wrappers and products
+    * Query parameter changed from `?moment=` to `?wrapper=`
+    * Legacy functions marked as `@deprecated` (kept for reference, will be removed later)
+  - **PR**: `feat/phase-a-ui-cutover`
+  - **Verification**:
+    * Build passes: `pnpm run build` succeeds
+    * QA: Navigate to `/new/26`, select 25-27m, click "Drawing & making" wrapper, confirm products load
+    * Supabase: Verify views return data (v_gateway_wrappers_public = 24, v_gateway_products_public = 163)
+  - **Documentation**: Added `web/docs/PHASE_A_UI_CUTOVER.md` with data sources, implementation details, and QA checklist
 
 ------
 
