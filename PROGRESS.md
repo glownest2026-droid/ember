@@ -125,6 +125,17 @@ _Last updated: 2026-01-04_
   - Updated proof bundle with seed import verification indicators
 - **PR**: `feat/phase-a-db-foundation-supabase-fix` (hotfix branch)
 - **Conflicts resolved by Cursor**: Merged with latest main, kept hotfix changes (name vs need_name), maintained security hardening
+- **Hotfix #2 (2026-01-15, same day)**:
+  - **Issue**: Supabase error `ERROR: 42702: column reference "product_id" is ambiguous` in Part 10.5 (seed product mapping)
+  - **Root Cause**: PL/pgSQL variables (`product_id`, `category_id`, `need_id`, `wrapper_id`) conflicted with column names in INSERT statements
+  - **Fix**: Renamed all variables to use `v_` prefix convention:
+    * `need_id` -> `v_need_id` (Parts 10.1, 10.3, 10.4)
+    * `wrapper_id` -> `v_wrapper_id` (Part 10.2)
+    * `category_id` -> `v_category_id` (Parts 10.4, 10.5)
+    * `product_id` -> `v_product_id` (Part 10.5)
+  - **Safety**: Added comment at top of Part 10 documenting variable naming convention
+  - **PR**: `feat/phase-a-db-foundation-supabase-fix-2`
+  - **Verification**: Run migration in Supabase SQL Editor; proof bundle should complete without errors
 
 ### Migration Application Steps
 1. Open Supabase Dashboard → SQL Editor
