@@ -112,7 +112,6 @@ _Last updated: 2026-01-04_
 - **Proof Bundle**: Migration includes embedded proof bundle with counts and sample data
 - **Migration File**: `supabase/sql/202601150000_phase_a_db_foundation.sql` (updated with gateway-scoped views, security fixes, and rationale fields)
 
-<<<<<<< HEAD
 ### Hotfix (2026-01-15, same day)
 - **Issue**: Migration failed in Supabase with `ERROR: column "need_name" of relation "pl_development_needs" does not exist`
 - **Root Cause**: Migration attempted to use `need_name` column (seed table) instead of `name` (canonical table), and tried to insert seed-only columns into canonical table
