@@ -25,6 +25,6 @@
       { "cwd": "web", "command": "pnpm run build", "result": "ok" }
     ]
   },
-  "commit": "5161ec560b304fb2335ae19cfe5b42d2a9d3b8d6",
+  "commit": "b5803cf4b967cd686ec02fc1d5a116484c69fc86",
   "timestamp": "2026-01-31T00:00:00.000Z"
 }
