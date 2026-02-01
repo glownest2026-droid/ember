@@ -85,6 +85,16 @@ export default function NewLandingPageClient({
   const selectedBand = ageBands[selectedBandIndex] ?? ageBand;
   const currentMonth = monthParam ?? 26;
 
+  // When picks are requested, scroll directly to results.
+  useEffect(() => {
+    if (!showPicks) return;
+    const el = document.getElementById('findsSection');
+    if (!el) return;
+    setTimeout(() => {
+      el.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }, 0);
+  }, [showPicks]);
+
   // Update URL when age changes (deep linking)
   useEffect(() => {
     if (selectedBandIndex !== propBandIndex) {
