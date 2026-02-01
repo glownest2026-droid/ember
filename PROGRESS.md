@@ -59,6 +59,26 @@ _Last updated: 2026-01-04_
 
 ------
 
+## 2026-02-01 — PR3: 23–25m coverage audit + provenance-safe apply script (no UI changes)
+
+### Summary
+- Added a founder-safe audit doc + SQL to determine whether **real** 23–25m picks can be produced from existing Manus-derived DB fields (no inventing/cloning).
+- Added an **apply SQL** script that is explicitly gated: it aborts unless the audit proves required tables/columns exist and seed rows exist for `23-25m`.
+- **No UI changes** in PR3. UI remains honest-empty until mappings exist.
+
+### Files added
+- `web/docs/FEB_2026_23_25_COVERAGE_AUDIT.md`
+- `web/docs/FEB_2026_23_25_COVERAGE_APPLY.sql`
+- `NEXT.md` (follow-ups not in PR3)
+
+### Verification (Proof-of-Done)
+- `pnpm install` (in `/web`) — ✅
+- `pnpm run build` (in `/web`) — ✅
+
+### Rollback
+- Revert PR (code/doc only).
+- If APPLY SQL was run in Supabase: use rollback SQL included in the apply file.
+
 ## 2026-01-31 — PR0: Feb 2026 baseline audit snapshot + decision log scaffold
 
 ### Summary
