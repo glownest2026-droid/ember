@@ -22,13 +22,26 @@
   5) If 0 candidates → no band (“catalogue coming soon”)
 - **Implementation**:
   - `web/src/lib/pl/ageBandResolution.ts` → `resolveAgeBandForMonth(selectedMonth, ageBands)`
-  - `web/src/lib/pl/public.ts` → `loadAgeBandsForResolution()` prefers `v_gateway_age_bands_public` and falls back to `pl_age_bands`
 
 ### Schema drift note (discovered)
-- The gateway age band source can vary across environments:
-  - `min_months`/`max_months` (plural) vs `min_month`/`max_month` (singular)
-  - `id` vs `age_band_id`
-- Hotfix stance: tolerate drift in code; **do not** change DB schemas/policies in this PR.
+- In the wild, age band month columns can drift (`min_months` vs `min_month`). We tolerate this in code.
+
+---
+
+## Public anon contract: /new reads from curated gateway views ONLY (LOCKED)
+
+- **Decision**: `/new` and `/new/[months]` must read **only** from Phase A curated public views (anon-safe contract).
+- **Owner**: Cursor (Lead Dev)
+- **Date**: 2026-01-31
+- **Contract**:
+  - Allowed sources (public/anon):  
+    - `public.v_gateway_age_bands_public`  
+    - `public.v_gateway_wrappers_public`  
+    - `public.v_gateway_wrapper_detail_public`  
+    - `public.v_gateway_category_types_public`  
+    - `public.v_gateway_products_public`
+  - Not allowed in `/new` experience: legacy moments/sets/cards/base tables.
+  - No base-table anon SELECT policies added (views-only).
 
 ---
 

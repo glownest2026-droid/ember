@@ -3,31 +3,55 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import type { TransformedAgeMomentSet, TransformedRecoCard } from '../../../lib/pl/public';
 
-interface AgeBand {
-  id: string;
-  label?: string;
-  min_months?: number;
-  max_months?: number;
+interface Wrapper {
+  ux_wrapper_id: string;
+  ux_label: string;
+  ux_slug: string;
+  ux_description: string | null;
+  age_band_id: string;
+  rank: number;
 }
 
-interface Moment {
-  id: string;
-  label: string;
-  description?: string;
+interface WrapperDetail {
+  age_band_id: string;
+  rank: number;
+  ux_wrapper_id: string;
+  ux_label: string;
+  ux_slug: string;
+  ux_description: string | null;
+  development_need_id: string;
+  development_need_name: string;
+  development_need_slug: string;
+  plain_english_description: string | null;
+  why_it_matters: string | null;
+  stage_anchor_month: number | null;
+  stage_phase: string | null;
+  stage_reason: string | null;
 }
 
-// Alias the imported types for easier use in the component
-type AgeMomentSet = TransformedAgeMomentSet;
-type RecoCard = TransformedRecoCard;
+interface ProductPick {
+  age_band_id: string;
+  category_type_id: string;
+  rank: number;
+  rationale: string | null;
+  id: string;
+  name: string;
+  brand: string | null;
+  image_url: string | null;
+  canonical_url: string | null;
+  amazon_uk_url: string | null;
+  affiliate_url: string | null;
+  affiliate_deeplink: string | null;
+}
 
 interface NewLandingPageClientProps {
-  ageBand: AgeBand | null;
-  moments: Moment[];
-  selectedSet: AgeMomentSet | null;
+  ageBandId: string | null;
+  wrappers: Wrapper[];
+  selectedWrapperId: string | null;
+  wrapperDetail: WrapperDetail | null;
+  products: ProductPick[];
   currentMonths: number;
-  selectedMomentId: string | null;
   minMonths: number;
   maxMonths: number;
   showDebugBadge?: boolean;
@@ -35,35 +59,13 @@ interface NewLandingPageClientProps {
   catalogueErrorMessage?: string | null;
 }
 
-// Map lane enum to badge label (matching mockup)
-const laneLabelMap: Record<string, string> = {
-  obvious: 'Bath pick',
-  nearby: 'Nearby idea',
-  surprise: 'Surprise pick',
-};
-
-// Map moment IDs to display labels (fallback if moment label not available)
-const momentLabelMap: Record<string, string> = {
-  bath: 'Bath time',
-  help: '"Let me help"',
-  quiet: 'Quiet play',
-  energy: 'Burn energy',
-};
-
-// Map moment IDs to descriptions (matching mockup)
-const momentDescMap: Record<string, string> = {
-  bath: 'More fun, less fuss',
-  help: 'Cooking, chores, pretend',
-  quiet: 'Hands busy, head calm',
-  energy: 'Move, climb, chase',
-};
-
 export default function NewLandingPageClient({
-  ageBand,
-  moments,
-  selectedSet,
+  ageBandId,
+  wrappers,
+  selectedWrapperId,
+  wrapperDetail,
+  products,
   currentMonths,
-  selectedMomentId,
   minMonths,
   maxMonths,
   showDebugBadge,
@@ -73,33 +75,29 @@ export default function NewLandingPageClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedAge, setSelectedAge] = useState(currentMonths);
-  const [selectedMoment, setSelectedMoment] = useState(selectedMomentId);
+  const [selectedWrapper, setSelectedWrapper] = useState<string | null>(selectedWrapperId);
 
   // Sync state with props when route changes
   useEffect(() => {
     setSelectedAge(currentMonths);
-    setSelectedMoment(selectedMomentId);
-  }, [currentMonths, selectedMomentId]);
+    setSelectedWrapper(selectedWrapperId);
+  }, [currentMonths, selectedWrapperId]);
 
   // Update URL when age changes (deep linking)
   useEffect(() => {
     if (selectedAge !== currentMonths) {
-      const params = new URLSearchParams(searchParams.toString());
-      if (selectedMoment) {
-        params.set('moment', selectedMoment);
-      }
-      const queryString = params.toString();
-      router.push(`/new/${selectedAge}${queryString ? `?${queryString}` : ''}`, { scroll: false });
+      // Clear wrapper selection on age change.
+      router.push(`/new/${selectedAge}`, { scroll: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAge]);
 
-  // Update URL when moment changes (query param)
-  const handleMomentChange = (momentId: string) => {
-    if (momentId === selectedMoment) return; // No change needed
-    setSelectedMoment(momentId);
+  // Update URL when wrapper changes (query param)
+  const handleWrapperChange = (wrapperId: string) => {
+    if (wrapperId === selectedWrapper) return;
+    setSelectedWrapper(wrapperId);
     const params = new URLSearchParams();
-    params.set('moment', momentId);
+    params.set('wrapper', wrapperId);
     router.push(`/new/${selectedAge}?${params.toString()}`, { scroll: false });
   };
 
@@ -108,55 +106,16 @@ export default function NewLandingPageClient({
     setSelectedAge(months);
   };
 
-  // Get cards from selected set, sorted by rank
-  const cards = selectedSet?.pl_reco_cards 
-    ? [...selectedSet.pl_reco_cards].sort((a, b) => a.rank - b.rank)
-    : [];
-
-  // Get moment label
-  const getMomentLabel = (momentId: string) => {
-    const moment = moments.find(m => m.id === momentId);
-    return moment?.label || momentLabelMap[momentId] || momentId;
-  };
-
-  // Get moment description
-  const getMomentDesc = (momentId: string) => {
-    const moment = moments.find(m => m.id === momentId);
-    return moment?.description || momentDescMap[momentId] || '';
-  };
-
-  // Get card title (from category type or product)
-  const getCardTitle = (card: RecoCard) => {
-    if (card.pl_category_types) {
-      if (card.pl_category_types.label) return card.pl_category_types.label;
-      if (card.pl_category_types.name) return card.pl_category_types.name;
-    }
-    if (card.products?.name) {
-      return card.products.name;
-    }
-    // Fallback placeholder
-    return 'Toy idea';
-  };
-
-  // Get card subtitle/description
-  const getCardSubtitle = (card: RecoCard) => {
-    // For now, use a generic description - this could come from category type description
-    if (card.lane === 'obvious') {
-      return 'The kind of thing they stick with.';
-    }
-    if (card.lane === 'nearby') {
-      return 'A close cousin that works just as well.';
-    }
-    return 'You might not have thought of that.';
+  const getWrapperLabel = (wrapperId: string | null) => {
+    if (!wrapperId) return null;
+    const wrapper = wrappers.find(w => w.ux_wrapper_id === wrapperId);
+    return wrapper?.ux_label || null;
   };
 
   // Build signin redirect URL with current state
   const getSigninUrl = (cardId?: string) => {
     const params = new URLSearchParams();
-    params.set('next', `/new/${selectedAge}${selectedMoment ? `?moment=${selectedMoment}` : ''}`);
-    if (cardId) {
-      params.set('cardId', cardId);
-    }
+    params.set('next', `/new/${selectedAge}${selectedWrapper ? `?wrapper=${selectedWrapper}` : ''}`);
     return `/signin?${params.toString()}`;
   };
 
@@ -256,18 +215,18 @@ export default function NewLandingPageClient({
               </span>
             </div>
 
-            {/* Moment Selection */}
+            {/* Wrapper Selection */}
             <div className="mb-4">
               <div className="text-sm opacity-70 mb-2.5" style={{ color: '#6B5B52' }}>
                 What do you want help with today?
               </div>
               <div className="grid grid-cols-2 gap-2.5">
-                {moments.map((moment) => {
-                  const isSelected = selectedMoment === moment.id;
+                {wrappers.map((wrapper) => {
+                  const isSelected = selectedWrapper === wrapper.ux_wrapper_id;
                   return (
                     <button
-                      key={moment.id}
-                      onClick={() => handleMomentChange(moment.id)}
+                      key={wrapper.ux_wrapper_id}
+                      onClick={() => handleWrapperChange(wrapper.ux_wrapper_id)}
                       className="min-h-[74px] p-3 rounded-[20px] border bg-white/92 shadow-xs cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden"
                       style={{
                         borderColor: isSelected ? 'rgba(227,91,63,.42)' : 'rgba(23,17,14,.10)',
@@ -285,10 +244,10 @@ export default function NewLandingPageClient({
                       }}></div>
                       <div className="min-w-0 flex-1">
                         <strong className="block text-sm font-extrabold leading-tight mb-0.5 tracking-[-0.15px]">
-                          {getMomentLabel(moment.id)}
+                          {wrapper.ux_label}
                         </strong>
                         <span className="block text-xs opacity-70 whitespace-nowrap overflow-hidden text-ellipsis" style={{ color: '#6B5B52' }}>
-                          {getMomentDesc(moment.id)}
+                          {wrapper.ux_description || ''}
                         </span>
                       </div>
                     </button>
@@ -310,7 +269,9 @@ export default function NewLandingPageClient({
                   boxShadow: '0 22px 48px rgba(227,91,63,.26)',
                 }}
               >
-                {selectedMoment ? `Show my 3 picks for ${getMomentLabel(selectedMoment).toLowerCase()}` : 'Show my 3 picks'}
+                {selectedWrapper
+                  ? `Show my 3 picks for ${getWrapperLabel(selectedWrapper)?.toLowerCase() || 'this'}`
+                  : 'Show my 3 picks'}
               </button>
               <p className="text-center text-xs opacity-70" style={{ color: '#8A756A' }}>
                 Tip: save one thing to unlock &quot;more like this&quot;.
@@ -324,7 +285,9 @@ export default function NewLandingPageClient({
       <section id="findsSection" className="mt-4.5 pt-1.5">
         <div className="flex items-baseline justify-between gap-2.5 mb-2.5">
           <h2 className="text-base font-black tracking-[-0.15px] m-0">
-            {selectedMoment ? `Your 3 picks for ${getMomentLabel(selectedMoment).toLowerCase()}` : 'Your 3 picks'}
+            {selectedWrapper
+              ? `Your 3 picks for ${getWrapperLabel(selectedWrapper)?.toLowerCase() || 'this'}`
+              : 'Your 3 picks'}
           </h2>
           <button className="bg-white/62 border rounded-2xl px-3 py-2.5 text-sm opacity-70 shadow-xs cursor-pointer" style={{
             borderColor: 'rgba(23,17,14,.10)',
@@ -335,7 +298,7 @@ export default function NewLandingPageClient({
         </div>
 
         {/* Cards */}
-        {cards.length === 0 ? (
+        {products.length === 0 ? (
           <div className="rounded-[28px] bg-gradient-to-b from-white/92 to-white/78 border shadow-sm p-6 text-center" style={{
             borderColor: 'rgba(23,17,14,.08)',
           }}>
@@ -343,21 +306,21 @@ export default function NewLandingPageClient({
               <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
                 {catalogueErrorMessage}
               </p>
-            ) : !ageBand ? (
+            ) : !ageBandId ? (
               <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
                 We&apos;re still building this month&apos;s catalogue.
               </p>
             ) : (
               <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
-                We&apos;re still building picks for {ageBand.id}.
+                We&apos;re still building picks for {ageBandId}.
               </p>
             )}
           </div>
         ) : (
           <div className="space-y-3">
-            {cards.map((card, index) => (
+            {products.map((product, index) => (
               <article
-                key={card.id}
+                key={product.id}
                 className="rounded-[28px] bg-gradient-to-b from-white/92 to-white/78 border shadow-sm overflow-hidden"
                 style={{
                   borderColor: 'rgba(23,17,14,.08)',
@@ -374,48 +337,31 @@ export default function NewLandingPageClient({
                       boxShadow: '0 10px 20px rgba(227,91,63,.25)',
                     }}></span>
                     <span className="text-xs opacity-80" style={{ color: 'rgba(23,17,14,.80)' }}>
-                      {laneLabelMap[card.lane] || `${card.lane} pick`}
+                      Pick {index + 1}
                     </span>
                   </div>
                 </div>
 
                 {/* Card Body */}
                 <div className="p-3.5 space-y-2.5">
-                  <p className="text-sm leading-[1.5] opacity-70 m-0" style={{ color: '#6B5B52' }}>
-                    {card.because}
-                  </p>
+                  {product.rationale ? (
+                    <p className="text-sm leading-[1.5] opacity-70 m-0" style={{ color: '#6B5B52' }}>
+                      {product.rationale}
+                    </p>
+                  ) : null}
                   <div>
                     <strong className="block text-base font-black tracking-[-0.2px] mb-0.5">
-                      Try: {getCardTitle(card)}
+                      Try: {product.name}
                     </strong>
                     <span className="block text-xs leading-[1.45] opacity-70" style={{ color: '#8A756A' }}>
-                      {getCardSubtitle(card)}
+                      {product.brand ? product.brand : ''}
                     </span>
                   </div>
-
-                  {/* Tags */}
-                  {card.why_tags && card.why_tags.length > 0 && (
-                    <div className="flex gap-2 flex-wrap mt-0.5">
-                      {card.why_tags.map((tag, tagIndex) => (
-                        <button
-                          key={tagIndex}
-                          className="text-xs px-2.5 py-1.5 rounded-full bg-orange-50 border cursor-pointer transition-all"
-                          style={{
-                            borderColor: 'rgba(227,91,63,.16)',
-                            color: 'rgba(23,17,14,.85)',
-                            background: 'rgba(227,91,63,.09)',
-                          }}
-                        >
-                          {tag}
-                        </button>
-                      ))}
-                    </div>
-                  )}
 
                   {/* Actions */}
                   <div className="flex gap-2.5 items-center mt-1">
                     <Link
-                      href={getSigninUrl(card.id)}
+                      href={getSigninUrl()}
                       className="flex-1 min-h-[44px] rounded-[20px] border bg-white/88 shadow-xs font-black text-sm text-inherit cursor-pointer transition-all flex items-center justify-center"
                       style={{
                         borderColor: 'rgba(23,17,14,.10)',

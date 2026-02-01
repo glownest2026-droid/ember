@@ -1,17 +1,23 @@
-import { getActiveMomentsForAgeBand, getPublishedSetForAgeBandAndMoment, loadAgeBandsForResolution } from '../../../lib/pl/public';
 import NewLandingPageClient from './NewLandingPageClient';
+import {
+  getGatewayAgeBands,
+  getGatewayCategoryTypes,
+  getGatewayProducts,
+  getGatewayWrapperDetail,
+  getGatewayWrappers,
+} from '../../../lib/pl/gatewayPublic';
 import { formatMonthToBandDebugBadge, resolveAgeBandForMonth } from '../../../lib/pl/ageBandResolution';
 
 interface NewMonthsPageProps {
   params: Promise<{ months: string }>;
-  searchParams: Promise<{ moment?: string }>;
+  searchParams: Promise<{ wrapper?: string }>;
 }
 
 export const dynamic = 'force-dynamic';
 
 export default async function NewMonthsPage({ params, searchParams }: NewMonthsPageProps) {
   const { months } = await params;
-  const { moment: momentParam } = await searchParams;
+  const { wrapper: wrapperParam } = await searchParams;
   
   // Parse and clamp months to 24-30 (matching the mockup range)
   const monthsNum = parseInt(months, 10);
@@ -22,69 +28,155 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
   const showDebugBadge =
     (process.env.VERCEL_ENV ? process.env.VERCEL_ENV !== 'production' : process.env.NODE_ENV !== 'production');
 
-  const { ageBands, error: ageBandsError } = await loadAgeBandsForResolution();
-  const resolution = resolveAgeBandForMonth(clampedMonths, ageBands);
+  const ageBandsRes = await getGatewayAgeBands();
+  const resolution = resolveAgeBandForMonth(clampedMonths, ageBandsRes.data);
+  const ageBandId = ageBandsRes.error ? null : resolution.ageBandId;
   const debugBadgeText = showDebugBadge
     ? formatMonthToBandDebugBadge({
         selectedMonth: clampedMonths,
-        ageBandsLoaded: ageBands.length,
+        ageBandsLoaded: ageBandsRes.data.length,
         resolution,
-        ageBandsError,
+        ageBandsError: ageBandsRes.error,
       })
     : null;
 
-  const ageBandId = ageBandsError ? null : resolution.ageBandId;
-  
   if (!ageBandId) {
-    // No age band match OR age band load error - show honest empty state (and debug badge in non-prod)
     return (
       <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
         <NewLandingPageClient
-          ageBand={null}
-          moments={[]}
-          selectedSet={null}
+          ageBandId={null}
+          wrappers={[]}
+          selectedWrapperId={null}
+          wrapperDetail={null}
+          products={[]}
           currentMonths={clampedMonths}
-          selectedMomentId={momentParam || null}
           minMonths={24}
           maxMonths={30}
           showDebugBadge={showDebugBadge}
           debugBadgeText={debugBadgeText}
-          catalogueErrorMessage={ageBandsError ? "We’re having trouble loading the catalogue." : null}
+          catalogueErrorMessage={ageBandsRes.error ? "We’re having trouble loading the catalogue." : null}
         />
       </main>
     );
   }
 
-  // Fetch moments that have published sets for this age band
-  const moments = await getActiveMomentsForAgeBand(ageBandId);
-
-  // Get selected moment (from query param or first available, or default to "bath" if available)
-  let selectedMomentId: string | null = momentParam || null;
-  
-  // If no moment selected, try to find a default moment
-  // The mockup uses: "bath", "help", "quiet", "energy"
-  // Try to match these IDs first
-  const defaultMomentIds = ['bath', 'help', 'quiet', 'energy'];
-  if (!selectedMomentId && moments.length > 0) {
-    // Try to find one of the default moments
-    const foundDefault = moments.find(m => defaultMomentIds.includes(m.id));
-    selectedMomentId = foundDefault?.id || moments[0]?.id || null;
+  const wrappersRes = await getGatewayWrappers(ageBandId);
+  if (wrappersRes.error) {
+    return (
+      <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
+        <NewLandingPageClient
+          ageBandId={ageBandId}
+          wrappers={[]}
+          selectedWrapperId={null}
+          wrapperDetail={null}
+          products={[]}
+          currentMonths={clampedMonths}
+          minMonths={24}
+          maxMonths={30}
+          showDebugBadge={showDebugBadge}
+          debugBadgeText={showDebugBadge ? `wrappers fetch failed: ${wrappersRes.error}` : null}
+          catalogueErrorMessage={"We’re having trouble loading the catalogue."}
+        />
+      </main>
+    );
   }
 
-  // Fetch the published set for selected age band + moment
-  let selectedSet = null;
-  if (selectedMomentId) {
-    selectedSet = await getPublishedSetForAgeBandAndMoment(ageBandId, selectedMomentId);
+  const wrappers = wrappersRes.data;
+  const wrapperExists = (id: string) => wrappers.some((w) => w.ux_wrapper_id === id);
+  const selectedWrapperId =
+    wrapperParam && wrapperExists(wrapperParam)
+      ? wrapperParam
+      : wrappers.length > 0
+      ? wrappers[0].ux_wrapper_id
+      : null;
+
+  let wrapperDetail = null;
+  let products: any[] = [];
+
+  if (selectedWrapperId) {
+    const detailRes = await getGatewayWrapperDetail(ageBandId, selectedWrapperId);
+    if (detailRes.error) {
+      return (
+        <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
+          <NewLandingPageClient
+            ageBandId={ageBandId}
+            wrappers={wrappers}
+            selectedWrapperId={selectedWrapperId}
+            wrapperDetail={null}
+            products={[]}
+            currentMonths={clampedMonths}
+            minMonths={24}
+            maxMonths={30}
+            showDebugBadge={showDebugBadge}
+            debugBadgeText={showDebugBadge ? `wrapper detail fetch failed: ${detailRes.error}` : null}
+            catalogueErrorMessage={"We’re having trouble loading the catalogue."}
+          />
+        </main>
+      );
+    }
+
+    wrapperDetail = detailRes.data;
+
+    if (wrapperDetail) {
+      const catsRes = await getGatewayCategoryTypes(ageBandId, wrapperDetail.development_need_id);
+      if (catsRes.error) {
+        return (
+          <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
+            <NewLandingPageClient
+              ageBandId={ageBandId}
+              wrappers={wrappers}
+              selectedWrapperId={selectedWrapperId}
+              wrapperDetail={wrapperDetail}
+              products={[]}
+              currentMonths={clampedMonths}
+              minMonths={24}
+              maxMonths={30}
+              showDebugBadge={showDebugBadge}
+              debugBadgeText={showDebugBadge ? `category types fetch failed: ${catsRes.error}` : null}
+              catalogueErrorMessage={"We’re having trouble loading the catalogue."}
+            />
+          </main>
+        );
+      }
+
+      const categoryTypeIds = catsRes.data.slice(0, 3).map((c) => c.id);
+      const prodRes = await getGatewayProducts(ageBandId, categoryTypeIds);
+      if (prodRes.error) {
+        return (
+          <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
+            <NewLandingPageClient
+              ageBandId={ageBandId}
+              wrappers={wrappers}
+              selectedWrapperId={selectedWrapperId}
+              wrapperDetail={wrapperDetail}
+              products={[]}
+              currentMonths={clampedMonths}
+              minMonths={24}
+              maxMonths={30}
+              showDebugBadge={showDebugBadge}
+              debugBadgeText={showDebugBadge ? `products fetch failed: ${prodRes.error}` : null}
+              catalogueErrorMessage={"We’re having trouble loading the catalogue."}
+            />
+          </main>
+        );
+      }
+
+      products = prodRes.data
+        .slice()
+        .sort((a, b) => (a.rank - b.rank) || a.id.localeCompare(b.id))
+        .slice(0, 3);
+    }
   }
 
   return (
     <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
       <NewLandingPageClient
-        ageBand={{ id: ageBandId }}
-        moments={moments}
-        selectedSet={selectedSet}
+        ageBandId={ageBandId}
+        wrappers={wrappers}
+        selectedWrapperId={selectedWrapperId}
+        wrapperDetail={wrapperDetail}
+        products={products}
         currentMonths={clampedMonths}
-        selectedMomentId={selectedMomentId}
         minMonths={24}
         maxMonths={30}
         showDebugBadge={showDebugBadge}

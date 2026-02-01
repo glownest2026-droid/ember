@@ -1,20 +1,19 @@
 {
   "pr": {
     "number": null,
-    "title": "Hotfix: restore month→age-band mapping across schema drift",
-    "branch": "feat/feb-2026-hotfix-month-band-mapping",
+    "title": "PR2: Public contract lock — /new reads from gateway public views",
+    "branch": "feat/feb-2026-pr2-gateway-views-readpath",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
     "rollback": "revert PR"
   },
   "receipt": {
-    "scope": "month→band mapping hotfix + non-prod debug (no DB/RLS changes; no PR2 gateway reads)",
+    "scope": "public /new read-path locked to v_gateway_*_public views (no DB/RLS changes)",
     "files_changed": [
       "web/docs/FEB_2026_DECISION_LOG.md",
+      "web/src/lib/pl/gatewayPublic.ts",
       "web/src/lib/pl/ageBandResolution.ts",
-      "web/src/lib/pl/public.ts",
-      "web/src/app/new/page.tsx",
       "web/src/app/new/[months]/page.tsx",
       "web/src/app/new/[months]/NewLandingPageClient.tsx",
       "PROGRESS.md",
@@ -25,6 +24,6 @@
       { "cwd": "web", "command": "pnpm run build", "result": "ok" }
     ]
   },
-  "commit": "2b09ae6115090ba6ae02f8eae712cc48d9399873",
+  "commit": "<TBD_SHA>",
   "timestamp": "2026-01-31T00:00:00.000Z"
 }
