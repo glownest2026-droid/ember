@@ -10,10 +10,15 @@ function parseAgeBandIdRange(id: string): { min: number; max: number } | null {
   return { min, max };
 }
 
-function getAnchorMonthForBand(band: { id: string; min_months: number | null; max_months: number | null }): number | null {
-  if (typeof band.min_months === 'number' && !isNaN(band.min_months)) return band.min_months;
+function getRepresentativeMonthForBand(band: { id: string; min_months: number | null; max_months: number | null }): number | null {
+  const min = typeof band.min_months === 'number' ? band.min_months : NaN;
+  const max = typeof band.max_months === 'number' ? band.max_months : NaN;
+  if (!isNaN(min) && !isNaN(max)) {
+    return Math.round((min + max) / 2);
+  }
   const parsed = parseAgeBandIdRange(band.id);
-  return parsed?.min ?? null;
+  if (!parsed) return null;
+  return Math.round((parsed.min + parsed.max) / 2);
 }
 
 export default async function NewPage() {
@@ -30,7 +35,7 @@ export default async function NewPage() {
     ageBands.find(b => bandsWithPicks.has(b.id)) ??
     ageBands[ageBands.length - 1];
 
-  const anchorMonth = getAnchorMonthForBand(preferred) ?? 26;
-  redirect(`/new/${anchorMonth}`);
+  const representativeMonth = getRepresentativeMonthForBand(preferred) ?? 26;
+  redirect(`/new/${representativeMonth}`);
 }
 

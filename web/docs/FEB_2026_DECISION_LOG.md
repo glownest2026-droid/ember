@@ -25,7 +25,7 @@
 - **Decision**: A month integer resolves to the first age band where \(min\_months \le m \le max\_months\).
 - **Owner**: Lead Dev (Cursor)
 - **Date**: 2026-02-01
-- **Tie-break**: If overlapping bands ever exist, choose the band with the lowest `min_months` (deterministic).
+- **Tie-break**: If overlapping bands ever exist, choose the band with the highest `min_months` (newer band; deterministic).
 - **Notes / context**:
   - `/new` defaults to the first band with picks (detected via gateway views when possible), otherwise the newest band (highest `min_months`).
 
