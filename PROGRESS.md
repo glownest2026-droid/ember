@@ -59,6 +59,28 @@ _Last updated: 2026-01-04_
 
 ------
 
+## 2026-01-31 — PR1: Deterministic month → age band mapping + non-prod debug + honest empty states
+
+### Summary
+- Implemented deterministic month → age band selection (inclusive ranges + deterministic overlap tie-break) to eliminate “month 25 mysteriously empty.”
+- Added non-production debug badge near the slider to show: selected month → chosen band + candidates + tie-break.
+- Added explicit empty states when no band matches, or when a band exists but picks are missing.
+- **Scope guard**: Does **not** switch wrapper/products reads to Phase A `v_gateway_*_public` views (that remains PR2).
+
+### Key code (real paths)
+- `web/src/lib/pl/ageBandResolution.ts` — `resolveAgeBandForMonth()`, `formatMonthToBandDebugBadge()`, `getNearestSupportedMonth()`
+- `web/src/lib/pl/public.ts` — `getActiveAgeBands()`
+- `web/src/app/new/page.tsx` — uses shared resolver to choose default supported month
+- `web/src/app/new/[months]/page.tsx` — uses shared resolver + passes debug/empty-state props
+- `web/src/app/new/[months]/NewLandingPageClient.tsx` — non-prod debug badge + explicit empty states
+
+### Verification (Proof-of-Done)
+- Local: `pnpm install` (web) + `pnpm run build` (web) — ✅
+- PR checks + Vercel Preview: **TBD** (set once PR is opened)
+
+### Rollback
+- Revert PR.
+
 ## 2026-01-31 — PR0: Feb 2026 baseline audit snapshot + decision log scaffold
 
 ### Summary

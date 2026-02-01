@@ -8,12 +8,24 @@
 
 ## Month → band rule (TBD)
 
-- **Decision**: TBD
-- **Owner**: TBD
-- **Date**: TBD
-- **Notes / context**:
-  - TBD: What’s the canonical mapping from a month integer (e.g. 26) to a Phase A age band ID?
-  - TBD: Do we clamp months, round, or allow full-range browsing?
+- **Decision**: Deterministic month → age band mapping using inclusive ranges + deterministic overlap tie-break.
+- **Owner**: Cursor (Lead Dev) — PR1
+- **Date**: 2026-01-31
+- **Rule (exact)**:
+  1) `candidates = ageBands where min_months <= selectedMonth <= max_months`
+  2) If `candidates.length === 1` → choose it
+  3) If `candidates.length > 1`:
+     - If `anchor_month` exists on the age band objects, choose the candidate with smallest `abs(anchor_month - selectedMonth)`
+     - Else choose the candidate with smallest `(selectedMonth - min_months)` (i.e., prefer the “newer” band at overlap)
+     - If still tied, choose the candidate with higher `min_months`
+  4) If `candidates.length === 0` → no band (show “catalogue coming soon” empty state)
+- **Implementation**:
+  - `web/src/lib/pl/ageBandResolution.ts` → `resolveAgeBandForMonth(selectedMonth, ageBands)`
+  - `web/src/lib/pl/public.ts` → `getActiveAgeBands()` (source list for mapping)
+
+### Note: PR2 boundary (explicit)
+- `/new` is still using **legacy “moments”** reads until PR2.
+- PR1 does **not** switch wrapper/product reads to `v_gateway_*_public` views.
 
 ---
 
