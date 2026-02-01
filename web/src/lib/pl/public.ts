@@ -1,4 +1,5 @@
 import { createClient } from '../../utils/supabase/server';
+import type { AgeBandForMonthResolution } from './ageBandResolution';
 
 /**
  * Map age in months to the best matching active age band.
@@ -26,6 +27,26 @@ export async function getAgeBandForAge(ageMonths: number) {
   }
 
   return data;
+}
+
+/**
+ * Fetch all active age bands with month ranges.
+ * Used by deterministic month -> age band resolution in the /new gateway.
+ */
+export async function getActiveAgeBands(): Promise<AgeBandForMonthResolution[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('pl_age_bands')
+    .select('id, min_months, max_months, label')
+    .eq('is_active', true)
+    .order('min_months', { ascending: true });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data as AgeBandForMonthResolution[];
 }
 
 /**

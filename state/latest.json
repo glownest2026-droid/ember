@@ -1,27 +1,30 @@
 {
   "pr": {
     "number": null,
-    "title": "PR0: Feb 2026 baseline audit snapshot + decision log scaffold",
-    "branch": "feat/feb-2026-pr0-baseline-audit",
+    "title": "PR1: Deterministic month → age band mapping + non-prod debug + honest empty states",
+    "branch": "feat/feb-2026-pr1-month-to-band",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
     "rollback": "revert PR"
   },
   "receipt": {
-    "scope": "docs-only (no functional changes, no DB changes)",
+    "scope": "deterministic month→band mapping + non-prod debug + empty states (no DB changes; no PR2 gateway reads)",
     "files_changed": [
-      "web/docs/FEB_2026_BASELINE_AUDIT.md",
       "web/docs/FEB_2026_DECISION_LOG.md",
+      "web/src/lib/pl/ageBandResolution.ts",
+      "web/src/lib/pl/public.ts",
+      "web/src/app/new/page.tsx",
+      "web/src/app/new/[months]/page.tsx",
+      "web/src/app/new/[months]/NewLandingPageClient.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "commands_run": [
       { "cwd": "web", "command": "pnpm install", "result": "ok (already up to date)" },
-      { "cwd": "web", "command": "pnpm run lint", "result": "failed (Next.js v16 CLI has no `lint` command; left unchanged in PR0)" },
       { "cwd": "web", "command": "pnpm run build", "result": "ok" }
     ]
   },
-  "commit": "4b88e40609d8673ad7722cd86f4ee7748db03ac7",
+  "commit": "<TBD_SHA>",
   "timestamp": "2026-01-31T00:00:00.000Z"
 }

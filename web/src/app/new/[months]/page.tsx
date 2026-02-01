@@ -1,6 +1,10 @@
-import { notFound } from 'next/navigation';
-import { getAgeBandForAge, getActiveMomentsForAgeBand, getPublishedSetForAgeBandAndMoment } from '../../../lib/pl/public';
+import { getActiveAgeBands, getActiveMomentsForAgeBand, getPublishedSetForAgeBandAndMoment } from '../../../lib/pl/public';
 import NewLandingPageClient from './NewLandingPageClient';
+import {
+  formatMonthToBandDebugBadge,
+  getNearestSupportedMonth,
+  resolveAgeBandForMonth,
+} from '../../../lib/pl/ageBandResolution';
 
 interface NewMonthsPageProps {
   params: Promise<{ months: string }>;
@@ -19,8 +23,13 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
     ? 26 
     : monthsNum;
 
-  // Map months to age band
-  const ageBand = await getAgeBandForAge(clampedMonths);
+  const ageBands = await getActiveAgeBands();
+  const resolution = resolveAgeBandForMonth(clampedMonths, ageBands);
+  const ageBand = resolution.band;
+  const nearestSupportedMonth = ageBand ? null : getNearestSupportedMonth(clampedMonths, ageBands);
+  const showDebugBadge =
+    (process.env.VERCEL_ENV ? process.env.VERCEL_ENV !== 'production' : process.env.NODE_ENV !== 'production');
+  const debugBadgeText = showDebugBadge ? formatMonthToBandDebugBadge({ selectedMonth: clampedMonths, result: resolution }) : null;
   
   if (!ageBand) {
     // Age band not found - show empty state
@@ -34,6 +43,9 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
           selectedMomentId={momentParam || null}
           minMonths={24}
           maxMonths={30}
+          showDebugBadge={showDebugBadge}
+          debugBadgeText={debugBadgeText}
+          nearestSupportedMonth={nearestSupportedMonth}
         />
       </main>
     );
@@ -71,6 +83,9 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
         selectedMomentId={selectedMomentId}
         minMonths={24}
         maxMonths={30}
+        showDebugBadge={showDebugBadge}
+        debugBadgeText={debugBadgeText}
+        nearestSupportedMonth={null}
       />
     </main>
   );
