@@ -1,27 +1,27 @@
 {
   "pr": {
     "number": null,
-    "title": "PR0: Feb 2026 baseline audit snapshot + decision log scaffold",
-    "branch": "feat/feb-2026-pr0-baseline-audit",
+    "title": "PR3: 23–25m coverage audit + provenance-safe apply script",
+    "branch": "feat/feb-2026-pr3-23-25-coverage-audit-and-script",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
     "rollback": "revert PR"
   },
   "receipt": {
-    "scope": "docs-only (no functional changes, no DB changes)",
+    "scope": "23–25m coverage audit doc + gated apply SQL (no UI changes; no DB/RLS changes in repo)",
     "files_changed": [
-      "web/docs/FEB_2026_BASELINE_AUDIT.md",
-      "web/docs/FEB_2026_DECISION_LOG.md",
+      "web/docs/FEB_2026_23_25_COVERAGE_AUDIT.md",
+      "web/docs/FEB_2026_23_25_COVERAGE_APPLY.sql",
+      "NEXT.md",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "commands_run": [
       { "cwd": "web", "command": "pnpm install", "result": "ok (already up to date)" },
-      { "cwd": "web", "command": "pnpm run lint", "result": "failed (Next.js v16 CLI has no `lint` command; left unchanged in PR0)" },
       { "cwd": "web", "command": "pnpm run build", "result": "ok" }
     ]
   },
-  "commit": "4b88e40609d8673ad7722cd86f4ee7748db03ac7",
-  "timestamp": "2026-01-31T00:00:00.000Z"
+  "commit": "<TBD_SHA>",
+  "timestamp": "2026-02-01T00:00:00.000Z"
 }
