@@ -1,5 +1,4 @@
-import { notFound } from 'next/navigation';
-import { getAgeBandForAge, getActiveMomentsForAgeBand, getPublishedSetForAgeBandAndMoment } from '../../../lib/pl/public';
+import { getActiveMomentsForAgeBand, getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getPublishedSetForAgeBandAndMoment } from '../../../lib/pl/public';
 import NewLandingPageClient from './NewLandingPageClient';
 
 interface NewMonthsPageProps {
@@ -13,27 +12,30 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
   const { months } = await params;
   const { moment: momentParam } = await searchParams;
   
-  // Parse and clamp months to 24-30 (matching the mockup range)
+  // Parse month param (keep /new/[months] deep links)
   const monthsNum = parseInt(months, 10);
-  const clampedMonths = isNaN(monthsNum) || monthsNum < 24 || monthsNum > 30 
-    ? 26 
-    : monthsNum;
+  const parsedMonth: number | null = isNaN(monthsNum) ? null : monthsNum;
+
+  // Load available age bands (for age-band slider)
+  const ageBands = await getGatewayAgeBandsPublic();
+  const bandsWithPicks = await getGatewayAgeBandIdsWithPicks();
 
   // Map months to age band
-  const ageBand = await getAgeBandForAge(clampedMonths);
+  const ageBand = parsedMonth === null ? null : await getAgeBandForAge(parsedMonth);
+  const selectedBandHasPicks = ageBand ? bandsWithPicks.has(ageBand.id) : false;
   
   if (!ageBand) {
     // Age band not found - show empty state
     return (
       <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
         <NewLandingPageClient
+          ageBands={ageBands}
           ageBand={null}
           moments={[]}
           selectedSet={null}
-          currentMonths={clampedMonths}
+          monthParam={parsedMonth}
+          selectedBandHasPicks={false}
           selectedMomentId={momentParam || null}
-          minMonths={24}
-          maxMonths={30}
         />
       </main>
     );
@@ -64,13 +66,13 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
   return (
     <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
       <NewLandingPageClient
+        ageBands={ageBands}
         ageBand={ageBand}
         moments={moments}
         selectedSet={selectedSet}
-        currentMonths={clampedMonths}
+        monthParam={parsedMonth}
+        selectedBandHasPicks={selectedBandHasPicks}
         selectedMomentId={selectedMomentId}
-        minMonths={24}
-        maxMonths={30}
       />
     </main>
   );

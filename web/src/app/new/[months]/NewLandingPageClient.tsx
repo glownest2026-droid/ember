@@ -7,9 +7,9 @@ import type { TransformedAgeMomentSet, TransformedRecoCard } from '../../../lib/
 
 interface AgeBand {
   id: string;
-  label: string;
-  min_months: number;
-  max_months: number;
+  label?: string | null;
+  min_months: number | null;
+  max_months: number | null;
 }
 
 interface Moment {
@@ -23,13 +23,13 @@ type AgeMomentSet = TransformedAgeMomentSet;
 type RecoCard = TransformedRecoCard;
 
 interface NewLandingPageClientProps {
+  ageBands: AgeBand[];
   ageBand: AgeBand | null;
+  selectedBandHasPicks: boolean;
   moments: Moment[];
   selectedSet: AgeMomentSet | null;
-  currentMonths: number;
+  monthParam: number | null;
   selectedMomentId: string | null;
-  minMonths: number;
-  maxMonths: number;
 }
 
 // Map lane enum to badge label (matching mockup)
@@ -56,37 +56,77 @@ const momentDescMap: Record<string, string> = {
 };
 
 export default function NewLandingPageClient({
+  ageBands,
   ageBand,
+  selectedBandHasPicks,
   moments,
   selectedSet,
-  currentMonths,
+  monthParam,
   selectedMomentId,
-  minMonths,
-  maxMonths,
 }: NewLandingPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedAge, setSelectedAge] = useState(currentMonths);
+  const getBandRange = (band: AgeBand | null): { min: number; max: number } | null => {
+    if (!band) return null;
+    const min = typeof band.min_months === 'number' ? band.min_months : NaN;
+    const max = typeof band.max_months === 'number' ? band.max_months : NaN;
+    if (!isNaN(min) && !isNaN(max)) return { min, max };
+    const match = band.id.match(/^(\d+)-(\d+)m$/);
+    if (!match) return null;
+    return { min: parseInt(match[1], 10), max: parseInt(match[2], 10) };
+  };
+
+  const formatBandLabel = (band: AgeBand | null): string => {
+    if (!band) return 'Age range';
+    const range = getBandRange(band);
+    if (!range) return band.label || band.id;
+    return `${range.min}–${range.max} months`;
+  };
+
+  const formatBandTick = (band: AgeBand): string => {
+    const range = getBandRange(band);
+    if (!range) return band.id;
+    return `${range.min}–${range.max}m`;
+  };
+
+  const getAnchorMonthForBand = (band: AgeBand | null): number | null => {
+    const range = getBandRange(band);
+    return range?.min ?? null;
+  };
+
+  const getBandIndexById = (id: string | null): number => {
+    if (!id) return 0;
+    const idx = ageBands.findIndex(b => b.id === id);
+    return idx >= 0 ? idx : 0;
+  };
+
+  const propBandIndex = getBandIndexById(ageBand?.id ?? null);
+  const [selectedBandIndex, setSelectedBandIndex] = useState(propBandIndex);
   const [selectedMoment, setSelectedMoment] = useState(selectedMomentId);
 
   // Sync state with props when route changes
   useEffect(() => {
-    setSelectedAge(currentMonths);
+    setSelectedBandIndex(propBandIndex);
     setSelectedMoment(selectedMomentId);
-  }, [currentMonths, selectedMomentId]);
+  }, [propBandIndex, selectedMomentId]);
+
+  const selectedBand = ageBands[selectedBandIndex] ?? ageBand;
+  const selectedAnchorMonth = getAnchorMonthForBand(selectedBand) ?? monthParam ?? 26;
 
   // Update URL when age changes (deep linking)
   useEffect(() => {
-    if (selectedAge !== currentMonths) {
+    if (selectedBandIndex !== propBandIndex) {
+      const nextBand = ageBands[selectedBandIndex] ?? null;
+      const nextAnchorMonth = getAnchorMonthForBand(nextBand) ?? selectedAnchorMonth;
       const params = new URLSearchParams(searchParams.toString());
       if (selectedMoment) {
         params.set('moment', selectedMoment);
       }
       const queryString = params.toString();
-      router.push(`/new/${selectedAge}${queryString ? `?${queryString}` : ''}`, { scroll: false });
+      router.push(`/new/${nextAnchorMonth}${queryString ? `?${queryString}` : ''}`, { scroll: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAge]);
+  }, [selectedBandIndex]);
 
   // Update URL when moment changes (query param)
   const handleMomentChange = (momentId: string) => {
@@ -94,12 +134,12 @@ export default function NewLandingPageClient({
     setSelectedMoment(momentId);
     const params = new URLSearchParams();
     params.set('moment', momentId);
-    router.push(`/new/${selectedAge}?${params.toString()}`, { scroll: false });
+    router.push(`/new/${selectedAnchorMonth}?${params.toString()}`, { scroll: false });
   };
 
-  // Handle age slider change
-  const handleAgeChange = (months: number) => {
-    setSelectedAge(months);
+  // Handle age-band slider change (index into ageBands)
+  const handleAgeBandChange = (index: number) => {
+    setSelectedBandIndex(index);
   };
 
   // Get cards from selected set, sorted by rank
@@ -147,12 +187,17 @@ export default function NewLandingPageClient({
   // Build signin redirect URL with current state
   const getSigninUrl = (cardId?: string) => {
     const params = new URLSearchParams();
-    params.set('next', `/new/${selectedAge}${selectedMoment ? `?moment=${selectedMoment}` : ''}`);
+    params.set('next', `/new/${selectedAnchorMonth}${selectedMoment ? `?moment=${selectedMoment}` : ''}`);
     if (cardId) {
       params.set('cardId', cardId);
     }
     return `/signin?${params.toString()}`;
   };
+
+  const showDebug = process.env.NODE_ENV !== 'production' && monthParam !== null && ageBand !== null;
+  const debugText = showDebug
+    ? `month param: ${monthParam} → selected band: ${ageBand.id} (rule: min≤m≤max; tie-break: lowest min_months)`
+    : null;
 
   return (
     <div className="max-w-[430px] mx-auto px-3.5 pb-14" style={{
@@ -200,32 +245,38 @@ export default function NewLandingPageClient({
             <div className="mb-4">
               <div className="flex items-center justify-between gap-2.5 mb-2">
                 <label className="text-sm opacity-70" style={{ color: '#6B5B52' }}>
-                  My child is:
+                  Age range:
                 </label>
                 <div className="flex items-center gap-2 px-2.5 py-2 rounded-full bg-white/78 border shadow-xs" style={{
                   borderColor: 'rgba(23,17,14,.10)',
                 }}>
-                  <strong className="font-extrabold text-xs">{selectedAge}</strong>
-                  <span className="text-xs opacity-70" style={{ color: '#6B5B52' }}>months</span>
+                  <strong className="font-extrabold text-xs">{formatBandLabel(selectedBand)}</strong>
                 </div>
               </div>
 
               {/* Slider */}
               <input
                 type="range"
-                min={minMonths}
-                max={maxMonths}
-                value={selectedAge}
-                onChange={(e) => handleAgeChange(Number(e.target.value))}
+                min={0}
+                max={Math.max(0, ageBands.length - 1)}
+                step={1}
+                value={selectedBandIndex}
+                onChange={(e) => handleAgeBandChange(Number(e.target.value))}
                 className="w-full new-age-slider"
               />
 
               {/* Tick marks */}
               <div className="flex justify-between text-[11px] opacity-42 mt-0.5 px-0.5" style={{ color: 'rgba(23,17,14,.42)' }}>
-                {Array.from({ length: maxMonths - minMonths + 1 }, (_, i) => minMonths + i).map(num => (
-                  <span key={num}>{num}</span>
+                {ageBands.map((band) => (
+                  <span key={band.id}>{formatBandTick(band)}</span>
                 ))}
               </div>
+
+              {debugText && (
+                <div className="mt-2 text-[11px] opacity-60" style={{ color: '#6B5B52' }}>
+                  {debugText}
+                </div>
+              )}
             </div>
 
             {/* Trust indicator */}
@@ -239,66 +290,81 @@ export default function NewLandingPageClient({
               </span>
             </div>
 
-            {/* Moment Selection */}
-            <div className="mb-4">
-              <div className="text-sm opacity-70 mb-2.5" style={{ color: '#6B5B52' }}>
-                What do you want help with today?
-              </div>
-              <div className="grid grid-cols-2 gap-2.5">
-                {moments.map((moment) => {
-                  const isSelected = selectedMoment === moment.id;
-                  return (
-                    <button
-                      key={moment.id}
-                      onClick={() => handleMomentChange(moment.id)}
-                      className="min-h-[74px] p-3 rounded-[20px] border bg-white/92 shadow-xs cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden"
-                      style={{
-                        borderColor: isSelected ? 'rgba(227,91,63,.42)' : 'rgba(23,17,14,.10)',
-                        boxShadow: isSelected ? '0 18px 40px rgba(227,91,63,.16)' : '0 6px 16px rgba(23,17,14,.06)',
-                        background: isSelected 
-                          ? 'radial-gradient(circle at 20% 15%, rgba(244,167,122,.28), transparent 55%), linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.65) 70%)'
-                          : 'linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.65) 70%)',
-                      }}
-                      aria-selected={isSelected}
-                    >
-                      {/* Icon placeholder */}
-                      <div className="w-[42px] h-[42px] rounded-2xl bg-gradient-to-br from-white via-orange-200 to-orange-400 border flex-shrink-0" style={{
-                        borderColor: 'rgba(255,255,255,.55)',
-                        boxShadow: '0 16px 30px rgba(227,91,63,.18)',
-                      }}></div>
-                      <div className="min-w-0 flex-1">
-                        <strong className="block text-sm font-extrabold leading-tight mb-0.5 tracking-[-0.15px]">
-                          {getMomentLabel(moment.id)}
-                        </strong>
-                        <span className="block text-xs opacity-70 whitespace-nowrap overflow-hidden text-ellipsis" style={{ color: '#6B5B52' }}>
-                          {getMomentDesc(moment.id)}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            {selectedBandHasPicks ? (
+              <>
+                {/* Moment Selection */}
+                <div className="mb-4">
+                  <div className="text-sm opacity-70 mb-2.5" style={{ color: '#6B5B52' }}>
+                    What do you want help with today?
+                  </div>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {moments.map((moment) => {
+                      const isSelected = selectedMoment === moment.id;
+                      return (
+                        <button
+                          key={moment.id}
+                          onClick={() => handleMomentChange(moment.id)}
+                          className="min-h-[74px] p-3 rounded-[20px] border bg-white/92 shadow-xs cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden"
+                          style={{
+                            borderColor: isSelected ? 'rgba(227,91,63,.42)' : 'rgba(23,17,14,.10)',
+                            boxShadow: isSelected ? '0 18px 40px rgba(227,91,63,.16)' : '0 6px 16px rgba(23,17,14,.06)',
+                            background: isSelected 
+                              ? 'radial-gradient(circle at 20% 15%, rgba(244,167,122,.28), transparent 55%), linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.65) 70%)'
+                              : 'linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.65) 70%)',
+                          }}
+                          aria-selected={isSelected}
+                        >
+                          {/* Icon placeholder */}
+                          <div className="w-[42px] h-[42px] rounded-2xl bg-gradient-to-br from-white via-orange-200 to-orange-400 border flex-shrink-0" style={{
+                            borderColor: 'rgba(255,255,255,.55)',
+                            boxShadow: '0 16px 30px rgba(227,91,63,.18)',
+                          }}></div>
+                          <div className="min-w-0 flex-1">
+                            <strong className="block text-sm font-extrabold leading-tight mb-0.5 tracking-[-0.15px]">
+                              {getMomentLabel(moment.id)}
+                            </strong>
+                            <span className="block text-xs opacity-70 whitespace-nowrap overflow-hidden text-ellipsis" style={{ color: '#6B5B52' }}>
+                              {getMomentDesc(moment.id)}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-            {/* CTA Button */}
-            <div className="space-y-2.5">
-              <button
-                onClick={() => {
-                  // Scroll to cards section
-                  document.getElementById('findsSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }}
-                className="w-full min-h-[44px] rounded-[20px] border-0 py-3.5 px-4 font-extrabold text-[15px] tracking-[0.1px] text-white cursor-pointer transition-all"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(227,91,63,.98) 0%, rgba(185,67,52,.98) 100%)',
-                  boxShadow: '0 22px 48px rgba(227,91,63,.26)',
-                }}
-              >
-                {selectedMoment ? `Show my 3 picks for ${getMomentLabel(selectedMoment).toLowerCase()}` : 'Show my 3 picks'}
-              </button>
-              <p className="text-center text-xs opacity-70" style={{ color: '#8A756A' }}>
-                Tip: save one thing to unlock &quot;more like this&quot;.
-              </p>
-            </div>
+                {/* CTA Button */}
+                <div className="space-y-2.5">
+                  <button
+                    onClick={() => {
+                      // Scroll to cards section
+                      document.getElementById('findsSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                    className="w-full min-h-[44px] rounded-[20px] border-0 py-3.5 px-4 font-extrabold text-[15px] tracking-[0.1px] text-white cursor-pointer transition-all"
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(227,91,63,.98) 0%, rgba(185,67,52,.98) 100%)',
+                      boxShadow: '0 22px 48px rgba(227,91,63,.26)',
+                    }}
+                  >
+                    {selectedMoment ? `Show my 3 picks for ${getMomentLabel(selectedMoment).toLowerCase()}` : 'Show my 3 picks'}
+                  </button>
+                  <p className="text-center text-xs opacity-70" style={{ color: '#8A756A' }}>
+                    Tip: save one thing to unlock &quot;more like this&quot;.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="rounded-[28px] bg-gradient-to-b from-white/92 to-white/78 border shadow-sm p-6 text-center" style={{
+                borderColor: 'rgba(23,17,14,.08)',
+              }}>
+                <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
+                  We&apos;re still building picks for {formatBandLabel(ageBand)}.
+                </p>
+                <p className="text-xs opacity-70 m-0" style={{ color: '#8A756A' }}>
+                  Catalogue coming soon.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -318,7 +384,18 @@ export default function NewLandingPageClient({
         </div>
 
         {/* Cards */}
-        {cards.length === 0 ? (
+        {!selectedBandHasPicks ? (
+          <div className="rounded-[28px] bg-gradient-to-b from-white/92 to-white/78 border shadow-sm p-6 text-center" style={{
+            borderColor: 'rgba(23,17,14,.08)',
+          }}>
+            <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
+              We&apos;re still building picks for {formatBandLabel(ageBand)}.
+            </p>
+            <p className="text-xs opacity-70 m-0" style={{ color: '#8A756A' }}>
+              Catalogue coming soon.
+            </p>
+          </div>
+        ) : cards.length === 0 ? (
           <div className="rounded-[28px] bg-gradient-to-b from-white/92 to-white/78 border shadow-sm p-6 text-center" style={{
             borderColor: 'rgba(23,17,14,.08)',
           }}>

@@ -1,5 +1,75 @@
 import { createClient } from '../../utils/supabase/server';
 
+export type GatewayAgeBandPublic = {
+  id: string;
+  label: string | null;
+  min_months: number | null;
+  max_months: number | null;
+};
+
+/**
+ * Fetch age bands for the public /new UI.
+ *
+ * Preferred source: curated view `v_gateway_age_bands_public` (Phase A contract).
+ * Fallback: legacy table `pl_age_bands` (PR0-era).
+ */
+export async function getGatewayAgeBandsPublic(): Promise<GatewayAgeBandPublic[]> {
+  const supabase = createClient();
+
+  const { data: viewData, error: viewError } = await supabase
+    .from('v_gateway_age_bands_public')
+    .select('id, label, min_months, max_months')
+    .order('min_months', { ascending: true });
+
+  if (!viewError && viewData) {
+    return viewData as GatewayAgeBandPublic[];
+  }
+
+  const { data: tableData, error: tableError } = await supabase
+    .from('pl_age_bands')
+    .select('id, label, min_months, max_months')
+    .eq('is_active', true)
+    .order('min_months', { ascending: true });
+
+  if (tableError || !tableData) {
+    return [];
+  }
+
+  return tableData as GatewayAgeBandPublic[];
+}
+
+/**
+ * Identify which age bands have any "picks" available, using the Phase A gateway
+ * views where possible.
+ *
+ * Preferred source: `v_gateway_products_public` (expects `age_band_id` column).
+ * Fallback: legacy published sets in `pl_age_moment_sets`.
+ */
+export async function getGatewayAgeBandIdsWithPicks(): Promise<Set<string>> {
+  const supabase = createClient();
+
+  const { data: productRows, error: productError } = await supabase
+    .from('v_gateway_products_public')
+    .select('age_band_id');
+
+  if (!productError && productRows) {
+    const ids = (productRows as Array<{ age_band_id?: string | null }>).map(r => r.age_band_id).filter(Boolean) as string[];
+    return new Set(ids);
+  }
+
+  const { data: setRows, error: setError } = await supabase
+    .from('pl_age_moment_sets')
+    .select('age_band_id')
+    .eq('status', 'published');
+
+  if (setError || !setRows) {
+    return new Set();
+  }
+
+  const ids = (setRows as Array<{ age_band_id?: string | null }>).map(r => r.age_band_id).filter(Boolean) as string[];
+  return new Set(ids);
+}
+
 /**
  * Map age in months to the best matching active age band.
  * Returns the age band ID if found, or null if no match.
@@ -10,8 +80,22 @@ import { createClient } from '../../utils/supabase/server';
 export async function getAgeBandForAge(ageMonths: number) {
   const supabase = createClient();
 
-  // Find age bands where min_months <= ageMonths <= max_months
-  const { data, error } = await supabase
+  // Preferred source: curated view (Phase A contract)
+  const { data: viewData, error: viewError } = await supabase
+    .from('v_gateway_age_bands_public')
+    .select('id, min_months, max_months, label')
+    .lte('min_months', ageMonths)
+    .gte('max_months', ageMonths)
+    .order('min_months', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (!viewError && viewData) {
+    return viewData;
+  }
+
+  // Fallback: legacy table (PR0-era)
+  const { data: tableData, error: tableError } = await supabase
     .from('pl_age_bands')
     .select('id, min_months, max_months, label')
     .eq('is_active', true)
@@ -21,11 +105,11 @@ export async function getAgeBandForAge(ageMonths: number) {
     .limit(1)
     .maybeSingle();
 
-  if (error || !data) {
+  if (tableError || !tableData) {
     return null;
   }
 
-  return data;
+  return tableData;
 }
 
 /**
