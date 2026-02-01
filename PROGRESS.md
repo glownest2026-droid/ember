@@ -68,6 +68,11 @@ _Last updated: 2026-01-04_
 - Added a calm “catalogue coming soon” empty state for bands with no picks.
 - **No DB changes** and no invented coverage.
 
+### Follow-up fix (same branch)
+- Fixed overlap tie-break: when a month sits in two bands (e.g. 25), **prefer the newer band** (higher `min_months`), so `/new/25` resolves to `25–27m`.
+- Restored public gateway picks flow using **gateway views only**: wrapper grid + “Show my 3 picks” → 3 product cards.
+- Slider changes update the URL again using representative mid-month per band (e.g. 23–25 → 24, 25–27 → 26).
+
 ### Files changed
 - `web/src/app/new/page.tsx`
 - `web/src/app/new/[months]/page.tsx`
