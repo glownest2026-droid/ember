@@ -194,10 +194,19 @@ export default function NewLandingPageClient({
     return `/signin?${params.toString()}`;
   };
 
-  const showDebug = process.env.NODE_ENV !== 'production' && monthParam !== null && ageBand !== null;
-  const debugText = showDebug
-    ? `month param: ${monthParam} → selected band: ${ageBand.id} (rule: min≤m≤max; tie-break: lowest min_months)`
-    : null;
+  // Non-prod debug badge:
+  // - show on Vercel previews (and localhost)
+  // - hide on production host
+  const [showDebug, setShowDebug] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const host = window.location.hostname;
+    setShowDebug(host !== 'ember-mocha-eight.vercel.app');
+  }, []);
+  const debugText =
+    showDebug && monthParam !== null && ageBand !== null
+      ? `month param: ${monthParam} → selected band: ${ageBand.id} (rule: min≤m≤max; tie-break: lowest min_months)`
+      : null;
 
   return (
     <div className="max-w-[430px] mx-auto px-3.5 pb-14" style={{
