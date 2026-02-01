@@ -25,6 +25,6 @@
       { "cwd": "web", "command": "pnpm run build", "result": "ok" }
     ]
   },
-  "commit": "<TBD_SHA>",
+  "commit": "2b09ae6115090ba6ae02f8eae712cc48d9399873",
   "timestamp": "2026-01-31T00:00:00.000Z"
 }
