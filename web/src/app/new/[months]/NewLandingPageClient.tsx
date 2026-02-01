@@ -7,9 +7,9 @@ import type { TransformedAgeMomentSet, TransformedRecoCard } from '../../../lib/
 
 interface AgeBand {
   id: string;
-  label: string;
-  min_months: number;
-  max_months: number;
+  label?: string;
+  min_months?: number;
+  max_months?: number;
 }
 
 interface Moment {
@@ -30,6 +30,9 @@ interface NewLandingPageClientProps {
   selectedMomentId: string | null;
   minMonths: number;
   maxMonths: number;
+  showDebugBadge?: boolean;
+  debugBadgeText?: string | null;
+  catalogueErrorMessage?: string | null;
 }
 
 // Map lane enum to badge label (matching mockup)
@@ -63,6 +66,9 @@ export default function NewLandingPageClient({
   selectedMomentId,
   minMonths,
   maxMonths,
+  showDebugBadge,
+  debugBadgeText,
+  catalogueErrorMessage,
 }: NewLandingPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -226,6 +232,17 @@ export default function NewLandingPageClient({
                   <span key={num}>{num}</span>
                 ))}
               </div>
+
+              {showDebugBadge && debugBadgeText ? (
+                <div className="mt-2">
+                  <span
+                    className="inline-block text-[11px] px-2 py-1 rounded-full border bg-white/70"
+                    style={{ borderColor: 'rgba(23,17,14,.10)', color: 'rgba(23,17,14,.72)' }}
+                  >
+                    {debugBadgeText}
+                  </span>
+                </div>
+              ) : null}
             </div>
 
             {/* Trust indicator */}
@@ -322,9 +339,19 @@ export default function NewLandingPageClient({
           <div className="rounded-[28px] bg-gradient-to-b from-white/92 to-white/78 border shadow-sm p-6 text-center" style={{
             borderColor: 'rgba(23,17,14,.08)',
           }}>
-            <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
-              We&apos;re still building this moment for this age. Try another moment.
-            </p>
+            {catalogueErrorMessage ? (
+              <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
+                {catalogueErrorMessage}
+              </p>
+            ) : !ageBand ? (
+              <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
+                We&apos;re still building this month&apos;s catalogue.
+              </p>
+            ) : (
+              <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
+                We&apos;re still building picks for {ageBand.id}.
+              </p>
+            )}
           </div>
         ) : (
           <div className="space-y-3">
