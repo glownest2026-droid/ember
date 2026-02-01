@@ -40,17 +40,28 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
       : null;
 
   const shouldShowPicks = showParam === '1' && selectedBandHasPicks;
-  const effectiveWrapperSlug = selectedWrapperSlug ?? wrappers[0]?.ux_slug ?? null;
+  let effectiveWrapperSlug = selectedWrapperSlug ?? wrappers[0]?.ux_slug ?? null;
+  let picks: Awaited<ReturnType<typeof getGatewayTopPicksForAgeBandAndWrapperSlug>> = [];
 
-  if (shouldShowPicks && effectiveWrapperSlug && !selectedWrapperSlug) {
-    // Make the URL deterministic for debugging/screenshots.
-    redirect(`/new/${monthParam}?wrapper=${encodeURIComponent(effectiveWrapperSlug)}&show=1`);
+  if (shouldShowPicks) {
+    if (selectedWrapperSlug) {
+      effectiveWrapperSlug = selectedWrapperSlug;
+      picks = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, selectedWrapperSlug, 3);
+    } else {
+      // Choose the first wrapper that actually yields picks (for deterministic screenshots/debug).
+      for (const w of wrappers) {
+        const candidate = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, w.ux_slug, 3);
+        if (candidate.length > 0) {
+          effectiveWrapperSlug = w.ux_slug;
+          picks = candidate;
+          break;
+        }
+      }
+      if (effectiveWrapperSlug) {
+        redirect(`/new/${monthParam}?wrapper=${encodeURIComponent(effectiveWrapperSlug)}&show=1`);
+      }
+    }
   }
-
-  const picks =
-    shouldShowPicks && effectiveWrapperSlug
-      ? await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, effectiveWrapperSlug, 3)
-      : [];
 
   return (
     <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
