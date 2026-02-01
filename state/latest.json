@@ -1,45 +1,27 @@
 {
-  "module": { "number": 8, "name": "Register Branded Blocks (8-Pack)" },
-  "branch": "main",
-  "commit": "<LATEST_SHA>",
-  "preview_url": "https://<latest-vercel-preview-domain>",
-  "routes": [
-    "/cms/[[...path]]",
-    "/cms/diag",
-    "/api/probe/builder",
-    "/whoami"
-  ],
-  "env": {
-    "local": [
-      "NEXT_PUBLIC_BUILDER_API_KEY",
-      "NEXT_PUBLIC_SUPABASE_URL",
-      "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+  "pr": {
+    "number": null,
+    "title": "PR0: Feb 2026 baseline audit snapshot + decision log scaffold",
+    "branch": "feat/feb-2026-pr0-baseline-audit",
+    "base": "main",
+    "url": null,
+    "vercel_preview_url": null,
+    "rollback": "revert PR"
+  },
+  "receipt": {
+    "scope": "docs-only (no functional changes, no DB changes)",
+    "files_changed": [
+      "web/docs/FEB_2026_BASELINE_AUDIT.md",
+      "web/docs/FEB_2026_DECISION_LOG.md",
+      "PROGRESS.md",
+      "state/latest.json"
     ],
-    "vercel_preview": [
-      "NEXT_PUBLIC_BUILDER_API_KEY",
-      "NEXT_PUBLIC_SUPABASE_URL",
-      "NEXT_PUBLIC_SUPABASE_ANON_KEY"
-    ],
-    "vercel_production": [
-      "NEXT_PUBLIC_BUILDER_API_KEY",
-      "NEXT_PUBLIC_SUPABASE_URL",
-      "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    "commands_run": [
+      { "cwd": "web", "command": "pnpm install", "result": "ok (already up to date)" },
+      { "cwd": "web", "command": "pnpm run lint", "result": "failed (Next.js v16 CLI has no `lint` command; left unchanged in PR0)" },
+      { "cwd": "web", "command": "pnpm run build", "result": "ok" }
     ]
   },
-  "cron": { "paths": [], "schedule": null },
-  "db": { "migrations": [], "policies": [] },
-  "proof": {
-    "urls_200": [
-      "/cms/lego-kit-demo",
-      "/cms/diag",
-      "/api/probe/builder",
-      "/whoami"
-    ],
-    "notes": "Builder 'page' model wired to /cms catch-all with branded blocks and preview-safe middleware."
-  },
-  "debt": [
-    "Preview popup still depends on correct model preview URL; needs care when adding new models.",
-    "Additional CMS models (blog/docs/etc.) not yet wired."
-  ],
-  "timestamp": "2025-12-05T00:00:00.000Z"
+  "commit": "4b88e40609d8673ad7722cd86f4ee7748db03ac7",
+  "timestamp": "2026-01-31T00:00:00.000Z"
 }

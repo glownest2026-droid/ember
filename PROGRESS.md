@@ -59,6 +59,24 @@ _Last updated: 2026-01-04_
 
 ------
 
+## 2026-01-31 — PR0: Feb 2026 baseline audit snapshot + decision log scaffold
+
+### Summary
+- Added a **permanent Feb 2026 baseline audit snapshot** + **decision log scaffold** for the public gateway (`/new`, `/new/[months]`).
+- **Docs-only PR0**: no functional changes, no DB changes.
+
+### Files added
+- `web/docs/FEB_2026_BASELINE_AUDIT.md`
+- `web/docs/FEB_2026_DECISION_LOG.md`
+
+### Verification (Proof-of-Done)
+- `pnpm install` (in `/web`) — already up to date
+- `pnpm run build` (in `/web`) — ✅ succeeded
+- Note: `pnpm run lint` currently fails because `next lint` is not a supported command in Next.js `v16.0.7` CLI; **left unchanged** in PR0 to keep scope docs-only.
+
+### Rollback
+- Revert PR.
+
 ## 2026-01-15 — Phase A: DB Foundation (Gateway Spine + Curated Public Views)
 
 ### Summary
