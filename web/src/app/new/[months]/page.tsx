@@ -1,6 +1,6 @@
-import { notFound } from 'next/navigation';
-import { getAgeBandForAge, getActiveMomentsForAgeBand, getPublishedSetForAgeBandAndMoment } from '../../../lib/pl/public';
+import { getActiveMomentsForAgeBand, getPublishedSetForAgeBandAndMoment, loadAgeBandsForResolution } from '../../../lib/pl/public';
 import NewLandingPageClient from './NewLandingPageClient';
+import { formatMonthToBandDebugBadge, resolveAgeBandForMonth } from '../../../lib/pl/ageBandResolution';
 
 interface NewMonthsPageProps {
   params: Promise<{ months: string }>;
@@ -19,11 +19,24 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
     ? 26 
     : monthsNum;
 
-  // Map months to age band
-  const ageBand = await getAgeBandForAge(clampedMonths);
+  const showDebugBadge =
+    (process.env.VERCEL_ENV ? process.env.VERCEL_ENV !== 'production' : process.env.NODE_ENV !== 'production');
+
+  const { ageBands, error: ageBandsError } = await loadAgeBandsForResolution();
+  const resolution = resolveAgeBandForMonth(clampedMonths, ageBands);
+  const debugBadgeText = showDebugBadge
+    ? formatMonthToBandDebugBadge({
+        selectedMonth: clampedMonths,
+        ageBandsLoaded: ageBands.length,
+        resolution,
+        ageBandsError,
+      })
+    : null;
+
+  const ageBandId = ageBandsError ? null : resolution.ageBandId;
   
-  if (!ageBand) {
-    // Age band not found - show empty state
+  if (!ageBandId) {
+    // No age band match OR age band load error - show honest empty state (and debug badge in non-prod)
     return (
       <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
         <NewLandingPageClient
@@ -34,13 +47,16 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
           selectedMomentId={momentParam || null}
           minMonths={24}
           maxMonths={30}
+          showDebugBadge={showDebugBadge}
+          debugBadgeText={debugBadgeText}
+          catalogueErrorMessage={ageBandsError ? "We’re having trouble loading the catalogue." : null}
         />
       </main>
     );
   }
 
   // Fetch moments that have published sets for this age band
-  const moments = await getActiveMomentsForAgeBand(ageBand.id);
+  const moments = await getActiveMomentsForAgeBand(ageBandId);
 
   // Get selected moment (from query param or first available, or default to "bath" if available)
   let selectedMomentId: string | null = momentParam || null;
@@ -58,19 +74,22 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
   // Fetch the published set for selected age band + moment
   let selectedSet = null;
   if (selectedMomentId) {
-    selectedSet = await getPublishedSetForAgeBandAndMoment(ageBand.id, selectedMomentId);
+    selectedSet = await getPublishedSetForAgeBandAndMoment(ageBandId, selectedMomentId);
   }
 
   return (
     <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
       <NewLandingPageClient
-        ageBand={ageBand}
+        ageBand={{ id: ageBandId }}
         moments={moments}
         selectedSet={selectedSet}
         currentMonths={clampedMonths}
         selectedMomentId={selectedMomentId}
         minMonths={24}
         maxMonths={30}
+        showDebugBadge={showDebugBadge}
+        debugBadgeText={debugBadgeText}
+        catalogueErrorMessage={null}
       />
     </main>
   );

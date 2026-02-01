@@ -59,6 +59,30 @@ _Last updated: 2026-01-04_
 
 ------
 
+## 2026-01-31 — Hotfix: Restore month→age-band mapping across schema drift (public /new)
+
+### Summary
+- Restored deterministic month → age band mapping for `/new/[months]` using a drift-tolerant resolver (handles `min_months` vs `min_month`, `id` vs `age_band_id`, and parses `"25-27m"` IDs as fallback).
+- Added **non-prod debug badge** (shows ageBands loaded count + mapping/candidates/tie-break or safe error).
+- Prevented “silent empty catalogue” on age-band load failures:
+  - Non-prod: debug badge includes safe error summary.
+  - Prod: shows “We’re having trouble loading the catalogue.”
+- **No DB / RLS / policy changes.** Wrapper/picks reads remain legacy (PR2 will switch to gateway views).
+
+### Key code (real paths)
+- `web/src/lib/pl/ageBandResolution.ts`
+- `web/src/lib/pl/public.ts` (`loadAgeBandsForResolution()` prefers `v_gateway_age_bands_public`)
+- `web/src/app/new/page.tsx`
+- `web/src/app/new/[months]/page.tsx`
+- `web/src/app/new/[months]/NewLandingPageClient.tsx`
+
+### Verification (Proof-of-Done)
+- `pnpm install` (in `/web`) — ✅ already up to date
+- `pnpm run build` (in `/web`) — ✅ succeeded
+
+### Rollback
+- Revert PR.
+
 ## 2026-01-31 — PR0: Feb 2026 baseline audit snapshot + decision log scaffold
 
 ### Summary

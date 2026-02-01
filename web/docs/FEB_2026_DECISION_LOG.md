@@ -8,12 +8,27 @@
 
 ## Month → band rule (TBD)
 
-- **Decision**: TBD
-- **Owner**: TBD
-- **Date**: TBD
-- **Notes / context**:
-  - TBD: What’s the canonical mapping from a month integer (e.g. 26) to a Phase A age band ID?
-  - TBD: Do we clamp months, round, or allow full-range browsing?
+- **Decision**: Deterministic month → age band mapping using inclusive ranges + deterministic overlap tie-break.
+- **Owner**: Cursor (Lead Dev)
+- **Date**: 2026-01-31
+- **Rule (exact)**:
+  1) Normalize each age band row into `{ ageBandId, min, max }` using:
+     - `ageBandId`: `id` OR `age_band_id`
+     - `min/max`: `min_months`/`max_months` (plural) OR `min_month`/`max_month` (singular)
+     - If min/max are missing: parse from `ageBandId` string (e.g. `"25-27m"` → min=25, max=27)
+  2) `candidates = bands where min <= selectedMonth <= max`
+  3) If exactly 1 candidate → choose it
+  4) If multiple candidates (overlap month like 25) → choose the candidate with **higher `min`** (prefer newer band)
+  5) If 0 candidates → no band (“catalogue coming soon”)
+- **Implementation**:
+  - `web/src/lib/pl/ageBandResolution.ts` → `resolveAgeBandForMonth(selectedMonth, ageBands)`
+  - `web/src/lib/pl/public.ts` → `loadAgeBandsForResolution()` prefers `v_gateway_age_bands_public` and falls back to `pl_age_bands`
+
+### Schema drift note (discovered)
+- The gateway age band source can vary across environments:
+  - `min_months`/`max_months` (plural) vs `min_month`/`max_month` (singular)
+  - `id` vs `age_band_id`
+- Hotfix stance: tolerate drift in code; **do not** change DB schemas/policies in this PR.
 
 ---
 

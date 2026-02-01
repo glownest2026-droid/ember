@@ -1,5 +1,68 @@
 import { createClient } from '../../utils/supabase/server';
 
+export type AgeBandLoadResult = {
+  ageBands: unknown[];
+  source: 'v_gateway_age_bands_public' | 'pl_age_bands' | 'none';
+  error: string | null;
+};
+
+function safeSupabaseErrorMessage(err: unknown): string {
+  if (!err || typeof err !== 'object') return 'unknown error';
+  const anyErr = err as any;
+  // Prefer short, safe fields (avoid dumping details).
+  if (typeof anyErr.message === 'string' && anyErr.message) return anyErr.message;
+  if (typeof anyErr.code === 'string' && anyErr.code) return anyErr.code;
+  return 'unknown error';
+}
+
+/**
+ * Load age bands for month->band resolution.
+ *
+ * Important:
+ * - Prefer Phase A curated view (`v_gateway_age_bands_public`) because it is intended for anonymous reads.
+ * - Fall back to base table (`pl_age_bands`) only if needed.
+ * - Never silently swallow errors as "empty catalogue".
+ */
+export async function loadAgeBandsForResolution(): Promise<AgeBandLoadResult> {
+  const supabase = createClient();
+
+  // 1) Preferred: Phase A curated public view
+  {
+    const { data, error } = await supabase.from('v_gateway_age_bands_public').select('*');
+    if (!error && data) {
+      // If view is empty, allow fallback to base table (some envs may not have wrapper rankings yet).
+      if (Array.isArray(data) && data.length > 0) {
+        return { ageBands: data, source: 'v_gateway_age_bands_public', error: null };
+      }
+      // Empty is not an error, but we still attempt fallback for robustness.
+    }
+    if (error) {
+      // Keep error, but still attempt fallback.
+      const viewError = safeSupabaseErrorMessage(error);
+
+      const { data: baseData, error: baseError } = await supabase.from('pl_age_bands').select('*').eq('is_active', true);
+      if (!baseError && baseData) {
+        return { ageBands: baseData, source: 'pl_age_bands', error: null };
+      }
+
+      return {
+        ageBands: [],
+        source: 'none',
+        error: `v_gateway_age_bands_public: ${viewError}${baseError ? `; pl_age_bands: ${safeSupabaseErrorMessage(baseError)}` : ''}`,
+      };
+    }
+  }
+
+  // 2) Fallback: base table
+  {
+    const { data, error } = await supabase.from('pl_age_bands').select('*').eq('is_active', true);
+    if (!error && data) {
+      return { ageBands: data, source: 'pl_age_bands', error: null };
+    }
+    return { ageBands: [], source: 'none', error: error ? safeSupabaseErrorMessage(error) : 'unknown error' };
+  }
+}
+
 /**
  * Map age in months to the best matching active age band.
  * Returns the age band ID if found, or null if no match.
