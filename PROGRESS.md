@@ -87,6 +87,31 @@ _Last updated: 2026-01-04_
 ### Rollback
 - Revert PR (frontend + docs only).
 
+## 2026-02-02 — PR4: Mutually-exclusive age bands 0–36m (DB + minimal `/new` contract updates)
+
+### Summary
+- Made age bands **mutually exclusive** and complete for **0–36 months**, anchored on `25–27m` (includes required examples: `19–21m`, `22–24m`, `25–27m`).
+- DB: added an idempotent APPLY/ROLLBACK SQL file that:
+  - Inserts the full band list (`0-0m` … `34-36m`)
+  - Migrates `23-25m → 22-24m` references (where gateway mapping tables exist)
+  - Updates `public.v_gateway_age_bands_public` to return **all active bands** (public contract remains a view; no policy changes)
+- Web: `/new` now routes by **representative month = min_months** (e.g. `25–27m → /new/25`), and month→band resolution surfaces overlaps as a **non-prod debug error** instead of relying on tie-break logic.
+
+### Files changed
+- `supabase/sql/20260202_pr4_mutually_exclusive_age_bands.sql`
+- `web/src/app/new/page.tsx`
+- `web/src/app/new/[months]/page.tsx`
+- `web/src/app/new/[months]/NewLandingPageClient.tsx`
+- `web/src/lib/pl/public.ts`
+
+### Verification (Proof-of-Done)
+- `pnpm install` (in `/web`) — ✅ already up to date
+- `pnpm run build` (in `/web`) — ✅ exit 0
+
+### Rollback
+- In Supabase: run the ROLLBACK block from `supabase/sql/20260202_pr4_mutually_exclusive_age_bands.sql`
+- In Git: revert PR
+
 ## 2026-02-01 — PR3: 23–25m coverage audit + provenance-safe apply script (no UI changes)
 
 ### Summary

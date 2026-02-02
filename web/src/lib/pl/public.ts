@@ -58,22 +58,29 @@ export async function getGatewayAgeBandIdsWithPicks(): Promise<Set<string>> {
 export async function getAgeBandForAge(ageMonths: number) {
   const supabase = createClient();
 
-  // Preferred source: curated view (Phase A contract)
-  const { data: viewData, error: viewError } = await supabase
+  // Preferred source: curated view (gateway public contract).
+  // In a healthy mutually-exclusive scheme, exactly ONE band should match any month.
+  const { data: rows, error } = await supabase
     .from('v_gateway_age_bands_public')
     .select('id, min_months, max_months, label')
     .lte('min_months', ageMonths)
     .gte('max_months', ageMonths)
-    // Tie-break for overlaps (e.g. month 25 in both 23–25 and 25–27):
-    // prefer the band with the HIGHER min_months (newer band).
-    .order('min_months', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .order('min_months', { ascending: true })
+    .limit(10);
 
-  if (!viewError && viewData) {
-    return viewData;
+  if (error || !rows) return null;
+  if (rows.length === 0) return null;
+  if (rows.length === 1) return rows[0];
+
+  // This should not happen once bands are mutually exclusive. Treat as an error.
+  const isProd = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+  const candidateIds = rows.map(r => r.id).join(', ');
+  if (!isProd) {
+    console.error(`ERROR: multiple age bands matched month=${ageMonths}: ${candidateIds}`);
   }
-  return null;
+
+  // Deterministic fallback: choose the highest min_months (newest), but this is a safety net only.
+  return [...rows].sort((a, b) => (a.min_months ?? 0) - (b.min_months ?? 0)).at(-1) ?? rows[0];
 }
 
 export type GatewayWrapperPublic = {
