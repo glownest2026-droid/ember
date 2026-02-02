@@ -123,14 +123,14 @@ BEGIN
   END IF;
 END $$;
 
--- 3) Public contract: `v_gateway_age_bands_public` should return ALL active age bands
+-- 3) Public contract: `v_gateway_age_bands_public` should return ALL PR4 scheme bands
 --    (not just bands populated with wrappers).
 --
 -- Previous definition (Phase A):
 --   - Only age bands with at least one active wrapper ranking
 --
 -- New definition (PR4):
---   - All active age bands from pl_age_bands
+--   - All mutually-exclusive scheme bands for 0–36m
 CREATE OR REPLACE VIEW public.v_gateway_age_bands_public AS
 SELECT
   ab.id,
@@ -138,7 +138,22 @@ SELECT
   ab.min_months,
   ab.max_months
 FROM public.pl_age_bands ab
-WHERE ab.is_active = true;
+WHERE ab.is_active = true
+  AND ab.id IN (
+    '0-0m',
+    '1-3m',
+    '4-6m',
+    '7-9m',
+    '10-12m',
+    '13-15m',
+    '16-18m',
+    '19-21m',
+    '22-24m',
+    '25-27m',
+    '28-30m',
+    '31-33m',
+    '34-36m'
+  );
 
 -- Preserve the view as the public contract for anon reads.
 GRANT SELECT ON public.v_gateway_age_bands_public TO anon, authenticated;

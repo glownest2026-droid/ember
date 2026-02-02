@@ -94,7 +94,7 @@ _Last updated: 2026-01-04_
 - DB: added an idempotent APPLY/ROLLBACK SQL file that:
   - Inserts the full band list (`0-0m` … `34-36m`)
   - Migrates `23-25m → 22-24m` references (where gateway mapping tables exist)
-  - Updates `public.v_gateway_age_bands_public` to return **all active bands** (public contract remains a view; no policy changes)
+  - Updates `public.v_gateway_age_bands_public` to return **only the PR4 scheme bands** (prevents legacy outliers like `24–30m` from appearing in `/new`; public contract remains a view; no policy changes)
 - Web: `/new` now routes by **representative month = min_months** (e.g. `25–27m → /new/25`), and month→band resolution surfaces overlaps as a **non-prod debug error** instead of relying on tie-break logic.
 
 ### Files changed
