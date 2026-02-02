@@ -12,13 +12,13 @@ function parseAgeBandIdRange(id: string): { min: number; max: number } | null {
 
 function getRepresentativeMonthForBand(band: { id: string; min_months: number | null; max_months: number | null }): number | null {
   const min = typeof band.min_months === 'number' ? band.min_months : NaN;
-  const max = typeof band.max_months === 'number' ? band.max_months : NaN;
-  if (!isNaN(min) && !isNaN(max)) {
-    return Math.round((min + max) / 2);
+  if (!isNaN(min)) {
+    // Representative month for a band is its min_months (stable deep links).
+    return min;
   }
   const parsed = parseAgeBandIdRange(band.id);
   if (!parsed) return null;
-  return Math.round((parsed.min + parsed.max) / 2);
+  return parsed.min;
 }
 
 export default async function NewPage() {
@@ -27,7 +27,7 @@ export default async function NewPage() {
 
   if (!ageBands || ageBands.length === 0) {
     // Safe fallback (legacy behavior)
-    redirect('/new/26');
+    redirect('/new/25');
   }
 
   // Default: first band (lowest min_months) with picks, otherwise newest band (highest min_months)
@@ -35,7 +35,7 @@ export default async function NewPage() {
     ageBands.find(b => bandsWithPicks.has(b.id)) ??
     ageBands[ageBands.length - 1];
 
-  const representativeMonth = getRepresentativeMonthForBand(preferred) ?? 26;
+  const representativeMonth = getRepresentativeMonthForBand(preferred) ?? 25;
   redirect(`/new/${representativeMonth}`);
 }
 

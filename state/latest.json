@@ -1,17 +1,17 @@
 {
   "pr": {
     "number": null,
-    "title": "PR3: Age-band-first slider (fix month tie-break + restore picks)",
-    "branch": "feat/feb-2026-pr3-age-band-slider",
+    "title": "PR4: Mutually-exclusive age bands 0–36m (DB + minimal /new contract updates)",
+    "branch": "feat/feb-2026-pr4-mutually-exclusive-age-bands-0-36",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/compare/main...feat/feb-2026-pr3-age-band-slider?expand=1",
+    "url": null,
     "vercel_preview_url": null,
-    "rollback": "revert PR"
+    "rollback": "Run SQL ROLLBACK block, then revert PR"
   },
   "receipt": {
-    "scope": "Fix PR3 regression: month->band tie-break prefers newer band; slider updates URL via representative month; restore wrapper+3-picks flow using gateway public views only; no DB changes",
+    "scope": "PR4: Make age bands mutually exclusive and complete 0–36m via idempotent SQL + update /new to use min_months representative routing and flag overlaps as errors in non-prod",
     "files_changed": [
-      "web/docs/FEB_2026_DECISION_LOG.md",
+      "supabase/sql/20260202_pr4_mutually_exclusive_age_bands.sql",
       "web/src/app/new/page.tsx",
       "web/src/app/new/[months]/page.tsx",
       "web/src/app/new/[months]/NewLandingPageClient.tsx",
@@ -19,9 +19,9 @@
     ],
     "commands_run": [
       { "cwd": "web", "command": "pnpm install", "result": "ok (already up to date)" },
-      { "cwd": "web", "command": "pnpm run build", "result": "ok" }
+      { "cwd": "web", "command": "pnpm run build", "result": "ok (exit 0)" }
     ]
   },
-  "commit": "4b6f3977cd56a040299af132b6dcfbf3393e57a2",
-  "timestamp": "2026-02-01T00:00:00.000Z"
+  "commit": null,
+  "timestamp": "2026-02-02T00:00:00.000Z"
 }

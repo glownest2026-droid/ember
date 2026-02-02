@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
+import { getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
 import NewLandingPageClient from './NewLandingPageClient';
 
 interface NewMonthsPageProps {
@@ -8,6 +8,32 @@ interface NewMonthsPageProps {
 }
 
 export const dynamic = 'force-dynamic';
+
+function resolveAgeBandForMonth(
+  ageBands: Array<{ id: string; min_months: number | null; max_months: number | null; label?: string | null }>,
+  month: number
+): { band: (typeof ageBands)[number] | null; debug: { candidates: string[]; error: string | null } } {
+  const candidates = ageBands.filter(b => {
+    if (typeof b.min_months !== 'number' || typeof b.max_months !== 'number') return false;
+    return b.min_months <= month && b.max_months >= month;
+  });
+
+  if (candidates.length === 0) {
+    return { band: null, debug: { candidates: [], error: `No age band matched month=${month}` } };
+  }
+
+  if (candidates.length === 1) {
+    return { band: candidates[0]!, debug: { candidates: [candidates[0]!.id], error: null } };
+  }
+
+  // Mutually-exclusive bands should NEVER produce multiple matches.
+  const candidateIds = candidates.map(c => c.id);
+  const error = `ERROR: multiple age bands matched month=${month}: ${candidateIds.join(', ')}`;
+
+  // Keep the page functional with a deterministic fallback, but surface the error in non-prod debug.
+  const fallback = [...candidates].sort((a, b) => (a.min_months ?? 0) - (b.min_months ?? 0)).at(-1) ?? candidates[0]!;
+  return { band: fallback, debug: { candidates: candidateIds, error } };
+}
 
 export default async function NewMonthsPage({ params, searchParams }: NewMonthsPageProps) {
   const { months } = await params;
@@ -25,10 +51,18 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
   const bandsWithPicks = await getGatewayAgeBandIdsWithPicks();
 
   // Map months to age band
-  const ageBand = await getAgeBandForAge(monthParam);
+  const resolution = resolveAgeBandForMonth(ageBands, monthParam);
+  const ageBand = resolution.band;
   if (!ageBand) {
     redirect('/new');
   }
+
+  const isProd = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+  const resolutionDebug =
+    !isProd && resolution.debug.error
+      ? `${resolution.debug.error} (chosen fallback: ${ageBand.id})`
+      : null;
+
   const selectedBandHasPicks = bandsWithPicks.has(ageBand.id);
   
   // Fetch wrappers for this age band (gateway views)
@@ -70,6 +104,7 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
         ageBand={ageBand}
         monthParam={monthParam}
         selectedBandHasPicks={selectedBandHasPicks}
+        resolutionDebug={resolutionDebug}
         wrappers={wrappers}
         selectedWrapperSlug={effectiveWrapperSlug}
         showPicks={shouldShowPicks}

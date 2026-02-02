@@ -20,6 +20,7 @@ interface NewLandingPageClientProps {
   ageBand: AgeBand | null;
   selectedBandHasPicks: boolean;
   monthParam: number | null;
+  resolutionDebug?: string | null;
   wrappers: Wrapper[];
   selectedWrapperSlug: string | null;
   showPicks: boolean;
@@ -31,6 +32,7 @@ export default function NewLandingPageClient({
   ageBand,
   selectedBandHasPicks,
   monthParam,
+  resolutionDebug,
   wrappers,
   selectedWrapperSlug,
   showPicks,
@@ -63,7 +65,8 @@ export default function NewLandingPageClient({
   const getRepresentativeMonthForBand = (band: AgeBand | null): number | null => {
     const range = getBandRange(band);
     if (!range) return null;
-    return Math.round((range.min + range.max) / 2);
+    // Representative month is band.min_months (stable deep links).
+    return range.min;
   };
 
   const getBandIndexById = (id: string | null): number => {
@@ -83,7 +86,7 @@ export default function NewLandingPageClient({
   }, [propBandIndex, selectedWrapperSlug]);
 
   const selectedBand = ageBands[selectedBandIndex] ?? ageBand;
-  const currentMonth = monthParam ?? 26;
+  const currentMonth = monthParam ?? 25;
 
   // When picks are requested, scroll directly to results.
   useEffect(() => {
@@ -143,7 +146,7 @@ export default function NewLandingPageClient({
   }, []);
   const debugText =
     showDebug && monthParam !== null && ageBand !== null
-      ? `path: ${debugPath ?? ''} | month param: ${monthParam} → resolved band: ${ageBand.id} (rule: min≤m≤max; tie-break: highest min_months)`
+      ? `path: ${debugPath ?? ''} | month param: ${monthParam} → resolved band: ${ageBand.id} (rule: min≤m≤max)${resolutionDebug ? ` | ${resolutionDebug}` : ''}`
       : null;
 
   return (
