@@ -1,5 +1,53 @@
 import { createClient } from '../../utils/supabase/server';
 
+export type GatewayAgeBandPublic = {
+  id: string;
+  label: string | null;
+  min_months: number | null;
+  max_months: number | null;
+};
+
+/**
+ * Fetch age bands for the public /new UI.
+ *
+ * Preferred source: curated view `v_gateway_age_bands_public` (Phase A contract).
+ * Fallback: legacy table `pl_age_bands` (PR0-era).
+ */
+export async function getGatewayAgeBandsPublic(): Promise<GatewayAgeBandPublic[]> {
+  const supabase = createClient();
+
+  const { data: viewData, error: viewError } = await supabase
+    .from('v_gateway_age_bands_public')
+    .select('id, label, min_months, max_months')
+    .order('min_months', { ascending: true });
+
+  if (!viewError && viewData) {
+    return viewData as GatewayAgeBandPublic[];
+  }
+  return [];
+}
+
+/**
+ * Identify which age bands have any "picks" available, using the Phase A gateway
+ * views where possible.
+ *
+ * Preferred source: `v_gateway_products_public` (expects `age_band_id` column).
+ * Fallback: legacy published sets in `pl_age_moment_sets`.
+ */
+export async function getGatewayAgeBandIdsWithPicks(): Promise<Set<string>> {
+  const supabase = createClient();
+
+  const { data: productRows, error: productError } = await supabase
+    .from('v_gateway_products_public')
+    .select('age_band_id');
+
+  if (!productError && productRows) {
+    const ids = (productRows as Array<{ age_band_id?: string | null }>).map(r => r.age_band_id).filter(Boolean) as string[];
+    return new Set(ids);
+  }
+  return new Set();
+}
+
 /**
  * Map age in months to the best matching active age band.
  * Returns the age band ID if found, or null if no match.
@@ -10,22 +58,171 @@ import { createClient } from '../../utils/supabase/server';
 export async function getAgeBandForAge(ageMonths: number) {
   const supabase = createClient();
 
-  // Find age bands where min_months <= ageMonths <= max_months
-  const { data, error } = await supabase
-    .from('pl_age_bands')
+  // Preferred source: curated view (Phase A contract)
+  const { data: viewData, error: viewError } = await supabase
+    .from('v_gateway_age_bands_public')
     .select('id, min_months, max_months, label')
-    .eq('is_active', true)
     .lte('min_months', ageMonths)
     .gte('max_months', ageMonths)
-    .order('min_months', { ascending: true })
+    // Tie-break for overlaps (e.g. month 25 in both 23–25 and 25–27):
+    // prefer the band with the HIGHER min_months (newer band).
+    .order('min_months', { ascending: false })
     .limit(1)
     .maybeSingle();
 
-  if (error || !data) {
-    return null;
+  if (!viewError && viewData) {
+    return viewData;
+  }
+  return null;
+}
+
+export type GatewayWrapperPublic = {
+  ux_wrapper_id: string;
+  ux_label: string;
+  ux_slug: string;
+  ux_description: string | null;
+  age_band_id: string;
+  rank: number;
+};
+
+export type GatewayCategoryTypePublic = {
+  age_band_id: string;
+  development_need_id: string;
+  rank: number;
+  rationale: string | null;
+  id: string;
+  slug: string;
+  label: string | null;
+  name: string | null;
+  description: string | null;
+  image_url: string | null;
+  safety_notes: string | null;
+};
+
+export type GatewayProductPublic = {
+  age_band_id: string;
+  category_type_id: string;
+  rank: number;
+  rationale: string | null;
+  id: string;
+  name: string;
+  brand: string | null;
+  image_url: string | null;
+  canonical_url: string | null;
+  amazon_uk_url: string | null;
+  affiliate_url: string | null;
+  affiliate_deeplink: string | null;
+};
+
+export type GatewayPick = {
+  product: GatewayProductPublic;
+  categoryType: Pick<GatewayCategoryTypePublic, 'id' | 'slug' | 'label' | 'name'>;
+};
+
+/**
+ * Fetch gateway UX wrappers for a given age band (public view).
+ */
+export async function getGatewayWrappersForAgeBand(ageBandId: string): Promise<GatewayWrapperPublic[]> {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('v_gateway_wrappers_public')
+    .select('ux_wrapper_id, ux_label, ux_slug, ux_description, age_band_id, rank')
+    .eq('age_band_id', ageBandId)
+    .order('rank', { ascending: true });
+
+  if (error || !data) return [];
+  return data as GatewayWrapperPublic[];
+}
+
+/**
+ * Generate top picks for an age band + wrapper (public views only).
+ *
+ * Deterministic rule:
+ * - Wrapper → development_need_id (via v_gateway_wrapper_detail_public)
+ * - Need → ranked category types (via v_gateway_category_types_public)
+ * - Category type → ranked products (via v_gateway_products_public)
+ * - Output: first unique product per category in rank order, then fill remaining by next-ranked products.
+ */
+export async function getGatewayTopPicksForAgeBandAndWrapperSlug(
+  ageBandId: string,
+  wrapperSlug: string,
+  limit: number = 3
+): Promise<GatewayPick[]> {
+  const supabase = createClient();
+
+  const { data: wrapperDetail, error: wrapperError } = await supabase
+    .from('v_gateway_wrapper_detail_public')
+    .select('development_need_id, ux_slug')
+    .eq('age_band_id', ageBandId)
+    .eq('ux_slug', wrapperSlug)
+    .limit(1)
+    .maybeSingle();
+
+  if (wrapperError || !wrapperDetail?.development_need_id) return [];
+
+  const developmentNeedId = wrapperDetail.development_need_id as string;
+
+  const { data: categoryRows, error: categoryError } = await supabase
+    .from('v_gateway_category_types_public')
+    .select('age_band_id, development_need_id, rank, rationale, id, slug, label, name, description, image_url, safety_notes')
+    .eq('age_band_id', ageBandId)
+    .eq('development_need_id', developmentNeedId)
+    .order('rank', { ascending: true });
+
+  if (categoryError || !categoryRows || categoryRows.length === 0) return [];
+
+  const categories = categoryRows as GatewayCategoryTypePublic[];
+  const categoryIds = categories.map(c => c.id);
+
+  const { data: productRows, error: productError } = await supabase
+    .from('v_gateway_products_public')
+    .select('age_band_id, category_type_id, rank, rationale, id, name, brand, image_url, canonical_url, amazon_uk_url, affiliate_url, affiliate_deeplink')
+    .eq('age_band_id', ageBandId)
+    .in('category_type_id', categoryIds)
+    .order('rank', { ascending: true });
+
+  if (productError || !productRows || productRows.length === 0) return [];
+
+  const products = productRows as GatewayProductPublic[];
+  const productsByCategory = new Map<string, GatewayProductPublic[]>();
+  for (const p of products) {
+    const arr = productsByCategory.get(p.category_type_id) ?? [];
+    arr.push(p);
+    productsByCategory.set(p.category_type_id, arr);
   }
 
-  return data;
+  const picks: GatewayPick[] = [];
+  const usedProductIds = new Set<string>();
+
+  // Pass 1: first product per category, in category rank order
+  for (const cat of categories) {
+    const list = productsByCategory.get(cat.id) ?? [];
+    const first = list.find(p => !usedProductIds.has(p.id));
+    if (!first) continue;
+    picks.push({
+      product: first,
+      categoryType: { id: cat.id, slug: cat.slug, label: cat.label, name: cat.name },
+    });
+    usedProductIds.add(first.id);
+    if (picks.length >= limit) return picks;
+  }
+
+  // Pass 2: fill remaining from next-ranked products, keeping category rank order
+  for (const cat of categories) {
+    const list = productsByCategory.get(cat.id) ?? [];
+    for (const p of list) {
+      if (usedProductIds.has(p.id)) continue;
+      picks.push({
+        product: p,
+        categoryType: { id: cat.id, slug: cat.slug, label: cat.label, name: cat.name },
+      });
+      usedProductIds.add(p.id);
+      if (picks.length >= limit) return picks;
+    }
+  }
+
+  return picks;
 }
 
 /**

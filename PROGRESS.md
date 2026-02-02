@@ -33,7 +33,7 @@ _Last updated: 2026-01-04_
 - /ping
 - /cms/lego-kit-demo
 - (optional) /cms/diag
-- /new (public landing page, redirects to /new/26)
+- /new (public landing page, redirects to first band with picks; e.g. /new/25)
 - /new/[months] (public landing page with age preload, e.g. /new/25)
 
 ## Open PR policy
@@ -58,6 +58,34 @@ _Last updated: 2026-01-04_
 
 
 ------
+
+## 2026-02-01 — PR3b: Age-band-first slider for `/new` (UI only)
+
+### Summary
+- Switched the `/new` age control from **month-first** to **age-band-first** (range slider).
+- Kept deep links `/new/[months]` working by snapping the month param to the correct age band on load, while showing the age range in the UI.
+- `/new` now redirects deterministically to the **first band with picks** (otherwise the newest band).
+- Added a calm “catalogue coming soon” empty state for bands with no picks.
+- **No DB changes** and no invented coverage.
+
+### Follow-up fix (same branch)
+- Fixed overlap tie-break: when a month sits in two bands (e.g. 25), **prefer the newer band** (higher `min_months`), so `/new/25` resolves to `25–27m`.
+- Restored public gateway picks flow using **gateway views only**: wrapper grid + “Show my 3 picks” → 3 product cards.
+- Slider changes update the URL again using representative mid-month per band (e.g. 23–25 → 24, 25–27 → 26).
+
+### Files changed
+- `web/src/app/new/page.tsx`
+- `web/src/app/new/[months]/page.tsx`
+- `web/src/app/new/[months]/NewLandingPageClient.tsx`
+- `web/src/lib/pl/public.ts`
+- `web/docs/FEB_2026_DECISION_LOG.md`
+
+### Verification (Proof-of-Done)
+- `pnpm install` (in `/web`) — ✅ (already up to date)
+- `pnpm run build` (in `/web`) — ✅
+
+### Rollback
+- Revert PR (frontend + docs only).
 
 ## 2026-02-01 — PR3: 23–25m coverage audit + provenance-safe apply script (no UI changes)
 

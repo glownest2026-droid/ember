@@ -1,76 +1,79 @@
-import { notFound } from 'next/navigation';
-import { getAgeBandForAge, getActiveMomentsForAgeBand, getPublishedSetForAgeBandAndMoment } from '../../../lib/pl/public';
+import { redirect } from 'next/navigation';
+import { getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
 import NewLandingPageClient from './NewLandingPageClient';
 
 interface NewMonthsPageProps {
   params: Promise<{ months: string }>;
-  searchParams: Promise<{ moment?: string }>;
+  searchParams: Promise<{ wrapper?: string; show?: string }>;
 }
 
 export const dynamic = 'force-dynamic';
 
 export default async function NewMonthsPage({ params, searchParams }: NewMonthsPageProps) {
   const { months } = await params;
-  const { moment: momentParam } = await searchParams;
+  const { wrapper: wrapperSlugParam, show: showParam } = await searchParams;
   
-  // Parse and clamp months to 24-30 (matching the mockup range)
+  // Parse month param (keep /new/[months] deep links)
   const monthsNum = parseInt(months, 10);
-  const clampedMonths = isNaN(monthsNum) || monthsNum < 24 || monthsNum > 30 
-    ? 26 
-    : monthsNum;
+  if (isNaN(monthsNum)) {
+    redirect('/new');
+  }
+  const monthParam = monthsNum;
+
+  // Load available age bands (for age-band slider)
+  const ageBands = await getGatewayAgeBandsPublic();
+  const bandsWithPicks = await getGatewayAgeBandIdsWithPicks();
 
   // Map months to age band
-  const ageBand = await getAgeBandForAge(clampedMonths);
-  
+  const ageBand = await getAgeBandForAge(monthParam);
   if (!ageBand) {
-    // Age band not found - show empty state
-    return (
-      <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
-        <NewLandingPageClient
-          ageBand={null}
-          moments={[]}
-          selectedSet={null}
-          currentMonths={clampedMonths}
-          selectedMomentId={momentParam || null}
-          minMonths={24}
-          maxMonths={30}
-        />
-      </main>
-    );
+    redirect('/new');
   }
-
-  // Fetch moments that have published sets for this age band
-  const moments = await getActiveMomentsForAgeBand(ageBand.id);
-
-  // Get selected moment (from query param or first available, or default to "bath" if available)
-  let selectedMomentId: string | null = momentParam || null;
+  const selectedBandHasPicks = bandsWithPicks.has(ageBand.id);
   
-  // If no moment selected, try to find a default moment
-  // The mockup uses: "bath", "help", "quiet", "energy"
-  // Try to match these IDs first
-  const defaultMomentIds = ['bath', 'help', 'quiet', 'energy'];
-  if (!selectedMomentId && moments.length > 0) {
-    // Try to find one of the default moments
-    const foundDefault = moments.find(m => defaultMomentIds.includes(m.id));
-    selectedMomentId = foundDefault?.id || moments[0]?.id || null;
-  }
+  // Fetch wrappers for this age band (gateway views)
+  const wrappers = await getGatewayWrappersForAgeBand(ageBand.id);
 
-  // Fetch the published set for selected age band + moment
-  let selectedSet = null;
-  if (selectedMomentId) {
-    selectedSet = await getPublishedSetForAgeBandAndMoment(ageBand.id, selectedMomentId);
+  const selectedWrapperSlug =
+    wrapperSlugParam && wrappers.some(w => w.ux_slug === wrapperSlugParam)
+      ? wrapperSlugParam
+      : null;
+
+  const shouldShowPicks = showParam === '1' && selectedBandHasPicks;
+  let effectiveWrapperSlug = selectedWrapperSlug ?? wrappers[0]?.ux_slug ?? null;
+  let picks: Awaited<ReturnType<typeof getGatewayTopPicksForAgeBandAndWrapperSlug>> = [];
+
+  if (shouldShowPicks) {
+    if (selectedWrapperSlug) {
+      effectiveWrapperSlug = selectedWrapperSlug;
+      picks = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, selectedWrapperSlug, 3);
+    } else {
+      // Choose the first wrapper that actually yields picks (for deterministic screenshots/debug).
+      for (const w of wrappers) {
+        const candidate = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, w.ux_slug, 3);
+        if (candidate.length > 0) {
+          effectiveWrapperSlug = w.ux_slug;
+          picks = candidate;
+          break;
+        }
+      }
+      if (effectiveWrapperSlug) {
+        redirect(`/new/${monthParam}?wrapper=${encodeURIComponent(effectiveWrapperSlug)}&show=1`);
+      }
+    }
   }
 
   return (
     <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
       <NewLandingPageClient
+        ageBands={ageBands}
         ageBand={ageBand}
-        moments={moments}
-        selectedSet={selectedSet}
-        currentMonths={clampedMonths}
-        selectedMomentId={selectedMomentId}
-        minMonths={24}
-        maxMonths={30}
+        monthParam={monthParam}
+        selectedBandHasPicks={selectedBandHasPicks}
+        wrappers={wrappers}
+        selectedWrapperSlug={effectiveWrapperSlug}
+        showPicks={shouldShowPicks}
+        picks={picks}
       />
     </main>
   );
