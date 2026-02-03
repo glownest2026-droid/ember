@@ -183,8 +183,14 @@ export function mergeTheme(partial?: ThemeSettings | null): RequiredThemeSetting
   };
 }
 
+/** Brandbook wins: always apply brandbook palette. DB theme override disabled for brand refresh. */
+const BRANDBOOK_WINS = true;
+
 export async function loadTheme(): Promise<RequiredThemeSettings> {
   noStore(); // Prevent caching to ensure fresh theme data
+  if (BRANDBOOK_WINS) {
+    return DEFAULT_THEME;
+  }
   try {
     const supabase = createClient();
     const { data, error } = await supabase
@@ -193,16 +199,11 @@ export async function loadTheme(): Promise<RequiredThemeSettings> {
       .eq('id', 'global')
       .single();
 
-    // If error (e.g., RLS blocks anonymous access) or no data, use default
-    // This ensures branding works for logged-out users
     if (error || !data?.theme) {
       return DEFAULT_THEME;
     }
-
     return mergeTheme(data.theme as ThemeSettings);
   } catch (err) {
-    // Safe fallback on any error (network, RLS, etc.)
-    // Always return DEFAULT_THEME so CSS variables are set
     return DEFAULT_THEME;
   }
 }
