@@ -1,23 +1,21 @@
 {
   "pr": {
     "number": null,
-    "title": "Discovery Page UI Overhaul to Ember 2026 spec",
-    "branch": "feat/feb-2026-discover-ui-overhaul",
+    "title": "Website brand refresh (Brandbook)",
+    "branch": "feat/brandbook-website-refresh",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
     "rollback": "Revert PR (frontend only)"
   },
   "receipt": {
-    "scope": "End-to-end UI overhaul of Discovery (/new and /discover) to Unified UX + Brand spec: design tokens, central surface, header/chips, slider, wrapper grid, CTA, picks, Why these? inline; /discover alias added; no DB/RLS changes",
+    "scope": "Website brand refresh per brandbook PDF: fonts, colours, tokens, headers. Exclude /new/ path.",
     "files_changed": [
       "web/src/app/globals.css",
+      "web/src/lib/theme.ts",
       "web/src/components/ThemeProvider.tsx",
-      "web/src/app/new/[months]/NewLandingPageClient.tsx",
-      "web/src/app/new/[months]/page.tsx",
-      "web/src/app/discover/page.tsx",
-      "web/src/app/discover/[months]/page.tsx",
-      "web/src/components/ConditionalHeader.tsx",
+      "web/src/components/Header.tsx",
+      "web/src/app/layout.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],

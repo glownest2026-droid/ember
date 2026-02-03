@@ -32,6 +32,10 @@ export async function ThemeProvider({ children }: { children: React.ReactNode })
 
   // Map font pairs to CSS variable names
   const fontPairMap: Record<string, { body: string; head: string }> = {
+    sourceserif4_inter: {
+      body: 'var(--font-inter)',
+      head: 'var(--font-sourceserif4)',
+    },
     inter_plusjakarta: {
       body: 'var(--font-inter)',
       head: 'var(--font-plusjakarta)',
@@ -87,9 +91,9 @@ export async function ThemeProvider({ children }: { children: React.ReactNode })
     },
   };
 
-  const bodyFont = fontPairMap[theme.typography.fontBody] || fontPairMap.inter_plusjakarta;
-  const headingFont = fontPairMap[theme.typography.fontHeading] || fontPairMap.inter_plusjakarta;
-  const subheadingFont = fontPairMap[theme.typography.fontSubheading] || fontPairMap.inter_plusjakarta;
+  const bodyFont = fontPairMap[theme.typography.fontBody] || fontPairMap.inter_inter;
+  const headingFont = fontPairMap[theme.typography.fontHeading] || fontPairMap.sourceserif4_inter;
+  const subheadingFont = fontPairMap[theme.typography.fontSubheading] || fontPairMap.sourceserif4_inter;
 
   // Escape CSS values safely
   const escapeCss = (value: string | number) => String(value).replace(/[<>"']/g, '');

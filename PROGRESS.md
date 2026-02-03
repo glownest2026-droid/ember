@@ -51,6 +51,30 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-03 — Website Brand Refresh (Brandbook)
+
+### Summary
+- Applied brandbook design tokens site-wide (excluding /new/ path which was recently refreshed).
+- **Design tokens**: Added ember-shadow-ambient, ember-glow-active, ember-alpha-disabled, ember-radius-button (8px), ember-radius-card (12px). Typography: H1/H2 Serif (Source Serif 4), H3+ Sans (Inter). Body line-height 1.6.
+- **DEFAULT_THEME**: Updated to Brandbook palette — ember-accent-base (#FF6347), ember-accent-hover (#B8432B), ember-bg-canvas (#FAFAFA), ember-text-high (#1A1E23), ember-text-low (#5C646D), ember-border-subtle (#E5E7EB). sourceserif4_inter font pair for headings.
+- **Header**: All navigation headers use ember tokens (accent, text, border, radius-8). Wordmark gradient, buttons, nav links aligned to brandbook.
+- **globals.css**: Cards use radius-12, ember-shadow-ambient; buttons radius-8, ember-accent-base; inputs radius-8, ember-focus-ring. prefers-reduced-motion respected.
+- **layout.tsx**: themeColor #FF6347 (ember-accent-base).
+
+### Files changed
+- `web/src/app/globals.css` — Brandbook tokens, typography, card/btn/input radius
+- `web/src/lib/theme.ts` — DEFAULT_THEME brandbook palette
+- `web/src/components/ThemeProvider.tsx` — sourceserif4_inter font pair, default fallbacks
+- `web/src/components/Header.tsx` — ember tokens, radius-8
+- `web/src/app/layout.tsx` — themeColor #FF6347
+
+### Verification (Proof-of-Done)
+- `pnpm install` (in `/web`) — ✅
+- `pnpm run build` (in `/web`) — ✅
+
+### Rollback
+- Revert PR (frontend only).
+
 ## 2026-02-03 — Discovery Page UI Overhaul (Ember 2026 spec)
 
 ### Summary
