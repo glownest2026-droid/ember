@@ -91,30 +91,31 @@ export type RequiredThemeSettings = {
   };
 };
 
+/* Brandbook: Ember Modernist palette — deeper premium orange, Deep Slate text */
 export const DEFAULT_THEME: RequiredThemeSettings = {
   colors: {
-    primary: '#FFBEAB', // ember-400
-    accent: '#FFC26E',  // apricot-400
-    background1: '#FFFCF8', // cream-50
-    background2: '#FFFFFF', // white (light gradient)
+    primary: '#FF6347', // ember-accent-base (Ember Orange CTAs)
+    accent: '#B8432B',  // ember-accent-hover (interaction feedback)
+    background1: '#FAFAFA', // ember-bg-canvas (Paper White)
+    background2: '#FFFFFF', // ember-surface-primary
     surface: '#FFFFFF',
-    section1: '#FFF8F0', // slightly tinted variant
-    section2: '#FFFCF8', // lighter variant for gradient
-    text: '#27303F', // ink
-    muted: '#57534E', // stone-600
-    border: '#D6D3D1', // stone-300
-    primaryForeground: pickForeground('#FFBEAB'),
-    accentForeground: pickForeground('#FFC26E'),
-    scrollbarThumb: '#D6D3D1', // same as border for subtlety
+    section1: '#F1F3F2', // ember-surface-soft
+    section2: '#FAFAFA',
+    text: '#1A1E23', // ember-text-high (Deep Slate)
+    muted: '#5C646D', // ember-text-low
+    border: '#E5E7EB', // ember-border-subtle
+    primaryForeground: '#FFFFFF',
+    accentForeground: '#FFFFFF',
+    scrollbarThumb: '#E5E7EB',
   },
   typography: {
-    fontHeading: 'inter_plusjakarta', // Plus Jakarta for headings
-    fontSubheading: 'inter_plusjakarta', // Plus Jakarta for subheadings (can be same or different)
-    fontBody: 'inter_plusjakarta', // Inter for body
+    fontHeading: 'sourceserif4_inter', // Brandbook: Serif for headlines
+    fontSubheading: 'sourceserif4_inter', // H2 Serif
+    fontBody: 'inter_inter', // Inter for body, nav, buttons
     baseFontSize: 16,
   },
   components: {
-    radius: 12,
+    radius: 8, // Brandbook: radius-8 chips/buttons
   },
 };
 
@@ -182,8 +183,14 @@ export function mergeTheme(partial?: ThemeSettings | null): RequiredThemeSetting
   };
 }
 
+/** Brandbook wins: always apply brandbook palette. DB theme override disabled for brand refresh. */
+const BRANDBOOK_WINS = true;
+
 export async function loadTheme(): Promise<RequiredThemeSettings> {
   noStore(); // Prevent caching to ensure fresh theme data
+  if (BRANDBOOK_WINS) {
+    return DEFAULT_THEME;
+  }
   try {
     const supabase = createClient();
     const { data, error } = await supabase
@@ -192,16 +199,11 @@ export async function loadTheme(): Promise<RequiredThemeSettings> {
       .eq('id', 'global')
       .single();
 
-    // If error (e.g., RLS blocks anonymous access) or no data, use default
-    // This ensures branding works for logged-out users
     if (error || !data?.theme) {
       return DEFAULT_THEME;
     }
-
     return mergeTheme(data.theme as ThemeSettings);
   } catch (err) {
-    // Safe fallback on any error (network, RLS, etc.)
-    // Always return DEFAULT_THEME so CSS variables are set
     return DEFAULT_THEME;
   }
 }

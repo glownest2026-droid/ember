@@ -4,15 +4,15 @@
 import * as React from "react";
 import Link from "next/link";
 
-/** Shared theme tokens for quick inline styling */
+/** Shared theme tokens (Brandbook: ember palette) */
 export const THEME = {
-  ink: "#1C1C1E",
-  primary: "#FFC7AE",
-  primaryLight: "#FFE5D7",
-  cloud: "#FAFAFB",
+  ink: "#1A1E23",
+  primary: "#FF6347",
+  primaryLight: "#B8432B",
+  cloud: "#FAFAFA",
   sky: "#EAF3FF",
   sprout: "#5EC57E",
-  pebble: "#E6E6EA",
+  pebble: "#E5E7EB",
 };
 
 export function BrandIcon({ size = 20 }: { size?: number }) {
@@ -21,8 +21,8 @@ export function BrandIcon({ size = 20 }: { size?: number }) {
     <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`} role="img" aria-label="Ember icon">
       <defs>
         <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="var(--brand-primary, #FFC7AE)" />
-          <stop offset="100%" stopColor="var(--brand-accent, #FFE5D7)" />
+          <stop offset="0%" stopColor="var(--brand-primary, var(--ember-accent-base))" />
+          <stop offset="100%" stopColor="var(--ember-accent-hover)" />
         </linearGradient>
       </defs>
       <g stroke="url(#g)" strokeWidth={s * 0.12} strokeLinecap="round">
@@ -41,11 +41,11 @@ export function Wordmark() {
     <div className="inline-flex items-center gap-2 select-none">
       <div
         className="w-7 h-7 rounded-full grid place-items-center"
-        style={{ background: `linear-gradient(160deg, var(--brand-primary, #FFC7AE), var(--brand-accent, #FFE5D7))` }}
+        style={{ background: `linear-gradient(160deg, var(--brand-primary, var(--ember-accent-base)), var(--ember-accent-hover))` }}
       >
         <BrandIcon size={18} />
       </div>
-      <span className="text-xl font-semibold tracking-tight" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
+      <span className="text-xl font-semibold tracking-tight" style={{ color: 'var(--brand-text, var(--ember-text-high))' }}>
         Ember
       </span>
     </div>
@@ -58,15 +58,15 @@ export function Button({
   className = "",
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" }) {
-  const base = "px-5 py-3 rounded-xl transition font-semibold";
+  const base = "px-5 py-3 rounded-lg transition font-semibold";
   if (variant === "primary") {
     return (
       <button
-        className={`${base} shadow border ${className}`}
+        className={`${base} shadow ${className}`}
         style={{ 
-          background: 'var(--brand-primary, #FFC7AE)', 
-          color: 'var(--brand-primary-foreground, #27303F)', 
-          borderColor: 'var(--brand-border, #E6E6EA)' 
+          background: 'var(--brand-primary, var(--ember-accent-base))', 
+          color: 'var(--brand-primary-foreground, var(--ember-surface-primary))', 
+          borderRadius: 'var(--ember-radius-button, 8px)'
         }}
         {...props}
       >
@@ -79,9 +79,10 @@ export function Button({
       <button
         className={`${base} border ${className}`}
         style={{ 
-          background: 'var(--brand-bg, #FAFAFB)', 
-          color: 'var(--brand-text, #1C1C1E)', 
-          borderColor: 'var(--brand-border, #E6E6EA)' 
+          background: 'var(--brand-bg-1, var(--ember-bg-canvas))', 
+          color: 'var(--brand-text, var(--ember-text-high))', 
+          borderColor: 'var(--brand-border, var(--ember-border-subtle))',
+          borderRadius: 'var(--ember-radius-button, 8px)'
         }}
         {...props}
       >
@@ -108,16 +109,16 @@ const ButtonLink = ({
   href: string;
   className?: string;
 }) => {
-  const base = "px-5 py-3 rounded-xl transition font-semibold inline-flex items-center justify-center";
+  const base = "px-5 py-3 rounded-lg transition font-semibold inline-flex items-center justify-center";
   if (variant === "primary") {
     return (
       <Link
         href={href}
-        className={`${base} shadow border ${className}`}
+        className={`${base} shadow ${className}`}
         style={{ 
-          background: 'var(--brand-primary, #FFC7AE)', 
-          color: 'var(--brand-primary-foreground, #27303F)', 
-          borderColor: 'var(--brand-border, #E6E6EA)' 
+          background: 'var(--brand-primary, var(--ember-accent-base))', 
+          color: 'var(--brand-primary-foreground, var(--ember-surface-primary))', 
+          borderRadius: 'var(--ember-radius-button, 8px)'
         }}
       >
         {children}
@@ -130,9 +131,10 @@ const ButtonLink = ({
         href={href}
         className={`${base} border ${className}`}
         style={{ 
-          background: 'var(--brand-bg, #FAFAFB)', 
-          color: 'var(--brand-text, #1C1C1E)', 
-          borderColor: 'var(--brand-border, #E6E6EA)' 
+          background: 'var(--brand-bg-1, var(--ember-bg-canvas))', 
+          color: 'var(--brand-text, var(--ember-text-high))', 
+          borderColor: 'var(--brand-border, var(--ember-border-subtle))',
+          borderRadius: 'var(--ember-radius-button, 8px)'
         }}
       >
         {children}
@@ -160,8 +162,8 @@ export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '
     <header
       className="fixed top-0 left-0 right-0 z-50 backdrop-blur border-b"
       style={{ 
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        borderColor: 'var(--brand-border, #E6E6EA)',
+        backgroundColor: 'var(--ember-surface-primary)',
+        borderColor: 'var(--brand-border, var(--ember-border-subtle))',
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}
     >
@@ -172,16 +174,16 @@ export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '
 
         {/* Desktop nav */}
         {userEmail ? (
-          <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
+          <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: 'var(--brand-text, var(--ember-text-high))' }}>
             <Link href="/app" className="opacity-80 hover:opacity-100">Dashboard</Link>
             <Link href="/app/children" className="opacity-80 hover:opacity-100">Child Profiles</Link>
             <Link href="/app/recs" className="opacity-80 hover:opacity-100">Recommendations</Link>
             {isAdmin && (
-              <Link href="/app/admin/theme" className="opacity-80 hover:opacity-100" style={{ color: 'var(--brand-primary, #FFBEAB)' }}>Theme</Link>
+              <Link href="/app/admin/theme" className="opacity-80 hover:opacity-100" style={{ color: 'var(--brand-primary, var(--ember-accent-base))' }}>Theme</Link>
             )}
           </nav>
         ) : (
-          <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: 'var(--brand-text, #1C1C1E)' }}>
+          <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: 'var(--brand-text, var(--ember-text-high))' }}>
             <a className="opacity-80 hover:opacity-100" href="#how">How it works</a>
             <a className="opacity-80 hover:opacity-100" href="#features">Features</a>
             <a className="opacity-80 hover:opacity-100" href="#trust">Trust</a>
@@ -193,7 +195,7 @@ export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '
         <div className="hidden md:flex items-center gap-3">
           {userEmail ? (
             <>
-              <span className="text-sm" style={{ color: 'var(--brand-muted, #6b7280)' }}>Signed in as {userEmail}</span>
+              <span className="text-sm" style={{ color: 'var(--brand-muted, var(--ember-text-low))' }}>Signed in as {userEmail}</span>
               {signOutButton}
             </>
           ) : (
@@ -209,8 +211,8 @@ export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '
           aria-label="Toggle menu"
           aria-expanded={open}
           onClick={() => setOpen(v => !v)}
-          className="md:hidden inline-flex items-center justify-center rounded-xl border px-3 py-2"
-          style={{ borderColor: 'var(--brand-border, #E6E6EA)', color: 'var(--brand-text, #1C1C1E)' }}
+          className="md:hidden inline-flex items-center justify-center rounded-lg border px-3 py-2"
+          style={{ borderColor: 'var(--brand-border, var(--ember-border-subtle))', color: 'var(--brand-text, var(--ember-text-high))', borderRadius: 'var(--ember-radius-button, 8px)' }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
             <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -220,7 +222,7 @@ export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '
 
       {/* Mobile panel */}
       {open && (
-        <div className="md:hidden border-t backdrop-blur" style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: 'var(--brand-border, #E6E6EA)' }}>
+        <div className="md:hidden border-t backdrop-blur" style={{ backgroundColor: 'var(--ember-surface-primary)', borderColor: 'var(--brand-border, var(--ember-border-subtle))' }}>
           <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex flex-col gap-3">
             {userEmail ? (
               <>
@@ -228,9 +230,9 @@ export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '
                 <Link href="/app/children" className="py-1" onClick={() => setOpen(false)}>Child Profiles</Link>
                 <Link href="/app/recs" className="py-1" onClick={() => setOpen(false)}>Recommendations</Link>
                 {isAdmin && (
-                  <Link href="/app/admin/theme" className="py-1" onClick={() => setOpen(false)} style={{ color: 'var(--brand-primary, #FFBEAB)' }}>Theme</Link>
+                  <Link href="/app/admin/theme" className="py-1" onClick={() => setOpen(false)} style={{ color: 'var(--brand-primary, var(--ember-accent-base))' }}>Theme</Link>
                 )}
-                <span className="py-1 text-sm" style={{ color: 'var(--brand-muted, #6b7280)' }}>Signed in as {userEmail}</span>
+                <span className="py-1 text-sm" style={{ color: 'var(--brand-muted, var(--ember-text-low))' }}>Signed in as {userEmail}</span>
                 {signOutButton && (
                   <div onClick={() => setOpen(false)}>{signOutButton}</div>
                 )}
