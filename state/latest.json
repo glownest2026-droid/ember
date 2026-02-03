@@ -1,27 +1,31 @@
 {
   "pr": {
     "number": null,
-    "title": "PR3: Age-band-first slider (fix month tie-break + restore picks)",
-    "branch": "feat/feb-2026-pr3-age-band-slider",
+    "title": "Discovery Page UI Overhaul to Ember 2026 spec",
+    "branch": "feat/feb-2026-discover-ui-overhaul",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/compare/main...feat/feb-2026-pr3-age-band-slider?expand=1",
+    "url": null,
     "vercel_preview_url": null,
-    "rollback": "revert PR"
+    "rollback": "Revert PR (frontend only)"
   },
   "receipt": {
-    "scope": "Fix PR3 regression: month->band tie-break prefers newer band; slider updates URL via representative month; restore wrapper+3-picks flow using gateway public views only; no DB changes",
+    "scope": "End-to-end UI overhaul of Discovery (/new and /discover) to Unified UX + Brand spec: design tokens, central surface, header/chips, slider, wrapper grid, CTA, picks, Why these? inline; /discover alias added; no DB/RLS changes",
     "files_changed": [
-      "web/docs/FEB_2026_DECISION_LOG.md",
-      "web/src/app/new/page.tsx",
-      "web/src/app/new/[months]/page.tsx",
+      "web/src/app/globals.css",
+      "web/src/components/ThemeProvider.tsx",
       "web/src/app/new/[months]/NewLandingPageClient.tsx",
-      "web/src/lib/pl/public.ts"
+      "web/src/app/new/[months]/page.tsx",
+      "web/src/app/discover/page.tsx",
+      "web/src/app/discover/[months]/page.tsx",
+      "web/src/components/ConditionalHeader.tsx",
+      "PROGRESS.md",
+      "state/latest.json"
     ],
     "commands_run": [
       { "cwd": "web", "command": "pnpm install", "result": "ok (already up to date)" },
-      { "cwd": "web", "command": "pnpm run build", "result": "ok" }
+      { "cwd": "web", "command": "pnpm run build", "result": "ok (exit 0)" }
     ]
   },
-  "commit": "4b6f3977cd56a040299af132b6dcfbf3393e57a2",
-  "timestamp": "2026-02-01T00:00:00.000Z"
+  "commit": null,
+  "timestamp": "2026-02-03T00:00:00.000Z"
 }

@@ -1,7 +1,9 @@
-import { Inter, Plus_Jakarta_Sans, DM_Sans, Space_Grotesk, Nunito, Source_Sans_3, Manrope, Work_Sans, Lexend, Outfit, Fraunces } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans, DM_Sans, Space_Grotesk, Nunito, Source_Sans_3, Manrope, Work_Sans, Lexend, Outfit, Fraunces, Source_Serif_4, IBM_Plex_Mono } from 'next/font/google';
 import { loadTheme } from '../lib/theme';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const sourceSerif4 = Source_Serif_4({ subsets: ['latin'], variable: '--font-sourceserif4' });
+const ibmPlexMono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-ibmplexmono' });
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-plusjakarta' });
 const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-dmsans' });
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-spacegrotesk' });
@@ -92,7 +94,7 @@ export async function ThemeProvider({ children }: { children: React.ReactNode })
   // Escape CSS values safely
   const escapeCss = (value: string | number) => String(value).replace(/[<>"']/g, '');
 
-  const fontClasses = `${inter.variable} ${plusJakarta.variable} ${dmSans.variable} ${spaceGrotesk.variable} ${nunito.variable} ${sourceSans.variable} ${manrope.variable} ${workSans.variable} ${lexend.variable} ${outfit.variable} ${fraunces.variable}`;
+  const fontClasses = `${inter.variable} ${plusJakarta.variable} ${dmSans.variable} ${spaceGrotesk.variable} ${nunito.variable} ${sourceSans.variable} ${manrope.variable} ${workSans.variable} ${lexend.variable} ${outfit.variable} ${fraunces.variable} ${sourceSerif4.variable} ${ibmPlexMono.variable}`;
 
   return (
     <>
