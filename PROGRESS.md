@@ -51,6 +51,38 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-03 — Discovery Page UI Overhaul (Ember 2026 spec)
+
+### Summary
+- End-to-end UI overhaul of the Discovery flow to match the Unified UX + Brand Implementation Brief.
+- **Routes**: `/new` and `/new/[months]` remain the canonical discovery flow; **added `/discover` and `/discover/[months]** as aliases using the same `NewLandingPageClient` component (no duplication). Existing `/new` deep links unchanged.
+- **Design tokens**: Added Ember 2026 CSS variables (ember-bg-canvas, ember-surface-primary, ember-text-high/low, ember-accent-base/hover, ember-focus-ring, etc.) in `globals.css`. Font variables `--font-serif` (Source Serif 4), `--font-sans` (Inter), `--font-mono` (IBM Plex Mono); Source Serif 4 and IBM Plex Mono loaded via ThemeProvider.
+- **Page layout**: Page background #FAFAFA; single central surface container (white, 12px radius, 0px 4px 24px rgba(0,0,0,0.04)); max-width mobile 100%, tablet 640px, desktop 720px. Orange gradient removed.
+- **Header**: H1 serif, calm copy (“Ideas that fit this stage.”); supporting line Inter 16px ember-text-low. Three trust chips only: “No child name”, “Under a minute”, “Reasoned picks” (ember-surface-soft, no icons).
+- **Slider**: Track inactive/active per spec; thumb 20px, accent fill, focus ring 2px #D44D31; age label IBM Plex Mono 14px; helper copy: “We only use age to tailor ideas.”
+- **Wrapper grid**: 2 cols mobile/tablet, 3 desktop; tile border default, selected state glow only (0px 0px 16px rgba(255, 99, 71, 0.4)), no fill change. No invented icons.
+- **CTA**: Single “Show my 3 picks”; disabled until age resolved + one wrapper selected (30% opacity); hover ember-accent-hover; microcopy “Takes about a minute.”
+- **Picks section**: Destination feel; calm empty states; “Why these?” text-only button toggles **inline** expansion (no modal). Reasoning block: serif heading, Inter body, up to 3 bullets (age + selected focus), no AI/algorithm language.
+- **Motion**: 250ms, cubic-bezier(0.4, 0, 0.2, 1); prefers-reduced-motion respected on slider.
+- **Copy**: No “Unlock”, “AI”, “Magic”, “Algorithm”, “Smart”, or “moment” language on the page.
+- **Security/data**: No DB, RLS, or policy changes; reads remain via gateway public views.
+
+### Files changed
+- `web/src/app/globals.css` — Ember 2026 tokens, discovery slider styles, motion vars
+- `web/src/components/ThemeProvider.tsx` — Source Serif 4, IBM Plex Mono loaded
+- `web/src/app/new/[months]/NewLandingPageClient.tsx` — Full UI overhaul, basePath prop
+- `web/src/app/new/[months]/page.tsx` — Pass basePath="/new"
+- `web/src/app/discover/page.tsx` — New (redirect to first band)
+- `web/src/app/discover/[months]/page.tsx` — New (shared client, basePath="/discover")
+- `web/src/components/ConditionalHeader.tsx` — homeHref for /discover
+
+### Verification (Proof-of-Done)
+- `pnpm install` (in `/web`) — ✅
+- `pnpm run build` (in `/web`) — ✅
+
+### Rollback
+- Revert PR (frontend only).
+
 ## 2025-12-30
 - Decision: Defer "forgot password email reliability" work until Ember has a custom domain and deliberate email sender setup. For now, unblock admin access by creating admin user with password directly in Supabase Auth Users.
 - Decision: Maintain invite-only access (no auto-create users; friends must be pre-created in Supabase Auth).

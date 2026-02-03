@@ -20,10 +20,12 @@ interface NewLandingPageClientProps {
   ageBand: AgeBand | null;
   selectedBandHasPicks: boolean;
   monthParam: number | null;
+  resolutionDebug?: string | null;
   wrappers: Wrapper[];
   selectedWrapperSlug: string | null;
   showPicks: boolean;
   picks: PickItem[];
+  basePath?: string; // '/new' or '/discover' for URL building
 }
 
 export default function NewLandingPageClient({
@@ -31,12 +33,16 @@ export default function NewLandingPageClient({
   ageBand,
   selectedBandHasPicks,
   monthParam,
+  resolutionDebug,
   wrappers,
   selectedWrapperSlug,
   showPicks,
   picks,
+  basePath = '/new',
 }: NewLandingPageClientProps) {
   const router = useRouter();
+  const [whyOpen, setWhyOpen] = useState(false);
+
   const getBandRange = (band: AgeBand | null): { min: number; max: number } | null => {
     if (!band) return null;
     const min = typeof band.min_months === 'number' ? band.min_months : NaN;
@@ -63,7 +69,7 @@ export default function NewLandingPageClient({
   const getRepresentativeMonthForBand = (band: AgeBand | null): number | null => {
     const range = getBandRange(band);
     if (!range) return null;
-    return Math.round((range.min + range.max) / 2);
+    return range.min;
   };
 
   const getBandIndexById = (id: string | null): number => {
@@ -76,36 +82,31 @@ export default function NewLandingPageClient({
   const [selectedBandIndex, setSelectedBandIndex] = useState(propBandIndex);
   const [selectedWrapper, setSelectedWrapper] = useState<string | null>(selectedWrapperSlug);
 
-  // Sync state with props when route changes
   useEffect(() => {
     setSelectedBandIndex(propBandIndex);
     setSelectedWrapper(selectedWrapperSlug);
   }, [propBandIndex, selectedWrapperSlug]);
 
   const selectedBand = ageBands[selectedBandIndex] ?? ageBand;
-  const currentMonth = monthParam ?? 26;
+  const currentMonth = monthParam ?? 25;
 
-  // When picks are requested, scroll directly to results.
   useEffect(() => {
     if (!showPicks) return;
     const el = document.getElementById('findsSection');
     if (!el) return;
     setTimeout(() => {
-      el.scrollIntoView({ behavior: 'auto', block: 'start' });
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 0);
   }, [showPicks]);
 
-  // Update URL when age changes (deep linking)
   useEffect(() => {
     if (selectedBandIndex !== propBandIndex) {
       const nextBand = ageBands[selectedBandIndex] ?? null;
       const repMonth = getRepresentativeMonthForBand(nextBand) ?? currentMonth;
-      router.push(`/new/${repMonth}`, { scroll: false });
+      router.push(`${basePath}/${repMonth}`, { scroll: false });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedBandIndex]);
+  }, [selectedBandIndex, basePath, currentMonth, ageBands, propBandIndex, router]);
 
-  // Handle age-band slider change (index into ageBands)
   const handleAgeBandChange = (index: number) => {
     setSelectedBandIndex(index);
   };
@@ -113,26 +114,23 @@ export default function NewLandingPageClient({
   const handleWrapperSelect = (wrapperSlug: string) => {
     setSelectedWrapper(wrapperSlug);
     if (showPicks) {
-      router.push(`/new/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}&show=1`, { scroll: false });
+      router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}&show=1`, { scroll: false });
     }
   };
 
-  // Build signin redirect URL with current state
   const getSigninUrl = (productId?: string) => {
     const params = new URLSearchParams();
     const next = selectedWrapper
-      ? `/new/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
-      : `/new/${currentMonth}`;
+      ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
+      : `${basePath}/${currentMonth}`;
     params.set('next', next);
-    if (productId) {
-      params.set('productId', productId);
-    }
+    if (productId) params.set('productId', productId);
     return `/signin?${params.toString()}`;
   };
 
-  // Non-prod debug badge:
-  // - show on Vercel previews (and localhost)
-  // - hide on production host
+  const ctaEnabled = !!selectedBand && !!selectedWrapper;
+  const selectedWrapperLabel = wrappers.find(w => w.ux_slug === selectedWrapper)?.ux_label ?? selectedWrapper ?? '';
+
   const [showDebug, setShowDebug] = useState(false);
   const [debugPath, setDebugPath] = useState<string | null>(null);
   useEffect(() => {
@@ -143,65 +141,87 @@ export default function NewLandingPageClient({
   }, []);
   const debugText =
     showDebug && monthParam !== null && ageBand !== null
-      ? `path: ${debugPath ?? ''} | month param: ${monthParam} → resolved band: ${ageBand.id} (rule: min≤m≤max; tie-break: highest min_months)`
+      ? `path: ${debugPath ?? ''} | month param: ${monthParam} → resolved band: ${ageBand.id}${resolutionDebug ? ` | ${resolutionDebug}` : ''}`
       : null;
 
+  const sliderProgress = ageBands.length > 0 ? (selectedBandIndex / Math.max(1, ageBands.length - 1)) * 100 : 0;
+
   return (
-    <div className="max-w-[430px] mx-auto px-3.5 pb-14" style={{
-      background: 'linear-gradient(180deg, #FFF3EA 0%, #FFFDFB 58%, #FFFFFF 100%)',
-      minHeight: '100vh',
-    }}>
-      {/* Hero Section */}
-      <section className="pt-4 pb-2.5 relative">
-        <h1 className="font-serif text-[28px] leading-[1.06] tracking-[-0.6px] my-1.5" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
-          Toy ideas that fit your child&apos;s age.
-        </h1>
-        <p className="text-sm leading-[1.55] opacity-70 mb-3" style={{ color: '#6B5B52' }}>
-          A quick starter set (3 picks + the &quot;why&quot;), then save your shortlist to unlock more like what they love.
-        </p>
+    <div
+      className="min-h-screen w-full px-4 py-6 sm:px-6 sm:py-8"
+      style={{
+        backgroundColor: 'var(--ember-bg-canvas)',
+        transition: 'background-color var(--ember-motion-duration) var(--ember-motion-ease)',
+      }}
+    >
+      {/* Central surface container */}
+      <div
+        className="mx-auto w-full max-w-[100%] rounded-xl py-6 px-4 sm:px-8 sm:py-8 md:max-w-[640px] lg:max-w-[720px]"
+        style={{
+          backgroundColor: 'var(--ember-surface-primary)',
+          borderRadius: '12px',
+          boxShadow: '0px 4px 24px rgba(0,0,0,0.04)',
+        }}
+      >
+        {/* Header */}
+        <section className="mb-6">
+          <h1
+            className="mb-2 text-[32px] leading-[1.1] md:text-[48px]"
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--ember-text-high)',
+            }}
+          >
+            Ideas that fit this stage.
+          </h1>
+          <p
+            className="mb-4 text-base leading-[1.6]"
+            style={{
+              fontFamily: 'var(--font-sans)',
+              color: 'var(--ember-text-low)',
+            }}
+          >
+            A short set of three picks and why they fit—then save what you like to your shortlist.
+          </p>
 
-        {/* Promise Pills */}
-        <div className="flex flex-wrap gap-2 mt-2">
-          <span className="text-xs px-2.5 py-2 rounded-full border bg-white/65 shadow-sm" style={{ 
-            color: 'rgba(23,17,14,.84)',
-            borderColor: 'rgba(23,17,14,.10)',
-          }}>
-            No child name
-          </span>
-          <span className="text-xs px-2.5 py-2 rounded-full border bg-white/65 shadow-sm" style={{ 
-            color: 'rgba(23,17,14,.84)',
-            borderColor: 'rgba(23,17,14,.10)',
-          }}>
-            Under a minute
-          </span>
-          <span className="text-xs px-2.5 py-2 rounded-full border bg-white/65 shadow-sm" style={{ 
-            color: 'rgba(23,17,14,.84)',
-            borderColor: 'rgba(23,17,14,.10)',
-          }}>
-            Reasoned picks
-          </span>
-        </div>
+          {/* Trust chips (exactly 3, no icons) */}
+          <div className="flex flex-wrap gap-2">
+            {['No child name', 'Under a minute', 'Reasoned picks'].map((label) => (
+              <span
+                key={label}
+                className="rounded-lg px-3 py-1.5 text-sm"
+                style={{
+                  backgroundColor: 'var(--ember-surface-soft)',
+                  color: 'var(--ember-text-low)',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              >
+                {label}
+              </span>
+            ))}
+          </div>
+        </section>
 
-        {/* Control Deck */}
-        <div className="mt-3.5 rounded-[28px] bg-gradient-to-b from-white/86 to-white/66 border shadow-md overflow-hidden relative" style={{
-          borderColor: 'rgba(23,17,14,.08)',
-          boxShadow: '0 18px 46px rgba(23,17,14,.10)',
-        }}>
-          <div className="p-4 pb-3.5 relative">
-            {/* Age Slider Section */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between gap-2.5 mb-2">
-                <label className="text-sm opacity-70" style={{ color: '#6B5B52' }}>
-                  Age range:
-                </label>
-                <div className="flex items-center gap-2 px-2.5 py-2 rounded-full bg-white/78 border shadow-xs" style={{
-                  borderColor: 'rgba(23,17,14,.10)',
-                }}>
-                  <strong className="font-extrabold text-xs">{formatBandLabel(selectedBand)}</strong>
-                </div>
-              </div>
-
-              {/* Slider */}
+        {/* Control deck */}
+        <div className="relative">
+          {/* Age slider */}
+          <div className="mb-5">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span
+                className="text-sm"
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  color: 'var(--ember-text-high)',
+                  fontSize: '14px',
+                }}
+              >
+                {formatBandLabel(selectedBand)}
+              </span>
+            </div>
+            <div
+              className="discovery-slider-wrap relative w-full"
+              style={{ '--slider-progress': `${sliderProgress}%` } as React.CSSProperties}
+            >
               <input
                 type="range"
                 min={0}
@@ -209,208 +229,299 @@ export default function NewLandingPageClient({
                 step={1}
                 value={selectedBandIndex}
                 onChange={(e) => handleAgeBandChange(Number(e.target.value))}
-                className="w-full new-age-slider"
+                className="discovery-age-slider w-full"
+                aria-label="Age range"
               />
-
-              {/* Tick marks */}
-              <div className="flex justify-between text-[11px] opacity-42 mt-0.5 px-0.5" style={{ color: 'rgba(23,17,14,.42)' }}>
-                {ageBands.map((band) => (
-                  <span key={band.id}>{formatBandTick(band)}</span>
-                ))}
-              </div>
-
-              {debugText && (
-                <div className="mt-2 text-[11px] opacity-60" style={{ color: '#6B5B52' }}>
-                  {debugText}
-                </div>
-              )}
             </div>
-
-            {/* Trust indicator */}
-            <div className="flex items-center gap-2 mt-1.5 mb-4">
-              <span className="w-[7px] h-[7px] rounded-full" style={{
-                background: 'rgba(227,91,63,.55)',
-                boxShadow: '0 8px 18px rgba(227,91,63,.22)',
-              }}></span>
-              <span className="text-xs opacity-70" style={{ color: '#8A756A' }}>
-                We only use age + what you pick below to tailor ideas.
-              </span>
-            </div>
-
-            {selectedBandHasPicks ? (
-              <>
-                {/* Wrapper Selection */}
-                <div className="mb-4">
-                  <div className="text-sm opacity-70 mb-2.5" style={{ color: '#6B5B52' }}>
-                    What do you want help with today?
-                  </div>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {wrappers.map((w) => {
-                      const isSelected = selectedWrapper === w.ux_slug;
-                      return (
-                        <button
-                          key={w.ux_wrapper_id}
-                          onClick={() => handleWrapperSelect(w.ux_slug)}
-                          className="min-h-[74px] p-3 rounded-[20px] border bg-white/92 shadow-xs cursor-pointer transition-all flex items-center gap-3 relative overflow-hidden"
-                          style={{
-                            borderColor: isSelected ? 'rgba(227,91,63,.42)' : 'rgba(23,17,14,.10)',
-                            boxShadow: isSelected ? '0 18px 40px rgba(227,91,63,.16)' : '0 6px 16px rgba(23,17,14,.06)',
-                            background: isSelected 
-                              ? 'radial-gradient(circle at 20% 15%, rgba(244,167,122,.28), transparent 55%), linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.65) 70%)'
-                              : 'linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.65) 70%)',
-                          }}
-                          aria-selected={isSelected}
-                        >
-                          {/* Icon placeholder */}
-                          <div className="w-[42px] h-[42px] rounded-2xl bg-gradient-to-br from-white via-orange-200 to-orange-400 border flex-shrink-0" style={{
-                            borderColor: 'rgba(255,255,255,.55)',
-                            boxShadow: '0 16px 30px rgba(227,91,63,.18)',
-                          }}></div>
-                          <div className="min-w-0 flex-1">
-                            <strong className="block text-sm font-extrabold leading-tight mb-0.5 tracking-[-0.15px]">
-                              {w.ux_label}
-                            </strong>
-                            <span className="block text-xs opacity-70 whitespace-nowrap overflow-hidden text-ellipsis" style={{ color: '#6B5B52' }}>
-                              {w.ux_description || 'See picks that fit this focus.'}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* CTA Button */}
-                <div className="space-y-2.5">
-                  <button
-                    onClick={() => {
-                      if (!selectedWrapper) return;
-                      router.push(`/new/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`, { scroll: false });
-                    }}
-                    className="w-full min-h-[44px] rounded-[20px] border-0 py-3.5 px-4 font-extrabold text-[15px] tracking-[0.1px] text-white cursor-pointer transition-all"
-                    style={{
-                      background: 'linear-gradient(180deg, rgba(227,91,63,.98) 0%, rgba(185,67,52,.98) 100%)',
-                      boxShadow: '0 22px 48px rgba(227,91,63,.26)',
-                      opacity: selectedWrapper ? 1 : 0.6,
-                    }}
-                    aria-disabled={!selectedWrapper}
-                  >
-                    Show my 3 picks
-                  </button>
-                  <p className="text-center text-xs opacity-70" style={{ color: '#8A756A' }}>
-                    Tip: save one thing to unlock &quot;more like this&quot;.
-                  </p>
-                </div>
-              </>
-            ) : (
-              <div className="rounded-[28px] bg-gradient-to-b from-white/92 to-white/78 border shadow-sm p-6 text-center" style={{
-                borderColor: 'rgba(23,17,14,.08)',
-              }}>
-                <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
-                  We&apos;re still building picks for {formatBandLabel(ageBand)}.
-                </p>
-                <p className="text-xs opacity-70 m-0" style={{ color: '#8A756A' }}>
-                  Catalogue coming soon.
-                </p>
+            <p
+              className="mt-1.5 text-sm"
+              style={{
+                fontFamily: 'var(--font-sans)',
+                color: 'var(--ember-text-low)',
+                fontSize: '14px',
+              }}
+            >
+              We only use age to tailor ideas.
+            </p>
+            {debugText && (
+              <div className="mt-2 text-[11px]" style={{ color: 'var(--ember-text-low)' }}>
+                {debugText}
               </div>
             )}
           </div>
-        </div>
-      </section>
 
-      {/* Cards Section */}
-      <section id="findsSection" className="mt-4.5 pt-1.5">
-        <div className="flex items-baseline justify-between gap-2.5 mb-2.5">
-          <h2 className="text-base font-black tracking-[-0.15px] m-0">
+          {selectedBandHasPicks ? (
+            <>
+              {/* Wrapper grid */}
+              <div className="mb-6">
+                <p
+                  className="mb-3 text-sm"
+                  style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
+                >
+                  What do you want help with today?
+                </p>
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+                  {wrappers.map((w) => {
+                    const isSelected = selectedWrapper === w.ux_slug;
+                    return (
+                      <button
+                        key={w.ux_wrapper_id}
+                        type="button"
+                        onClick={() => handleWrapperSelect(w.ux_slug)}
+                        className="min-h-[74px] rounded-xl border p-3 text-left transition-all duration-[var(--ember-motion-duration)] cursor-pointer flex items-center gap-3"
+                        style={{
+                          fontFamily: 'var(--font-sans)',
+                          backgroundColor: 'var(--ember-surface-primary)',
+                          border: isSelected ? 'none' : '1px solid var(--ember-border-subtle)',
+                          boxShadow: isSelected ? '0px 0px 16px rgba(255, 99, 71, 0.4)' : 'none',
+                          outline: 'none',
+                        }}
+                        aria-selected={isSelected}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <span
+                            className="block font-medium leading-tight mb-0.5"
+                            style={{
+                              fontSize: '16px',
+                              color: 'var(--ember-text-high)',
+                            }}
+                          >
+                            {w.ux_label}
+                          </span>
+                          <span
+                            className="block text-sm"
+                            style={{ color: 'var(--ember-text-low)' }}
+                          >
+                            {w.ux_description || 'See picks that fit this focus.'}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="space-y-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!ctaEnabled) return;
+                    router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper!)}&show=1`, { scroll: false });
+                  }}
+                  className="w-full rounded-lg py-3 px-4 font-medium text-white transition-all duration-[var(--ember-motion-duration)] cursor-pointer disabled:cursor-default"
+                  style={{
+                    height: '48px',
+                    fontFamily: 'var(--font-sans)',
+                    backgroundColor: ctaEnabled ? 'var(--ember-accent-base)' : 'var(--ember-accent-base)',
+                    opacity: ctaEnabled ? 1 : 0.3,
+                    borderRadius: '8px',
+                  }}
+                  aria-disabled={!ctaEnabled}
+                  onMouseEnter={(e) => {
+                    if (ctaEnabled) e.currentTarget.style.backgroundColor = 'var(--ember-accent-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = ctaEnabled ? 'var(--ember-accent-base)' : 'var(--ember-accent-base)';
+                  }}
+                >
+                  Show my 3 picks
+                </button>
+                <p
+                  className="text-center text-sm"
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    color: 'var(--ember-text-low)',
+                    fontSize: '14px',
+                  }}
+                >
+                  Takes about a minute.
+                </p>
+              </div>
+            </>
+          ) : (
+            <div
+              className="rounded-xl border p-6 text-center"
+              style={{
+                borderColor: 'var(--ember-border-subtle)',
+                backgroundColor: 'var(--ember-surface-soft)',
+              }}
+            >
+              <p className="text-sm mb-2" style={{ color: 'var(--ember-text-low)' }}>
+                We&apos;re still building picks for {formatBandLabel(ageBand)}.
+              </p>
+              <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
+                Catalogue coming soon.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Picks section */}
+      <section id="findsSection" className="mx-auto mt-8 w-full max-w-[100%] md:max-w-[640px] lg:max-w-[720px]">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+          <h2
+            className="text-lg font-medium m-0"
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--ember-text-high)',
+            }}
+          >
             Your 3 picks
           </h2>
-          <button className="bg-white/62 border rounded-2xl px-3 py-2.5 text-sm opacity-70 shadow-xs cursor-pointer" style={{
-            borderColor: 'rgba(23,17,14,.10)',
-            color: '#6B5B52',
-          }}>
+          <button
+            type="button"
+            className="rounded-lg border-0 bg-transparent py-2 px-0 text-sm cursor-pointer"
+            style={{
+              fontFamily: 'var(--font-sans)',
+              color: 'var(--ember-text-low)',
+              fontSize: '14px',
+            }}
+            onClick={() => setWhyOpen((o) => !o)}
+          >
             Why these?
           </button>
         </div>
 
-        {/* Cards */}
+        {/* Why these? inline block */}
+        {whyOpen && (
+          <div
+            className="mb-4 rounded-xl border p-4"
+            style={{
+              borderColor: 'var(--ember-border-subtle)',
+              backgroundColor: 'var(--ember-surface-soft)',
+            }}
+          >
+            <h3
+              className="mb-2 text-base font-medium"
+              style={{
+                fontFamily: 'var(--font-serif)',
+                color: 'var(--ember-text-high)',
+              }}
+            >
+              Why these?
+            </h3>
+            <ul
+              className="m-0 list-disc pl-5 space-y-1 text-sm"
+              style={{
+                fontFamily: 'var(--font-sans)',
+                color: 'var(--ember-text-high)',
+              }}
+            >
+              <li>Chosen for this age range ({formatBandLabel(selectedBand)}).</li>
+              <li>Here&apos;s why: they match the focus you picked ({selectedWrapperLabel || 'this focus'}).</li>
+              <li>Curated for relevance and fit—no automated guessing.</li>
+            </ul>
+          </div>
+        )}
+
         {!selectedBandHasPicks ? (
-          <div className="rounded-[28px] bg-gradient-to-b from-white/92 to-white/78 border shadow-sm p-6 text-center" style={{
-            borderColor: 'rgba(23,17,14,.08)',
-          }}>
-            <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
+          <div
+            className="rounded-xl border p-6 text-center"
+            style={{
+              borderColor: 'var(--ember-border-subtle)',
+              backgroundColor: 'var(--ember-surface-primary)',
+              boxShadow: '0px 4px 24px rgba(0,0,0,0.04)',
+            }}
+          >
+            <p className="text-sm mb-2" style={{ color: 'var(--ember-text-low)' }}>
               We&apos;re still building picks for {formatBandLabel(ageBand)}.
             </p>
-            <p className="text-xs opacity-70 m-0" style={{ color: '#8A756A' }}>
+            <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
               Catalogue coming soon.
             </p>
           </div>
         ) : !showPicks ? (
-          <div className="rounded-[28px] bg-gradient-to-b from-white/92 to-white/78 border shadow-sm p-6 text-center" style={{
-            borderColor: 'rgba(23,17,14,.08)',
-          }}>
-            <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
-              Choose a focus above, then tap “Show my 3 picks”.
+          <div
+            className="rounded-xl border p-6 text-center"
+            style={{
+              borderColor: 'var(--ember-border-subtle)',
+              backgroundColor: 'var(--ember-surface-primary)',
+              boxShadow: '0px 4px 24px rgba(0,0,0,0.04)',
+            }}
+          >
+            <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
+              Choose a focus above, then tap &quot;Show my 3 picks&quot;.
             </p>
           </div>
         ) : showPicks && picks.length === 0 ? (
-          <div className="rounded-[28px] bg-gradient-to-b from-white/92 to-white/78 border shadow-sm p-6 text-center" style={{
-            borderColor: 'rgba(23,17,14,.08)',
-          }}>
-            <p className="text-sm opacity-70 mb-2" style={{ color: '#6B5B52' }}>
+          <div
+            className="rounded-xl border p-6 text-center"
+            style={{
+              borderColor: 'var(--ember-border-subtle)',
+              backgroundColor: 'var(--ember-surface-primary)',
+              boxShadow: '0px 4px 24px rgba(0,0,0,0.04)',
+            }}
+          >
+            <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
               We&apos;re still building picks for this focus in this age range. Try another focus.
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {picks.map((pick, index) => (
               <article
                 key={pick.product.id}
-                className="rounded-[28px] bg-gradient-to-b from-white/92 to-white/78 border shadow-sm overflow-hidden"
+                className="rounded-xl border overflow-hidden transition-all duration-[var(--ember-motion-duration)]"
                 style={{
-                  borderColor: 'rgba(23,17,14,.08)',
-                  boxShadow: '0 12px 28px rgba(23,17,14,.08)',
+                  borderColor: 'var(--ember-border-subtle)',
+                  backgroundColor: 'var(--ember-surface-primary)',
+                  boxShadow: '0px 4px 24px rgba(0,0,0,0.04)',
                 }}
               >
-                {/* Media placeholder */}
-                <div className="h-[162px] relative bg-gradient-to-br from-orange-100 via-orange-200 to-orange-300">
-                  <div className="absolute left-3 top-3 px-2.5 py-2 rounded-full bg-white/78 border backdrop-blur-sm shadow-xs inline-flex items-center gap-2" style={{
-                    borderColor: 'rgba(255,255,255,.55)',
-                  }}>
-                    <span className="w-2 h-2 rounded-full" style={{
-                      background: 'rgba(227,91,63,.60)',
-                      boxShadow: '0 10px 20px rgba(227,91,63,.25)',
-                    }}></span>
-                    <span className="text-xs opacity-80" style={{ color: 'rgba(23,17,14,.80)' }}>
+                <div className="h-[162px] relative bg-[var(--ember-surface-soft)]">
+                  <div
+                    className="absolute left-3 top-3 rounded-lg px-2.5 py-2 inline-flex items-center gap-2"
+                    style={{
+                      backgroundColor: 'var(--ember-surface-primary)',
+                      border: '1px solid var(--ember-border-subtle)',
+                    }}
+                  >
+                    <span
+                      className="text-xs"
+                      style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
+                    >
                       Pick {index + 1}
                     </span>
                   </div>
                 </div>
-
-                {/* Card Body */}
-                <div className="p-3.5 space-y-2.5">
+                <div className="p-4 space-y-2">
                   <div>
-                    <strong className="block text-base font-black tracking-[-0.2px] mb-0.5">
+                    <strong
+                      className="block font-medium mb-0.5"
+                      style={{
+                        fontFamily: 'var(--font-sans)',
+                        color: 'var(--ember-text-high)',
+                        fontSize: '16px',
+                      }}
+                    >
                       Try: {pick.product.name}
                     </strong>
-                    <span className="block text-xs leading-[1.45] opacity-70" style={{ color: '#8A756A' }}>
+                    <span
+                      className="block text-sm"
+                      style={{ color: 'var(--ember-text-low)' }}
+                    >
                       {pick.categoryType.label || pick.categoryType.name || 'Toy category'}
                     </span>
                   </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2.5 items-center mt-1">
+                  <div className="flex gap-2 items-center mt-1">
                     <Link
                       href={getSigninUrl(pick.product.id)}
-                      className="flex-1 min-h-[44px] rounded-[20px] border bg-white/88 shadow-xs font-black text-sm text-inherit cursor-pointer transition-all flex items-center justify-center"
+                      className="flex-1 min-h-[44px] rounded-lg border font-medium text-sm flex items-center justify-center transition-all duration-[var(--ember-motion-duration)]"
                       style={{
-                        borderColor: 'rgba(23,17,14,.10)',
+                        borderColor: 'var(--ember-border-subtle)',
+                        backgroundColor: 'var(--ember-surface-primary)',
+                        color: 'var(--ember-text-high)',
+                        fontFamily: 'var(--font-sans)',
                       }}
                     >
                       Save to shortlist
                     </Link>
                     <button
-                      className="flex-shrink-0 text-sm opacity-70 py-2.5 px-2.5 rounded-2xl border-0 bg-transparent cursor-pointer"
-                      style={{ color: '#6B5B52' }}
+                      type="button"
+                      className="flex-shrink-0 text-sm py-2.5 px-2.5 rounded-lg border-0 bg-transparent cursor-pointer"
+                      style={{ color: 'var(--ember-text-low)', fontFamily: 'var(--font-sans)' }}
                     >
                       Already got it?
                     </button>
@@ -424,4 +535,3 @@ export default function NewLandingPageClient({
     </div>
   );
 }
-

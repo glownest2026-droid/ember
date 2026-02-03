@@ -1,37 +1,34 @@
 import { redirect } from 'next/navigation';
 import { getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
-import NewLandingPageClient from './NewLandingPageClient';
+import NewLandingPageClient from '../../new/[months]/NewLandingPageClient';
 
-interface NewMonthsPageProps {
+interface DiscoverMonthsPageProps {
   params: Promise<{ months: string }>;
   searchParams: Promise<{ wrapper?: string; show?: string }>;
 }
 
 export const dynamic = 'force-dynamic';
 
-export default async function NewMonthsPage({ params, searchParams }: NewMonthsPageProps) {
+/** /discover/[months] — same experience as /new/[months], shared component, basePath /discover. */
+export default async function DiscoverMonthsPage({ params, searchParams }: DiscoverMonthsPageProps) {
   const { months } = await params;
   const { wrapper: wrapperSlugParam, show: showParam } = await searchParams;
-  
-  // Parse month param (keep /new/[months] deep links)
+
   const monthsNum = parseInt(months, 10);
   if (isNaN(monthsNum)) {
-    redirect('/new');
+    redirect('/discover');
   }
   const monthParam = monthsNum;
 
-  // Load available age bands (for age-band slider)
   const ageBands = await getGatewayAgeBandsPublic();
   const bandsWithPicks = await getGatewayAgeBandIdsWithPicks();
 
-  // Map months to age band
   const ageBand = await getAgeBandForAge(monthParam);
   if (!ageBand) {
-    redirect('/new');
+    redirect('/discover');
   }
   const selectedBandHasPicks = bandsWithPicks.has(ageBand.id);
-  
-  // Fetch wrappers for this age band (gateway views)
+
   const wrappers = await getGatewayWrappersForAgeBand(ageBand.id);
 
   const selectedWrapperSlug =
@@ -48,7 +45,6 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
       effectiveWrapperSlug = selectedWrapperSlug;
       picks = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, selectedWrapperSlug, 3);
     } else {
-      // Choose the first wrapper that actually yields picks (for deterministic screenshots/debug).
       for (const w of wrappers) {
         const candidate = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, w.ux_slug, 3);
         if (candidate.length > 0) {
@@ -58,7 +54,7 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
         }
       }
       if (effectiveWrapperSlug) {
-        redirect(`/new/${monthParam}?wrapper=${encodeURIComponent(effectiveWrapperSlug)}&show=1`);
+        redirect(`/discover/${monthParam}?wrapper=${encodeURIComponent(effectiveWrapperSlug)}&show=1`);
       }
     }
   }
@@ -74,9 +70,8 @@ export default async function NewMonthsPage({ params, searchParams }: NewMonthsP
         selectedWrapperSlug={effectiveWrapperSlug}
         showPicks={shouldShowPicks}
         picks={picks}
-        basePath="/new"
+        basePath="/discover"
       />
     </main>
   );
 }
-
