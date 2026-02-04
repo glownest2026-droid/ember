@@ -1,18 +1,19 @@
 import { redirect } from 'next/navigation';
-import { getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
-import NewLandingPageClient from '../../new/[months]/NewLandingPageClient';
+import { getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayTopProductsForAgeBand, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
+import DiscoveryPageClient from './DiscoveryPageClient';
 
 interface DiscoverMonthsPageProps {
   params: Promise<{ months: string }>;
-  searchParams: Promise<{ wrapper?: string; show?: string }>;
+  searchParams: Promise<{ wrapper?: string; show?: string; debug?: string }>;
 }
 
 export const dynamic = 'force-dynamic';
 
-/** /discover/[months] — same experience as /new/[months], shared component, basePath /discover. */
+/** /discover/[months] — V1.0 doorways experience. */
 export default async function DiscoverMonthsPage({ params, searchParams }: DiscoverMonthsPageProps) {
   const { months } = await params;
-  const { wrapper: wrapperSlugParam, show: showParam } = await searchParams;
+  const { wrapper: wrapperSlugParam, show: showParam, debug: debugParam } = await searchParams;
+  const showDebug = debugParam === '1';
 
   const monthsNum = parseInt(months, 10);
   if (isNaN(monthsNum)) {
@@ -39,6 +40,9 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
   const shouldShowPicks = showParam === '1' && selectedBandHasPicks;
   let effectiveWrapperSlug = selectedWrapperSlug ?? wrappers[0]?.ux_slug ?? null;
   let picks: Awaited<ReturnType<typeof getGatewayTopPicksForAgeBandAndWrapperSlug>> = [];
+  const exampleProducts = selectedBandHasPicks
+    ? await getGatewayTopProductsForAgeBand(ageBand.id, 3)
+    : [];
 
   if (shouldShowPicks) {
     if (selectedWrapperSlug) {
@@ -61,7 +65,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
 
   return (
     <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
-      <NewLandingPageClient
+      <DiscoveryPageClient
         ageBands={ageBands}
         ageBand={ageBand}
         monthParam={monthParam}
@@ -70,7 +74,8 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
         selectedWrapperSlug={effectiveWrapperSlug}
         showPicks={shouldShowPicks}
         picks={picks}
-        basePath="/discover"
+        exampleProducts={exampleProducts}
+        showDebug={showDebug}
       />
     </main>
   );

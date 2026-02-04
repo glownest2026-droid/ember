@@ -11,6 +11,7 @@
     "check:conflicts": "node scripts/check-no-conflict-markers.js"
   },
   "dependencies": {
+    "lucide-react": "^0.563.0",
     "@builder.io/react": "^9.0.0",
     "@builder.io/sdk-react": "^4.2.4",
     "@builder.io/sdk-react-nextjs": "^0.22.2",
