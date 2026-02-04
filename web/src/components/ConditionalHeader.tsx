@@ -6,8 +6,8 @@ export default async function ConditionalHeader() {
   const headersList = await headers();
   const pathname = headersList.get('x-pathname') || '/';
   
-  // For /new and /discover routes, set homeHref to keep users in the experience
-  const homeHref = pathname.startsWith('/discover') ? '/discover' : pathname.startsWith('/new') ? '/new' : '/';
+  // /new redirects to /discover; both use /discover as home
+  const homeHref = pathname.startsWith('/discover') || pathname.startsWith('/new') ? '/discover' : '/';
   
   // Always show unified header - it's auth-aware
   return <HeaderServer homeHref={homeHref} />;
