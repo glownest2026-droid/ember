@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
+import AnimatedProductAlbum, { type AnimatedProductAlbumItem } from '@/components/discover/AnimatedProductAlbum';
 import { TODAY_DOORWAYS, resolveDoorwayToWrapper } from '@/lib/discover/doorways';
 import { iconForIdea } from '@/lib/discover/ideaIcons';
 import { getWrapperIcon } from './_lib/wrapperIcons';
@@ -497,6 +498,27 @@ export default function DiscoveryPageClient({
             </>
           )}
         </section>
+
+        {selectedBandHasPicks && (
+          <section>
+            <h3 className="text-base font-medium mb-3" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
+              Flick through ideas
+            </h3>
+            <AnimatedProductAlbum
+              items={displayIdeas.map((pick): AnimatedProductAlbumItem => ({
+                id: pick.product.id,
+                title: pick.product.name,
+                subtitle: pick.product.rationale ?? pick.categoryType?.label ?? pick.categoryType?.name ?? null,
+                imageUrl: pick.product.image_url,
+                focusLabel: !isExampleMode ? selectedWrapperLabel || null : null,
+                ageBandLabel: formatBandLabel(selectedBand),
+                brand: pick.product.brand,
+                url: getProductUrl(pick),
+              }))}
+              signinUrl={getSigninUrl}
+            />
+          </section>
+        )}
 
         <section>
           <h3 className="text-base font-medium mb-3" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>

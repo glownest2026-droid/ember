@@ -52,6 +52,21 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-04 — Discover: Animated Product Album widget
+
+### Summary
+- **Right-panel album**: New `AnimatedProductAlbum` on `/discover` (right panel, above “Example results”). User can flick through product cards like a photo album with stack/shuffle feel and word-by-word blur reveal for the “why” line.
+- **Branding**: Ember tokens (porcelain canvas, white surfaces, #B8432B icon accent), lucide-react only, no DB/RLS changes.
+- **Motion**: `motion` (react) for card transitions; `useReducedMotion` disables blur/shuffle and uses crossfade only.
+- **Data**: Same gateway views as “3 ideas”; album items from `displayIdeas` (picks or example products). Empty state when no products.
+
+### Files
+- `web/src/components/discover/AnimatedProductAlbum.tsx` (new)
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` (wiring)
+- `web/package.json` / `pnpm-lock.yaml` (motion dependency)
+
+---
+
 ## 2026-02-03 — Discovery polish: glow, truncation, icons
 
 ### Summary
