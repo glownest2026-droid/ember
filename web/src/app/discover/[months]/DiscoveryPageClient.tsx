@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
 import { TODAY_DOORWAYS, resolveDoorwayToWrapper } from '@/lib/discover/doorways';
-import { ideaIconForTitle } from './_lib/ideaIcons';
+import { iconForIdea } from '@/lib/discover/ideaIcons';
 import { getWrapperIcon } from './_lib/wrapperIcons';
 
 const SURFACE_STYLE = {
@@ -161,7 +161,12 @@ export default function DiscoveryPageClient({
   const isExampleMode = !showPicks || picks.length === 0;
 
   const IdeaCard = ({ pick, index, doorwayLabel }: { pick: PickItem; index: number; doorwayLabel?: string }) => {
-    const Icon = ideaIconForTitle(pick.product.name);
+    const Icon = iconForIdea({
+      title: pick.product.name,
+      categoryTypeLabel: pick.categoryType.label ?? pick.categoryType.name ?? undefined,
+      categoryTypeSlug: pick.categoryType.slug ?? undefined,
+      productId: pick.product.id,
+    });
     const href = getProductUrl(pick);
     return (
       <article
@@ -176,14 +181,15 @@ export default function DiscoveryPageClient({
               border: '1px solid var(--ember-border-subtle)',
             }}
           >
-            <Icon size={16} strokeWidth={1.5} style={{ color: '#5C646D' }} />
+            <Icon size={18} strokeWidth={1.5} style={{ color: '#B8432B', flexShrink: 0 }} />
             <span className="text-xs" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
               Idea {index + 1}
             </span>
           </div>
           <strong
-            className="block font-medium text-sm line-clamp-2 flex-1 min-w-0"
+            className="block font-medium text-sm line-clamp-2 flex-1 min-w-0 leading-snug"
             style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-high)' }}
+            title={pick.product.name}
           >
             {pick.product.name}
           </strong>
@@ -318,12 +324,12 @@ export default function DiscoveryPageClient({
                       return (
                         <div
                           key={tile.key}
-                          className="h-[96px] lg:h-[104px] rounded-xl p-3 flex flex-col gap-1 overflow-hidden opacity-60 cursor-not-allowed border border-[var(--ember-border-subtle)]"
+                          className="min-h-[120px] rounded-xl p-3 flex flex-col gap-1 overflow-hidden opacity-60 cursor-not-allowed border border-[var(--ember-border-subtle)]"
                           style={{ fontFamily: 'var(--font-sans)' }}
                         >
-                          <tile.icon size={18} strokeWidth={1.5} style={{ color: '#5C646D', flexShrink: 0 }} />
-                          <span className="block font-medium line-clamp-1 text-sm" style={{ color: 'var(--ember-text-high)' }}>{tile.label}</span>
-                          <span className="block text-xs line-clamp-1" style={{ color: 'var(--ember-text-low)' }}>Coming soon</span>
+                          <tile.icon size={18} strokeWidth={1.5} style={{ color: '#B8432B', flexShrink: 0 }} />
+                          <span className="block font-medium line-clamp-2 text-sm leading-snug" style={{ color: 'var(--ember-text-high)' }} title={tile.label}>{tile.label}</span>
+                          <span className="block text-xs line-clamp-2 leading-snug" style={{ color: 'var(--ember-text-low)' }}>Coming soon</span>
                         </div>
                       );
                     }
@@ -337,20 +343,29 @@ export default function DiscoveryPageClient({
                         key={slug}
                         type="button"
                         onClick={() => handleWrapperSelect(slug)}
-                        className="h-[96px] lg:h-[104px] rounded-xl p-3 text-left transition-all duration-[var(--ember-motion-duration)] cursor-pointer flex flex-col gap-0.5 overflow-hidden motion-reduce:transition-none border"
+                        className={`min-h-[120px] rounded-xl p-3 text-left cursor-pointer flex flex-col gap-1 overflow-hidden border transition-[box-shadow,transform] duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none motion-reduce:translate-y-0 ${isSelected ? '-translate-y-px' : ''}`}
                         style={{
                           fontFamily: 'var(--font-sans)',
                           backgroundColor: 'var(--ember-surface-primary)',
                           borderColor: isSelected ? 'transparent' : 'var(--ember-border-subtle)',
-                          boxShadow: isSelected ? '0 0 18px rgba(255, 99, 71, 0.42)' : 'none',
-                          transform: isSelected ? 'translateY(-1px)' : 'none',
+                          boxShadow: isSelected ? '0 0 26px rgba(255, 99, 71, 0.48), 0 10px 24px rgba(0,0,0,0.06)' : 'none',
                           outline: 'none',
                         }}
                         aria-selected={isSelected}
                       >
-                        <Icon size={18} strokeWidth={1.5} style={{ color: '#5C646D', flexShrink: 0 }} />
-                        <span className="block font-medium line-clamp-2 text-sm" style={{ color: 'var(--ember-text-high)' }}>{label}</span>
-                        <span className="block text-xs line-clamp-1" style={{ color: 'var(--ember-text-low)' }}>
+                        <Icon size={18} strokeWidth={1.5} style={{ color: '#B8432B', flexShrink: 0 }} />
+                        <span
+                          className="block font-medium line-clamp-2 text-sm leading-snug"
+                          style={{ color: 'var(--ember-text-high)' }}
+                          title={label}
+                        >
+                          {label}
+                        </span>
+                        <span
+                          className="block text-xs line-clamp-2 md:line-clamp-2 leading-snug"
+                          style={{ color: 'var(--ember-text-low)' }}
+                          title={desc || 'See ideas for this focus.'}
+                        >
                           {desc || 'See ideas for this focus.'}
                         </span>
                       </button>

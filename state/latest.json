@@ -1,27 +1,18 @@
 {
   "pr": {
     "number": null,
-    "title": "Discovery V1.0 doorways",
-    "branch": "feat/feb-2026-discover-v1-doorways",
+    "title": "Discovery polish: glow, truncation, icons",
+    "branch": "feat/feb-2026-discover-polish-glow-icons",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
     "rollback": "Revert PR (no DB changes)"
   },
   "receipt": {
-    "scope": "6 Today doorways + More, Narnia right panel with pre-interaction example cards, copy sweep (ideas/my list), fix idea icons",
+    "scope": "Stronger tile glow, fix truncation, deterministic idea icons #B8432B",
     "files_changed": [
-      "web/src/lib/discover/doorways.ts",
-      "web/src/lib/pl/public.ts",
-      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
-      "web/src/app/discover/[months]/_lib/ideaIcons.tsx",
-      "web/src/app/discover/[months]/_lib/wrapperIcons.tsx",
-      "web/src/app/discover/[months]/page.tsx",
-      "web/src/app/new/page.tsx",
-      "web/src/app/new/[months]/page.tsx",
-      "web/src/components/ConditionalHeader.tsx",
-      "PROGRESS.md",
-      "state/latest.json"
+      "web/src/lib/discover/ideaIcons.ts",
+      "web/src/app/discover/[months]/DiscoveryPageClient.tsx"
     ],
     "commands_run": [
       { "cwd": "web", "command": "pnpm run build", "result": "ok (exit 0)" }
