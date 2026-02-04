@@ -52,6 +52,22 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-03 — Discovery polish: glow, truncation, icons
+
+### Summary
+- **Stronger tile glow**: box-shadow 0 0 26px rgba(255,99,71,0.48) + 0 10px 24px; translateY(-1px); 250ms transition; prefers-reduced-motion respected.
+- **Tile truncation**: min-h-[120px], title + subtitle line-clamp-2, title attr for hover, leading-snug.
+- **Idea icons**: `lib/discover/ideaIcons.ts` with iconForIdea(title, categoryTypeLabel, categoryTypeSlug, productId); deterministic keyword mapping; ICON_OVERRIDES for product UUIDs; always returns icon.
+- **Icon accent #B8432B**: doorway tiles + idea cards use icon accent.
+
+### Files changed
+- `web/src/lib/discover/ideaIcons.ts` — new iconForIdea resolver
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — glow, truncation, icon imports
+- `web/src/app/discover/[months]/_lib/ideaIcons.tsx` — removed (replaced by lib)
+
+### Rollback
+Revert PR (no DB changes).
+
 ## 2026-02-03 — Discovery V1.0 doorways
 
 ### Summary
