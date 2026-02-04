@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
 import { getWrapperIcon } from './_lib/wrapperIcons';
+import { getPickIcon } from './_lib/pickIcons';
 
 const SURFACE_STYLE = {
   backgroundColor: 'var(--ember-surface-primary)',
@@ -227,7 +228,7 @@ export default function DiscoveryPageClient({
                         key={w.ux_wrapper_id}
                         type="button"
                         onClick={() => handleWrapperSelect(w.ux_slug)}
-                        className="min-h-[72px] rounded-xl p-3 lg:p-3 text-left transition-all duration-[var(--ember-motion-duration)] cursor-pointer flex flex-col gap-1 motion-reduce:transition-none"
+                        className="h-[72px] md:h-[80px] lg:h-[104px] rounded-xl p-3 text-left transition-all duration-[var(--ember-motion-duration)] cursor-pointer flex flex-col gap-0.5 overflow-hidden motion-reduce:transition-none"
                         style={{
                           fontFamily: 'var(--font-sans)',
                           backgroundColor: 'var(--ember-surface-primary)',
@@ -248,13 +249,13 @@ export default function DiscoveryPageClient({
                           }}
                         />
                         <span
-                          className="block font-medium leading-tight"
+                          className="block font-medium leading-tight line-clamp-2"
                           style={{ fontSize: '16px', fontWeight: 500, color: 'var(--ember-text-high)' }}
                         >
                           {w.ux_label}
                         </span>
                         <span
-                          className="block text-sm line-clamp-2"
+                          className="block text-sm line-clamp-2 md:line-clamp-2 lg:line-clamp-1 lg:text-xs"
                           style={{ color: 'var(--ember-text-low)' }}
                         >
                           {w.ux_description || 'See picks that fit this focus.'}
@@ -265,7 +266,7 @@ export default function DiscoveryPageClient({
                 </div>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="lg:sticky lg:bottom-6 lg:pt-4 lg:pb-2 lg:mt-4 lg:rounded-xl lg:bg-white lg:border-t lg:border-[var(--ember-border-subtle)] lg:shadow-[0_-4px_12px_rgba(0,0,0,0.04)] space-y-1.5">
                 <button
                   type="button"
                   onClick={() => {
@@ -336,17 +337,19 @@ export default function DiscoveryPageClient({
             >
               Your 3 picks
             </h2>
-            <button
-              type="button"
-              className="rounded-lg border-0 bg-transparent py-2 px-0 text-sm cursor-pointer"
-              style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)', fontSize: '14px' }}
-              onClick={() => setWhyOpen((o) => !o)}
-            >
-              Why these?
-            </button>
+            {showPicks && picks.length > 0 && (
+              <button
+                type="button"
+                className="rounded-lg border-0 bg-transparent py-2 px-0 text-sm cursor-pointer"
+                style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)', fontSize: '14px' }}
+                onClick={() => setWhyOpen((o) => !o)}
+              >
+                Why these?
+              </button>
+            )}
           </div>
 
-          {whyOpen && (
+          {whyOpen && showPicks && picks.length > 0 && (
             <div
               className="mb-4 rounded-xl border p-4"
               style={{
@@ -382,11 +385,11 @@ export default function DiscoveryPageClient({
             </div>
           ) : !showPicks ? (
             <div
-              className="rounded-xl border p-6 text-center"
+              className="rounded-xl border p-4 text-center"
               style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}
             >
               <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
-                Choose a focus, then tap &quot;Show my 3 picks&quot;.
+                Choose a focus to see three picks.
               </p>
             </div>
           ) : showPicks && picks.length === 0 ? (
@@ -400,7 +403,9 @@ export default function DiscoveryPageClient({
             </div>
           ) : (
             <div className="space-y-4">
-              {picks.map((pick, index) => (
+              {picks.map((pick, index) => {
+                const PickIcon = getPickIcon(pick.product.name);
+                return (
                 <article
                   key={pick.product.id}
                   className="rounded-xl border overflow-hidden"
@@ -411,7 +416,7 @@ export default function DiscoveryPageClient({
                 >
                   <div className="h-[100px] relative bg-[var(--ember-surface-soft)]">
                     <div
-                      className="absolute left-2 top-2 rounded-lg px-2 py-1 text-xs"
+                      className="absolute left-2 top-2 rounded-lg px-2 py-1 text-xs flex items-center gap-1.5"
                       style={{
                         backgroundColor: 'var(--ember-surface-primary)',
                         border: '1px solid var(--ember-border-subtle)',
@@ -419,6 +424,7 @@ export default function DiscoveryPageClient({
                         color: 'var(--ember-text-low)',
                       }}
                     >
+                      <PickIcon size={16} strokeWidth={1.5} style={{ color: '#5C646D', flexShrink: 0 }} />
                       Pick {index + 1}
                     </div>
                   </div>
@@ -446,7 +452,8 @@ export default function DiscoveryPageClient({
                     </Link>
                   </div>
                 </article>
-              ))}
+              );
+              })}
             </div>
           )}
         </section>
