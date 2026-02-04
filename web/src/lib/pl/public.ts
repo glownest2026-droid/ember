@@ -226,6 +226,59 @@ export async function getGatewayTopPicksForAgeBandAndWrapperSlug(
 }
 
 /**
+ * Fetch top 3 products for an age band (across all categories).
+ * Used for pre-interaction "A quick example" in Discovery.
+ * Deterministic: rank asc, id asc.
+ */
+export async function getGatewayTopProductsForAgeBand(
+  ageBandId: string,
+  limit: number = 3
+): Promise<GatewayPick[]> {
+  const supabase = createClient();
+
+  const { data: productRows, error: productError } = await supabase
+    .from('v_gateway_products_public')
+    .select('age_band_id, category_type_id, rank, rationale, id, name, brand, image_url, canonical_url, amazon_uk_url, affiliate_url, affiliate_deeplink')
+    .eq('age_band_id', ageBandId)
+    .order('rank', { ascending: true })
+    .order('id', { ascending: true })
+    .limit(limit);
+
+  if (productError || !productRows || productRows.length === 0) return [];
+
+  const products = productRows as GatewayProductPublic[];
+  const categoryIds = [...new Set(products.map((p) => p.category_type_id).filter(Boolean))];
+
+  if (categoryIds.length === 0) return [];
+
+  const { data: categoryRows, error: categoryError } = await supabase
+    .from('v_gateway_category_types_public')
+    .select('id, slug, label, name')
+    .eq('age_band_id', ageBandId)
+    .in('id', categoryIds);
+
+  if (categoryError || !categoryRows) return [];
+
+  const categoryMap = new Map(
+    (categoryRows as { id: string; slug: string | null; label: string | null; name: string | null }[]).map(
+      (c) => [c.id, { id: c.id, slug: c.slug, label: c.label, name: c.name }]
+    )
+  );
+
+  const picks: GatewayPick[] = [];
+  for (const p of products) {
+    const cat = p.category_type_id ? categoryMap.get(p.category_type_id) : null;
+    picks.push({
+      product: p,
+      categoryType: cat
+        ? { id: cat.id, slug: cat.slug ?? '', label: cat.label ?? '', name: cat.name ?? '' }
+        : { id: p.category_type_id!, slug: '', label: '', name: '' },
+    });
+  }
+  return picks;
+}
+
+/**
  * Fetch active moments that have at least one published set for a given age band.
  * Server-side only. Returns only active moments with published content.
  * 

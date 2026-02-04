@@ -33,8 +33,9 @@ _Last updated: 2026-01-04_
 - /ping
 - /cms/lego-kit-demo
 - (optional) /cms/diag
-- /new (public landing page, redirects to first band with picks; e.g. /new/25)
-- /new/[months] (public landing page with age preload, e.g. /new/25)
+- /discover (canonical; redirects to first band)
+- /discover/[months] (V1.0 doorways experience)
+- /new, /new/[months] (308 redirect to /discover)
 
 ## Open PR policy
 - Keep ≤ 1 open “feature PR” at a time (currently: #79 only).
@@ -51,6 +52,32 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-03 — Discovery V1.0 doorways
+
+### Summary
+- **Copy sweep**: picks→ideas, shortlist→my list, "Your 3 picks"→"A quick example" (pre) / "Three ideas for {Focus}" (post). Chips: No child details, Under a minute, Clear reasons. Headline: "Three age-right ideas in under a minute."
+- **6 Today doorways + More**: Burn energy, Quiet focus, Big feelings, Let me help, Talk & stories, Play together. "More" reveals remaining wrappers. Mapping in `lib/discover/doorways.ts`.
+- **Right panel Narnia hook**: Pre-interaction shows "A quick example" with 3 real example idea cards from gateway (getGatewayTopProductsForAgeBand). Post-interaction: "Three ideas for {Focus}" with filtered ideas + "Why these?" inline drawer.
+- **Idea card icons**: ideaIconForTitle() deterministic mapping (Package default). Icons render with #5C646D, 16px, stroke 1.5.
+- **/new redirect**: /new and /new/[months] 308 redirect to /discover.
+
+### Files changed
+- `web/src/lib/discover/doorways.ts` — 6 doorway defs + resolveDoorwayToWrapper
+- `web/src/lib/pl/public.ts` — getGatewayTopProductsForAgeBand
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — new doorways UI
+- `web/src/app/discover/[months]/_lib/ideaIcons.tsx` — ideaIconForTitle
+- `web/src/app/discover/[months]/_lib/wrapperIcons.tsx` — getWrapperIcon
+- `web/src/app/discover/[months]/page.tsx` — exampleProducts, DiscoveryPageClient
+- `web/src/app/new/page.tsx` — redirect to /discover
+- `web/src/app/new/[months]/page.tsx` — redirect to /discover/[months]
+- `web/src/components/ConditionalHeader.tsx` — homeHref /discover for both
+
+### Verification (Proof-of-Done)
+- `pnpm install` + `pnpm run build` — ✅
+
+### Rollback
+Revert PR (no DB changes).
+
 ## 2026-02-03 — Website Brand Refresh (Brandbook)
 
 ### Summary
