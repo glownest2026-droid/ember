@@ -1,26 +1,28 @@
 {
   "pr": {
     "number": null,
-    "title": "Website brand refresh (Brandbook)",
-    "branch": "feat/brandbook-website-refresh",
+    "title": "Discovery V1.0 parity + route consolidation",
+    "branch": "feat/feb-2026-discover-v1-parity",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
-    "rollback": "Revert PR (frontend only)"
+    "rollback": "Revert PR (no DB changes)"
   },
   "receipt": {
-    "scope": "Website brand refresh per brandbook PDF: fonts, colours, tokens, headers. Exclude /new/ path.",
+    "scope": "Two-panel desktop layout, tile grid 2/4/6 cols, lucide icons, stronger glow, debug ?debug=1, /new → /discover redirects, placeholder image",
     "files_changed": [
-      "web/src/app/globals.css",
-      "web/src/lib/theme.ts",
-      "web/src/components/ThemeProvider.tsx",
-      "web/src/components/Header.tsx",
-      "web/src/app/layout.tsx",
+      "web/src/app/new/page.tsx",
+      "web/src/app/new/[months]/page.tsx",
+      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
+      "web/src/app/discover/[months]/_lib/wrapperIcons.tsx",
+      "web/src/app/discover/[months]/page.tsx",
+      "web/src/components/ConditionalHeader.tsx",
+      "web/package.json",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "commands_run": [
-      { "cwd": "web", "command": "pnpm install", "result": "ok (already up to date)" },
+      { "cwd": "web", "command": "pnpm install", "result": "ok" },
       { "cwd": "web", "command": "pnpm run build", "result": "ok (exit 0)" }
     ]
   },

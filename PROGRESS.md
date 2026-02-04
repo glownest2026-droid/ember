@@ -33,8 +33,9 @@ _Last updated: 2026-01-04_
 - /ping
 - /cms/lego-kit-demo
 - (optional) /cms/diag
-- /new (public landing page, redirects to first band with picks; e.g. /new/25)
-- /new/[months] (public landing page with age preload, e.g. /new/25)
+- /discover (canonical discovery; redirects to first band with picks)
+- /discover/[months] (discovery with age preload)
+- /new, /new/[months] (308 redirect to /discover)
 
 ## Open PR policy
 - Keep ≤ 1 open “feature PR” at a time (currently: #79 only).
@@ -51,6 +52,32 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-03 — Discovery V1.0 parity + route consolidation
+
+### Summary
+- **Route consolidation**: `/new` and `/new/[months]` now 308 redirect to `/discover` and `/discover/[months]` (query params preserved). Canonical route is `/discover`.
+- **Two-panel desktop layout**: Left picker surface (~560–640px), right destination surface (~360px) with picks above fold, "Why these?" inline expander, "What most parents see" placeholder image. Sticky right panel on desktop.
+- **Tile grid**: 2 cols sm, 4 cols md, 6 cols lg — all 12 tiles visible, no "More". Compact tiles with line-clamp-2 on subtitle.
+- **Icons**: lucide-react deterministic mapping by wrapper slug/label (Pencil, Hand, Activity, etc.). Default #5C646D, selected #B8432B.
+- **Stronger glow**: Selected tile box-shadow 0px 0px 28px rgba(255, 99, 71, 0.35).
+- **Debug gating**: Hidden by default; visible only with ?debug=1.
+- **Copy**: "Ideas that fit." (removed "stage"); trust chips unchanged.
+
+### Files changed
+- `web/src/app/new/page.tsx` — redirect to /discover
+- `web/src/app/new/[months]/page.tsx` — redirect to /discover/[months]
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — new V1.0 layout
+- `web/src/app/discover/[months]/_lib/wrapperIcons.tsx` — icon mapping
+- `web/src/app/discover/[months]/page.tsx` — use DiscoveryPageClient, showDebug from ?debug=1
+- `web/src/components/ConditionalHeader.tsx` — homeHref /discover for both /new and /discover
+- `web/package.json` — lucide-react
+
+### Verification (Proof-of-Done)
+- `pnpm install` + `pnpm run build` — ✅
+
+### Rollback
+Revert PR (no DB changes).
+
 ## 2026-02-03 — Website Brand Refresh (Brandbook)
 
 ### Summary

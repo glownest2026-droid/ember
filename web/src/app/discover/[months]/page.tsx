@@ -1,18 +1,19 @@
 import { redirect } from 'next/navigation';
 import { getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
-import NewLandingPageClient from '../../new/[months]/NewLandingPageClient';
+import DiscoveryPageClient from './DiscoveryPageClient';
 
 interface DiscoverMonthsPageProps {
   params: Promise<{ months: string }>;
-  searchParams: Promise<{ wrapper?: string; show?: string }>;
+  searchParams: Promise<{ wrapper?: string; show?: string; debug?: string }>;
 }
 
 export const dynamic = 'force-dynamic';
 
-/** /discover/[months] — same experience as /new/[months], shared component, basePath /discover. */
+/** /discover/[months] — V1.0 Discovery layout. */
 export default async function DiscoverMonthsPage({ params, searchParams }: DiscoverMonthsPageProps) {
   const { months } = await params;
-  const { wrapper: wrapperSlugParam, show: showParam } = await searchParams;
+  const { wrapper: wrapperSlugParam, show: showParam, debug: debugParam } = await searchParams;
+  const showDebug = debugParam === '1';
 
   const monthsNum = parseInt(months, 10);
   if (isNaN(monthsNum)) {
@@ -54,14 +55,19 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
         }
       }
       if (effectiveWrapperSlug) {
-        redirect(`/discover/${monthParam}?wrapper=${encodeURIComponent(effectiveWrapperSlug)}&show=1`);
+        const q = new URLSearchParams({
+          wrapper: effectiveWrapperSlug,
+          show: '1',
+          ...(showDebug && { debug: '1' }),
+        });
+        redirect(`/discover/${monthParam}?${q.toString()}`);
       }
     }
   }
 
   return (
     <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
-      <NewLandingPageClient
+      <DiscoveryPageClient
         ageBands={ageBands}
         ageBand={ageBand}
         monthParam={monthParam}
@@ -70,7 +76,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
         selectedWrapperSlug={effectiveWrapperSlug}
         showPicks={shouldShowPicks}
         picks={picks}
-        basePath="/discover"
+        showDebug={showDebug}
       />
     </main>
   );
