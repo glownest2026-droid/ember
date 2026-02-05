@@ -37,8 +37,13 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
       ? wrapperSlugParam
       : null;
 
+  const is25to27 = monthParam >= 25 && monthParam <= 27;
+  const defaultSlug25to27 =
+    is25to27 && wrappers.some(w => w.ux_slug === 'let-me-help') ? 'let-me-help' : null;
+
   const shouldShowPicks = showParam === '1' && selectedBandHasPicks;
-  let effectiveWrapperSlug = selectedWrapperSlug ?? wrappers[0]?.ux_slug ?? null;
+  let effectiveWrapperSlug =
+    selectedWrapperSlug ?? defaultSlug25to27 ?? wrappers[0]?.ux_slug ?? null;
   let picks: Awaited<ReturnType<typeof getGatewayTopPicksForAgeBandAndWrapperSlug>> = [];
   const exampleProducts = selectedBandHasPicks
     ? await getGatewayTopProductsForAgeBand(ageBand.id, 3)

@@ -52,6 +52,28 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-05 — Acquisition landing course-correct (hero v2, doorways 12→6+See all, icons, Have it already)
+
+### Summary
+- **Hero**: Exact 3 lines (H1, subheader, reassurance); no extra trust line; "We only use age to tailor ideas." stays by age control.
+- **Doorways**: 12 needs, 6 default + "See all"; section "What they're practising right now" + guide copy; 1:1 mapping to existing gateway wrapper slugs; Suggested pills for 25–27m on Do it myself, Big feelings, Little hands; default selected for 25–27m = Do it myself; selected glow 0px 0px 28px rgba(255,99,71,0.35), 0px 10px 30px rgba(0,0,0,0.06); tile label/helper line-clamp-2.
+- **Product cards**: getProductIcon (Sparkles fallback); never exclude products for missing images; buttons: "Save to my list", "Have it already", "View"; icon colour #B8432B.
+- **Have it already**: Event capture via POST /api/click with source: discover_owned; toast "Marked as have it already." (best-effort; 401 when signed out still shows toast).
+- **Copy**: ideas/my list; no AI, magic, algorithm, unlock, smart on /discover.
+- **/new**: Redirect to /discover preserving params (unchanged).
+
+### Follow-up (not in this PR)
+- **Have it already persistence**: Add saved/owned status to existing save pipeline or new table when safe minimal migration is available. See TODO in codebase; no DB/RLS changes in this PR.
+
+### Files changed
+- `web/src/lib/discover/doorways.ts` — ALL_DOORWAYS (12), DEFAULT_DOORWAYS, MORE_DOORWAYS, helper text, SUGGESTED_DOORWAY_KEYS_25_27, DEFAULT_WRAPPER_SLUG_25_27
+- `web/src/lib/discover/ideaIcons.ts` — getProductIcon, Sparkles default
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — hero (unchanged), doorways section, IdeaCard with getProductIcon + Have it already + toast
+- `web/src/app/discover/[months]/page.tsx` — default wrapper for 25–27m (let-me-help)
+
+### Rollback
+Revert PR (no DB changes).
+
 ## 2026-02-03 — Discovery polish: glow, truncation, icons
 
 ### Summary
