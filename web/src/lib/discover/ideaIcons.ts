@@ -58,7 +58,7 @@ export function iconForIdea(input: {
   }
   const text = [title, categoryTypeLabel, categoryTypeSlug].filter(Boolean).join(' ').toLowerCase();
   if (/\b(book|story|reading)\b/.test(text)) return BookOpen;
-  if (/\b(paint|crayon|drawing|marker)\b/.test(text)) return Paintbrush;
+  if (/\b(paint|crayon|crayons|drawing|marker|finger.?paint|washable|jumbo)\b/.test(text)) return Paintbrush;
   if (/\b(pencil|pen)\b/.test(text)) return Pencil;
   if (/\b(block|construction|build|lego)\b/.test(text)) return Blocks;
   if (/\b(music|drum|piano|xylophone|band|guitar)\b/.test(text)) return Music;

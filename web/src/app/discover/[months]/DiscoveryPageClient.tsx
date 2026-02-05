@@ -19,8 +19,6 @@ const SURFACE_STYLE = {
   boxShadow: '0px 4px 24px rgba(0,0,0,0.04)',
 };
 
-const PLACEHOLDER_IMAGE =
-  'https://media.istockphoto.com/id/1340240183/photo/little-boy-playing-in-living-room.jpg?s=612x612&w=0&k=20&c=NWnLKf8hePPEHgjdKPb5ttCFnnf5o6mzvJ6TbZa9Bq4=';
 
 interface AgeBand {
   id: string;
@@ -201,19 +199,8 @@ export default function DiscoveryPageClient({
         className="rounded-xl border overflow-hidden"
         style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}
       >
-        <div className="h-[80px] relative bg-[var(--ember-surface-soft)] flex items-center px-3 gap-3">
-          <div
-            className="rounded-lg px-2 py-1.5 flex items-center gap-2 shrink-0"
-            style={{
-              backgroundColor: 'var(--ember-surface-primary)',
-              border: '1px solid var(--ember-border-subtle)',
-            }}
-          >
-            <Icon size={18} strokeWidth={1.5} style={{ color: '#B8432B', flexShrink: 0 }} />
-            <span className="text-xs" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-              Idea {index + 1}
-            </span>
-          </div>
+        <div className="min-h-[72px] relative bg-[var(--ember-surface-soft)] flex items-center px-4 gap-3 py-3">
+          <Icon size={28} strokeWidth={1.5} style={{ color: '#B8432B', flexShrink: 0 }} />
           <strong
             className="block font-medium text-sm line-clamp-2 flex-1 min-w-0 leading-snug"
             style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-high)' }}
@@ -266,30 +253,37 @@ export default function DiscoveryPageClient({
     );
   };
 
+  const heroSection = (
+    <section
+      className="w-full py-10 sm:py-12 md:py-14 px-4 sm:px-6"
+      style={{ backgroundColor: 'var(--ember-surface-primary)', borderBottom: '1px solid var(--ember-border-subtle)' }}
+    >
+      <div className="mx-auto max-w-3xl text-center">
+        <h1
+          className="mb-3 text-[28px] leading-[1.1] md:text-[36px]"
+          style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}
+        >
+          Your next-step toy guide — from bump to big steps.
+        </h1>
+        <p
+          className="mb-2 text-base md:text-lg leading-[1.6]"
+          style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
+        >
+          See what your little one is learning next — and what to buy for it.
+        </p>
+        <p
+          className="text-sm md:text-base leading-[1.5]"
+          style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
+        >
+          Use what you&apos;ve got. Add what you need. You&apos;re in charge.
+        </p>
+      </div>
+    </section>
+  );
+
   const leftSurface = (
     <div className="w-full lg:max-w-[600px] shrink-0" style={SURFACE_STYLE}>
       <div className="py-6 px-4 sm:px-6 sm:py-8">
-        <section className="mb-6">
-          <h1
-            className="mb-2 text-[28px] leading-[1.1] md:text-[32px]"
-            style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}
-          >
-            Your next-step toy guide — from bump to big steps.
-          </h1>
-          <p
-            className="mb-1 text-base leading-[1.6]"
-            style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
-          >
-            See what your little one is learning next — and what to buy for it.
-          </p>
-          <p
-            className="text-sm leading-[1.5]"
-            style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
-          >
-            Use what you&apos;ve got. Add what you need. You&apos;re in charge.
-          </p>
-        </section>
-
         <div className="relative">
           <div className="mb-5">
             <span
@@ -534,34 +528,26 @@ export default function DiscoveryPageClient({
           )}
         </section>
 
-        <section>
-          <h3 className="text-base font-medium mb-3" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
-            Example results
-          </h3>
-          <img
-            src={PLACEHOLDER_IMAGE}
-            alt="Toddler playing with toys in a living room"
-            className="w-full rounded-xl object-cover"
-            style={{ aspectRatio: '16/10', borderRadius: '12px' }}
-          />
-        </section>
       </div>
     </div>
   );
 
   return (
     <div
-      className="min-h-screen w-full px-4 py-6 sm:px-6 sm:py-8"
+      className="min-h-screen w-full"
       style={{ backgroundColor: 'var(--ember-bg-canvas)' }}
     >
-      <div className="mx-auto max-w-7xl">
-        <div className="hidden md:flex md:gap-10 lg:gap-12 md:items-start">
-          {leftSurface}
-          {rightSurface}
-        </div>
-        <div className="md:hidden flex flex-col gap-8">
-          {leftSurface}
-          {rightSurface}
+      {heroSection}
+      <div className="w-full px-4 py-6 sm:px-6 sm:py-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="hidden md:flex md:gap-10 lg:gap-12 md:items-start">
+            {leftSurface}
+            {rightSurface}
+          </div>
+          <div className="md:hidden flex flex-col gap-8">
+            {leftSurface}
+            {rightSurface}
+          </div>
         </div>
       </div>
     </div>
