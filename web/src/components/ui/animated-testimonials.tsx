@@ -180,21 +180,29 @@ export function AnimatedTestimonials({
   if (!items.length) return null;
 
   const current = items[active];
-  const BEHIND_Y = 14;
-  const BEHIND_SCALE = 0.95;
+  const n = items.length;
+
+  // Aceternity-style "photo prints" spread: 3 cards visible, front shuffles behind the pack.
+  // stackOffset = 0 → front (active), 1 → first behind, 2 → second behind (offset left+up, scale down).
+  const SPREAD_X = 22;
+  const SPREAD_Y = 16;
+  const SCALE_STEP = 0.05;
+  const ROTATE_STEP = 5;
 
   return (
     <div className={cn('grid grid-cols-1 md:grid-cols-2 gap-6 w-full min-w-0', className)}>
-      {/* Left: stacked cards — Aceternity-style tease */}
-      <div className="relative h-80 md:h-[360px] w-full min-w-0">
+      {/* Left: fanned card stack — front card shuffles behind when advancing */}
+      <div className="relative h-80 md:h-[360px] w-full min-w-0 overflow-visible pl-12 md:pl-14">
         <AnimatePresence initial={false}>
           {items.map((item, index) => {
-            const isActiveItem = index === active;
-            const z = isActiveItem ? items.length + 10 : Math.max(0, items.length - index);
-            const rotateY = isActiveItem ? 0 : rotations[index] ?? 0;
-            const scale = isActiveItem ? 1 : BEHIND_SCALE;
-            const yOffset = prefersReducedMotion ? 0 : isActiveItem ? 0 : (index - active) * BEHIND_Y;
-            const opacity = index <= active ? (isActiveItem ? 1 : 0.7) : 0.4;
+            const stackOffset = (index - active + n) % n;
+            const isFront = stackOffset === 0;
+            const z = n - stackOffset;
+            const x = prefersReducedMotion ? 0 : -stackOffset * SPREAD_X;
+            const y = prefersReducedMotion ? 0 : -stackOffset * SPREAD_Y;
+            const scale = 1 - stackOffset * SCALE_STEP;
+            const rotate = prefersReducedMotion ? 0 : -stackOffset * ROTATE_STEP + (rotations[index] ?? 0) * 0.4;
+            const opacity = isFront ? 1 : Math.max(0.5, 0.85 - stackOffset * 0.1);
 
             return (
               <motion.div
@@ -203,10 +211,11 @@ export function AnimatedTestimonials({
                 style={{ zIndex: z }}
                 initial={false}
                 animate={{
-                  y: yOffset,
+                  x,
+                  y,
                   scale,
-                  opacity: prefersReducedMotion ? (isActiveItem ? 1 : 0.6) : opacity,
-                  rotateY: prefersReducedMotion ? 0 : rotateY,
+                  opacity: prefersReducedMotion ? (isFront ? 1 : 0.65) : opacity,
+                  rotate,
                 }}
                 transition={{
                   duration: prefersReducedMotion ? 0.1 : 0.4,
@@ -217,7 +226,7 @@ export function AnimatedTestimonials({
                   item={item}
                   index={index}
                   prefersReducedMotion={prefersReducedMotion}
-                  isBehind={!isActiveItem}
+                  isBehind={!isFront}
                 />
               </motion.div>
             );
