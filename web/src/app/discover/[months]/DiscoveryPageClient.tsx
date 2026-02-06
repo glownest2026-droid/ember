@@ -536,6 +536,7 @@ export default function DiscoveryPageClient({
     <div
       className="min-h-screen w-full"
       style={{ backgroundColor: 'var(--ember-bg-canvas)' }}
+      data-discover-version="acq-v2"
     >
       {heroSection}
       <div className="w-full px-4 py-6 sm:px-6 sm:py-8">
