@@ -8,6 +8,8 @@ import { getProductIconComponent } from '@/lib/icons/productIcon';
 import type { ProductIconKey } from '@/lib/icons/productIcon';
 
 const ICON_STROKE_COLOR = '#B8432B';
+const FRONT_CARD_BG = '#FF6347';
+const MAX_VISIBLE_CARDS = 3;
 
 /** Stable rotation -10..10 from id hash so same item always same angle */
 function hashToRotation(id: string): number {
@@ -42,32 +44,42 @@ type AnimatedTestimonialsProps = {
   renderActions?: (item: AlbumItem, index: number) => React.ReactNode;
 };
 
-/** Self-contained card: icon/image + Idea N chip + title + why (blur inside when motion on) */
+/** Self-contained card: icon/image + Idea N chip + title (link) + why (blur inside when motion on) */
 function ProductAlbumCard({
   item,
   index,
   prefersReducedMotion,
-  isBehind,
+  isFront,
 }: {
   item: AlbumItem;
   index: number;
   prefersReducedMotion: boolean;
-  isBehind: boolean;
+  isFront: boolean;
 }) {
   const Icon = getProductIconComponent((item.iconKey as ProductIconKey) || 'drawing-making');
-  const tintStyle = isBehind ? subtleTintStyle(item.id) : undefined;
+  const tintStyle = !isFront ? subtleTintStyle(item.id) : undefined;
+  const cardBg = isFront ? FRONT_CARD_BG : undefined;
+  const iconColor = isFront ? '#ffffff' : ICON_STROKE_COLOR;
+  const chipBg = isFront ? 'rgba(255,255,255,0.25)' : 'var(--ember-surface-soft)';
+  const chipColor = isFront ? '#ffffff' : 'var(--ember-text-low)';
+  const titleColor = isFront ? '#ffffff' : 'var(--ember-text-high)';
+  const whyColor = isFront ? 'rgba(255,255,255,0.95)' : 'var(--ember-text-low)';
+  const titleHref = item.href && item.href !== '#' ? item.href : undefined;
 
   return (
     <div
       className={cn(
         'h-full w-full rounded-3xl overflow-hidden flex flex-col',
-        'border border-[var(--ember-border-subtle)] shadow-lg',
-        'bg-[var(--ember-surface-primary)]'
+        'border shadow-lg',
+        isFront ? 'border-transparent' : 'border-[var(--ember-border-subtle)]'
       )}
-      style={tintStyle}
+      style={{ ...tintStyle, backgroundColor: cardBg ?? 'var(--ember-surface-primary)' }}
     >
       {/* Top: image or icon tile */}
-      <div className="relative h-24 sm:h-28 flex-shrink-0 overflow-hidden bg-[var(--ember-surface-soft)]">
+      <div
+        className="relative h-24 sm:h-28 flex-shrink-0 overflow-hidden"
+        style={{ backgroundColor: isFront ? 'rgba(0,0,0,0.08)' : 'var(--ember-surface-soft)' }}
+      >
         {item.imageUrl ? (
           <img
             src={item.imageUrl}
@@ -78,42 +90,52 @@ function ProductAlbumCard({
           <div
             className="h-full w-full flex items-center justify-center"
             style={{
-              background: 'linear-gradient(145deg, var(--ember-surface-soft) 0%, var(--ember-surface-primary) 100%)',
+              background: isFront
+                ? 'linear-gradient(145deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.1) 100%)'
+                : 'linear-gradient(145deg, var(--ember-surface-soft) 0%, var(--ember-surface-primary) 100%)',
             }}
           >
             <Icon
               size={36}
               strokeWidth={1.5}
-              style={{ color: ICON_STROKE_COLOR }}
+              style={{ color: iconColor }}
               className="opacity-90"
             />
           </div>
         )}
       </div>
 
-      {/* Content: chip + title + why */}
+      {/* Content: chip + title (link) + why */}
       <div className="flex-1 min-h-0 p-3 sm:p-4 flex flex-col gap-1.5">
         <div className="flex items-center gap-2 flex-shrink-0">
           <span
             className="text-[10px] font-medium px-2 py-0.5 rounded-full"
-            style={{
-              backgroundColor: 'var(--ember-surface-soft)',
-              color: 'var(--ember-text-low)',
-              fontFamily: 'var(--font-sans)',
-            }}
+            style={{ backgroundColor: chipBg, color: chipColor, fontFamily: 'var(--font-sans)' }}
           >
             Idea {index + 1}
           </span>
         </div>
-        <h3
-          className="text-sm font-medium line-clamp-2 leading-snug flex-shrink-0"
-          style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}
-        >
-          {item.title}
-        </h3>
+        {titleHref ? (
+          <a
+            href={titleHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium line-clamp-2 leading-snug flex-shrink-0 hover:underline block"
+            style={{ fontFamily: 'var(--font-serif)', color: titleColor }}
+          >
+            {item.title}
+          </a>
+        ) : (
+          <h3
+            className="text-sm font-medium line-clamp-2 leading-snug flex-shrink-0"
+            style={{ fontFamily: 'var(--font-serif)', color: titleColor }}
+          >
+            {item.title}
+          </h3>
+        )}
         <div
-          className="text-xs leading-relaxed line-clamp-3 min-h-0 overflow-hidden"
-          style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
+          className="text-xs leading-relaxed line-clamp-4 min-h-0 overflow-hidden"
+          style={{ fontFamily: 'var(--font-sans)', color: whyColor }}
         >
           {prefersReducedMotion ? (
             item.quote
@@ -182,27 +204,29 @@ export function AnimatedTestimonials({
   const current = items[active];
   const n = items.length;
 
-  // Aceternity-style "photo prints" spread: 3 cards visible, front shuffles behind the pack.
-  // stackOffset = 0 → front (active), 1 → first behind, 2 → second behind (offset left+up, scale down).
-  const SPREAD_X = 22;
-  const SPREAD_Y = 16;
+  // Only ever show 3 cards: front + 2 behind. Pile is backfilled so there are always 3 visible.
+  const visibleIndices = Array.from({ length: Math.min(MAX_VISIBLE_CARDS, n) }, (_, i) => (active + i) % n);
+
+  const SPREAD_X = 20;
+  const SPREAD_Y = 14;
   const SCALE_STEP = 0.05;
   const ROTATE_STEP = 5;
 
   return (
     <div className={cn('grid grid-cols-1 md:grid-cols-2 gap-6 w-full min-w-0', className)}>
-      {/* Left: fanned card stack — front card shuffles behind when advancing */}
-      <div className="relative h-80 md:h-[360px] w-full min-w-0 overflow-visible pl-12 md:pl-14">
+      {/* Left: contained stack — max 3 cards, clipped to container */}
+      <div className="relative h-80 md:h-[360px] w-full min-w-0 overflow-hidden pl-10 md:pl-12">
         <AnimatePresence initial={false}>
-          {items.map((item, index) => {
-            const stackOffset = (index - active + n) % n;
+          {visibleIndices.map((index, slot) => {
+            const item = items[index];
+            const stackOffset = slot;
             const isFront = stackOffset === 0;
-            const z = n - stackOffset;
+            const z = MAX_VISIBLE_CARDS - stackOffset;
             const x = prefersReducedMotion ? 0 : -stackOffset * SPREAD_X;
             const y = prefersReducedMotion ? 0 : -stackOffset * SPREAD_Y;
             const scale = 1 - stackOffset * SCALE_STEP;
             const rotate = prefersReducedMotion ? 0 : -stackOffset * ROTATE_STEP + (rotations[index] ?? 0) * 0.4;
-            const opacity = isFront ? 1 : Math.max(0.5, 0.85 - stackOffset * 0.1);
+            const opacity = isFront ? 1 : Math.max(0.55, 0.9 - stackOffset * 0.15);
 
             return (
               <motion.div
@@ -214,7 +238,7 @@ export function AnimatedTestimonials({
                   x,
                   y,
                   scale,
-                  opacity: prefersReducedMotion ? (isFront ? 1 : 0.65) : opacity,
+                  opacity: prefersReducedMotion ? (isFront ? 1 : 0.7) : opacity,
                   rotate,
                 }}
                 transition={{
@@ -226,7 +250,7 @@ export function AnimatedTestimonials({
                   item={item}
                   index={index}
                   prefersReducedMotion={prefersReducedMotion}
-                  isBehind={!isFront}
+                  isFront={isFront}
                 />
               </motion.div>
             );

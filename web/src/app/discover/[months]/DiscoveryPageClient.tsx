@@ -247,7 +247,7 @@ export default function DiscoveryPageClient({
   );
 
   const leftSurface = (
-    <div className="w-full min-w-0 flex-[2]" style={SURFACE_STYLE}>
+    <div className="w-full min-w-0 flex-1" style={SURFACE_STYLE}>
       <div className="py-6 px-4 sm:px-6 sm:py-8">
         <div className="relative">
           <div className="mb-5">
@@ -411,7 +411,7 @@ export default function DiscoveryPageClient({
 
   const rightSurface = (
     <div
-      className="w-full min-w-0 flex-1 lg:sticky"
+      className="w-full min-w-0 flex-[2] lg:sticky"
       style={{ ...SURFACE_STYLE, top: 'calc(var(--header-height, 56px) + 1.5rem)' }}
     >
       <div className="py-6 px-4 sm:px-6 sm:py-8 flex flex-col gap-6">
