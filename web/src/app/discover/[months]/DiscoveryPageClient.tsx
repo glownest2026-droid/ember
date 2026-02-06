@@ -272,13 +272,14 @@ export default function DiscoveryPageClient({
     >
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${HERO_BG_IMAGE})`,
-          opacity: 0.12,
-        }}
+        style={{ backgroundImage: `url(${HERO_BG_IMAGE})` }}
         aria-hidden
       />
-      <div className="absolute inset-0" style={{ backgroundColor: 'var(--ember-surface-primary)' }} aria-hidden />
+      <div
+        className="absolute inset-0"
+        style={{ backgroundColor: 'rgba(255, 255, 255, 0.88)' }}
+        aria-hidden
+      />
       <div className="relative z-10 mx-auto max-w-3xl text-center">
         <h1
           className="mb-3 text-[28px] leading-[1.1] md:text-[36px]"
@@ -303,7 +304,7 @@ export default function DiscoveryPageClient({
   );
 
   const leftSurface = (
-    <div className="w-full lg:max-w-[600px] shrink-0" style={SURFACE_STYLE}>
+    <div className="w-full min-w-0 flex-[2]" style={SURFACE_STYLE}>
       <div className="py-6 px-4 sm:px-6 sm:py-8">
         <div className="relative">
           <div className="mb-5">
@@ -467,7 +468,7 @@ export default function DiscoveryPageClient({
 
   const rightSurface = (
     <div
-      className="w-full lg:max-w-[420px] shrink-0 lg:sticky"
+      className="w-full min-w-0 flex-1 lg:sticky"
       style={{ ...SURFACE_STYLE, top: 'calc(var(--header-height, 56px) + 1.5rem)' }}
     >
       <div className="py-6 px-4 sm:px-6 sm:py-8 flex flex-col gap-6">
@@ -555,8 +556,8 @@ export default function DiscoveryPageClient({
     >
       <div className="w-full px-4 sm:px-6 mx-auto max-w-7xl">
         {heroSection}
-        <div className="py-6 sm:py-8">
-          <div className="hidden md:flex md:gap-10 lg:gap-12 md:items-start">
+        <div className="py-6 sm:py-8 w-full">
+          <div className="hidden md:flex md:gap-10 lg:gap-12 md:items-start w-full">
             {leftSurface}
             {rightSurface}
           </div>
