@@ -52,6 +52,36 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-06 — PR3: Discover animated product album (Aceternity shuffle)
+
+### Summary
+- **Right panel**: Replaced the list of 3 idea cards with an Aceternity-style **animated product album** (stacked cards + next/prev, word-by-word blur reveal). Same interaction and timing feel as Aceternity Animated Testimonials.
+- **Album items**: Up to 12 products from existing gateway read path (picks or example products). No filtering by “has image”: if `product.image_url` exists show image; else show **icon tile** (Lucide icon in #B8432B on soft gradient background, rounded-3xl).
+- **Icons**: `web/src/lib/icons/productIcon.ts` — `getProductIconKey(product, focusDoorwayLabelOrSlug)` with fixed mapping for 12 doorways; no DB backfill.
+- **Actions**: Save to my list | Have it already | Visit on each item (renderActions slot). Have it already unchanged (POST /api/click, source: discover_owned).
+- **Layout**: Responsive grid (image stack left, text right on md+; stacked on narrow). `prefers-reduced-motion` respected (no y-bounce, reduced blur).
+- **Deps**: motion, clsx, tailwind-merge; `cn()` in `web/src/lib/utils.ts`. No @tabler/icons-react; Lucide ChevronLeft/ChevronRight.
+
+### Proof
+- Manual QA only (no headless screenshots, no GitHub API polling). See QA checklist below.
+
+### Files changed
+- `web/src/components/ui/animated-testimonials.tsx` — new (AlbumItem, image or icon tile, blur reveal, reduced-motion)
+- `web/src/lib/utils.ts` — new (cn)
+- `web/src/lib/icons/productIcon.ts` — new (getProductIconKey, doorway → icon mapping)
+- `web/src/app/discover/[months]/page.tsx` — fetch 12 picks / 12 example products
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — albumItems from displayIdeas, AnimatedTestimonials + renderActions; removed IdeaCard
+
+### QA checklist (founder manual)
+1. `pnpm install` then `pnpm run build` (passes).
+2. Open /discover (or /discover/26), choose a focus, click “Show my 3 ideas”.
+3. Right panel shows album: stacked “photos” (images or icon tiles), next/prev arrows, 1/12 counter.
+4. Next/Prev cycle smoothly; text area shows title, optional subtitle, quote with word-by-word blur.
+5. Items without image show icon tile (gradient + Lucide icon).
+6. Save to my list | Have it already | Visit present and clickable; “Have it already” shows toast.
+7. Reduce motion: enable OS “Reduce motion” → no bounce, quote shows without blur animation.
+8. No console errors.
+
 ## 2026-02-05 — Acquisition landing course-correct (hero v2, doorways 12→6+See all, icons, Have it already)
 
 ### Summary
