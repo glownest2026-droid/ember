@@ -3,10 +3,19 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { Bookmark, Check, ExternalLink } from 'lucide-react';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
-import { TODAY_DOORWAYS, resolveDoorwayToWrapper } from '@/lib/discover/doorways';
-import { iconForIdea } from '@/lib/discover/ideaIcons';
-import { getWrapperIcon } from './_lib/wrapperIcons';
+import {
+  ALL_DOORWAYS,
+  DEFAULT_DOORWAYS,
+  MORE_DOORWAYS,
+  SUGGESTED_DOORWAY_KEYS_25_27,
+  resolveDoorwayToWrapper,
+} from '@/lib/discover/doorways';
+import { getProductIcon } from '@/lib/discover/ideaIcons';
+
+const HERO_BG_IMAGE =
+  'https://images.pexels.com/photos/8909659/pexels-photo-8909659.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
 
 const SURFACE_STYLE = {
   backgroundColor: 'var(--ember-surface-primary)',
@@ -14,8 +23,6 @@ const SURFACE_STYLE = {
   boxShadow: '0px 4px 24px rgba(0,0,0,0.04)',
 };
 
-const PLACEHOLDER_IMAGE =
-  'https://media.istockphoto.com/id/1340240183/photo/little-boy-playing-in-living-room.jpg?s=612x612&w=0&k=20&c=NWnLKf8hePPEHgjdKPb5ttCFnnf5o6mzvJ6TbZa9Bq4=';
 
 interface AgeBand {
   id: string;
@@ -57,7 +64,14 @@ export default function DiscoveryPageClient({
   const router = useRouter();
   const [whyOpen, setWhyOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [actionToast, setActionToast] = useState<{ productId: string; message: string } | null>(null);
   const basePath = '/discover';
+
+  useEffect(() => {
+    if (!actionToast) return;
+    const t = setTimeout(() => setActionToast(null), 3000);
+    return () => clearTimeout(t);
+  }, [actionToast]);
 
   const getBandRange = (band: AgeBand | null): { min: number; max: number } | null => {
     if (!band) return null;
@@ -99,6 +113,7 @@ export default function DiscoveryPageClient({
 
   const selectedBand = ageBands[selectedBandIndex] ?? ageBand;
   const currentMonth = monthParam ?? 25;
+  const is25to27 = currentMonth >= 25 && currentMonth <= 27;
 
   useEffect(() => {
     if (!showPicks) return;
@@ -138,17 +153,13 @@ export default function DiscoveryPageClient({
   const ctaEnabled = !!selectedBand && !!selectedWrapper;
   const selectedWrapperLabel = wrappers.find((w) => w.ux_slug === selectedWrapper)?.ux_label ?? selectedWrapper ?? '';
 
-  const visibleDoorways = TODAY_DOORWAYS.map((d) => ({
+  const visibleDoorwayList = showMore ? ALL_DOORWAYS : DEFAULT_DOORWAYS;
+  const doorwaysWithResolved = visibleDoorwayList.map((d) => ({
     type: 'doorway' as const,
     ...d,
     resolved: resolveDoorwayToWrapper(d, wrappers),
   }));
-  const moreWrappers = wrappers.filter(
-    (w) => !visibleDoorways.some((t) => t.resolved?.ux_slug === w.ux_slug)
-  );
-  const allTiles = showMore
-    ? [...visibleDoorways, ...moreWrappers.map((w) => ({ type: 'more' as const, wrapper: w }))]
-    : visibleDoorways;
+  const allTiles = doorwaysWithResolved;
 
   const debugText =
     showDebug && monthParam !== null && ageBand !== null
@@ -160,32 +171,40 @@ export default function DiscoveryPageClient({
   const displayIdeas = showPicks && picks.length > 0 ? picks : exampleProducts;
   const isExampleMode = !showPicks || picks.length === 0;
 
+  const handleHaveItAlready = async (productId: string) => {
+    try {
+      await fetch('/api/click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: productId,
+          age_band: selectedBand?.id ?? undefined,
+          source: 'discover_owned',
+        }),
+      });
+    } catch {
+      // Best-effort: still show confirmation
+    }
+    setActionToast({ productId, message: 'Marked as have it already.' });
+  };
+
+  const btnStyle = {
+    borderColor: 'var(--ember-border-subtle)',
+    backgroundColor: 'var(--ember-surface-primary)',
+    color: 'var(--ember-text-high)',
+    fontFamily: 'var(--font-sans)',
+  };
+
   const IdeaCard = ({ pick, index, doorwayLabel }: { pick: PickItem; index: number; doorwayLabel?: string }) => {
-    const Icon = iconForIdea({
-      title: pick.product.name,
-      categoryTypeLabel: pick.categoryType.label ?? pick.categoryType.name ?? undefined,
-      categoryTypeSlug: pick.categoryType.slug ?? undefined,
-      productId: pick.product.id,
-    });
+    const Icon = getProductIcon(pick.product, pick.categoryType);
     const href = getProductUrl(pick);
     return (
       <article
         className="rounded-xl border overflow-hidden"
         style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}
       >
-        <div className="h-[80px] relative bg-[var(--ember-surface-soft)] flex items-center px-3 gap-3">
-          <div
-            className="rounded-lg px-2 py-1.5 flex items-center gap-2 shrink-0"
-            style={{
-              backgroundColor: 'var(--ember-surface-primary)',
-              border: '1px solid var(--ember-border-subtle)',
-            }}
-          >
-            <Icon size={18} strokeWidth={1.5} style={{ color: '#B8432B', flexShrink: 0 }} />
-            <span className="text-xs" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-              Idea {index + 1}
-            </span>
-          </div>
+        <div className="min-h-[72px] relative bg-[var(--ember-surface-soft)] flex items-center px-4 gap-3 py-3">
+          <Icon size={28} strokeWidth={1.5} style={{ color: '#B8432B', flexShrink: 0 }} />
           <strong
             className="block font-medium text-sm line-clamp-2 flex-1 min-w-0 leading-snug"
             style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-high)' }}
@@ -195,6 +214,11 @@ export default function DiscoveryPageClient({
           </strong>
         </div>
         <div className="p-3 space-y-2">
+          {pick.product.rationale && (
+            <p className="text-xs m-0" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
+              <strong style={{ color: 'var(--ember-text-high)' }}>Why?</strong> {pick.product.rationale}
+            </p>
+          )}
           <div className="flex flex-wrap gap-1">
             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: 'var(--ember-surface-soft)', color: 'var(--ember-text-low)' }}>
               Best for: {formatBandLabel(selectedBand)}
@@ -205,33 +229,34 @@ export default function DiscoveryPageClient({
               </span>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Link
               href={getSigninUrl(pick.product.id)}
-              className="flex-1 min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center"
-              style={{
-                borderColor: 'var(--ember-border-subtle)',
-                backgroundColor: 'var(--ember-surface-primary)',
-                color: 'var(--ember-text-high)',
-                fontFamily: 'var(--font-sans)',
-              }}
+              className="flex-1 min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5"
+              style={btnStyle}
             >
+              <Bookmark size={14} strokeWidth={2} />
               Save to my list
             </Link>
+            <button
+              type="button"
+              onClick={() => handleHaveItAlready(pick.product.id)}
+              className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3"
+              style={btnStyle}
+            >
+              <Check size={14} strokeWidth={2} />
+              Have it already
+            </button>
             {href !== '#' && (
               <a
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="min-h-[36px] px-3 rounded-lg border font-medium text-xs flex items-center justify-center"
-                style={{
-                  borderColor: 'var(--ember-border-subtle)',
-                  backgroundColor: 'var(--ember-surface-primary)',
-                  color: 'var(--ember-text-high)',
-                  fontFamily: 'var(--font-sans)',
-                }}
+                className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3 shrink-0"
+                style={btnStyle}
               >
-                View
+                <ExternalLink size={14} strokeWidth={2} />
+                Visit
               </a>
             )}
           </div>
@@ -240,39 +265,47 @@ export default function DiscoveryPageClient({
     );
   };
 
-  const leftSurface = (
-    <div className="w-full lg:max-w-[600px] shrink-0" style={SURFACE_STYLE}>
-      <div className="py-6 px-4 sm:px-6 sm:py-8">
-        <section className="mb-6">
-          <h1
-            className="mb-2 text-[28px] leading-[1.1] md:text-[32px]"
-            style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}
-          >
-            Three age-right ideas in under a minute.
-          </h1>
-          <p
-            className="mb-4 text-base leading-[1.6]"
-            style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
-          >
-            A short set of three ideas and why they fit—then save what you like to your list.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {['No child details', 'Under a minute', 'Clear reasons'].map((label) => (
-              <span
-                key={label}
-                className="rounded-lg px-3 py-1.5 text-sm"
-                style={{
-                  backgroundColor: 'var(--ember-surface-soft)',
-                  color: 'var(--ember-text-low)',
-                  fontFamily: 'var(--font-sans)',
-                }}
-              >
-                {label}
-              </span>
-            ))}
-          </div>
-        </section>
+  const heroSection = (
+    <section
+      className="w-full py-10 sm:py-12 md:py-14 relative overflow-hidden"
+      style={{ borderBottom: '1px solid var(--ember-border-subtle)' }}
+    >
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${HERO_BG_IMAGE})` }}
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0"
+        style={{ backgroundColor: 'rgba(255, 255, 255, 0.88)' }}
+        aria-hidden
+      />
+      <div className="relative z-10 mx-auto max-w-3xl text-center">
+        <h1
+          className="mb-3 text-[28px] leading-[1.1] md:text-[36px]"
+          style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}
+        >
+          Your next-step toy guide — from bump to big steps.
+        </h1>
+        <p
+          className="mb-2 text-base md:text-lg leading-[1.6]"
+          style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
+        >
+          See what your little one is learning next — and what to buy for it.
+        </p>
+        <p
+          className="text-sm md:text-base leading-[1.5]"
+          style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
+        >
+          Use what you&apos;ve got. Add what you need. You&apos;re in charge.
+        </p>
+      </div>
+    </section>
+  );
 
+  const leftSurface = (
+    <div className="w-full min-w-0 flex-[2]" style={SURFACE_STYLE}>
+      <div className="py-6 px-4 sm:px-6 sm:py-8">
         <div className="relative">
           <div className="mb-5">
             <span
@@ -296,12 +329,6 @@ export default function DiscoveryPageClient({
                 aria-label="Age range"
               />
             </div>
-            <p
-              className="mt-1.5 text-sm"
-              style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)', fontSize: '14px' }}
-            >
-              We only use age to tailor ideas.
-            </p>
             {debugText && (
               <div className="mt-2 text-[11px] px-2 py-1 rounded bg-amber-50" style={{ color: 'var(--ember-text-low)' }}>
                 {debugText}
@@ -312,11 +339,14 @@ export default function DiscoveryPageClient({
           {selectedBandHasPicks ? (
             <>
               <div className="mb-6">
+                <h2 className="text-base font-medium mb-1" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
+                  What they&apos;re learning right now
+                </h2>
                 <p
                   className="mb-3 text-sm"
                   style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
                 >
-                  What do you want help with today?
+                  At this age, these are especially common. Pick one to start.
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
                   {allTiles.map((tile) => {
@@ -333,11 +363,12 @@ export default function DiscoveryPageClient({
                         </div>
                       );
                     }
-                    const slug = tile.type === 'doorway' ? tile.resolved!.ux_slug : tile.wrapper.ux_slug;
-                    const label = tile.type === 'doorway' ? tile.resolved!.ux_label : tile.wrapper.ux_label;
-                    const desc = tile.type === 'doorway' ? wrappers.find((w) => w.ux_slug === slug)?.ux_description : tile.wrapper.ux_description;
+                    const slug = tile.resolved!.ux_slug;
+                    const label = tile.label;
+                    const helper = tile.helper;
                     const isSelected = selectedWrapper === slug;
-                    const Icon = tile.type === 'doorway' ? tile.icon : getWrapperIcon(tile.wrapper.ux_slug, tile.wrapper.ux_label);
+                    const showSuggested = is25to27 && SUGGESTED_DOORWAY_KEYS_25_27.includes(tile.key);
+                    const Icon = tile.icon;
                     return (
                       <button
                         key={slug}
@@ -348,12 +379,19 @@ export default function DiscoveryPageClient({
                           fontFamily: 'var(--font-sans)',
                           backgroundColor: 'var(--ember-surface-primary)',
                           borderColor: isSelected ? 'transparent' : 'var(--ember-border-subtle)',
-                          boxShadow: isSelected ? '0 0 26px rgba(255, 99, 71, 0.48), 0 10px 24px rgba(0,0,0,0.06)' : 'none',
+                          boxShadow: isSelected ? '0px 0px 28px rgba(255, 99, 71, 0.35), 0px 10px 30px rgba(0,0,0,0.06)' : 'none',
                           outline: 'none',
                         }}
                         aria-selected={isSelected}
                       >
-                        <Icon size={18} strokeWidth={1.5} style={{ color: '#B8432B', flexShrink: 0 }} />
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <Icon size={18} strokeWidth={1.5} style={{ color: '#B8432B', flexShrink: 0 }} />
+                          {showSuggested && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: 'rgba(184,67,43,0.12)', color: '#B8432B' }}>
+                              Suggested
+                            </span>
+                          )}
+                        </div>
                         <span
                           className="block font-medium line-clamp-2 text-sm leading-snug"
                           style={{ color: 'var(--ember-text-high)' }}
@@ -362,24 +400,24 @@ export default function DiscoveryPageClient({
                           {label}
                         </span>
                         <span
-                          className="block text-xs line-clamp-2 md:line-clamp-2 leading-snug"
+                          className="block text-xs line-clamp-2 leading-snug"
                           style={{ color: 'var(--ember-text-low)' }}
-                          title={desc || 'See ideas for this focus.'}
+                          title={helper}
                         >
-                          {desc || 'See ideas for this focus.'}
+                          {helper}
                         </span>
                       </button>
                     );
                   })}
                 </div>
-                {moreWrappers.length > 0 && !showMore && (
+                {!showMore && MORE_DOORWAYS.length > 0 && (
                   <button
                     type="button"
-                    className="mt-2 text-sm"
+                    className="mt-2 text-sm font-medium"
                     style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
                     onClick={() => setShowMore(true)}
                   >
-                    More
+                    See all
                   </button>
                 )}
               </div>
@@ -430,10 +468,18 @@ export default function DiscoveryPageClient({
 
   const rightSurface = (
     <div
-      className="w-full lg:max-w-[420px] shrink-0 lg:sticky"
+      className="w-full min-w-0 flex-1 lg:sticky"
       style={{ ...SURFACE_STYLE, top: 'calc(var(--header-height, 56px) + 1.5rem)' }}
     >
       <div className="py-6 px-4 sm:px-6 sm:py-8 flex flex-col gap-6">
+        {actionToast && (
+          <div
+            className="rounded-lg border py-2 px-3 text-sm"
+            style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)', color: 'var(--ember-text-high)', fontFamily: 'var(--font-sans)' }}
+          >
+            {actionToast.message}
+          </div>
+        )}
         <section id="findsSection">
           <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
             <h2 className="text-lg font-medium m-0" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
@@ -498,34 +544,27 @@ export default function DiscoveryPageClient({
           )}
         </section>
 
-        <section>
-          <h3 className="text-base font-medium mb-3" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
-            Example results
-          </h3>
-          <img
-            src={PLACEHOLDER_IMAGE}
-            alt="Toddler playing with toys in a living room"
-            className="w-full rounded-xl object-cover"
-            style={{ aspectRatio: '16/10', borderRadius: '12px' }}
-          />
-        </section>
       </div>
     </div>
   );
 
   return (
     <div
-      className="min-h-screen w-full px-4 py-6 sm:px-6 sm:py-8"
+      className="min-h-screen w-full"
       style={{ backgroundColor: 'var(--ember-bg-canvas)' }}
+      data-discover-version="acq-v2"
     >
-      <div className="mx-auto max-w-7xl">
-        <div className="hidden md:flex md:gap-10 lg:gap-12 md:items-start">
-          {leftSurface}
-          {rightSurface}
-        </div>
-        <div className="md:hidden flex flex-col gap-8">
-          {leftSurface}
-          {rightSurface}
+      <div className="w-full px-4 sm:px-6 mx-auto max-w-7xl">
+        {heroSection}
+        <div className="py-6 sm:py-8 w-full">
+          <div className="hidden md:flex md:gap-10 lg:gap-12 md:items-start w-full">
+            {leftSurface}
+            {rightSurface}
+          </div>
+          <div className="md:hidden flex flex-col gap-8">
+            {leftSurface}
+            {rightSurface}
+          </div>
         </div>
       </div>
     </div>
