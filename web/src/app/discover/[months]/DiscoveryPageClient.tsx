@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { Bookmark, Check, ExternalLink } from 'lucide-react';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
 import {
   ALL_DOORWAYS,
@@ -12,6 +13,9 @@ import {
   resolveDoorwayToWrapper,
 } from '@/lib/discover/doorways';
 import { getProductIcon } from '@/lib/discover/ideaIcons';
+
+const HERO_BG_IMAGE =
+  'https://images.pexels.com/photos/8909659/pexels-photo-8909659.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
 
 const SURFACE_STYLE = {
   backgroundColor: 'var(--ember-surface-primary)',
@@ -210,6 +214,11 @@ export default function DiscoveryPageClient({
           </strong>
         </div>
         <div className="p-3 space-y-2">
+          {pick.product.rationale && (
+            <p className="text-xs m-0" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
+              <strong style={{ color: 'var(--ember-text-high)' }}>Why?</strong> {pick.product.rationale}
+            </p>
+          )}
           <div className="flex flex-wrap gap-1">
             <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: 'var(--ember-surface-soft)', color: 'var(--ember-text-low)' }}>
               Best for: {formatBandLabel(selectedBand)}
@@ -223,17 +232,19 @@ export default function DiscoveryPageClient({
           <div className="flex flex-wrap gap-2">
             <Link
               href={getSigninUrl(pick.product.id)}
-              className="flex-1 min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center"
+              className="flex-1 min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5"
               style={btnStyle}
             >
+              <Bookmark size={14} strokeWidth={2} />
               Save to my list
             </Link>
             <button
               type="button"
               onClick={() => handleHaveItAlready(pick.product.id)}
-              className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center px-3"
+              className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3"
               style={btnStyle}
             >
+              <Check size={14} strokeWidth={2} />
               Have it already
             </button>
             {href !== '#' && (
@@ -241,10 +252,11 @@ export default function DiscoveryPageClient({
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center px-3 shrink-0"
+                className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3 shrink-0"
                 style={btnStyle}
               >
-                View
+                <ExternalLink size={14} strokeWidth={2} />
+                Visit
               </a>
             )}
           </div>
@@ -255,10 +267,19 @@ export default function DiscoveryPageClient({
 
   const heroSection = (
     <section
-      className="w-full py-10 sm:py-12 md:py-14 px-4 sm:px-6"
-      style={{ backgroundColor: 'var(--ember-surface-primary)', borderBottom: '1px solid var(--ember-border-subtle)' }}
+      className="w-full py-10 sm:py-12 md:py-14 relative overflow-hidden"
+      style={{ borderBottom: '1px solid var(--ember-border-subtle)' }}
     >
-      <div className="mx-auto max-w-3xl text-center">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${HERO_BG_IMAGE})`,
+          opacity: 0.12,
+        }}
+        aria-hidden
+      />
+      <div className="absolute inset-0" style={{ backgroundColor: 'var(--ember-surface-primary)' }} aria-hidden />
+      <div className="relative z-10 mx-auto max-w-3xl text-center">
         <h1
           className="mb-3 text-[28px] leading-[1.1] md:text-[36px]"
           style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}
@@ -307,12 +328,6 @@ export default function DiscoveryPageClient({
                 aria-label="Age range"
               />
             </div>
-            <p
-              className="mt-1.5 text-sm"
-              style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)', fontSize: '14px' }}
-            >
-              We only use age to tailor ideas.
-            </p>
             {debugText && (
               <div className="mt-2 text-[11px] px-2 py-1 rounded bg-amber-50" style={{ color: 'var(--ember-text-low)' }}>
                 {debugText}
@@ -324,7 +339,7 @@ export default function DiscoveryPageClient({
             <>
               <div className="mb-6">
                 <h2 className="text-base font-medium mb-1" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
-                  What they&apos;re practising right now
+                  What they&apos;re learning right now
                 </h2>
                 <p
                   className="mb-3 text-sm"
@@ -538,9 +553,9 @@ export default function DiscoveryPageClient({
       style={{ backgroundColor: 'var(--ember-bg-canvas)' }}
       data-discover-version="acq-v2"
     >
-      {heroSection}
-      <div className="w-full px-4 py-6 sm:px-6 sm:py-8">
-        <div className="mx-auto max-w-7xl">
+      <div className="w-full px-4 sm:px-6 mx-auto max-w-7xl">
+        {heroSection}
+        <div className="py-6 sm:py-8">
           <div className="hidden md:flex md:gap-10 lg:gap-12 md:items-start">
             {leftSurface}
             {rightSurface}

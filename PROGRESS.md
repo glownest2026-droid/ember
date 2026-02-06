@@ -55,9 +55,10 @@ _Last updated: 2026-01-04_
 ## 2026-02-05 — Acquisition landing course-correct (hero v2, doorways 12→6+See all, icons, Have it already)
 
 ### Summary
-- **Hero**: Exact 3 lines (H1, subheader, reassurance); no extra trust line; "We only use age to tailor ideas." stays by age control.
-- **Doorways**: 12 needs, 6 default + "See all"; section "What they're practising right now" + guide copy; 1:1 mapping to existing gateway wrapper slugs; Suggested pills for 25–27m on Do it myself, Big feelings, Little hands; default selected for 25–27m = Do it myself; selected glow 0px 0px 28px rgba(255,99,71,0.35), 0px 10px 30px rgba(0,0,0,0.06); tile label/helper line-clamp-2.
-- **Product cards**: getProductIcon (Sparkles fallback); never exclude products for missing images; buttons: "Save to my list", "Have it already", "View"; icon colour #B8432B.
+- **Hero**: Exact 3 lines (H1, subheader, reassurance); no extra trust line. Faded Pexels background image behind hero; hero + main content in same `max-w-7xl` wrapper for alignment.
+- **Doorways**: 12 needs, 6 default + "See all"; section **"What they're learning right now"** + guide copy; 1:1 mapping to existing gateway wrapper slugs; Suggested pills for 25–27m on Do it myself, Big feelings, Little hands; default selected for 25–27m = Do it myself; selected glow 0px 0px 28px rgba(255,99,71,0.35), 0px 10px 30px rgba(0,0,0,0.06); tile label/helper line-clamp-2. **Removed** "We only use age to tailor ideas." under age slider.
+- **Layout**: Bottom two containers (left/right columns) aligned with hero and nav by wrapping hero + main in one `max-w-7xl mx-auto px-4 sm:px-6` container.
+- **Product cards**: getProductIcon (Sparkles fallback); never exclude products for missing images; **"Why?"** from `product.rationale` (data layer: rationale = stage_reason \| age_suitability_note); buttons: **Bookmark** + "Save to my list", **Check** + "Have it already", **ExternalLink** + **"Visit"** (was "View"); icon colour #B8432B.
 - **Have it already**: Event capture via POST /api/click with source: discover_owned; toast "Marked as have it already." (best-effort; 401 when signed out still shows toast).
 - **Copy**: ideas/my list; no AI, magic, algorithm, unlock, smart on /discover.
 - **/new**: Redirect to /discover preserving params (unchanged).
