@@ -1,23 +1,21 @@
 {
   "pr": {
     "number": null,
-    "title": "Discovery polish: glow, truncation, icons",
-    "branch": "feat/feb-2026-discover-polish-glow-icons",
+    "title": "feat(discover): animated product album in right panel",
+    "branch": "feat/feb-2026-pr3-animated-product-album",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
-    "rollback": "Revert PR (no DB changes)"
+    "rollback": "Revert PR or revert commit (no DB/RLS changes)"
   },
   "receipt": {
-    "scope": "Stronger tile glow, fix truncation, deterministic idea icons #B8432B",
-    "files_changed": [
-      "web/src/lib/discover/ideaIcons.ts",
-      "web/src/app/discover/[months]/DiscoveryPageClient.tsx"
-    ],
+    "goal": "Replace /discover right-panel results list with Aceternity AnimatedTestimonials-style product album (UI-only)",
+    "files_changed": ["web/src/components/ui/animated-testimonials.tsx"],
     "commands_run": [
       { "cwd": "web", "command": "pnpm run build", "result": "ok (exit 0)" }
-    ]
+    ],
+    "decision_notes": "Aceternity pattern: AnimatePresence + all items in stack; active card y:[0,-80,0], useReducedMotion(); Lucide ChevronLeft/Right; icon tiles white + #B8432B stroke; no @tabler"
   },
-  "commit": null,
-  "timestamp": "2026-02-03T00:00:00.000Z"
+  "commit": "bad01af",
+  "timestamp": "2026-02-07T00:00:00.000Z"
 }

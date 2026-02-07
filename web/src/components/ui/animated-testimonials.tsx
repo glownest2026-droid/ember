@@ -1,17 +1,16 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { getProductIconComponent } from '@/lib/icons/productIcon';
 import type { ProductIconKey } from '@/lib/icons/productIcon';
 
 const ICON_STROKE_COLOR = '#B8432B';
-const FRONT_CARD_BG = '#FF6347';
-const MAX_VISIBLE_CARDS = 3;
+const MAX_VISIBLE = 12;
 
-/** Stable rotation -10..10 from id hash */
+/** Deterministic rotation -10..10 from id hash (no random per render). */
 function hashToRotation(id: string): number {
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h << 5) - h + id.charCodeAt(i);
@@ -35,58 +34,67 @@ type AnimatedTestimonialsProps = {
   renderActions?: (item: AlbumItem, index: number) => React.ReactNode;
 };
 
-/** Minimal card for stack: image/icon + Idea N chip only (Aceternity-style: content lives in right column) */
+/** Card face: image or premium icon tile (white surface, subtle border, deep ember stroke). */
 function StackCard({
   item,
   index,
-  isFront,
+  isActive,
 }: {
   item: AlbumItem;
   index: number;
-  isFront: boolean;
+  isActive: boolean;
 }) {
   const Icon = getProductIconComponent((item.iconKey as ProductIconKey) || 'drawing-making');
-  const iconColor = isFront ? '#ffffff' : ICON_STROKE_COLOR;
-  const chipBg = isFront ? 'rgba(255,255,255,0.3)' : 'var(--ember-surface-soft)';
-  const chipColor = isFront ? '#ffffff' : 'var(--ember-text-low)';
+  const iconColor = ICON_STROKE_COLOR;
+  const chipBg = 'var(--ember-surface-soft)';
+  const chipColor = 'var(--ember-text-low)';
 
   return (
     <div
       className={cn(
         'h-full w-full rounded-3xl overflow-hidden flex flex-col',
-        'border shadow-md',
-        isFront ? 'border-transparent' : 'border-[var(--ember-border-subtle)]'
+        'border shadow-md border-[var(--ember-border-subtle)]'
       )}
       style={{
-        backgroundColor: isFront ? FRONT_CARD_BG : 'var(--ember-surface-primary)',
+        backgroundColor: 'var(--ember-surface-primary)',
       }}
     >
       <div
         className="flex-1 min-h-0 flex items-center justify-center overflow-hidden"
-        style={{
-          backgroundColor: isFront ? 'rgba(0,0,0,0.06)' : 'var(--ember-surface-soft)',
-        }}
+        style={{ backgroundColor: 'var(--ember-surface-soft)' }}
       >
         {item.imageUrl ? (
-          <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />
+          <img
+            src={item.imageUrl}
+            alt=""
+            className="h-full w-full object-cover"
+            draggable={false}
+          />
         ) : (
           <div
             className="h-full w-full flex items-center justify-center"
             style={{
               background:
-                isFront
-                  ? 'linear-gradient(145deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.1) 100%)'
-                  : 'linear-gradient(145deg, var(--ember-surface-soft) 0%, var(--ember-surface-primary) 100%)',
+                'linear-gradient(145deg, var(--ember-surface-soft) 0%, var(--ember-surface-primary) 100%)',
             }}
           >
-            <Icon size={40} strokeWidth={1.5} style={{ color: iconColor }} className="opacity-90" />
+            <Icon
+              size={40}
+              strokeWidth={1.5}
+              style={{ color: iconColor }}
+              className="opacity-90"
+            />
           </div>
         )}
       </div>
       <div className="flex-shrink-0 p-2.5 flex justify-center">
         <span
           className="text-[10px] font-medium px-2.5 py-1 rounded-full"
-          style={{ backgroundColor: chipBg, color: chipColor, fontFamily: 'var(--font-sans)' }}
+          style={{
+            backgroundColor: chipBg,
+            color: chipColor,
+            fontFamily: 'var(--font-sans)',
+          }}
         >
           Idea {index + 1}
         </span>
@@ -102,17 +110,11 @@ export function AnimatedTestimonials({
   renderActions,
 }: AnimatedTestimonialsProps) {
   const [active, setActive] = useState(0);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  const rotations = useMemo(() => items.map((it) => hashToRotation(it.id)), [items]);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mq.matches);
-    const handler = () => setPrefersReducedMotion(mq.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
+  const shouldReduceMotion = useReducedMotion() ?? false;
+  const rotations = useMemo(
+    () => items.map((it) => hashToRotation(it.id)),
+    [items]
+  );
 
   const handleNext = () => {
     setActive((prev) => (prev + 1) % Math.max(1, items.length));
@@ -121,6 +123,8 @@ export function AnimatedTestimonials({
   const handlePrev = () => {
     setActive((prev) => (prev - 1 + items.length) % Math.max(1, items.length));
   };
+
+  const isActive = (index: number) => index === active;
 
   useEffect(() => {
     if (autoplay && items.length > 1) {
@@ -133,154 +137,180 @@ export function AnimatedTestimonials({
 
   const current = items[active];
   const n = items.length;
-
-  const visibleIndices = Array.from(
-    { length: Math.min(MAX_VISIBLE_CARDS, n) },
-    (_, i) => (active + i) % n
-  );
-
-  const SPREAD_X = 14;
-  const SPREAD_Y = 10;
-  const SCALE_STEP = 0.06;
-  const ROTATE_STEP = 4;
-
-  const titleHref = current.href && current.href !== '#' ? current.href : undefined;
+  const titleHref =
+    current.href && current.href !== '#' ? current.href : undefined;
 
   return (
-    <div className={cn('grid grid-cols-1 md:grid-cols-2 gap-6 w-full min-w-0', className)}>
-      {/* Left: contained stack only — max 3 cards, image + chip per card */}
-      <div className="min-w-0 overflow-hidden">
-        <div className="relative h-72 md:h-[340px] w-full min-w-0 overflow-hidden pl-8 md:pl-10">
+    <div
+      className={cn(
+        'mx-auto w-full max-w-4xl min-w-0 font-sans antialiased',
+        'grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-20',
+        className
+      )}
+    >
+      {/* Left: Aceternity-style stacked cards, one active with bounce */}
+      <div className="relative min-w-0">
+        <div className="relative h-80 w-full min-w-0">
           <AnimatePresence initial={false}>
-            {visibleIndices.map((index, slot) => {
-              const item = items[index];
-              const stackOffset = slot;
-              const isFront = stackOffset === 0;
-              const z = MAX_VISIBLE_CARDS - stackOffset;
-              const x = prefersReducedMotion ? 0 : -stackOffset * SPREAD_X;
-              const y = prefersReducedMotion ? 0 : -stackOffset * SPREAD_Y;
-              const scale = 1 - stackOffset * SCALE_STEP;
-              const rotate = prefersReducedMotion ? 0 : -stackOffset * ROTATE_STEP + (rotations[index] ?? 0) * 0.35;
-              const opacity = isFront ? 1 : (stackOffset === 1 ? 0.82 : 0.65);
-
-              return (
-                <motion.div
-                  key={item.id}
-                  className="absolute inset-0 origin-bottom"
-                  style={{ zIndex: z }}
-                  initial={false}
-                  animate={{
-                    x,
-                    y,
-                    scale,
-                    opacity: prefersReducedMotion ? (isFront ? 1 : 0.75) : opacity,
-                    rotate,
-                  }}
-                  transition={{
-                    duration: prefersReducedMotion ? 0.1 : 0.4,
-                    ease: [0.4, 0, 0.2, 1],
-                  }}
-                >
-                  <StackCard item={item} index={index} isFront={isFront} />
-                </motion.div>
-              );
-            })}
+            {items.slice(0, MAX_VISIBLE).map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{
+                  opacity: 0,
+                  scale: 0.9,
+                  z: -100,
+                  rotate: shouldReduceMotion ? 0 : rotations[index] ?? 0,
+                }}
+                animate={{
+                  opacity: isActive(index) ? 1 : 0.7,
+                  scale: isActive(index) ? 1 : 0.95,
+                  z: isActive(index) ? 0 : -100,
+                  rotate: isActive(index) || shouldReduceMotion ? 0 : rotations[index] ?? 0,
+                  zIndex: isActive(index) ? 40 : Math.max(0, n + 2 - index),
+                  y: isActive(index) && !shouldReduceMotion ? [0, -80, 0] : 0,
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.9,
+                  z: 100,
+                  rotate: shouldReduceMotion ? 0 : rotations[index] ?? 0,
+                }}
+                transition={{
+                  duration: shouldReduceMotion ? 0.1 : 0.4,
+                  ease: 'easeInOut',
+                }}
+                className="absolute inset-0 origin-bottom"
+              >
+                <StackCard
+                  item={item}
+                  index={index}
+                  isActive={isActive(index)}
+                />
+              </motion.div>
+            ))}
           </AnimatePresence>
         </div>
       </div>
 
-      {/* Right: title, quote (full), nav, CTAs — Aceternity-style separation */}
-      <div className="flex flex-col gap-3 min-w-0">
-        <div className="min-w-0">
-          {titleHref ? (
-            <a
-              href={titleHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-base font-medium leading-snug hover:underline block"
-              style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}
-            >
-              {current.title}
-            </a>
-          ) : (
-            <h3
-              className="text-base font-medium leading-snug"
-              style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}
-            >
-              {current.title}
-            </h3>
-          )}
-        </div>
-        <div
-          className="text-sm leading-relaxed min-h-0"
-          style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
+      {/* Right: title, snippet, nav, CTAs — stable, no jump */}
+      <div className="flex flex-col justify-between py-4 min-w-0">
+        <motion.div
+          key={current.id}
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -20, opacity: 0 }}
+          transition={{
+            duration: shouldReduceMotion ? 0.05 : 0.2,
+            ease: 'easeInOut',
+          }}
         >
-          {prefersReducedMotion ? (
-            current.quote
-          ) : (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={current.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="break-words"
-              >
-                {current.quote.split(/\s+/).map((word, i) => (
-                  <motion.span
-                    key={`${current.id}-w-${i}`}
-                    initial={{ filter: 'blur(6px)', opacity: 0.5 }}
-                    animate={{ filter: 'blur(0px)', opacity: 1 }}
-                    transition={{
-                      duration: 0.3,
-                      delay: i * 0.02,
-                      ease: [0.4, 0, 0.2, 1],
-                    }}
-                    className="inline"
-                  >
-                    {word}&nbsp;
-                  </motion.span>
-                ))}
-              </motion.div>
-            </AnimatePresence>
+          <h3
+            className="text-xl md:text-2xl font-bold leading-snug"
+            style={{
+              fontFamily: 'var(--font-serif)',
+              color: 'var(--ember-text-high)',
+            }}
+          >
+            {current.title}
+          </h3>
+          {current.subtitle && (
+            <p
+              className="text-sm mt-0.5"
+              style={{
+                fontFamily: 'var(--font-sans)',
+                color: 'var(--ember-text-low)',
+              }}
+            >
+              {current.subtitle}
+            </p>
           )}
-        </div>
+          {shouldReduceMotion ? (
+            <p
+              className="mt-6 text-base leading-relaxed break-words"
+              style={{
+                fontFamily: 'var(--font-sans)',
+                color: 'var(--ember-text-low)',
+              }}
+            >
+              {current.quote}
+            </p>
+          ) : (
+            <motion.p
+              className="mt-6 text-base leading-relaxed break-words"
+              style={{
+                fontFamily: 'var(--font-sans)',
+                color: 'var(--ember-text-low)',
+              }}
+            >
+              {current.quote.split(/\s+/).map((word, i) => (
+                <motion.span
+                  key={`${current.id}-w-${i}`}
+                  initial={{ filter: 'blur(10px)', opacity: 0, y: 5 }}
+                  animate={{
+                    filter: 'blur(0px)',
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  transition={{
+                    duration: 0.2,
+                    ease: 'easeInOut',
+                    delay: 0.02 * i,
+                  }}
+                  className="inline-block"
+                >
+                  {word}&nbsp;
+                </motion.span>
+              ))}
+            </motion.p>
+          )}
+        </motion.div>
 
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex items-center gap-4 pt-8 md:pt-6">
           <button
             type="button"
             onClick={handlePrev}
-            className="rounded-full p-2 border shrink-0"
+            className="group/button flex h-9 w-9 items-center justify-center rounded-full border shrink-0"
             style={{
               borderColor: 'var(--ember-border-subtle)',
               backgroundColor: 'var(--ember-surface-primary)',
               color: 'var(--ember-text-high)',
             }}
-            aria-label="Previous"
+            aria-label="Previous idea"
           >
-            <ChevronLeft size={20} strokeWidth={2} />
+            <ChevronLeft
+              className="h-5 w-5 transition-transform duration-300 group-hover/button:-rotate-12"
+              strokeWidth={2}
+            />
           </button>
-          <span className="text-xs text-[var(--ember-text-low)]">
+          <span
+            className="text-sm tabular-nums"
+            style={{
+              fontFamily: 'var(--font-sans)',
+              color: 'var(--ember-text-low)',
+            }}
+          >
             {active + 1} / {items.length}
           </span>
           <button
             type="button"
             onClick={handleNext}
-            className="rounded-full p-2 border shrink-0"
+            className="group/button flex h-9 w-9 items-center justify-center rounded-full border shrink-0"
             style={{
               borderColor: 'var(--ember-border-subtle)',
               backgroundColor: 'var(--ember-surface-primary)',
               color: 'var(--ember-text-high)',
             }}
-            aria-label="Next"
+            aria-label="Next idea"
           >
-            <ChevronRight size={20} strokeWidth={2} />
+            <ChevronRight
+              className="h-5 w-5 transition-transform duration-300 group-hover/button:rotate-12"
+              strokeWidth={2}
+            />
           </button>
         </div>
 
         {renderActions && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 pt-4">
             {renderActions(current, active)}
           </div>
         )}

@@ -82,6 +82,9 @@ _Last updated: 2026-01-04_
 7. Reduce motion: enable OS “Reduce motion” → no bounce, quote shows without blur animation.
 8. No console errors.
 
+### 2026-02-07 — Component alignment to Aceternity + useReducedMotion
+- **animated-testimonials.tsx** aligned to Aceternity source: AnimatePresence stack, active card `y: [0,-80,0]`, deterministic `hashToRotation(id)`; Motion `useReducedMotion()` — when reduced: no bounce, no rotate, quote without word blur. Icon tiles: white surface + border + #B8432B stroke. Preview URL: set after push/Vercel. Rollback: revert PR (no DB changes).
+
 ## 2026-02-05 — Acquisition landing course-correct (hero v2, doorways 12→6+See all, icons, Have it already)
 
 ### Summary
