@@ -12,7 +12,8 @@ import {
   SUGGESTED_DOORWAY_KEYS_25_27,
   resolveDoorwayToWrapper,
 } from '@/lib/discover/doorways';
-import { getProductIcon } from '@/lib/discover/ideaIcons';
+import { getProductIconKey } from '@/lib/icons/productIcon';
+import { AnimatedTestimonials, type AlbumItem } from '@/components/ui/animated-testimonials';
 
 const HERO_BG_IMAGE =
   'https://images.pexels.com/photos/8909659/pexels-photo-8909659.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
@@ -171,6 +172,18 @@ export default function DiscoveryPageClient({
   const displayIdeas = showPicks && picks.length > 0 ? picks : exampleProducts;
   const isExampleMode = !showPicks || picks.length === 0;
 
+  const albumItems: AlbumItem[] = displayIdeas.slice(0, 12).map((pick) => ({
+    id: pick.product.id,
+    title: pick.product.name,
+    subtitle: pick.product.brand ?? pick.categoryType?.label ?? undefined,
+    quote:
+      pick.product.rationale?.trim() ||
+      `Chosen for ${formatBandLabel(selectedBand)}. Fits ${selectedWrapperLabel || 'this focus'}.`,
+    href: getProductUrl(pick),
+    imageUrl: pick.product.image_url ?? null,
+    iconKey: getProductIconKey(pick.product, selectedWrapperLabel ?? selectedWrapper),
+  }));
+
   const handleHaveItAlready = async (productId: string) => {
     try {
       await fetch('/api/click', {
@@ -193,76 +206,6 @@ export default function DiscoveryPageClient({
     backgroundColor: 'var(--ember-surface-primary)',
     color: 'var(--ember-text-high)',
     fontFamily: 'var(--font-sans)',
-  };
-
-  const IdeaCard = ({ pick, index, doorwayLabel }: { pick: PickItem; index: number; doorwayLabel?: string }) => {
-    const Icon = getProductIcon(pick.product, pick.categoryType);
-    const href = getProductUrl(pick);
-    return (
-      <article
-        className="rounded-xl border overflow-hidden"
-        style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}
-      >
-        <div className="min-h-[72px] relative bg-[var(--ember-surface-soft)] flex items-center px-4 gap-3 py-3">
-          <Icon size={28} strokeWidth={1.5} style={{ color: '#B8432B', flexShrink: 0 }} />
-          <strong
-            className="block font-medium text-sm line-clamp-2 flex-1 min-w-0 leading-snug"
-            style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-high)' }}
-            title={pick.product.name}
-          >
-            {pick.product.name}
-          </strong>
-        </div>
-        <div className="p-3 space-y-2">
-          {pick.product.rationale && (
-            <p className="text-xs m-0" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-              <strong style={{ color: 'var(--ember-text-high)' }}>Why?</strong> {pick.product.rationale}
-            </p>
-          )}
-          <div className="flex flex-wrap gap-1">
-            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: 'var(--ember-surface-soft)', color: 'var(--ember-text-low)' }}>
-              Best for: {formatBandLabel(selectedBand)}
-            </span>
-            {doorwayLabel && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: 'var(--ember-surface-soft)', color: 'var(--ember-text-low)' }}>
-                Focus: {doorwayLabel}
-              </span>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href={getSigninUrl(pick.product.id)}
-              className="flex-1 min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5"
-              style={btnStyle}
-            >
-              <Bookmark size={14} strokeWidth={2} />
-              Save to my list
-            </Link>
-            <button
-              type="button"
-              onClick={() => handleHaveItAlready(pick.product.id)}
-              className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3"
-              style={btnStyle}
-            >
-              <Check size={14} strokeWidth={2} />
-              Have it already
-            </button>
-            {href !== '#' && (
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3 shrink-0"
-                style={btnStyle}
-              >
-                <ExternalLink size={14} strokeWidth={2} />
-                Visit
-              </a>
-            )}
-          </div>
-        </div>
-      </article>
-    );
   };
 
   const heroSection = (
@@ -304,7 +247,7 @@ export default function DiscoveryPageClient({
   );
 
   const leftSurface = (
-    <div className="w-full min-w-0 flex-[2]" style={SURFACE_STYLE}>
+    <div className="w-full min-w-0 flex-1" style={SURFACE_STYLE}>
       <div className="py-6 px-4 sm:px-6 sm:py-8">
         <div className="relative">
           <div className="mb-5">
@@ -468,7 +411,7 @@ export default function DiscoveryPageClient({
 
   const rightSurface = (
     <div
-      className="w-full min-w-0 flex-1 lg:sticky"
+      className="w-full min-w-0 flex-[2] lg:sticky"
       style={{ ...SURFACE_STYLE, top: 'calc(var(--header-height, 56px) + 1.5rem)' }}
     >
       <div className="py-6 px-4 sm:px-6 sm:py-8 flex flex-col gap-6">
@@ -535,11 +478,43 @@ export default function DiscoveryPageClient({
                   Chosen for {formatBandLabel(selectedBand)} • Explained
                 </p>
               )}
-              <div className="space-y-4">
-                {displayIdeas.map((pick, index) => (
-                  <IdeaCard key={pick.product.id} pick={pick} index={index} doorwayLabel={!isExampleMode ? selectedWrapperLabel : undefined} />
-                ))}
-              </div>
+              <AnimatedTestimonials
+                items={albumItems}
+                className="w-full"
+                renderActions={(item) => (
+                  <>
+                    <Link
+                      href={getSigninUrl(item.id)}
+                      className="flex-1 min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5"
+                      style={btnStyle}
+                    >
+                      <Bookmark size={14} strokeWidth={2} />
+                      Save to my list
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleHaveItAlready(item.id)}
+                      className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3"
+                      style={btnStyle}
+                    >
+                      <Check size={14} strokeWidth={2} />
+                      Have it already
+                    </button>
+                    {item.href && item.href !== '#' && (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3 shrink-0"
+                        style={btnStyle}
+                      >
+                        <ExternalLink size={14} strokeWidth={2} />
+                        Visit
+                      </a>
+                    )}
+                  </>
+                )}
+              />
             </>
           )}
         </section>
