@@ -135,9 +135,42 @@ export async function getGatewayWrappersForAgeBand(ageBandId: string): Promise<G
   return data as GatewayWrapperPublic[];
 }
 
+/** Image mapping from v_gateway_category_type_images (founder-managed URLs) */
+export type GatewayCategoryTypeImage = {
+  category_type_id: string;
+  image_url: string;
+  alt: string | null;
+};
+
+/**
+ * Fetch image mapping for category types (Layer B tiles).
+ * Returns mapping from v_gateway_category_type_images. Empty if table/view missing.
+ */
+export async function getGatewayCategoryTypeImages(
+  categoryTypeIds: string[]
+): Promise<Map<string, GatewayCategoryTypeImage>> {
+  if (categoryTypeIds.length === 0) return new Map();
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('v_gateway_category_type_images')
+    .select('category_type_id, image_url, alt')
+    .in('category_type_id', categoryTypeIds);
+
+  if (error || !data) return new Map();
+  const map = new Map<string, GatewayCategoryTypeImage>();
+  for (const row of data as GatewayCategoryTypeImage[]) {
+    if (!map.has(row.category_type_id)) {
+      map.set(row.category_type_id, row);
+    }
+  }
+  return map;
+}
+
 /**
  * Fetch category types for an age band + wrapper (Layer B).
  * Uses v_gateway_category_types_public via wrapper → development_need resolution.
+ * Joins image_url from v_gateway_category_type_images when available.
  */
 export async function getGatewayCategoryTypesForAgeBandAndWrapper(
   ageBandId: string,
@@ -165,7 +198,13 @@ export async function getGatewayCategoryTypesForAgeBandAndWrapper(
     .order('rank', { ascending: true });
 
   if (categoryError || !categoryRows) return [];
-  return categoryRows as GatewayCategoryTypePublic[];
+  const categories = categoryRows as GatewayCategoryTypePublic[];
+
+  const imageMap = await getGatewayCategoryTypeImages(categories.map((c) => c.id));
+  return categories.map((c) => {
+    const img = imageMap.get(c.id);
+    return img ? { ...c, image_url: img.image_url } : c;
+  });
 }
 
 /**
