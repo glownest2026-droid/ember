@@ -52,6 +52,27 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-08 — fix(discover): Layer B guidance polish (public label header + readable why text)
+
+### Summary
+- **Header label fix**: In "Next steps for …", use the same parent-friendly label shown in the doorway tile grid (e.g. "Play with others"). Label derived from doorway definition the user selected, not gateway wrapper ux_label.
+- **Category tile why readability**: 2-line clamp with ellipsis for rationale; native title tooltip on hover; "More" / "Less" toggle for full text on tap or click.
+
+### Files changed
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — selectedWrapperLabel from doorway.label (prefer over wrapper.ux_label)
+- `web/src/components/discover/CategoryCarousel.tsx` — rationale line-clamp-2, More/Less expand, title tooltip
+
+### QA checklist (founder manual)
+1. Open Vercel preview → /discover/26
+2. Select "Play with others"
+3. Confirm header says "Next steps for Play with others"
+4. On a category tile, confirm the "why" line shows cleanly (up to 2 lines)
+5. Confirm full "why" text accessible via hover tooltip or tap "More"
+6. Confirm "Show examples" still reveals products correctly
+
+### Rollback
+Revert PR (no DB changes).
+
 ## 2026-02-08 — feat(discover): vertical A→B→C next steps flow (category carousel + optional examples)
 
 ### Summary
