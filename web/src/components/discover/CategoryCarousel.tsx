@@ -34,6 +34,7 @@ function CategoryTypeCard({
   signinUrlForCategory?: (categoryId: string) => string;
   onHaveThem?: (categoryId: string) => void;
 }) {
+  const [rationaleExpanded, setRationaleExpanded] = useState(false);
   const label = category.label ?? category.name ?? category.slug ?? 'Category';
   const reason = category.rationale?.trim() ?? null;
   const imgUrl = category.image_url ?? null;
@@ -85,7 +86,29 @@ function CategoryTypeCard({
         />
         <div className="absolute bottom-2 left-2 right-2 text-white">
           <h3 className="text-base font-semibold leading-tight line-clamp-2">{label}</h3>
-          {reason && <p className="text-xs mt-0.5 opacity-90 line-clamp-1">{reason}</p>}
+          {reason && (
+            <p
+              className={cn(
+                'text-xs mt-0.5 opacity-90 leading-snug',
+                rationaleExpanded ? '' : 'line-clamp-2'
+              )}
+              title={reason}
+            >
+              {reason}
+            </p>
+          )}
+          {reason && reason.length > 80 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setRationaleExpanded((v) => !v);
+              }}
+              className="text-[11px] mt-0.5 font-medium opacity-95 hover:underline focus:outline-none focus:underline"
+            >
+              {rationaleExpanded ? 'Less' : 'More'}
+            </button>
+          )}
         </div>
       </div>
       <div className="p-3 flex flex-col gap-2">
