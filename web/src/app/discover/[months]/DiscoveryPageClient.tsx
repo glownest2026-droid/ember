@@ -173,7 +173,7 @@ export default function DiscoveryPageClient({
   const handleShowExamples = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
     setShowingExamples(true);
-    router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper!)}&show=1`, { scroll: false });
+    router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper!)}&show=1&category=${encodeURIComponent(categoryId)}`, { scroll: false });
     requestAnimationFrame(() => {
       requestAnimationFrame(() => scrollToSection('examplesSection'));
     });
@@ -187,6 +187,19 @@ export default function DiscoveryPageClient({
     params.set('next', next);
     if (productId) params.set('productId', productId);
     return `/signin?${params.toString()}`;
+  };
+
+  const getSigninUrlForCategory = (categoryId: string) => {
+    const params = new URLSearchParams();
+    const next = selectedWrapper
+      ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1&category=${encodeURIComponent(categoryId)}`
+      : `${basePath}/${currentMonth}`;
+    params.set('next', next);
+    return `/signin?${params.toString()}`;
+  };
+
+  const handleHaveThemCategory = (categoryId: string) => {
+    setActionToast({ productId: categoryId, message: 'Marked as have them.' });
   };
 
   const getProductUrl = (p: PickItem) =>
@@ -487,6 +500,8 @@ export default function DiscoveryPageClient({
               image_url: ct.image_url,
             }))}
             onShowExamples={handleShowExamples}
+            signinUrlForCategory={getSigninUrlForCategory}
+            onHaveThem={handleHaveThemCategory}
           />
         ) : (
           <div className="rounded-xl border p-6 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)' }}>
@@ -506,14 +521,6 @@ export default function DiscoveryPageClient({
       style={SURFACE_STYLE}
     >
       <div className="py-6 px-4 sm:px-6 sm:py-8 flex flex-col gap-6">
-        {actionToast && (
-          <div
-            className="rounded-lg border py-2 px-3 text-sm"
-            style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)', color: 'var(--ember-text-high)', fontFamily: 'var(--font-sans)' }}
-          >
-            {actionToast.message}
-          </div>
-        )}
         <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
           <h2 className="text-lg font-medium m-0" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
             Examples you might like
@@ -619,6 +626,14 @@ export default function DiscoveryPageClient({
       data-discover-version="acq-v2-vertical"
     >
       <div className="w-full px-4 sm:px-6 mx-auto max-w-7xl">
+        {actionToast && (
+          <div
+            className="rounded-lg border py-2 px-3 text-sm mb-4"
+            style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)', color: 'var(--ember-text-high)', fontFamily: 'var(--font-sans)' }}
+          >
+            {actionToast.message}
+          </div>
+        )}
         {heroSection}
         <div className="py-6 sm:py-8 w-full flex flex-col gap-8">
           {selectorWithId}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Bookmark, Check, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
@@ -12,7 +13,9 @@ export interface CategoryTileData extends Pick<GatewayCategoryTypePublic, 'id' |
 interface CategoryCarouselProps {
   categories: CategoryTileData[];
   onShowExamples: (categoryId: string) => void;
-  onSaveIdea?: (categoryId: string) => void;
+  /** Returns signin URL for Save idea (enables button when provided) */
+  signinUrlForCategory?: (categoryId: string) => string;
+  /** Handler for Have them (enables button when provided) */
   onHaveThem?: (categoryId: string) => void;
 }
 
@@ -21,14 +24,14 @@ function CategoryTypeCard({
   isSelected,
   onSelect,
   onShowExamples,
-  onSaveIdea,
+  signinUrlForCategory,
   onHaveThem,
 }: {
   category: CategoryTileData;
   isSelected: boolean;
   onSelect: () => void;
   onShowExamples: (categoryId: string) => void;
-  onSaveIdea?: (categoryId: string) => void;
+  signinUrlForCategory?: (categoryId: string) => string;
   onHaveThem?: (categoryId: string) => void;
 }) {
   const label = category.label ?? category.name ?? category.slug ?? 'Category';
@@ -87,24 +90,33 @@ function CategoryTypeCard({
       </div>
       <div className="p-3 flex flex-col gap-2">
         <div className="flex flex-wrap gap-1.5">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onSaveIdea) onSaveIdea(category.id);
-            }}
-            disabled={!onSaveIdea}
-            title={!onSaveIdea ? 'Save and Have apply to individual products — pick Show examples first' : undefined}
-            className="min-h-[32px] px-2.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{
-              borderColor: 'var(--ember-border-subtle)',
-              backgroundColor: 'var(--ember-surface-primary)',
-              color: 'var(--ember-text-high)',
-            }}
-          >
-            <Bookmark size={12} strokeWidth={2} />
-            Save idea
-          </button>
+          {signinUrlForCategory ? (
+            <Link
+              href={signinUrlForCategory(category.id)}
+              onClick={(e) => e.stopPropagation()}
+              className="min-h-[32px] px-2.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5"
+              style={{
+                borderColor: 'var(--ember-border-subtle)',
+                backgroundColor: 'var(--ember-surface-primary)',
+                color: 'var(--ember-text-high)',
+              }}
+            >
+              <Bookmark size={12} strokeWidth={2} />
+              Save idea
+            </Link>
+          ) : (
+            <span
+              className="min-h-[32px] px-2.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed"
+              style={{
+                borderColor: 'var(--ember-border-subtle)',
+                backgroundColor: 'var(--ember-surface-primary)',
+                color: 'var(--ember-text-high)',
+              }}
+            >
+              <Bookmark size={12} strokeWidth={2} />
+              Save idea
+            </span>
+          )}
           <button
             type="button"
             onClick={(e) => {
@@ -112,7 +124,6 @@ function CategoryTypeCard({
               if (onHaveThem) onHaveThem(category.id);
             }}
             disabled={!onHaveThem}
-            title={!onHaveThem ? 'Have them applies to individual products — pick Show examples first' : undefined}
             className="min-h-[32px] px-2.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               borderColor: 'var(--ember-border-subtle)',
@@ -147,7 +158,7 @@ function CategoryTypeCard({
 export function CategoryCarousel({
   categories,
   onShowExamples,
-  onSaveIdea,
+  signinUrlForCategory,
   onHaveThem,
 }: CategoryCarouselProps) {
   const [current, setCurrent] = useState(0);
@@ -183,7 +194,7 @@ export function CategoryCarousel({
                 isSelected={current === index}
                 onSelect={() => setCurrent(index)}
                 onShowExamples={onShowExamples}
-                onSaveIdea={onSaveIdea}
+                signinUrlForCategory={signinUrlForCategory}
                 onHaveThem={onHaveThem}
               />
             </li>

@@ -298,6 +298,46 @@ export async function getGatewayTopPicksForAgeBandAndWrapperSlug(
 }
 
 /**
+ * Fetch top picks for an age band + category type only (Layer B → Layer C linkage).
+ * Products filtered by category_type_id so Layer C matches the selected Layer B category.
+ */
+export async function getGatewayTopPicksForAgeBandAndCategoryType(
+  ageBandId: string,
+  categoryTypeId: string,
+  limit: number = 12
+): Promise<GatewayPick[]> {
+  const supabase = createClient();
+
+  const { data: categoryRow, error: categoryError } = await supabase
+    .from('v_gateway_category_types_public')
+    .select('id, slug, label, name')
+    .eq('age_band_id', ageBandId)
+    .eq('id', categoryTypeId)
+    .limit(1)
+    .maybeSingle();
+
+  if (categoryError || !categoryRow) return [];
+
+  const category = categoryRow as Pick<GatewayCategoryTypePublic, 'id' | 'slug' | 'label' | 'name'>;
+
+  const { data: productRows, error: productError } = await supabase
+    .from('v_gateway_products_public')
+    .select('age_band_id, category_type_id, rank, rationale, id, name, brand, image_url, canonical_url, amazon_uk_url, affiliate_url, affiliate_deeplink')
+    .eq('age_band_id', ageBandId)
+    .eq('category_type_id', categoryTypeId)
+    .order('rank', { ascending: true })
+    .limit(limit);
+
+  if (productError || !productRows || productRows.length === 0) return [];
+
+  const products = productRows as GatewayProductPublic[];
+  return products.map((p) => ({
+    product: p,
+    categoryType: { id: category.id, slug: category.slug, label: category.label, name: category.name },
+  }));
+}
+
+/**
  * Fetch top 3 products for an age band (across all categories).
  * Used for pre-interaction "A quick example" in Discovery.
  * Deterministic: rank asc, id asc.
