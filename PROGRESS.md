@@ -52,6 +52,30 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-08 — feat(discover): polish category carousel cards (HD image legibility + peek next/prev)
+
+### Summary
+- **Category card media**: Fixed 4:3 aspect ratio (better vertical space for overlay text; works well for category/product imagery). Image uses object-cover; fallback gradient + Sparkles. Calm scrim overlay (stronger toward bottom) for text legibility.
+- **Text legibility**: Title and “why” line-clamp-2; “More” as stable ghost pill over scrim. Actions area has solid surface so buttons are always readable. Ember tokens: borders #E5E7EB, text #1A1E23/#5C646D, accent #FF6347 / deep #B8432B.
+- **Peek/tease carousel**: Desktop card 380px, ~80px peek each side; mobile 320px card, ~40px peek. Active card centered; prev/next arrows + counter; clicking teased card advances. User-controlled only (no auto-advance).
+- **Reduced motion**: useReducedMotion (motion/react); when set, carousel transform uses no transition.
+
+### Files changed
+- `web/src/components/discover/CategoryCarousel.tsx` — card refactor (4:3 media, scrim, pill), peek carousel layout, reduced motion
+
+### QA checklist (founder manual)
+1. Open Vercel preview → /discover/26
+2. Select doorway → click “See next steps”
+3. Navigate carousel to “Tea sets and tableware” (or any category with HD image)
+4. Confirm: image crops nicely (no awkward stretching); title and why text readable over image; “More” affordance stable and usable
+5. Confirm desktop shows a “peek” of next/prev card
+6. Confirm mobile layout has no overlap and buttons are tappable
+7. Confirm “Show examples” still reveals Layer C products
+8. Turn on Reduce Motion (OS) and refresh: carousel still works, motion simplified
+
+### Rollback
+Revert PR (no DB/schema changes).
+
 ## 2026-02-08 — fix(discover): Layer B guidance polish (public label header + readable why text)
 
 ### Summary
