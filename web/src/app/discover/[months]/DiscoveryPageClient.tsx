@@ -1,9 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Bookmark, Check, ExternalLink } from 'lucide-react';
+import { Bookmark, Check, ExternalLink, ChevronDown } from 'lucide-react';
+import { useReducedMotion } from 'motion/react';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
 import {
   ALL_DOORWAYS,
@@ -14,6 +15,9 @@ import {
 } from '@/lib/discover/doorways';
 import { getProductIconKey } from '@/lib/icons/productIcon';
 import { AnimatedTestimonials, type AlbumItem } from '@/components/ui/animated-testimonials';
+
+/** A→B→C journey state: NoFocus | FocusSelected (Layer B visible) | CategorySelected | ShowingExamples (Layer C visible) */
+type DiscoverState = 'NoFocusSelected' | 'FocusSelected' | 'CategorySelected' | 'ShowingExamples';
 
 const HERO_BG_IMAGE =
   'https://images.pexels.com/photos/8909659/pexels-photo-8909659.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
@@ -63,10 +67,33 @@ export default function DiscoveryPageClient({
   showDebug = false,
 }: DiscoveryPageClientProps) {
   const router = useRouter();
+  const shouldReduceMotion = useReducedMotion() ?? false;
   const [whyOpen, setWhyOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [actionToast, setActionToast] = useState<{ productId: string; message: string } | null>(null);
+  const [showingExamples, setShowingExamples] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const basePath = '/discover';
+
+  const scrollToSection = useCallback(
+    (id: string) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'start' });
+    },
+    [shouldReduceMotion]
+  );
+
+  useEffect(() => {
+    if (showPicks) {
+      setShowingExamples(true);
+      const timer = setTimeout(() => {
+        const el = document.getElementById('examplesSection');
+        if (el) el.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'start' });
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [showPicks, shouldReduceMotion]);
 
   useEffect(() => {
     if (!actionToast) return;
@@ -116,12 +143,13 @@ export default function DiscoveryPageClient({
   const currentMonth = monthParam ?? 25;
   const is25to27 = currentMonth >= 25 && currentMonth <= 27;
 
-  useEffect(() => {
-    if (!showPicks) return;
-    const el = document.getElementById('findsSection');
-    if (!el) return;
-    setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
-  }, [showPicks]);
+  const discoverState: DiscoverState = !selectedWrapper
+    ? 'NoFocusSelected'
+    : showingExamples
+      ? 'ShowingExamples'
+      : selectedCategoryId
+        ? 'CategorySelected'
+        : 'FocusSelected';
 
   useEffect(() => {
     if (selectedBandIndex !== propBandIndex) {
@@ -133,9 +161,9 @@ export default function DiscoveryPageClient({
 
   const handleWrapperSelect = (wrapperSlug: string) => {
     setSelectedWrapper(wrapperSlug);
-    if (showPicks) {
-      router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}&show=1`, { scroll: false });
-    }
+    setSelectedCategoryId(null);
+    setShowingExamples(false);
+    router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`, { scroll: false });
   };
 
   const getSigninUrl = (productId?: string) => {
@@ -365,14 +393,14 @@ export default function DiscoveryPageClient({
                 )}
               </div>
 
-              <div className="lg:sticky lg:bottom-6 lg:pt-4 lg:pb-2 lg:mt-4 lg:rounded-xl lg:bg-white lg:border-t lg:border-[var(--ember-border-subtle)] space-y-1.5">
+              <div className="lg:pt-4 lg:pb-2 lg:mt-4 space-y-1.5">
                 <button
                   type="button"
                   onClick={() => {
                     if (!ctaEnabled) return;
-                    router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper!)}&show=1`, { scroll: false });
+                    scrollToSection('nextStepsSection');
                   }}
-                  className="w-full rounded-lg py-3 px-4 font-medium text-white h-12 cursor-pointer disabled:cursor-default"
+                  className="w-full rounded-lg py-3 px-4 font-medium text-white h-12 cursor-pointer disabled:cursor-default flex items-center justify-center gap-2"
                   style={{
                     fontFamily: 'var(--font-sans)',
                     backgroundColor: 'var(--ember-accent-base)',
@@ -387,11 +415,9 @@ export default function DiscoveryPageClient({
                     e.currentTarget.style.backgroundColor = 'var(--ember-accent-base)';
                   }}
                 >
-                  Show my 3 ideas
+                  See next steps
+                  <ChevronDown size={18} strokeWidth={2} aria-hidden />
                 </button>
-                <p className="text-center text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-                  Takes about a minute.
-                </p>
               </div>
             </>
           ) : (
@@ -409,10 +435,41 @@ export default function DiscoveryPageClient({
     </div>
   );
 
-  const rightSurface = (
-    <div
-      className="w-full min-w-0 flex-[2] lg:sticky"
-      style={{ ...SURFACE_STYLE, top: 'calc(var(--header-height, 56px) + 1.5rem)' }}
+  const nextStepsSection = discoverState !== 'NoFocusSelected' && selectedBandHasPicks && (
+    <section
+      id="nextStepsSection"
+      className="w-full scroll-mt-6"
+      style={SURFACE_STYLE}
+    >
+      <div className="py-6 px-4 sm:px-6 sm:py-8">
+        <button
+          type="button"
+          onClick={() => scrollToSection('selectorSection')}
+          className="mb-4 text-sm font-medium"
+          style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
+        >
+          ← Back to choices
+        </button>
+        <h2 className="text-lg font-medium mb-1" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
+          Next steps for {selectedWrapperLabel}
+        </h2>
+        <p className="text-sm mb-4" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
+          Chosen for {formatBandLabel(selectedBand)} • Explained
+        </p>
+        <div className="rounded-xl border p-6 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)' }}>
+          <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
+            We&apos;re adding more ideas here.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+
+  const examplesSection = discoverState === 'ShowingExamples' && (
+    <section
+      id="examplesSection"
+      className="w-full scroll-mt-6"
+      style={SURFACE_STYLE}
     >
       <div className="py-6 px-4 sm:px-6 sm:py-8 flex flex-col gap-6">
         {actionToast && (
@@ -423,103 +480,92 @@ export default function DiscoveryPageClient({
             {actionToast.message}
           </div>
         )}
-        <section id="findsSection">
-          <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
-            <h2 className="text-lg font-medium m-0" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
-              {isExampleMode ? 'A quick example' : `Three ideas for ${selectedWrapperLabel}`}
-            </h2>
-            {!isExampleMode && displayIdeas.length > 0 && (
-              <button
-                type="button"
-                className="rounded-lg border-0 bg-transparent py-2 px-0 text-sm cursor-pointer"
-                style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)', fontSize: '14px' }}
-                onClick={() => setWhyOpen((o) => !o)}
-              >
-                Why these?
-              </button>
-            )}
-          </div>
-
-          {whyOpen && !isExampleMode && displayIdeas.length > 0 && (
-            <div
-              className="mb-4 rounded-xl border p-4"
-              style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)' }}
+        <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+          <h2 className="text-lg font-medium m-0" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
+            Examples you might like
+          </h2>
+          {displayIdeas.length > 0 && (
+            <button
+              type="button"
+              className="rounded-lg border-0 bg-transparent py-2 px-0 text-sm cursor-pointer"
+              style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)', fontSize: '14px' }}
+              onClick={() => setWhyOpen((o) => !o)}
             >
-              <h3 className="mb-2 text-base font-medium" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
-                Why these?
-              </h3>
-              <ul className="m-0 list-disc pl-5 space-y-1 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-high)' }}>
-                <li>Why it fits this age: chosen for {formatBandLabel(selectedBand)}.</li>
-                <li>Why it helps today: matches the focus you picked ({selectedWrapperLabel}).</li>
-              </ul>
-            </div>
+              Why these?
+            </button>
           )}
-
-          {!selectedBandHasPicks ? (
-            <div className="rounded-xl border p-4 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}>
-              <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>Catalogue coming soon for {formatBandLabel(ageBand)}.</p>
-            </div>
-          ) : isExampleMode && exampleProducts.length === 0 ? (
-            <div className="rounded-xl border p-4 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}>
-              <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>Catalogue coming soon for {formatBandLabel(ageBand)}.</p>
-            </div>
-          ) : !showPicks ? (
-            <div className="rounded-xl border p-4 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}>
-              <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>Choose a focus to see three ideas.</p>
-            </div>
-          ) : showPicks && picks.length === 0 ? (
-            <div className="rounded-xl border p-4 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}>
-              <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>We&apos;re still building ideas for this focus. Try another.</p>
-            </div>
-          ) : (
-            <>
-              {!isExampleMode && (
-                <p className="text-xs mb-2" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-                  Chosen for {formatBandLabel(selectedBand)} • Explained
-                </p>
+        </div>
+        {whyOpen && displayIdeas.length > 0 && (
+          <div
+            className="mb-4 rounded-xl border p-4"
+            style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)' }}
+          >
+            <h3 className="mb-2 text-base font-medium" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
+              Why these?
+            </h3>
+            <ul className="m-0 list-disc pl-5 space-y-1 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-high)' }}>
+              <li>Chosen for {formatBandLabel(selectedBand)}.</li>
+              <li>Matches the focus you picked ({selectedWrapperLabel}).</li>
+            </ul>
+          </div>
+        )}
+        {!selectedBandHasPicks || (displayIdeas.length === 0) ? (
+          <div className="rounded-xl border p-4 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}>
+            <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
+              We&apos;re still building ideas for this focus. Try another.
+            </p>
+          </div>
+        ) : (
+          <>
+            <p className="text-xs mb-2" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
+              Chosen for {formatBandLabel(selectedBand)} • Explained
+            </p>
+            <AnimatedTestimonials
+              items={albumItems}
+              className="w-full"
+              renderActions={(item) => (
+                <>
+                  <Link
+                    href={getSigninUrl(item.id)}
+                    className="flex-1 min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5"
+                    style={btnStyle}
+                  >
+                    <Bookmark size={14} strokeWidth={2} />
+                    Save to my list
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => handleHaveItAlready(item.id)}
+                    className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3"
+                    style={btnStyle}
+                  >
+                    <Check size={14} strokeWidth={2} />
+                    Have it already
+                  </button>
+                  {item.href && item.href !== '#' && (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3 shrink-0"
+                      style={btnStyle}
+                    >
+                      <ExternalLink size={14} strokeWidth={2} />
+                      Visit
+                    </a>
+                  )}
+                </>
               )}
-              <AnimatedTestimonials
-                items={albumItems}
-                className="w-full"
-                renderActions={(item) => (
-                  <>
-                    <Link
-                      href={getSigninUrl(item.id)}
-                      className="flex-1 min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5"
-                      style={btnStyle}
-                    >
-                      <Bookmark size={14} strokeWidth={2} />
-                      Save to my list
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => handleHaveItAlready(item.id)}
-                      className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3"
-                      style={btnStyle}
-                    >
-                      <Check size={14} strokeWidth={2} />
-                      Have it already
-                    </button>
-                    {item.href && item.href !== '#' && (
-                      <a
-                        href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3 shrink-0"
-                        style={btnStyle}
-                      >
-                        <ExternalLink size={14} strokeWidth={2} />
-                        Visit
-                      </a>
-                    )}
-                  </>
-                )}
-              />
-            </>
-          )}
-        </section>
-
+            />
+          </>
+        )}
       </div>
+    </section>
+  );
+
+  const selectorWithId = (
+    <div id="selectorSection" className="scroll-mt-6">
+      {leftSurface}
     </div>
   );
 
@@ -527,19 +573,14 @@ export default function DiscoveryPageClient({
     <div
       className="min-h-screen w-full"
       style={{ backgroundColor: 'var(--ember-bg-canvas)' }}
-      data-discover-version="acq-v2"
+      data-discover-version="acq-v2-vertical"
     >
       <div className="w-full px-4 sm:px-6 mx-auto max-w-7xl">
         {heroSection}
-        <div className="py-6 sm:py-8 w-full">
-          <div className="hidden md:flex md:gap-10 lg:gap-12 md:items-start w-full">
-            {leftSurface}
-            {rightSurface}
-          </div>
-          <div className="md:hidden flex flex-col gap-8">
-            {leftSurface}
-            {rightSurface}
-          </div>
+        <div className="py-6 sm:py-8 w-full flex flex-col gap-8">
+          {selectorWithId}
+          {nextStepsSection}
+          {examplesSection}
         </div>
       </div>
     </div>
