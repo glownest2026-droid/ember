@@ -15,6 +15,8 @@ import {
 } from '@/lib/discover/doorways';
 import { getProductIconKey } from '@/lib/icons/productIcon';
 import { AnimatedTestimonials, type AlbumItem } from '@/components/ui/animated-testimonials';
+import { CategoryCarousel } from '@/components/discover/CategoryCarousel';
+import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
 
 /** A→B→C journey state: NoFocus | FocusSelected (Layer B visible) | CategorySelected | ShowingExamples (Layer C visible) */
 type DiscoverState = 'NoFocusSelected' | 'FocusSelected' | 'CategorySelected' | 'ShowingExamples';
@@ -50,6 +52,7 @@ interface DiscoveryPageClientProps {
   showPicks: boolean;
   picks: PickItem[];
   exampleProducts: PickItem[];
+  categoryTypes: GatewayCategoryTypePublic[];
   showDebug?: boolean;
 }
 
@@ -64,6 +67,7 @@ export default function DiscoveryPageClient({
   showPicks,
   picks,
   exampleProducts,
+  categoryTypes,
   showDebug = false,
 }: DiscoveryPageClientProps) {
   const router = useRouter();
@@ -164,6 +168,15 @@ export default function DiscoveryPageClient({
     setSelectedCategoryId(null);
     setShowingExamples(false);
     router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`, { scroll: false });
+  };
+
+  const handleShowExamples = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+    setShowingExamples(true);
+    router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper!)}&show=1`, { scroll: false });
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => scrollToSection('examplesSection'));
+    });
   };
 
   const getSigninUrl = (productId?: string) => {
@@ -456,11 +469,25 @@ export default function DiscoveryPageClient({
         <p className="text-sm mb-4" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
           Chosen for {formatBandLabel(selectedBand)} • Explained
         </p>
-        <div className="rounded-xl border p-6 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)' }}>
-          <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
-            We&apos;re adding more ideas here.
-          </p>
-        </div>
+        {categoryTypes.length > 0 ? (
+          <CategoryCarousel
+            categories={categoryTypes.map((ct) => ({
+              id: ct.id,
+              slug: ct.slug,
+              label: ct.label,
+              name: ct.name,
+              rationale: ct.rationale,
+              image_url: ct.image_url,
+            }))}
+            onShowExamples={handleShowExamples}
+          />
+        ) : (
+          <div className="rounded-xl border p-6 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)' }}>
+            <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
+              We&apos;re adding more ideas here.
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );

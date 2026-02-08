@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayTopProductsForAgeBand, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
+import { getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayCategoryTypesForAgeBandAndWrapper, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayTopProductsForAgeBand, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
 import DiscoveryPageClient from './DiscoveryPageClient';
 
 interface DiscoverMonthsPageProps {
@@ -49,6 +49,11 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
     ? await getGatewayTopProductsForAgeBand(ageBand.id, 12)
     : [];
 
+  const categoryTypes =
+    selectedBandHasPicks && effectiveWrapperSlug
+      ? await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, effectiveWrapperSlug)
+      : [];
+
   if (shouldShowPicks) {
     if (selectedWrapperSlug) {
       effectiveWrapperSlug = selectedWrapperSlug;
@@ -80,6 +85,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
         showPicks={shouldShowPicks}
         picks={picks}
         exampleProducts={exampleProducts}
+        categoryTypes={categoryTypes}
         showDebug={showDebug}
       />
     </main>

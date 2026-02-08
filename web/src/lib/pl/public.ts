@@ -136,6 +136,39 @@ export async function getGatewayWrappersForAgeBand(ageBandId: string): Promise<G
 }
 
 /**
+ * Fetch category types for an age band + wrapper (Layer B).
+ * Uses v_gateway_category_types_public via wrapper → development_need resolution.
+ */
+export async function getGatewayCategoryTypesForAgeBandAndWrapper(
+  ageBandId: string,
+  wrapperSlug: string
+): Promise<GatewayCategoryTypePublic[]> {
+  const supabase = createClient();
+
+  const { data: wrapperDetail, error: wrapperError } = await supabase
+    .from('v_gateway_wrapper_detail_public')
+    .select('development_need_id')
+    .eq('age_band_id', ageBandId)
+    .eq('ux_slug', wrapperSlug)
+    .limit(1)
+    .maybeSingle();
+
+  if (wrapperError || !wrapperDetail?.development_need_id) return [];
+
+  const developmentNeedId = wrapperDetail.development_need_id as string;
+
+  const { data: categoryRows, error: categoryError } = await supabase
+    .from('v_gateway_category_types_public')
+    .select('age_band_id, development_need_id, rank, rationale, id, slug, label, name, description, image_url, safety_notes')
+    .eq('age_band_id', ageBandId)
+    .eq('development_need_id', developmentNeedId)
+    .order('rank', { ascending: true });
+
+  if (categoryError || !categoryRows) return [];
+  return categoryRows as GatewayCategoryTypePublic[];
+}
+
+/**
  * Generate top picks for an age band + wrapper (public views only).
  *
  * Deterministic rule:
