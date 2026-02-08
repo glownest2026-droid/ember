@@ -213,17 +213,24 @@ export default function DiscoveryPageClient({
   const displayIdeas = showPicks && picks.length > 0 ? picks : exampleProducts;
   const isExampleMode = !showPicks || picks.length === 0;
 
-  const albumItems: AlbumItem[] = displayIdeas.slice(0, 12).map((pick) => ({
-    id: pick.product.id,
-    title: pick.product.name,
-    subtitle: pick.product.brand ?? pick.categoryType?.label ?? undefined,
-    quote:
+  const ONE_LINE_MAX = 90;
+  const albumItems: AlbumItem[] = displayIdeas.slice(0, 12).map((pick) => {
+    const fullQuote =
       pick.product.rationale?.trim() ||
-      `Chosen for ${formatBandLabel(selectedBand)}. Fits ${selectedWrapperLabel || 'this focus'}.`,
-    href: getProductUrl(pick),
-    imageUrl: pick.product.image_url ?? null,
-    iconKey: getProductIconKey(pick.product, selectedWrapperLabel ?? selectedWrapper),
-  }));
+      `Chosen for ${formatBandLabel(selectedBand)}. Fits ${selectedWrapperLabel || 'this focus'}.`;
+    const shortQuote = fullQuote.length <= ONE_LINE_MAX ? fullQuote : fullQuote.slice(0, ONE_LINE_MAX).trim() + '…';
+    const longDescription = fullQuote.length > ONE_LINE_MAX ? fullQuote : undefined;
+    return {
+      id: pick.product.id,
+      title: pick.product.name,
+      subtitle: pick.product.brand ?? pick.categoryType?.label ?? undefined,
+      quote: shortQuote,
+      longDescription,
+      href: getProductUrl(pick),
+      imageUrl: pick.product.image_url ?? null,
+      iconKey: getProductIconKey(pick.product, selectedWrapperLabel ?? selectedWrapper),
+    };
+  });
 
   const handleHaveItAlready = async (productId: string) => {
     try {
@@ -522,20 +529,29 @@ export default function DiscoveryPageClient({
             </button>
           )}
         </div>
-        {whyOpen && displayIdeas.length > 0 && (
-          <div
-            className="mb-4 rounded-xl border p-4"
-            style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)' }}
-          >
-            <h3 className="mb-2 text-base font-medium" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
-              Why these?
-            </h3>
-            <ul className="m-0 list-disc pl-5 space-y-1 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-high)' }}>
-              <li>Chosen for {formatBandLabel(selectedBand)}.</li>
-              <li>Matches the focus you picked ({selectedWrapperLabel}).</li>
-            </ul>
-          </div>
-        )}
+        {whyOpen && displayIdeas.length > 0 && (() => {
+          const selCat = selectedCategoryId ? categoryTypes.find((c) => c.id === selectedCategoryId) : null;
+          const catName = selCat?.label ?? selCat?.name ?? selCat?.slug;
+          return (
+            <div
+              className="mb-4 rounded-xl border p-4"
+              style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)' }}
+            >
+              <h3 className="mb-2 text-base font-medium" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
+                Why these?
+              </h3>
+              <p className="mb-2 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
+                Chosen for {formatBandLabel(selectedBand)} • Focus: {selectedWrapperLabel}
+                {catName && ` • Category: ${catName}`}
+              </p>
+              <ul className="m-0 list-disc pl-5 space-y-1 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-high)' }}>
+                <li>Age: ideas tailored for {formatBandLabel(selectedBand)}.</li>
+                <li>Focus: matches {selectedWrapperLabel}.</li>
+                {catName && <li>Category: examples from {catName}.</li>}
+              </ul>
+            </div>
+          );
+        })()}
         {!selectedBandHasPicks || (displayIdeas.length === 0) ? (
           <div className="rounded-xl border p-4 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}>
             <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
