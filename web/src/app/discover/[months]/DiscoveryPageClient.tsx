@@ -206,9 +206,13 @@ export default function DiscoveryPageClient({
     p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
 
   const ctaEnabled = !!selectedBand && !!selectedWrapper;
-  const selectedWrapperLabel = wrappers.find((w) => w.ux_slug === selectedWrapper)?.ux_label ?? selectedWrapper ?? '';
-
   const visibleDoorwayList = showMore ? ALL_DOORWAYS : DEFAULT_DOORWAYS;
+  const selectedDoorway = visibleDoorwayList.find((d) => {
+    const r = resolveDoorwayToWrapper(d, wrappers);
+    return r && r.ux_slug === selectedWrapper;
+  });
+  const selectedWrapperLabel = selectedDoorway?.label ?? wrappers.find((w) => w.ux_slug === selectedWrapper)?.ux_label ?? selectedWrapper ?? '';
+
   const doorwaysWithResolved = visibleDoorwayList.map((d) => ({
     type: 'doorway' as const,
     ...d,
