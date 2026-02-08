@@ -1,21 +1,28 @@
 {
   "pr": {
     "number": null,
-    "title": "feat(discover): animated product album in right panel",
-    "branch": "feat/feb-2026-pr3-animated-product-album",
+    "title": "feat(discover): vertical A→B→C next steps flow (category carousel + optional examples)",
+    "branch": "feat/discover-vertical-a-b-c",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
-    "rollback": "Revert PR or revert commit (no DB/RLS changes)"
+    "rollback": "Revert PR. If migration applied: DROP VIEW v_gateway_category_type_images; DROP TABLE pl_category_type_images;"
   },
   "receipt": {
-    "goal": "Replace /discover right-panel results list with Aceternity AnimatedTestimonials-style product album (UI-only)",
-    "files_changed": ["web/src/components/ui/animated-testimonials.tsx"],
+    "goal": "Convert /discover into guided vertical A→B→C journey: doorway selection → Next steps (Layer B carousel) → Examples (Layer C, only after Show examples)",
+    "files_changed": [
+      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
+      "web/src/app/discover/[months]/page.tsx",
+      "web/src/lib/pl/public.ts",
+      "web/src/components/discover/CategoryCarousel.tsx",
+      "web/src/components/ui/animated-testimonials.tsx",
+      "supabase/sql/202602080000_pl_category_type_images.sql"
+    ],
     "commands_run": [
       { "cwd": "web", "command": "pnpm run build", "result": "ok (exit 0)" }
     ],
-    "decision_notes": "Aceternity pattern: AnimatePresence + all items in stack; active card y:[0,-80,0], useReducedMotion(); Lucide ChevronLeft/Right; icon tiles white + #B8432B stroke; no @tabler"
+    "decision_notes": "4 gated commits; Layer B category carousel user-controlled; Layer C only after Show examples; pl_category_type_images + gateway view for founder-managed imagery; no widening of anon access to canonical tables"
   },
-  "commit": "bad01af",
-  "timestamp": "2026-02-07T00:00:00.000Z"
+  "commit": "e89a65d",
+  "timestamp": "2026-02-08T00:00:00.000Z"
 }

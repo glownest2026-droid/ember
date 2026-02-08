@@ -52,6 +52,38 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-08 — feat(discover): vertical A→B→C next steps flow (category carousel + optional examples)
+
+### Summary
+- **Vertical journey**: /discover is now a guided vertical flow: selector (Layer A) → Next steps (Layer B) → Examples (Layer C). Products are only revealed after user clicks "Show examples" on a category tile.
+- **Layer B**: Category carousel (user-controlled, no auto-advance) with tiles showing category imagery (from `pl_category_type_images` or `pl_category_types.image_url`). CTAs: Save idea, Have them, Show examples. Empty state: "We're adding more ideas here." when no category types.
+- **Layer C**: AnimatedTestimonials product album. Product face: one-line why-it-fits, "More details" drawer for long rationale. WhyThese drawer explains chain: Chosen for {age band} • Focus: {doorway} • Category: {selected category} with 2–4 bullets.
+- **Scroll anchors**: "See next steps ↓" scrolls to Layer B; "Back to choices" scrolls to selector. Respects prefers-reduced-motion (no smooth scroll when reduced).
+- **DB**: `pl_category_type_images` table + `v_gateway_category_type_images` view for founder-managed category imagery. Canonical table protected; public reads via gateway view only.
+
+### Files changed
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — vertical layout, state machine, scroll anchors, CategoryCarousel, WhyThese chain
+- `web/src/app/discover/[months]/page.tsx` — fetch category types, pass to client
+- `web/src/lib/pl/public.ts` — getGatewayCategoryTypesForAgeBandAndWrapper, getGatewayCategoryTypeImages, image join
+- `web/src/components/discover/CategoryCarousel.tsx` — Layer B carousel (user-scrolled, Lucide icons)
+- `web/src/components/ui/animated-testimonials.tsx` — AlbumItem.longDescription, "More details" drawer, line-clamp quote
+- `supabase/sql/202602080000_pl_category_type_images.sql` — pl_category_type_images table + v_gateway_category_type_images view
+
+### QA checklist (founder manual)
+1. `pnpm install` then `pnpm run build` (passes).
+2. Open /discover or /discover/26. Select a doorway → "Next steps" section appears below.
+3. Click "See next steps" → scrolls to Next steps section.
+4. Next steps shows category carousel (or empty state). Prev/Next buttons work; no auto-advance.
+5. Click "Show examples" on a category tile → Examples section appears, scrolls into view, products load.
+6. Product face: one-line quote; "More details" expands when rationale is long.
+7. "Why these?" shows chain: age band, focus, category (when available).
+8. Save to my list | Have it already | Visit work on products.
+9. Reduced motion ON → scroll uses instant jump.
+10. Apply migration `supabase/sql/202602080000_pl_category_type_images.sql` in Supabase SQL Editor to enable founder-managed category imagery.
+
+### Rollback
+- Revert PR. If migration applied: `DROP VIEW v_gateway_category_type_images; DROP TABLE pl_category_type_images;`
+
 ## 2026-02-06 — PR3: Discover animated product album (Aceternity shuffle)
 
 ### Summary
