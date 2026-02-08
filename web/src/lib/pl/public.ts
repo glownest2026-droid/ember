@@ -135,6 +135,78 @@ export async function getGatewayWrappersForAgeBand(ageBandId: string): Promise<G
   return data as GatewayWrapperPublic[];
 }
 
+/** Image mapping from v_gateway_category_type_images (founder-managed URLs) */
+export type GatewayCategoryTypeImage = {
+  category_type_id: string;
+  image_url: string;
+  alt: string | null;
+};
+
+/**
+ * Fetch image mapping for category types (Layer B tiles).
+ * Returns mapping from v_gateway_category_type_images. Empty if table/view missing.
+ */
+export async function getGatewayCategoryTypeImages(
+  categoryTypeIds: string[]
+): Promise<Map<string, GatewayCategoryTypeImage>> {
+  if (categoryTypeIds.length === 0) return new Map();
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from('v_gateway_category_type_images')
+    .select('category_type_id, image_url, alt')
+    .in('category_type_id', categoryTypeIds);
+
+  if (error || !data) return new Map();
+  const map = new Map<string, GatewayCategoryTypeImage>();
+  for (const row of data as GatewayCategoryTypeImage[]) {
+    if (!map.has(row.category_type_id)) {
+      map.set(row.category_type_id, row);
+    }
+  }
+  return map;
+}
+
+/**
+ * Fetch category types for an age band + wrapper (Layer B).
+ * Uses v_gateway_category_types_public via wrapper → development_need resolution.
+ * Joins image_url from v_gateway_category_type_images when available.
+ */
+export async function getGatewayCategoryTypesForAgeBandAndWrapper(
+  ageBandId: string,
+  wrapperSlug: string
+): Promise<GatewayCategoryTypePublic[]> {
+  const supabase = createClient();
+
+  const { data: wrapperDetail, error: wrapperError } = await supabase
+    .from('v_gateway_wrapper_detail_public')
+    .select('development_need_id')
+    .eq('age_band_id', ageBandId)
+    .eq('ux_slug', wrapperSlug)
+    .limit(1)
+    .maybeSingle();
+
+  if (wrapperError || !wrapperDetail?.development_need_id) return [];
+
+  const developmentNeedId = wrapperDetail.development_need_id as string;
+
+  const { data: categoryRows, error: categoryError } = await supabase
+    .from('v_gateway_category_types_public')
+    .select('age_band_id, development_need_id, rank, rationale, id, slug, label, name, description, image_url, safety_notes')
+    .eq('age_band_id', ageBandId)
+    .eq('development_need_id', developmentNeedId)
+    .order('rank', { ascending: true });
+
+  if (categoryError || !categoryRows) return [];
+  const categories = categoryRows as GatewayCategoryTypePublic[];
+
+  const imageMap = await getGatewayCategoryTypeImages(categories.map((c) => c.id));
+  return categories.map((c) => {
+    const img = imageMap.get(c.id);
+    return img ? { ...c, image_url: img.image_url } : c;
+  });
+}
+
 /**
  * Generate top picks for an age band + wrapper (public views only).
  *
@@ -223,6 +295,46 @@ export async function getGatewayTopPicksForAgeBandAndWrapperSlug(
   }
 
   return picks;
+}
+
+/**
+ * Fetch top picks for an age band + category type only (Layer B → Layer C linkage).
+ * Products filtered by category_type_id so Layer C matches the selected Layer B category.
+ */
+export async function getGatewayTopPicksForAgeBandAndCategoryType(
+  ageBandId: string,
+  categoryTypeId: string,
+  limit: number = 12
+): Promise<GatewayPick[]> {
+  const supabase = createClient();
+
+  const { data: categoryRow, error: categoryError } = await supabase
+    .from('v_gateway_category_types_public')
+    .select('id, slug, label, name')
+    .eq('age_band_id', ageBandId)
+    .eq('id', categoryTypeId)
+    .limit(1)
+    .maybeSingle();
+
+  if (categoryError || !categoryRow) return [];
+
+  const category = categoryRow as Pick<GatewayCategoryTypePublic, 'id' | 'slug' | 'label' | 'name'>;
+
+  const { data: productRows, error: productError } = await supabase
+    .from('v_gateway_products_public')
+    .select('age_band_id, category_type_id, rank, rationale, id, name, brand, image_url, canonical_url, amazon_uk_url, affiliate_url, affiliate_deeplink')
+    .eq('age_band_id', ageBandId)
+    .eq('category_type_id', categoryTypeId)
+    .order('rank', { ascending: true })
+    .limit(limit);
+
+  if (productError || !productRows || productRows.length === 0) return [];
+
+  const products = productRows as GatewayProductPublic[];
+  return products.map((p) => ({
+    product: p,
+    categoryType: { id: category.id, slug: category.slug, label: category.label, name: category.name },
+  }));
 }
 
 /**

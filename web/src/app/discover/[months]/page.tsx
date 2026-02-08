@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
-import { getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayTopProductsForAgeBand, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
+import { getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayCategoryTypesForAgeBandAndWrapper, getGatewayTopPicksForAgeBandAndCategoryType, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayTopProductsForAgeBand, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
 import DiscoveryPageClient from './DiscoveryPageClient';
 
 interface DiscoverMonthsPageProps {
   params: Promise<{ months: string }>;
-  searchParams: Promise<{ wrapper?: string; show?: string; debug?: string }>;
+  searchParams: Promise<{ wrapper?: string; show?: string; category?: string; debug?: string }>;
 }
 
 export const dynamic = 'force-dynamic';
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 /** /discover/[months] — V1.0 doorways experience. */
 export default async function DiscoverMonthsPage({ params, searchParams }: DiscoverMonthsPageProps) {
   const { months } = await params;
-  const { wrapper: wrapperSlugParam, show: showParam, debug: debugParam } = await searchParams;
+  const { wrapper: wrapperSlugParam, show: showParam, category: categoryParam, debug: debugParam } = await searchParams;
   const showDebug = debugParam === '1';
 
   const monthsNum = parseInt(months, 10);
@@ -49,8 +49,16 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
     ? await getGatewayTopProductsForAgeBand(ageBand.id, 12)
     : [];
 
+  const categoryTypes =
+    selectedBandHasPicks && effectiveWrapperSlug
+      ? await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, effectiveWrapperSlug)
+      : [];
+
   if (shouldShowPicks) {
-    if (selectedWrapperSlug) {
+    const categoryTypeId = categoryParam && categoryTypes.some((c) => c.id === categoryParam) ? categoryParam : null;
+    if (categoryTypeId) {
+      picks = await getGatewayTopPicksForAgeBandAndCategoryType(ageBand.id, categoryTypeId, 12);
+    } else if (selectedWrapperSlug) {
       effectiveWrapperSlug = selectedWrapperSlug;
       picks = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, selectedWrapperSlug, 12);
     } else {
@@ -80,6 +88,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
         showPicks={shouldShowPicks}
         picks={picks}
         exampleProducts={exampleProducts}
+        categoryTypes={categoryTypes}
         showDebug={showDebug}
       />
     </main>

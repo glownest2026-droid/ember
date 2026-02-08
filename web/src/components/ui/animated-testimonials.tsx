@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -21,7 +21,10 @@ export type AlbumItem = {
   id: string;
   title: string;
   subtitle?: string;
+  /** One-line why-it-fits for the face (skimmable) */
   quote: string;
+  /** Optional long text for "More details" drawer */
+  longDescription?: string;
   href?: string;
   imageUrl?: string | null;
   iconKey?: ProductIconKey | string;
@@ -110,6 +113,7 @@ export function AnimatedTestimonials({
   renderActions,
 }: AnimatedTestimonialsProps) {
   const [active, setActive] = useState(0);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const shouldReduceMotion = useReducedMotion() ?? false;
   const rotations = useMemo(
     () => items.map((it) => hashToRotation(it.id)),
@@ -132,6 +136,10 @@ export function AnimatedTestimonials({
       return () => clearInterval(interval);
     }
   }, [autoplay, items.length]);
+
+  useEffect(() => {
+    setDetailsOpen(false);
+  }, [active]);
 
   if (!items.length) return null;
 
@@ -224,44 +232,44 @@ export function AnimatedTestimonials({
               {current.subtitle}
             </p>
           )}
-          {shouldReduceMotion ? (
-            <p
-              className="mt-6 text-base leading-relaxed break-words"
-              style={{
-                fontFamily: 'var(--font-sans)',
-                color: 'var(--ember-text-low)',
-              }}
-            >
-              {current.quote}
-            </p>
-          ) : (
-            <motion.p
-              className="mt-6 text-base leading-relaxed break-words"
-              style={{
-                fontFamily: 'var(--font-sans)',
-                color: 'var(--ember-text-low)',
-              }}
-            >
-              {current.quote.split(/\s+/).map((word, i) => (
-                <motion.span
-                  key={`${current.id}-w-${i}`}
-                  initial={{ filter: 'blur(10px)', opacity: 0, y: 5 }}
-                  animate={{
-                    filter: 'blur(0px)',
-                    opacity: 1,
-                    y: 0,
-                  }}
-                  transition={{
-                    duration: 0.2,
-                    ease: 'easeInOut',
-                    delay: 0.02 * i,
-                  }}
-                  className="inline-block"
+          <p
+            className="mt-4 text-sm leading-relaxed break-words line-clamp-1"
+            style={{
+              fontFamily: 'var(--font-sans)',
+              color: 'var(--ember-text-low)',
+            }}
+          >
+            {current.quote}
+          </p>
+          {current.longDescription && (
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={() => setDetailsOpen((o) => !o)}
+                className="flex items-center gap-1 text-sm font-medium"
+                style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
+              >
+                {detailsOpen ? (
+                  <>
+                    <ChevronUp size={14} strokeWidth={2} />
+                    Less
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={14} strokeWidth={2} />
+                    More details
+                  </>
+                )}
+              </button>
+              {detailsOpen && (
+                <p
+                  className="mt-2 text-sm leading-relaxed break-words"
+                  style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
                 >
-                  {word}&nbsp;
-                </motion.span>
-              ))}
-            </motion.p>
+                  {current.longDescription}
+                </p>
+              )}
+            </div>
           )}
         </motion.div>
 
