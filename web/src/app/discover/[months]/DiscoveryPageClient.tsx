@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { Bookmark, Check, ExternalLink, ChevronDown } from 'lucide-react';
+import { Bookmark, Check, ExternalLink } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { createClient } from '@/utils/supabase/client';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
@@ -176,6 +176,12 @@ export default function DiscoveryPageClient({
     setSelectedCategoryId(null);
     setShowingExamples(false);
     router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`, { scroll: false });
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = document.getElementById('nextStepsSection');
+        if (el) el.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'start' });
+      });
+    });
   };
 
   const handleShowExamples = (categoryId: string) => {
@@ -213,7 +219,6 @@ export default function DiscoveryPageClient({
   const getProductUrl = (p: PickItem) =>
     p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
 
-  const ctaEnabled = !!selectedBand && !!selectedWrapper;
   const visibleDoorwayList = showMore ? ALL_DOORWAYS : DEFAULT_DOORWAYS;
   const selectedDoorway = visibleDoorwayList.find((d) => {
     const r = resolveDoorwayToWrapper(d, wrappers);
@@ -479,32 +484,6 @@ export default function DiscoveryPageClient({
                 )}
               </div>
 
-              <div className="lg:pt-4 lg:pb-2 lg:mt-4 space-y-1.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!ctaEnabled) return;
-                    scrollToSection('nextStepsSection');
-                  }}
-                  className="w-full rounded-lg py-3 px-4 font-medium text-white h-12 cursor-pointer disabled:cursor-default flex items-center justify-center gap-2"
-                  style={{
-                    fontFamily: 'var(--font-sans)',
-                    backgroundColor: 'var(--ember-accent-base)',
-                    opacity: ctaEnabled ? 1 : 0.3,
-                    borderRadius: '8px',
-                  }}
-                  aria-disabled={!ctaEnabled}
-                  onMouseEnter={(e) => {
-                    if (ctaEnabled) e.currentTarget.style.backgroundColor = 'var(--ember-accent-hover)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--ember-accent-base)';
-                  }}
-                >
-                  See next steps
-                  <ChevronDown size={18} strokeWidth={2} aria-hidden />
-                </button>
-              </div>
             </>
           ) : (
             <div
@@ -631,11 +610,15 @@ export default function DiscoveryPageClient({
                   <button
                     type="button"
                     onClick={(e) => handleSaveToList(item.id, e.currentTarget)}
-                    className="flex-1 min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
-                    style={btnStyle}
+                    className="flex-1 min-h-[36px] rounded-lg font-medium text-xs flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
+                    style={{
+                      backgroundColor: 'var(--ember-accent-base)',
+                      color: 'white',
+                      border: 'none',
+                    }}
                   >
                     <Bookmark size={14} strokeWidth={2} />
-                    Save to my list
+                    Save product
                   </button>
                   <button
                     type="button"
@@ -651,8 +634,11 @@ export default function DiscoveryPageClient({
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3 shrink-0"
-                      style={btnStyle}
+                      className="min-h-[36px] rounded-lg border border-transparent font-medium text-xs flex items-center justify-center gap-1.5 px-3 shrink-0 hover:bg-[var(--ember-surface-soft)]"
+                      style={{
+                        backgroundColor: 'transparent',
+                        color: '#5C646D',
+                      }}
                     >
                       <ExternalLink size={14} strokeWidth={2} />
                       Visit

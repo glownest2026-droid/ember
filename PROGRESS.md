@@ -52,6 +52,26 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-09 — feat(discover): frictionless load + swipe-first carousels + Save-first CTAs
+
+### Summary
+- **Default load**: B/C sections hidden until doorway selected; server passes `selectedWrapperSlug` from URL only; category types fetched only when wrapper in URL.
+- **No "See next steps"**: Doorway tile click sets selection, updates URL, scrolls to Layer B (next steps). Respects `prefers-reduced-motion` for scroll behavior.
+- **Swipe carousels**: Layer B = horizontal scroll-snap (overflow-x-auto, snap, hidden scrollbar). Layer C = swipe/drag on stacked cards to change active index (40px threshold so taps don’t trigger).
+- **CTA hierarchy**: B = Save idea (primary), Have them (outline), Show examples (ghost). C = Save product (primary), Have it already (outline), Visit (ghost).
+
+### Files changed
+- `web/src/app/discover/[months]/page.tsx` — selectedWrapperSlug from URL only; categoryTypes when slug set
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — remove See next steps; doorway click scroll to B; Layer C button order + labels
+- `web/src/components/discover/CategoryCarousel.tsx` — scroll-snap carousel; button order (Save idea primary, Show examples tertiary)
+- `web/src/components/ui/animated-testimonials.tsx` — swipe/drag to change active index
+
+### QA (browser only, preview URL)
+1. Load /discover/26 → only doorway tiles. 2. Tap doorway → scroll to B, categories correct. 3. Swipe B + arrows. 4. Save idea primary, Show examples tertiary. 5. Show examples → C appears. 6. Swipe C. 7. Reduce motion → no smooth scroll.
+
+### Rollback
+Revert PR (no schema changes).
+
 ## 2026-02-09 — feat(save): open "Save to my list" as a modal (no navigation)
 
 ### Summary

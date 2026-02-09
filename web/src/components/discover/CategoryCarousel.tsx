@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Bookmark, Check, Sparkles } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,12 @@ const PEEK_DESKTOP = 80;  // ~21% of card
 const PEEK_MOBILE = 40;   // ~12% of card
 // Media: 4:3 aspect ratio gives better vertical space for overlay text and works well for category/product imagery (16:9 can feel too wide).
 const MEDIA_ASPECT = '4/3';
+
+/** Hide scrollbar visually but keep scroll (touch + pointer drag). */
+const SCROLLBAR_HIDE = {
+  scrollbarWidth: 'none' as const,
+  msOverflowStyle: 'none' as const,
+};
 
 export interface CategoryTileData extends Pick<GatewayCategoryTypePublic, 'id' | 'slug' | 'label' | 'name' | 'rationale' | 'image_url'> {}
 
@@ -129,7 +135,7 @@ function CategoryTypeCard({
           )}
         </div>
       </div>
-      {/* Actions: solid surface so buttons are always readable */}
+      {/* Actions: primary Save idea, secondary Have them, tertiary Show examples */}
       <div className="p-3 flex flex-col gap-2 bg-[var(--ember-surface-primary)]">
         <div className="flex flex-wrap gap-1.5">
           {onSaveIdea ? (
@@ -139,11 +145,11 @@ function CategoryTypeCard({
                 e.stopPropagation();
                 onSaveIdea(category.id, e.currentTarget);
               }}
-              className="min-h-[32px] px-2.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
+              className="min-h-[32px] px-2.5 rounded-lg font-medium text-xs flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
               style={{
-                borderColor: '#E5E7EB',
-                backgroundColor: 'var(--ember-surface-primary)',
-                color: '#1A1E23',
+                backgroundColor: 'var(--ember-accent-base)',
+                color: 'white',
+                border: 'none',
               }}
             >
               <Bookmark size={12} strokeWidth={2} />
@@ -185,10 +191,10 @@ function CategoryTypeCard({
               e.stopPropagation();
               onShowExamples(category.id);
             }}
-            className="min-h-[32px] px-2.5 rounded-lg font-medium text-xs flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
+            className="min-h-[32px] px-2.5 rounded-lg border border-transparent text-xs font-medium flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1 hover:bg-[var(--ember-surface-soft)]"
             style={{
-              backgroundColor: 'var(--ember-accent-base)',
-              color: 'white',
+              backgroundColor: 'transparent',
+              color: '#5C646D',
             }}
           >
             <Sparkles size={12} strokeWidth={2} />
@@ -210,70 +216,79 @@ export function CategoryCarousel({
   const reduceMotion = useReducedMotion() ?? false;
   const containerRef = useRef<HTMLDivElement>(null);
   const [cardWidth, setCardWidth] = useState(CARD_WIDTH_DESKTOP);
-  const [peek, setPeek] = useState(PEEK_DESKTOP);
+  const step = cardWidth + GAP;
+  const scrollBehavior = reduceMotion ? ('auto' as const) : ('smooth' as const);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const mq = window.matchMedia('(min-width: 640px)');
-    const update = () => {
-      setCardWidth(mq.matches ? CARD_WIDTH_DESKTOP : CARD_WIDTH_MOBILE);
-      setPeek(mq.matches ? PEEK_DESKTOP : PEEK_MOBILE);
-    };
+    const update = () => setCardWidth(mq.matches ? CARD_WIDTH_DESKTOP : CARD_WIDTH_MOBILE);
     update();
     mq.addEventListener('change', update);
     return () => mq.removeEventListener('change', update);
   }, []);
 
+  const updateCurrentFromScroll = useCallback(() => {
+    const el = containerRef.current;
+    if (!el || !categories.length) return;
+    const scrollLeft = el.scrollLeft;
+    const index = Math.round(scrollLeft / step);
+    const clamped = Math.max(0, Math.min(index, categories.length - 1));
+    setCurrent(clamped);
+  }, [categories.length, step]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', updateCurrentFromScroll, { passive: true });
+    return () => el.removeEventListener('scroll', updateCurrentFromScroll);
+  }, [updateCurrentFromScroll]);
+
   const handlePrevious = () => {
-    setCurrent((prev) => (prev <= 0 ? categories.length - 1 : prev - 1));
+    const el = containerRef.current;
+    if (el) el.scrollBy({ left: -step, behavior: scrollBehavior });
   };
 
   const handleNext = () => {
-    setCurrent((prev) => (prev >= categories.length - 1 ? 0 : prev + 1));
+    const el = containerRef.current;
+    if (el) el.scrollBy({ left: step, behavior: scrollBehavior });
   };
 
   if (!categories.length) return null;
 
-  const step = cardWidth + GAP;
-  const translateX = -current * step;
-  const viewportWidth = cardWidth + peek * 2;
-
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full"
-      role="region"
-      aria-label="Category ideas carousel"
-    >
+    <div className="relative w-full" role="region" aria-label="Category ideas carousel">
       <div
-        className="mx-auto overflow-hidden"
-        style={{ maxWidth: viewportWidth }}
+        ref={containerRef}
+        className="flex overflow-x-auto overflow-y-hidden w-full snap-x snap-mandatory scroll-smooth touch-pan-x [&::-webkit-scrollbar]:hidden"
+        style={{
+          ...SCROLLBAR_HIDE,
+          scrollSnapType: 'x mandatory',
+          WebkitOverflowScrolling: 'touch',
+        }}
       >
-        <ul
-          className="flex"
-          style={{
-            paddingLeft: peek,
-            paddingRight: peek,
-            gap: GAP,
-            transform: `translateX(${translateX}px)`,
-            transition: reduceMotion ? 'none' : 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-          }}
-        >
-          {categories.map((cat, index) => (
-            <li key={cat.id}>
-              <CategoryTypeCard
-                category={cat}
-                isSelected={current === index}
-                onSelect={() => setCurrent(index)}
-                onShowExamples={onShowExamples}
-                onSaveIdea={onSaveIdea}
-                onHaveThem={onHaveThem}
-                cardWidth={cardWidth}
-              />
-            </li>
-          ))}
-        </ul>
+        {categories.map((cat, index) => (
+          <div
+            key={cat.id}
+            className="flex-shrink-0 snap-center"
+            style={{ scrollSnapAlign: 'center', marginLeft: index === 0 ? 0 : GAP, width: cardWidth }}
+          >
+            <CategoryTypeCard
+              category={cat}
+              isSelected={current === index}
+              onSelect={() => {
+                const el = containerRef.current;
+                if (el) el.scrollTo({ left: index * step, behavior: scrollBehavior });
+                setCurrent(index);
+              }}
+              onShowExamples={onShowExamples}
+              onSaveIdea={onSaveIdea}
+              onHaveThem={onHaveThem}
+              cardWidth={cardWidth}
+            />
+          </div>
+        ))}
       </div>
       <div className="flex items-center justify-center gap-2 mt-4">
         <button

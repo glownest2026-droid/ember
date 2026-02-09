@@ -50,8 +50,8 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
     : [];
 
   const categoryTypes =
-    selectedBandHasPicks && effectiveWrapperSlug
-      ? await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, effectiveWrapperSlug)
+    selectedBandHasPicks && selectedWrapperSlug
+      ? await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, selectedWrapperSlug)
       : [];
 
   if (shouldShowPicks) {
@@ -59,7 +59,6 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
     if (categoryTypeId) {
       picks = await getGatewayTopPicksForAgeBandAndCategoryType(ageBand.id, categoryTypeId, 12);
     } else if (selectedWrapperSlug) {
-      effectiveWrapperSlug = selectedWrapperSlug;
       picks = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, selectedWrapperSlug, 12);
     } else {
       for (const w of wrappers) {
@@ -84,7 +83,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
         monthParam={monthParam}
         selectedBandHasPicks={selectedBandHasPicks}
         wrappers={wrappers}
-        selectedWrapperSlug={effectiveWrapperSlug}
+        selectedWrapperSlug={selectedWrapperSlug}
         showPicks={shouldShowPicks}
         picks={picks}
         exampleProducts={exampleProducts}

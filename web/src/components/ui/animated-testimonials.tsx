@@ -2,8 +2,10 @@
 
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+
+const SWIPE_THRESHOLD_PX = 40;
 import { getProductIconComponent } from '@/lib/icons/productIcon';
 import type { ProductIconKey } from '@/lib/icons/productIcon';
 
@@ -120,15 +122,57 @@ export function AnimatedTestimonials({
     [items]
   );
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setActive((prev) => (prev + 1) % Math.max(1, items.length));
-  };
+  }, [items.length]);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     setActive((prev) => (prev - 1 + items.length) % Math.max(1, items.length));
-  };
+  }, [items.length]);
 
   const isActive = (index: number) => index === active;
+
+  const swipeStart = useRef<{ x: number; isTouch: boolean } | null>(null);
+  const handleSwipeStart = useCallback((x: number, isTouch: boolean) => {
+    swipeStart.current = { x, isTouch };
+  }, []);
+  const handleSwipeEnd = useCallback(
+    (x: number, isTouch: boolean) => {
+      const start = swipeStart.current;
+      swipeStart.current = null;
+      if (!start || start.isTouch !== isTouch || items.length <= 1) return;
+      const delta = x - start.x;
+      if (Math.abs(delta) >= SWIPE_THRESHOLD_PX) {
+        if (delta > 0) handlePrev();
+        else handleNext();
+      }
+    },
+    [items.length, handlePrev, handleNext]
+  );
+  const onTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (e.touches.length === 1) handleSwipeStart(e.touches[0].clientX, true);
+    },
+    [handleSwipeStart]
+  );
+  const onTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (e.changedTouches.length === 1) handleSwipeEnd(e.changedTouches[0].clientX, true);
+    },
+    [handleSwipeEnd]
+  );
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (e.button === 0) handleSwipeStart(e.clientX, false);
+    },
+    [handleSwipeStart]
+  );
+  const onPointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (e.button === 0) handleSwipeEnd(e.clientX, false);
+    },
+    [handleSwipeEnd]
+  );
 
   useEffect(() => {
     if (autoplay && items.length > 1) {
@@ -156,9 +200,16 @@ export function AnimatedTestimonials({
         className
       )}
     >
-      {/* Left: Aceternity-style stacked cards, one active with bounce */}
+      {/* Left: Aceternity-style stacked cards, one active with bounce; swipe/drag to change */}
       <div className="relative min-w-0">
-        <div className="relative h-80 w-full min-w-0">
+        <div
+          className="relative h-80 w-full min-w-0 touch-pan-y cursor-grab active:cursor-grabbing"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+          onPointerDown={onPointerDown}
+          onPointerUp={onPointerUp}
+          onPointerLeave={() => { swipeStart.current = null; }}
+        >
           <AnimatePresence initial={false}>
             {items.slice(0, MAX_VISIBLE).map((item, index) => (
               <motion.div
