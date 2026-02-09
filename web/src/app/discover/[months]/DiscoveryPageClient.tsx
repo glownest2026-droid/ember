@@ -1,10 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Bookmark, Check, ExternalLink, ChevronDown } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
+import { createClient } from '@/utils/supabase/client';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
 import {
   ALL_DOORWAYS,
@@ -16,6 +17,7 @@ import {
 import { getProductIconKey } from '@/lib/icons/productIcon';
 import { AnimatedTestimonials, type AlbumItem } from '@/components/ui/animated-testimonials';
 import { CategoryCarousel } from '@/components/discover/CategoryCarousel';
+import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
 
 /** A→B→C journey state: NoFocus | FocusSelected (Layer B visible) | CategorySelected | ShowingExamples (Layer C visible) */
@@ -77,6 +79,12 @@ export default function DiscoveryPageClient({
   const [actionToast, setActionToast] = useState<{ productId: string; message: string } | null>(null);
   const [showingExamples, setShowingExamples] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [saveModal, setSaveModal] = useState<{
+    open: boolean;
+    signedIn: boolean;
+    signinUrl: string;
+  }>({ open: false, signedIn: false, signinUrl: '' });
+  const saveModalFocusRef = useRef<HTMLButtonElement | null>(null);
   const basePath = '/discover';
 
   const scrollToSection = useCallback(
@@ -264,6 +272,31 @@ export default function DiscoveryPageClient({
       // Best-effort: still show confirmation
     }
     setActionToast({ productId, message: 'Marked as have it already.' });
+  };
+
+  const handleSaveToList = async (productId: string, triggerEl: HTMLButtonElement | null) => {
+    saveModalFocusRef.current = triggerEl;
+    const signinUrl = getSigninUrl(productId);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await fetch('/api/click', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            product_id: productId,
+            age_band: selectedBand?.id ?? undefined,
+            source: 'discover_save',
+          }),
+        });
+        setSaveModal({ open: true, signedIn: true, signinUrl });
+      } else {
+        setSaveModal({ open: true, signedIn: false, signinUrl });
+      }
+    } catch {
+      setSaveModal({ open: true, signedIn: false, signinUrl });
+    }
   };
 
   const btnStyle = {
@@ -579,14 +612,15 @@ export default function DiscoveryPageClient({
               className="w-full"
               renderActions={(item) => (
                 <>
-                  <Link
-                    href={getSigninUrl(item.id)}
-                    className="flex-1 min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5"
+                  <button
+                    type="button"
+                    onClick={(e) => handleSaveToList(item.id, e.currentTarget)}
+                    className="flex-1 min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
                     style={btnStyle}
                   >
                     <Bookmark size={14} strokeWidth={2} />
                     Save to my list
-                  </Link>
+                  </button>
                   <button
                     type="button"
                     onClick={() => handleHaveItAlready(item.id)}
@@ -638,6 +672,13 @@ export default function DiscoveryPageClient({
             {actionToast.message}
           </div>
         )}
+        <SaveToListModal
+          open={saveModal.open}
+          onClose={() => setSaveModal((s) => ({ ...s, open: false }))}
+          signedIn={saveModal.signedIn}
+          signinUrl={saveModal.signinUrl}
+          onCloseFocusRef={saveModalFocusRef}
+        />
         {heroSection}
         <div className="py-6 sm:py-8 w-full flex flex-col gap-8">
           {selectorWithId}
