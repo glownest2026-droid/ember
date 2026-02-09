@@ -55,13 +55,14 @@ _Last updated: 2026-01-04_
 ## 2026-02-09 — feat(save): open "Save to my list" as a modal (no navigation)
 
 ### Summary
-- **SaveToListModal**: New accessible modal using native `<dialog>` — focus trap, ESC close, backdrop click close, focus return to trigger.
-- **DiscoveryPageClient**: "Save to my list" changed from Link to button. Signed out → modal with Sign in / Join free / Not now. Signed in → POST /api/click (source: discover_save), modal shows "Saved" + "View my list".
-- No page navigation unless user explicitly chooses Sign in, Join free, or View my list. "Have it already" unchanged.
+- **SaveToListModal**: New accessible modal using native `<dialog>` — focus trap, ESC close, backdrop click close, focus return to trigger. Signed out: Sign in / Join free links; **Email address** field + magic link (same as /signin); Not now.
+- **DiscoveryPageClient**: "Save to my list" (Layer C) and **CategoryCarousel** "Save idea" (Layer B) both open the same modal.
+- No page navigation unless user chooses Sign in, Join free, View my list, or submits magic link. "Have it already" / "Have them" unchanged.
 
 ### Files changed
-- `web/src/components/ui/SaveToListModal.tsx` — new modal component
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — Save button + modal integration
+- `web/src/components/ui/SaveToListModal.tsx` — modal + email magic link
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — Save button + handleSaveCategory
+- `web/src/components/discover/CategoryCarousel.tsx` — Save idea button + onSaveIdea
 
 ### QA checklist (founder manual)
 1. `pnpm -C web build` passes
