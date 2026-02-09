@@ -274,6 +274,22 @@ export default function DiscoveryPageClient({
     setActionToast({ productId, message: 'Marked as have it already.' });
   };
 
+  const handleSaveCategory = async (categoryId: string, triggerEl: HTMLButtonElement | null) => {
+    saveModalFocusRef.current = triggerEl;
+    const signinUrl = getSigninUrlForCategory(categoryId);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setSaveModal({
+        open: true,
+        signedIn: !!user,
+        signinUrl,
+      });
+    } catch {
+      setSaveModal({ open: true, signedIn: false, signinUrl });
+    }
+  };
+
   const handleSaveToList = async (productId: string, triggerEl: HTMLButtonElement | null) => {
     saveModalFocusRef.current = triggerEl;
     const signinUrl = getSigninUrl(productId);
@@ -537,7 +553,7 @@ export default function DiscoveryPageClient({
               image_url: ct.image_url,
             }))}
             onShowExamples={handleShowExamples}
-            signinUrlForCategory={getSigninUrlForCategory}
+            onSaveIdea={handleSaveCategory}
             onHaveThem={handleHaveThemCategory}
           />
         ) : (

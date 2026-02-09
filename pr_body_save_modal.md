@@ -3,10 +3,11 @@ Replace "Save to my list" navigation with an in-place modal popup, while reusing
 
 ## What changed
 - **SaveToListModal**: New accessible modal using native `<dialog>` (focus trap, ESC close, backdrop click close, focus return to trigger).
-- **DiscoveryPageClient**: "Save to my list" is now a button. On click:
-  - Signed out: Opens modal with "Sign in", "Join free" links (preserve next param), and "Not now".
-  - Signed in: Calls existing `/api/click` (source: discover_save), opens "Saved" confirmation with "View my list" link.
-- No page navigation unless user chooses Sign in, Join free, or View my list.
+  - Signed out: "Sign in", "Join free" links; **Email address** field + magic link (same behavior as /signin); "Not now".
+  - Signed in: "Saved" confirmation + "View my list" link.
+- **DiscoveryPageClient**: "Save to my list" (Layer C products) is now a button; opens modal.
+- **CategoryCarousel**: "Save idea" (Layer B categories) is now a button; opens same modal.
+- No page navigation unless user chooses Sign in, Join free, View my list, or submits magic link.
 
 ## Non‑negotiable (unchanged)
 - No DB schema, RLS, or gateway changes.
@@ -17,10 +18,12 @@ Replace "Save to my list" navigation with an in-place modal popup, while reusing
 ## Founder QA steps
 1. Build: `pnpm -C web build` (verify passes).
 2. Open Vercel preview → `/discover/26`.
-3. Select doorway → "See next steps" → scroll to Layer C product cards.
-4. **Signed out**: Click "Save to my list" → modal appears, no navigation. Click "Sign in" or "Join free" → navigates. Click "Not now" or ESC or backdrop → closes, focus returns.
-5. **Signed in**: Click "Save to my list" → modal shows "Saved", "View my list" link works. No navigation on open.
-6. Confirm "Have it already" still works and shows toast.
+3. Select doorway → "See next steps".
+4. **Save idea (Layer B)**: Click "Save idea" on a category card → modal appears. Signed out: modal has Sign in, Join free, Email field + magic link, Not now.
+5. **Save to my list (Layer C)**: Scroll to examples, click "Save to my list" → same modal.
+6. **Email in modal**: Enter email, "Send magic link" → "Check your email" (same as /signin). Not now / ESC / backdrop closes.
+7. **Signed in**: Either button → modal shows "Saved", "View my list" link works.
+8. Confirm "Have it already" / "Have them" still work.
 
 ## Rollback
 Revert PR (no schema changes).

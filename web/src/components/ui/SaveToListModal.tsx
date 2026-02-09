@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { createClient } from '@/utils/supabase/client';
 
 interface SaveToListModalProps {
   open: boolean;
@@ -12,9 +13,20 @@ interface SaveToListModalProps {
   onCloseFocusRef?: React.RefObject<HTMLElement | null>;
 }
 
+/** Parse next param from signinUrl (e.g. /signin?next=/discover/26) for redirect after auth */
+function getNextFromSigninUrl(signinUrl: string): string {
+  try {
+    const base = typeof window !== 'undefined' ? window.location.origin : 'https://dummy';
+    const url = new URL(signinUrl.startsWith('/') ? base + signinUrl : signinUrl);
+    return url.searchParams.get('next') || '/app';
+  } catch {
+    return '/app';
+  }
+}
+
 /**
- * Accessible modal for "Save to my list" CTA.
- * - Signed out: Sign in + Join free links, Not now button
+ * Accessible modal for "Save to my list" / "Save idea" CTA.
+ * - Signed out: Sign in + Join free links, Email field + magic link, Not now button
  * - Signed in: "Saved" confirmation + View my list link
  * Uses native <dialog> for focus trap and ESC.
  */
@@ -25,17 +37,43 @@ export function SaveToListModal({
   signinUrl,
   onCloseFocusRef,
 }: SaveToListModalProps) {
+  const [email, setEmail] = useState('');
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (open) {
+      setEmail('');
+      setSent(false);
+      setError(null);
       dialog.showModal();
     } else {
       dialog.close();
     }
   }, [open]);
+
+  const handleMagicLinkSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    const next = getNextFromSigninUrl(signinUrl);
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(next)}`;
+    const supabase = createClient();
+    const { error: err } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: redirectTo,
+        shouldCreateUser: false,
+      },
+    });
+    if (err && (err.message.includes('fetch') || err.message.includes('network'))) {
+      setError('Something went wrong sending the email. Please try again.');
+    }
+    setSent(true);
+  };
 
   const handleClose = () => {
     onClose();
@@ -105,6 +143,15 @@ export function SaveToListModal({
             >
               View my list
             </Link>
+          ) : sent ? (
+            <>
+              <p className="text-sm" style={{ color: 'var(--ember-text-low)', fontFamily: 'var(--font-sans)' }}>
+                If you&apos;re invited, you&apos;ll receive an email with a sign-in link shortly.
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'var(--ember-text-low)', fontFamily: 'var(--font-sans)' }}>
+                <a href="/verify" className="underline" onClick={handleClose}>Use a 6-digit code instead</a>
+              </p>
+            </>
           ) : (
             <>
               <Link
@@ -131,6 +178,37 @@ export function SaveToListModal({
               >
                 Join free
               </Link>
+              <form onSubmit={handleMagicLinkSubmit} className="flex flex-col gap-2 mt-1">
+                <label className="block text-sm font-medium" style={{ color: 'var(--ember-text-high)', fontFamily: 'var(--font-sans)' }}>
+                  Email address:
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full min-h-[40px] rounded-lg border px-3 text-sm"
+                  style={{
+                    borderColor: 'var(--ember-border-subtle)',
+                    backgroundColor: 'var(--ember-surface-primary)',
+                    color: 'var(--ember-text-high)',
+                    fontFamily: 'var(--font-sans)',
+                  }}
+                />
+                {error && <p className="text-red-600 text-xs">{error}</p>}
+                <button
+                  type="submit"
+                  className="min-h-[40px] rounded-lg border font-medium text-sm"
+                  style={{
+                    borderColor: 'var(--ember-border-subtle)',
+                    backgroundColor: 'var(--ember-accent-base)',
+                    color: 'white',
+                  }}
+                >
+                  Send magic link
+                </button>
+              </form>
             </>
           )}
           <button
