@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Bookmark, Check, Sparkles } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -23,7 +22,7 @@ export interface CategoryTileData extends Pick<GatewayCategoryTypePublic, 'id' |
 interface CategoryCarouselProps {
   categories: CategoryTileData[];
   onShowExamples: (categoryId: string) => void;
-  signinUrlForCategory?: (categoryId: string) => string;
+  onSaveIdea?: (categoryId: string, triggerEl: HTMLButtonElement | null) => void;
   onHaveThem?: (categoryId: string) => void;
 }
 
@@ -32,7 +31,7 @@ function CategoryTypeCard({
   isSelected,
   onSelect,
   onShowExamples,
-  signinUrlForCategory,
+  onSaveIdea,
   onHaveThem,
   cardWidth,
 }: {
@@ -40,7 +39,7 @@ function CategoryTypeCard({
   isSelected: boolean;
   onSelect: () => void;
   onShowExamples: (categoryId: string) => void;
-  signinUrlForCategory?: (categoryId: string) => string;
+  onSaveIdea?: (categoryId: string, triggerEl: HTMLButtonElement | null) => void;
   onHaveThem?: (categoryId: string) => void;
   cardWidth: number;
 }) {
@@ -133,10 +132,13 @@ function CategoryTypeCard({
       {/* Actions: solid surface so buttons are always readable */}
       <div className="p-3 flex flex-col gap-2 bg-[var(--ember-surface-primary)]">
         <div className="flex flex-wrap gap-1.5">
-          {signinUrlForCategory ? (
-            <Link
-              href={signinUrlForCategory(category.id)}
-              onClick={(e) => e.stopPropagation()}
+          {onSaveIdea ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSaveIdea(category.id, e.currentTarget);
+              }}
               className="min-h-[32px] px-2.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
               style={{
                 borderColor: '#E5E7EB',
@@ -146,7 +148,7 @@ function CategoryTypeCard({
             >
               <Bookmark size={12} strokeWidth={2} />
               Save idea
-            </Link>
+            </button>
           ) : (
             <span
               className="min-h-[32px] px-2.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed"
@@ -201,7 +203,7 @@ function CategoryTypeCard({
 export function CategoryCarousel({
   categories,
   onShowExamples,
-  signinUrlForCategory,
+  onSaveIdea,
   onHaveThem,
 }: CategoryCarouselProps) {
   const [current, setCurrent] = useState(0);
@@ -265,7 +267,7 @@ export function CategoryCarousel({
                 isSelected={current === index}
                 onSelect={() => setCurrent(index)}
                 onShowExamples={onShowExamples}
-                signinUrlForCategory={signinUrlForCategory}
+                onSaveIdea={onSaveIdea}
                 onHaveThem={onHaveThem}
                 cardWidth={cardWidth}
               />

@@ -52,6 +52,28 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-09 — feat(save): open "Save to my list" as a modal (no navigation)
+
+### Summary
+- **SaveToListModal**: New accessible modal using native `<dialog>` — focus trap, ESC close, backdrop click close, focus return to trigger. Signed out: Sign in / Join free links; **Email address** field + magic link (same as /signin); Not now.
+- **DiscoveryPageClient**: "Save to my list" (Layer C) and **CategoryCarousel** "Save idea" (Layer B) both open the same modal.
+- No page navigation unless user chooses Sign in, Join free, View my list, or submits magic link. "Have it already" / "Have them" unchanged.
+
+### Files changed
+- `web/src/components/ui/SaveToListModal.tsx` — modal + email magic link
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — Save button + handleSaveCategory
+- `web/src/components/discover/CategoryCarousel.tsx` — Save idea button + onSaveIdea
+
+### QA checklist (founder manual)
+1. `pnpm -C web build` passes
+2. Preview → /discover/26 → select doorway → See next steps → Layer C products
+3. Signed out: Click "Save to my list" → modal, no nav. ESC/backdrop/Not now closes.
+4. Signed in: Click "Save to my list" → "Saved" modal, View my list works
+5. "Have it already" still works
+
+### Rollback
+Revert PR (no schema changes).
+
 ## 2026-02-08 — feat(discover): polish category carousel cards (HD image legibility + peek next/prev)
 
 ### Summary
