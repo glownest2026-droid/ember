@@ -219,8 +219,14 @@ export function CategoryCarousel({
   const reduceMotion = useReducedMotion() ?? false;
   const containerRef = useRef<HTMLDivElement>(null);
   const [cardWidth, setCardWidth] = useState(CARD_WIDTH_DESKTOP);
+  const [containerWidth, setContainerWidth] = useState(0);
   const step = cardWidth + GAP;
   const scrollBehavior = reduceMotion ? ('auto' as const) : ('smooth' as const);
+
+  const cardFullWidth = cardWidth + GAP;
+  const cardsPerView = Math.max(1, containerWidth > 0 ? Math.floor(containerWidth / cardFullWidth) : 1);
+  const totalPages = Math.ceil(categories.length / cardsPerView);
+  const activePage = totalPages > 0 ? Math.min(totalPages, Math.max(1, Math.floor(current / cardsPerView) + 1)) : 1;
 
   useEffect(() => {
     const el = containerRef.current;
@@ -231,6 +237,17 @@ export function CategoryCarousel({
     mq.addEventListener('change', update);
     return () => mq.removeEventListener('change', update);
   }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      setContainerWidth(el.clientWidth);
+    });
+    ro.observe(el);
+    setContainerWidth(el.clientWidth);
+    return () => ro.disconnect();
+  }, [categories.length]);
 
   useEffect(() => {
     if (resetKey === undefined) return;
@@ -318,7 +335,7 @@ export function CategoryCarousel({
           className="text-sm tabular-nums"
           style={{ fontFamily: 'var(--font-sans)', color: '#5C646D' }}
         >
-          {current + 1} / {categories.length}
+          {activePage} / {totalPages}
         </span>
         <button
           type="button"
