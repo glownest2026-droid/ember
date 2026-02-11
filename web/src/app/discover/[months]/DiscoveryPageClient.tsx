@@ -85,6 +85,7 @@ export default function DiscoveryPageClient({
     signinUrl: string;
   }>({ open: false, signedIn: false, signinUrl: '' });
   const saveModalFocusRef = useRef<HTMLButtonElement | null>(null);
+  const nextStepsSectionRef = useRef<HTMLElement | null>(null);
   const basePath = '/discover';
 
   const scrollToSection = useCallback(
@@ -176,12 +177,10 @@ export default function DiscoveryPageClient({
     setSelectedCategoryId(null);
     setShowingExamples(false);
     router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`, { scroll: false });
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const el = document.getElementById('nextStepsSection');
-        if (el) el.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'start' });
-      });
-    });
+    const scrollBehavior = shouldReduceMotion ? ('auto' as const) : ('smooth' as const);
+    setTimeout(() => {
+      nextStepsSectionRef.current?.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
+    }, 50);
   };
 
   const handleShowExamples = (categoryId: string) => {
@@ -212,8 +211,24 @@ export default function DiscoveryPageClient({
     return `/signin?${params.toString()}`;
   };
 
-  const handleHaveThemCategory = (categoryId: string) => {
-    setActionToast({ productId: categoryId, message: 'Marked as have them.' });
+  const handleHaveThemCategory = async (categoryId: string) => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        saveModalFocusRef.current = null;
+        setSaveModal({
+          open: true,
+          signedIn: false,
+          signinUrl: getSigninUrlForCategory(categoryId),
+        });
+        setActionToast({ productId: categoryId, message: 'Sign in to record what you have.' });
+      } else {
+        setActionToast({ productId: categoryId, message: "We've noted it." });
+      }
+    } catch {
+      setActionToast({ productId: categoryId, message: "We've noted it." });
+    }
   };
 
   const getProductUrl = (p: PickItem) =>
@@ -264,19 +279,35 @@ export default function DiscoveryPageClient({
 
   const handleHaveItAlready = async (productId: string) => {
     try {
-      await fetch('/api/click', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          product_id: productId,
-          age_band: selectedBand?.id ?? undefined,
-          source: 'discover_owned',
-        }),
-      });
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        saveModalFocusRef.current = null;
+        setSaveModal({
+          open: true,
+          signedIn: false,
+          signinUrl: getSigninUrl(productId),
+        });
+        setActionToast({ productId, message: 'Sign in to record that you have this.' });
+      } else {
+        try {
+          await fetch('/api/click', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              product_id: productId,
+              age_band: selectedBand?.id ?? undefined,
+              source: 'discover_owned',
+            }),
+          });
+        } catch {
+          // Best-effort
+        }
+        setActionToast({ productId, message: 'Marked as have it already.' });
+      }
     } catch {
-      // Best-effort: still show confirmation
+      setActionToast({ productId, message: 'Marked as have it already.' });
     }
-    setActionToast({ productId, message: 'Marked as have it already.' });
   };
 
   const handleSaveCategory = async (categoryId: string, triggerEl: HTMLButtonElement | null) => {
@@ -501,6 +532,7 @@ export default function DiscoveryPageClient({
 
   const nextStepsSection = discoverState !== 'NoFocusSelected' && selectedBandHasPicks && (
     <section
+      ref={nextStepsSectionRef}
       id="nextStepsSection"
       className="w-full scroll-mt-6"
       style={SURFACE_STYLE}
