@@ -17,14 +17,14 @@ import {
 import { getProductIconKey } from '@/lib/icons/productIcon';
 import { AnimatedTestimonials, type AlbumItem } from '@/components/ui/animated-testimonials';
 import { CategoryCarousel } from '@/components/discover/CategoryCarousel';
+import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
 
 /** A→B→C journey state: NoFocus | FocusSelected (Layer B visible) | CategorySelected | ShowingExamples (Layer C visible) */
 type DiscoverState = 'NoFocusSelected' | 'FocusSelected' | 'CategorySelected' | 'ShowingExamples';
 
-const HERO_BG_IMAGE =
-  'https://images.pexels.com/photos/8909659/pexels-photo-8909659.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+/* Hero: calm gradient + subtle ember glow; no competing effects */
 
 const SURFACE_STYLE = {
   backgroundColor: 'var(--ember-surface-primary)',
@@ -74,7 +74,7 @@ export default function DiscoveryPageClient({
 }: DiscoveryPageClientProps) {
   const router = useRouter();
   const shouldReduceMotion = useReducedMotion() ?? false;
-  const [whyOpen, setWhyOpen] = useState(false);
+  const [howWeChooseOpen, setHowWeChooseOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [actionToast, setActionToast] = useState<{ productId: string; message: string } | null>(null);
   const [showingExamples, setShowingExamples] = useState(false);
@@ -85,6 +85,8 @@ export default function DiscoveryPageClient({
     signinUrl: string;
   }>({ open: false, signedIn: false, signinUrl: '' });
   const saveModalFocusRef = useRef<HTMLButtonElement | null>(null);
+  const nextStepsSectionRef = useRef<HTMLElement | null>(null);
+  const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
   const basePath = '/discover';
 
   const scrollToSection = useCallback(
@@ -171,17 +173,27 @@ export default function DiscoveryPageClient({
     }
   }, [selectedBandIndex, basePath, currentMonth, ageBands, propBandIndex, router]);
 
+  const layerBReady = selectedWrapper && categoryTypes.length > 0;
+  useEffect(() => {
+    if (!layerBReady || !pendingScrollToNextSteps) return;
+    const el = nextStepsSectionRef.current;
+    if (!el) return;
+    const behavior = shouldReduceMotion ? ('auto' as const) : ('smooth' as const);
+    requestAnimationFrame(() => {
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      if (window.scrollY < top - 40) {
+        el.scrollIntoView({ behavior, block: 'start' });
+      }
+      setPendingScrollToNextSteps(false);
+    });
+  }, [layerBReady, pendingScrollToNextSteps, shouldReduceMotion]);
+
   const handleWrapperSelect = (wrapperSlug: string) => {
     setSelectedWrapper(wrapperSlug);
     setSelectedCategoryId(null);
     setShowingExamples(false);
+    setPendingScrollToNextSteps(true);
     router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`, { scroll: false });
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const el = document.getElementById('nextStepsSection');
-        if (el) el.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'start' });
-      });
-    });
   };
 
   const handleShowExamples = (categoryId: string) => {
@@ -212,8 +224,24 @@ export default function DiscoveryPageClient({
     return `/signin?${params.toString()}`;
   };
 
-  const handleHaveThemCategory = (categoryId: string) => {
-    setActionToast({ productId: categoryId, message: 'Marked as have them.' });
+  const handleHaveThemCategory = async (categoryId: string) => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        saveModalFocusRef.current = null;
+        setSaveModal({
+          open: true,
+          signedIn: false,
+          signinUrl: getSigninUrlForCategory(categoryId),
+        });
+        setActionToast({ productId: categoryId, message: 'Sign in to record what you have.' });
+      } else {
+        setActionToast({ productId: categoryId, message: "We've noted it." });
+      }
+    } catch {
+      setActionToast({ productId: categoryId, message: "We've noted it." });
+    }
   };
 
   const getProductUrl = (p: PickItem) =>
@@ -264,19 +292,35 @@ export default function DiscoveryPageClient({
 
   const handleHaveItAlready = async (productId: string) => {
     try {
-      await fetch('/api/click', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          product_id: productId,
-          age_band: selectedBand?.id ?? undefined,
-          source: 'discover_owned',
-        }),
-      });
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        saveModalFocusRef.current = null;
+        setSaveModal({
+          open: true,
+          signedIn: false,
+          signinUrl: getSigninUrl(productId),
+        });
+        setActionToast({ productId, message: 'Sign in to record that you have this.' });
+      } else {
+        try {
+          await fetch('/api/click', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              product_id: productId,
+              age_band: selectedBand?.id ?? undefined,
+              source: 'discover_owned',
+            }),
+          });
+        } catch {
+          // Best-effort
+        }
+        setActionToast({ productId, message: 'Marked as have it already.' });
+      }
     } catch {
-      // Best-effort: still show confirmation
+      setActionToast({ productId, message: 'Marked as have it already.' });
     }
-    setActionToast({ productId, message: 'Marked as have it already.' });
   };
 
   const handleSaveCategory = async (categoryId: string, triggerEl: HTMLButtonElement | null) => {
@@ -329,37 +373,36 @@ export default function DiscoveryPageClient({
 
   const heroSection = (
     <section
-      className="w-full py-10 sm:py-12 md:py-14 relative overflow-hidden"
+      className="w-full min-h-[240px] sm:min-h-[280px] md:min-h-[320px] flex flex-col justify-center relative overflow-hidden px-4 py-12 sm:py-14"
       style={{ borderBottom: '1px solid var(--ember-border-subtle)' }}
+      aria-label="Hero"
     >
       <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${HERO_BG_IMAGE})` }}
-        aria-hidden
-      />
-      <div
         className="absolute inset-0"
-        style={{ backgroundColor: 'rgba(255, 255, 255, 0.88)' }}
+        style={{
+          background: 'linear-gradient(160deg, var(--ember-bg-canvas) 0%, var(--ember-surface-soft) 50%, var(--ember-surface-primary) 100%)',
+          boxShadow: 'inset 0 0 80px rgba(255, 99, 71, 0.06)',
+        }}
         aria-hidden
       />
       <div className="relative z-10 mx-auto max-w-3xl text-center">
         <h1
-          className="mb-3 text-[28px] leading-[1.1] md:text-[36px]"
+          className="mb-3 text-[26px] leading-[1.15] sm:text-[30px] md:text-[36px]"
           style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}
         >
-          Your next-step toy guide — from bump to big steps.
+          Guided toy shopping. From bump to big steps.
         </h1>
         <p
           className="mb-2 text-base md:text-lg leading-[1.6]"
           style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
         >
-          See what your little one is learning next — and what to buy for it.
+          See what they&apos;re learning next - and what to buy for it.
         </p>
         <p
           className="text-sm md:text-base leading-[1.5]"
           style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
         >
-          Use what you&apos;ve got. Add what you need. You&apos;re in charge.
+          Use what you&apos;ve got. Add what you need.
         </p>
       </div>
     </section>
@@ -502,6 +545,7 @@ export default function DiscoveryPageClient({
 
   const nextStepsSection = discoverState !== 'NoFocusSelected' && selectedBandHasPicks && (
     <section
+      ref={nextStepsSectionRef}
       id="nextStepsSection"
       className="w-full scroll-mt-6"
       style={SURFACE_STYLE}
@@ -518,11 +562,20 @@ export default function DiscoveryPageClient({
         <h2 className="text-lg font-medium mb-1" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
           Next steps for {selectedWrapperLabel}
         </h2>
-        <p className="text-sm mb-4" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-          Chosen for {formatBandLabel(selectedBand)} • Explained
+        <p className="text-sm mb-4 flex flex-wrap items-center gap-1" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
+          Chosen for {formatBandLabel(selectedBand)} •{' '}
+          <button
+            type="button"
+            onClick={() => setHowWeChooseOpen(true)}
+            className="inline-flex items-center gap-0.5 cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1 rounded px-1"
+            style={{ color: 'var(--ember-text-low)' }}
+          >
+            Explained <span aria-hidden>ⓘ</span>
+          </button>
         </p>
         {categoryTypes.length > 0 ? (
           <CategoryCarousel
+            resetKey={selectedWrapper ?? ''}
             categories={categoryTypes.map((ct) => ({
               id: ct.id,
               slug: ct.slug,
@@ -560,37 +613,14 @@ export default function DiscoveryPageClient({
           {displayIdeas.length > 0 && (
             <button
               type="button"
-              className="rounded-lg border-0 bg-transparent py-2 px-0 text-sm cursor-pointer"
+              className="rounded-lg border-0 bg-transparent py-2 px-0 text-sm cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
               style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)', fontSize: '14px' }}
-              onClick={() => setWhyOpen((o) => !o)}
+              onClick={() => setHowWeChooseOpen(true)}
             >
               Why these?
             </button>
           )}
         </div>
-        {whyOpen && displayIdeas.length > 0 && (() => {
-          const selCat = selectedCategoryId ? categoryTypes.find((c) => c.id === selectedCategoryId) : null;
-          const catName = selCat?.label ?? selCat?.name ?? selCat?.slug;
-          return (
-            <div
-              className="mb-4 rounded-xl border p-4"
-              style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)' }}
-            >
-              <h3 className="mb-2 text-base font-medium" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
-                Why these?
-              </h3>
-              <p className="mb-2 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-                Chosen for {formatBandLabel(selectedBand)} • Focus: {selectedWrapperLabel}
-                {catName && ` • Category: ${catName}`}
-              </p>
-              <ul className="m-0 list-disc pl-5 space-y-1 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-high)' }}>
-                <li>Age: ideas tailored for {formatBandLabel(selectedBand)}.</li>
-                <li>Focus: matches {selectedWrapperLabel}.</li>
-                {catName && <li>Category: examples from {catName}.</li>}
-              </ul>
-            </div>
-          );
-        })()}
         {!selectedBandHasPicks || (displayIdeas.length === 0) ? (
           <div className="rounded-xl border p-4 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}>
             <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
@@ -599,8 +629,16 @@ export default function DiscoveryPageClient({
           </div>
         ) : (
           <>
-            <p className="text-xs mb-2" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-              Chosen for {formatBandLabel(selectedBand)} • Explained
+            <p className="text-xs mb-2 flex flex-wrap items-center gap-1" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
+              Chosen for {formatBandLabel(selectedBand)} •{' '}
+              <button
+                type="button"
+                onClick={() => setHowWeChooseOpen(true)}
+                className="inline-flex items-center gap-0.5 cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1 rounded px-0"
+                style={{ color: 'var(--ember-text-low)' }}
+              >
+                Explained <span aria-hidden>ⓘ</span>
+              </button>
             </p>
             <AnimatedTestimonials
               items={albumItems}
@@ -681,6 +719,7 @@ export default function DiscoveryPageClient({
           signinUrl={saveModal.signinUrl}
           onCloseFocusRef={saveModalFocusRef}
         />
+        <HowWeChooseSheet open={howWeChooseOpen} onClose={() => setHowWeChooseOpen(false)} />
         {heroSection}
         <div className="py-6 sm:py-8 w-full flex flex-col gap-8">
           {selectorWithId}
