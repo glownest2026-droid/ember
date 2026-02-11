@@ -9,16 +9,13 @@
     "rollback": "Revert PR (no schema changes)."
   },
   "receipt": {
-    "goal": "Discover-only sticky header + calm hero + What is Ember? sheet; 5 regression fixes (header, Show examples, Explained/HowWeChoose, carousel reset, Have them)",
+    "goal": "Sticky header + calm hero + What is Ember? sheet; 5 regressions + 4 residual (header polish, modal responsiveness, auto-scroll, Have them/Have it already auth + toast)",
     "files_changed": [
       "web/src/components/discover/DiscoverStickyHeader.tsx",
       "web/src/components/discover/WhatIsEmberSheet.tsx",
-      "web/src/components/discover/HowWeChooseSheet.tsx",
-      "web/src/components/discover/CategoryCarousel.tsx",
-      "web/src/components/ConditionalHeader.tsx",
       "web/src/app/discover/[months]/DiscoveryPageClient.tsx"
     ],
-    "qa_steps": ["A) Desktop header alignment", "B) Mobile sticky + safe-area", "C) Explained ⓘ opens sheet", "D) Why these? same sheet", "E) Doorway change resets Layer B", "F) Show examples clickable", "G) Have them toast"],
+    "qa_steps": ["A) Desktop header logo + no middle space", "B) Desktop What is Ember? modal", "C) Mobile What is Ember? sheet", "D) Tile click scrolls to Next steps", "E) Have them / Have it already auth + toast"],
     "rollback": "Revert PR (no schema changes)."
   },
   "commit": null,

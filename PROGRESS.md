@@ -59,6 +59,7 @@ _Last updated: 2026-01-04_
 - **Bottom sheet "What is Ember?"**: Reusable sheet; close by swipe down, X icon, tap outside. Exact copy: What it does / How it works (bullets) / Privacy. Single CTA "Join free".
 - **Calm hero**: Replace hero with 240–320px responsive container; gradient + subtle ember glow; exact copy: "Guided toy shopping. From bump to big steps." / "See what they're learning next - and what to buy for it." / "Use what you've got. Add what you need."
 - **5 regression fixes**: (1) Header alignment + logo size (max-w-7xl, h-6/h-7 logo). (2) "Show examples" cursor + hover underline. (3) "Explained ⓘ" + "Why these?" open HowWeChooseSheet (exact "How Ember chooses" copy). (4) Layer B carousel reset on doorway change (resetKey). (5) "Have them" wired with toast.
+- **Residual**: (1) Header: bigger logo h-7/h-8, max-w-6xl wrapper. (2) What is Ember?: desktop = centered modal (720px/92vw), mobile = bottom sheet. (3) Auto-scroll to Next steps on tile click (ref + setTimeout, reduced-motion). (4) Have them / Have it already: signed out → auth modal + toast; signed in → toast and/or /api/click.
 - No DB/RLS/gateway. No new deps.
 
 ### Files changed
@@ -70,7 +71,7 @@ _Last updated: 2026-01-04_
 - `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — hero; Explained ⓘ / Why these? → HowWeChooseSheet; resetKey; howWeChooseOpen state
 
 ### QA (founder, browser only — Vercel preview URL)
-A) Desktop header: logo readable, alignment clean. B) Mobile header: sticky, safe-area. C) "Explained ⓘ" opens HowWeChooseSheet; close X/outside/swipe. D) "Why these?" opens same sheet. E) Switch doorway → Layer B resets to 1/N. F) "Show examples" looks clickable. G) "Have them" gives toast.
+A) Desktop header: logo readable; no giant middle space; actions right. B) Desktop "What is Ember?" = centered modal. C) Mobile "What is Ember?" = bottom sheet. D) Click development tile → scrolls to Next steps. E) "Have them" / "Have it already": signed out → auth modal + toast; signed in → toast/click.
 
 ### Rollback
 Revert PR (no schema changes).

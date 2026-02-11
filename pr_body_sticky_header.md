@@ -25,19 +25,23 @@ Replace the `/discover` top-of-page shell with a mobile-first sticky header and 
 4. **Reset Layer B on Layer A change**: When doorway changes, Layer B carousel resets to index 0 (shows 1/N), scroll to start; Layer C state cleared. `resetKey={selectedWrapper}` passed to `CategoryCarousel`.
 5. **"Have them" wired**: "Have them" calls existing handler; toast "Marked as have them."; `cursor-pointer`; no dead click.
 
+### Residual fixes (follow-up)
+1. **Header polish**: Bigger logo (~2×): `h-7 sm:h-8`, `w-auto`. Inner container `max-w-6xl px-4` to remove giant middle space; vertical centering; no min-height/line-height issues.
+2. **"What is Ember?" responsiveness**: Mobile = bottom sheet (swipe down + X + outside). Desktop = centered modal card (`max-w-[720px]`, `w-[92vw]`, `rounded-2xl`, `shadow-xl`); close via X + outside click only.
+3. **Auto-scroll on Layer A selection**: Clicking a development tile scrolls to Next steps (Layer B); ref on section, `setTimeout` after state update; respects `prefers-reduced-motion`.
+4. **"Have them" / "Have it already"**: Signed out → open existing auth modal (SaveToListModal) + toast. Signed in → "Have them" toast "We've noted it."; "Have it already" calls `/api/click` + toast. No dead clicks.
+
 ## Non‑negotiable (unchanged)
 - No DB/RLS/gateway changes. No new vendors.
 - No headless automation or deployment polling. Founder QA in browser only.
 
 ## Founder QA (browser-only, Vercel preview URL)
 
-**A)** Desktop header: logo readable size, alignment clean, right actions aligned  
-**B)** Mobile header: sticky, safe-area ok  
-**C)** "Explained ⓘ" opens HowWeChooseSheet; closes via X / outside tap / swipe down  
-**D)** "Why these?" opens same sheet  
-**E)** Switch doorway (Layer A): Layer B resets to 1/N and scrolls to start  
-**F)** "Show examples" looks clickable and works  
-**G)** "Have them" gives feedback (toast) and triggers expected behaviour  
+**A)** Desktop header: logo readable; no giant empty middle space; actions aligned right  
+**B)** Desktop "What is Ember?": contained centered modal card  
+**C)** Mobile "What is Ember?": bottom sheet still works (swipe / X / outside)  
+**D)** Click a development tile (Layer A): page scrolls to Next steps section automatically  
+**E)** "Have them" (Layer B) and "Have it already" (Layer C): not dead; signed out → auth modal + toast; signed in → toast and/or click tracking  
 
 ## Rollback
 Revert PR (no schema changes).
