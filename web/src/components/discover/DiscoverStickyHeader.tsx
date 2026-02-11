@@ -37,7 +37,7 @@ export default function DiscoverStickyHeader() {
         }}
       >
         <div className="h-full mx-auto max-w-6xl px-4">
-          <div className="flex items-center justify-start py-2">
+          <div className="flex items-center justify-start gap-3 py-2 sm:gap-6">
             <button
               type="button"
               onClick={scrollToTop}
@@ -47,12 +47,12 @@ export default function DiscoverStickyHeader() {
               <img
                 src={EMBER_LOGO_URL}
                 alt=""
-                className="h-8 sm:h-9 w-auto object-contain flex-shrink-0"
-                width={36}
-                height={36}
+                className="h-10 sm:h-12 md:h-12 w-auto object-contain flex-shrink-0"
+                width={48}
+                height={48}
               />
               <span
-                className="text-base sm:text-lg font-semibold tracking-tight truncate"
+                className="text-base sm:text-lg font-semibold tracking-tight truncate whitespace-nowrap"
                 style={{ color: 'var(--ember-text-high)' }}
               >
                 Ember
@@ -61,14 +61,14 @@ export default function DiscoverStickyHeader() {
             <button
               type="button"
               onClick={() => setWhatIsOpen(true)}
-              className="ml-6 text-sm font-medium transition-opacity hover:opacity-80 shrink-0"
+              className="text-sm font-medium transition-opacity hover:opacity-80 shrink-0 whitespace-nowrap"
               style={{ color: 'var(--ember-text-high)' }}
             >
               What is Ember?
             </button>
             <Link
               href={joinHref}
-              className="ml-4 px-4 py-2 rounded-lg font-semibold text-sm text-white transition-colors bg-[#FF6347] hover:bg-[#B8432B] shrink-0"
+              className="px-4 py-2 rounded-lg font-semibold text-sm text-white transition-colors bg-[#FF6347] hover:bg-[#B8432B] shrink-0 whitespace-nowrap"
               style={{ borderRadius: 'var(--ember-radius-button, 8px)' }}
             >
               Join free
