@@ -17,6 +17,7 @@ import {
 import { getProductIconKey } from '@/lib/icons/productIcon';
 import { AnimatedTestimonials, type AlbumItem } from '@/components/ui/animated-testimonials';
 import { CategoryCarousel } from '@/components/discover/CategoryCarousel';
+import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
 
@@ -73,7 +74,7 @@ export default function DiscoveryPageClient({
 }: DiscoveryPageClientProps) {
   const router = useRouter();
   const shouldReduceMotion = useReducedMotion() ?? false;
-  const [whyOpen, setWhyOpen] = useState(false);
+  const [howWeChooseOpen, setHowWeChooseOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [actionToast, setActionToast] = useState<{ productId: string; message: string } | null>(null);
   const [showingExamples, setShowingExamples] = useState(false);
@@ -516,11 +517,20 @@ export default function DiscoveryPageClient({
         <h2 className="text-lg font-medium mb-1" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
           Next steps for {selectedWrapperLabel}
         </h2>
-        <p className="text-sm mb-4" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-          Chosen for {formatBandLabel(selectedBand)} • Explained
+        <p className="text-sm mb-4 flex flex-wrap items-center gap-1" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
+          Chosen for {formatBandLabel(selectedBand)} •{' '}
+          <button
+            type="button"
+            onClick={() => setHowWeChooseOpen(true)}
+            className="inline-flex items-center gap-0.5 cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1 rounded px-1"
+            style={{ color: 'var(--ember-text-low)' }}
+          >
+            Explained <span aria-hidden>ⓘ</span>
+          </button>
         </p>
         {categoryTypes.length > 0 ? (
           <CategoryCarousel
+            resetKey={selectedWrapper ?? ''}
             categories={categoryTypes.map((ct) => ({
               id: ct.id,
               slug: ct.slug,
@@ -558,37 +568,14 @@ export default function DiscoveryPageClient({
           {displayIdeas.length > 0 && (
             <button
               type="button"
-              className="rounded-lg border-0 bg-transparent py-2 px-0 text-sm cursor-pointer"
+              className="rounded-lg border-0 bg-transparent py-2 px-0 text-sm cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
               style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)', fontSize: '14px' }}
-              onClick={() => setWhyOpen((o) => !o)}
+              onClick={() => setHowWeChooseOpen(true)}
             >
               Why these?
             </button>
           )}
         </div>
-        {whyOpen && displayIdeas.length > 0 && (() => {
-          const selCat = selectedCategoryId ? categoryTypes.find((c) => c.id === selectedCategoryId) : null;
-          const catName = selCat?.label ?? selCat?.name ?? selCat?.slug;
-          return (
-            <div
-              className="mb-4 rounded-xl border p-4"
-              style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)' }}
-            >
-              <h3 className="mb-2 text-base font-medium" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
-                Why these?
-              </h3>
-              <p className="mb-2 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-                Chosen for {formatBandLabel(selectedBand)} • Focus: {selectedWrapperLabel}
-                {catName && ` • Category: ${catName}`}
-              </p>
-              <ul className="m-0 list-disc pl-5 space-y-1 text-sm" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-high)' }}>
-                <li>Age: ideas tailored for {formatBandLabel(selectedBand)}.</li>
-                <li>Focus: matches {selectedWrapperLabel}.</li>
-                {catName && <li>Category: examples from {catName}.</li>}
-              </ul>
-            </div>
-          );
-        })()}
         {!selectedBandHasPicks || (displayIdeas.length === 0) ? (
           <div className="rounded-xl border p-4 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}>
             <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
@@ -597,8 +584,16 @@ export default function DiscoveryPageClient({
           </div>
         ) : (
           <>
-            <p className="text-xs mb-2" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-              Chosen for {formatBandLabel(selectedBand)} • Explained
+            <p className="text-xs mb-2 flex flex-wrap items-center gap-1" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
+              Chosen for {formatBandLabel(selectedBand)} •{' '}
+              <button
+                type="button"
+                onClick={() => setHowWeChooseOpen(true)}
+                className="inline-flex items-center gap-0.5 cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1 rounded px-0"
+                style={{ color: 'var(--ember-text-low)' }}
+              >
+                Explained <span aria-hidden>ⓘ</span>
+              </button>
             </p>
             <AnimatedTestimonials
               items={albumItems}
@@ -679,6 +674,7 @@ export default function DiscoveryPageClient({
           signinUrl={saveModal.signinUrl}
           onCloseFocusRef={saveModalFocusRef}
         />
+        <HowWeChooseSheet open={howWeChooseOpen} onClose={() => setHowWeChooseOpen(false)} />
         {heroSection}
         <div className="py-6 sm:py-8 w-full flex flex-col gap-8">
           {selectorWithId}

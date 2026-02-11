@@ -58,19 +58,19 @@ _Last updated: 2026-01-04_
 - **Discover-only sticky header**: Replace top-of-page shell on `/discover` with mobile-first sticky header. Left: Ember robin logo (brand-assets URL) + "Ember" text, button scrolls to top. Right: "What is Ember?" (opens bottom sheet), "Join free" (existing `/signin?next=...`). Styling: minimal, border #E5E7EB, white surface, accent #FF6347 / hover #B8432B, safe-area padding.
 - **Bottom sheet "What is Ember?"**: Reusable sheet; close by swipe down, X icon, tap outside. Exact copy: What it does / How it works (bullets) / Privacy. Single CTA "Join free".
 - **Calm hero**: Replace hero with 240–320px responsive container; gradient + subtle ember glow; exact copy: "Guided toy shopping. From bump to big steps." / "See what they're learning next - and what to buy for it." / "Use what you've got. Add what you need."
-- No Layer A/B/C or carousel logic changed. No new deps. No DB/RLS/gateway.
+- **5 regression fixes**: (1) Header alignment + logo size (max-w-7xl, h-6/h-7 logo). (2) "Show examples" cursor + hover underline. (3) "Explained ⓘ" + "Why these?" open HowWeChooseSheet (exact "How Ember chooses" copy). (4) Layer B carousel reset on doorway change (resetKey). (5) "Have them" wired with toast.
+- No DB/RLS/gateway. No new deps.
 
 ### Files changed
-- `web/src/components/discover/DiscoverStickyHeader.tsx` — new: sticky header + sheet trigger
-- `web/src/components/discover/WhatIsEmberSheet.tsx` — new: bottom sheet, exact copy
-- `web/src/components/ConditionalHeader.tsx` — render DiscoverStickyHeader when path starts with `/discover`
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — replace hero section (calm gradient + copy only)
+- `web/src/components/discover/DiscoverStickyHeader.tsx` — sticky header + alignment + logo size
+- `web/src/components/discover/WhatIsEmberSheet.tsx` — bottom sheet
+- `web/src/components/discover/HowWeChooseSheet.tsx` — new: "How Ember chooses" sheet (single source of truth)
+- `web/src/components/discover/CategoryCarousel.tsx` — Show examples affordance; resetKey; Have them cursor
+- `web/src/components/ConditionalHeader.tsx` — DiscoverStickyHeader when path /discover
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — hero; Explained ⓘ / Why these? → HowWeChooseSheet; resetKey; howWeChooseOpen state
 
-### QA (founder, browser only — no terminal)
-1. **Mobile** `/discover/26`: Sticky header visible; scroll page → header stays. Tap "Ember" (left) → scrolls to top. Tap "What is Ember?" → bottom sheet opens; close via outside tap, X, swipe down. "Join free" present and navigates to signin with next param.
-2. **Hero**: Three-line copy above selector; calm; text readable.
-3. **Desktop**: Header minimal and aligned; no overlap.
-4. **Reduced motion**: No forced smooth scroll (header scroll respects prefs).
+### QA (founder, browser only — Vercel preview URL)
+A) Desktop header: logo readable, alignment clean. B) Mobile header: sticky, safe-area. C) "Explained ⓘ" opens HowWeChooseSheet; close X/outside/swipe. D) "Why these?" opens same sheet. E) Switch doorway → Layer B resets to 1/N. F) "Show examples" looks clickable. G) "Have them" gives toast.
 
 ### Rollback
 Revert PR (no schema changes).

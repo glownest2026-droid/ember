@@ -30,6 +30,8 @@ interface CategoryCarouselProps {
   onShowExamples: (categoryId: string) => void;
   onSaveIdea?: (categoryId: string, triggerEl: HTMLButtonElement | null) => void;
   onHaveThem?: (categoryId: string) => void;
+  /** When this changes (e.g. doorway slug), carousel resets to first card and scroll to start */
+  resetKey?: string;
 }
 
 function CategoryTypeCard({
@@ -172,10 +174,10 @@ function CategoryTypeCard({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              if (onHaveThem) onHaveThem(category.id);
+              onHaveThem?.(category.id);
             }}
             disabled={!onHaveThem}
-            className="min-h-[32px] px-2.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
+            className="min-h-[32px] px-2.5 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
             style={{
               borderColor: '#E5E7EB',
               backgroundColor: 'var(--ember-surface-primary)',
@@ -191,7 +193,7 @@ function CategoryTypeCard({
               e.stopPropagation();
               onShowExamples(category.id);
             }}
-            className="min-h-[32px] px-2.5 rounded-lg border border-transparent text-xs font-medium flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1 hover:bg-[var(--ember-surface-soft)]"
+            className="min-h-[32px] px-2.5 rounded-lg border border-transparent text-xs font-medium flex items-center justify-center gap-1.5 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1 hover:bg-[var(--ember-surface-soft)] hover:underline"
             style={{
               backgroundColor: 'transparent',
               color: '#5C646D',
@@ -211,6 +213,7 @@ export function CategoryCarousel({
   onShowExamples,
   onSaveIdea,
   onHaveThem,
+  resetKey,
 }: CategoryCarouselProps) {
   const [current, setCurrent] = useState(0);
   const reduceMotion = useReducedMotion() ?? false;
@@ -228,6 +231,13 @@ export function CategoryCarousel({
     mq.addEventListener('change', update);
     return () => mq.removeEventListener('change', update);
   }, []);
+
+  useEffect(() => {
+    if (resetKey === undefined) return;
+    setCurrent(0);
+    const el = containerRef.current;
+    if (el) el.scrollTo({ left: 0, behavior: scrollBehavior });
+  }, [resetKey, scrollBehavior]);
 
   const updateCurrentFromScroll = useCallback(() => {
     const el = containerRef.current;

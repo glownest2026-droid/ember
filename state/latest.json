@@ -9,15 +9,17 @@
     "rollback": "Revert PR (no schema changes)."
   },
   "receipt": {
-    "goal": "Discover-only sticky header + calm hero + What is Ember? bottom sheet; Join free CTA",
+    "goal": "Discover-only sticky header + calm hero + What is Ember? sheet; 5 regression fixes (header, Show examples, Explained/HowWeChoose, carousel reset, Have them)",
     "files_changed": [
       "web/src/components/discover/DiscoverStickyHeader.tsx",
       "web/src/components/discover/WhatIsEmberSheet.tsx",
+      "web/src/components/discover/HowWeChooseSheet.tsx",
+      "web/src/components/discover/CategoryCarousel.tsx",
       "web/src/components/ConditionalHeader.tsx",
       "web/src/app/discover/[months]/DiscoveryPageClient.tsx"
     ],
-    "commands_run": [{ "cwd": "web", "command": "pnpm build", "result": "ok (exit 0)" }],
-    "decision_notes": "Discover-only header; native bottom sheet; gradient hero; no Layer A/B/C changes"
+    "qa_steps": ["A) Desktop header alignment", "B) Mobile sticky + safe-area", "C) Explained ⓘ opens sheet", "D) Why these? same sheet", "E) Doorway change resets Layer B", "F) Show examples clickable", "G) Have them toast"],
+    "rollback": "Revert PR (no schema changes)."
   },
   "commit": null,
   "timestamp": "2026-02-11T00:00:00.000Z"

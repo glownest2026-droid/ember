@@ -18,23 +18,30 @@ Replace the `/discover` top-of-page shell with a mobile-first sticky header and 
 - Replaced previous hero with calm full-width container: 240–320px height (responsive), gradient + subtle ember glow.
 - Copy (exact): Headline "Guided toy shopping. From bump to big steps."; subhead "See what they're learning next - and what to buy for it."; support "Use what you've got. Add what you need."
 
+### Fixes (5 regressions)
+1. **Sticky header alignment + logo**: Header uses `max-w-7xl` to match page content; flex `items-center` / `justify-between`; logo `h-6` mobile / `h-7` desktop, `w-auto`; left cluster centered; right cluster vertically aligned.
+2. **"Show examples" affordance**: Button has `cursor-pointer`, `hover:underline`, `focus-visible:ring`; clearly interactive.
+3. **"Explained" clickable + HowWeChooseSheet**: Next steps subheader shows "Chosen for X–Y months • Explained ⓘ"; ⓘ (and "Explained ⓘ") opens **HowWeChooseSheet** ("How Ember chooses" — exact copy). "Why these?" in Examples opens the same sheet. Close: tap outside, X, swipe down.
+4. **Reset Layer B on Layer A change**: When doorway changes, Layer B carousel resets to index 0 (shows 1/N), scroll to start; Layer C state cleared. `resetKey={selectedWrapper}` passed to `CategoryCarousel`.
+5. **"Have them" wired**: "Have them" calls existing handler; toast "Marked as have them."; `cursor-pointer`; no dead click.
+
 ## Non‑negotiable (unchanged)
 - No DB/RLS/gateway changes. No new vendors.
-- Layer A/B/C logic, carousel behaviour, and state resets unchanged.
 - No headless automation or deployment polling. Founder QA in browser only.
 
-## Founder QA (preview URL)
+## Founder QA (browser-only, Vercel preview URL)
 
-1. **Mobile** `/discover/26` load: Sticky header visible; scroll page and confirm it stays. Tap "Ember" (left cluster) → returns to top.
-2. Tap "What is Ember?" → bottom sheet opens; close via outside tap, X, and swipe down.
-3. "Join free" CTA present and navigates to signin (with next param).
-4. **Hero**: Shows the 3-line copy above selector UI; calm; text readable.
-5. **Desktop**: Header minimal and aligned; no overlap.
-6. **Reduced motion**: No smooth scroll when using header scroll-to-top (if OS Reduce motion on).
+**A)** Desktop header: logo readable size, alignment clean, right actions aligned  
+**B)** Mobile header: sticky, safe-area ok  
+**C)** "Explained ⓘ" opens HowWeChooseSheet; closes via X / outside tap / swipe down  
+**D)** "Why these?" opens same sheet  
+**E)** Switch doorway (Layer A): Layer B resets to 1/N and scrolls to start  
+**F)** "Show examples" looks clickable and works  
+**G)** "Have them" gives feedback (toast) and triggers expected behaviour  
 
 ## Rollback
 Revert PR (no schema changes).
 
 ## Delivery
-- Branch: create from `main` (e.g. `feat/sticky-header-calm-hero`), push and open PR using this body.
+- Branch: `feat/sticky-header-calm-hero` (existing PR).
 - Preview URL: set in PR after Vercel deploy; founder QA in browser only (no terminal).
