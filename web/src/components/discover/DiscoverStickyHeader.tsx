@@ -36,23 +36,22 @@ export default function DiscoverStickyHeader() {
           minHeight: '56px',
         }}
       >
-        <div className="h-full mx-auto max-w-7xl px-4 sm:px-6 flex items-center justify-between gap-4">
+        <div className="h-full mx-auto max-w-6xl px-4 flex items-center justify-between">
           <button
             type="button"
             onClick={scrollToTop}
-            className="flex items-center gap-2 min-w-0 shrink-0 py-2"
+            className="flex items-center gap-2 min-w-0 shrink-0 py-2 leading-none"
             aria-label="Scroll to top"
           >
             <img
               src={EMBER_LOGO_URL}
               alt=""
-              className="h-6 sm:h-7 w-auto object-contain flex-shrink-0 inline-block align-middle"
-              width={28}
-              height={28}
-              style={{ minHeight: '24px' }}
+              className="h-7 sm:h-8 w-auto object-contain flex-shrink-0"
+              width={32}
+              height={32}
             />
             <span
-              className="text-base sm:text-lg font-semibold tracking-tight truncate leading-none"
+              className="text-base sm:text-lg font-semibold tracking-tight truncate"
               style={{ color: 'var(--ember-text-high)' }}
             >
               Ember
