@@ -31,21 +31,33 @@ Replace the `/discover` top-of-page shell with a mobile-first sticky header and 
 3. **Auto-scroll on Layer A selection**: Clicking a development tile scrolls to Next steps (Layer B); ref on section, `setTimeout` after state update; respects `prefers-reduced-motion`.
 4. **"Have them" / "Have it already"**: Signed out → open existing auth modal (SaveToListModal) + toast. Signed in → "Have them" toast "We've noted it."; "Have it already" calls `/api/click` + toast. No dead clicks.
 
+### Final fixes (once and for all)
+1. **Nav: everything left**: Single left-aligned cluster `[Logo] [Ember] [What is Ember?] [Join free]`; no right-aligned block; `justify-start`; logo `h-8` mobile / `h-9` desktop; gaps logo–Ember ~8px, Ember–What is Ember? ~24px, What is Ember?–Join free ~16px.
+2. **Auto-scroll when Layer B ready**: `pendingScrollToNextSteps` set on tile click; effect runs when `categoryTypes.length > 0` and pending; then RAF `scrollIntoView` (reduced-motion: `auto`); optional guard: only scroll if `window.scrollY < nextStepsTop - 40`. Changing doorway while loading keeps pending until ready.
+3. **Carousel counter**: Page count from `cardsPerView` (container width / (cardWidth + gap)); `totalPages = ceil(count / cardsPerView)`, `activePage` from `current`; ResizeObserver to recompute; display `activePage / totalPages` (no +2 inflation).
+
 ## Non‑negotiable (unchanged)
 - No DB/RLS/gateway changes. No new vendors.
 - No headless automation or deployment polling. Founder QA in browser only.
 
 ## Founder QA (browser-only, Vercel preview URL)
 
-**A)** Desktop header: logo readable; no giant empty middle space; actions aligned right  
-**B)** Desktop "What is Ember?": contained centered modal card  
-**C)** Mobile "What is Ember?": bottom sheet still works (swipe / X / outside)  
-**D)** Click a development tile (Layer A): page scrolls to Next steps section automatically  
-**E)** "Have them" (Layer B) and "Have it already" (Layer C): not dead; signed out → auth modal + toast; signed in → toast and/or click tracking  
+**1) Header**  
+- Logo visibly bigger.  
+- All items grouped on left: logo + Ember + What is Ember? + Join free.  
+- Nothing right-aligned.  
+
+**2) Auto-scroll**  
+- Click a development tile at top.  
+- Even if “We’re adding more ideas here” appears briefly, once tiles load, page scrolls down to Next steps automatically.  
+
+**3) Carousel counter**  
+- For a known small set (e.g. 3 pages worth), counter matches actual pages; no +2 inflation.  
+- Resize window narrower/wider: counter still correct.  
 
 ## Rollback
 Revert PR (no schema changes).
 
 ## Delivery
 - Branch: `feat/sticky-header-calm-hero` (existing PR).
-- Preview URL: set in PR after Vercel deploy; founder QA in browser only (no terminal).
+- **Preview URL**: _(set in PR after Vercel deploy; founder QA in browser only, no terminal)_
