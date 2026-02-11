@@ -1,26 +1,24 @@
 {
   "pr": {
     "number": null,
-    "title": "feat(discover): frictionless load + swipe-first carousels + Save-first CTAs",
-    "branch": "feat/frictionless-discover",
+    "title": "feat(ui): sticky header + calm hero + \"What is Ember?\" bottom sheet",
+    "branch": "feat/sticky-header-calm-hero",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
     "rollback": "Revert PR (no schema changes)."
   },
   "receipt": {
-    "goal": "Frictionless A→B→C: hide B/C by default, doorway click scrolls to B, swipe carousels, Save-first CTAs",
+    "goal": "Discover-only sticky header + calm hero + What is Ember? bottom sheet; Join free CTA",
     "files_changed": [
-      "web/src/app/discover/[months]/page.tsx",
-      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
-      "web/src/components/discover/CategoryCarousel.tsx",
-      "web/src/components/ui/animated-testimonials.tsx"
+      "web/src/components/discover/DiscoverStickyHeader.tsx",
+      "web/src/components/discover/WhatIsEmberSheet.tsx",
+      "web/src/components/ConditionalHeader.tsx",
+      "web/src/app/discover/[months]/DiscoveryPageClient.tsx"
     ],
-    "commands_run": [
-      { "cwd": "web", "command": "pnpm build", "result": "ok (exit 0)" }
-    ],
-    "decision_notes": "URL-only doorway; scroll-snap Layer B; swipe Layer C; CTA hierarchy B/C"
+    "commands_run": [{ "cwd": "web", "command": "pnpm build", "result": "ok (exit 0)" }],
+    "decision_notes": "Discover-only header; native bottom sheet; gradient hero; no Layer A/B/C changes"
   },
   "commit": null,
-  "timestamp": "2026-02-09T00:00:00.000Z"
+  "timestamp": "2026-02-11T00:00:00.000Z"
 }

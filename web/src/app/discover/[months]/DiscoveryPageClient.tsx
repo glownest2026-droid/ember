@@ -23,8 +23,7 @@ import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
 /** A→B→C journey state: NoFocus | FocusSelected (Layer B visible) | CategorySelected | ShowingExamples (Layer C visible) */
 type DiscoverState = 'NoFocusSelected' | 'FocusSelected' | 'CategorySelected' | 'ShowingExamples';
 
-const HERO_BG_IMAGE =
-  'https://images.pexels.com/photos/8909659/pexels-photo-8909659.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1';
+/* Hero: calm gradient + subtle ember glow; no competing effects */
 
 const SURFACE_STYLE = {
   backgroundColor: 'var(--ember-surface-primary)',
@@ -329,37 +328,36 @@ export default function DiscoveryPageClient({
 
   const heroSection = (
     <section
-      className="w-full py-10 sm:py-12 md:py-14 relative overflow-hidden"
+      className="w-full min-h-[240px] sm:min-h-[280px] md:min-h-[320px] flex flex-col justify-center relative overflow-hidden px-4 py-12 sm:py-14"
       style={{ borderBottom: '1px solid var(--ember-border-subtle)' }}
+      aria-label="Hero"
     >
       <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${HERO_BG_IMAGE})` }}
-        aria-hidden
-      />
-      <div
         className="absolute inset-0"
-        style={{ backgroundColor: 'rgba(255, 255, 255, 0.88)' }}
+        style={{
+          background: 'linear-gradient(160deg, var(--ember-bg-canvas) 0%, var(--ember-surface-soft) 50%, var(--ember-surface-primary) 100%)',
+          boxShadow: 'inset 0 0 80px rgba(255, 99, 71, 0.06)',
+        }}
         aria-hidden
       />
       <div className="relative z-10 mx-auto max-w-3xl text-center">
         <h1
-          className="mb-3 text-[28px] leading-[1.1] md:text-[36px]"
+          className="mb-3 text-[26px] leading-[1.15] sm:text-[30px] md:text-[36px]"
           style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}
         >
-          Your next-step toy guide — from bump to big steps.
+          Guided toy shopping. From bump to big steps.
         </h1>
         <p
           className="mb-2 text-base md:text-lg leading-[1.6]"
           style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
         >
-          See what your little one is learning next — and what to buy for it.
+          See what they&apos;re learning next - and what to buy for it.
         </p>
         <p
           className="text-sm md:text-base leading-[1.5]"
           style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
         >
-          Use what you&apos;ve got. Add what you need. You&apos;re in charge.
+          Use what you&apos;ve got. Add what you need.
         </p>
       </div>
     </section>

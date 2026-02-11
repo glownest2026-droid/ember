@@ -52,6 +52,31 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-11 — feat(ui): sticky header + calm hero + "What is Ember?" bottom sheet
+
+### Summary
+- **Discover-only sticky header**: Replace top-of-page shell on `/discover` with mobile-first sticky header. Left: Ember robin logo (brand-assets URL) + "Ember" text, button scrolls to top. Right: "What is Ember?" (opens bottom sheet), "Join free" (existing `/signin?next=...`). Styling: minimal, border #E5E7EB, white surface, accent #FF6347 / hover #B8432B, safe-area padding.
+- **Bottom sheet "What is Ember?"**: Reusable sheet; close by swipe down, X icon, tap outside. Exact copy: What it does / How it works (bullets) / Privacy. Single CTA "Join free".
+- **Calm hero**: Replace hero with 240–320px responsive container; gradient + subtle ember glow; exact copy: "Guided toy shopping. From bump to big steps." / "See what they're learning next - and what to buy for it." / "Use what you've got. Add what you need."
+- No Layer A/B/C or carousel logic changed. No new deps. No DB/RLS/gateway.
+
+### Files changed
+- `web/src/components/discover/DiscoverStickyHeader.tsx` — new: sticky header + sheet trigger
+- `web/src/components/discover/WhatIsEmberSheet.tsx` — new: bottom sheet, exact copy
+- `web/src/components/ConditionalHeader.tsx` — render DiscoverStickyHeader when path starts with `/discover`
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — replace hero section (calm gradient + copy only)
+
+### QA (founder, browser only — no terminal)
+1. **Mobile** `/discover/26`: Sticky header visible; scroll page → header stays. Tap "Ember" (left) → scrolls to top. Tap "What is Ember?" → bottom sheet opens; close via outside tap, X, swipe down. "Join free" present and navigates to signin with next param.
+2. **Hero**: Three-line copy above selector; calm; text readable.
+3. **Desktop**: Header minimal and aligned; no overlap.
+4. **Reduced motion**: No forced smooth scroll (header scroll respects prefs).
+
+### Rollback
+Revert PR (no schema changes).
+
+---
+
 ## 2026-02-09 — feat(discover): frictionless load + swipe-first carousels + Save-first CTAs
 
 ### Summary
