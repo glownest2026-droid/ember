@@ -86,6 +86,7 @@ export default function DiscoveryPageClient({
   }>({ open: false, signedIn: false, signinUrl: '' });
   const saveModalFocusRef = useRef<HTMLButtonElement | null>(null);
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
+  const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
   const basePath = '/discover';
 
   const scrollToSection = useCallback(
@@ -172,15 +173,27 @@ export default function DiscoveryPageClient({
     }
   }, [selectedBandIndex, basePath, currentMonth, ageBands, propBandIndex, router]);
 
+  const layerBReady = selectedWrapper && categoryTypes.length > 0;
+  useEffect(() => {
+    if (!layerBReady || !pendingScrollToNextSteps) return;
+    const el = nextStepsSectionRef.current;
+    if (!el) return;
+    const behavior = shouldReduceMotion ? ('auto' as const) : ('smooth' as const);
+    requestAnimationFrame(() => {
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      if (window.scrollY < top - 40) {
+        el.scrollIntoView({ behavior, block: 'start' });
+      }
+      setPendingScrollToNextSteps(false);
+    });
+  }, [layerBReady, pendingScrollToNextSteps, shouldReduceMotion]);
+
   const handleWrapperSelect = (wrapperSlug: string) => {
     setSelectedWrapper(wrapperSlug);
     setSelectedCategoryId(null);
     setShowingExamples(false);
+    setPendingScrollToNextSteps(true);
     router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`, { scroll: false });
-    const scrollBehavior = shouldReduceMotion ? ('auto' as const) : ('smooth' as const);
-    setTimeout(() => {
-      nextStepsSectionRef.current?.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
-    }, 50);
   };
 
   const handleShowExamples = (categoryId: string) => {
