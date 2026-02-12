@@ -13,7 +13,7 @@ interface DiscoverHeroPocketPlayGuideProps {
 export function DiscoverHeroPocketPlayGuide({ onGetStarted }: DiscoverHeroPocketPlayGuideProps) {
   return (
     <section
-      className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-white"
+      className="relative min-h-0 py-12 sm:py-14 md:py-16 flex items-center justify-center overflow-hidden bg-white"
       style={{ backgroundColor: 'var(--ember-surface-primary)' }}
       aria-label="Hero"
     >
@@ -53,7 +53,7 @@ export function DiscoverHeroPocketPlayGuide({ onGetStarted }: DiscoverHeroPocket
 
       <div className="relative max-w-6xl mx-auto px-6 text-center">
         <h1
-          className="text-[3.75rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] font-normal leading-[0.95] tracking-tight mb-8"
+          className="text-[3.75rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] font-normal leading-[0.95] tracking-tight mb-5 sm:mb-6"
           style={{
             fontFamily: 'var(--font-serif)',
             color: 'var(--ember-text-high)',
@@ -66,7 +66,7 @@ export function DiscoverHeroPocketPlayGuide({ onGetStarted }: DiscoverHeroPocket
         </h1>
 
         <p
-          className="text-[1.25rem] sm:text-[1.5rem] md:text-[1.875rem] font-light max-w-3xl mx-auto mb-14"
+          className="text-[1.25rem] sm:text-[1.5rem] md:text-[1.875rem] font-light max-w-3xl mx-auto mb-8 sm:mb-10"
           style={{
             fontFamily: 'var(--font-sans)',
             color: 'var(--ember-text-low)',
