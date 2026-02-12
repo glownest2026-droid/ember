@@ -671,7 +671,7 @@ export default function DiscoveryPageClient({
       style={{ backgroundColor: 'var(--ember-bg-canvas)' }}
       data-discover-version="acq-v2-vertical"
     >
-      <div className="w-full px-4 sm:px-6 mx-auto max-w-7xl">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
         {actionToast && (
           <div
             className="rounded-lg border py-2 px-3 text-sm mb-4"
