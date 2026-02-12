@@ -1,23 +1,26 @@
 {
   "pr": {
     "number": null,
-    "title": "feat(ui): sticky header + calm hero + \"What is Ember?\" bottom sheet",
-    "branch": "feat/sticky-header-calm-hero",
+    "title": "Discover: Pocket play guide hero",
+    "branch": "feat/discover-hero-pocket-play-guide",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
     "rollback": "Revert PR (no schema changes)."
   },
   "receipt": {
-    "goal": "Sticky header + calm hero + What is Ember? sheet; 5 regressions + 4 residual (header polish, modal responsiveness, auto-scroll, Have them/Have it already auth + toast)",
+    "goal": "Upgrade /discover hero to Pocket play guide typography + styling; warm gradients; Get started scroll-to discovery.",
     "files_changed": [
-      "web/src/components/discover/DiscoverStickyHeader.tsx",
-      "web/src/components/discover/WhatIsEmberSheet.tsx",
+      "web/src/components/discover/DiscoverHeroPocketPlayGuide.tsx",
       "web/src/app/discover/[months]/DiscoveryPageClient.tsx"
     ],
-    "qa_steps": ["A) Desktop header logo + no middle space", "B) Desktop What is Ember? modal", "C) Mobile What is Ember? sheet", "D) Tile click scrolls to Next steps", "E) Have them / Have it already auth + toast"],
+    "qa_steps": [
+      "Desktop 1440px: hero ~85vh, Source Serif 4 headline, subheadline max-w-3xl, CTA hover + arrow",
+      "Mobile ~390px: headline 60px, subheadline 20px, CTA tappable",
+      "Get started scrolls to discover-start; reduced motion respected"
+    ],
     "rollback": "Revert PR (no schema changes)."
   },
   "commit": null,
-  "timestamp": "2026-02-11T00:00:00.000Z"
+  "timestamp": "2026-02-12T00:00:00.000Z"
 }

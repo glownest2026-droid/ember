@@ -52,6 +52,27 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-12 — feat(discover): Pocket play guide hero (UI-only)
+
+### Summary
+- **Discover hero upgrade**: Replace existing /discover hero with premium “Your pocket play guide” hero. Headline (Source Serif 4): “Your pocket” / “play guide” with exact responsive sizes (60px → 128px). Subheadline (Inter 300): “From bump to big steps — science-powered toy ideas for what they’re learning next.” Single CTA “Get started” (accent #FF6347, hover #B8432B) with ArrowRight icon; click scrolls to discovery start (id="discover-start") with prefers-reduced-motion respected.
+- **Background**: White hero on canvas #FAFAFA; three gradient layers (warm cream/golden, subtle peach, top-right ember glow) as per Figma snippet; pointer-events-none.
+- No DB/RLS/vendor changes. No nav/header/Layer A/B/C or analytics changes.
+
+### Files changed
+- `web/src/components/discover/DiscoverHeroPocketPlayGuide.tsx` — new hero component (gradients, typography, CTA)
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — use DiscoverHeroPocketPlayGuide; scroll target id="discover-start"; Back to choices scrolls to discover-start
+
+### QA (browser only, Vercel preview URL)
+- **Desktop (1440px)**: Hero ~85vh, text centered, warm glow subtle. Headline Source Serif 4, large at largest breakpoint. Subheadline lighter, max-w-3xl. CTA accent with hover + arrow nudge.
+- **Mobile (~390px)**: Headline 60px, tight leading, no overflow. Subheadline 20px, wraps. CTA tappable.
+- **Behaviour**: “Get started” scrolls to discovery start; reduced motion respected.
+
+### Rollback
+Revert PR (no schema changes). Remove DiscoverHeroPocketPlayGuide import and restore previous hero markup + selectorSection id if needed.
+
+---
+
 ## 2026-02-11 — feat(ui): sticky header + calm hero + "What is Ember?" bottom sheet
 
 ### Summary
