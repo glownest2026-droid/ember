@@ -18,6 +18,7 @@ import { getProductIconKey } from '@/lib/icons/productIcon';
 import { AnimatedTestimonials, type AlbumItem } from '@/components/ui/animated-testimonials';
 import { CategoryCarousel } from '@/components/discover/CategoryCarousel';
 import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
+import { DiscoverHeroPocketPlayGuide } from '@/components/discover/DiscoverHeroPocketPlayGuide';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
 
@@ -372,40 +373,7 @@ export default function DiscoveryPageClient({
   };
 
   const heroSection = (
-    <section
-      className="w-full min-h-[240px] sm:min-h-[280px] md:min-h-[320px] flex flex-col justify-center relative overflow-hidden px-4 py-12 sm:py-14"
-      style={{ borderBottom: '1px solid var(--ember-border-subtle)' }}
-      aria-label="Hero"
-    >
-      <div
-        className="absolute inset-0"
-        style={{
-          background: 'linear-gradient(160deg, var(--ember-bg-canvas) 0%, var(--ember-surface-soft) 50%, var(--ember-surface-primary) 100%)',
-          boxShadow: 'inset 0 0 80px rgba(255, 99, 71, 0.06)',
-        }}
-        aria-hidden
-      />
-      <div className="relative z-10 mx-auto max-w-3xl text-center">
-        <h1
-          className="mb-3 text-[26px] leading-[1.15] sm:text-[30px] md:text-[36px]"
-          style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}
-        >
-          Guided toy shopping. From bump to big steps.
-        </h1>
-        <p
-          className="mb-2 text-base md:text-lg leading-[1.6]"
-          style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
-        >
-          See what they&apos;re learning next - and what to buy for it.
-        </p>
-        <p
-          className="text-sm md:text-base leading-[1.5]"
-          style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
-        >
-          Use what you&apos;ve got. Add what you need.
-        </p>
-      </div>
-    </section>
+    <DiscoverHeroPocketPlayGuide onGetStarted={() => scrollToSection('discover-start')} />
   );
 
   const leftSurface = (
@@ -553,7 +521,7 @@ export default function DiscoveryPageClient({
       <div className="py-6 px-4 sm:px-6 sm:py-8">
         <button
           type="button"
-          onClick={() => scrollToSection('selectorSection')}
+          onClick={() => scrollToSection('discover-start')}
           className="mb-4 text-sm font-medium"
           style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
         >
@@ -692,7 +660,7 @@ export default function DiscoveryPageClient({
   );
 
   const selectorWithId = (
-    <div id="selectorSection" className="scroll-mt-6">
+    <div id="discover-start" className="scroll-mt-6">
       {leftSurface}
     </div>
   );
@@ -703,7 +671,7 @@ export default function DiscoveryPageClient({
       style={{ backgroundColor: 'var(--ember-bg-canvas)' }}
       data-discover-version="acq-v2-vertical"
     >
-      <div className="w-full px-4 sm:px-6 mx-auto max-w-7xl">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
         {actionToast && (
           <div
             className="rounded-lg border py-2 px-3 text-sm mb-4"
