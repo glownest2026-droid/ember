@@ -80,7 +80,7 @@ export function DiscoverProductCard({
       dragElastic={0.7}
       onDragEnd={handleDragEnd}
       whileHover={isTop ? { scale: scale * 1.02, y: yOffset - 8 } : {}}
-      transition={{ type: 'spring', stiffness: 260, damping: 25 }}
+      transition={{ type: 'spring', stiffness: 160, damping: 26, mass: 0.8 }}
     >
       <div
         className="bg-white rounded-[28px] border-2 overflow-hidden cursor-grab active:cursor-grabbing relative"

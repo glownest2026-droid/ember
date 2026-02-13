@@ -100,7 +100,7 @@ export default function DiscoveryPageClient({
     if (showPicks) {
       setShowingExamples(true);
       const timer = setTimeout(() => {
-        const el = document.getElementById('examplesSection');
+        const el = document.getElementById('examplesProgressBar') ?? document.getElementById('examplesSection');
         if (el) el.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'start' });
       }, 50);
       return () => clearTimeout(timer);
@@ -199,7 +199,7 @@ export default function DiscoveryPageClient({
     setShowingExamples(true);
     router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper!)}&show=1&category=${encodeURIComponent(categoryId)}`, { scroll: false });
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => scrollToSection('examplesSection'));
+      requestAnimationFrame(() => scrollToSection('examplesProgressBar'));
     });
   };
 
@@ -584,6 +584,7 @@ export default function DiscoveryPageClient({
               onSave={handleSaveToList}
               onHave={handleHaveItAlready}
               getProductUrl={getProductUrl}
+              progressBarId="examplesProgressBar"
             />
           </>
         )}
