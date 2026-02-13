@@ -574,16 +574,8 @@ export default function DiscoveryPageClient({
           </div>
         ) : (
           <>
-            <p className="text-xs mb-2 flex flex-wrap items-center gap-1" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-              Chosen for {formatBandLabel(selectedBand)} •{' '}
-              <button
-                type="button"
-                onClick={() => setHowWeChooseOpen(true)}
-                className="inline-flex items-center gap-0.5 cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1 rounded px-0"
-                style={{ color: 'var(--ember-text-low)' }}
-              >
-                Explained <span aria-hidden>ⓘ</span>
-              </button>
+            <p className="text-xs mb-2" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
+              Chosen for {formatBandLabel(selectedBand)}
             </p>
             <DiscoverCardStack
               picks={displayIdeas.slice(0, 12)}

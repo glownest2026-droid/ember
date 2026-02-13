@@ -70,12 +70,9 @@ export function DiscoverCardStack({
       <div className="mb-6">
         <div className="max-w-xs mx-auto">
           <div className="h-2 bg-[#F1F3F2] rounded-full overflow-hidden shadow-inner">
-            <motion.div
-              className="h-full rounded-full"
-              style={{ background: `linear-gradient(to right, ${ACCENT}, #FF8B6D)` }}
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
+            <div
+              className="h-full rounded-full transition-[width] duration-300 ease-out"
+              style={{ width: `${progress}%`, background: `linear-gradient(to right, ${ACCENT}, #FF8B6D)` }}
             />
           </div>
           <div className="mt-2 text-sm font-bold" style={{ color: TEXT_LOW }}>
@@ -95,6 +92,8 @@ export function DiscoverCardStack({
               totalCards={displayed.length}
               isTop={idx === 0}
               onSwipe={handleSwipe}
+              onPrev={handlePrevious}
+              onNext={handleNext}
               onSave={onSave}
               onHave={onHave}
               productUrl={getProductUrl(pick)}

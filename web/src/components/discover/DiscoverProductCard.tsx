@@ -27,6 +27,8 @@ export interface DiscoverProductCardProps {
   totalCards: number;
   isTop: boolean;
   onSwipe: (direction: 'left' | 'right') => void;
+  onPrev: () => void;
+  onNext: () => void;
   onSave: (productId: string, triggerEl: HTMLButtonElement | null) => void;
   onHave: (productId: string) => void;
   productUrl: string;
@@ -40,6 +42,8 @@ export function DiscoverProductCard({
   totalCards,
   isTop,
   onSwipe,
+  onPrev,
+  onNext,
   onSave,
   onHave,
   productUrl,
@@ -87,32 +91,37 @@ export function DiscoverProductCard({
             : `0 ${index * 4 + 8}px ${index * 8 + 20}px -${index * 2 + 5}px rgba(0, 0, 0, 0.12)`,
         }}
       >
-        {isTop && (
-          <>
-            <motion.div
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-md rounded-full p-2 shadow-lg border-2"
-              style={{ borderColor: ACCENT }}
-              animate={{ x: [-5, 5, -5], opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <ChevronLeft className="w-6 h-6" style={{ color: ACCENT }} strokeWidth={3} />
-            </motion.div>
-            <motion.div
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-md rounded-full p-2 shadow-lg border-2"
-              style={{ borderColor: ACCENT }}
-              animate={{ x: [5, -5, 5], opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <ChevronRight className="w-6 h-6" style={{ color: ACCENT }} strokeWidth={3} />
-            </motion.div>
-          </>
-        )}
-
         <div className="absolute top-0 right-0 w-24 h-24 opacity-10">
           <div className="absolute top-4 right-4 w-16 h-16 rounded-full blur-2xl" style={{ backgroundColor: ACCENT }} />
         </div>
 
         <div className={`relative h-48 bg-gradient-to-br ${gradient} flex items-center justify-center overflow-hidden`}>
+          {isTop && (
+            <>
+              <motion.button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onPrev(); }}
+                className="absolute left-4 bottom-4 z-10 bg-white/90 backdrop-blur-md rounded-full p-2 shadow-lg border-2 cursor-pointer"
+                style={{ borderColor: ACCENT }}
+                aria-label="Previous card"
+                animate={{ x: [-5, 5, -5], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <ChevronLeft className="w-6 h-6" style={{ color: ACCENT }} strokeWidth={3} />
+              </motion.button>
+              <motion.button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onNext(); }}
+                className="absolute right-4 bottom-4 z-10 bg-white/90 backdrop-blur-md rounded-full p-2 shadow-lg border-2 cursor-pointer"
+                style={{ borderColor: ACCENT }}
+                aria-label="Next card"
+                animate={{ x: [5, -5, 5], opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <ChevronRight className="w-6 h-6" style={{ color: ACCENT }} strokeWidth={3} />
+              </motion.button>
+            </>
+          )}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-10 left-10 w-32 h-32 bg-white/30 rounded-full blur-2xl" />
             <div className="absolute bottom-10 right-10 w-40 h-40 bg-white/40 rounded-full blur-3xl" />
