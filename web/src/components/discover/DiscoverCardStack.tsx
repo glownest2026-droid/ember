@@ -31,15 +31,28 @@ export function DiscoverCardStack({
   getProductUrl,
 }: DiscoverCardStackProps) {
   const [order, setOrder] = useState<GatewayPick[]>(picks);
+  // Track which card (by position in original list) we're viewing so progress bar always updates
+  const [viewIndex, setViewIndex] = useState(0);
   const displayed = order.slice(0, VISIBLE_CARDS);
 
   const handleSwipe = (direction: 'left' | 'right') => {
-    setOrder((prev) => {
-      const next = [...prev];
-      const top = next.shift();
-      if (top) next.push(top);
-      return next;
-    });
+    if (direction === 'right') {
+      setOrder((prev) => {
+        const next = [...prev];
+        const top = next.shift();
+        if (top) next.push(top);
+        return next;
+      });
+      setViewIndex((i) => (i + 1) % picks.length);
+    } else {
+      setOrder((prev) => {
+        const next = [...prev];
+        const last = next.pop();
+        if (last) next.unshift(last);
+        return next;
+      });
+      setViewIndex((i) => (i - 1 + picks.length) % picks.length);
+    }
   };
 
   const handlePrevious = () => {
@@ -49,18 +62,30 @@ export function DiscoverCardStack({
       if (last) next.unshift(last);
       return next;
     });
+    setViewIndex((i) => (i - 1 + picks.length) % picks.length);
   };
 
-  const handleNext = () => handleSwipe('right');
+  const handleNext = () => {
+    setOrder((prev) => {
+      const next = [...prev];
+      const top = next.shift();
+      if (top) next.push(top);
+      return next;
+    });
+    setViewIndex((i) => (i + 1) % picks.length);
+  };
 
   const handleShuffle = () => {
     setOrder((prev) => [...prev].sort(() => Math.random() - 0.5));
+    setViewIndex(0);
   };
 
-  const handleReset = () => setOrder(picks);
+  const handleReset = () => {
+    setOrder(picks);
+    setViewIndex(0);
+  };
 
-  const currentIndex = picks.findIndex((p) => p.product.id === order[0]?.product.id);
-  const oneBased = currentIndex >= 0 ? currentIndex + 1 : 1;
+  const oneBased = viewIndex + 1;
   const progress = picks.length > 0 ? (oneBased / picks.length) * 100 : 0;
 
   if (picks.length === 0) return null;
