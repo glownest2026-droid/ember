@@ -1,26 +1,31 @@
 {
   "pr": {
     "number": null,
-    "title": "Discover: Pocket play guide hero",
-    "branch": "feat/discover-hero-pocket-play-guide",
+    "title": "Discover: Replace bottom product cards with Figma Product Cards UI",
+    "branch": "feat/discover-product-cards",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
-    "rollback": "Revert PR (no schema changes)."
+    "rollback": "Revert PR. Restore AnimatedTestimonials + albumItems in DiscoveryPageClient; delete DiscoverProductCard.tsx and DiscoverCardStack.tsx."
   },
   "receipt": {
-    "goal": "Upgrade /discover hero to Pocket play guide typography + styling; warm gradients; Get started scroll-to discovery.",
+    "goal": "Replace bottom product cards on /discover with new Product Cards UI from Figma (Project Leaf - UI Components).",
+    "commands_run": ["pnpm run build (web)", "git checkout -b feat/discover-product-cards origin/main", "git add (3 files)", "git commit", "git push"],
     "files_changed": [
-      "web/src/components/discover/DiscoverHeroPocketPlayGuide.tsx",
-      "web/src/app/discover/[months]/DiscoveryPageClient.tsx"
+      "web/src/components/discover/DiscoverProductCard.tsx",
+      "web/src/components/discover/DiscoverCardStack.tsx",
+      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
+      "PROGRESS.md",
+      "state/latest.json"
     ],
     "qa_steps": [
-      "Desktop 1440px: hero ~85vh, Source Serif 4 headline, subheadline max-w-3xl, CTA hover + arrow",
-      "Mobile ~390px: headline 60px, subheadline 20px, CTA tappable",
-      "Get started scrolls to discover-start; reduced motion respected"
+      "Open /discover, select age band, select a focus tile",
+      "Click a category or ensure examples show; verify bottom section shows card stack",
+      "Swipe or use Prev/Next; try Shuffle and Reset",
+      "Tap Save / Have / Visit and confirm behaviour (sign-in when needed, Visit opens URL)"
     ],
-    "rollback": "Revert PR (no schema changes)."
+    "rollback": "Revert PR (no schema changes). Restore AnimatedTestimonials block; remove DiscoverProductCard.tsx, DiscoverCardStack.tsx."
   },
   "commit": null,
-  "timestamp": "2026-02-12T00:00:00.000Z"
+  "timestamp": "2026-02-13T00:00:00.000Z"
 }

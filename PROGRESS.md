@@ -52,6 +52,26 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-13 — feat(discover): Replace bottom product cards with Figma Product Cards UI
+
+### Summary
+- **Bottom product cards on /discover**: Replaced the "Examples you might like" section (AnimatedTestimonials carousel) with the new Product Cards UI from Figma: swipeable card stack (DiscoverProductCard + DiscoverCardStack) with Save / Have / Visit actions, progress bar, Shuffle/Reset/Prev/Next controls. Data unchanged: still uses `picks` or `exampleProducts` from gateway views (v_gateway_*); no new DB/RLS or fabricated data.
+- **Components**: DiscoverProductCard (single card: image/icon, age + brand badges, title, rationale, "Why this toy?", actions). DiscoverCardStack (stack of up to 4 visible cards, swipe/controls, maps GatewayPick to card).
+- One goal per PR; no hero/doorways/category changes.
+
+### Files changed
+- `web/src/components/discover/DiscoverProductCard.tsx` — new (Figma-aligned card UI; motion/react)
+- `web/src/components/discover/DiscoverCardStack.tsx` — new (stack + controls)
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — examples section now uses DiscoverCardStack; removed AnimatedTestimonials + albumItems; removed unused imports (Bookmark, Check, ExternalLink, Link, getProductIconKey)
+
+### QA (manual, Vercel preview)
+- Go to /discover → select age → select a focus (e.g. "Let me help") → open category or "Show examples". Bottom section shows new card stack. Swipe or use Prev/Next; Shuffle/Reset work. Save / Have / Visit behave as before (sign-in modal when needed, toast, Visit opens product URL).
+
+### Rollback
+Revert PR. Restore AnimatedTestimonials + albumItems in DiscoveryPageClient; remove DiscoverProductCard.tsx and DiscoverCardStack.tsx.
+
+---
+
 ## 2026-02-12 — feat(discover): Pocket play guide hero (UI-only)
 
 ### Summary

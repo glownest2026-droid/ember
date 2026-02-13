@@ -64,7 +64,7 @@ export default function DiscoverStickyHeader() {
               className="text-sm font-medium transition-opacity hover:opacity-80 shrink-0 whitespace-nowrap"
               style={{ color: 'var(--ember-text-high)' }}
             >
-              What is Ember?
+              About
             </button>
             <Link
               href={joinHref}
