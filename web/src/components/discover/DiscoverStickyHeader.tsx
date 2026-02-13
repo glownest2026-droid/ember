@@ -37,7 +37,7 @@ export default function DiscoverStickyHeader() {
         }}
       >
         <div className="h-full mx-auto max-w-6xl px-4 sm:px-6 w-full">
-          <div className="flex items-center justify-start gap-3 py-2 sm:gap-6">
+          <div className="flex items-center justify-center sm:justify-start gap-3 py-2 sm:gap-6">
             <button
               type="button"
               onClick={scrollToTop}

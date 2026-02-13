@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { DiscoverProductCard } from './DiscoverProductCard';
 import type { GatewayPick } from '@/lib/pl/public';
@@ -20,6 +20,8 @@ export interface DiscoverCardStackProps {
   onSave: (productId: string, triggerEl: HTMLButtonElement | null) => void;
   onHave: (productId: string) => void;
   getProductUrl: (pick: GatewayPick) => string;
+  /** Optional id for the progress bar container (e.g. for scroll-into-view anchor). */
+  progressBarId?: string;
 }
 
 export function DiscoverCardStack({
@@ -29,11 +31,18 @@ export function DiscoverCardStack({
   onSave,
   onHave,
   getProductUrl,
+  progressBarId,
 }: DiscoverCardStackProps) {
   const [order, setOrder] = useState<GatewayPick[]>(picks);
-  // Track which card (by position in original list) we're viewing so progress bar always updates
   const [viewIndex, setViewIndex] = useState(0);
   const displayed = order.slice(0, VISIBLE_CARDS);
+
+  // When picks change (e.g. user switched category), reset stack and counter so bottom layer matches middle layer
+  const picksKey = picks.length + (picks[0]?.product.id ?? '');
+  useEffect(() => {
+    setOrder(picks);
+    setViewIndex(0);
+  }, [picksKey, picks]);
 
   const handleSwipe = (direction: 'left' | 'right') => {
     if (direction === 'right') {
@@ -85,14 +94,16 @@ export function DiscoverCardStack({
     setViewIndex(0);
   };
 
-  const oneBased = viewIndex + 1;
+  // Cap to avoid "Card 6 of 5" when viewIndex and picks get out of sync
+  const safeViewIndex = Math.min(viewIndex, Math.max(0, picks.length - 1));
+  const oneBased = Math.min(safeViewIndex + 1, Math.max(1, picks.length));
   const progress = picks.length > 0 ? (oneBased / picks.length) * 100 : 0;
 
   if (picks.length === 0) return null;
 
   return (
     <div className="w-full max-w-md mx-auto flex flex-col">
-      <div className="mb-6">
+      <div id={progressBarId} className="mb-6 scroll-mt-[var(--header-height,4rem)]">
         <div className="max-w-xs mx-auto">
           <div className="h-2 bg-[#F1F3F2] rounded-full overflow-hidden shadow-inner">
             <div

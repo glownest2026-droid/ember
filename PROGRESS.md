@@ -52,6 +52,21 @@ _Last updated: 2026-01-04_
 ---
 
 # Decision Log (dated)
+## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
+
+### Summary
+- **Anchor lower**: "Show Examples" scroll target was still showing "Chosen for 25–27 months" at the top. Progress bar container scroll-margin changed from `scroll-mt-24` to `scroll-mt-[var(--header-height,4rem)]` so the progress bar is the first visible content (just below the fixed header).
+- **Swipe vs progress**: Swiping the product card was moving the progress bar backwards; arrow clicks correctly moved it forwards. Inverted swipe→direction mapping in DiscoverProductCard: swipe left (offset.x < 0) = next card ('right'), swipe right = previous ('left'), so progress advances when user swipes to reveal the next card.
+
+### Files changed
+- `web/src/components/discover/DiscoverCardStack.tsx` — progress bar container scroll-mt uses var(--header-height)
+- `web/src/components/discover/DiscoverProductCard.tsx` — onSwipe(info.offset.x < 0 ? 'right' : 'left')
+
+### Rollback
+Revert commit; no schema changes.
+
+---
+
 ## 2026-02-13 — feat(discover): Replace bottom product cards with Figma Product Cards UI
 
 ### Summary
