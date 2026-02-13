@@ -2,8 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import Link from 'next/link';
-import { Bookmark, Check, ExternalLink } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { createClient } from '@/utils/supabase/client';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
@@ -14,9 +12,8 @@ import {
   SUGGESTED_DOORWAY_KEYS_25_27,
   resolveDoorwayToWrapper,
 } from '@/lib/discover/doorways';
-import { getProductIconKey } from '@/lib/icons/productIcon';
-import { AnimatedTestimonials, type AlbumItem } from '@/components/ui/animated-testimonials';
 import { CategoryCarousel } from '@/components/discover/CategoryCarousel';
+import { DiscoverCardStack } from '@/components/discover/DiscoverCardStack';
 import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
 import { DiscoverHeroPocketPlayGuide } from '@/components/discover/DiscoverHeroPocketPlayGuide';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
@@ -270,26 +267,6 @@ export default function DiscoveryPageClient({
   const sliderProgress = ageBands.length > 0 ? (selectedBandIndex / Math.max(1, ageBands.length - 1)) * 100 : 0;
 
   const displayIdeas = showPicks && picks.length > 0 ? picks : exampleProducts;
-  const isExampleMode = !showPicks || picks.length === 0;
-
-  const ONE_LINE_MAX = 90;
-  const albumItems: AlbumItem[] = displayIdeas.slice(0, 12).map((pick) => {
-    const fullQuote =
-      pick.product.rationale?.trim() ||
-      `Chosen for ${formatBandLabel(selectedBand)}. Fits ${selectedWrapperLabel || 'this focus'}.`;
-    const shortQuote = fullQuote.length <= ONE_LINE_MAX ? fullQuote : fullQuote.slice(0, ONE_LINE_MAX).trim() + '…';
-    const longDescription = fullQuote.length > ONE_LINE_MAX ? fullQuote : undefined;
-    return {
-      id: pick.product.id,
-      title: pick.product.name,
-      subtitle: pick.product.brand ?? pick.categoryType?.label ?? undefined,
-      quote: shortQuote,
-      longDescription,
-      href: getProductUrl(pick),
-      imageUrl: pick.product.image_url ?? null,
-      iconKey: getProductIconKey(pick.product, selectedWrapperLabel ?? selectedWrapper),
-    };
-  });
 
   const handleHaveItAlready = async (productId: string) => {
     try {
@@ -608,50 +585,13 @@ export default function DiscoveryPageClient({
                 Explained <span aria-hidden>ⓘ</span>
               </button>
             </p>
-            <AnimatedTestimonials
-              items={albumItems}
-              className="w-full"
-              renderActions={(item) => (
-                <>
-                  <button
-                    type="button"
-                    onClick={(e) => handleSaveToList(item.id, e.currentTarget)}
-                    className="flex-1 min-h-[36px] rounded-lg font-medium text-xs flex items-center justify-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
-                    style={{
-                      backgroundColor: 'var(--ember-accent-base)',
-                      color: 'white',
-                      border: 'none',
-                    }}
-                  >
-                    <Bookmark size={14} strokeWidth={2} />
-                    Save product
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleHaveItAlready(item.id)}
-                    className="min-h-[36px] rounded-lg border font-medium text-xs flex items-center justify-center gap-1.5 px-3"
-                    style={btnStyle}
-                  >
-                    <Check size={14} strokeWidth={2} />
-                    Have it already
-                  </button>
-                  {item.href && item.href !== '#' && (
-                    <a
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="min-h-[36px] rounded-lg border border-transparent font-medium text-xs flex items-center justify-center gap-1.5 px-3 shrink-0 hover:bg-[var(--ember-surface-soft)]"
-                      style={{
-                        backgroundColor: 'transparent',
-                        color: '#5C646D',
-                      }}
-                    >
-                      <ExternalLink size={14} strokeWidth={2} />
-                      Visit
-                    </a>
-                  )}
-                </>
-              )}
+            <DiscoverCardStack
+              picks={displayIdeas.slice(0, 12)}
+              ageRangeLabel={formatBandLabel(selectedBand)}
+              wrapperLabel={selectedWrapperLabel}
+              onSave={handleSaveToList}
+              onHave={handleHaveItAlready}
+              getProductUrl={getProductUrl}
             />
           </>
         )}
