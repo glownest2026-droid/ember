@@ -64,7 +64,8 @@ export function DiscoverProductCard({
   const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const threshold = 80;
     if (Math.abs(info.offset.x) > threshold) {
-      onSwipe(info.offset.x > 0 ? 'right' : 'left');
+      // Swipe left (negative x) = card flies left = reveal next; swipe right = previous. Invert vs pointer offset.
+      onSwipe(info.offset.x < 0 ? 'right' : 'left');
     }
   };
 

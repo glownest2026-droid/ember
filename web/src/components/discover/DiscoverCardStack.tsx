@@ -103,7 +103,7 @@ export function DiscoverCardStack({
 
   return (
     <div className="w-full max-w-md mx-auto flex flex-col">
-      <div id={progressBarId} className="mb-6 scroll-mt-24">
+      <div id={progressBarId} className="mb-6 scroll-mt-[var(--header-height,4rem)]">
         <div className="max-w-xs mx-auto">
           <div className="h-2 bg-[#F1F3F2] rounded-full overflow-hidden shadow-inner">
             <div
