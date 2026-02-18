@@ -88,6 +88,7 @@ export function SaveToListModal({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
   const firstCodeRef = useRef<HTMLInputElement>(null);
+  const successCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const emailValid = isValidEmail(email);
   const codeString = codeDigits.join('').trim();
@@ -116,6 +117,10 @@ export function SaveToListModal({
       });
     } else {
       dialog.close();
+      if (successCloseTimeoutRef.current) {
+        clearTimeout(successCloseTimeoutRef.current);
+        successCloseTimeoutRef.current = null;
+      }
     }
   }, [open, signedIn, resetToChoose]);
 
@@ -136,6 +141,22 @@ export function SaveToListModal({
     const t = setTimeout(() => setSendErrorCooldown((c) => c - 1), 1000);
     return () => clearTimeout(t);
   }, [sendErrorCooldown]);
+
+  // After OTP verify success: show "You're signed in" for ~1s then close and notify parent
+  useEffect(() => {
+    if (!open || step !== 'success' || signedIn) return;
+    successCloseTimeoutRef.current = setTimeout(() => {
+      successCloseTimeoutRef.current = null;
+      handleClose();
+      onAuthSuccess?.();
+    }, 1000);
+    return () => {
+      if (successCloseTimeoutRef.current) {
+        clearTimeout(successCloseTimeoutRef.current);
+        successCloseTimeoutRef.current = null;
+      }
+    };
+  }, [open, step, signedIn]);
 
   const handleClose = () => {
     onClose();
@@ -219,9 +240,10 @@ export function SaveToListModal({
       setError(err.message || 'Invalid code. Try again.');
       return;
     }
+    setError(null);
+    setErrorHint(null);
     setStep('success');
-    onAuthSuccess?.();
-    handleClose();
+    // Success UI shows briefly; useEffect will close modal and call onAuthSuccess after 1s
   };
 
   const handleResend = async () => {
@@ -417,6 +439,15 @@ export function SaveToListModal({
             <button type="button" onClick={() => setStep('choose')} className="mt-3 text-sm opacity-70 hover:opacity-100" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
               Back
             </button>
+          </>
+        ) : step === 'success' ? (
+          <>
+            <h2 id="save-modal-title" className="text-lg font-semibold mb-2" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
+              You&apos;re signed in
+            </h2>
+            <p id="save-modal-desc" className="text-sm" style={{ ...baseStyle, color: 'var(--ember-text-low)' }}>
+              Nice — you can save ideas now.
+            </p>
           </>
         ) : step === 'code' ? (
           <>

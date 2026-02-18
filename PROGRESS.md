@@ -71,6 +71,11 @@ _Last updated: 2026-01-04_
 - **Proof:** `pnpm -C web build` passes.
 - **Note:** The Supabase Magic link template change (adding `{{ .Token }}`) was done by Founder (Tim) in the dashboard; this commit only documents it and improves error UX.
 
+### PR1: OTP success confirmation step
+
+- **What changed:** After OTP verify succeeds, modal shows “You’re signed in” / “Nice — you can save ideas now.” for ~1s, then closes and calls `onAuthSuccess`. Timeout stored in ref and cleared on modal close or unmount to avoid state update on unmounted component.
+- **Proof:** `pnpm -C web build` passes.
+
 ---
 
 # Decision Log (dated)
