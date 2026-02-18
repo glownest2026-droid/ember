@@ -22,7 +22,10 @@ export default function DiscoverStickyHeader() {
   };
 
   const signinNext = pathname && pathname.startsWith('/discover') ? pathname : '/discover';
-  const joinHref = `/signin?next=${encodeURIComponent(signinNext)}`;
+  const joinHref =
+    pathname && pathname.startsWith('/discover')
+      ? `${pathname}${pathname.includes('?') ? '&' : '?'}openAuth=1`
+      : `/signin?next=${encodeURIComponent(signinNext)}`;
 
   return (
     <>
