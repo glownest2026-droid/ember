@@ -83,6 +83,9 @@ export default function DiscoverStickyHeader() {
             </button>
             {user ? (
               <>
+                <Link href="/account" className="text-sm font-medium shrink-0 whitespace-nowrap" style={{ color: 'var(--ember-text-high)' }}>
+                  Account
+                </Link>
                 <span className="text-sm font-medium shrink-0 whitespace-nowrap" style={{ color: 'var(--ember-text-low)' }}>
                   Signed in
                 </span>

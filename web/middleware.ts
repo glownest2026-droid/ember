@@ -13,19 +13,16 @@ export async function middleware(req: NextRequest) {
   // Add pathname to headers so server components can read it
   response.headers.set('x-pathname', pathname);
 
-  // 1) Protect /app/* routes - require authentication
-  if (pathname.startsWith("/app")) {
+  // 1) Protect /app/* and /account - require authentication
+  if (pathname.startsWith("/app") || pathname === "/account") {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      // Redirect unauthenticated users to sign in
       const signInUrl = new URL("/signin", url.origin);
-      // Preserve original pathname and search params in next parameter
       signInUrl.searchParams.set("next", pathname + url.search);
       return NextResponse.redirect(signInUrl);
     }
 
-    // User is authenticated, continue with session refresh
     return response;
   }
 

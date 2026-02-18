@@ -82,3 +82,24 @@ When a guest clicks “Save to my list” (or similar), a modal asks them to sig
 - **Single route:** `/auth/callback`
 - **Query param:** `next` = where to send the user after sign-in (e.g. `/discover/26`).
 - **Allowlist:** Every origin that hosts the app (production, preview, local) must have `https://<origin>/auth/callback` (or `http://...` for local) in Supabase redirect URLs.
+
+---
+
+## 7. Set a password (optional)
+
+After sign-in (e.g. via OTP), users can set a password from **Account** (`/account`).
+
+- **Flow:** User opens **Account** from the discover header (or goes to `/account`). The “Set a password (optional)” form has password + confirm; submit calls `supabase.auth.updateUser({ password })`.
+- **Success:** In-app message: “Password set. You can now sign in with password or email code.”
+- **No server config:** Uses the same anon Supabase client; no extra env or keys.
+
+---
+
+## 8. Account linking (Link Google / Link Apple)
+
+Users can **explicitly** link OAuth providers to their account while signed in. No automatic account merging.
+
+- **Where:** `/account` page shows “Link Google” and “Link Apple” when `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE` / `NEXT_PUBLIC_AUTH_ENABLE_APPLE` are `true`. If flags are off, those buttons are hidden (no “coming soon”).
+- **Flow:** Click “Link Google” (or Apple) → `supabase.auth.linkIdentity({ provider, options: { redirectTo } })` with `redirectTo = origin + '/auth/callback?next=/account'`. User completes OAuth and returns to `/account` with the new identity linked.
+- **Supabase:** Manual linking must be enabled (e.g. **Authentication** → **Settings** or `GOTRUE_SECURITY_MANUAL_LINKING_ENABLED: true`). Add `https://<origin>/auth/callback` (and preview URLs) to **Redirect URLs** so linking return works.
+- **Errors:** If linking fails (e.g. provider not configured or redirect not allowlisted), the app shows an actionable error and points to this doc. No client secrets; anon key only.
