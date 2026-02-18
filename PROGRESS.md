@@ -95,6 +95,15 @@ _Last updated: 2026-01-04_
 
 ---
 
+## PR5 — Enable Google + Apple SSO (flags + setup + QA)
+
+- **Goal:** Make Google/Apple provider enablement production-ready via documentation and founder QA script. No code changes unless callback/linking breaks; flags remain env-only.
+- **What changed:** Docs only. `web/docs/FEB_2026_AUTH_SETUP.md`: new sections **2a** Enable Google SSO (Founder click-path: Supabase + Google Console + redirect URLs), **2b** Enable Apple SSO (Founder click-path), **2c** Redirect URL allowlist, **3** Vercel Environment Variables (keys/values, keep flags OFF until Supabase setup complete), **10** QA Script (Browser-only) — Test 1 Google sign-in from /discover, Test 2 Apple sign-in, Test 3 Linking while signed in, Test 4 Regression (guest, OTP, sign out). Section numbers 3–9 renumbered to 4–9.
+- **Proof:** `pnpm -C web build` passes. No code changes; mergeable even if providers not configured.
+- **Rollback:** Set `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE` / `NEXT_PUBLIC_AUTH_ENABLE_APPLE` to `false` in Vercel (no code revert needed).
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 
