@@ -59,6 +59,22 @@ _Last updated: 2026-01-04_
 
 ---
 
+## PR1 — Auth Modal + Session Plumbing (Apple/Google/Email OTP)
+
+- **What changed:** Upgraded SaveToListModal to auth modal with Apple/Google (feature-flagged), Email OTP (6-digit in-modal); fixed auth callback and confirm routes to set session cookies via route-handler Supabase client; DiscoverStickyHeader shows “Signed in” when authed; OAuth return-to via `next` param; added `web/docs/FEB_2026_AUTH_SETUP.md` and `web/src/lib/auth-flags.ts`.
+- **Proof:** `pnpm -C web build` passes. Manual: open Vercel Preview → /discover/26 → “Save to my list” → Email OTP flow → verify code → modal closes, header shows “Signed in”.
+- **PR:** [PR URL placeholder — fill after PR is opened]
+
+### PR1 mini-step: OTP template docs + error UX
+
+- **What changed:** (1) Docs: `FEB_2026_AUTH_SETUP.md` now includes section “Email OTP: show a 6-digit code in the email” — Magic link template must include `{{ .Token }}`, with Founder click path (Authentication → Email → Templates → Magic link → add `{{ .Token }}` → Save) and note that with custom SMTP OFF, Supabase rate limits may apply (OK for prototype). (2) In-app: when OTP send fails, modal shows “We couldn’t send a code right now. Please try again in a minute.” and, for email-delivery/5xx errors, a second line: “If this keeps happening, we may need to fix email delivery settings in Supabase.”; “Send code” becomes “Try again in Xs” with 60s cooldown; dev-only `console.warn` for send failure (no secrets). (3) Code step copy: “Check your email for a 6-digit code. We sent it to {email}.”
+- **Proof:** `pnpm -C web build` passes.
+- **Note:** The Supabase Magic link template change (adding `{{ .Token }}`) was done by Founder (Tim) in the dashboard; this commit only documents it and improves error UX.
+
+### PR1: OTP success confirmation step
+
+- **What changed:** After OTP verify succeeds, modal shows “You’re signed in” / “Nice — you can save ideas now.” for ~1s, then closes and calls `onAuthSuccess`. Timeout stored in ref and cleared on modal close or unmount to avoid state update on unmounted component.
+- **Proof:** `pnpm -C web build` passes.
 ## PR2 — Gate actions + replay after sign-in (no anonymous saves)
 
 - **Goal:** Gate first actions (Save / Have / Join) behind auth and replay the intended action once after sign-in. No anonymous saves.

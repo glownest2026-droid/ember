@@ -4,18 +4,30 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useReducedMotion } from 'motion/react';
 import { WhatIsEmberSheet } from './WhatIsEmberSheet';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 const EMBER_LOGO_URL = 'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
 /**
  * Sticky header for /discover only: single left-aligned cluster.
- * [Logo] [Ember] [What is Ember?] [Join free] — nothing right-aligned.
+ * [Logo] [Ember] [About] [Join free | Signed in]
  */
 export default function DiscoverStickyHeader() {
   const pathname = usePathname();
   const shouldReduceMotion = useReducedMotion() ?? false;
   const [whatIsOpen, setWhatIsOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user: u } }) => setUser(u ?? null));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: shouldReduceMotion ? 'auto' : 'smooth' });
@@ -69,13 +81,24 @@ export default function DiscoverStickyHeader() {
             >
               About
             </button>
-            <Link
-              href={joinHref}
-              className="px-4 py-2 rounded-lg font-semibold text-sm text-white transition-colors bg-[#FF6347] hover:bg-[#B8432B] shrink-0 whitespace-nowrap"
-              style={{ borderRadius: 'var(--ember-radius-button, 8px)' }}
-            >
-              Join free
-            </Link>
+            {user ? (
+              <>
+                <span className="text-sm font-medium shrink-0 whitespace-nowrap" style={{ color: 'var(--ember-text-low)' }}>
+                  Signed in
+                </span>
+                <Link href="/signout" className="text-sm font-medium shrink-0 whitespace-nowrap opacity-70 hover:opacity-100" style={{ color: 'var(--ember-text-low)' }}>
+                  Sign out
+                </Link>
+              </>
+            ) : (
+              <Link
+                href={joinHref}
+                className="px-4 py-2 rounded-lg font-semibold text-sm text-white transition-colors bg-[#FF6347] hover:bg-[#B8432B] shrink-0 whitespace-nowrap"
+                style={{ borderRadius: 'var(--ember-radius-button, 8px)' }}
+              >
+                Join free
+              </Link>
+            )}
           </div>
         </div>
       </header>

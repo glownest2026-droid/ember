@@ -472,6 +472,16 @@ export default function DiscoveryPageClient({
     });
   };
 
+  const handleAuthSuccess = useCallback(async () => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      setSaveModal((prev) => ({ ...prev, signedIn: !!user }));
+    } catch {
+      setSaveModal((prev) => ({ ...prev, signedIn: false }));
+    }
+  }, []);
+
   const btnStyle = {
     borderColor: 'var(--ember-border-subtle)',
     backgroundColor: 'var(--ember-surface-primary)',
@@ -749,6 +759,7 @@ export default function DiscoveryPageClient({
           signedIn={saveModal.signedIn}
           signinUrl={saveModal.signinUrl}
           onCloseFocusRef={saveModalFocusRef}
+          onAuthSuccess={handleAuthSuccess}
         />
         <HowWeChooseSheet open={howWeChooseOpen} onClose={() => setHowWeChooseOpen(false)} />
         {heroSection}
