@@ -37,3 +37,12 @@ Scaffold for recording auth-related decisions. One entry per decision with consi
 - **Options considered:** (1) New modal component; (2) Reuse and upgrade SaveToListModal. (3) Leave callback as no-op and rely on middleware on next request.
 - **Chosen option:** (2) — Reuse SaveToListModal; add route-handler Supabase client that sets cookies on the response in `/auth/callback` and `/auth/confirm`.
 - **Consequences:** Sessions persist after code exchange and OTP verify; modal supports 6-digit Email OTP and OAuth with return URL in `next` param; founder can enable Google/Apple via env flags and Supabase dashboard.
+## 2026-02-18 — Pending action storage + replay; no anonymous saves (PR2)
+
+- **Date:** 2026-02-18
+- **Decision:** Pending action storage in sessionStorage; replay exactly once after sign-in; no anonymous saves.
+- **Status:** Implemented
+- **Context:** PR2 gates Save / Have / Join behind auth. When a guest triggers an action, we store it (actionId + payload + returnUrl) and open the auth modal. After sign-in, we replay the action once so the user’s intent is fulfilled without a second click.
+- **Options considered:** (1) Navigate to /signin and lose context; (2) Store pending action in sessionStorage and replay in one place (DiscoveryPageClient) when user is detected; (3) Replay from modal onAuthSuccess (requires modal to know replay; chosen Option B for single place).
+- **Chosen option:** (2) — sessionStorage key `ember.pendingAuthAction.v1`; consume in DiscoveryPageClient on auth state; clear before running to avoid double-exec.
+- **Consequences:** No anonymous writes; all save/have actions require auth; replay is best-effort (toast on failure).

@@ -75,6 +75,14 @@ _Last updated: 2026-01-04_
 
 - **What changed:** After OTP verify succeeds, modal shows “You’re signed in” / “Nice — you can save ideas now.” for ~1s, then closes and calls `onAuthSuccess`. Timeout stored in ref and cleared on modal close or unmount to avoid state update on unmounted component.
 - **Proof:** `pnpm -C web build` passes.
+## PR2 — Gate actions + replay after sign-in (no anonymous saves)
+
+- **Goal:** Gate first actions (Save / Have / Join) behind auth and replay the intended action once after sign-in. No anonymous saves.
+- **What changed:** New shared utility `web/src/lib/auth/requireAuthThen.ts` (requireAuthThen, consumePendingAuthAction, replayPendingAuthAction). Pending action stored in sessionStorage key `ember.pendingAuthAction.v1`; replayed in one place only: DiscoveryPageClient on auth state (mount + onAuthStateChange). All four triggers now use requireAuthThen: Save category (Layer B), Save product (Layer C), Have category, Have product. “Join free” in discover header opens auth modal via `?openAuth=1` and URL is cleaned; no replay for join-only. Replay validates returnUrl matches current path; on failure shows toast: “Signed in — we couldn’t save that just now. Please try again.”
+- **Key files:** `web/src/lib/auth/requireAuthThen.ts`, `web/src/app/discover/[months]/DiscoveryPageClient.tsx`, `web/src/components/discover/DiscoverStickyHeader.tsx`.
+- **Proof:** `pnpm -C web build` passes. Vercel Preview: [PR URL].
+- **Manual QA (browser):** Guest on /discover/26 → Save category → auth modal → sign in → action replays (toast/modal). Same for Save product, Have it already. Join free → modal opens; after sign-in stay on page. Guest browsing works; no sign-in on load.
+- **Rollback:** Revert PR2 commits; main remains deployable.
 
 ---
 
