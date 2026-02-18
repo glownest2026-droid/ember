@@ -45,13 +45,29 @@ Set these in **Vercel** (or `.env.local` for local). Only **keys** are listed; a
 
 ---
 
-## 3. Return-to mechanism (non-technical)
+## 3. Email OTP: show a 6-digit code in the email
+
+The in-app auth modal uses a **6-digit OTP** flow. Supabase sends that code using the **Magic link** email template. For the code to appear in the email (so users can type it into the modal), the template **must include** the token placeholder.
+
+**Required:** Add `{{ .Token }}` to the Magic link template. That placeholder is replaced with the 6-digit code (or link token, depending on flow). Without it, the email may only contain a link and the modal’s “Enter your code” step won’t have a code to show.
+
+**Founder click path:**
+
+- Supabase Dashboard → **Authentication** → **Email** → **Templates** → **Magic link**
+- Edit the template body (and subject if you want the code there too) and include **`{{ .Token }}`** where the code should appear (e.g. “Your code is: {{ .Token }}”).
+- **Save.**
+
+**Note:** If custom SMTP is OFF, Supabase uses its default sender and rate limits may apply. That’s OK for prototype; for production you may want to configure custom SMTP and a custom domain.
+
+---
+
+## 4. Return-to mechanism (non-technical)
 
 When a guest clicks “Save to my list” (or similar), a modal asks them to sign in. If they choose **Email**, they get a 6-digit code and stay on the same page. If they choose **Google** or **Apple**, they are sent to Google/Apple and then back to our site. We always send them back to **the same page they were on** (e.g. the discover page), not to a generic dashboard, so they can continue where they left off.
 
 ---
 
-## 4. Troubleshooting
+## 5. Troubleshooting
 
 | Symptom | What to check |
 |--------|----------------|
@@ -61,7 +77,7 @@ When a guest clicks “Save to my list” (or similar), a modal asks them to sig
 
 ---
 
-## 5. Callback URL summary
+## 6. Callback URL summary
 
 - **Single route:** `/auth/callback`
 - **Query param:** `next` = where to send the user after sign-in (e.g. `/discover/26`).

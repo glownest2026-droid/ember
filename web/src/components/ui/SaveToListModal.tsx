@@ -8,6 +8,7 @@ import { AUTH_ENABLE_GOOGLE, AUTH_ENABLE_APPLE, AUTH_ENABLE_EMAIL_OTP } from '@/
 const RETURN_URL_KEY = 'ember_auth_return_url';
 const PENDING_INTENT_KEY = 'ember_auth_pending_intent';
 const RESEND_COOLDOWN_SEC = 25;
+const SEND_ERROR_COOLDOWN_SEC = 60;
 
 export interface PendingIntent {
   type: 'auth_only';
@@ -81,6 +82,8 @@ export function SaveToListModal({
   const [codeDigits, setCodeDigits] = useState<string[]>(Array(6).fill(''));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorHint, setErrorHint] = useState<string | null>(null);
+  const [sendErrorCooldown, setSendErrorCooldown] = useState(0);
   const [resendCooldown, setResendCooldown] = useState(0);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
@@ -95,6 +98,8 @@ export function SaveToListModal({
     setEmail('');
     setCodeDigits(Array(6).fill(''));
     setError(null);
+    setErrorHint(null);
+    setSendErrorCooldown(0);
     setLoading(false);
   }, []);
 
@@ -126,6 +131,12 @@ export function SaveToListModal({
     return () => clearTimeout(t);
   }, [resendCooldown]);
 
+  useEffect(() => {
+    if (sendErrorCooldown <= 0) return;
+    const t = setTimeout(() => setSendErrorCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [sendErrorCooldown]);
+
   const handleClose = () => {
     onClose();
     onCloseFocusRef?.current?.focus?.();
@@ -154,8 +165,9 @@ export function SaveToListModal({
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!emailValid || loading) return;
+    if (!emailValid || loading || sendErrorCooldown > 0) return;
     setError(null);
+    setErrorHint(null);
     setLoading(true);
     const supabase = createClient();
     const redirectTo = getCallbackUrl(getNextFromSigninUrl(signinUrl));
@@ -167,8 +179,23 @@ export function SaveToListModal({
       },
     });
     setLoading(false);
-    if (err && (err.message.includes('fetch') || err.message.includes('network'))) {
-      setError('Something went wrong. Please try again.');
+    if (err) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[auth][otp] send failed', {
+          message: err.message,
+          status: (err as { status?: number }).status,
+        });
+      }
+      setError("We couldn't send a code right now. Please try again in a minute.");
+      const errStatus = (err as { status?: number }).status;
+      const isEmailDeliveryError =
+        err.message.includes('Error sending magic link email') ||
+        err.message.includes('magic link') ||
+        (typeof errStatus === 'number' && errStatus >= 500);
+      if (isEmailDeliveryError) {
+        setErrorHint('If this keeps happening, we may need to fix email delivery settings in Supabase.');
+      }
+      setSendErrorCooldown(SEND_ERROR_COOLDOWN_SEC);
       return;
     }
     setStep('code');
@@ -200,6 +227,7 @@ export function SaveToListModal({
   const handleResend = async () => {
     if (resendCooldown > 0 || loading) return;
     setError(null);
+    setErrorHint(null);
     setLoading(true);
     const supabase = createClient();
     const { error: err } = await supabase.auth.signInWithOtp({
@@ -207,7 +235,26 @@ export function SaveToListModal({
       options: { shouldCreateUser: false },
     });
     setLoading(false);
-    if (!err) setResendCooldown(RESEND_COOLDOWN_SEC);
+    if (err) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[auth][otp] resend failed', {
+          message: err.message,
+          status: (err as { status?: number }).status,
+        });
+      }
+      setError("We couldn't send a code right now. Please try again in a minute.");
+      const errStatusResend = (err as { status?: number }).status;
+      const isEmailDeliveryErrorResend =
+        err.message.includes('Error sending magic link email') ||
+        err.message.includes('magic link') ||
+        (typeof errStatusResend === 'number' && errStatusResend >= 500);
+      if (isEmailDeliveryErrorResend) {
+        setErrorHint('If this keeps happening, we may need to fix email delivery settings in Supabase.');
+      }
+      setResendCooldown(RESEND_COOLDOWN_SEC);
+      return;
+    }
+    setResendCooldown(RESEND_COOLDOWN_SEC);
   };
 
   const handleOAuth = (provider: 'google' | 'apple') => {
@@ -301,7 +348,17 @@ export function SaveToListModal({
                 </button>
               )}
               {AUTH_ENABLE_EMAIL_OTP && (
-                <button type="button" onClick={() => setStep('email')} className="min-h-[44px] rounded-lg border font-medium text-sm w-full" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', ...baseStyle }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError(null);
+                    setErrorHint(null);
+                    setSendErrorCooldown(0);
+                    setStep('email');
+                  }}
+                  className="min-h-[44px] rounded-lg border font-medium text-sm w-full"
+                  style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', ...baseStyle }}
+                >
                   Continue with Email
                 </button>
               )}
@@ -340,9 +397,21 @@ export function SaveToListModal({
                 style={{ borderColor: error ? '#dc2626' : 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', ...baseStyle }}
                 disabled={loading}
               />
-              {error && <p className="text-sm" style={{ color: '#dc2626', ...baseStyle }}>{error}</p>}
-              <button type="submit" disabled={!emailValid || loading} className="min-h-[44px] rounded-lg font-medium text-sm w-full disabled:opacity-50 disabled:cursor-not-allowed" style={{ border: 'none', backgroundColor: 'var(--ember-accent-base)', color: 'white', ...baseStyle }}>
-                {loading ? 'Sending…' : 'Send code'}
+              {error && (
+                <div className="space-y-1">
+                  <p className="text-sm" style={{ color: '#dc2626', ...baseStyle }}>{error}</p>
+                  {errorHint && (
+                    <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>{errorHint}</p>
+                  )}
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={!emailValid || loading || sendErrorCooldown > 0}
+                className="min-h-[44px] rounded-lg font-medium text-sm w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ border: 'none', backgroundColor: 'var(--ember-accent-base)', color: 'white', ...baseStyle }}
+              >
+                {loading ? 'Sending…' : sendErrorCooldown > 0 ? `Try again in ${sendErrorCooldown}s` : 'Send code'}
               </button>
             </form>
             <button type="button" onClick={() => setStep('choose')} className="mt-3 text-sm opacity-70 hover:opacity-100" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
@@ -355,7 +424,7 @@ export function SaveToListModal({
               Enter your code
             </h2>
             <p id="save-modal-desc" className="text-sm mb-4" style={{ ...baseStyle, color: 'var(--ember-text-low)' }}>
-              We sent a 6-digit code to {email}.
+              Check your email for a 6-digit code. We sent it to {email}.
             </p>
             <form onSubmit={handleVerifyCode} className="flex flex-col gap-3">
               <div className="flex gap-2 justify-center" onPaste={handleCodeInputPaste}>

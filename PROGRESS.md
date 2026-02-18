@@ -65,6 +65,12 @@ _Last updated: 2026-01-04_
 - **Proof:** `pnpm -C web build` passes. Manual: open Vercel Preview → /discover/26 → “Save to my list” → Email OTP flow → verify code → modal closes, header shows “Signed in”.
 - **PR:** [PR URL placeholder — fill after PR is opened]
 
+### PR1 mini-step: OTP template docs + error UX
+
+- **What changed:** (1) Docs: `FEB_2026_AUTH_SETUP.md` now includes section “Email OTP: show a 6-digit code in the email” — Magic link template must include `{{ .Token }}`, with Founder click path (Authentication → Email → Templates → Magic link → add `{{ .Token }}` → Save) and note that with custom SMTP OFF, Supabase rate limits may apply (OK for prototype). (2) In-app: when OTP send fails, modal shows “We couldn’t send a code right now. Please try again in a minute.” and, for email-delivery/5xx errors, a second line: “If this keeps happening, we may need to fix email delivery settings in Supabase.”; “Send code” becomes “Try again in Xs” with 60s cooldown; dev-only `console.warn` for send failure (no secrets). (3) Code step copy: “Check your email for a 6-digit code. We sent it to {email}.”
+- **Proof:** `pnpm -C web build` passes.
+- **Note:** The Supabase Magic link template change (adding `{{ .Token }}`) was done by Founder (Tim) in the dashboard; this commit only documents it and improves error UX.
+
 ---
 
 # Decision Log (dated)
