@@ -51,6 +51,14 @@ _Last updated: 2026-01-04_
 
 ---
 
+## PR0 — Feb 2026 Auth Baseline Audit Receipt (no behavior changes)
+
+- **What changed:** Added Feb 2026 Auth Baseline Audit docs; no runtime changes. New: `web/docs/FEB_2026_AUTH_BASELINE.md`, `web/docs/FEB_2026_DECISION_LOG.md`.
+- **Proof:** `pnpm -C web build` passes (run on main after pull).
+- **PR:** [PR URL placeholder — fill after PR is opened]
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 
