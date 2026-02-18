@@ -59,6 +59,14 @@ _Last updated: 2026-01-04_
 
 ---
 
+## PR1 — Auth Modal + Session Plumbing (Apple/Google/Email OTP)
+
+- **What changed:** Upgraded SaveToListModal to auth modal with Apple/Google (feature-flagged), Email OTP (6-digit in-modal); fixed auth callback and confirm routes to set session cookies via route-handler Supabase client; DiscoverStickyHeader shows “Signed in” when authed; OAuth return-to via `next` param; added `web/docs/FEB_2026_AUTH_SETUP.md` and `web/src/lib/auth-flags.ts`.
+- **Proof:** `pnpm -C web build` passes. Manual: open Vercel Preview → /discover/26 → “Save to my list” → Email OTP flow → verify code → modal closes, header shows “Signed in”.
+- **PR:** [PR URL placeholder — fill after PR is opened]
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 
