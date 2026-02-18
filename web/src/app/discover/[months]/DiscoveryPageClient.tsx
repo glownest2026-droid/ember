@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { createClient } from '@/utils/supabase/client';
@@ -18,6 +18,12 @@ import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
 import { DiscoverHeroPocketPlayGuide } from '@/components/discover/DiscoverHeroPocketPlayGuide';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
+import {
+  requireAuthThen,
+  replayPendingAuthAction,
+  REPLAY_FAILURE_MESSAGE,
+  type PendingAuthAction,
+} from '@/lib/auth/requireAuthThen';
 
 /** A→B→C journey state: NoFocus | FocusSelected (Layer B visible) | CategorySelected | ShowingExamples (Layer C visible) */
 type DiscoverState = 'NoFocusSelected' | 'FocusSelected' | 'CategorySelected' | 'ShowingExamples';
@@ -85,7 +91,10 @@ export default function DiscoveryPageClient({
   const saveModalFocusRef = useRef<HTMLButtonElement | null>(null);
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
+  const replayAttemptedRef = useRef(false);
   const basePath = '/discover';
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const scrollToSection = useCallback(
     (id: string) => {
@@ -112,6 +121,19 @@ export default function DiscoveryPageClient({
     const t = setTimeout(() => setActionToast(null), 3000);
     return () => clearTimeout(t);
   }, [actionToast]);
+
+  // Open auth modal when URL has openAuth=1 (e.g. "Join free" on discover)
+  useEffect(() => {
+    if (searchParams?.get('openAuth') !== '1') return;
+    const next = pathname && pathname.startsWith('/discover') ? pathname : `${basePath}/${monthParam ?? 26}`;
+    const signinUrl = `/signin?next=${encodeURIComponent(next)}`;
+    setSaveModal({ open: true, signedIn: false, signinUrl });
+    const target = pathname || '/discover';
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    params.delete('openAuth');
+    const query = params.toString();
+    router.replace(query ? `${target}?${query}` : target, { scroll: false });
+  }, [searchParams, pathname, monthParam, basePath, router]);
 
   const getBandRange = (band: AgeBand | null): { min: number; max: number } | null => {
     if (!band) return null;
@@ -222,24 +244,112 @@ export default function DiscoveryPageClient({
     return `/signin?${params.toString()}`;
   };
 
-  const handleHaveThemCategory = async (categoryId: string) => {
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        saveModalFocusRef.current = null;
-        setSaveModal({
-          open: true,
-          signedIn: false,
-          signinUrl: getSigninUrlForCategory(categoryId),
-        });
-        setActionToast({ productId: categoryId, message: 'Sign in to record what you have.' });
-      } else {
-        setActionToast({ productId: categoryId, message: "We've noted it." });
+  const runReplayForAction = useCallback(
+    async (action: PendingAuthAction) => {
+      switch (action.actionId) {
+        case 'save_category': {
+          const categoryId = action.payload.categoryId as string | undefined;
+          if (!categoryId) return;
+          setSaveModal({
+            open: true,
+            signedIn: true,
+            signinUrl: getSigninUrlForCategory(categoryId),
+          });
+          break;
+        }
+        case 'save_product': {
+          const productId = action.payload.productId as string | undefined;
+          if (!productId) return;
+          await fetch('/api/click', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              product_id: productId,
+              age_band: selectedBand?.id ?? undefined,
+              source: 'discover_save',
+            }),
+          });
+          setSaveModal({
+            open: true,
+            signedIn: true,
+            signinUrl: getSigninUrl(productId),
+          });
+          break;
+        }
+        case 'have_category': {
+          const categoryId = (action.payload.categoryId as string) || 'category';
+          setActionToast({ productId: categoryId, message: "We've noted it." });
+          break;
+        }
+        case 'have_product': {
+          const productId = action.payload.productId as string | undefined;
+          if (!productId) return;
+          await fetch('/api/click', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              product_id: productId,
+              age_band: selectedBand?.id ?? undefined,
+              source: 'discover_owned',
+            }),
+          });
+          setActionToast({ productId, message: 'Marked as have it already.' });
+          break;
+        }
+        default:
+          break;
       }
-    } catch {
-      setActionToast({ productId: categoryId, message: "We've noted it." });
-    }
+    },
+    [selectedBand?.id, selectedWrapper, currentMonth, basePath]
+  );
+
+  // Replay pending action once after sign-in (Option B: single place in DiscoveryPageClient)
+  useEffect(() => {
+    let cancelled = false;
+    const supabase = createClient();
+    const tryReplay = () => {
+      if (cancelled || replayAttemptedRef.current) return;
+      replayAttemptedRef.current = true;
+      replayPendingAuthAction({
+        currentPath: pathname || '/discover',
+        runReplay: runReplayForAction,
+        onReplayFailure: () =>
+          setActionToast({ productId: 'replay', message: REPLAY_FAILURE_MESSAGE }),
+      });
+    };
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!cancelled && user) tryReplay();
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (!cancelled && session?.user) tryReplay();
+    });
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, [pathname, runReplayForAction]);
+
+  const handleHaveThemCategory = (categoryId: string) => {
+    requireAuthThen({
+      actionId: 'have_category',
+      payload: { categoryId },
+      run: () => setActionToast({ productId: categoryId, message: "We've noted it." }),
+      openAuthModal: ({ signinUrl }) => {
+        saveModalFocusRef.current = null;
+        setSaveModal({ open: true, signedIn: false, signinUrl });
+        setActionToast({ productId: categoryId, message: 'Sign in to record what you have.' });
+      },
+      isAuthenticated: async () => {
+        const { data: { user } } = await createClient().auth.getUser();
+        return !!user;
+      },
+      getReturnUrl: () =>
+        selectedWrapper
+          ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1&category=${encodeURIComponent(categoryId)}`
+          : `${basePath}/${currentMonth}`,
+    });
   };
 
   const getProductUrl = (p: PickItem) =>
@@ -268,19 +378,11 @@ export default function DiscoveryPageClient({
 
   const displayIdeas = showPicks && picks.length > 0 ? picks : exampleProducts;
 
-  const handleHaveItAlready = async (productId: string) => {
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        saveModalFocusRef.current = null;
-        setSaveModal({
-          open: true,
-          signedIn: false,
-          signinUrl: getSigninUrl(productId),
-        });
-        setActionToast({ productId, message: 'Sign in to record that you have this.' });
-      } else {
+  const handleHaveItAlready = (productId: string) => {
+    requireAuthThen({
+      actionId: 'have_product',
+      payload: { productId },
+      run: async () => {
         try {
           await fetch('/api/click', {
             method: 'POST',
@@ -295,35 +397,53 @@ export default function DiscoveryPageClient({
           // Best-effort
         }
         setActionToast({ productId, message: 'Marked as have it already.' });
-      }
-    } catch {
-      setActionToast({ productId, message: 'Marked as have it already.' });
-    }
+      },
+      openAuthModal: ({ signinUrl }) => {
+        saveModalFocusRef.current = null;
+        setSaveModal({ open: true, signedIn: false, signinUrl });
+        setActionToast({ productId, message: 'Sign in to record that you have this.' });
+      },
+      isAuthenticated: async () => {
+        const { data: { user } } = await createClient().auth.getUser();
+        return !!user;
+      },
+      getReturnUrl: () =>
+        selectedWrapper
+          ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
+          : `${basePath}/${currentMonth}`,
+    });
   };
 
-  const handleSaveCategory = async (categoryId: string, triggerEl: HTMLButtonElement | null) => {
+  const handleSaveCategory = (categoryId: string, triggerEl: HTMLButtonElement | null) => {
     saveModalFocusRef.current = triggerEl;
-    const signinUrl = getSigninUrlForCategory(categoryId);
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      setSaveModal({
-        open: true,
-        signedIn: !!user,
-        signinUrl,
-      });
-    } catch {
-      setSaveModal({ open: true, signedIn: false, signinUrl });
-    }
+    requireAuthThen({
+      actionId: 'save_category',
+      payload: { categoryId },
+      run: () =>
+        setSaveModal({
+          open: true,
+          signedIn: true,
+          signinUrl: getSigninUrlForCategory(categoryId),
+        }),
+      openAuthModal: ({ signinUrl }) =>
+        setSaveModal({ open: true, signedIn: false, signinUrl }),
+      isAuthenticated: async () => {
+        const { data: { user } } = await createClient().auth.getUser();
+        return !!user;
+      },
+      getReturnUrl: () =>
+        selectedWrapper
+          ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1&category=${encodeURIComponent(categoryId)}`
+          : `${basePath}/${currentMonth}`,
+    });
   };
 
-  const handleSaveToList = async (productId: string, triggerEl: HTMLButtonElement | null) => {
+  const handleSaveToList = (productId: string, triggerEl: HTMLButtonElement | null) => {
     saveModalFocusRef.current = triggerEl;
-    const signinUrl = getSigninUrl(productId);
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+    requireAuthThen({
+      actionId: 'save_product',
+      payload: { productId },
+      run: async () => {
         await fetch('/api/click', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -333,13 +453,23 @@ export default function DiscoveryPageClient({
             source: 'discover_save',
           }),
         });
-        setSaveModal({ open: true, signedIn: true, signinUrl });
-      } else {
-        setSaveModal({ open: true, signedIn: false, signinUrl });
-      }
-    } catch {
-      setSaveModal({ open: true, signedIn: false, signinUrl });
-    }
+        setSaveModal({
+          open: true,
+          signedIn: true,
+          signinUrl: getSigninUrl(productId),
+        });
+      },
+      openAuthModal: ({ signinUrl }) =>
+        setSaveModal({ open: true, signedIn: false, signinUrl }),
+      isAuthenticated: async () => {
+        const { data: { user } } = await createClient().auth.getUser();
+        return !!user;
+      },
+      getReturnUrl: () =>
+        selectedWrapper
+          ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
+          : `${basePath}/${currentMonth}`,
+    });
   };
 
   const btnStyle = {
