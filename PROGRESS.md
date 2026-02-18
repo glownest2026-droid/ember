@@ -86,6 +86,15 @@ _Last updated: 2026-01-04_
 
 ---
 
+## PR3+4 — Account hardening: optional password + link providers
+
+- **Goal:** Single PR: (1) Set a password (optional) after OTP sign-in; (2) Password sign-in + Forgot password working; (3) Explicit “Link Google” / “Link Apple” on /account. No automatic merges; no anonymous saves.
+- **What changed:** New `/account` page (protected by middleware): signed-in email, “Set a password (optional)” form (updateUser password, success message per spec), “Link Google” / “Link Apple” (feature-flagged; linkIdentity with redirectTo `/auth/callback?next=/account`). DiscoverStickyHeader: “Account” link when signed in. Middleware: protect `/account` (redirect to signin?next=/account). Docs: `FEB_2026_AUTH_SETUP.md` sections 7 (Set password), 8 (Account linking); `FEB_2026_DECISION_LOG.md` PR3+4 entry.
+- **Proof:** `pnpm -C web build` passes. Manual QA: OTP sign-in from /discover → /account → set password → success message; sign out → /signin/password works; forgot/reset flow; linking (when flags + Supabase configured) returns to /account.
+- **Rollback:** Revert this PR; main remains usable via OTP.
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 

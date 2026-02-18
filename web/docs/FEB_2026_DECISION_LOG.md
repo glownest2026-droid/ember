@@ -46,3 +46,15 @@ Scaffold for recording auth-related decisions. One entry per decision with consi
 - **Options considered:** (1) Navigate to /signin and lose context; (2) Store pending action in sessionStorage and replay in one place (DiscoveryPageClient) when user is detected; (3) Replay from modal onAuthSuccess (requires modal to know replay; chosen Option B for single place).
 - **Chosen option:** (2) — sessionStorage key `ember.pendingAuthAction.v1`; consume in DiscoveryPageClient on auth state; clear before running to avoid double-exec.
 - **Consequences:** No anonymous writes; all save/have actions require auth; replay is best-effort (toast on failure).
+
+---
+
+## 2026-02-18 — Account hardening: optional password + provider linking (PR3+4)
+
+- **Date:** 2026-02-18
+- **Decision:** Add minimal Account surface: (1) Set a password (optional) after OTP sign-in; (2) Password sign-in + Forgot password kept and working; (3) Explicit “Link Google” / “Link Apple” on /account while signed in. No automatic account merging; no anonymous saves.
+- **Status:** Implemented
+- **Context:** PR3+4 single PR to support password as optional second factor and user-driven provider linking without redesigning auth.
+- **Options considered:** (1) Set-password CTA in header dropdown vs (2) Dedicated /account page with “Account” link in header; (3) Auto-merge identities vs explicit linking only.
+- **Chosen option:** (2) — /account page with “Account” link in DiscoverStickyHeader; (3) explicit linking only, feature-flagged; if provider flags off, hide link buttons.
+- **Consequences:** /account protected by middleware (redirect to signin?next=/account); linking uses same /auth/callback?next=/account; docs updated (FEB_2026_AUTH_SETUP.md sections 7–8, this log).
