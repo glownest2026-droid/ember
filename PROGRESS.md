@@ -1850,3 +1850,13 @@ Category-only cards remain publishable.
 - **Proof:** `pnpm -C web build` passes. Founder QA: guest no subnav; sign in → subnav appears; Add a child → /app/children; Save Idea / Save → counts increment and persist; reminders toggle persists.
 - **Rollback:** Revert PR (no DB migration in this PR).
 - **PR:** [Link after PR opened]
+
+---
+
+## feat(subnav-ui2): V2 subnav layout from Figma - Subnav Bar V2 (Feb 2026)
+
+- **Goal:** Install V2 subnav based on Figma - Subnav Bar V2; keep sticky scroll and tooltip width fixes; mobile-friendly layout.
+- **What changed:** SubnavBar rewritten to V2 layout: (1) First row: "Add a child" button + "All children" selector pill (Users icon; single profile until multi-child); (2) Second row: stats in V2 order (ideas, toys, gifts) with shorter labels and responsive text (text-xl lg:text-2xl, text-xs lg:text-sm); (3) Reminders: full label "Send me development reminders" on xl, short "Reminders" on smaller screens; (4) flex-col lg:flex-row for mobile stacking; max-w-6xl, sticky top calc(header-height), SimpleTooltip minWidth 44rem unchanged.
+- **Proof:** `pnpm -C web build` passes. Founder: sign in, check subnav on desktop and mobile (narrow viewport); confirm sticky scroll and wide tooltip still work.
+- **Rollback:** Revert PR.
+- **PR:** [Link after PR opened]
