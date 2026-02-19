@@ -43,11 +43,11 @@ export function SubnavBar() {
 
   return (
     <>
-      {/* Fixed bar so it stays visible on scroll (sticky can break with overflow-x on body) */}
+      {/* Fixed bar at top when signed-in (subnav is rendered first in layout) */}
       <div
         className="fixed left-0 right-0 z-40 border-b"
         style={{
-          top: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))',
+          top: 'env(safe-area-inset-top, 0px)',
           borderColor: 'var(--ember-border-subtle, #E5E7EB)',
           backgroundColor: 'var(--ember-surface-secondary, #F9FAFB)',
         }}
@@ -103,7 +103,7 @@ export function SubnavBar() {
               onCheckedChange={handleRemindersChange}
               disabled={remindersBusy}
             />
-            <SimpleTooltip content={REMINDERS_TOOLTIP} maxWidth="18rem">
+            <SimpleTooltip content={REMINDERS_TOOLTIP} maxWidth="22rem">
               <button
                 type="button"
                 className="ml-1 rounded-full p-0.5 transition-colors hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] cursor-pointer pointer-events-auto"
@@ -117,8 +117,6 @@ export function SubnavBar() {
         </div>
       </div>
       </div>
-      {/* Spacer so page content starts below the fixed subnav */}
-      <div aria-hidden className="h-[52px] sm:h-14" style={{ minHeight: '52px' }} />
     </>
   );
 }

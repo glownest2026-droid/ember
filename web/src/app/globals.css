@@ -27,9 +27,10 @@
   --color-ink: #27303F;
 }
 
-/* Header height constant for content offset */
+/* Header and subnav height for content offset / stacking */
 :root {
   --header-height: 56px; /* Base header height */
+  --subnav-height: 52px; /* Subnav bar when shown (signed-in) */
 }
 
 /* Ember 2026 Brandbook design tokens (Unified UX + Brand) */
@@ -277,6 +278,11 @@ h3, h4, h5, h6 {
   border: none;
   box-shadow: 0 0 0 2px var(--ember-focus-ring);
   cursor: pointer;
+}
+
+/* Subnav reminders toggle: force pointer when enabled (override any inherited cursor) */
+button[data-subnav-reminders-switch]:not(:disabled) {
+  cursor: pointer !important;
 }
 
 @import "./../styles/theme.css";
