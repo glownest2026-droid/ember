@@ -103,7 +103,7 @@ export function SubnavBar() {
               onCheckedChange={handleRemindersChange}
               disabled={remindersBusy}
             />
-            <SimpleTooltip content={REMINDERS_TOOLTIP} maxWidth="44rem">
+            <SimpleTooltip content={REMINDERS_TOOLTIP} minWidth="44rem" maxWidth="min(44rem, 95vw)">
               <button
                 type="button"
                 className="ml-1 rounded-full p-0.5 transition-colors hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] cursor-pointer pointer-events-auto"

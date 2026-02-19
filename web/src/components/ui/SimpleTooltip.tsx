@@ -6,13 +6,15 @@ import { useState } from 'react';
 interface SimpleTooltipProps {
   content: React.ReactNode;
   children: React.ReactElement;
+  /** Min width so text wraps in 2-3 lines; use same as width for fixed width. */
+  minWidth?: string;
   maxWidth?: string;
 }
 
 /**
  * Accessible tooltip: opens on hover and focus; z-[60] for use above navbars.
  */
-export function SimpleTooltip({ content, children, maxWidth = '16rem' }: SimpleTooltipProps) {
+export function SimpleTooltip({ content, children, minWidth = '20rem', maxWidth = '24rem' }: SimpleTooltipProps) {
   const [open, setOpen] = useState(false);
 
   const trigger = React.cloneElement(children, {
@@ -33,7 +35,10 @@ export function SimpleTooltip({ content, children, maxWidth = '16rem' }: SimpleT
           className="absolute left-1/2 -translate-x-1/2 z-[60] px-3 py-2 rounded-lg text-sm text-white whitespace-normal shadow-lg pointer-events-none"
           style={{
             backgroundColor: '#1A1E23',
-            maxWidth,
+            minWidth,
+            maxWidth: maxWidth || '95vw',
+            width: minWidth,
+            boxSizing: 'border-box',
             top: 'calc(100% + 8px)',
           }}
         >
