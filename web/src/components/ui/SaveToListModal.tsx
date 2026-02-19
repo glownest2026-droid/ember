@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { AUTH_ENABLE_GOOGLE, AUTH_ENABLE_APPLE, AUTH_ENABLE_EMAIL_OTP } from '@/lib/auth-flags';
+import { GoogleMark } from '@/components/icons/GoogleMark';
 
 const RETURN_URL_KEY = 'ember_auth_return_url';
 const PENDING_INTENT_KEY = 'ember_auth_pending_intent';
@@ -366,6 +367,7 @@ export function SaveToListModal({
               )}
               {AUTH_ENABLE_GOOGLE && (
                 <button type="button" onClick={() => handleOAuth('google')} className="min-h-[44px] rounded-lg border font-medium text-sm w-full flex items-center justify-center gap-2" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', ...baseStyle }}>
+                  <GoogleMark />
                   Continue with Google
                 </button>
               )}

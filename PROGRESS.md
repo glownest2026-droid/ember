@@ -104,6 +104,14 @@ _Last updated: 2026-01-04_
 
 ---
 
+## UI — Google icon on auth modal button
+
+- **What changed:** Added Google “G” icon to the “Continue with Google” button in the auth modal (SaveToListModal). New `web/src/components/icons/GoogleMark.tsx` (18px inline SVG, aria-hidden); button keeps label “Continue with Google” and existing gap-2 layout. No auth logic, flags, or redirect changes.
+- **Proof:** `pnpm -C web build` passes. With `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE=true`, button shows icon + label; with flag off, button remains hidden.
+- **Rollback:** Revert the commit on the branch.
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 
