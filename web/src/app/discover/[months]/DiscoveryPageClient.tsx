@@ -24,6 +24,7 @@ import {
   REPLAY_FAILURE_MESSAGE,
   type PendingAuthAction,
 } from '@/lib/auth/requireAuthThen';
+import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 
 /** A→B→C journey state: NoFocus | FocusSelected (Layer B visible) | CategorySelected | ShowingExamples (Layer C visible) */
 type DiscoverState = 'NoFocusSelected' | 'FocusSelected' | 'CategorySelected' | 'ShowingExamples';
@@ -93,6 +94,7 @@ export default function DiscoveryPageClient({
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
   const replayAttemptedRef = useRef(false);
   const basePath = '/discover';
+  const { refetch: refetchSubnavStats } = useSubnavStats();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -246,10 +248,19 @@ export default function DiscoveryPageClient({
 
   const runReplayForAction = useCallback(
     async (action: PendingAuthAction) => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       switch (action.actionId) {
         case 'save_category': {
           const categoryId = action.payload.categoryId as string | undefined;
           if (!categoryId) return;
+          const { error } = await supabase.from('user_saved_ideas').upsert(
+            { user_id: user.id, idea_id: categoryId },
+            { onConflict: 'user_id,idea_id' }
+          );
+          if (!error) await refetchSubnavStats();
           setSaveModal({
             open: true,
             signedIn: true,
@@ -260,6 +271,11 @@ export default function DiscoveryPageClient({
         case 'save_product': {
           const productId = action.payload.productId as string | undefined;
           if (!productId) return;
+          const { error } = await supabase.from('user_saved_products').upsert(
+            { user_id: user.id, product_id: productId },
+            { onConflict: 'user_id,product_id' }
+          );
+          if (!error) await refetchSubnavStats();
           await fetch('/api/click', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -300,7 +316,7 @@ export default function DiscoveryPageClient({
           break;
       }
     },
-    [selectedBand?.id, selectedWrapper, currentMonth, basePath]
+    [selectedBand?.id, selectedWrapper, currentMonth, basePath, refetchSubnavStats]
   );
 
   // Replay pending action once after sign-in (Option B: single place in DiscoveryPageClient)
@@ -419,12 +435,25 @@ export default function DiscoveryPageClient({
     requireAuthThen({
       actionId: 'save_category',
       payload: { categoryId },
-      run: () =>
+      run: async () => {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { error } = await supabase.from('user_saved_ideas').upsert(
+          { user_id: user.id, idea_id: categoryId },
+          { onConflict: 'user_id,idea_id' }
+        );
+        if (error) {
+          setActionToast({ productId: categoryId, message: 'Could not save idea. Please try again.' });
+          return;
+        }
+        await refetchSubnavStats();
         setSaveModal({
           open: true,
           signedIn: true,
           signinUrl: getSigninUrlForCategory(categoryId),
-        }),
+        });
+      },
       openAuthModal: ({ signinUrl }) =>
         setSaveModal({ open: true, signedIn: false, signinUrl }),
       isAuthenticated: async () => {
@@ -444,6 +473,17 @@ export default function DiscoveryPageClient({
       actionId: 'save_product',
       payload: { productId },
       run: async () => {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { error } = await supabase.from('user_saved_products').upsert(
+          { user_id: user.id, product_id: productId },
+          { onConflict: 'user_id,product_id' }
+        );
+        if (error) {
+          setActionToast({ productId, message: 'Could not save. Please try again.' });
+          return;
+        }
         await fetch('/api/click', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -453,6 +493,7 @@ export default function DiscoveryPageClient({
             source: 'discover_save',
           }),
         });
+        await refetchSubnavStats();
         setSaveModal({
           open: true,
           signedIn: true,
