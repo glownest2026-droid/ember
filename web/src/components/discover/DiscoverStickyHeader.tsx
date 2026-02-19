@@ -42,14 +42,11 @@ export default function DiscoverStickyHeader() {
   return (
     <>
       <header
-        className="fixed left-0 right-0 z-50"
+        className="sticky top-0 left-0 right-0 z-50"
         style={{
-          top: user
-            ? 'calc(var(--subnav-height) + env(safe-area-inset-top, 0px))'
-            : 'env(safe-area-inset-top, 0px)',
           backgroundColor: 'var(--ember-surface-primary)',
           borderBottom: '1px solid #E5E7EB',
-          paddingTop: user ? '0' : 'env(safe-area-inset-top, 0px)',
+          paddingTop: 'env(safe-area-inset-top, 0px)',
           height: 'var(--header-height)',
           minHeight: '56px',
         }}

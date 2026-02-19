@@ -43,11 +43,11 @@ export function SubnavBar() {
 
   return (
     <>
-      {/* Fixed bar at top when signed-in (subnav is rendered first in layout) */}
+      {/* Sticky bar below main nav (subnav second in layout) */}
       <div
-        className="fixed left-0 right-0 z-40 border-b"
+        className="sticky left-0 right-0 z-40 border-b"
         style={{
-          top: 'env(safe-area-inset-top, 0px)',
+          top: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))',
           borderColor: 'var(--ember-border-subtle, #E5E7EB)',
           backgroundColor: 'var(--ember-surface-secondary, #F9FAFB)',
         }}
@@ -103,7 +103,7 @@ export function SubnavBar() {
               onCheckedChange={handleRemindersChange}
               disabled={remindersBusy}
             />
-            <SimpleTooltip content={REMINDERS_TOOLTIP} maxWidth="22rem">
+            <SimpleTooltip content={REMINDERS_TOOLTIP} maxWidth="44rem">
               <button
                 type="button"
                 className="ml-1 rounded-full p-0.5 transition-colors hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] cursor-pointer pointer-events-auto"
