@@ -4,8 +4,12 @@ import Link from 'next/link';
 import { Plus, Info } from 'lucide-react';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { SubnavSwitch } from './SubnavSwitch';
+import { SimpleTooltip } from '@/components/ui/SimpleTooltip';
 import { createClient } from '@/utils/supabase/client';
 import { useState, useCallback } from 'react';
+
+const REMINDERS_TOOLTIP =
+  "We'll automatically send you proactive play ideas at just the right time for your child's next developmental needs.";
 
 export function SubnavBar() {
   const { user, stats, refetch } = useSubnavStats();
@@ -39,13 +43,14 @@ export function SubnavBar() {
 
   return (
     <div
-      className="border-b"
+      className="sticky left-0 right-0 z-40 border-b"
       style={{
+        top: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))',
         borderColor: 'var(--ember-border-subtle, #E5E7EB)',
         backgroundColor: 'var(--ember-surface-secondary, #F9FAFB)',
       }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 w-full">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
             <Link
@@ -96,15 +101,16 @@ export function SubnavBar() {
               onCheckedChange={handleRemindersChange}
               disabled={remindersBusy}
             />
-            <button
-              type="button"
-              className="ml-1 rounded-full p-0.5 transition-colors hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B]"
-              style={{ color: 'var(--ember-text-low)' }}
-              title="We'll automatically send you proactive play ideas at just the right time for your child's next developmental needs."
-              aria-label="Info about development reminders"
-            >
-              <Info className="w-4 h-4" />
-            </button>
+            <SimpleTooltip content={REMINDERS_TOOLTIP} maxWidth="18rem">
+              <button
+                type="button"
+                className="ml-1 rounded-full p-0.5 transition-colors hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] cursor-pointer pointer-events-auto"
+                style={{ color: 'var(--ember-text-low)' }}
+                aria-label="Development reminders info"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            </SimpleTooltip>
           </div>
         </div>
       </div>
