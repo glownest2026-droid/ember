@@ -3,6 +3,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ConditionalHeader from "../components/ConditionalHeader";
 import { ThemeProvider } from "../components/ThemeProvider";
+import { SubnavStatsProvider } from "../lib/subnav/SubnavStatsContext";
+import { SubnavGate } from "../components/subnav/SubnavGate";
 
 export const metadata: Metadata = {
   title: "Ember — Simple, trusted guidance from bump to big steps.",
@@ -29,10 +31,13 @@ export const dynamic = 'force-dynamic';
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="antialiased" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
+      <body className="antialiased">
         <ThemeProvider>
-          <ConditionalHeader />
-          {children}
+          <SubnavStatsProvider>
+            <ConditionalHeader />
+            <SubnavGate />
+            {children}
+          </SubnavStatsProvider>
         </ThemeProvider>
       </body>
     </html>

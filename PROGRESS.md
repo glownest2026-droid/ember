@@ -1840,3 +1840,13 @@ Category-only cards remain publishable.
 - **Proof:** `pnpm -C web build` passes (no app code changes). Founder: run migration in Supabase SQL Editor, then run verification queries in `FEB_2026_SUBNAV_DATA_VERIFICATION.md`.
 - **Rollback:** See "Rollback" section in `web/docs/FEB_2026_SUBNAV_DATA_VERIFICATION.md` (drop trigger, function, tables in order).
 - **PR:** [Link after PR opened]
+
+---
+
+## feat(subnav-ui): authenticated subnav globally + real saves counts + reminders toggle (Feb 2026)
+
+- **Goal:** Implement authenticated subnav per Figma; hidden for guests, shown when logged in; "Add a child" → /app/children; Save Idea / product Save write to PR1 tables and update subnav counts; "Send me development reminders" toggle upserts user_notification_prefs.
+- **What changed:** Root layout wrapped with SubnavStatsProvider; SubnavGate + SubnavBar (toys saved, gifts saved = 0, category ideas saved, reminders toggle). useSubnavStats fetches get_my_subnav_stats() for authed users; refetch after saves/toggle. DiscoveryPageClient: handleSaveCategory and handleSaveToList insert into user_saved_ideas / user_saved_products (upsert), refetch subnav; runReplayForAction does same for replay-after-sign-in. SubnavBar reminders toggle upserts user_notification_prefs. New: web/src/lib/subnav/SubnavStatsContext.tsx, web/src/components/subnav/SubnavBar.tsx, SubnavSwitch.tsx, SubnavGate.tsx.
+- **Proof:** `pnpm -C web build` passes. Founder QA: guest no subnav; sign in → subnav appears; Add a child → /app/children; Save Idea / Save → counts increment and persist; reminders toggle persists.
+- **Rollback:** Revert PR (no DB migration in this PR).
+- **PR:** [Link after PR opened]

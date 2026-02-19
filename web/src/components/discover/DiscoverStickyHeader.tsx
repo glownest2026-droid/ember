@@ -42,7 +42,7 @@ export default function DiscoverStickyHeader() {
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-50"
+        className="sticky top-0 left-0 right-0 z-50"
         style={{
           backgroundColor: 'var(--ember-surface-primary)',
           borderBottom: '1px solid #E5E7EB',

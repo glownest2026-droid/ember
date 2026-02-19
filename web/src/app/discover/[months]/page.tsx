@@ -76,7 +76,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
   }
 
   return (
-    <main className="min-h-screen" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
+    <main className="min-h-screen">
       <DiscoveryPageClient
         ageBands={ageBands}
         ageBand={ageBand}
