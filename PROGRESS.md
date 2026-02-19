@@ -1830,3 +1830,13 @@ Category-only cards remain publishable.
 ### Preview URL used for validation:
 
 /app/admin/pl/25-27m (Vercel preview) loads and renders as expected.
+
+---
+
+## feat(subnav-data): secure saves + consent schema and get_my_subnav_stats (Feb 2026)
+
+- **Goal:** Add tables and RLS for saved products, saved ideas, notification prefs; single RPC `get_my_subnav_stats()` for "my subnav stats" read. Data foundation only; no UI subnav in this PR.
+- **What changed:** New migration `supabase/sql/202602190000_subnav_saves_and_consent.sql`: tables `user_saved_products`, `user_saved_ideas`, `user_notification_prefs`; RLS (SELECT/INSERT/DELETE for saves, + UPDATE for prefs) using `auth.uid()` only; RPC `get_my_subnav_stats()` returning `{ toys_saved_count, ideas_saved_count, development_reminders_enabled }`. Verification doc: `web/docs/FEB_2026_SUBNAV_DATA_VERIFICATION.md`.
+- **Proof:** `pnpm -C web build` passes (no app code changes). Founder: run migration in Supabase SQL Editor, then run verification queries in `FEB_2026_SUBNAV_DATA_VERIFICATION.md`.
+- **Rollback:** See "Rollback" section in `web/docs/FEB_2026_SUBNAV_DATA_VERIFICATION.md` (drop trigger, function, tables in order).
+- **PR:** [Link after PR opened]
