@@ -34,7 +34,7 @@ export function SimpleTooltip({ content, children, maxWidth = '16rem' }: SimpleT
           style={{
             backgroundColor: '#1A1E23',
             maxWidth,
-            bottom: 'calc(100% + 8px)',
+            top: 'calc(100% + 8px)',
           }}
         >
           {content}

@@ -42,15 +42,17 @@ export function SubnavBar() {
   if (!user || !stats) return null;
 
   return (
-    <div
-      className="sticky left-0 right-0 z-40 border-b"
-      style={{
-        top: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))',
-        borderColor: 'var(--ember-border-subtle, #E5E7EB)',
-        backgroundColor: 'var(--ember-surface-secondary, #F9FAFB)',
-      }}
-    >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 w-full">
+    <>
+      {/* Fixed bar so it stays visible on scroll (sticky can break with overflow-x on body) */}
+      <div
+        className="fixed left-0 right-0 z-40 border-b"
+        style={{
+          top: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))',
+          borderColor: 'var(--ember-border-subtle, #E5E7EB)',
+          backgroundColor: 'var(--ember-surface-secondary, #F9FAFB)',
+        }}
+      >
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 w-full">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
             <Link
@@ -114,6 +116,9 @@ export function SubnavBar() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+      {/* Spacer so page content starts below the fixed subnav */}
+      <div aria-hidden className="h-[52px] sm:h-14" style={{ minHeight: '52px' }} />
+    </>
   );
 }
