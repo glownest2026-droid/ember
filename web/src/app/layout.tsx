@@ -31,7 +31,7 @@ export const dynamic = 'force-dynamic';
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="antialiased" style={{ paddingTop: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))' }}>
+      <body className="antialiased">
         <ThemeProvider>
           <ConditionalHeader />
           <SubnavStatsProvider>
