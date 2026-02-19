@@ -104,6 +104,14 @@ _Last updated: 2026-01-04_
 
 ---
 
+## UI — Google icon on auth modal button
+
+- **What changed:** Added Google “G” icon to the “Continue with Google” button in the auth modal (SaveToListModal). New `web/src/components/icons/GoogleMark.tsx` (18px inline SVG, aria-hidden); button keeps label “Continue with Google” and existing gap-2 layout. Same “Logo + Continue with Google” option added on `/signin` (gated by `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE`, same OAuth redirectTo pattern). Removed “Admin?” text from signin page; “Sign in with password” link kept. No auth logic, flags, or redirect changes.
+- **Proof:** `pnpm -C web build` passes. With `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE=true`, modal and /signin show icon + label; with flag off, buttons remain hidden.
+- **Rollback:** Revert the commit(s) on the branch.
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 
