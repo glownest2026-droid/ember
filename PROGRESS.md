@@ -36,7 +36,7 @@ _Last updated: 2026-01-04_
 - /discover (canonical; redirects to first band)
 - /discover/[months] (V1.0 doorways experience)
 - /new, /new/[months] (308 redirect to /discover)
-- /family (Manage My Family dashboard; auth-gated shell, placeholder data)
+- /family (Manage My Family dashboard; auth-gated; real list from user_list_items + Want/Have/Gift RPC)
 
 ## Open PR policy
 - Keep ≤ 1 open “feature PR” at a time (currently: #79 only).
@@ -121,6 +121,17 @@ _Last updated: 2026-01-04_
 - **QA (founder):** 1) Signed out: go to `/family` → see “Sign in to manage your family” and “Sign in” button; 2) Sign in, go to `/family` → see full shell with “Manage My Family” header, child chip “— · —”, “Today for My child” strip, My list (Ideas/Products/Gifts tabs), one skeleton card with Want + Gift checkboxes, Next steps / Remind me / Settings; 3) Build: `cd web && pnpm install && pnpm run build` passes.
 - **Follow-on PRs (not in this PR):** Wire children from DB; wire saved ideas/products/gifts from DB; persist Want/Gift/reminders; Add child flow; Filter/Search; Share my list.
 - **Rollback:** Revert PR or delete `web/src/app/family/` and `web/src/components/family/`. No DB/RLS changes.
+
+---
+
+## PR — Fix /family “My list” persistence (missing RPC + canonical storage)
+
+- **Goal:** Fix runtime error “Could not find the function public.upsert_user_list_item(...) in the schema cache” by implementing the canonical DB layer and RPC so Want/Have/Gift toggles work without errors.
+- **Ground truth (repo):** Callsites: `web/src/components/family/FamilyDashboardClient.tsx` (rpc('upsert_user_list_item', payload)); `web/src/app/discover/[months]/DiscoveryPageClient.tsx` (multiple rpc calls with p_kind, p_category_type_id, p_product_id, p_ux_wrapper_id, p_want, p_have, p_gift). Existing save tables: `user_saved_products`, `user_saved_ideas` in `supabase/sql/202602190000_subnav_saves_and_consent.sql`. No `user_list_items` or `upsert_user_list_item` on main before this PR.
+- **What changed:** (1) **DB:** New migration `supabase/sql/202602260000_family_user_list_items_and_rpc.sql`: table `public.user_list_items` (id, user_id, child_id, kind, ux_wrapper_id, category_type_id, product_id, want, have, gift, created_at, updated_at); CHECK gift⇒want and kind+ref; partial unique indexes; RLS auth-only; backfill from user_saved_* (in DO blocks for undefined_table); `get_my_subnav_stats()` counts from user_list_items; RPC `public.upsert_user_list_item(p_kind, p_product_id, p_category_type_id, p_ux_wrapper_id, p_want, p_have, p_gift)`; REVOKE EXECUTE FROM anon, GRANT EXECUTE TO authenticated. (2) **Verify:** `supabase/sql/verify_family_user_list_items_and_rpc.sql` (table, RLS, policies, function in information_schema.routines, counts, smoke-call guidance). (3) **Frontend:** FamilyDashboardClient fetches from user_list_items (with products/pl_category_types/pl_ux_wrappers joins), shows real counts (ideas = kind in idea/category and want|have; products = kind product and want|have; gifts = gift true) and list items; setWant/setHave/setGift call updateItem → rpc('upsert_user_list_item'); on error show calm inline “Couldn’t save that right now. Try again.” and console.error underlying error.
+- **Founder runbook:** In PR description: paste migration SQL in Supabase SQL Editor (run once); then paste verify SQL; expected output + screenshots if errors.
+- **Proof:** `cd web && pnpm install && pnpm run build` passes. Manual: apply migration → sign in → /family → toggle Want/Have/Gift → no error banner; or before migration see calm message.
+- **Rollback:** Revert PR. DB: `DROP TABLE IF EXISTS public.user_list_items CASCADE;` then re-run `get_my_subnav_stats` from 202602190000 if desired.
 
 ---
 
