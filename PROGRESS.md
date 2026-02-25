@@ -171,6 +171,15 @@ _Last updated: 2026-01-04_
 
 ---
 
+## Fix — /family: Toggles + Gift list + Product images (optimistic UI + errors + image fallback)
+
+- **Bugs addressed:** Want/Have toggles and Gift list button still not working; product images showing “No image”.
+- **What changed:** (1) **Optimistic UI:** Added `optimisticHave` and `optimisticGift` state so the toggle and “+ Gift list” update immediately on click; on RPC failure state reverts. (2) **Error feedback:** `updateItem` now sets `actionError` on RPC failure (and on “function does not exist” shows “My list isn’t set up yet. Run the database migration.”); error message shown above the list. (3) **Product images:** Product image fetch now uses both `v_gateway_products_public` and `products` table (`Promise.all`); first fill from gateway view, then fill missing from `products.id, image_url` so images show when gateway has no row for that product. (4) **Handlers:** Want/Have uses dedicated `handleHaveChange` that sets optimistic state then calls `updateItem`; Gift list handler sets `optimisticGift` then `updateItem`, reverts on failure.
+- **Proof:** `pnpm -C web build` passes. Manual: /family → toggle Want/Have (moves immediately; if migration not applied, reverts and shows error); click “+ Gift list” (shows “Successfully added” or error); Products tab shows image when present in gateway or products table.
+- **Rollback:** Revert the commit(s).
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 

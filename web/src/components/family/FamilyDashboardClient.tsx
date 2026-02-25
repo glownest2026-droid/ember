@@ -96,6 +96,9 @@ export function FamilyDashboardClient() {
   const [productImageMap, setProductImageMap] = useState<Map<string, string>>(new Map());
   const [giftSuccessId, setGiftSuccessId] = useState<string | null>(null);
   const [remindersBusy, setRemindersBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [optimisticHave, setOptimisticHave] = useState<Record<string, boolean>>({});
+  const [optimisticGift, setOptimisticGift] = useState<Record<string, boolean>>({});
   const { user, stats, refetch: refetchSubnavStats } = useSubnavStats();
   const remindersEnabled = stats?.remindersEnabled ?? false;
 
@@ -218,18 +221,21 @@ export function FamilyDashboardClient() {
       setProductImageMap(new Map());
     } else {
       const supabase = createClient();
-      supabase
-        .from('v_gateway_products_public')
-        .select('id, image_url')
-        .in('id', productIds)
-        .then(({ data }) => {
-          const map = new Map<string, string>();
-          for (const row of data ?? []) {
-            const r = row as { id: string; image_url: string | null };
-            if (r.image_url && !map.has(r.id)) map.set(r.id, r.image_url);
-          }
-          setProductImageMap(map);
-        });
+      const map = new Map<string, string>();
+      Promise.all([
+        supabase.from('v_gateway_products_public').select('id, image_url').in('id', productIds),
+        supabase.from('products').select('id, image_url').in('id', productIds),
+      ]).then(([viewRes, tableRes]) => {
+        for (const row of viewRes.data ?? []) {
+          const r = row as { id: string; image_url: string | null };
+          if (r.image_url && !map.has(r.id)) map.set(r.id, r.image_url);
+        }
+        for (const row of tableRes.data ?? []) {
+          const r = row as { id: string; image_url: string | null };
+          if (r.image_url && !map.has(r.id)) map.set(r.id, r.image_url);
+        }
+        setProductImageMap(map);
+      });
     }
   }, [items]);
 
@@ -247,6 +253,7 @@ export function FamilyDashboardClient() {
     async (row: ListItemRow, updates: { want?: boolean; have?: boolean; gift?: boolean }): Promise<boolean> => {
       const supabase = createClient();
       setUpdatingId(row.id);
+      setActionError(null);
       try {
         let p_want = updates.want ?? row.want;
         let p_gift = updates.gift ?? row.gift;
@@ -265,8 +272,23 @@ export function FamilyDashboardClient() {
         if (!error) {
           await fetchList();
           await refetchSubnavStats();
+          setOptimisticHave((prev) => {
+            const next = { ...prev };
+            delete next[row.id];
+            return next;
+          });
+          setOptimisticGift((prev) => {
+            const next = { ...prev };
+            delete next[row.id];
+            return next;
+          });
           return true;
         }
+        setActionError(error.message ?? 'Couldn’t update. Try again.');
+        return false;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Couldn’t update. Try again.';
+        setActionError(msg.includes('function') || msg.includes('does not exist') ? 'My list isn’t set up yet. Run the database migration.' : msg);
         return false;
       } finally {
         setUpdatingId(null);
@@ -429,6 +451,11 @@ export function FamilyDashboardClient() {
               ))}
             </div>
 
+            {actionError && (
+              <p className="text-sm mb-3 py-2 px-3 rounded-lg" style={{ backgroundColor: 'var(--ember-surface-soft)', color: 'var(--ember-accent-base)' }}>
+                {actionError}
+              </p>
+            )}
             {loading ? (
               <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
                 Loading…
@@ -444,15 +471,27 @@ export function FamilyDashboardClient() {
                   const title = itemTitle(row);
                   const savedTime = formatSavedTime(row.created_at);
                   const disabled = updatingId === row.id;
+                  const have = optimisticHave[row.id] ?? row.have;
+                  const gift = optimisticGift[row.id] ?? row.gift;
                   const showGiftSuccess = giftSuccessId === row.id;
+                  const handleHaveChange = (checked: boolean) => {
+                    if (disabled) return;
+                    setOptimisticHave((prev) => ({ ...prev, [row.id]: checked }));
+                    updateItem(row, { have: checked }).then((ok) => {
+                      if (!ok) setOptimisticHave((prev) => ({ ...prev, [row.id]: row.have }));
+                    });
+                  };
                   const handleAddToGiftList = (e: React.MouseEvent) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (disabled || row.gift) return;
+                    if (disabled || gift) return;
+                    setOptimisticGift((prev) => ({ ...prev, [row.id]: true }));
                     updateItem(row, { gift: true }).then((ok) => {
                       if (ok) {
                         setGiftSuccessId(row.id);
                         setTimeout(() => setGiftSuccessId(null), 3000);
+                      } else {
+                        setOptimisticGift((prev) => ({ ...prev, [row.id]: row.gift }));
                       }
                     });
                   };
@@ -465,7 +504,7 @@ export function FamilyDashboardClient() {
                       {imgUrl ? (
                         <div className="aspect-square bg-[var(--ember-surface-soft)] relative">
                           <img src={imgUrl} alt="" className="w-full h-full object-cover" />
-                          {row.gift && (
+                          {gift && (
                             <div className="absolute top-2 right-2 rounded-full p-1.5 shadow-sm" style={{ backgroundColor: 'var(--ember-surface-primary)' }}>
                               <Gift className="w-3.5 h-3.5" style={{ color: '#E65100' }} aria-hidden />
                             </div>
@@ -484,21 +523,21 @@ export function FamilyDashboardClient() {
                           {savedTime}
                         </p>
                         <div className="flex items-center gap-2" aria-label="Want or Have">
-                          <span className="text-xs font-medium" style={{ color: row.have ? 'var(--ember-text-low)' : 'var(--ember-text-high)' }}>
+                          <span className="text-xs font-medium" style={{ color: have ? 'var(--ember-text-low)' : 'var(--ember-text-high)' }}>
                             Want
                           </span>
                           <SubnavSwitch
                             aria-label="Want or Have"
-                            checked={row.have}
-                            onCheckedChange={(checked) => !disabled && updateItem(row, { have: checked })}
+                            checked={have}
+                            onCheckedChange={handleHaveChange}
                             disabled={disabled}
                           />
-                          <span className="text-xs font-medium" style={{ color: row.have ? '#2E7D32' : 'var(--ember-text-low)' }}>
+                          <span className="text-xs font-medium" style={{ color: have ? '#2E7D32' : 'var(--ember-text-low)' }}>
                             Have
                           </span>
                         </div>
                         <div className="flex items-center justify-between gap-2 mt-2 flex-wrap">
-                          {!row.have ? (
+                          {!have ? (
                             <>
                               <Link
                                 href="/discover"
@@ -511,7 +550,7 @@ export function FamilyDashboardClient() {
                                 <span className="text-xs font-medium" style={{ color: '#2E7D32' }}>
                                   Successfully added
                                 </span>
-                              ) : row.gift ? (
+                              ) : gift ? (
                                 <span className="text-xs" style={{ color: 'var(--ember-text-low)' }}>
                                   On gift list
                                 </span>
