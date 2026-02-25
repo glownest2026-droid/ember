@@ -162,6 +162,15 @@ _Last updated: 2026-01-04_
 
 ---
 
+## Fix — /family: Want/Have slider, Gift list button, Product images
+
+- **Bugs addressed:** (1) Want/Have in My list was pill buttons, not a toggle slider; (2) “+ Gift list” still dead (click not adding to Gifts tab); (3) Products tab images not pulling through (same source as /discover).
+- **What changed:** (1) **Want/Have:** Replaced pill with `SubnavSwitch` (sliding toggle) with “Want” and “Have” labels; `checked={row.have}`, `onCheckedChange` calls `updateItem(row, { have: checked })`. (2) **Gift list:** Button uses `e.preventDefault()` and `e.stopPropagation()`; handler calls `updateItem(row, { gift: true }).then(ok => …)` so the promise is handled and success sets `giftSuccessId` for “Successfully added” feedback. (3) **Product images:** Same source as /discover: after loading items, fetch `v_gateway_products_public` for product ids in the list (`select('id, image_url').in('id', productIds)`), build `productImageMap`; `getItemImageUrl(row, categoryImageMap, productImageMap)` uses `productImageMap` for product rows first, then joined `products.image_url`.
+- **Proof:** `pnpm -C web build` passes. Manual: /family Ideas & Products tabs show Want/Have as a switch; “+ Gift list” adds item to Gifts tab and shows “Successfully added”; Products tab cards show images when present in gateway.
+- **Rollback:** Revert the commit(s).
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 

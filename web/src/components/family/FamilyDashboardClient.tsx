@@ -51,11 +51,18 @@ function itemTitle(row: ListItemRow): string {
   return '—';
 }
 
-/** Image URL for list item. Uses v_gateway_category_type_images for category/idea (same source as /discover). */
-function getItemImageUrl(row: ListItemRow, categoryImageMap: Map<string, string>): string | null {
+/** Image URL for list item. Category/idea: v_gateway_category_type_images; product: v_gateway_products_public (same as /discover). */
+function getItemImageUrl(
+  row: ListItemRow,
+  categoryImageMap: Map<string, string>,
+  productImageMap: Map<string, string>
+): string | null {
   const p = _first(row.products);
   const c = _first(row.pl_category_types);
-  if (row.kind === 'product' && p?.image_url) return p.image_url;
+  if (row.kind === 'product' && row.product_id) {
+    if (productImageMap.has(row.product_id)) return productImageMap.get(row.product_id)!;
+    if (p?.image_url) return p.image_url;
+  }
   if (row.kind === 'category' || row.kind === 'idea') {
     if (row.category_type_id && categoryImageMap.has(row.category_type_id))
       return categoryImageMap.get(row.category_type_id)!;
@@ -86,6 +93,7 @@ export function FamilyDashboardClient() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [categoryImageMap, setCategoryImageMap] = useState<Map<string, string>>(new Map());
+  const [productImageMap, setProductImageMap] = useState<Map<string, string>>(new Map());
   const [giftSuccessId, setGiftSuccessId] = useState<string | null>(null);
   const [remindersBusy, setRemindersBusy] = useState(false);
   const { user, stats, refetch: refetchSubnavStats } = useSubnavStats();
@@ -187,21 +195,42 @@ export function FamilyDashboardClient() {
     const ids = [...new Set(items.map((r) => (r.kind === 'category' || r.kind === 'idea') && r.category_type_id ? r.category_type_id : null).filter(Boolean) as string[])];
     if (ids.length === 0) {
       setCategoryImageMap(new Map());
-      return;
+    } else {
+      const supabase = createClient();
+      supabase
+        .from('v_gateway_category_type_images')
+        .select('category_type_id, image_url')
+        .in('category_type_id', ids)
+        .then(({ data }) => {
+          const map = new Map<string, string>();
+          for (const row of data ?? []) {
+            const r = row as { category_type_id: string; image_url: string };
+            if (r.image_url) map.set(r.category_type_id, r.image_url);
+          }
+          setCategoryImageMap(map);
+        });
     }
-    const supabase = createClient();
-    supabase
-      .from('v_gateway_category_type_images')
-      .select('category_type_id, image_url')
-      .in('category_type_id', ids)
-      .then(({ data }) => {
-        const map = new Map<string, string>();
-        for (const row of data ?? []) {
-          const r = row as { category_type_id: string; image_url: string };
-          if (r.image_url) map.set(r.category_type_id, r.image_url);
-        }
-        setCategoryImageMap(map);
-      });
+  }, [items]);
+
+  useEffect(() => {
+    const productIds = [...new Set(items.filter((r) => r.kind === 'product' && r.product_id).map((r) => r.product_id!))];
+    if (productIds.length === 0) {
+      setProductImageMap(new Map());
+    } else {
+      const supabase = createClient();
+      supabase
+        .from('v_gateway_products_public')
+        .select('id, image_url')
+        .in('id', productIds)
+        .then(({ data }) => {
+          const map = new Map<string, string>();
+          for (const row of data ?? []) {
+            const r = row as { id: string; image_url: string | null };
+            if (r.image_url && !map.has(r.id)) map.set(r.id, r.image_url);
+          }
+          setProductImageMap(map);
+        });
+    }
   }, [items]);
 
   const counts = {
@@ -411,18 +440,21 @@ export function FamilyDashboardClient() {
             ) : (
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                 {currentItems.map((row) => {
-                  const imgUrl = getItemImageUrl(row, categoryImageMap);
+                  const imgUrl = getItemImageUrl(row, categoryImageMap, productImageMap);
                   const title = itemTitle(row);
                   const savedTime = formatSavedTime(row.created_at);
                   const disabled = updatingId === row.id;
                   const showGiftSuccess = giftSuccessId === row.id;
-                  const handleAddToGiftList = async () => {
+                  const handleAddToGiftList = (e: React.MouseEvent) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     if (disabled || row.gift) return;
-                    const ok = await updateItem(row, { gift: true });
-                    if (ok) {
-                      setGiftSuccessId(row.id);
-                      setTimeout(() => setGiftSuccessId(null), 3000);
-                    }
+                    updateItem(row, { gift: true }).then((ok) => {
+                      if (ok) {
+                        setGiftSuccessId(row.id);
+                        setTimeout(() => setGiftSuccessId(null), 3000);
+                      }
+                    });
                   };
                   return (
                     <div
@@ -451,40 +483,19 @@ export function FamilyDashboardClient() {
                         <p className="text-xs mb-3" style={{ color: 'var(--ember-text-low)' }}>
                           {savedTime}
                         </p>
-                        <div
-                          role="group"
-                          aria-label="Want or Have"
-                          className="inline-flex rounded-full p-0.5 text-xs font-medium border border-transparent"
-                          style={{ backgroundColor: 'var(--ember-surface-soft)' }}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => !disabled && updateItem(row, { have: false })}
-                            className="px-3 py-1 rounded-full transition-all"
-                            style={
-                              !row.have
-                                ? { backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', boxShadow: '0 1px 2px rgba(0,0,0,0.06)' }
-                                : { color: 'var(--ember-text-low)' }
-                            }
-                            disabled={disabled}
-                            aria-pressed={!row.have}
-                          >
+                        <div className="flex items-center gap-2" aria-label="Want or Have">
+                          <span className="text-xs font-medium" style={{ color: row.have ? 'var(--ember-text-low)' : 'var(--ember-text-high)' }}>
                             Want
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => !disabled && updateItem(row, { have: true })}
-                            className="px-3 py-1 rounded-full transition-all"
-                            style={
-                              row.have
-                                ? { backgroundColor: '#E8F5E9', color: '#2E7D32', boxShadow: '0 1px 2px rgba(0,0,0,0.06)' }
-                                : { color: 'var(--ember-text-low)' }
-                            }
+                          </span>
+                          <SubnavSwitch
+                            aria-label="Want or Have"
+                            checked={row.have}
+                            onCheckedChange={(checked) => !disabled && updateItem(row, { have: checked })}
                             disabled={disabled}
-                            aria-pressed={row.have}
-                          >
+                          />
+                          <span className="text-xs font-medium" style={{ color: row.have ? '#2E7D32' : 'var(--ember-text-low)' }}>
                             Have
-                          </button>
+                          </span>
                         </div>
                         <div className="flex items-center justify-between gap-2 mt-2 flex-wrap">
                           {!row.have ? (
@@ -509,7 +520,7 @@ export function FamilyDashboardClient() {
                                   type="button"
                                   onClick={handleAddToGiftList}
                                   disabled={disabled}
-                                  className="text-xs flex items-center gap-1 hover:underline"
+                                  className="text-xs flex items-center gap-1 hover:underline cursor-pointer"
                                   style={{ color: 'var(--ember-accent-base)' }}
                                 >
                                   <Plus className="w-3 h-3" />
