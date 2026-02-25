@@ -113,11 +113,61 @@ export function FamilyDashboardClient() {
       .from('user_list_items')
       .select('id, kind, want, have, gift, product_id, category_type_id, ux_wrapper_id, created_at, products(name), pl_category_types(name, label), pl_ux_wrappers(ux_label)')
       .order('created_at', { ascending: false });
-    if (error) {
+    if (!error && data != null) {
+      setItems((data as unknown as ListItemRow[]) ?? []);
+      return;
+    }
+    const useLegacy =
+      error?.code === '42P01' ||
+      error?.message?.includes('user_list_items') ||
+      error?.message?.includes('does not exist');
+    if (!useLegacy) {
       setItems([]);
       return;
     }
-    setItems((data as unknown as ListItemRow[]) ?? []);
+    const [ideasRes, productsRes] = await Promise.all([
+      supabase.from('user_saved_ideas').select('id, idea_id, created_at, pl_category_types(name, label)').order('created_at', { ascending: false }),
+      supabase.from('user_saved_products').select('id, product_id, created_at, products(name)').order('created_at', { ascending: false }),
+    ]);
+    const legacyRows: ListItemRow[] = [];
+    const ideaRows = (ideasRes.data ?? []) as unknown as { id: string; idea_id: string; created_at: string; pl_category_types: { name: string; label: string | null } | { name: string; label: string | null }[] | null }[];
+    for (const r of ideaRows) {
+      const ct = Array.isArray(r.pl_category_types) ? r.pl_category_types[0] ?? null : r.pl_category_types;
+      legacyRows.push({
+        id: r.id,
+        kind: 'category',
+        want: true,
+        have: false,
+        gift: false,
+        product_id: null,
+        category_type_id: r.idea_id,
+        ux_wrapper_id: null,
+        created_at: r.created_at,
+        products: null,
+        pl_category_types: ct ?? null,
+        pl_ux_wrappers: null,
+      });
+    }
+    const productRows = (productsRes.data ?? []) as unknown as { id: string; product_id: string; created_at: string; products: { name: string } | { name: string }[] | null }[];
+    for (const r of productRows) {
+      const prod = Array.isArray(r.products) ? r.products[0] ?? null : r.products;
+      legacyRows.push({
+        id: r.id,
+        kind: 'product',
+        want: true,
+        have: false,
+        gift: false,
+        product_id: r.product_id,
+        category_type_id: null,
+        ux_wrapper_id: null,
+        created_at: r.created_at,
+        products: prod ?? null,
+        pl_category_types: null,
+        pl_ux_wrappers: null,
+      });
+    }
+    legacyRows.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    setItems(legacyRows);
   }, []);
 
   useEffect(() => {

@@ -256,14 +256,23 @@ export default function DiscoveryPageClient({
         case 'save_category': {
           const categoryId = action.payload.categoryId as string | undefined;
           if (!categoryId) return;
-          const { error } = await supabase.rpc('upsert_user_list_item', {
+          let ok = false;
+          const { error: rpcError } = await supabase.rpc('upsert_user_list_item', {
             p_kind: 'category',
             p_category_type_id: categoryId,
             p_want: true,
             p_have: false,
             p_gift: false,
           });
-          if (!error) await refetchSubnavStats();
+          if (!rpcError) ok = true;
+          else if (rpcError.code === '42883' || rpcError.message?.includes('does not exist') || rpcError.message?.includes('function')) {
+            const { error: legacyError } = await supabase.from('user_saved_ideas').upsert(
+              { user_id: user.id, idea_id: categoryId },
+              { onConflict: 'user_id,idea_id' }
+            );
+            if (!legacyError) ok = true;
+          }
+          if (ok) await refetchSubnavStats();
           setSaveModal({
             open: true,
             signedIn: true,
@@ -274,14 +283,23 @@ export default function DiscoveryPageClient({
         case 'save_product': {
           const productId = action.payload.productId as string | undefined;
           if (!productId) return;
-          const { error } = await supabase.rpc('upsert_user_list_item', {
+          let ok = false;
+          const { error: rpcError } = await supabase.rpc('upsert_user_list_item', {
             p_kind: 'product',
             p_product_id: productId,
             p_want: true,
             p_have: false,
             p_gift: false,
           });
-          if (!error) await refetchSubnavStats();
+          if (!rpcError) ok = true;
+          else if (rpcError.code === '42883' || rpcError.message?.includes('does not exist') || rpcError.message?.includes('function')) {
+            const { error: legacyError } = await supabase.from('user_saved_products').upsert(
+              { user_id: user.id, product_id: productId },
+              { onConflict: 'user_id,product_id' }
+            );
+            if (!legacyError) ok = true;
+          }
+          if (ok) await refetchSubnavStats();
           await fetch('/api/click', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -479,18 +497,34 @@ export default function DiscoveryPageClient({
       payload: { categoryId },
       run: async () => {
         const supabase = createClient();
-        const { error } = await supabase.rpc('upsert_user_list_item', {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        let ok = false;
+        const { error: rpcError } = await supabase.rpc('upsert_user_list_item', {
           p_kind: 'category',
           p_category_type_id: categoryId,
           p_want: true,
           p_have: false,
           p_gift: false,
         });
-        if (error) {
+        if (!rpcError) {
+          ok = true;
+        } else {
+          const fallback = rpcError.code === '42883' || rpcError.message?.includes('does not exist') || rpcError.message?.includes('function');
+          if (fallback) {
+            const { error: legacyError } = await supabase.from('user_saved_ideas').upsert(
+              { user_id: user.id, idea_id: categoryId },
+              { onConflict: 'user_id,idea_id' }
+            );
+            if (!legacyError) ok = true;
+          }
+        }
+        if (!ok) {
           setActionToast({ productId: categoryId, message: 'Could not save idea. Please try again.' });
           return;
         }
         await refetchSubnavStats();
+        setActionToast({ productId: categoryId, message: 'Saved.' });
         setSaveModal({
           open: true,
           signedIn: true,
@@ -517,17 +551,33 @@ export default function DiscoveryPageClient({
       payload: { productId },
       run: async () => {
         const supabase = createClient();
-        const { error } = await supabase.rpc('upsert_user_list_item', {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        let ok = false;
+        const { error: rpcError } = await supabase.rpc('upsert_user_list_item', {
           p_kind: 'product',
           p_product_id: productId,
           p_want: true,
           p_have: false,
           p_gift: false,
         });
-        if (error) {
+        if (!rpcError) {
+          ok = true;
+        } else {
+          const fallback = rpcError.code === '42883' || rpcError.message?.includes('does not exist') || rpcError.message?.includes('function');
+          if (fallback) {
+            const { error: legacyError } = await supabase.from('user_saved_products').upsert(
+              { user_id: user.id, product_id: productId },
+              { onConflict: 'user_id,product_id' }
+            );
+            if (!legacyError) ok = true;
+          }
+        }
+        if (!ok) {
           setActionToast({ productId, message: 'Could not save. Please try again.' });
           return;
         }
+        setActionToast({ productId, message: 'Saved.' });
         await fetch('/api/click', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

@@ -135,6 +135,15 @@ _Last updated: 2026-01-04_
 
 ---
 
+## Fix — Discover “Save idea” dead link + /family sync with subnav
+
+- **Bugs addressed:** (1) On /discover, “Save idea” / “Save” did nothing (RPC missing or silent failure). (2) Subnav showed “3 ideas” but /family showed 0 (family only read `user_list_items`; when migration not applied, table missing or empty).
+- **What changed:** (1) **Discover:** `handleSaveCategory` and `handleSaveToList` (and replay handlers) now try `upsert_user_list_item` RPC first; if it fails with function/relation missing (e.g. code 42883), fall back to legacy `user_saved_ideas` / `user_saved_products` upsert so Save idea/Save work before migration. Success path shows a “Saved.” toast. (2) **/family:** `FamilyDashboardClient` `fetchList` tries `user_list_items` first; on error (e.g. 42P01 or “user_list_items does not exist”), falls back to fetching `user_saved_ideas` and `user_saved_products` and mapping to the same list shape so Ideas/Products tabs show the same counts as the subnav.
+- **Proof:** `pnpm -C web build` passes. Manual: sign in → /discover → click “Save idea” on a category → see “Saved.” toast and subnav count update; go to /family → Ideas tab shows saved ideas. If migration not applied, both Save and /family still work via legacy tables.
+- **Rollback:** Revert the commit(s) that added fallbacks.
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 
