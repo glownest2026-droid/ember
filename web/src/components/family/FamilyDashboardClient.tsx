@@ -4,17 +4,21 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
+import { calculateAgeBand } from '@/lib/ageBand';
+import { Plus, Gift } from 'lucide-react';
 
 const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
 
-/** Placeholder child for shell only (no child add in this PR). */
-const PLACEHOLDER_CHILDREN = [
-  { id: 'placeholder-1', displayName: null as string | null, ageBand: '—', currentFocus: '—', nextUp: '—' },
-];
-
 type TabId = 'ideas' | 'products' | 'gifts';
 
-/** List item from user_list_items; joined names (Supabase may return relation as object or single-element array). */
+/** Child profile from DB (no name field – privacy). */
+interface ChildProfile {
+  id: string;
+  birthdate: string | null;
+  age_band: string | null;
+}
+
+/** List item from user_list_items; joined names and image (Supabase may return relation as object or single-element array). */
 export interface ListItemRow {
   id: string;
   kind: 'idea' | 'category' | 'product';
@@ -25,8 +29,8 @@ export interface ListItemRow {
   category_type_id: string | null;
   ux_wrapper_id: string | null;
   created_at: string;
-  products: { name: string } | { name: string }[] | null;
-  pl_category_types: { name: string; label: string | null } | { name: string; label: string | null }[] | null;
+  products: { name: string; image_url?: string | null } | { name: string; image_url?: string | null }[] | null;
+  pl_category_types: { name: string; label: string | null; image_url?: string | null } | { name: string; label: string | null; image_url?: string | null }[] | null;
   pl_ux_wrappers: { ux_label: string } | { ux_label: string }[] | null;
 }
 
@@ -46,57 +50,32 @@ function itemTitle(row: ListItemRow): string {
   return '—';
 }
 
-/** Want + Gift: two controls. Gift implies Want (toggling Gift on auto-sets Want=true; toggling Want off clears Gift). */
-function WantGiftControls({
-  want,
-  gift,
-  onWantChange,
-  onGiftChange,
-  disabled,
-}: {
-  want: boolean;
-  gift: boolean;
-  onWantChange: (v: boolean) => void;
-  onGiftChange: (v: boolean) => void;
-  disabled?: boolean;
-}) {
-  const handleWantChange = (v: boolean) => {
-    onWantChange(v);
-    if (!v) onGiftChange(false);
-  };
-  const handleGiftChange = (v: boolean) => {
-    onGiftChange(v);
-    if (v) onWantChange(true);
-  };
-  return (
-    <div className="flex flex-wrap items-center gap-3" style={baseStyle}>
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={want}
-          onChange={(e) => handleWantChange(e.target.checked)}
-          disabled={disabled}
-          className="rounded border-gray-300"
-        />
-        <span style={{ color: 'var(--ember-text-high)' }}>Want</span>
-      </label>
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={gift}
-          onChange={(e) => handleGiftChange(e.target.checked)}
-          disabled={disabled || !want}
-          className="rounded border-gray-300 disabled:opacity-50"
-        />
-        <span style={{ color: 'var(--ember-text-high)' }}>Gift</span>
-      </label>
-    </div>
-  );
+/** Image URL for list item (category/idea from pl_category_types, product from products). */
+function itemImageUrl(row: ListItemRow): string | null {
+  const p = _first(row.products);
+  const c = _first(row.pl_category_types);
+  if (row.kind === 'product' && p?.image_url) return p.image_url;
+  if ((row.kind === 'category' || row.kind === 'idea') && c?.image_url) return c.image_url;
+  return null;
+}
+
+/** Relative time for "Saved X ago" (Figma-style). */
+function formatSavedTime(createdAt: string): string {
+  const d = new Date(createdAt);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffDays = Math.floor(diffMs / (24 * 60 * 60 * 1000));
+  if (diffDays === 0) return 'Saved today';
+  if (diffDays === 1) return 'Saved yesterday';
+  if (diffDays < 7) return `Saved ${diffDays} days ago`;
+  if (diffDays < 30) return `Saved ${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) === 1 ? '' : 's'} ago`;
+  return `Saved ${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) === 1 ? '' : 's'} ago`;
 }
 
 /** Dashboard: real list from user_list_items; counts = ideas (want|have), products (want|have), gifts (gift=true). */
 export function FamilyDashboardClient() {
-  const [selectedChildId, setSelectedChildId] = useState(PLACEHOLDER_CHILDREN[0].id);
+  const [children, setChildren] = useState<ChildProfile[]>([]);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('ideas');
   const [remindersOn, setRemindersOn] = useState(false);
   const [items, setItems] = useState<ListItemRow[]>([]);
@@ -104,14 +83,35 @@ export function FamilyDashboardClient() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const { refetch: refetchSubnavStats } = useSubnavStats();
 
-  const selectedChild = PLACEHOLDER_CHILDREN.find((c) => c.id === selectedChildId) ?? PLACEHOLDER_CHILDREN[0];
-  const displayName = selectedChild.displayName ?? 'My child';
+  const selectedChild = children.find((c) => c.id === selectedChildId) ?? children[0] ?? null;
+  const displayName = 'My child';
+  const displayAgeBand = selectedChild ? (selectedChild.age_band || (selectedChild.birthdate ? calculateAgeBand(selectedChild.birthdate) : null) || '—') : '—';
+  const personalizationSubtext = selectedChild
+    ? `My child (aged ${displayAgeBand}): —.`
+    : 'Add a child profile to see tailored next steps.';
+
+  const fetchChildren = useCallback(async () => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('children')
+      .select('id, birthdate, age_band')
+      .order('created_at', { ascending: false });
+    const list = (data ?? []) as ChildProfile[];
+    setChildren(list);
+    if (list.length > 0) {
+      setSelectedChildId((prev) => (prev && list.some((c) => c.id === prev) ? prev : list[0].id));
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchChildren();
+  }, [fetchChildren]);
 
   const fetchList = useCallback(async () => {
     const supabase = createClient();
     const { data, error } = await supabase
       .from('user_list_items')
-      .select('id, kind, want, have, gift, product_id, category_type_id, ux_wrapper_id, created_at, products(name), pl_category_types(name, label), pl_ux_wrappers(ux_label)')
+      .select('id, kind, want, have, gift, product_id, category_type_id, ux_wrapper_id, created_at, products(name, image_url), pl_category_types(name, label, image_url), pl_ux_wrappers(ux_label)')
       .order('created_at', { ascending: false });
     if (!error && data != null) {
       setItems((data as unknown as ListItemRow[]) ?? []);
@@ -126,11 +126,11 @@ export function FamilyDashboardClient() {
       return;
     }
     const [ideasRes, productsRes] = await Promise.all([
-      supabase.from('user_saved_ideas').select('id, idea_id, created_at, pl_category_types(name, label)').order('created_at', { ascending: false }),
-      supabase.from('user_saved_products').select('id, product_id, created_at, products(name)').order('created_at', { ascending: false }),
+      supabase.from('user_saved_ideas').select('id, idea_id, created_at, pl_category_types(name, label, image_url)').order('created_at', { ascending: false }),
+      supabase.from('user_saved_products').select('id, product_id, created_at, products(name, image_url)').order('created_at', { ascending: false }),
     ]);
     const legacyRows: ListItemRow[] = [];
-    const ideaRows = (ideasRes.data ?? []) as unknown as { id: string; idea_id: string; created_at: string; pl_category_types: { name: string; label: string | null } | { name: string; label: string | null }[] | null }[];
+    const ideaRows = (ideasRes.data ?? []) as unknown as { id: string; idea_id: string; created_at: string; pl_category_types: { name: string; label: string | null; image_url?: string | null } | { name: string; label: string | null; image_url?: string | null }[] | null }[];
     for (const r of ideaRows) {
       const ct = Array.isArray(r.pl_category_types) ? r.pl_category_types[0] ?? null : r.pl_category_types;
       legacyRows.push({
@@ -148,7 +148,7 @@ export function FamilyDashboardClient() {
         pl_ux_wrappers: null,
       });
     }
-    const productRows = (productsRes.data ?? []) as unknown as { id: string; product_id: string; created_at: string; products: { name: string } | { name: string }[] | null }[];
+    const productRows = (productsRes.data ?? []) as unknown as { id: string; product_id: string; created_at: string; products: { name: string; image_url?: string | null } | { name: string; image_url?: string | null }[] | null }[];
     for (const r of productRows) {
       const prod = Array.isArray(r.products) ? r.products[0] ?? null : r.products;
       legacyRows.push({
@@ -246,29 +246,43 @@ export function FamilyDashboardClient() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="mb-4 overflow-x-auto -mx-4 px-4 pb-2">
           <div className="flex gap-2 min-w-min">
-            {PLACEHOLDER_CHILDREN.map((child) => (
+            {children.length === 0 ? (
               <button
-                key={child.id}
                 type="button"
-                onClick={() => setSelectedChildId(child.id)}
                 className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
-                style={
-                  selectedChildId === child.id
-                    ? { backgroundColor: 'var(--ember-accent-base)', color: 'white' }
-                    : { backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', border: '1px solid var(--ember-border-subtle)' }
-                }
+                style={{ backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', border: '1px solid var(--ember-border-subtle)' }}
+                disabled
               >
-                {child.displayName ?? '—'} · {child.ageBand}
+                My child · —
               </button>
-            ))}
-            <button
-              type="button"
-              className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap border border-dashed"
+            ) : (
+              children.map((child) => {
+                const ageBand = child.age_band || (child.birthdate ? calculateAgeBand(child.birthdate) : null) || '—';
+                const isSelected = selectedChildId === child.id;
+                return (
+                  <button
+                    key={child.id}
+                    type="button"
+                    onClick={() => setSelectedChildId(child.id)}
+                    className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all"
+                    style={
+                      isSelected
+                        ? { backgroundColor: 'var(--ember-accent-base)', color: 'white', boxShadow: '0 0 0 3px var(--ember-glow, rgba(184,67,43,0.2))' }
+                        : { backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', border: '1px solid var(--ember-border-subtle)' }
+                    }
+                  >
+                    {displayName} · {ageBand}
+                  </button>
+                );
+              })
+            )}
+            <Link
+              href="/app/children/new"
+              className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap border border-dashed inline-flex items-center"
               style={{ borderColor: 'var(--ember-border-subtle)', color: 'var(--ember-accent-base)' }}
-              title="Coming soon"
             >
               + Add child
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -284,10 +298,10 @@ export function FamilyDashboardClient() {
             Today for {displayName}
           </h2>
           <p className="text-sm mb-1" style={{ color: 'var(--ember-text-high)', ...baseStyle }}>
-            {displayName} (aged —): {selectedChild.currentFocus}.
+            {personalizationSubtext}
           </p>
           <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
-            {selectedChild.nextUp}
+            Next steps and focus areas will appear here when we support them.
           </p>
         </div>
 
@@ -346,28 +360,102 @@ export function FamilyDashboardClient() {
                 No saved {activeTab} yet. Save from Discover to see them here.
               </p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {currentItems.map((row) => (
-                  <div
-                    key={row.id}
-                    className="rounded-lg border p-4"
-                    style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-secondary, #fafafa)' }}
-                  >
-                    <h4 className="font-medium text-sm mb-2 line-clamp-2" style={{ color: 'var(--ember-text-high)' }}>
-                      {itemTitle(row)}
-                    </h4>
-                    <div className="flex items-center gap-2 text-xs mb-2" style={{ color: 'var(--ember-text-low)' }}>
-                      {row.have && <span>Have</span>}
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                {currentItems.map((row) => {
+                  const imgUrl = itemImageUrl(row);
+                  const title = itemTitle(row);
+                  const savedTime = formatSavedTime(row.created_at);
+                  const disabled = updatingId === row.id;
+                  return (
+                    <div
+                      key={row.id}
+                      className="rounded-xl border overflow-hidden transition-all duration-200 hover:border-[var(--ember-text-low)]"
+                      style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}
+                    >
+                      {imgUrl ? (
+                        <div className="aspect-square bg-[var(--ember-surface-soft)] relative">
+                          <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+                          {row.gift && (
+                            <div className="absolute top-2 right-2 rounded-full p-1.5 shadow-sm" style={{ backgroundColor: 'var(--ember-surface-primary)' }}>
+                              <Gift className="w-3.5 h-3.5" style={{ color: '#E65100' }} aria-hidden />
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="aspect-square bg-[var(--ember-surface-soft)] flex items-center justify-center" style={{ color: 'var(--ember-text-low)' }}>
+                          <span className="text-xs">No image</span>
+                        </div>
+                      )}
+                      <div className="p-3">
+                        <h4 className="font-medium text-sm mb-1 line-clamp-2" style={{ color: 'var(--ember-text-high)' }}>
+                          {title}
+                        </h4>
+                        <p className="text-xs mb-3" style={{ color: 'var(--ember-text-low)' }}>
+                          {savedTime}
+                        </p>
+                        <div className="inline-flex rounded-full p-0.5 text-xs font-medium" style={{ backgroundColor: 'var(--ember-surface-soft)' }}>
+                          <button
+                            type="button"
+                            onClick={() => !disabled && updateItem(row, { have: false })}
+                            className="px-3 py-1 rounded-full transition-all"
+                            style={
+                              !row.have
+                                ? { backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', boxShadow: '0 1px 2px rgba(0,0,0,0.06)' }
+                                : { color: 'var(--ember-text-low)' }
+                            }
+                            disabled={disabled}
+                          >
+                            Want
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => !disabled && updateItem(row, { have: true })}
+                            className="px-3 py-1 rounded-full transition-all"
+                            style={
+                              row.have
+                                ? { backgroundColor: '#E8F5E9', color: '#2E7D32', boxShadow: '0 1px 2px rgba(0,0,0,0.06)' }
+                                : { color: 'var(--ember-text-low)' }
+                            }
+                            disabled={disabled}
+                          >
+                            Have
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 mt-2 flex-wrap">
+                          {!row.have ? (
+                            <>
+                              <Link
+                                href="/discover"
+                                className="text-xs hover:underline"
+                                style={{ color: 'var(--ember-accent-base)' }}
+                              >
+                                examples
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => !disabled && updateItem(row, { gift: !row.gift })}
+                                className="text-xs flex items-center gap-1 hover:underline"
+                                style={{ color: 'var(--ember-accent-base)' }}
+                              >
+                                <Plus className="w-3 h-3" />
+                                Gift list
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-xs opacity-40 cursor-not-allowed" style={{ color: 'var(--ember-text-low)' }}>
+                                examples
+                              </span>
+                              <span className="text-xs" style={{ color: 'var(--ember-text-low)' }} title="Coming soon">
+                                Move it on
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <WantGiftControls
-                      want={row.want}
-                      gift={row.gift}
-                      onWantChange={(v) => updateItem(row, { want: v })}
-                      onGiftChange={(v) => updateItem(row, { gift: v })}
-                      disabled={updatingId === row.id}
-                    />
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -391,7 +479,7 @@ export function FamilyDashboardClient() {
                 Next steps for {displayName}
               </h3>
               <p className="text-sm mb-4" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
-                — (Coming soon)
+                Next steps and focus areas will appear here when we support them.
               </p>
               <Link
                 href="/discover"

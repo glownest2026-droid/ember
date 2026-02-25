@@ -144,6 +144,15 @@ _Last updated: 2026-01-04_
 
 ---
 
+## Fix — /family Figma prototype alignment (cards + child data)
+
+- **Goal:** Align /family dashboard with Figma Manage Family prototype: card visuals (image, title, saved time, Want/Have pill, examples + Gift list), and child data from profile.
+- **What changed:** (1) **Child data:** FamilyDashboardClient fetches real children from `children` table (id, birthdate, age_band); child chips show “My child · {ageBand}” (age from age_band or calculateAgeBand(birthdate)); “+ Add child” links to /app/children/new. Personalization strip uses “My child (aged X): —” and a short next-steps placeholder. (2) **List cards (Figma-style):** List items use card layout: aspect-square image (from pl_category_types.image_url or products.image_url), title, “Saved X ago”, Want/Have pill toggle, “examples” (link to /discover), “+ Gift list” (toggles gift); gift badge (Gift icon) on image when row.gift. Fetch includes image_url in products and pl_category_types joins (and legacy fallback). (3) **Next steps / Remind me:** Copy updated to match placeholder messaging.
+- **Proof:** `pnpm -C web build` passes. Manual: sign in → /family → child chips show real profiles or “My child · —”; list cards show image, title, saved time, Want/Have pill, examples, Gift list.
+- **Rollback:** Revert the commit(s).
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 
