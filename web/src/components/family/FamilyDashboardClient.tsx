@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { calculateAgeBand } from '@/lib/ageBand';
+import { SubnavSwitch } from '@/components/subnav/SubnavSwitch';
 import { Plus, Gift } from 'lucide-react';
 
 const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
@@ -50,12 +51,16 @@ function itemTitle(row: ListItemRow): string {
   return '—';
 }
 
-/** Image URL for list item (category/idea from pl_category_types, product from products). */
-function itemImageUrl(row: ListItemRow): string | null {
+/** Image URL for list item. Uses v_gateway_category_type_images for category/idea (same source as /discover). */
+function getItemImageUrl(row: ListItemRow, categoryImageMap: Map<string, string>): string | null {
   const p = _first(row.products);
   const c = _first(row.pl_category_types);
   if (row.kind === 'product' && p?.image_url) return p.image_url;
-  if ((row.kind === 'category' || row.kind === 'idea') && c?.image_url) return c.image_url;
+  if (row.kind === 'category' || row.kind === 'idea') {
+    if (row.category_type_id && categoryImageMap.has(row.category_type_id))
+      return categoryImageMap.get(row.category_type_id)!;
+    if (c?.image_url) return c.image_url;
+  }
   return null;
 }
 
@@ -77,11 +82,14 @@ export function FamilyDashboardClient() {
   const [children, setChildren] = useState<ChildProfile[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('ideas');
-  const [remindersOn, setRemindersOn] = useState(false);
   const [items, setItems] = useState<ListItemRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const { refetch: refetchSubnavStats } = useSubnavStats();
+  const [categoryImageMap, setCategoryImageMap] = useState<Map<string, string>>(new Map());
+  const [giftSuccessId, setGiftSuccessId] = useState<string | null>(null);
+  const [remindersBusy, setRemindersBusy] = useState(false);
+  const { user, stats, refetch: refetchSubnavStats } = useSubnavStats();
+  const remindersEnabled = stats?.remindersEnabled ?? false;
 
   const selectedChild = children.find((c) => c.id === selectedChildId) ?? children[0] ?? null;
   const displayName = 'My child';
@@ -175,6 +183,27 @@ export function FamilyDashboardClient() {
     fetchList().finally(() => setLoading(false));
   }, [fetchList, refetchSubnavStats]);
 
+  useEffect(() => {
+    const ids = [...new Set(items.map((r) => (r.kind === 'category' || r.kind === 'idea') && r.category_type_id ? r.category_type_id : null).filter(Boolean) as string[])];
+    if (ids.length === 0) {
+      setCategoryImageMap(new Map());
+      return;
+    }
+    const supabase = createClient();
+    supabase
+      .from('v_gateway_category_type_images')
+      .select('category_type_id, image_url')
+      .in('category_type_id', ids)
+      .then(({ data }) => {
+        const map = new Map<string, string>();
+        for (const row of data ?? []) {
+          const r = row as { category_type_id: string; image_url: string };
+          if (r.image_url) map.set(r.category_type_id, r.image_url);
+        }
+        setCategoryImageMap(map);
+      });
+  }, [items]);
+
   const counts = {
     ideas: items.filter((r) => (r.kind === 'idea' || r.kind === 'category') && (r.want || r.have)).length,
     products: items.filter((r) => r.kind === 'product' && (r.want || r.have)).length,
@@ -186,7 +215,7 @@ export function FamilyDashboardClient() {
   const giftsItems = items.filter((r) => r.gift);
 
   const updateItem = useCallback(
-    async (row: ListItemRow, updates: { want?: boolean; have?: boolean; gift?: boolean }) => {
+    async (row: ListItemRow, updates: { want?: boolean; have?: boolean; gift?: boolean }): Promise<boolean> => {
       const supabase = createClient();
       setUpdatingId(row.id);
       try {
@@ -207,12 +236,32 @@ export function FamilyDashboardClient() {
         if (!error) {
           await fetchList();
           await refetchSubnavStats();
+          return true;
         }
+        return false;
       } finally {
         setUpdatingId(null);
       }
     },
-    [fetchList]
+    [fetchList, refetchSubnavStats]
+  );
+
+  const handleRemindersChange = useCallback(
+    async (checked: boolean) => {
+      if (!user) return;
+      setRemindersBusy(true);
+      try {
+        const supabase = createClient();
+        const { error } = await supabase.from('user_notification_prefs').upsert(
+          { user_id: user.id, development_reminders_enabled: checked },
+          { onConflict: 'user_id' }
+        );
+        if (!error) await refetchSubnavStats();
+      } finally {
+        setRemindersBusy(false);
+      }
+    },
+    [user, refetchSubnavStats]
   );
 
   const currentItems = activeTab === 'ideas' ? ideasItems : activeTab === 'products' ? productsItems : giftsItems;
@@ -362,10 +411,19 @@ export function FamilyDashboardClient() {
             ) : (
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                 {currentItems.map((row) => {
-                  const imgUrl = itemImageUrl(row);
+                  const imgUrl = getItemImageUrl(row, categoryImageMap);
                   const title = itemTitle(row);
                   const savedTime = formatSavedTime(row.created_at);
                   const disabled = updatingId === row.id;
+                  const showGiftSuccess = giftSuccessId === row.id;
+                  const handleAddToGiftList = async () => {
+                    if (disabled || row.gift) return;
+                    const ok = await updateItem(row, { gift: true });
+                    if (ok) {
+                      setGiftSuccessId(row.id);
+                      setTimeout(() => setGiftSuccessId(null), 3000);
+                    }
+                  };
                   return (
                     <div
                       key={row.id}
@@ -393,7 +451,12 @@ export function FamilyDashboardClient() {
                         <p className="text-xs mb-3" style={{ color: 'var(--ember-text-low)' }}>
                           {savedTime}
                         </p>
-                        <div className="inline-flex rounded-full p-0.5 text-xs font-medium" style={{ backgroundColor: 'var(--ember-surface-soft)' }}>
+                        <div
+                          role="group"
+                          aria-label="Want or Have"
+                          className="inline-flex rounded-full p-0.5 text-xs font-medium border border-transparent"
+                          style={{ backgroundColor: 'var(--ember-surface-soft)' }}
+                        >
                           <button
                             type="button"
                             onClick={() => !disabled && updateItem(row, { have: false })}
@@ -404,6 +467,7 @@ export function FamilyDashboardClient() {
                                 : { color: 'var(--ember-text-low)' }
                             }
                             disabled={disabled}
+                            aria-pressed={!row.have}
                           >
                             Want
                           </button>
@@ -417,6 +481,7 @@ export function FamilyDashboardClient() {
                                 : { color: 'var(--ember-text-low)' }
                             }
                             disabled={disabled}
+                            aria-pressed={row.have}
                           >
                             Have
                           </button>
@@ -431,15 +496,26 @@ export function FamilyDashboardClient() {
                               >
                                 examples
                               </Link>
-                              <button
-                                type="button"
-                                onClick={() => !disabled && updateItem(row, { gift: !row.gift })}
-                                className="text-xs flex items-center gap-1 hover:underline"
-                                style={{ color: 'var(--ember-accent-base)' }}
-                              >
-                                <Plus className="w-3 h-3" />
-                                Gift list
-                              </button>
+                              {showGiftSuccess ? (
+                                <span className="text-xs font-medium" style={{ color: '#2E7D32' }}>
+                                  Successfully added
+                                </span>
+                              ) : row.gift ? (
+                                <span className="text-xs" style={{ color: 'var(--ember-text-low)' }}>
+                                  On gift list
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={handleAddToGiftList}
+                                  disabled={disabled}
+                                  className="text-xs flex items-center gap-1 hover:underline"
+                                  style={{ color: 'var(--ember-accent-base)' }}
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  Gift list
+                                </button>
+                              )}
                             </>
                           ) : (
                             <>
@@ -502,18 +578,14 @@ export function FamilyDashboardClient() {
                 <h3 className="text-sm font-medium" style={{ color: 'var(--ember-text-high)', ...baseStyle }}>
                   Remind me
                 </h3>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={remindersOn}
-                    onChange={(e) => setRemindersOn(e.target.checked)}
-                    className="rounded"
-                  />
-                  <span className="text-sm" style={{ color: 'var(--ember-text-low)' }}>(Placeholder)</span>
-                </label>
+                <SubnavSwitch
+                  checked={remindersEnabled}
+                  onCheckedChange={handleRemindersChange}
+                  disabled={remindersBusy || !user}
+                />
               </div>
               <p className="text-xs" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
-                A gentle email when your child hits the next stage. <span className="opacity-70">(Coming soon)</span>
+                A gentle email when your child hits the next stage.
               </p>
             </div>
 

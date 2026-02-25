@@ -36,7 +36,7 @@ _Last updated: 2026-01-04_
 - /discover (canonical; redirects to first band)
 - /discover/[months] (V1.0 doorways experience)
 - /new, /new/[months] (308 redirect to /discover)
-- /family (Manage My Family dashboard; auth-gated shell, placeholder data)
+- /family (Manage My Family dashboard; auth-gated, real list + child data, images/toggle/remind/gift)
 
 ## Open PR policy
 - Keep ≤ 1 open “feature PR” at a time (currently: #79 only).
@@ -149,6 +149,15 @@ _Last updated: 2026-01-04_
 - **Goal:** Align /family dashboard with Figma Manage Family prototype: card visuals (image, title, saved time, Want/Have pill, examples + Gift list), and child data from profile.
 - **What changed:** (1) **Child data:** FamilyDashboardClient fetches real children from `children` table (id, birthdate, age_band); child chips show “My child · {ageBand}” (age from age_band or calculateAgeBand(birthdate)); “+ Add child” links to /app/children/new. Personalization strip uses “My child (aged X): —” and a short next-steps placeholder. (2) **List cards (Figma-style):** List items use card layout: aspect-square image (from pl_category_types.image_url or products.image_url), title, “Saved X ago”, Want/Have pill toggle, “examples” (link to /discover), “+ Gift list” (toggles gift); gift badge (Gift icon) on image when row.gift. Fetch includes image_url in products and pl_category_types joins (and legacy fallback). (3) **Next steps / Remind me:** Copy updated to match placeholder messaging.
 - **Proof:** `pnpm -C web build` passes. Manual: sign in → /family → child chips show real profiles or “My child · —”; list cards show image, title, saved time, Want/Have pill, examples, Gift list.
+- **Rollback:** Revert the commit(s).
+
+---
+
+## Fix — /family: images, Want/Have toggle, Remind me sync, Gift list
+
+- **Goal:** Match Figma and fix four issues: (1) list card images from same source as /discover; (2) Want/Have as a single toggle; (3) Remind me as toggle in sync with subnav; (4) “+ Gift list” working with “Successfully added” feedback.
+- **What changed:** (1) **Images:** Family list cards use `v_gateway_category_type_images` for category/idea images (same as /discover). After loading items, component fetches that view by `category_type_id` and merges into `categoryImageMap`; `getItemImageUrl(row, categoryImageMap)` prefers the map for category/idea, then falls back to joined `pl_category_types.image_url` or `products.image_url`. (2) **Want/Have:** Single pill control with `role="group"` and `aria-pressed` so it reads as one toggle (Want | Have). (3) **Remind me:** Replaced checkbox with `SubnavSwitch`; state comes from `useSubnavStats().stats.remindersEnabled`; `handleRemindersChange` upserts `user_notification_prefs.development_reminders_enabled` and calls `refetchSubnavStats()` so /family and subnav stay in sync. (4) **Gift list:** “+ Gift list” calls `updateItem(row, { gift: true })` (await); `updateItem` returns `Promise<boolean>`. On success, set `giftSuccessId` and show green “Successfully added” for 3s, then “On gift list”. If already on list, show “On gift list” only.
+- **Proof:** `pnpm -C web build` passes. Manual: /family list cards show discover images when present; Want/Have is one pill; Remind me toggle matches subnav; click “+ Gift list” → “Successfully added” (green) → “On gift list”, item in Gifts tab.
 - **Rollback:** Revert the commit(s).
 
 ---
