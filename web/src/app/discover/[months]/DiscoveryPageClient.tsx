@@ -256,10 +256,13 @@ export default function DiscoveryPageClient({
         case 'save_category': {
           const categoryId = action.payload.categoryId as string | undefined;
           if (!categoryId) return;
-          const { error } = await supabase.from('user_saved_ideas').upsert(
-            { user_id: user.id, idea_id: categoryId },
-            { onConflict: 'user_id,idea_id' }
-          );
+          const { error } = await supabase.rpc('upsert_user_list_item', {
+            p_kind: 'category',
+            p_category_type_id: categoryId,
+            p_want: true,
+            p_have: false,
+            p_gift: false,
+          });
           if (!error) await refetchSubnavStats();
           setSaveModal({
             open: true,
@@ -271,10 +274,13 @@ export default function DiscoveryPageClient({
         case 'save_product': {
           const productId = action.payload.productId as string | undefined;
           if (!productId) return;
-          const { error } = await supabase.from('user_saved_products').upsert(
-            { user_id: user.id, product_id: productId },
-            { onConflict: 'user_id,product_id' }
-          );
+          const { error } = await supabase.rpc('upsert_user_list_item', {
+            p_kind: 'product',
+            p_product_id: productId,
+            p_want: true,
+            p_have: false,
+            p_gift: false,
+          });
           if (!error) await refetchSubnavStats();
           await fetch('/api/click', {
             method: 'POST',
@@ -294,12 +300,28 @@ export default function DiscoveryPageClient({
         }
         case 'have_category': {
           const categoryId = (action.payload.categoryId as string) || 'category';
+          const { error } = await supabase.rpc('upsert_user_list_item', {
+            p_kind: 'category',
+            p_category_type_id: categoryId,
+            p_want: true,
+            p_have: true,
+            p_gift: false,
+          });
+          if (!error) await refetchSubnavStats();
           setActionToast({ productId: categoryId, message: "We've noted it." });
           break;
         }
         case 'have_product': {
           const productId = action.payload.productId as string | undefined;
           if (!productId) return;
+          const { error } = await supabase.rpc('upsert_user_list_item', {
+            p_kind: 'product',
+            p_product_id: productId,
+            p_want: true,
+            p_have: true,
+            p_gift: false,
+          });
+          if (!error) await refetchSubnavStats();
           await fetch('/api/click', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -351,7 +373,18 @@ export default function DiscoveryPageClient({
     requireAuthThen({
       actionId: 'have_category',
       payload: { categoryId },
-      run: () => setActionToast({ productId: categoryId, message: "We've noted it." }),
+      run: async () => {
+        const supabase = createClient();
+        const { error } = await supabase.rpc('upsert_user_list_item', {
+          p_kind: 'category',
+          p_category_type_id: categoryId,
+          p_want: true,
+          p_have: true,
+          p_gift: false,
+        });
+        if (!error) await refetchSubnavStats();
+        setActionToast({ productId: categoryId, message: "We've noted it." });
+      },
       openAuthModal: ({ signinUrl }) => {
         saveModalFocusRef.current = null;
         setSaveModal({ open: true, signedIn: false, signinUrl });
@@ -399,6 +432,15 @@ export default function DiscoveryPageClient({
       actionId: 'have_product',
       payload: { productId },
       run: async () => {
+        const supabase = createClient();
+        const { error } = await supabase.rpc('upsert_user_list_item', {
+          p_kind: 'product',
+          p_product_id: productId,
+          p_want: true,
+          p_have: true,
+          p_gift: false,
+        });
+        if (!error) await refetchSubnavStats();
         try {
           await fetch('/api/click', {
             method: 'POST',
@@ -437,12 +479,13 @@ export default function DiscoveryPageClient({
       payload: { categoryId },
       run: async () => {
         const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        const { error } = await supabase.from('user_saved_ideas').upsert(
-          { user_id: user.id, idea_id: categoryId },
-          { onConflict: 'user_id,idea_id' }
-        );
+        const { error } = await supabase.rpc('upsert_user_list_item', {
+          p_kind: 'category',
+          p_category_type_id: categoryId,
+          p_want: true,
+          p_have: false,
+          p_gift: false,
+        });
         if (error) {
           setActionToast({ productId: categoryId, message: 'Could not save idea. Please try again.' });
           return;
@@ -474,12 +517,13 @@ export default function DiscoveryPageClient({
       payload: { productId },
       run: async () => {
         const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        const { error } = await supabase.from('user_saved_products').upsert(
-          { user_id: user.id, product_id: productId },
-          { onConflict: 'user_id,product_id' }
-        );
+        const { error } = await supabase.rpc('upsert_user_list_item', {
+          p_kind: 'product',
+          p_product_id: productId,
+          p_want: true,
+          p_have: false,
+          p_gift: false,
+        });
         if (error) {
           setActionToast({ productId, message: 'Could not save. Please try again.' });
           return;

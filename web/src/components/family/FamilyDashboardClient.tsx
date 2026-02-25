@@ -1,36 +1,81 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { createClient } from '@/utils/supabase/client';
+import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 
 const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
 
-/** Placeholder child for shell only. Name optional (display fallback). */
+/** Placeholder child for shell only (no child add in this PR). */
 const PLACEHOLDER_CHILDREN = [
   { id: 'placeholder-1', displayName: null as string | null, ageBand: '—', currentFocus: '—', nextUp: '—' },
 ];
 
 type TabId = 'ideas' | 'products' | 'gifts';
 
-/** Want + Gift as two controls (not mutually exclusive). Gift implies Want. No persistence. */
+/** List item from user_list_items; joined names (Supabase may return relation as object or single-element array). */
+export interface ListItemRow {
+  id: string;
+  kind: 'idea' | 'category' | 'product';
+  want: boolean;
+  have: boolean;
+  gift: boolean;
+  product_id: string | null;
+  category_type_id: string | null;
+  ux_wrapper_id: string | null;
+  created_at: string;
+  products: { name: string } | { name: string }[] | null;
+  pl_category_types: { name: string; label: string | null } | { name: string; label: string | null }[] | null;
+  pl_ux_wrappers: { ux_label: string } | { ux_label: string }[] | null;
+}
+
+function _first<T>(v: T | T[] | null): T | null {
+  if (v == null) return null;
+  return Array.isArray(v) ? v[0] ?? null : v;
+}
+
+/** Display title for a list item (from joined data). */
+function itemTitle(row: ListItemRow): string {
+  const p = _first(row.products);
+  const c = _first(row.pl_category_types);
+  const u = _first(row.pl_ux_wrappers);
+  if (row.kind === 'product' && p?.name) return p.name;
+  if (row.kind === 'category' && c) return c.name ?? c.label ?? '—';
+  if (row.kind === 'idea' && u?.ux_label) return u.ux_label;
+  return '—';
+}
+
+/** Want + Gift: two controls. Gift implies Want (toggling Gift on auto-sets Want=true; toggling Want off clears Gift). */
 function WantGiftControls({
   want,
   gift,
   onWantChange,
   onGiftChange,
+  disabled,
 }: {
   want: boolean;
   gift: boolean;
   onWantChange: (v: boolean) => void;
   onGiftChange: (v: boolean) => void;
+  disabled?: boolean;
 }) {
+  const handleWantChange = (v: boolean) => {
+    onWantChange(v);
+    if (!v) onGiftChange(false);
+  };
+  const handleGiftChange = (v: boolean) => {
+    onGiftChange(v);
+    if (v) onWantChange(true);
+  };
   return (
     <div className="flex flex-wrap items-center gap-3" style={baseStyle}>
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
           checked={want}
-          onChange={(e) => onWantChange(e.target.checked)}
+          onChange={(e) => handleWantChange(e.target.checked)}
+          disabled={disabled}
           className="rounded border-gray-300"
         />
         <span style={{ color: 'var(--ember-text-high)' }}>Want</span>
@@ -39,8 +84,8 @@ function WantGiftControls({
         <input
           type="checkbox"
           checked={gift}
-          onChange={(e) => onGiftChange(e.target.checked)}
-          disabled={!want}
+          onChange={(e) => handleGiftChange(e.target.checked)}
+          disabled={disabled || !want}
           className="rounded border-gray-300 disabled:opacity-50"
         />
         <span style={{ color: 'var(--ember-text-high)' }}>Gift</span>
@@ -49,20 +94,81 @@ function WantGiftControls({
   );
 }
 
-/** Dashboard shell matching Figma layout. Placeholder data only; no DB. */
+/** Dashboard: real list from user_list_items; counts = ideas (want|have), products (want|have), gifts (gift=true). */
 export function FamilyDashboardClient() {
   const [selectedChildId, setSelectedChildId] = useState(PLACEHOLDER_CHILDREN[0].id);
   const [activeTab, setActiveTab] = useState<TabId>('ideas');
   const [remindersOn, setRemindersOn] = useState(false);
-  const [skeletonWant, setSkeletonWant] = useState(false);
-  const [skeletonGift, setSkeletonGift] = useState(false);
+  const [items, setItems] = useState<ListItemRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const { refetch: refetchSubnavStats } = useSubnavStats();
 
   const selectedChild = PLACEHOLDER_CHILDREN.find((c) => c.id === selectedChildId) ?? PLACEHOLDER_CHILDREN[0];
   const displayName = selectedChild.displayName ?? 'My child';
 
+  const fetchList = useCallback(async () => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('user_list_items')
+      .select('id, kind, want, have, gift, product_id, category_type_id, ux_wrapper_id, created_at, products(name), pl_category_types(name, label), pl_ux_wrappers(ux_label)')
+      .order('created_at', { ascending: false });
+    if (error) {
+      setItems([]);
+      return;
+    }
+    setItems((data as unknown as ListItemRow[]) ?? []);
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchList().finally(() => setLoading(false));
+  }, [fetchList, refetchSubnavStats]);
+
+  const counts = {
+    ideas: items.filter((r) => (r.kind === 'idea' || r.kind === 'category') && (r.want || r.have)).length,
+    products: items.filter((r) => r.kind === 'product' && (r.want || r.have)).length,
+    gifts: items.filter((r) => r.gift).length,
+  };
+
+  const ideasItems = items.filter((r) => (r.kind === 'idea' || r.kind === 'category') && (r.want || r.have));
+  const productsItems = items.filter((r) => r.kind === 'product' && (r.want || r.have));
+  const giftsItems = items.filter((r) => r.gift);
+
+  const updateItem = useCallback(
+    async (row: ListItemRow, updates: { want?: boolean; have?: boolean; gift?: boolean }) => {
+      const supabase = createClient();
+      setUpdatingId(row.id);
+      try {
+        let p_want = updates.want ?? row.want;
+        let p_gift = updates.gift ?? row.gift;
+        if (p_gift) p_want = true;
+        if (p_want === false) p_gift = false;
+        const payload: Record<string, unknown> = {
+          p_kind: row.kind,
+          p_want: p_want,
+          p_have: updates.have ?? row.have,
+          p_gift: p_gift,
+        };
+        if (row.kind === 'product' && row.product_id) payload.p_product_id = row.product_id;
+        else if (row.kind === 'category' && row.category_type_id) payload.p_category_type_id = row.category_type_id;
+        else if (row.kind === 'idea' && row.ux_wrapper_id) payload.p_ux_wrapper_id = row.ux_wrapper_id;
+        const { error } = await supabase.rpc('upsert_user_list_item', payload);
+        if (!error) {
+          await fetchList();
+          await refetchSubnavStats();
+        }
+      } finally {
+        setUpdatingId(null);
+      }
+    },
+    [fetchList]
+  );
+
+  const currentItems = activeTab === 'ideas' ? ideasItems : activeTab === 'products' ? productsItems : giftsItems;
+
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%)' }}>
-      {/* Header */}
       <header
         className="border-b bg-[var(--ember-surface-primary)]"
         style={{ borderColor: 'var(--ember-border-subtle)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
@@ -82,13 +188,12 @@ export function FamilyDashboardClient() {
             </div>
           </div>
           <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
-            Everything you&apos;ve saved and what&apos;s next – in one place. <span className="opacity-70">(Coming soon)</span>
+            Everything you&apos;ve saved and what&apos;s next – in one place.
           </p>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Child chips */}
         <div className="mb-4 overflow-x-auto -mx-4 px-4 pb-2">
           <div className="flex gap-2 min-w-min">
             {PLACEHOLDER_CHILDREN.map((child) => (
@@ -117,7 +222,6 @@ export function FamilyDashboardClient() {
           </div>
         </div>
 
-        {/* Personalization strip */}
         <div
           className="rounded-xl border p-5 mb-6"
           style={{
@@ -137,9 +241,7 @@ export function FamilyDashboardClient() {
           </p>
         </div>
 
-        {/* Two-column: My list (left) + Support (right) */}
         <div className="lg:grid lg:grid-cols-[1fr_340px] lg:gap-8">
-          {/* My list */}
           <div
             className="rounded-xl border p-5 sm:p-6 mb-6 lg:mb-0"
             style={{
@@ -162,14 +264,13 @@ export function FamilyDashboardClient() {
               </div>
             </div>
 
-            {/* Tabs: Ideas, Products, Gifts */}
             <div className="flex gap-1 p-1 rounded-lg mb-6 bg-[var(--ember-surface-secondary,#f5f5f5)] w-fit">
               {(['ideas', 'products', 'gifts'] as const).map((tab) => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => setActiveTab(tab)}
-                  className="px-4 py-2 rounded-md text-sm font-medium capitalize"
+                  className="px-4 py-2 rounded-md text-sm font-medium capitalize flex items-center gap-2"
                   style={
                     activeTab === tab
                       ? { backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }
@@ -177,32 +278,48 @@ export function FamilyDashboardClient() {
                   }
                 >
                   {tab}
+                  {counts[tab] > 0 && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-black/10" style={{ color: 'var(--ember-text-high)' }}>
+                      {counts[tab]}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
 
-            {/* Placeholder: one skeleton card with Want + Gift controls */}
-            <div className="space-y-4">
+            {loading ? (
               <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
-                No saved {activeTab} yet. When you save from Discover, they&apos;ll appear here.
+                Loading…
               </p>
-              <div
-                className="rounded-lg border p-4"
-                style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-secondary, #fafafa)' }}
-              >
-                <div className="h-4 w-3/4 rounded bg-gray-200 mb-3 animate-pulse" />
-                <div className="h-3 w-1/2 rounded bg-gray-100 mb-4 animate-pulse" />
-                <WantGiftControls
-                  want={skeletonWant}
-                  gift={skeletonGift}
-                  onWantChange={setSkeletonWant}
-                  onGiftChange={setSkeletonGift}
-                />
-                <p className="text-xs mt-2" style={{ color: 'var(--ember-text-low)' }}>
-                  (Placeholder – no persistence)
-                </p>
+            ) : currentItems.length === 0 ? (
+              <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+                No saved {activeTab} yet. Save from Discover to see them here.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {currentItems.map((row) => (
+                  <div
+                    key={row.id}
+                    className="rounded-lg border p-4"
+                    style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-secondary, #fafafa)' }}
+                  >
+                    <h4 className="font-medium text-sm mb-2 line-clamp-2" style={{ color: 'var(--ember-text-high)' }}>
+                      {itemTitle(row)}
+                    </h4>
+                    <div className="flex items-center gap-2 text-xs mb-2" style={{ color: 'var(--ember-text-low)' }}>
+                      {row.have && <span>Have</span>}
+                    </div>
+                    <WantGiftControls
+                      want={row.want}
+                      gift={row.gift}
+                      onWantChange={(v) => updateItem(row, { want: v })}
+                      onGiftChange={(v) => updateItem(row, { gift: v })}
+                      disabled={updatingId === row.id}
+                    />
+                  </div>
+                ))}
               </div>
-            </div>
+            )}
 
             <div className="mt-6 pt-6 border-t" style={{ borderColor: 'var(--ember-border-subtle)' }}>
               <button type="button" className="text-sm opacity-70 hover:opacity-100" style={{ color: 'var(--ember-text-low)' }}>
@@ -211,7 +328,6 @@ export function FamilyDashboardClient() {
             </div>
           </div>
 
-          {/* Right column: Next steps, Reminders, Settings */}
           <div className="space-y-6">
             <div
               className="rounded-xl border p-5"

@@ -124,6 +124,17 @@ _Last updated: 2026-01-04_
 
 ---
 
+## PR — /family My list plumbing (user_list_items + Want/Have/Gift)
+
+- **Goal:** Implement real, persistent “My list” with Want/Have/Gift flags; wire /family to show real counts and items; wire Discover “Save idea” and “Have them” to persist to a single canonical table.
+- **Ground truth:** Existing save tables `user_saved_products` and `user_saved_ideas` (supabase/sql/202602190000_subnav_saves_and_consent.sql) were actively used by DiscoveryPageClient. This PR adds a new canonical table `user_list_items` with unified semantics (Want, Have, Gift; Gift implies Want), backfills from those tables, and switches all writes to `user_list_items`. get_my_subnav_stats now counts from user_list_items.
+- **What changed:** (1) **DB:** New migration `supabase/sql/202602250000_family_user_list_items.sql`: table `public.user_list_items` (id, user_id, child_id, kind, ux_wrapper_id, category_type_id, product_id, want, have, gift, created_at, updated_at); constraints: kind+ref match, gift⇒want; partial unique indexes per ref type; RLS (auth-only, child ownership for INSERT/UPDATE); backfill from user_saved_products and user_saved_ideas; `get_my_subnav_stats()` updated to count from user_list_items; RPC `upsert_user_list_item(p_kind, p_product_id, p_category_type_id, p_ux_wrapper_id, p_want, p_have, p_gift)`. Verification script `supabase/sql/verify_family_user_list_items.sql`. (2) **Discover:** DiscoveryPageClient save_category, save_product, have_category, have_product (and replay) now call `upsert_user_list_item` instead of user_saved_ideas/user_saved_products. (3) **/family:** FamilyDashboardClient fetches user_list_items (with joins to products, pl_category_types, pl_ux_wrappers), shows real counts and list grid; Want/Gift toggles call upsert (Gift on ⇒ want=true; Want off ⇒ gift=false).
+- **Founder runbook:** See PR description: copy/paste migration block into Supabase SQL Editor, then verification block.
+- **Remains (out of scope):** Add child modal persistence; Remind me preference persistence; gift list sharing links.
+- **Rollback:** Code: revert PR. DB: `DROP TABLE IF EXISTS public.user_list_items CASCADE;` then re-run `202602190000_subnav_saves_and_consent.sql` to restore get_my_subnav_stats to read from user_saved_* (or leave function as-is if no revert of migration).
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 

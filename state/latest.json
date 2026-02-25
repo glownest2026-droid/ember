@@ -1,34 +1,35 @@
 {
   "pr": {
     "number": null,
-    "title": "feat(family): Add /family dashboard shell (visual + routing + auth gate) with placeholder data",
-    "branch": "feat/family-dashboard-shell",
+    "title": "feat(family): My list plumbing (user_list_items + Want/Have/Gift), wire /family and Discover",
+    "branch": "feat/family-my-list-plumbing",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
-    "rollback": "Revert PR or delete web/src/app/family/ and web/src/components/family/. No DB/RLS changes."
+    "rollback": "Revert PR. DB: DROP TABLE IF EXISTS public.user_list_items CASCADE; then restore get_my_subnav_stats from 202602190000 if needed."
   },
   "receipt": {
-    "goal": "Add authenticated /family route (Manage My Family dashboard) as visual shell matching Figma; no DB reads/writes; placeholder data only.",
+    "goal": "Real persistent My list (Want/Have/Gift); wire /family to real counts and items; wire Discover Save idea and Have them to user_list_items.",
     "commands_run": [
-      "git checkout main",
-      "git pull origin main",
-      "git checkout -b feat/family-dashboard-shell",
       "cd web && pnpm install && pnpm run build"
     ],
     "files_changed": [
-      "web/src/app/family/page.tsx",
-      "web/src/components/family/FamilySignInRequired.tsx",
+      "supabase/sql/202602250000_family_user_list_items.sql",
+      "supabase/sql/verify_family_user_list_items.sql",
+      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
       "web/src/components/family/FamilyDashboardClient.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "qa_steps": [
-      "Signed out: go to /family → see 'Sign in to manage your family' and Sign in CTA",
-      "Signed in: go to /family → see full shell (header, child chip, personalization strip, My list tabs, Want+Gift controls, Next steps, Reminders, Settings)",
-      "Build: cd web && pnpm install && pnpm run build passes"
+      "Apply migration in Supabase SQL Editor; run verification script",
+      "Sign in; go to /discover; click Save idea on a category → confirm saved",
+      "Go to /family; confirm Ideas count and item appear",
+      "Toggle Gift on for an item; confirm Gifts count and Gifts tab",
+      "Toggle Want off; confirm Gift clears and counts update",
+      "Sign out; /family shows sign-in required"
     ],
-    "rollback": "Revert PR. Delete web/src/app/family/ and web/src/components/family/ if needed."
+    "rollback": "Revert PR. DB: DROP TABLE user_list_items CASCADE; optionally restore get_my_subnav_stats."
   },
   "commit": null,
   "timestamp": "2026-02-25T00:00:00.000Z"
