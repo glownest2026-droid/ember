@@ -36,6 +36,7 @@ _Last updated: 2026-01-04_
 - /discover (canonical; redirects to first band)
 - /discover/[months] (V1.0 doorways experience)
 - /new, /new/[months] (308 redirect to /discover)
+- /family (Manage My Family dashboard; auth-gated shell, placeholder data)
 
 ## Open PR policy
 - Keep ≤ 1 open “feature PR” at a time (currently: #79 only).
@@ -109,6 +110,17 @@ _Last updated: 2026-01-04_
 - **What changed:** Added Google “G” icon to the “Continue with Google” button in the auth modal (SaveToListModal). New `web/src/components/icons/GoogleMark.tsx` (18px inline SVG, aria-hidden); button keeps label “Continue with Google” and existing gap-2 layout. Same “Logo + Continue with Google” option added on `/signin` (gated by `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE`, same OAuth redirectTo pattern). Removed “Admin?” text from signin page; “Sign in with password” link kept. No auth logic, flags, or redirect changes.
 - **Proof:** `pnpm -C web build` passes. With `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE=true`, modal and /signin show icon + label; with flag off, buttons remain hidden.
 - **Rollback:** Revert the commit(s) on the branch.
+
+---
+
+## PR — /family dashboard shell (visual + auth gate, no DB)
+
+- **Goal:** Add authenticated `/family` route (“Manage My Family” dashboard) as a production-quality visual shell matching the Figma Manage Family prototype layout. No DB reads or writes; placeholder/skeleton data only.
+- **What changed:** New route `web/src/app/family/page.tsx` (server component: `createClient().auth.getUser()`; if no user → `FamilySignInRequired`, else → `FamilyDashboardClient`). New components: `web/src/components/family/FamilySignInRequired.tsx` (signed-out state: “Sign in to manage your family” + CTA to `/signin?next=/family` and link to `/discover?returnTo=/family`); `web/src/components/family/FamilyDashboardClient.tsx` (shell: header “Manage My Family”, child chips strip with one placeholder child, personalization strip “Today for {displayName}” with optional name fallback “My child”, two-column layout: left = My list with Ideas/Products/Gifts tabs + skeleton card with **Want** and **Gift** as two separate controls, right = Next steps, Reminders, Settings; all actions “Coming soon” or placeholder).
+- **Intentionally placeholder:** Children list (one neutral “— · —” chip); saved counts (0); list items (one skeleton card with Want/Gift toggles, no persistence); reminders toggle; Add child, Filter, Search, Share my list.
+- **QA (founder):** 1) Signed out: go to `/family` → see “Sign in to manage your family” and “Sign in” button; 2) Sign in, go to `/family` → see full shell with “Manage My Family” header, child chip “— · —”, “Today for My child” strip, My list (Ideas/Products/Gifts tabs), one skeleton card with Want + Gift checkboxes, Next steps / Remind me / Settings; 3) Build: `cd web && pnpm install && pnpm run build` passes.
+- **Follow-on PRs (not in this PR):** Wire children from DB; wire saved ideas/products/gifts from DB; persist Want/Gift/reminders; Add child flow; Filter/Search; Share my list.
+- **Rollback:** Revert PR or delete `web/src/app/family/` and `web/src/components/family/`. No DB/RLS changes.
 
 ---
 

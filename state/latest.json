@@ -1,1 +1,35 @@
-{"pr":{"number":null,"title":"feat(subnav-ui): implement authenticated subnav globally and wire it to real saves counts + reminders consent toggle","branch":"feat/subnav-ui","base":"main","url":null,"vercel_preview_url":null,"rollback":"Revert PR (no DB changes in this PR)."},"receipt":{"goal":"Implement authenticated subnav globally; wire Save Idea / product Save to user_saved_ideas / user_saved_products; wire reminders toggle to user_notification_prefs; Add a child → /app/children.","commands_run":["git checkout main","git pull","pnpm install","pnpm run build (web)","git checkout -b feat/subnav-ui","add SubnavStatsProvider, SubnavBar, SubnavGate, SubnavSwitch","wire DiscoveryPageClient saves + replay","update layout, PROGRESS.md, state/latest.json"],"files_changed":["web/src/app/layout.tsx","web/src/lib/subnav/SubnavStatsContext.tsx","web/src/components/subnav/SubnavBar.tsx","web/src/components/subnav/SubnavSwitch.tsx","web/src/components/subnav/SubnavGate.tsx","web/src/app/discover/[months]/DiscoveryPageClient.tsx","PROGRESS.md","state/latest.json"],"qa_steps":["As guest: no subnav on / and /discover","Sign in (e.g. Google): subnav appears","Add a child → /app/children","Save Idea on /discover: category ideas saved increments; refresh persists","Product Save: toys saved increments; refresh persists","Toggle reminders ON/OFF: persists after refresh"],"rollback":"Revert PR."},"commit":null,"timestamp":"2026-02-19T00:00:00.000Z"}
+{
+  "pr": {
+    "number": null,
+    "title": "feat(family): Add /family dashboard shell (visual + routing + auth gate) with placeholder data",
+    "branch": "feat/family-dashboard-shell",
+    "base": "main",
+    "url": null,
+    "vercel_preview_url": null,
+    "rollback": "Revert PR or delete web/src/app/family/ and web/src/components/family/. No DB/RLS changes."
+  },
+  "receipt": {
+    "goal": "Add authenticated /family route (Manage My Family dashboard) as visual shell matching Figma; no DB reads/writes; placeholder data only.",
+    "commands_run": [
+      "git checkout main",
+      "git pull origin main",
+      "git checkout -b feat/family-dashboard-shell",
+      "cd web && pnpm install && pnpm run build"
+    ],
+    "files_changed": [
+      "web/src/app/family/page.tsx",
+      "web/src/components/family/FamilySignInRequired.tsx",
+      "web/src/components/family/FamilyDashboardClient.tsx",
+      "PROGRESS.md",
+      "state/latest.json"
+    ],
+    "qa_steps": [
+      "Signed out: go to /family → see 'Sign in to manage your family' and Sign in CTA",
+      "Signed in: go to /family → see full shell (header, child chip, personalization strip, My list tabs, Want+Gift controls, Next steps, Reminders, Settings)",
+      "Build: cd web && pnpm install && pnpm run build passes"
+    ],
+    "rollback": "Revert PR. Delete web/src/app/family/ and web/src/components/family/ if needed."
+  },
+  "commit": null,
+  "timestamp": "2026-02-25T00:00:00.000Z"
+}
