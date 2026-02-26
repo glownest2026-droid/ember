@@ -216,6 +216,18 @@ _Last updated: 2026-01-04_
 
 ---
 
+## Service Pack PR 3 — /discover save modal personalisation + CTA to /family (2026-02-26)
+
+- **Goal:** After saving an idea on /discover, confirmation modal shows personalised copy (“Saved to {Name}'s ideas” / “your son's ideas” / “your daughter's ideas” / “your child's ideas”) and CTA “View my toy ideas” linking to /family. No DB/schema changes. Also: /family Products tab image sourcing aligned with /discover.
+- **What changed:** (1) **SaveToListModal** (`web/src/components/ui/SaveToListModal.tsx`): Exported helper `savedToCopy({ name, gender })` (UK English; apostrophe “Poppy's ideas”; gender male/m/boy/son → son, female/f/girl/daughter → daughter). (2) When modal is open and signed in, if no `savedToLabel` prop: default headline “Saved to your child's ideas”; fetch first child's `gender` from `children` (user-scoped) and update headline. Optional prop `savedToLabel` lets callers override. (3) Replaced “Saved to your list” with computed label; replaced “View my list” with “View my toy ideas” and `href="/family"`. No name fetched from DB (privacy). (4) **/family Products tab image fix:** `FamilyDashboardClient` product image fetch now uses the same sourcing as /discover “Examples you might like”: query `v_gateway_products_public` with `.order('age_band_id').order('category_type_id').order('rank')` so “first wins” per product is deterministic; then fall back to `products` table for missing. Comment clarified for `getItemImageUrl`. (5) When no image is available, show Lucide ImageOff icon instead of "No image" text. For product rows: replace "Examples" with Search icon + "Visit" linking to retailer URL (same precedence as /discover); productUrlMap built from gateway and products URL columns.
+- **Routes/components touched:** SaveToListModal (used by /discover); FamilyDashboardClient (Products tab images, no-image icon, product Visit link); DiscoveryPageClient unchanged (does not pass savedToLabel).
+- **Verification:** Signed in on /discover → Save idea → modal shows personalised headline; CTA “View my toy ideas” → /family. No regression to save action. /family → Products tab: product images from gateway/products; no image → ImageOff icon; product rows show Search + "Visit" (retailer link) instead of "Examples".
+- **Preview URL:** (set after PR opened; Vercel bot comment.)
+- **Known debt:** None. Children table has no name field (privacy); name-based copy only if parent passes `savedToLabel`.
+- **Rollback:** Revert PR; no DB changes.
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 
