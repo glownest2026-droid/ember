@@ -185,6 +185,8 @@ _Last updated: 2026-01-04_
 - **Goal:** One safe PR to bring intended /family changes from feature branches onto main (production drift fix). No new features; sync only.
 - **Source branch:** feat/family-my-list-plumbing (full list plumbing + images, Want/Have toggle, Gift list, child data, Discover fallback).
 - **What changed:** Merged origin/feat/family-my-list-plumbing into feat/prod-sync-family (from main). Resolved conflicts in PROGRESS.md, state/latest.json, FamilyDashboardClient.tsx (kept incoming full dashboard).
+- **Commits included:** 551fd2e (merge), b7c7148, 49d74b9, 7791092, 0ced016, 1728f20, e0dd25b, a80e742. Final SHA after merge: 551fd2e (or GitHub-created merge commit).
+- **PR:** Open at https://github.com/glownest2026-droid/ember/compare/main...feat/prod-sync-family — title: "chore(prod): sync /family improvements to main". Description in `.pr_prod_sync_family_body.md`.
 - **Proof:** cd web && pnpm install && pnpm run build passes. Manual: /family shows real list, toggles, images; Discover Save idea works; apply migration 202602250000 if not already in production.
 - **Rollback:** Revert PR. DB: DROP TABLE IF EXISTS public.user_list_items CASCADE; restore get_my_subnav_stats from 202602190000 if needed.
 
