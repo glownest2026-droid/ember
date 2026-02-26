@@ -53,7 +53,7 @@ function itemTitle(row: ListItemRow): string {
   return '—';
 }
 
-/** Image URL for list item. Category/idea: v_gateway_category_type_images; product: v_gateway_products_public (same as /discover). */
+/** Image URL for list item. Category/idea: v_gateway_category_type_images; product: v_gateway_products_public first (same as /discover Examples), then products table. */
 function getItemImageUrl(
   row: ListItemRow,
   categoryImageMap: Map<string, string>,
@@ -223,6 +223,7 @@ export function FamilyDashboardClient() {
     }
   }, [items]);
 
+  // Product images: same sourcing as /discover "Examples you might like" — v_gateway_products_public first (gateway view), then products table for missing.
   useEffect(() => {
     const productIds = [...new Set(items.filter((r) => r.kind === 'product' && r.product_id).map((r) => r.product_id!))];
     if (productIds.length === 0) {
@@ -231,7 +232,13 @@ export function FamilyDashboardClient() {
       const supabase = createClient();
       const map = new Map<string, string>();
       Promise.all([
-        supabase.from('v_gateway_products_public').select('id, image_url').in('id', productIds),
+        supabase
+          .from('v_gateway_products_public')
+          .select('id, image_url')
+          .in('id', productIds)
+          .order('age_band_id', { ascending: true })
+          .order('category_type_id', { ascending: true })
+          .order('rank', { ascending: true }),
         supabase.from('products').select('id, image_url').in('id', productIds),
       ]).then(([viewRes, tableRes]) => {
         for (const row of viewRes.data ?? []) {
