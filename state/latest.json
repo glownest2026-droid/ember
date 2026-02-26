@@ -1,35 +1,32 @@
 {
   "pr": {
     "number": null,
-    "title": "feat(family): Add /family dashboard shell (visual + routing + auth gate) with placeholder data",
-    "branch": "feat/family-dashboard-shell",
+    "title": "chore(prod): sync /family improvements to main",
+    "branch": "feat/prod-sync-family",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
-    "rollback": "Revert PR or delete web/src/app/family/ and web/src/components/family/. No DB/RLS changes."
+    "rollback": "Revert PR. DB: DROP TABLE IF EXISTS public.user_list_items CASCADE; then restore get_my_subnav_stats from 202602190000 if needed."
   },
   "receipt": {
-    "goal": "Add authenticated /family route (Manage My Family dashboard) as visual shell matching Figma; no DB reads/writes; placeholder data only.",
-    "commands_run": [
-      "git checkout main",
-      "git pull origin main",
-      "git checkout -b feat/family-dashboard-shell",
-      "cd web && pnpm install && pnpm run build"
-    ],
+    "goal": "Production sync: bring /family list plumbing + images/toggles/gift from feat/family-my-list-plumbing onto main.",
+    "source_branch": "feat/family-my-list-plumbing",
+    "commands_run": ["git checkout main", "git checkout -b feat/prod-sync-family", "git merge origin/feat/family-my-list-plumbing", "cd web && pnpm install && pnpm run build"],
     "files_changed": [
-      "web/src/app/family/page.tsx",
-      "web/src/components/family/FamilySignInRequired.tsx",
+      "supabase/sql/202602250000_family_user_list_items.sql",
+      "supabase/sql/verify_family_user_list_items.sql",
+      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
       "web/src/components/family/FamilyDashboardClient.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "qa_steps": [
-      "Signed out: go to /family → see 'Sign in to manage your family' and Sign in CTA",
-      "Signed in: go to /family → see full shell (header, child chip, personalization strip, My list tabs, Want+Gift controls, Next steps, Reminders, Settings)",
+      "Apply migration 202602250000 in Supabase SQL Editor if not already applied",
+      "Sign in; go to /family; confirm Ideas/Products/Gifts tabs, real list, Want/Have toggle, Gift list, images",
       "Build: cd web && pnpm install && pnpm run build passes"
     ],
-    "rollback": "Revert PR. Delete web/src/app/family/ and web/src/components/family/ if needed."
+    "rollback": "Revert PR. DB: DROP TABLE user_list_items CASCADE; optionally restore get_my_subnav_stats."
   },
   "commit": null,
-  "timestamp": "2026-02-25T00:00:00.000Z"
+  "timestamp": "2026-02-26T00:00:00.000Z"
 }
