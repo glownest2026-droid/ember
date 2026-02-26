@@ -8,7 +8,7 @@ import { calculateAgeBand } from '@/lib/ageBand';
 import { SubnavSwitch } from '@/components/subnav/SubnavSwitch';
 import { FamilyExamplesModal } from '@/components/family/FamilyExamplesModal';
 import type { GatewayPick } from '@/lib/pl/public';
-import { Plus, Gift } from 'lucide-react';
+import { Plus, Gift, ImageOff, Search } from 'lucide-react';
 
 const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
 
@@ -96,6 +96,7 @@ export function FamilyDashboardClient() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [categoryImageMap, setCategoryImageMap] = useState<Map<string, string>>(new Map());
   const [productImageMap, setProductImageMap] = useState<Map<string, string>>(new Map());
+  const [productUrlMap, setProductUrlMap] = useState<Map<string, string>>(new Map());
   const [giftSuccessId, setGiftSuccessId] = useState<string | null>(null);
   const [remindersBusy, setRemindersBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -223,33 +224,40 @@ export function FamilyDashboardClient() {
     }
   }, [items]);
 
-  // Product images: same sourcing as /discover "Examples you might like" — v_gateway_products_public first (gateway view), then products table for missing.
+  // Product images + URLs: same sourcing as /discover "Examples you might like" — v_gateway_products_public first, then products table for missing.
   useEffect(() => {
     const productIds = [...new Set(items.filter((r) => r.kind === 'product' && r.product_id).map((r) => r.product_id!))];
     if (productIds.length === 0) {
       setProductImageMap(new Map());
+      setProductUrlMap(new Map());
     } else {
       const supabase = createClient();
-      const map = new Map<string, string>();
+      const imageMap = new Map<string, string>();
+      const urlMap = new Map<string, string>();
+      const pickUrl = (r: { canonical_url?: string | null; amazon_uk_url?: string | null; affiliate_url?: string | null; affiliate_deeplink?: string | null }) =>
+        r.canonical_url || r.amazon_uk_url || r.affiliate_url || r.affiliate_deeplink || '#';
       Promise.all([
         supabase
           .from('v_gateway_products_public')
-          .select('id, image_url')
+          .select('id, image_url, canonical_url, amazon_uk_url, affiliate_url, affiliate_deeplink')
           .in('id', productIds)
           .order('age_band_id', { ascending: true })
           .order('category_type_id', { ascending: true })
           .order('rank', { ascending: true }),
-        supabase.from('products').select('id, image_url').in('id', productIds),
+        supabase.from('products').select('id, image_url, canonical_url, amazon_uk_url, affiliate_url, affiliate_deeplink').in('id', productIds),
       ]).then(([viewRes, tableRes]) => {
         for (const row of viewRes.data ?? []) {
-          const r = row as { id: string; image_url: string | null };
-          if (r.image_url && !map.has(r.id)) map.set(r.id, r.image_url);
+          const r = row as { id: string; image_url: string | null; canonical_url?: string | null; amazon_uk_url?: string | null; affiliate_url?: string | null; affiliate_deeplink?: string | null };
+          if (r.image_url && !imageMap.has(r.id)) imageMap.set(r.id, r.image_url);
+          if (!urlMap.has(r.id)) urlMap.set(r.id, pickUrl(r));
         }
         for (const row of tableRes.data ?? []) {
-          const r = row as { id: string; image_url: string | null };
-          if (r.image_url && !map.has(r.id)) map.set(r.id, r.image_url);
+          const r = row as { id: string; image_url: string | null; canonical_url?: string | null; amazon_uk_url?: string | null; affiliate_url?: string | null; affiliate_deeplink?: string | null };
+          if (r.image_url && !imageMap.has(r.id)) imageMap.set(r.id, r.image_url);
+          if (!urlMap.has(r.id)) urlMap.set(r.id, pickUrl(r));
         }
-        setProductImageMap(map);
+        setProductImageMap(imageMap);
+        setProductUrlMap(urlMap);
       });
     }
   }, [items]);
@@ -593,7 +601,7 @@ export function FamilyDashboardClient() {
                         </div>
                       ) : (
                         <div className="aspect-square bg-[var(--ember-surface-soft)] flex items-center justify-center" style={{ color: 'var(--ember-text-low)' }}>
-                          <span className="text-xs">No image</span>
+                          <ImageOff className="w-10 h-10" aria-hidden />
                         </div>
                       )}
                       <div className="p-3">
@@ -629,6 +637,17 @@ export function FamilyDashboardClient() {
                                 >
                                   Examples
                                 </button>
+                              ) : row.kind === 'product' && row.product_id ? (
+                                <a
+                                  href={productUrlMap.get(row.product_id) || '#'}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs hover:underline inline-flex items-center gap-1"
+                                  style={{ color: 'var(--ember-accent-base)' }}
+                                >
+                                  <Search className="w-3 h-3" aria-hidden />
+                                  Visit
+                                </a>
                               ) : (
                                 <Link
                                   href="/discover"
@@ -661,8 +680,15 @@ export function FamilyDashboardClient() {
                             </>
                           ) : (
                             <>
-                              <span className="text-xs opacity-40 cursor-not-allowed" style={{ color: 'var(--ember-text-low)' }}>
-                                Examples
+                              <span className="text-xs opacity-40 cursor-not-allowed inline-flex items-center gap-1" style={{ color: 'var(--ember-text-low)' }}>
+                                {row.kind === 'product' ? (
+                                  <>
+                                    <Search className="w-3 h-3" aria-hidden />
+                                    Visit
+                                  </>
+                                ) : (
+                                  'Examples'
+                                )}
                               </span>
                               <span className="text-xs" style={{ color: 'var(--ember-text-low)' }} title="Coming soon">
                                 Move it on
