@@ -6,6 +6,8 @@ import { createClient } from '@/utils/supabase/client';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { calculateAgeBand } from '@/lib/ageBand';
 import { SubnavSwitch } from '@/components/subnav/SubnavSwitch';
+import { FamilyExamplesModal } from '@/components/family/FamilyExamplesModal';
+import type { GatewayPick } from '@/lib/pl/public';
 import { Plus, Gift } from 'lucide-react';
 
 const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
@@ -99,6 +101,12 @@ export function FamilyDashboardClient() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [optimisticHave, setOptimisticHave] = useState<Record<string, boolean>>({});
   const [optimisticGift, setOptimisticGift] = useState<Record<string, boolean>>({});
+  const [examplesModal, setExamplesModal] = useState<{
+    open: boolean;
+    ideaTitle: string;
+    categoryTypeId: string;
+    ageBandId: string | null;
+  }>({ open: false, ideaTitle: '', categoryTypeId: '', ageBandId: null });
   const { user, stats, refetch: refetchSubnavStats } = useSubnavStats();
   const remindersEnabled = stats?.remindersEnabled ?? false;
 
@@ -315,10 +323,76 @@ export function FamilyDashboardClient() {
     [user, refetchSubnavStats]
   );
 
+  const getProductUrl = useCallback((p: GatewayPick) =>
+    p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#',
+  []);
+
+  const handleSaveProductFromExamples = useCallback(
+    (productId: string, _triggerEl: HTMLButtonElement | null) => {
+      if (!user) return;
+      const supabase = createClient();
+      supabase
+        .rpc('upsert_user_list_item', {
+          p_kind: 'product',
+          p_product_id: productId,
+          p_want: true,
+          p_have: false,
+          p_gift: false,
+        })
+        .then(({ error }) => {
+          if (!error) {
+            refetchSubnavStats();
+            fetchList();
+          }
+        });
+    },
+    [user, refetchSubnavStats, fetchList]
+  );
+
+  const handleHaveProductFromExamples = useCallback(
+    (productId: string) => {
+      if (!user) return;
+      const supabase = createClient();
+      supabase
+        .rpc('upsert_user_list_item', {
+          p_kind: 'product',
+          p_product_id: productId,
+          p_want: true,
+          p_have: true,
+          p_gift: false,
+        })
+        .then(({ error }) => {
+          if (!error) {
+            refetchSubnavStats();
+            fetchList();
+          }
+        });
+    },
+    [user, refetchSubnavStats, fetchList]
+  );
+
+  const openExamplesModal = useCallback((row: ListItemRow) => {
+    const title = itemTitle(row);
+    const categoryTypeId = row.category_type_id ?? '';
+    const ageBandId = selectedChild?.age_band ?? null;
+    setExamplesModal({ open: true, ideaTitle: title, categoryTypeId, ageBandId });
+  }, [selectedChild?.age_band]);
+
   const currentItems = activeTab === 'ideas' ? ideasItems : activeTab === 'products' ? productsItems : giftsItems;
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%)' }}>
+      <FamilyExamplesModal
+        open={examplesModal.open}
+        onClose={() => setExamplesModal((s) => ({ ...s, open: false }))}
+        ideaTitle={examplesModal.ideaTitle}
+        categoryTypeId={examplesModal.categoryTypeId}
+        ageBandId={examplesModal.ageBandId}
+        onSave={handleSaveProductFromExamples}
+        onHave={handleHaveProductFromExamples}
+        getProductUrl={getProductUrl}
+        ageRangeLabel={displayAgeBand !== '—' ? `${displayAgeBand}` : 'My child'}
+      />
       <header
         className="border-b bg-[var(--ember-surface-primary)]"
         style={{ borderColor: 'var(--ember-border-subtle)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
@@ -539,13 +613,24 @@ export function FamilyDashboardClient() {
                         <div className="flex items-center justify-between gap-2 mt-2 flex-wrap">
                           {!have ? (
                             <>
-                              <Link
-                                href="/discover"
-                                className="text-xs hover:underline"
-                                style={{ color: 'var(--ember-accent-base)' }}
-                              >
-                                examples
-                              </Link>
+                              {(row.kind === 'idea' || row.kind === 'category') && row.category_type_id ? (
+                                <button
+                                  type="button"
+                                  onClick={() => openExamplesModal(row)}
+                                  className="text-xs hover:underline cursor-pointer bg-transparent border-0 p-0"
+                                  style={{ color: 'var(--ember-accent-base)' }}
+                                >
+                                  Examples
+                                </button>
+                              ) : (
+                                <Link
+                                  href="/discover"
+                                  className="text-xs hover:underline"
+                                  style={{ color: 'var(--ember-accent-base)' }}
+                                >
+                                  Examples
+                                </Link>
+                              )}
                               {showGiftSuccess ? (
                                 <span className="text-xs font-medium" style={{ color: '#2E7D32' }}>
                                   Successfully added
@@ -570,7 +655,7 @@ export function FamilyDashboardClient() {
                           ) : (
                             <>
                               <span className="text-xs opacity-40 cursor-not-allowed" style={{ color: 'var(--ember-text-low)' }}>
-                                examples
+                                Examples
                               </span>
                               <span className="text-xs" style={{ color: 'var(--ember-text-low)' }} title="Coming soon">
                                 Move it on

@@ -204,6 +204,18 @@ _Last updated: 2026-01-04_
 
 ---
 
+## Service Pack PR 2 — /family Examples modal (2026-02-26)
+
+- **Goal:** /family “Examples” capitalised; clicking “Examples” on a saved idea opens a modal that shows example cards using the same DiscoverCardStack widget as /discover “Next steps for…” section. No DB/schema changes.
+- **What changed:** (1) **Capitalisation:** “examples” → “Examples” in FamilyDashboardClient list row (link and disabled span). (2) **Examples modal:** New `FamilyExamplesModal` (backdrop, X, Esc) and API route `GET /api/discover/picks?ageBandId=&categoryTypeId=` that returns picks via existing `getGatewayTopPicksForAgeBandAndCategoryType`. For idea/category rows with `category_type_id`, “Examples” opens the modal; modal fetches picks and renders `DiscoverCardStack` (same as /discover). Product rows keep “Examples” as link to /discover. (3) **Save/Have in modal:** Handlers call `upsert_user_list_item` and refetch list/subnav (signed-in only; /family is auth-gated).
+- **Routes touched:** /family; shared reuse: `DiscoverCardStack`, `web/src/components/family/FamilyExamplesModal.tsx`, `web/src/app/api/discover/picks/route.ts`.
+- **Verification:** Signed in → /family → confirm “Examples” capitalised. Click “Examples” on a saved idea (idea or category row) → modal opens with title “Examples for {idea title}”, example cards (same layout as /discover), loading/empty states. Close via X, backdrop click, or Esc. Confirm /discover “Next steps for…” and examples section unchanged (no regression).
+- **Preview URL:** (set after PR opened; Vercel bot comment.)
+- **Known debt:** None. PR3 will handle /discover “Saved to …’s ideas” personalisation + CTA link rename to /family.
+- **Rollback:** Revert PR; no DB changes.
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 
