@@ -6,7 +6,7 @@ import type { User } from '@supabase/supabase-js';
 
 export interface SubnavStats {
   toysSaved: number;
-  /** Not in schema yet; show 0. TODO: add user_saved_gifts in follow-up if needed. */
+  /** From get_my_subnav_stats gifts_saved_count (user_list_items where gift = true). */
   giftsSaved: number;
   categoryIdeasSaved: number;
   remindersEnabled: boolean;
@@ -50,10 +50,21 @@ export function SubnavStatsProvider({ children }: { children: React.ReactNode })
       setStats({ ...defaultStats });
       return;
     }
-    const raw = data as { toys_saved_count?: number; ideas_saved_count?: number; development_reminders_enabled?: boolean } | null;
+    const raw = data as { toys_saved_count?: number; ideas_saved_count?: number; gifts_saved_count?: number; development_reminders_enabled?: boolean } | null;
+    let giftsSaved = typeof raw?.gifts_saved_count === 'number' ? raw.gifts_saved_count : 0;
+    // If RPC doesn't return gifts_saved_count (migration not applied), fetch from user_list_items
+    // so subnav matches the /family My list count (same source of truth).
+    if (typeof raw?.gifts_saved_count !== 'number') {
+      const { count } = await supabase
+        .from('user_list_items')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', u.id)
+        .eq('gift', true);
+      giftsSaved = typeof count === 'number' ? count : 0;
+    }
     setStats({
       toysSaved: typeof raw?.toys_saved_count === 'number' ? raw.toys_saved_count : 0,
-      giftsSaved: 0,
+      giftsSaved,
       categoryIdeasSaved: typeof raw?.ideas_saved_count === 'number' ? raw.ideas_saved_count : 0,
       remindersEnabled: Boolean(raw?.development_reminders_enabled),
     });

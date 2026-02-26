@@ -192,6 +192,18 @@ _Last updated: 2026-01-04_
 
 ---
 
+## Service Pack PR 1 — Navbar polish + counters (2026-02-26)
+
+- **Goal:** One PR: navbar signed-in UX (remove “Signed In” text, move Sign out far right, add “Manage Family” → /family) and fix subnav gift counter so it shows real count, not undefined.
+- **What changed:** (1) **Navbar** (`DiscoverStickyHeader.tsx`): Removed “Signed In” text; layout flex `justify-between` with left group (Logo, Ember, About, Manage Family, Account) and right group (Sign out). “Manage Family” and “Account” visible only when signed in; “Sign out” far right. (2) **Gift counter:** New migration `supabase/sql/202602261000_subnav_gifts_count.sql` — `get_my_subnav_stats()` now returns `gifts_saved_count` (count from `user_list_items` where `user_id = auth.uid()` and `gift = true`). `SubnavStatsContext` reads `gifts_saved_count` from RPC and defaults to 0; `SubnavBar` displays with defensive `typeof stats.giftsSaved === 'number' ? stats.giftsSaved : 0`.
+- **Routes touched:** Global header (all routes); subnav (signed-in only: /, /discover, /family).
+- **Verification:** Signed OUT: navbar shows only Logo, Ember, About, “Join free”. Signed IN: no “Signed In” text; “Manage Family” (→ /family) and “Account” visible; “Sign out” far right; subnav gift counter shows a number (0 if none), never undefined. Check /, /discover, /family.
+- **Preview URL:** (set after PR opened; Vercel bot comment.)
+- **Known debt:** None. Apply migration `202602261000_subnav_gifts_count.sql` in Supabase SQL Editor if not yet in production so gift counter reflects real data.
+- **Rollback:** Revert PR. If migration was applied: re-run `202602250000_family_user_list_items.sql` PART 3 (get_my_subnav_stats without gifts_saved_count) or leave as-is (extra key in JSON is harmless).
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 

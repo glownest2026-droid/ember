@@ -97,7 +97,7 @@ export function SubnavBar() {
               <div className="h-6 w-px bg-gray-300" aria-hidden />
               <div className="flex items-center gap-1.5">
                 <div className="text-xl lg:text-2xl font-semibold" style={{ color: 'var(--ember-text-high)' }}>
-                  {stats.giftsSaved}
+                  {typeof stats.giftsSaved === 'number' ? stats.giftsSaved : 0}
                 </div>
                 <div className="text-xs lg:text-sm whitespace-nowrap" style={{ color: 'var(--ember-text-low)' }}>
                   gifts
