@@ -36,7 +36,7 @@ _Last updated: 2026-01-04_
 - /discover (canonical; redirects to first band)
 - /discover/[months] (V1.0 doorways experience)
 - /new, /new/[months] (308 redirect to /discover)
-- /family (Manage My Family dashboard; auth-gated shell, placeholder data)
+- /family (Manage My Family dashboard; auth-gated, real list + child data, images/toggle/remind/gift)
 
 ## Open PR policy
 - Keep ≤ 1 open “feature PR” at a time (currently: #79 only).
@@ -121,6 +121,74 @@ _Last updated: 2026-01-04_
 - **QA (founder):** 1) Signed out: go to `/family` → see “Sign in to manage your family” and “Sign in” button; 2) Sign in, go to `/family` → see full shell with “Manage My Family” header, child chip “— · —”, “Today for My child” strip, My list (Ideas/Products/Gifts tabs), one skeleton card with Want + Gift checkboxes, Next steps / Remind me / Settings; 3) Build: `cd web && pnpm install && pnpm run build` passes.
 - **Follow-on PRs (not in this PR):** Wire children from DB; wire saved ideas/products/gifts from DB; persist Want/Gift/reminders; Add child flow; Filter/Search; Share my list.
 - **Rollback:** Revert PR or delete `web/src/app/family/` and `web/src/components/family/`. No DB/RLS changes.
+
+---
+
+## PR — /family My list plumbing (user_list_items + Want/Have/Gift)
+
+- **Goal:** Implement real, persistent “My list” with Want/Have/Gift flags; wire /family to show real counts and items; wire Discover “Save idea” and “Have them” to persist to a single canonical table.
+- **Ground truth:** Existing save tables `user_saved_products` and `user_saved_ideas` (supabase/sql/202602190000_subnav_saves_and_consent.sql) were actively used by DiscoveryPageClient. This PR adds a new canonical table `user_list_items` with unified semantics (Want, Have, Gift; Gift implies Want), backfills from those tables, and switches all writes to `user_list_items`. get_my_subnav_stats now counts from user_list_items.
+- **What changed:** (1) **DB:** New migration `supabase/sql/202602250000_family_user_list_items.sql`: table `public.user_list_items` (id, user_id, child_id, kind, ux_wrapper_id, category_type_id, product_id, want, have, gift, created_at, updated_at); constraints: kind+ref match, gift⇒want; partial unique indexes per ref type; RLS (auth-only, child ownership for INSERT/UPDATE); backfill from user_saved_products and user_saved_ideas; `get_my_subnav_stats()` updated to count from user_list_items; RPC `upsert_user_list_item(p_kind, p_product_id, p_category_type_id, p_ux_wrapper_id, p_want, p_have, p_gift)`. Verification script `supabase/sql/verify_family_user_list_items.sql`. (2) **Discover:** DiscoveryPageClient save_category, save_product, have_category, have_product (and replay) now call `upsert_user_list_item` instead of user_saved_ideas/user_saved_products. (3) **/family:** FamilyDashboardClient fetches user_list_items (with joins to products, pl_category_types, pl_ux_wrappers), shows real counts and list grid; Want/Gift toggles call upsert (Gift on ⇒ want=true; Want off ⇒ gift=false).
+- **Founder runbook:** See PR description: copy/paste migration block into Supabase SQL Editor, then verification block.
+- **Remains (out of scope):** Add child modal persistence; Remind me preference persistence; gift list sharing links.
+- **Rollback:** Code: revert PR. DB: `DROP TABLE IF EXISTS public.user_list_items CASCADE;` then re-run `202602190000_subnav_saves_and_consent.sql` to restore get_my_subnav_stats to read from user_saved_* (or leave function as-is if no revert of migration).
+
+---
+
+## Fix — Discover “Save idea” dead link + /family sync with subnav
+
+- **Bugs addressed:** (1) On /discover, “Save idea” / “Save” did nothing (RPC missing or silent failure). (2) Subnav showed “3 ideas” but /family showed 0 (family only read `user_list_items`; when migration not applied, table missing or empty).
+- **What changed:** (1) **Discover:** `handleSaveCategory` and `handleSaveToList` (and replay handlers) now try `upsert_user_list_item` RPC first; if it fails with function/relation missing (e.g. code 42883), fall back to legacy `user_saved_ideas` / `user_saved_products` upsert so Save idea/Save work before migration. Success path shows a “Saved.” toast. (2) **/family:** `FamilyDashboardClient` `fetchList` tries `user_list_items` first; on error (e.g. 42P01 or “user_list_items does not exist”), falls back to fetching `user_saved_ideas` and `user_saved_products` and mapping to the same list shape so Ideas/Products tabs show the same counts as the subnav.
+- **Proof:** `pnpm -C web build` passes. Manual: sign in → /discover → click “Save idea” on a category → see “Saved.” toast and subnav count update; go to /family → Ideas tab shows saved ideas. If migration not applied, both Save and /family still work via legacy tables.
+- **Rollback:** Revert the commit(s) that added fallbacks.
+
+---
+
+## Fix — /family Figma prototype alignment (cards + child data)
+
+- **Goal:** Align /family dashboard with Figma Manage Family prototype: card visuals (image, title, saved time, Want/Have pill, examples + Gift list), and child data from profile.
+- **What changed:** (1) **Child data:** FamilyDashboardClient fetches real children from `children` table (id, birthdate, age_band); child chips show “My child · {ageBand}” (age from age_band or calculateAgeBand(birthdate)); “+ Add child” links to /app/children/new. Personalization strip uses “My child (aged X): —” and a short next-steps placeholder. (2) **List cards (Figma-style):** List items use card layout: aspect-square image (from pl_category_types.image_url or products.image_url), title, “Saved X ago”, Want/Have pill toggle, “examples” (link to /discover), “+ Gift list” (toggles gift); gift badge (Gift icon) on image when row.gift. Fetch includes image_url in products and pl_category_types joins (and legacy fallback). (3) **Next steps / Remind me:** Copy updated to match placeholder messaging.
+- **Proof:** `pnpm -C web build` passes. Manual: sign in → /family → child chips show real profiles or “My child · —”; list cards show image, title, saved time, Want/Have pill, examples, Gift list.
+- **Rollback:** Revert the commit(s).
+
+---
+
+## Fix — /family: images, Want/Have toggle, Remind me sync, Gift list
+
+- **Goal:** Match Figma and fix four issues: (1) list card images from same source as /discover; (2) Want/Have as a single toggle; (3) Remind me as toggle in sync with subnav; (4) “+ Gift list” working with “Successfully added” feedback.
+- **What changed:** (1) **Images:** Family list cards use `v_gateway_category_type_images` for category/idea images (same as /discover). After loading items, component fetches that view by `category_type_id` and merges into `categoryImageMap`; `getItemImageUrl(row, categoryImageMap)` prefers the map for category/idea, then falls back to joined `pl_category_types.image_url` or `products.image_url`. (2) **Want/Have:** Single pill control with `role="group"` and `aria-pressed` so it reads as one toggle (Want | Have). (3) **Remind me:** Replaced checkbox with `SubnavSwitch`; state comes from `useSubnavStats().stats.remindersEnabled`; `handleRemindersChange` upserts `user_notification_prefs.development_reminders_enabled` and calls `refetchSubnavStats()` so /family and subnav stay in sync. (4) **Gift list:** “+ Gift list” calls `updateItem(row, { gift: true })` (await); `updateItem` returns `Promise<boolean>`. On success, set `giftSuccessId` and show green “Successfully added” for 3s, then “On gift list”. If already on list, show “On gift list” only.
+- **Proof:** `pnpm -C web build` passes. Manual: /family list cards show discover images when present; Want/Have is one pill; Remind me toggle matches subnav; click “+ Gift list” → “Successfully added” (green) → “On gift list”, item in Gifts tab.
+- **Rollback:** Revert the commit(s).
+
+---
+
+## Fix — /family: Want/Have slider, Gift list button, Product images
+
+- **Bugs addressed:** (1) Want/Have in My list was pill buttons, not a toggle slider; (2) “+ Gift list” still dead (click not adding to Gifts tab); (3) Products tab images not pulling through (same source as /discover).
+- **What changed:** (1) **Want/Have:** Replaced pill with `SubnavSwitch` (sliding toggle) with “Want” and “Have” labels; `checked={row.have}`, `onCheckedChange` calls `updateItem(row, { have: checked })`. (2) **Gift list:** Button uses `e.preventDefault()` and `e.stopPropagation()`; handler calls `updateItem(row, { gift: true }).then(ok => …)` so the promise is handled and success sets `giftSuccessId` for “Successfully added” feedback. (3) **Product images:** Same source as /discover: after loading items, fetch `v_gateway_products_public` for product ids in the list (`select('id, image_url').in('id', productIds)`), build `productImageMap`; `getItemImageUrl(row, categoryImageMap, productImageMap)` uses `productImageMap` for product rows first, then joined `products.image_url`.
+- **Proof:** `pnpm -C web build` passes. Manual: /family Ideas & Products tabs show Want/Have as a switch; “+ Gift list” adds item to Gifts tab and shows “Successfully added”; Products tab cards show images when present in gateway.
+- **Rollback:** Revert the commit(s).
+
+---
+
+## Fix — /family: Toggles + Gift list + Product images (optimistic UI + errors + image fallback)
+
+- **Bugs addressed:** Want/Have toggles and Gift list button still not working; product images showing “No image”.
+- **What changed:** (1) **Optimistic UI:** Added `optimisticHave` and `optimisticGift` state so the toggle and “+ Gift list” update immediately on click; on RPC failure state reverts. (2) **Error feedback:** `updateItem` now sets `actionError` on RPC failure (and on “function does not exist” shows “My list isn’t set up yet. Run the database migration.”); error message shown above the list. (3) **Product images:** Product image fetch now uses both `v_gateway_products_public` and `products` table (`Promise.all`); first fill from gateway view, then fill missing from `products.id, image_url` so images show when gateway has no row for that product. (4) **Handlers:** Want/Have uses dedicated `handleHaveChange` that sets optimistic state then calls `updateItem`; Gift list handler sets `optimisticGift` then `updateItem`, reverts on failure.
+- **Proof:** `pnpm -C web build` passes. Manual: /family → toggle Want/Have (moves immediately; if migration not applied, reverts and shows error); click “+ Gift list” (shows “Successfully added” or error); Products tab shows image when present in gateway or products table.
+- **Rollback:** Revert the commit(s).
+
+---
+
+## chore(prod): sync /family improvements to main
+
+- **Goal:** One safe PR to bring intended /family changes from feature branches onto main (production drift fix). No new features; sync only.
+- **Source branch:** feat/family-my-list-plumbing (full list plumbing + images, Want/Have toggle, Gift list, child data, Discover fallback).
+- **What changed:** Merged origin/feat/family-my-list-plumbing into feat/prod-sync-family (from main). Resolved conflicts in PROGRESS.md, state/latest.json, FamilyDashboardClient.tsx (kept incoming full dashboard).
+- **Commits included:** 551fd2e (merge), b7c7148, 49d74b9, 7791092, 0ced016, 1728f20, e0dd25b, a80e742. Final SHA after merge: 551fd2e (or GitHub-created merge commit).
+- **PR:** Open at https://github.com/glownest2026-droid/ember/compare/main...feat/prod-sync-family — title: "chore(prod): sync /family improvements to main". Description in `.pr_prod_sync_family_body.md`.
+- **Proof:** cd web && pnpm install && pnpm run build passes. Manual: /family shows real list, toggles, images; Discover Save idea works; apply migration 202602250000 if not already in production.
+- **Rollback:** Revert PR. DB: DROP TABLE IF EXISTS public.user_list_items CASCADE; restore get_my_subnav_stats from 202602190000 if needed.
 
 ---
 
