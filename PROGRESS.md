@@ -216,6 +216,18 @@ _Last updated: 2026-01-04_
 
 ---
 
+## Service Pack PR 3 — /discover save modal personalisation + CTA to /family (2026-02-26)
+
+- **Goal:** After saving an idea on /discover, confirmation modal shows personalised copy (“Saved to {Name}'s ideas” / “your son's ideas” / “your daughter's ideas” / “your child's ideas”) and CTA “View my toy ideas” linking to /family. No DB/schema changes.
+- **What changed:** (1) **SaveToListModal** (`web/src/components/ui/SaveToListModal.tsx`): Exported helper `savedToCopy({ name, gender })` (UK English; apostrophe “Poppy's ideas”; gender male/m/boy/son → son, female/f/girl/daughter → daughter). (2) When modal is open and signed in, if no `savedToLabel` prop: default headline “Saved to your child's ideas”; fetch first child's `gender` from `children` (user-scoped) and update headline. Optional prop `savedToLabel` lets callers override. (3) Replaced “Saved to your list” with computed label; replaced “View my list” with “View my toy ideas” and `href="/family"`. No name fetched from DB (privacy).
+- **Routes/components touched:** SaveToListModal (used by /discover); DiscoveryPageClient unchanged (does not pass savedToLabel).
+- **Verification:** Signed in on /discover → Save idea → modal shows personalised headline (e.g. “Saved to your child's ideas” or “Saved to your son's/daughter's ideas” if first child has gender). CTA “View my toy ideas” → /family. No regression to save action. Case A (name known): pass `savedToLabel` from parent if/when name available. Case B (gender known): first child's gender in DB → son/daughter. Case C: no child or no gender → “Saved to your child's ideas”.
+- **Preview URL:** (set after PR opened; Vercel bot comment.)
+- **Known debt:** None. Children table has no name field (privacy); name-based copy only if parent passes `savedToLabel`.
+- **Rollback:** Revert PR; no DB changes.
+
+---
+
 # Decision Log (dated)
 ## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
 

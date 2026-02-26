@@ -24,6 +24,8 @@ interface SaveToListModalProps {
   onCloseFocusRef?: React.RefObject<HTMLElement | null>;
   /** Called when user signs in (e.g. OTP success in-modal); parent can refresh auth state */
   onAuthSuccess?: () => void;
+  /** Optional pre-computed label for saved confirmation (e.g. "Saved to your son's ideas"). If not set, modal fetches first child's gender when signed in and computes label. */
+  savedToLabel?: string;
 }
 
 function isValidEmail(value: string): boolean {
@@ -38,6 +40,16 @@ function getNextFromSigninUrl(signinUrl: string): string {
   } catch {
     return '/app';
   }
+}
+
+/** UK English; apostrophe: "Poppy's ideas". Son/daughter only when confidently mapped. */
+export function savedToCopy({ name, gender }: { name?: string | null; gender?: string | null }): string {
+  const trimmedName = typeof name === 'string' ? name.trim() : '';
+  if (trimmedName.length > 0) return `Saved to ${trimmedName}'s ideas`;
+  const g = typeof gender === 'string' ? gender.trim().toLowerCase() : '';
+  if (['male', 'm', 'boy', 'son'].includes(g)) return "Saved to your son's ideas";
+  if (['female', 'f', 'girl', 'daughter'].includes(g)) return "Saved to your daughter's ideas";
+  return "Saved to your child's ideas";
 }
 
 /** Store return URL and pending intent for OAuth return-to */
@@ -66,7 +78,7 @@ type AuthStep = 'choose' | 'email' | 'code' | 'success';
 
 /**
  * Auth modal for "Save to your list" and generic sign-in.
- * - Signed in: "Saved" + View my list + Close.
+ * - Signed in: personalised "Saved to …'s ideas" + View my toy ideas (→ /family) + Close.
  * - Signed out: Apple (flag), Google (flag), Email OTP (6-digit), Not now.
  * OAuth uses return URL in sessionStorage + next param for callback.
  */
@@ -77,6 +89,7 @@ export function SaveToListModal({
   signinUrl,
   onCloseFocusRef,
   onAuthSuccess,
+  savedToLabel: savedToLabelProp,
 }: SaveToListModalProps) {
   const [step, setStep] = useState<AuthStep>('choose');
   const [email, setEmail] = useState('');
@@ -86,6 +99,7 @@ export function SaveToListModal({
   const [errorHint, setErrorHint] = useState<string | null>(null);
   const [sendErrorCooldown, setSendErrorCooldown] = useState(0);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [savedToLabelFetched, setSavedToLabelFetched] = useState<string>("Saved to your child's ideas");
   const dialogRef = useRef<HTMLDialogElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
   const firstCodeRef = useRef<HTMLInputElement>(null);
@@ -109,6 +123,7 @@ export function SaveToListModal({
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (open) {
+      setSavedToLabelFetched("Saved to your child's ideas");
       resetToChoose();
       dialog.showModal();
       requestAnimationFrame(() => {
@@ -124,6 +139,21 @@ export function SaveToListModal({
       }
     }
   }, [open, signedIn, resetToChoose]);
+
+  // When modal is open and signed in, fetch first child's gender to personalise "Saved to …'s ideas" (no name; privacy).
+  useEffect(() => {
+    if (!open || !signedIn || savedToLabelProp != null) return;
+    const supabase = createClient();
+    void supabase
+      .from('children')
+      .select('gender')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .then(({ data }) => {
+        const first = Array.isArray(data) && data[0] ? (data[0] as { gender?: string | null }) : null;
+        setSavedToLabelFetched(savedToCopy({ gender: first?.gender ?? null }));
+      });
+  }, [open, signedIn, savedToLabelProp]);
 
   useEffect(() => {
     if (!open) return;
@@ -337,14 +367,14 @@ export function SaveToListModal({
         {signedIn ? (
           <>
             <h2 id="save-modal-title" className="text-lg font-semibold mb-2" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
-              Saved to your list
+              {savedToLabelProp ?? savedToLabelFetched}
             </h2>
             <p id="save-modal-desc" className="text-sm mb-4" style={{ ...baseStyle, color: 'var(--ember-text-low)' }}>
               You can find this in your recommendations.
             </p>
             <div className="flex flex-col gap-2">
-              <Link href="/app/recs" onClick={handleClose} className="min-h-[40px] rounded-lg border font-medium text-sm flex items-center justify-center w-full" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-accent-base)', color: 'white', ...baseStyle }}>
-                View my list
+              <Link href="/family" onClick={handleClose} className="min-h-[40px] rounded-lg border font-medium text-sm flex items-center justify-center w-full" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-accent-base)', color: 'white', ...baseStyle }}>
+                View my toy ideas
               </Link>
               <button type="button" onClick={handleClose} className="min-h-[40px] rounded-lg font-medium text-sm w-full opacity-70 hover:opacity-100" style={{ border: 'none', backgroundColor: 'transparent', color: 'var(--ember-text-low)', ...baseStyle }}>
                 Close
