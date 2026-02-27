@@ -6,7 +6,7 @@ import { Lightbulb, ShoppingBag, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
 import { useReducedMotion } from 'motion/react';
 
-const EMBER_LOGO = '/home/ember-logo.png';
+const EMBER_LOGO = 'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
 const CARDS = [
   {
@@ -17,7 +17,7 @@ const CARDS = [
   {
     icon: ShoppingBag,
     title: 'Buy it',
-    body: 'A short set of ideas that fit this stage. Best new price and nearby pre-loved, side by side.',
+    body: 'A short set of ideas that fit this stage. The latest retailer offers that pass our review tests. Buy what you need, or add to your gift list for helpful family purchases.',
   },
   {
     icon: RefreshCw,
@@ -43,10 +43,12 @@ export function HomeHowItWorks() {
             className="text-4xl lg:text-5xl xl:text-6xl mb-6 text-[var(--ember-text-high)] leading-[1.1]"
             style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: '-0.02em' }}
           >
-            How Ember Works
+            How Ember Works.
           </h2>
           <p className="text-xl lg:text-2xl text-[var(--ember-text-low)] max-w-3xl mx-auto">
-            We help you know what matters now, choose what fits this stage, then pass it on when the time comes.
+            We help you know what matters now.
+            <br />
+            Choose what fits this stage, then pass it on when the time comes.
           </p>
         </motion.div>
 
@@ -62,7 +64,7 @@ export function HomeHowItWorks() {
               {!reducedMotion && (
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+                  transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}
                   className="absolute inset-0"
                 >
                   <svg className="w-full h-full" viewBox="0 0 200 200">
@@ -72,14 +74,14 @@ export function HomeHowItWorks() {
                       r="90"
                       fill="none"
                       stroke="url(#gradient-how)"
-                      strokeWidth="0.5"
+                      strokeWidth="1"
                       strokeDasharray="4 4"
-                      opacity="0.3"
+                      opacity="0.7"
                     />
                     <defs>
                       <linearGradient id="gradient-how" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stopColor="var(--ember-accent-base)" />
-                        <stop offset="100%" stopColor="var(--ember-accent-base)" stopOpacity="0.2" />
+                        <stop offset="100%" stopColor="var(--ember-accent-base)" stopOpacity="0.5" />
                       </linearGradient>
                     </defs>
                   </svg>
@@ -107,7 +109,7 @@ export function HomeHowItWorks() {
                       markerEnd="url(#arrowhead-how)"
                       initial={{ pathLength: 0 }}
                       animate={{ pathLength: 1 }}
-                      transition={{ duration: 2, delay: 2, repeat: Infinity, repeatDelay: 16 }}
+                      transition={{ duration: 1.2, delay: 1.2, repeat: Infinity, repeatDelay: 8 }}
                     />
                     <motion.path
                       d="M 320 380 Q 250 420 180 380"
@@ -118,7 +120,7 @@ export function HomeHowItWorks() {
                       markerEnd="url(#arrowhead-how)"
                       initial={{ pathLength: 0 }}
                       animate={{ pathLength: 1 }}
-                      transition={{ duration: 2, delay: 8, repeat: Infinity, repeatDelay: 16 }}
+                      transition={{ duration: 1.2, delay: 4.8, repeat: Infinity, repeatDelay: 8 }}
                     />
                     <motion.path
                       d="M 150 320 Q 120 200 220 120"
@@ -129,7 +131,7 @@ export function HomeHowItWorks() {
                       markerEnd="url(#arrowhead-how)"
                       initial={{ pathLength: 0 }}
                       animate={{ pathLength: 1 }}
-                      transition={{ duration: 2, delay: 14, repeat: Infinity, repeatDelay: 16 }}
+                      transition={{ duration: 1.2, delay: 8.4, repeat: Infinity, repeatDelay: 8 }}
                     />
                   </>
                 )}

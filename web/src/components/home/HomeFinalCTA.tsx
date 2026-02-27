@@ -20,15 +20,6 @@ export function HomeFinalCTA() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: reducedMotion ? 0 : 0.6 }}
-            className="relative rounded-3xl overflow-hidden shadow-[0px_20px_60px_rgba(0,0,0,0.12)] h-[400px] lg:h-[500px]"
-          >
-            <Image src={FINAL_IMAGE} alt="Parent reading with child" className="w-full h-full object-cover" width={1080} height={500} sizes="(max-width: 1024px) 100vw, 50vw" />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: reducedMotion ? 0 : 0.6, delay: 0.2 }}
           >
             <h2
@@ -50,6 +41,15 @@ export function HomeFinalCTA() {
                 See what&apos;s next
               </motion.a>
             </Link>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: reducedMotion ? 0 : 0.6 }}
+            className="relative rounded-3xl overflow-hidden shadow-[0px_20px_60px_rgba(0,0,0,0.12)] h-[400px] lg:h-[500px]"
+          >
+            <Image src={FINAL_IMAGE} alt="Parent reading with child" className="w-full h-full object-cover" width={1080} height={500} sizes="(max-width: 1024px) 100vw, 50vw" />
           </motion.div>
         </div>
       </div>
