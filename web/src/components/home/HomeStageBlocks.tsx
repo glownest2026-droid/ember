@@ -18,14 +18,24 @@ export function HomeStageBlocks() {
 
   return (
     <>
-      {/* Block 1: Parenting moves in stages */}
+      {/* Block 1: Parenting moves in stages — image left */}
       <section className="max-w-[90rem] mx-auto px-6 lg:px-12 py-24 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={transition}
+            className="relative rounded-3xl overflow-hidden shadow-[0px_20px_60px_rgba(0,0,0,0.12)] h-[350px] lg:h-[400px] lg:order-1"
+          >
+            <Image src={STAGES_IMAGE} alt="Children sharing toys" className="w-full h-full object-cover" width={800} height={400} sizes="(max-width: 1024px) 100vw, 50vw" />
+          </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={transition}
+            className="lg:order-2"
           >
             <p
               className="text-3xl lg:text-5xl text-[var(--ember-text-high)] leading-tight"
@@ -33,15 +43,6 @@ export function HomeStageBlocks() {
             >
               Parenting moves in stages. So should what you buy.
             </p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={transition}
-            className="relative rounded-3xl overflow-hidden shadow-[0px_20px_60px_rgba(0,0,0,0.12)] h-[350px] lg:h-[400px]"
-          >
-            <Image src={STAGES_IMAGE} alt="Children sharing toys" className="w-full h-full object-cover" width={800} height={400} sizes="(max-width: 1024px) 100vw, 50vw" />
           </motion.div>
         </div>
       </section>
@@ -60,7 +61,7 @@ export function HomeStageBlocks() {
                 className="text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)]"
                 style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: '-0.01em' }}
               >
-                Built around how children actually grow
+                Built around how children actually grow.
               </h2>
               <p className="text-xl lg:text-2xl text-[var(--ember-text-low)] leading-relaxed mb-8">
                 Every stage brings new discoveries. We show you what&apos;s next for their stage.
@@ -103,7 +104,7 @@ export function HomeStageBlocks() {
                 className="text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)]"
                 style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: '-0.01em' }}
               >
-                What they&apos;re practising matters
+                What they&apos;re practising matters.
               </h2>
               <p className="text-xl lg:text-2xl text-[var(--ember-text-low)] leading-relaxed mb-8">
                 We match products to what your child is actually doing — not what marketing says they should have.

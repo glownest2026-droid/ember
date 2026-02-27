@@ -18,10 +18,10 @@ export default function HomePage() {
       <HomeHero />
       <HomeAgeSlider />
       <HomeHowItWorks />
+      <HomeFinalCTA />
       <HomeStageBlocks />
       <HomeShowsUp />
       <HomeHowWeChoose />
-      <HomeFinalCTA />
     </main>
   );
 }

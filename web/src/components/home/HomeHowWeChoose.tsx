@@ -21,16 +21,16 @@ export function HomeHowWeChoose() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: reducedMotion ? 0 : 0.7 }}
-        className="max-w-5xl"
+        className="max-w-5xl mx-auto text-center"
       >
         <div className="bg-[var(--ember-surface-soft)] rounded-[3rem] p-12 lg:p-20 border-2 border-[var(--ember-border-subtle)]">
           <h2
             className="text-4xl lg:text-5xl mb-12 text-[var(--ember-text-high)]"
             style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: '-0.01em' }}
           >
-            How we choose
+            How we choose.
           </h2>
-          <div className="grid sm:grid-cols-2 gap-x-12 gap-y-8 max-w-3xl mb-10">
+          <div className="grid sm:grid-cols-2 gap-x-12 gap-y-8 max-w-3xl mb-10 text-left">
             {BULLETS.map((text) => (
               <div key={text} className="flex items-start gap-4">
                 <div className="w-8 h-8 rounded-full bg-[var(--ember-accent-base)]/10 flex items-center justify-center flex-shrink-0 mt-1">

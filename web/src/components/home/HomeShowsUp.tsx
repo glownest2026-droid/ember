@@ -46,7 +46,7 @@ export function HomeShowsUp() {
             className="text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)]"
             style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: '-0.01em' }}
           >
-            How it shows up
+            How it shows up.
           </h2>
           <p className="text-xl lg:text-2xl text-[var(--ember-text-low)] max-w-2xl">
             Three simple places built around your family&apos;s journey.

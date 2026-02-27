@@ -1981,3 +1981,14 @@ Category-only cards remain publishable.
 - **Proof:** `pnpm -C web build` passes. Founder: sign in, check subnav on desktop and mobile (narrow viewport); confirm sticky scroll and wide tooltip still work.
 - **Rollback:** Revert PR.
 - **PR:** [Link after PR opened]
+
+---
+
+## fix(snag-pack): homepage + navbar tweaks (fix/snag-pack-homepage-v1)
+
+- **Goal:** Single Snag Fix PR: navbar nav icons for signed-in users; homepage copy, layout, animation and logo fixes.
+- **What changed:** (1) **Navbar:** After "Ember" text, three clickable nav icons for signed-in users — Discover (Lightbulb → /discover), Buy (ShoppingBag → /new), Move (RefreshCw → /products); same Lucide icons as homepage. (2) **Homepage:** Every section header ends in full stop; "How Ember Works" subtitle one sentence per line. (3) **Hero:** "Your pocket play guide" → "Your proactive" / "play guide" (two lines). (4) **Buy it card:** Body text updated to "A short set of ideas that fit this stage. The latest retailer offers that pass our review tests. Buy what you need, or add to your gift list for helpful family purchases." (5) **Flow animation:** Faster rotation (40s → 16s) and path animations; darker dashed circle (opacity 0.7, strokeWidth 1). (6) **How we choose:** Container centre-aligned (mx-auto text-center). (7) **Section order + layout:** "Never behind the curve" moved above "Built around how children actually grow"; four image blocks alternate image right, left, right, left. (8) **Ember logo:** Replaced with Supabase asset URL (Ember_Logo_Robin1.png) in navbar and HomeHowItWorks.
+- **Key files:** `DiscoverStickyHeader.tsx`, `HomeHero.tsx`, `HomeHowItWorks.tsx`, `HomeHowWeChoose.tsx`, `HomeShowsUp.tsx`, `HomeStageBlocks.tsx`, `HomeFinalCTA.tsx`, `page.tsx`.
+- **Proof:** `pnpm -C web build` passes. Manual: navbar signed-in shows three icons; homepage copy, layout, animation and logo as above.
+- **PR:** #157 fix(snag-pack): homepage + navbar tweaks
+- **Follow-up (same PR):** (1) "How we choose." box: list text left-aligned (`text-left` on grid in `HomeHowWeChoose.tsx`). (2) Navbar: "Sign in" link added before "Get started" for signed-out users (`DiscoverStickyHeader.tsx`). (3) Navbar logo already set to Ember_Logo_Robin1.png URL.

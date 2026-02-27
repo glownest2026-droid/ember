@@ -21,7 +21,9 @@ export function HomeHero() {
               className="text-[3.5rem] lg:text-[5rem] xl:text-[5.5rem] leading-[1.05] mb-6 text-[var(--ember-text-high)]"
               style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: '-0.02em' }}
             >
-              Your pocket play guide
+              Your proactive
+              <br />
+              play guide
             </h1>
             <p
               className="text-2xl lg:text-3xl leading-relaxed text-[var(--ember-text-low)] mb-12 max-w-2xl"

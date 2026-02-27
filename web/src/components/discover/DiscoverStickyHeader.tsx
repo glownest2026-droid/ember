@@ -7,8 +7,9 @@ import { useReducedMotion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import type { User } from '@supabase/supabase-js';
+import { Lightbulb, ShoppingBag, RefreshCw } from 'lucide-react';
 
-const EMBER_LOGO_SRC = '/home/ember-logo.png';
+const EMBER_LOGO_SRC = 'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
 /**
  * Figma-style sticky navbar: logo + wordmark; signed-in: Manage Family, Account, Sign out; signed-out: Get started.
@@ -77,6 +78,32 @@ export default function DiscoverStickyHeader() {
             </span>
           </Link>
 
+          {user ? (
+            <div className="flex items-center gap-4 shrink-0" aria-label="Discover, Buy, Move">
+              <Link
+                href="/discover"
+                className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                aria-label="Discover"
+              >
+                <Lightbulb className="w-5 h-5" strokeWidth={2} />
+              </Link>
+              <Link
+                href="/new"
+                className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                aria-label="Buy"
+              >
+                <ShoppingBag className="w-5 h-5" strokeWidth={2} />
+              </Link>
+              <Link
+                href="/products"
+                className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                aria-label="Move"
+              >
+                <RefreshCw className="w-5 h-5" strokeWidth={2} />
+              </Link>
+            </div>
+          ) : null}
+
           <nav className="flex items-center gap-6 shrink-0">
             {user ? (
               <>
@@ -100,12 +127,20 @@ export default function DiscoverStickyHeader() {
                 </Link>
               </>
             ) : (
-              <Link
-                href={getStartedHref}
-                className="px-6 py-2.5 bg-[var(--ember-accent-base)] text-white rounded-xl hover:bg-[var(--ember-accent-hover)] transition-all font-medium text-base whitespace-nowrap"
-              >
-                Get started
-              </Link>
+              <>
+                <Link
+                  href={`/signin${pathname && pathname !== '/' ? `?next=${encodeURIComponent(pathname)}` : ''}`}
+                  className="text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href={getStartedHref}
+                  className="px-6 py-2.5 bg-[var(--ember-accent-base)] text-white rounded-xl hover:bg-[var(--ember-accent-hover)] transition-all font-medium text-base whitespace-nowrap"
+                >
+                  Get started
+                </Link>
+              </>
             )}
           </nav>
         </div>
