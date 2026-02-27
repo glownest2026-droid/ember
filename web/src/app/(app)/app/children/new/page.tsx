@@ -1,12 +1,8 @@
-export const dynamic = "force-dynamic";
-import ChildForm from '../_components/ChildForm';
+import { redirect } from 'next/navigation';
 
-export default function NewChildPage() {
-  return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-xl font-semibold">Add Child Profile</h1>
-      <ChildForm />
-    </div>
-  );
+export const dynamic = 'force-dynamic';
+
+/** Backwards compatibility: redirect /app/children/new to /add-children */
+export default function NewChildPageRedirect() {
+  redirect('/add-children');
 }
-

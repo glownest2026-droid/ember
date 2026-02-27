@@ -18,6 +18,7 @@ type TabId = 'ideas' | 'products' | 'gifts';
 interface ChildProfile {
   id: string;
   birthdate: string | null;
+  gender: string | null;
   age_band: string | null;
 }
 
@@ -87,7 +88,7 @@ function formatSavedTime(createdAt: string): string {
 }
 
 /** Dashboard: real list from user_list_items; counts = ideas (want|have), products (want|have), gifts (gift=true). */
-export function FamilyDashboardClient() {
+export function FamilyDashboardClient({ saved = false, deleted = false }: { saved?: boolean; deleted?: boolean } = {}) {
   const [children, setChildren] = useState<ChildProfile[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('ideas');
@@ -122,7 +123,7 @@ export function FamilyDashboardClient() {
     const supabase = createClient();
     const { data } = await supabase
       .from('children')
-      .select('id, birthdate, age_band')
+      .select('id, birthdate, gender, age_band')
       .order('created_at', { ascending: false });
     const list = (data ?? []) as ChildProfile[];
     setChildren(list);
@@ -433,6 +434,76 @@ export function FamilyDashboardClient() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {saved && (
+          <div className="rounded-xl bg-green-100 p-3 text-green-700 text-sm mb-4">Profile saved</div>
+        )}
+        {deleted && (
+          <div className="rounded-xl bg-green-100 p-3 text-green-700 text-sm mb-4">Profile deleted</div>
+        )}
+
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold" style={{ color: 'var(--ember-text-high)', ...baseStyle }}>
+              Child profiles
+            </h2>
+            <Link
+              href="/add-children"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors"
+              style={{ backgroundColor: 'var(--ember-accent-base)', color: 'white' }}
+            >
+              <Plus className="w-4 h-4" strokeWidth={2} />
+              Add a child
+            </Link>
+          </div>
+          {children.length === 0 ? (
+            <div className="text-center py-10 rounded-2xl border bg-white/80" style={{ borderColor: 'var(--ember-border-subtle)' }}>
+              <p className="text-sm mb-3" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>No child profiles yet.</p>
+              <Link
+                href="/add-children"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white transition-colors"
+                style={{ backgroundColor: 'var(--ember-accent-base)' }}
+              >
+                <Plus className="w-4 h-4" strokeWidth={2} />
+                Add your first child
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {children.map((child) => {
+                const ageBand = child.age_band || (child.birthdate ? calculateAgeBand(child.birthdate) : null) || '—';
+                return (
+                  <div
+                    key={child.id}
+                    className="rounded-2xl border p-4 bg-white flex items-start justify-between"
+                    style={{ borderColor: 'var(--ember-border-subtle)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
+                  >
+                    <div className="space-y-0.5">
+                      <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+                        {child.birthdate ? `Birthdate: ${new Date(child.birthdate).toLocaleDateString()}` : 'Birthdate: —'}
+                      </p>
+                      <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+                        Age band: {ageBand}
+                      </p>
+                      {child.gender && (
+                        <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+                          Gender: {child.gender}
+                        </p>
+                      )}
+                    </div>
+                    <Link
+                      href={`/add-children/${child.id}`}
+                      className="px-3 py-2 rounded-xl text-sm font-medium border shrink-0"
+                      style={{ borderColor: 'var(--ember-border-subtle)', color: 'var(--ember-text-high)', ...baseStyle }}
+                    >
+                      Edit
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
         <div className="mb-4 overflow-x-auto -mx-4 px-4 pb-2">
           <div className="flex gap-2 min-w-min">
             {children.length === 0 ? (
@@ -466,7 +537,7 @@ export function FamilyDashboardClient() {
               })
             )}
             <Link
-              href="/app/children/new"
+              href="/add-children"
               className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap border border-dashed inline-flex items-center"
               style={{ borderColor: 'var(--ember-border-subtle)', color: 'var(--ember-accent-base)' }}
             >

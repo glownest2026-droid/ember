@@ -176,7 +176,7 @@ export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '
         {userEmail ? (
           <nav className="hidden md:flex items-center gap-6 text-sm" style={{ color: 'var(--brand-text, var(--ember-text-high))' }}>
             <Link href="/app" className="opacity-80 hover:opacity-100">Dashboard</Link>
-            <Link href="/app/children" className="opacity-80 hover:opacity-100">Child Profiles</Link>
+            <Link href="/add-children" className="opacity-80 hover:opacity-100">Child Profiles</Link>
             <Link href="/app/recs" className="opacity-80 hover:opacity-100">Recommendations</Link>
             {isAdmin && (
               <Link href="/app/admin/theme" className="opacity-80 hover:opacity-100" style={{ color: 'var(--brand-primary, var(--ember-accent-base))' }}>Theme</Link>
@@ -227,7 +227,7 @@ export default function Header({ userEmail, isAdmin, signOutButton, homeHref = '
             {userEmail ? (
               <>
                 <Link href="/app" className="py-1" onClick={() => setOpen(false)}>Dashboard</Link>
-                <Link href="/app/children" className="py-1" onClick={() => setOpen(false)}>Child Profiles</Link>
+                <Link href="/add-children" className="py-1" onClick={() => setOpen(false)}>Child Profiles</Link>
                 <Link href="/app/recs" className="py-1" onClick={() => setOpen(false)}>Recommendations</Link>
                 {isAdmin && (
                   <Link href="/app/admin/theme" className="py-1" onClick={() => setOpen(false)} style={{ color: 'var(--brand-primary, var(--ember-accent-base))' }}>Theme</Link>
