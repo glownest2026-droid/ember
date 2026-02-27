@@ -1,5 +1,9 @@
 # CTO Snapshot (Source of Truth)
-_Last updated: 2026-01-04_
+_Last updated: 2026-02-27_
+
+## Homepage Figma rebuild (feat/homepage-figma-rebuild)
+- Branch: feat/homepage-figma-rebuild
+- Replaced (/) content with Figma code-pack design: HomeHero, HomeAgeSlider, HomeHowItWorks, HomeStageBlocks, HomeShowsUp, HomeHowWeChoose, HomeFinalCTA. Navbar (ConditionalHeader) and Subnav (SubnavGate) unchanged. Assets in web/public/home/; Unsplash in next.config images.
 
 ## Environments
 - Production URL: https://ember-mocha-eight.vercel.app
