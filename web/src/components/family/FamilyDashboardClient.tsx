@@ -466,7 +466,7 @@ export function FamilyDashboardClient() {
               })
             )}
             <Link
-              href="/app/children/new"
+              href="/add-children/new"
               className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap border border-dashed inline-flex items-center"
               style={{ borderColor: 'var(--ember-border-subtle)', color: 'var(--ember-accent-base)' }}
             >

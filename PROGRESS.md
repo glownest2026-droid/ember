@@ -33,7 +33,8 @@ _Last updated: 2026-02-27_
 - /signin
 - /auth/callback
 - /app (logged out → redirect to /signin?next=/app)
-- /app/children
+- /add-children (canonical; /app/children redirects here)
+- /app/children → redirects to /add-children
 - /app/recs
 - /ping
 - /cms/lego-kit-demo

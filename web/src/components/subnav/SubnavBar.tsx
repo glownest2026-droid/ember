@@ -55,7 +55,7 @@ export function SubnavBar() {
           {/* First row on mobile: Add a child + Child selector (single "All children" until multi-child) */}
           <div className="flex items-center gap-3 lg:gap-6">
             <Link
-              href="/app/children"
+              href="/add-children"
               className="inline-flex items-center justify-center gap-2 h-9 rounded-md px-3 text-sm font-medium text-white transition-colors shrink-0"
               style={{ backgroundColor: 'var(--ember-cta-primary, #FF6347)' }}
             >

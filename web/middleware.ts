@@ -13,8 +13,8 @@ export async function middleware(req: NextRequest) {
   // Add pathname to headers so server components can read it
   response.headers.set('x-pathname', pathname);
 
-  // 1) Protect /app/* and /account - require authentication
-  if (pathname.startsWith("/app") || pathname === "/account") {
+  // 1) Protect /app/*, /add-children, and /account - require authentication
+  if (pathname.startsWith("/app") || pathname.startsWith("/add-children") || pathname === "/account") {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
