@@ -33,8 +33,10 @@ _Last updated: 2026-02-27_
 - /signin
 - /auth/callback
 - /app (logged out → redirect to /signin?next=/app)
-- /add-children (canonical; /app/children redirects here)
-- /app/children → redirects to /add-children
+- /add-children (add-child form only; list lives on /family; /app/children redirects here)
+- /add-children/[id] (edit child; back/save/delete → /family)
+- /app/children, /app/children/new → redirect to /add-children
+- /app/children/[id] → redirect to /add-children/[id]
 - /app/recs
 - /ping
 - /cms/lego-kit-demo
@@ -42,7 +44,7 @@ _Last updated: 2026-02-27_
 - /discover (canonical; redirects to first band)
 - /discover/[months] (V1.0 doorways experience)
 - /new, /new/[months] (308 redirect to /discover)
-- /family (Manage My Family dashboard; auth-gated, real list + child data, images/toggle/remind/gift)
+- /family (Manage My Family dashboard; Child profiles list below header; auth-gated, list + child data, images/toggle/remind/gift; save/delete from add-children redirect here with ?saved=1|?deleted=1)
 
 ## Open PR policy
 - Keep ≤ 1 open “feature PR” at a time (currently: #79 only).

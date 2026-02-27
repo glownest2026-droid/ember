@@ -5,6 +5,7 @@ import { calculateAgeBand } from '@/lib/ageBand';
 import { redirect } from 'next/navigation';
 
 const NEXT_ADD_CHILDREN = '/add-children';
+const FAMILY_PAGE = '/family';
 
 export async function saveChild(formData: FormData, childId?: string) {
   const supabase = createClient();
@@ -46,7 +47,7 @@ export async function saveChild(formData: FormData, childId?: string) {
     }
   }
 
-  redirect(`${NEXT_ADD_CHILDREN}?saved=1`);
+  redirect(`${FAMILY_PAGE}?saved=1`);
 }
 
 export async function deleteChild(childId: string) {
@@ -67,5 +68,5 @@ export async function deleteChild(childId: string) {
     return { error: error.message };
   }
 
-  redirect(`${NEXT_ADD_CHILDREN}?deleted=1`);
+  redirect(`${FAMILY_PAGE}?deleted=1`);
 }

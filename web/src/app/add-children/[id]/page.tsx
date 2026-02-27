@@ -35,7 +35,7 @@ export default async function EditChildPage({ params }: { params: Promise<{ id: 
         birthdate: child.birthdate ?? null,
         gender: child.gender ?? null,
       }}
-      backHref="/add-children"
+      backHref="/family"
     />
   );
 }

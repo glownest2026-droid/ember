@@ -44,7 +44,7 @@ export default async function RecommendationsPage({
         <h1 className="text-xl font-semibold">Recommendations</h1>
         <div className="p-6 text-center text-gray-500">
           <p>Add a profile to see personalized recommendations.</p>
-          <Link href="/add-children/new" className="mt-2 inline-block px-3 py-2 rounded bg-black text-white">
+          <Link href="/add-children" className="mt-2 inline-block px-3 py-2 rounded bg-black text-white">
             Add a profile
           </Link>
         </div>
