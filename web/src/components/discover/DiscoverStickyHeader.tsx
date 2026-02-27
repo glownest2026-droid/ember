@@ -127,12 +127,20 @@ export default function DiscoverStickyHeader() {
                 </Link>
               </>
             ) : (
-              <Link
-                href={getStartedHref}
-                className="px-6 py-2.5 bg-[var(--ember-accent-base)] text-white rounded-xl hover:bg-[var(--ember-accent-hover)] transition-all font-medium text-base whitespace-nowrap"
-              >
-                Get started
-              </Link>
+              <>
+                <Link
+                  href={`/signin${pathname && pathname !== '/' ? `?next=${encodeURIComponent(pathname)}` : ''}`}
+                  className="text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href={getStartedHref}
+                  className="px-6 py-2.5 bg-[var(--ember-accent-base)] text-white rounded-xl hover:bg-[var(--ember-accent-hover)] transition-all font-medium text-base whitespace-nowrap"
+                >
+                  Get started
+                </Link>
+              </>
             )}
           </nav>
         </div>

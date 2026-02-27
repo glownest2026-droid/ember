@@ -30,7 +30,7 @@ export function HomeHowWeChoose() {
           >
             How we choose.
           </h2>
-          <div className="grid sm:grid-cols-2 gap-x-12 gap-y-8 max-w-3xl mb-10">
+          <div className="grid sm:grid-cols-2 gap-x-12 gap-y-8 max-w-3xl mb-10 text-left">
             {BULLETS.map((text) => (
               <div key={text} className="flex items-start gap-4">
                 <div className="w-8 h-8 rounded-full bg-[var(--ember-accent-base)]/10 flex items-center justify-center flex-shrink-0 mt-1">
