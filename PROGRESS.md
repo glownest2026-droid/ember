@@ -1,5 +1,10 @@
 # CTO Snapshot (Source of Truth)
-_Last updated: 2026-01-04_
+_Last updated: 2026-02-27_
+
+## Homepage Figma rebuild (feat/homepage-figma-rebuild)
+- Branch: feat/homepage-figma-rebuild
+- Replaced (/) content with Figma code-pack design: HomeHero, HomeAgeSlider, HomeHowItWorks, HomeStageBlocks, HomeShowsUp, HomeHowWeChoose, HomeFinalCTA. Assets in web/public/home/; Unsplash in next.config images.
+- **Figma navbar:** DiscoverStickyHeader updated to Figma style from same code pack: sticky, max-w-[90rem], px-6 lg:px-12, py-5, logo from /home/ember-logo.png, wordmark “Ember” text-2xl. No “How it works” or “About”. Signed-in only: “Manage Family”, “Account”, “Sign out”. Signed-out: “Get started” CTA. Subnav (SubnavGate) unchanged; still shown for signed-in users only. --header-height set to 88px for new navbar height.
 
 ## Environments
 - Production URL: https://ember-mocha-eight.vercel.app
