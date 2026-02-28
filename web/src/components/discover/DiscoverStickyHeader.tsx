@@ -7,7 +7,7 @@ import { useReducedMotion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import type { User } from '@supabase/supabase-js';
-import { Lightbulb, ShoppingBag, RefreshCw } from 'lucide-react';
+import { Lightbulb, ShoppingBag, RefreshCw, Menu, X } from 'lucide-react';
 
 const EMBER_LOGO_SRC = 'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
@@ -19,6 +19,7 @@ export default function DiscoverStickyHeader() {
   const pathname = usePathname();
   const shouldReduceMotion = useReducedMotion() ?? false;
   const [user, setUser] = useState<User | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -79,7 +80,7 @@ export default function DiscoverStickyHeader() {
           </Link>
 
           {user ? (
-            <div className="flex items-center gap-4 shrink-0" aria-label="Discover, Buy, Move">
+            <div className="hidden md:flex items-center gap-4 shrink-0" aria-label="Discover, Buy, Move">
               <Link
                 href="/discover"
                 className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
@@ -104,7 +105,8 @@ export default function DiscoverStickyHeader() {
             </div>
           ) : null}
 
-          <nav className="flex items-center gap-6 shrink-0">
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-6 shrink-0">
             {user ? (
               <>
                 <Link
@@ -143,8 +145,94 @@ export default function DiscoverStickyHeader() {
               </>
             )}
           </nav>
+
+          {/* Mobile menu button */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((o) => !o)}
+            className="md:hidden p-2 rounded-lg text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" strokeWidth={2} /> : <Menu className="w-6 h-6" strokeWidth={2} />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile menu panel */}
+      {mobileMenuOpen && (
+        <div
+          className="md:hidden border-t border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)]"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        >
+          <div className="max-w-[90rem] mx-auto px-6 py-4 flex flex-col gap-1">
+            {user ? (
+              <>
+                <Link
+                  href="/discover"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 text-[var(--ember-text-high)] font-medium"
+                >
+                  Discover
+                </Link>
+                <Link
+                  href="/new"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 text-[var(--ember-text-high)] font-medium"
+                >
+                  Buy
+                </Link>
+                <Link
+                  href="/products"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 text-[var(--ember-text-high)] font-medium"
+                >
+                  Products
+                </Link>
+                <div className="h-px bg-[var(--ember-border-subtle)] my-2" aria-hidden />
+                <Link
+                  href="/family"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 text-[var(--ember-text-high)] font-medium"
+                >
+                  Manage Family
+                </Link>
+                <Link
+                  href="/account"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 text-[var(--ember-text-high)] font-medium"
+                >
+                  Account
+                </Link>
+                <Link
+                  href="/signout"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 text-[var(--ember-text-low)] font-medium opacity-80"
+                >
+                  Sign out
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href={`/signin${pathname && pathname !== '/' ? `?next=${encodeURIComponent(pathname)}` : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 text-[var(--ember-text-high)] font-medium"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href={getStartedHref}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 font-medium text-[var(--ember-accent-base)]"
+                >
+                  Get started
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }

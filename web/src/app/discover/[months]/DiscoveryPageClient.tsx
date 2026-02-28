@@ -94,7 +94,7 @@ export default function DiscoveryPageClient({
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
   const replayAttemptedRef = useRef(false);
   const basePath = '/discover';
-  const { refetch: refetchSubnavStats } = useSubnavStats();
+  const { user, refetch: refetchSubnavStats } = useSubnavStats();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -625,7 +625,10 @@ export default function DiscoveryPageClient({
   };
 
   const heroSection = (
-    <DiscoverHeroPocketPlayGuide onGetStarted={() => scrollToSection('discover-start')} />
+    <DiscoverHeroPocketPlayGuide
+      onGetStarted={() => scrollToSection('discover-start')}
+      hideGetStarted={!!user}
+    />
   );
 
   const leftSurface = (

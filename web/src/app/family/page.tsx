@@ -8,7 +8,7 @@ import { FamilyDashboardClient } from '@/components/family/FamilyDashboardClient
 export default async function FamilyPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string; deleted?: string }>;
+  searchParams: Promise<{ saved?: string; deleted?: string; child?: string }>;
 }) {
   const params = await searchParams;
   const supabase = createClient();
@@ -24,7 +24,11 @@ export default async function FamilyPage({
 
   return (
     <div className="container-wrap min-h-screen py-6">
-      <FamilyDashboardClient saved={params.saved === '1'} deleted={params.deleted === '1'} />
+      <FamilyDashboardClient
+        saved={params.saved === '1'}
+        deleted={params.deleted === '1'}
+        initialChildId={params.child ?? undefined}
+      />
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { OlderChildSheet } from './OlderChildSheet';
 
 type ChildData = {
   id?: string;
+  display_name?: string | null;
   birthdate?: string | null;
   gender?: string | null;
 };
@@ -27,6 +28,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const [childName, setChildName] = useState(initial?.display_name ?? '');
   const [dateOfBirth, setDateOfBirth] = useState(initial?.birthdate ?? '');
   const [gender, setGender] = useState(initial?.gender ?? '');
   const [consentGiven, setConsentGiven] = useState(false);
@@ -55,6 +57,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
       return;
     }
     const formData = new FormData();
+    formData.set('display_name', childName.trim() || '');
     formData.set('birthdate', dateOfBirth);
     formData.set('gender', gender);
     startTransition(async () => {
@@ -71,6 +74,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
   const handleContinueWithOlderChild = () => {
     setShowOlderChildWarning(false);
     const formData = new FormData();
+    formData.set('display_name', childName.trim() || '');
     formData.set('birthdate', dateOfBirth);
     formData.set('gender', gender);
     startTransition(async () => {
@@ -141,6 +145,8 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
             <div className="rounded-xl bg-red-100 p-3 text-red-700 text-sm">{error}</div>
           )}
           <ChildDetailsCard
+            childName={childName}
+            setChildName={setChildName}
             dateOfBirth={dateOfBirth}
             setDateOfBirth={setDateOfBirth}
             gender={gender}
@@ -202,13 +208,16 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
         </div>
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[var(--ember-border-subtle)] px-6 py-4 shadow-lg">
-        <div className="max-w-2xl mx-auto">
+      <div
+        className="fixed bottom-0 left-0 right-0 bg-white border-t border-[var(--ember-border-subtle)] shadow-lg px-4 sm:px-6 py-4"
+        style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+      >
+        <div className="max-w-2xl mx-auto w-full">
           <button
             type="button"
             onClick={runSubmit}
             disabled={isPending}
-            className="w-full py-4 bg-[var(--ember-accent-base)] text-white rounded-xl font-semibold text-base hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_8px_32px_rgba(255,99,71,0.3)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full max-w-full py-4 bg-[var(--ember-accent-base)] text-white rounded-xl font-semibold text-base hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_8px_32px_rgba(255,99,71,0.3)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isPending ? (
               <>
@@ -218,7 +227,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
             ) : (
               <>
                 <Sparkles className="w-5 h-5" strokeWidth={2} />
-                <span>Start discovering toys</span>
+                <span>Add a child</span>
               </>
             )}
           </button>

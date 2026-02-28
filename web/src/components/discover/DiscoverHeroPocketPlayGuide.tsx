@@ -4,13 +4,15 @@ import { ArrowRight } from 'lucide-react';
 
 interface DiscoverHeroPocketPlayGuideProps {
   onGetStarted: () => void;
+  /** When true, hide the Get started CTA (e.g. for signed-in users on /discover). */
+  hideGetStarted?: boolean;
 }
 
 /**
  * Discover hero: "Your pocket play guide" — premium calm hero with warm morning light
  * gradients. Source Serif 4 headline, Inter subheadline + CTA. Scroll-to discovery on CTA.
  */
-export function DiscoverHeroPocketPlayGuide({ onGetStarted }: DiscoverHeroPocketPlayGuideProps) {
+export function DiscoverHeroPocketPlayGuide({ onGetStarted, hideGetStarted = false }: DiscoverHeroPocketPlayGuideProps) {
   return (
     <section
       className="relative min-h-[320px] md:min-h-[420px] lg:min-h-[520px] lg:max-h-[560px] py-10 md:py-12 flex items-center justify-center overflow-hidden bg-white"
@@ -77,20 +79,22 @@ export function DiscoverHeroPocketPlayGuide({ onGetStarted }: DiscoverHeroPocket
           From bump to big steps — science-powered toy ideas for what they&apos;re learning next
         </p>
 
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={onGetStarted}
-            className="group px-8 py-4 bg-[#FF6347] text-white rounded-2xl font-medium text-lg hover:bg-[#B8432B] transition-all duration-300 shadow-lg hover:shadow-2xl active:scale-[0.98] inline-flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-2"
-            style={{
-              fontFamily: 'var(--font-sans)',
-              boxShadow: '0 12px 40px rgba(255,99,71,0.25)',
-            }}
-          >
-            Get started
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" strokeWidth={2.5} />
-          </button>
-        </div>
+        {!hideGetStarted && (
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={onGetStarted}
+              className="group px-8 py-4 bg-[#FF6347] text-white rounded-2xl font-medium text-lg hover:bg-[#B8432B] transition-all duration-300 shadow-lg hover:shadow-2xl active:scale-[0.98] inline-flex items-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-2"
+              style={{
+                fontFamily: 'var(--font-sans)',
+                boxShadow: '0 12px 40px rgba(255,99,71,0.25)',
+              }}
+            >
+              Get started
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" strokeWidth={2.5} />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

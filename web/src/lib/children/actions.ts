@@ -15,6 +15,7 @@ export async function saveChild(formData: FormData, childId?: string) {
     redirect(`/signin?next=${NEXT_ADD_CHILDREN}`);
   }
 
+  const display_name = String(formData.get('display_name') || '').trim() || null;
   const birthdate = String(formData.get('birthdate') || '').trim() || null;
   const gender = String(formData.get('gender') || '').trim() || null;
 
@@ -23,6 +24,7 @@ export async function saveChild(formData: FormData, childId?: string) {
 
   const childData: Record<string, unknown> = {
     user_id: user.id,
+    display_name: display_name,
     birthdate: birthdate || null,
     gender: gender || null,
     age_band: age_band,

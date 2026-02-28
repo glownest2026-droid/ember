@@ -88,9 +88,13 @@ function formatSavedTime(createdAt: string): string {
 }
 
 /** Dashboard: real list from user_list_items; counts = ideas (want|have), products (want|have), gifts (gift=true). */
-export function FamilyDashboardClient({ saved = false, deleted = false }: { saved?: boolean; deleted?: boolean } = {}) {
+export function FamilyDashboardClient({
+  saved = false,
+  deleted = false,
+  initialChildId,
+}: { saved?: boolean; deleted?: boolean; initialChildId?: string } = {}) {
   const [children, setChildren] = useState<ChildProfile[]>([]);
-  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(initialChildId ?? null);
   const [activeTab, setActiveTab] = useState<TabId>('ideas');
   const [items, setItems] = useState<ListItemRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,13 +132,23 @@ export function FamilyDashboardClient({ saved = false, deleted = false }: { save
     const list = (data ?? []) as ChildProfile[];
     setChildren(list);
     if (list.length > 0) {
-      setSelectedChildId((prev) => (prev && list.some((c) => c.id === prev) ? prev : list[0].id));
+      setSelectedChildId((prev) => {
+        if (initialChildId && list.some((c) => c.id === initialChildId)) return initialChildId;
+        if (prev && list.some((c) => c.id === prev)) return prev;
+        return list[0].id;
+      });
     }
-  }, []);
+  }, [initialChildId]);
 
   useEffect(() => {
     fetchChildren();
   }, [fetchChildren]);
+
+  useEffect(() => {
+    if (initialChildId && children.some((c) => c.id === initialChildId)) {
+      setSelectedChildId(initialChildId);
+    }
+  }, [initialChildId, children]);
 
   const fetchList = useCallback(async () => {
     const supabase = createClient();
