@@ -92,7 +92,7 @@ export default function DiscoverStickyHeader() {
                   Discover
                 </Link>
                 <Link
-                  href="/new"
+                  href="/my-ideas"
                   className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
                   aria-label="My Saves"
                 >
@@ -176,34 +176,34 @@ export default function DiscoverStickyHeader() {
                 <Link
                   href="/discover"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 flex flex-col items-center gap-1 text-[var(--ember-text-high)] font-medium"
+                  className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
                 >
-                  <span>Discover</span>
-                  <Compass className="w-5 h-5" strokeWidth={2} />
+                  <Compass className="w-5 h-5 shrink-0" strokeWidth={2} />
+                  Discover
                 </Link>
                 <Link
-                  href="/new"
+                  href="/my-ideas"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 flex flex-col items-center gap-1 text-[var(--ember-text-high)] font-medium"
+                  className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
                 >
-                  <span>My Saves</span>
-                  <Bookmark className="w-5 h-5" strokeWidth={2} />
+                  <Bookmark className="w-5 h-5 shrink-0" strokeWidth={2} />
+                  My Saves
                 </Link>
                 <Link
                   href="/products"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 flex flex-col items-center gap-1 text-[var(--ember-text-high)] font-medium"
+                  className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
                 >
-                  <span>Marketplace</span>
-                  <ShoppingBag className="w-5 h-5" strokeWidth={2} />
+                  <ShoppingBag className="w-5 h-5 shrink-0" strokeWidth={2} />
+                  Marketplace
                 </Link>
                 <Link
                   href="/family"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 flex flex-col items-center gap-1 text-[var(--ember-text-high)] font-medium"
+                  className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
                 >
-                  <span>Family</span>
-                  <Users className="w-5 h-5" strokeWidth={2} />
+                  <Users className="w-5 h-5 shrink-0" strokeWidth={2} />
+                  Family
                 </Link>
                 <div className="h-px bg-[var(--ember-border-subtle)] my-2" aria-hidden />
                 <Link
