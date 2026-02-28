@@ -624,12 +624,12 @@ export default function DiscoveryPageClient({
     fontFamily: 'var(--font-sans)',
   };
 
-  const heroSection = (
+  const heroSection = !user ? (
     <DiscoverHeroPocketPlayGuide
       onGetStarted={() => scrollToSection('discover-start')}
-      hideGetStarted={!!user}
+      hideGetStarted={false}
     />
-  );
+  ) : null;
 
   const leftSurface = (
     <div className="w-full min-w-0 flex-1" style={SURFACE_STYLE}>
@@ -901,7 +901,7 @@ export default function DiscoveryPageClient({
         />
         <HowWeChooseSheet open={howWeChooseOpen} onClose={() => setHowWeChooseOpen(false)} />
         {heroSection}
-        <div className="py-6 sm:py-8 w-full flex flex-col gap-8">
+        <div className={`w-full flex flex-col gap-8 ${!user ? 'py-6 sm:py-8' : 'pt-2 pb-6 sm:pt-2 sm:pb-8'}`}>
           {selectorWithId}
           {nextStepsSection}
           {examplesSection}

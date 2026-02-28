@@ -2,13 +2,13 @@ export const dynamic = 'force-dynamic';
 
 import { createClient } from '@/utils/supabase/server';
 import { FamilySignInRequired } from '@/components/family/FamilySignInRequired';
-import { FamilyDashboardClient } from '@/components/family/FamilyDashboardClient';
+import { MyIdeasClient } from '@/components/family/MyIdeasClient';
 
-/** /family — Manage My Family dashboard (authenticated). Shell only; no DB reads/writes. */
-export default async function FamilyPage({
+/** /my-ideas — My list, today, next steps (authenticated). Content moved from /family below child profiles. */
+export default async function MyIdeasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string; deleted?: string; child?: string }>;
+  searchParams: Promise<{ child?: string }>;
 }) {
   const params = await searchParams;
   const supabase = createClient();
@@ -24,10 +24,7 @@ export default async function FamilyPage({
 
   return (
     <div className="container-wrap min-h-screen py-6">
-      <FamilyDashboardClient
-        saved={params.saved === '1'}
-        deleted={params.deleted === '1'}
-      />
+      <MyIdeasClient initialChildId={params.child ?? undefined} />
     </div>
   );
 }

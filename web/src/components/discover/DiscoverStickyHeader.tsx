@@ -6,8 +6,8 @@ import { usePathname } from 'next/navigation';
 import { useReducedMotion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import type { User } from '@supabase/supabase-js';
-import { Lightbulb, ShoppingBag, RefreshCw, Menu, X } from 'lucide-react';
+import type { User as AuthUser } from '@supabase/supabase-js';
+import { Compass, Bookmark, ShoppingBag, Users, User, LogOut, Menu, X } from 'lucide-react';
 
 const EMBER_LOGO_SRC = 'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
@@ -18,7 +18,7 @@ const EMBER_LOGO_SRC = 'https://shjccflwlayacppuyskl.supabase.co/storage/v1/obje
 export default function DiscoverStickyHeader() {
   const pathname = usePathname();
   const shouldReduceMotion = useReducedMotion() ?? false;
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -79,52 +79,57 @@ export default function DiscoverStickyHeader() {
             </span>
           </Link>
 
-          {user ? (
-            <div className="hidden md:flex items-center gap-4 shrink-0" aria-label="Discover, Buy, Move">
-              <Link
-                href="/discover"
-                className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
-                aria-label="Discover"
-              >
-                <Lightbulb className="w-5 h-5" strokeWidth={2} />
-              </Link>
-              <Link
-                href="/new"
-                className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
-                aria-label="Buy"
-              >
-                <ShoppingBag className="w-5 h-5" strokeWidth={2} />
-              </Link>
-              <Link
-                href="/products"
-                className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
-                aria-label="Move"
-              >
-                <RefreshCw className="w-5 h-5" strokeWidth={2} />
-              </Link>
-            </div>
-          ) : null}
-
-          {/* Desktop nav */}
+          {/* Desktop nav: 4 main links (icon + text) + 2 footer links */}
           <nav className="hidden md:flex items-center gap-6 shrink-0">
             {user ? (
               <>
                 <Link
-                  href="/family"
-                  className="text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
+                  href="/discover"
+                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
+                  aria-label="Discover"
                 >
-                  Manage Family
+                  <Compass className="w-5 h-5 shrink-0" strokeWidth={2} />
+                  Discover
                 </Link>
                 <Link
-                  href="/account"
-                  className="text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
+                  href="/my-ideas"
+                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
+                  aria-label="My Saves"
                 >
+                  <Bookmark className="w-5 h-5 shrink-0" strokeWidth={2} />
+                  My Saves
+                </Link>
+                <Link
+                  href="/products"
+                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
+                  aria-label="Marketplace"
+                >
+                  <ShoppingBag className="w-5 h-5 shrink-0" strokeWidth={2} />
+                  Marketplace
+                </Link>
+                <Link
+                  href="/family"
+                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
+                  aria-label="Family"
+                >
+                  <Users className="w-5 h-5 shrink-0" strokeWidth={2} />
+                  Family
+                </Link>
+                <span className="text-[var(--ember-border-subtle)]" aria-hidden>|</span>
+                <Link
+                  href="/account"
+                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
+                  aria-label="Account"
+                >
+                  <User className="w-5 h-5 shrink-0" strokeWidth={2} />
                   Account
                 </Link>
                 <Link
                   href="/signout"
-                  className="text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap opacity-80 hover:opacity-100"
+                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap opacity-80 hover:opacity-100"
+                  aria-label="Sign out"
                 >
+                  <LogOut className="w-5 h-5 shrink-0" strokeWidth={2} />
                   Sign out
                 </Link>
               </>
@@ -171,32 +176,36 @@ export default function DiscoverStickyHeader() {
                 <Link
                   href="/discover"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 text-[var(--ember-text-high)] font-medium"
+                  className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
                 >
+                  <Compass className="w-5 h-5 shrink-0" strokeWidth={2} />
                   Discover
                 </Link>
                 <Link
-                  href="/new"
+                  href="/my-ideas"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 text-[var(--ember-text-high)] font-medium"
+                  className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
                 >
-                  Buy
+                  <Bookmark className="w-5 h-5 shrink-0" strokeWidth={2} />
+                  My Saves
                 </Link>
                 <Link
                   href="/products"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 text-[var(--ember-text-high)] font-medium"
+                  className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
                 >
-                  Products
+                  <ShoppingBag className="w-5 h-5 shrink-0" strokeWidth={2} />
+                  Marketplace
                 </Link>
-                <div className="h-px bg-[var(--ember-border-subtle)] my-2" aria-hidden />
                 <Link
                   href="/family"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 text-[var(--ember-text-high)] font-medium"
+                  className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
                 >
-                  Manage Family
+                  <Users className="w-5 h-5 shrink-0" strokeWidth={2} />
+                  Family
                 </Link>
+                <div className="h-px bg-[var(--ember-border-subtle)] my-2" aria-hidden />
                 <Link
                   href="/account"
                   onClick={() => setMobileMenuOpen(false)}

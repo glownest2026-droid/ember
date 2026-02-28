@@ -16,6 +16,8 @@ export interface FamilyExamplesModalProps {
   ideaTitle: string;
   categoryTypeId: string;
   ageBandId: string | null;
+  /** When set (e.g. for idea kind), API is called with wrapperSlug instead of categoryTypeId. */
+  wrapperSlug?: string | null;
   onSave: (productId: string, triggerEl: HTMLButtonElement | null) => void;
   onHave: (productId: string) => void;
   getProductUrl: (pick: GatewayPick) => string;
@@ -28,6 +30,7 @@ export function FamilyExamplesModal({
   ideaTitle,
   categoryTypeId,
   ageBandId,
+  wrapperSlug = null,
   onSave,
   onHave,
   getProductUrl,
@@ -51,11 +54,14 @@ export function FamilyExamplesModal({
   }, [open, onClose]);
 
   useEffect(() => {
-    if (!open || !categoryTypeId) return;
-    const effectiveAgeBandId = ageBandId ?? '';
+    const useWrapper = wrapperSlug && typeof wrapperSlug === 'string';
+    const useCategory = categoryTypeId && typeof categoryTypeId === 'string';
+    if (!open || (!useWrapper && !useCategory)) return;
     setLoading(true);
-    const params = new URLSearchParams({ categoryTypeId });
-    if (effectiveAgeBandId) params.set('ageBandId', effectiveAgeBandId);
+    const params = new URLSearchParams();
+    if (ageBandId) params.set('ageBandId', ageBandId);
+    if (useWrapper) params.set('wrapperSlug', wrapperSlug);
+    else if (useCategory) params.set('categoryTypeId', categoryTypeId);
     fetch(`/api/discover/picks?${params.toString()}`)
       .then((res) => res.json())
       .then((data: { picks?: GatewayPick[] }) => {
@@ -63,7 +69,7 @@ export function FamilyExamplesModal({
       })
       .catch(() => setPicks([]))
       .finally(() => setLoading(false));
-  }, [open, categoryTypeId, ageBandId]);
+  }, [open, categoryTypeId, ageBandId, wrapperSlug]);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
