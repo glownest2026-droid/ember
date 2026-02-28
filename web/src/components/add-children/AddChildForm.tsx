@@ -212,7 +212,12 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
         className="fixed bottom-0 left-0 right-0 bg-white border-t border-[var(--ember-border-subtle)] shadow-lg px-4 sm:px-6 py-4"
         style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
       >
-        <div className="max-w-2xl mx-auto w-full">
+        <div className="max-w-2xl mx-auto w-full space-y-3">
+          {error && (
+            <p className="text-red-600 text-sm text-center" role="alert">
+              {error}
+            </p>
+          )}
           <button
             type="button"
             onClick={runSubmit}

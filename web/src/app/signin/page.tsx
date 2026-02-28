@@ -11,7 +11,7 @@ export default function SignInPage() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') || '/app';
+  const next = searchParams.get('next') || '/discover';
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

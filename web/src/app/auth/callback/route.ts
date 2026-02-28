@@ -5,7 +5,7 @@ import { createClient } from '../../../utils/supabase/route-handler';
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
-  const next = url.searchParams.get('next') ?? '/app';
+  const next = url.searchParams.get('next') ?? '/discover';
   const origin = url.origin;
 
   // Build redirect response first so we can set cookies on it

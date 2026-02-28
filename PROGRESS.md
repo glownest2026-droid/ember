@@ -4,6 +4,7 @@ _Last updated: 2026-02-28_
 ## fix(snag-pack): mobile nav, add-children CTA, discover CTA, child name field, subnav switcher (2026-02-28)
 - Branch: fix/snag-pack-mobile-and-ux
 - Snags: (1) DiscoverStickyHeader mobile-friendly: hamburger menu on md-down, slide-down panel with nav links. (2) /add-children bottom CTA: text "Add a child", mobile-safe width + safe-area padding. (3) /discover hero: hide "Get started" CTA when signed in (DiscoverHeroPocketPlayGuide hideGetStarted). (4) Add-child form: "What do you call them?" optional field from Figma; DB migration 202602280000_children_display_name.sql (display_name column). (5) Subnav: child profile switcher (select) after "Add a child"; navigates to /family?child=id; FamilyDashboardClient accepts initialChildId from URL.
+- **Snag pack round 2 (same PR):** (A) Post sign-in redirect to /discover (auth/callback, auth/confirm, signin, signin/password default `next`). (B) Add-child consent error shown above "Add a child" CTA in fixed bottom bar. (C) Older-child "Just a heads up" modal: compact centre square (OlderChildSheet) instead of full-width bottom sheet. (D) After saving a child redirect to /discover (saveChild redirect); child write path unchanged (children table). (E) Nav logo: Supabase URL already correct; increased Image width/height to 96 for sharper display.
 
 ## Homepage Figma rebuild (feat/homepage-figma-rebuild)
 - Branch: feat/homepage-figma-rebuild

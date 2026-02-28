@@ -67,8 +67,8 @@ export default function DiscoverStickyHeader() {
               src={EMBER_LOGO_SRC}
               alt=""
               className="h-12 w-auto object-contain flex-shrink-0"
-              width={48}
-              height={48}
+              width={96}
+              height={96}
               priority
             />
             <span

@@ -5,6 +5,7 @@ import { calculateAgeBand } from '@/lib/ageBand';
 import { redirect } from 'next/navigation';
 
 const NEXT_ADD_CHILDREN = '/add-children';
+const DISCOVER_PAGE = '/discover';
 const FAMILY_PAGE = '/family';
 
 export async function saveChild(formData: FormData, childId?: string) {
@@ -49,7 +50,7 @@ export async function saveChild(formData: FormData, childId?: string) {
     }
   }
 
-  redirect(`${FAMILY_PAGE}?saved=1`);
+  redirect(DISCOVER_PAGE);
 }
 
 export async function deleteChild(childId: string) {

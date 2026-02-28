@@ -27,14 +27,14 @@ export function OlderChildSheet({ open, onOpenChange, onContinue }: OlderChildSh
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col justify-end"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       aria-modal="true"
       role="dialog"
       aria-labelledby="older-child-sheet-title"
     >
       <div className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} />
       <div
-        className="relative z-10 bg-white rounded-t-3xl shadow-lg p-6"
+        className="relative z-10 bg-white rounded-2xl shadow-lg p-6 w-full max-w-sm"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}
       >
         <div className="w-12 h-12 rounded-xl bg-[var(--ember-accent-base)]/10 flex items-center justify-center mb-4">
