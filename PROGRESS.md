@@ -1,6 +1,10 @@
 # CTO Snapshot (Source of Truth)
 _Last updated: 2026-02-28_
 
+## fix(snag-pack): nav 4+2, discover hero hide when signed-in, family/my-ideas split, Examples modal (2026-02-28)
+- Branch: fix/snag-pack-nav-and-family
+- Snags: (A i–ii) Nav simplified to 4+2: Discover, My Saves, Marketplace, Family | Account, Sign out; Lucide icons (Compass, Bookmark, ShoppingBag, Users, User, LogOut); desktop icon before text, mobile stacked (text then icon). (A iii) /discover: hide “Your pocket play guide” hero for signed-in users; first section = age slider. (A iv) /family: child profiles only; content below (child selector, Today, My list, sidebar) moved to /my-ideas. (A v) My List Examples: API accepts wrapperSlug for idea kind; FamilyExamplesModal uses wrapperSlug when set; Examples button shown for ideas with ux_slug; picks load via getGatewayTopPicksForAgeBandAndWrapperSlug.
+
 ## fix(snag-pack): mobile nav, add-children CTA, discover CTA, child name field, subnav switcher (2026-02-28)
 - Branch: fix/snag-pack-mobile-and-ux
 - Snags: (1) DiscoverStickyHeader mobile-friendly: hamburger menu on md-down, slide-down panel with nav links. (2) /add-children bottom CTA: text "Add a child", mobile-safe width + safe-area padding. (3) /discover hero: hide "Get started" CTA when signed in (DiscoverHeroPocketPlayGuide hideGetStarted). (4) Add-child form: "What do you call them?" optional field from Figma; DB migration 202602280000_children_display_name.sql (display_name column). (5) Subnav: child profile switcher (select) after "Add a child"; navigates to /family?child=id; FamilyDashboardClient accepts initialChildId from URL.
