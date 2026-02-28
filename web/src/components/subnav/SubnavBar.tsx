@@ -9,7 +9,7 @@ import { SimpleTooltip } from '@/components/ui/SimpleTooltip';
 import { createClient } from '@/utils/supabase/client';
 import { useState, useCallback, useEffect } from 'react';
 
-type SubnavChild = { id: string; display_name?: string | null; age_band?: string | null };
+type SubnavChild = { id: string; child_name?: string | null; age_band?: string | null };
 
 const REMINDERS_TOOLTIP =
   "We'll automatically send you proactive play ideas at just the right time for your child's next developmental needs.";
@@ -94,7 +94,7 @@ export function SubnavBar() {
                 <option value="">All children</option>
                 {children.map((c, i) => (
                   <option key={c.id} value={c.id}>
-                    {c.display_name?.trim() || `Child ${i + 1}`}
+                    {c.child_name?.trim() || `Child ${i + 1}`}
                   </option>
                 ))}
               </select>

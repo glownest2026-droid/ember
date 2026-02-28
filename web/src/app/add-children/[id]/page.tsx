@@ -32,7 +32,7 @@ export default async function EditChildPage({ params }: { params: Promise<{ id: 
     <AddChildForm
       initial={{
         id: child.id,
-        display_name: (child as { display_name?: string | null }).display_name ?? null,
+        child_name: (child as { child_name?: string | null }).child_name ?? (child as { display_name?: string | null }).display_name ?? null,
         birthdate: child.birthdate ?? null,
         gender: child.gender ?? null,
       }}

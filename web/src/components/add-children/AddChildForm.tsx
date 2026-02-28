@@ -13,7 +13,7 @@ import { OlderChildSheet } from './OlderChildSheet';
 
 type ChildData = {
   id?: string;
-  display_name?: string | null;
+  child_name?: string | null;
   birthdate?: string | null;
   gender?: string | null;
 };
@@ -28,7 +28,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const [childName, setChildName] = useState(initial?.display_name ?? '');
+  const [childName, setChildName] = useState(initial?.child_name ?? '');
   const [dateOfBirth, setDateOfBirth] = useState(initial?.birthdate ?? '');
   const [gender, setGender] = useState(initial?.gender ?? '');
   const [consentGiven, setConsentGiven] = useState(false);
@@ -57,7 +57,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
       return;
     }
     const formData = new FormData();
-    formData.set('display_name', childName.trim() || '');
+    formData.set('child_name', childName.trim() || '');
     formData.set('birthdate', dateOfBirth);
     formData.set('gender', gender);
     startTransition(async () => {
@@ -74,7 +74,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
   const handleContinueWithOlderChild = () => {
     setShowOlderChildWarning(false);
     const formData = new FormData();
-    formData.set('display_name', childName.trim() || '');
+    formData.set('child_name', childName.trim() || '');
     formData.set('birthdate', dateOfBirth);
     formData.set('gender', gender);
     startTransition(async () => {
