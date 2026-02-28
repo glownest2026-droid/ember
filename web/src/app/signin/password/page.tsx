@@ -10,7 +10,7 @@ export default function PasswordSignInPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') || '/app';
+  const next = searchParams.get('next') || '/discover';
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

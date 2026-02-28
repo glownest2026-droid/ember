@@ -6,11 +6,11 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const tokenHash = url.searchParams.get('token_hash');
   const type = url.searchParams.get('type');
-  let next = url.searchParams.get('next') ?? (type === 'recovery' ? '/reset-password' : '/app');
+  let next = url.searchParams.get('next') ?? (type === 'recovery' ? '/reset-password' : '/discover');
   const origin = url.origin;
 
   if (!next.startsWith('/')) {
-    next = '/app';
+    next = '/discover';
   }
 
   if (!tokenHash || !type) {

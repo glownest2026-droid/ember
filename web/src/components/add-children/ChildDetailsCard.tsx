@@ -3,6 +3,9 @@
 import { Calendar, Info, Heart } from 'lucide-react';
 
 interface ChildDetailsCardProps {
+  /** Optional: "What do you call them?" (Figma). */
+  childName: string;
+  setChildName: (value: string) => void;
   dateOfBirth: string;
   setDateOfBirth: (value: string) => void;
   gender: string;
@@ -10,8 +13,10 @@ interface ChildDetailsCardProps {
   onPrivacyClick: () => void;
 }
 
-/** Child details: DOB + gender only. No name field (privacy). */
+/** Child details: optional call name (Figma), DOB, gender. */
 export function ChildDetailsCard({
+  childName,
+  setChildName,
   dateOfBirth,
   setDateOfBirth,
   gender,
@@ -23,6 +28,21 @@ export function ChildDetailsCard({
       <div className="flex items-center gap-2 mb-6">
         <Heart className="w-5 h-5 text-[var(--ember-accent-base)]" strokeWidth={2} fill="currentColor" />
         <h2 className="text-lg font-medium text-[var(--ember-text-high)]">Tell us about them</h2>
+      </div>
+
+      {/* Name input (Figma: "What do you call them?" optional) */}
+      <div className="mb-6">
+        <label htmlFor="childName" className="block text-sm font-medium text-[var(--ember-text-high)] mb-2">
+          What do you call them? <span className="font-normal text-[var(--ember-text-low)]">(optional)</span>
+        </label>
+        <input
+          id="childName"
+          type="text"
+          value={childName}
+          onChange={(e) => setChildName(e.target.value)}
+          placeholder="e.g., Lily, Button, Little One..."
+          className="w-full px-4 py-3 bg-white border border-[var(--ember-border-subtle)] rounded-xl text-base text-[var(--ember-text-high)] placeholder:text-[var(--ember-text-low)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--ember-accent-base)] focus:border-transparent transition-all input"
+        />
       </div>
 
       <div className="mb-6">

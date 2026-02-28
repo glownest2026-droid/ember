@@ -5,6 +5,7 @@ import { calculateAgeBand } from '@/lib/ageBand';
 import { redirect } from 'next/navigation';
 
 const NEXT_ADD_CHILDREN = '/add-children';
+const DISCOVER_PAGE = '/discover';
 const FAMILY_PAGE = '/family';
 
 export async function saveChild(formData: FormData, childId?: string) {
@@ -15,6 +16,7 @@ export async function saveChild(formData: FormData, childId?: string) {
     redirect(`/signin?next=${NEXT_ADD_CHILDREN}`);
   }
 
+  const child_name = String(formData.get('child_name') || formData.get('display_name') || '').trim() || null;
   const birthdate = String(formData.get('birthdate') || '').trim() || null;
   const gender = String(formData.get('gender') || '').trim() || null;
 
@@ -23,6 +25,7 @@ export async function saveChild(formData: FormData, childId?: string) {
 
   const childData: Record<string, unknown> = {
     user_id: user.id,
+    child_name: child_name,
     birthdate: birthdate || null,
     gender: gender || null,
     age_band: age_band,
@@ -47,7 +50,7 @@ export async function saveChild(formData: FormData, childId?: string) {
     }
   }
 
-  redirect(`${FAMILY_PAGE}?saved=1`);
+  redirect(DISCOVER_PAGE);
 }
 
 export async function deleteChild(childId: string) {
