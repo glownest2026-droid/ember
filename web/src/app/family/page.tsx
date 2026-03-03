@@ -27,6 +27,7 @@ export default async function FamilyPage({
       <FamilyDashboardClient
         saved={params.saved === '1'}
         deleted={params.deleted === '1'}
+        initialChildId={params.child ?? undefined}
       />
     </div>
   );

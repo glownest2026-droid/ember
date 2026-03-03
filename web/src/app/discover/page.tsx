@@ -21,13 +21,19 @@ function getRepresentativeMonthForBand(band: { id: string; min_months: number | 
   return Math.round((parsed.min + parsed.max) / 2);
 }
 
-/** /discover redirects to first band with picks (same logic as /new). */
-export default async function DiscoverPage() {
+/** /discover redirects to first band with picks (same logic as /new). Preserves ?child= when present. */
+export default async function DiscoverPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ child?: string }>;
+}) {
+  const params = await searchParams;
   const ageBands = await getGatewayAgeBandsPublic();
   const bandsWithPicks = await getGatewayAgeBandIdsWithPicks();
 
   if (!ageBands || ageBands.length === 0) {
-    redirect('/discover/26');
+    const q = params.child ? `?child=${encodeURIComponent(params.child)}` : '';
+    redirect(`/discover/26${q}`);
   }
 
   const preferred =
@@ -35,5 +41,6 @@ export default async function DiscoverPage() {
     ageBands[ageBands.length - 1];
 
   const representativeMonth = getRepresentativeMonthForBand(preferred) ?? 26;
-  redirect(`/discover/${representativeMonth}`);
+  const q = params.child ? `?child=${encodeURIComponent(params.child)}` : '';
+  redirect(`/discover/${representativeMonth}${q}`);
 }

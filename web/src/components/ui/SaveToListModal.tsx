@@ -26,6 +26,8 @@ interface SaveToListModalProps {
   onAuthSuccess?: () => void;
   /** Optional pre-computed label for saved confirmation (e.g. "Saved to your son's ideas"). If not set, modal fetches first child's gender when signed in and computes label. */
   savedToLabel?: string;
+  /** Link for "View my toy ideas" CTA when signed in. Defaults to /my-ideas; use e.g. /my-ideas?tab=ideas or /my-ideas?tab=products&child=xxx for deeplink. */
+  viewMyListHref?: string;
 }
 
 function isValidEmail(value: string): boolean {
@@ -90,6 +92,7 @@ export function SaveToListModal({
   onCloseFocusRef,
   onAuthSuccess,
   savedToLabel: savedToLabelProp,
+  viewMyListHref = '/my-ideas',
 }: SaveToListModalProps) {
   const [step, setStep] = useState<AuthStep>('choose');
   const [email, setEmail] = useState('');
@@ -373,7 +376,7 @@ export function SaveToListModal({
               You can find this in your recommendations.
             </p>
             <div className="flex flex-col gap-2">
-              <Link href="/family" onClick={handleClose} className="min-h-[40px] rounded-lg border font-medium text-sm flex items-center justify-center w-full" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-accent-base)', color: 'white', ...baseStyle }}>
+              <Link href={viewMyListHref} onClick={handleClose} className="min-h-[40px] rounded-lg border font-medium text-sm flex items-center justify-center w-full" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-accent-base)', color: 'white', ...baseStyle }}>
                 View my toy ideas
               </Link>
               <button type="button" onClick={handleClose} className="min-h-[40px] rounded-lg font-medium text-sm w-full opacity-70 hover:opacity-100" style={{ border: 'none', backgroundColor: 'transparent', color: 'var(--ember-text-low)', ...baseStyle }}>

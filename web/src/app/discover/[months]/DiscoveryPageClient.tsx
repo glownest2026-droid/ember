@@ -61,6 +61,7 @@ interface DiscoveryPageClientProps {
   exampleProducts: PickItem[];
   categoryTypes: GatewayCategoryTypePublic[];
   showDebug?: boolean;
+  initialChildId?: string;
 }
 
 export default function DiscoveryPageClient({
@@ -76,9 +77,11 @@ export default function DiscoveryPageClient({
   exampleProducts,
   categoryTypes,
   showDebug = false,
+  initialChildId,
 }: DiscoveryPageClientProps) {
   const router = useRouter();
   const shouldReduceMotion = useReducedMotion() ?? false;
+  const [selectedChildLabel, setSelectedChildLabel] = useState<string | null>(null);
   const [howWeChooseOpen, setHowWeChooseOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [actionToast, setActionToast] = useState<{ productId: string; message: string } | null>(null);
@@ -88,6 +91,7 @@ export default function DiscoveryPageClient({
     open: boolean;
     signedIn: boolean;
     signinUrl: string;
+    viewMyListHref?: string;
   }>({ open: false, signedIn: false, signinUrl: '' });
   const saveModalFocusRef = useRef<HTMLButtonElement | null>(null);
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
@@ -97,6 +101,35 @@ export default function DiscoveryPageClient({
   const { user, refetch: refetchSubnavStats } = useSubnavStats();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const selectedChildId = searchParams.get('child') ?? initialChildId ?? undefined;
+  const withChildParam = (url: string) =>
+    selectedChildId ? `${url}${url.includes('?') ? '&' : '?'}child=${encodeURIComponent(selectedChildId)}` : url;
+
+  useEffect(() => {
+    if (!initialChildId || !user) {
+      setSelectedChildLabel(null);
+      return;
+    }
+    const supabase = createClient();
+    supabase
+      .from('children')
+      .select('id, child_name, display_name, age_band')
+      .eq('id', initialChildId)
+      .single()
+      .then(
+        ({ data }) => {
+          if (!data) {
+            setSelectedChildLabel(null);
+            return;
+          }
+          const d = data as { child_name?: string | null; display_name?: string | null; age_band?: string | null };
+          const name = (d.child_name || d.display_name)?.trim();
+          const age = d.age_band?.trim();
+          setSelectedChildLabel(name ? (age ? `${name} (${age})` : name) : null);
+        },
+        () => setSelectedChildLabel(null)
+      );
+  }, [initialChildId, user]);
 
   const scrollToSection = useCallback(
     (id: string) => {
@@ -255,6 +288,7 @@ export default function DiscoveryPageClient({
       switch (action.actionId) {
         case 'save_category': {
           const categoryId = action.payload.categoryId as string | undefined;
+          const childId = action.payload.childId as string | undefined;
           if (!categoryId) return;
           let ok = false;
           const { error: rpcError } = await supabase.rpc('upsert_user_list_item', {
@@ -263,6 +297,7 @@ export default function DiscoveryPageClient({
             p_want: true,
             p_have: false,
             p_gift: false,
+            ...(childId ? { p_child_id: childId } : {}),
           });
           if (!rpcError) ok = true;
           else if (rpcError.code === '42883' || rpcError.message?.includes('does not exist') || rpcError.message?.includes('function')) {
@@ -272,16 +307,18 @@ export default function DiscoveryPageClient({
             );
             if (!legacyError) ok = true;
           }
-          if (ok) await refetchSubnavStats();
+          if (ok) await refetchSubnavStats(selectedChildId);
           setSaveModal({
             open: true,
             signedIn: true,
             signinUrl: getSigninUrlForCategory(categoryId),
+            viewMyListHref: withChildParam('/my-ideas?tab=ideas'),
           });
           break;
         }
         case 'save_product': {
           const productId = action.payload.productId as string | undefined;
+          const childId = action.payload.childId as string | undefined;
           if (!productId) return;
           let ok = false;
           const { error: rpcError } = await supabase.rpc('upsert_user_list_item', {
@@ -290,6 +327,7 @@ export default function DiscoveryPageClient({
             p_want: true,
             p_have: false,
             p_gift: false,
+            ...(childId ? { p_child_id: childId } : {}),
           });
           if (!rpcError) ok = true;
           else if (rpcError.code === '42883' || rpcError.message?.includes('does not exist') || rpcError.message?.includes('function')) {
@@ -299,7 +337,7 @@ export default function DiscoveryPageClient({
             );
             if (!legacyError) ok = true;
           }
-          if (ok) await refetchSubnavStats();
+          if (ok) await refetchSubnavStats(selectedChildId);
           await fetch('/api/click', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -313,24 +351,28 @@ export default function DiscoveryPageClient({
             open: true,
             signedIn: true,
             signinUrl: getSigninUrl(productId),
+            viewMyListHref: withChildParam('/my-ideas?tab=products'),
           });
           break;
         }
         case 'have_category': {
           const categoryId = (action.payload.categoryId as string) || 'category';
+          const childId = action.payload.childId as string | undefined;
           const { error } = await supabase.rpc('upsert_user_list_item', {
             p_kind: 'category',
             p_category_type_id: categoryId,
             p_want: true,
             p_have: true,
             p_gift: false,
+            ...(childId ? { p_child_id: childId } : {}),
           });
-          if (!error) await refetchSubnavStats();
+          if (!error) await refetchSubnavStats(selectedChildId);
           setActionToast({ productId: categoryId, message: "We've noted it." });
           break;
         }
         case 'have_product': {
           const productId = action.payload.productId as string | undefined;
+          const childId = action.payload.childId as string | undefined;
           if (!productId) return;
           const { error } = await supabase.rpc('upsert_user_list_item', {
             p_kind: 'product',
@@ -338,8 +380,9 @@ export default function DiscoveryPageClient({
             p_want: true,
             p_have: true,
             p_gift: false,
+            ...(childId ? { p_child_id: childId } : {}),
           });
-          if (!error) await refetchSubnavStats();
+          if (!error) await refetchSubnavStats(selectedChildId);
           await fetch('/api/click', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -356,7 +399,7 @@ export default function DiscoveryPageClient({
           break;
       }
     },
-    [selectedBand?.id, selectedWrapper, currentMonth, basePath, refetchSubnavStats]
+    [selectedBand?.id, selectedWrapper, currentMonth, basePath, refetchSubnavStats, selectedChildId]
   );
 
   // Replay pending action once after sign-in (Option B: single place in DiscoveryPageClient)
@@ -390,7 +433,7 @@ export default function DiscoveryPageClient({
   const handleHaveThemCategory = (categoryId: string) => {
     requireAuthThen({
       actionId: 'have_category',
-      payload: { categoryId },
+      payload: { categoryId, childId: selectedChildId },
       run: async () => {
         const supabase = createClient();
         const { error } = await supabase.rpc('upsert_user_list_item', {
@@ -399,8 +442,9 @@ export default function DiscoveryPageClient({
           p_want: true,
           p_have: true,
           p_gift: false,
+          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
         });
-        if (!error) await refetchSubnavStats();
+        if (!error) await refetchSubnavStats(selectedChildId);
         setActionToast({ productId: categoryId, message: "We've noted it." });
       },
       openAuthModal: ({ signinUrl }) => {
@@ -413,9 +457,11 @@ export default function DiscoveryPageClient({
         return !!user;
       },
       getReturnUrl: () =>
-        selectedWrapper
-          ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1&category=${encodeURIComponent(categoryId)}`
-          : `${basePath}/${currentMonth}`,
+        withChildParam(
+          selectedWrapper
+            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1&category=${encodeURIComponent(categoryId)}`
+            : `${basePath}/${currentMonth}`,
+        ),
     });
   };
 
@@ -448,7 +494,7 @@ export default function DiscoveryPageClient({
   const handleHaveItAlready = (productId: string) => {
     requireAuthThen({
       actionId: 'have_product',
-      payload: { productId },
+      payload: { productId, childId: selectedChildId },
       run: async () => {
         const supabase = createClient();
         const { error } = await supabase.rpc('upsert_user_list_item', {
@@ -457,8 +503,9 @@ export default function DiscoveryPageClient({
           p_want: true,
           p_have: true,
           p_gift: false,
+          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
         });
-        if (!error) await refetchSubnavStats();
+        if (!error) await refetchSubnavStats(selectedChildId);
         try {
           await fetch('/api/click', {
             method: 'POST',
@@ -484,9 +531,11 @@ export default function DiscoveryPageClient({
         return !!user;
       },
       getReturnUrl: () =>
-        selectedWrapper
-          ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
-          : `${basePath}/${currentMonth}`,
+        withChildParam(
+          selectedWrapper
+            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
+            : `${basePath}/${currentMonth}`,
+        ),
     });
   };
 
@@ -494,7 +543,7 @@ export default function DiscoveryPageClient({
     saveModalFocusRef.current = triggerEl;
     requireAuthThen({
       actionId: 'save_category',
-      payload: { categoryId },
+      payload: { categoryId, childId: selectedChildId },
       run: async () => {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
@@ -506,6 +555,7 @@ export default function DiscoveryPageClient({
           p_want: true,
           p_have: false,
           p_gift: false,
+          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
         });
         if (!rpcError) {
           ok = true;
@@ -523,12 +573,13 @@ export default function DiscoveryPageClient({
           setActionToast({ productId: categoryId, message: 'Could not save idea. Please try again.' });
           return;
         }
-        await refetchSubnavStats();
+        await refetchSubnavStats(selectedChildId);
         setActionToast({ productId: categoryId, message: 'Saved.' });
         setSaveModal({
           open: true,
           signedIn: true,
           signinUrl: getSigninUrlForCategory(categoryId),
+          viewMyListHref: withChildParam('/my-ideas?tab=ideas'),
         });
       },
       openAuthModal: ({ signinUrl }) =>
@@ -538,9 +589,11 @@ export default function DiscoveryPageClient({
         return !!user;
       },
       getReturnUrl: () =>
-        selectedWrapper
-          ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1&category=${encodeURIComponent(categoryId)}`
-          : `${basePath}/${currentMonth}`,
+        withChildParam(
+          selectedWrapper
+            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1&category=${encodeURIComponent(categoryId)}`
+            : `${basePath}/${currentMonth}`,
+        ),
     });
   };
 
@@ -548,7 +601,7 @@ export default function DiscoveryPageClient({
     saveModalFocusRef.current = triggerEl;
     requireAuthThen({
       actionId: 'save_product',
-      payload: { productId },
+      payload: { productId, childId: selectedChildId },
       run: async () => {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
@@ -560,6 +613,7 @@ export default function DiscoveryPageClient({
           p_want: true,
           p_have: false,
           p_gift: false,
+          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
         });
         if (!rpcError) {
           ok = true;
@@ -587,11 +641,12 @@ export default function DiscoveryPageClient({
             source: 'discover_save',
           }),
         });
-        await refetchSubnavStats();
+        await refetchSubnavStats(selectedChildId);
         setSaveModal({
           open: true,
           signedIn: true,
           signinUrl: getSigninUrl(productId),
+          viewMyListHref: withChildParam('/my-ideas?tab=products'),
         });
       },
       openAuthModal: ({ signinUrl }) =>
@@ -601,9 +656,11 @@ export default function DiscoveryPageClient({
         return !!user;
       },
       getReturnUrl: () =>
-        selectedWrapper
-          ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
-          : `${basePath}/${currentMonth}`,
+        withChildParam(
+          selectedWrapper
+            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
+            : `${basePath}/${currentMonth}`,
+        ),
     });
   };
 
@@ -640,7 +697,7 @@ export default function DiscoveryPageClient({
               className="block text-sm mb-2"
               style={{ fontFamily: 'var(--font-mono)', color: 'var(--ember-text-high)', fontSize: '14px' }}
             >
-              {formatBandLabel(selectedBand)}
+              {selectedChildLabel ? `Ideas for ${selectedChildLabel}` : formatBandLabel(selectedBand)}
             </span>
             <div
               className="discovery-slider-wrap relative w-full"
@@ -786,7 +843,7 @@ export default function DiscoveryPageClient({
           Next steps for {selectedWrapperLabel}
         </h2>
         <p className="text-sm mb-4 flex flex-wrap items-center gap-1" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-          Chosen for {formatBandLabel(selectedBand)} •{' '}
+          Chosen for {selectedChildLabel ?? formatBandLabel(selectedBand)} •{' '}
           <button
             type="button"
             onClick={() => setHowWeChooseOpen(true)}
@@ -853,7 +910,7 @@ export default function DiscoveryPageClient({
         ) : (
           <>
             <p className="text-xs mb-2" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-              Chosen for {formatBandLabel(selectedBand)}
+              Chosen for {selectedChildLabel ?? formatBandLabel(selectedBand)}
             </p>
             <DiscoverCardStack
               picks={displayIdeas.slice(0, 12)}
@@ -896,6 +953,7 @@ export default function DiscoveryPageClient({
           onClose={() => setSaveModal((s) => ({ ...s, open: false }))}
           signedIn={saveModal.signedIn}
           signinUrl={saveModal.signinUrl}
+          viewMyListHref={saveModal.viewMyListHref}
           onCloseFocusRef={saveModalFocusRef}
           onAuthSuccess={handleAuthSuccess}
         />

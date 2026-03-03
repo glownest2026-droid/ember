@@ -34,6 +34,7 @@ export interface ListItemRow {
   product_id: string | null;
   category_type_id: string | null;
   ux_wrapper_id: string | null;
+  child_id: string | null;
   created_at: string;
   products: { name: string; image_url?: string | null } | { name: string; image_url?: string | null }[] | null;
   pl_category_types: { name: string; label: string | null; image_url?: string | null } | { name: string; label: string | null; image_url?: string | null }[] | null;
@@ -175,10 +176,14 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     const supabase = createClient();
     const { data, error } = await supabase
       .from('user_list_items')
-      .select('id, kind, want, have, gift, product_id, category_type_id, ux_wrapper_id, created_at, products(name, image_url), pl_category_types(name, label, image_url), pl_ux_wrappers(ux_label, ux_slug)')
+      .select('id, kind, want, have, gift, product_id, category_type_id, ux_wrapper_id, child_id, created_at, products(name, image_url), pl_category_types(name, label, image_url), pl_ux_wrappers(ux_label, ux_slug)')
       .order('created_at', { ascending: false });
     if (!error && data != null) {
-      setItems((data as unknown as ListItemRow[]) ?? []);
+      const rows = (data as unknown as (ListItemRow & { child_id?: string | null })[]).map((r) => ({
+        ...r,
+        child_id: r.child_id ?? null,
+      })) as ListItemRow[];
+      setItems(rows);
       return;
     }
     const useLegacy =
@@ -206,6 +211,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
         product_id: null,
         category_type_id: r.idea_id,
         ux_wrapper_id: null,
+        child_id: null,
         created_at: r.created_at,
         products: null,
         pl_category_types: ct ?? null,
@@ -224,6 +230,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
         product_id: r.product_id,
         category_type_id: null,
         ux_wrapper_id: null,
+        child_id: null,
         created_at: r.created_at,
         products: prod ?? null,
         pl_category_types: null,
@@ -297,15 +304,18 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     }
   }, [items]);
 
+  const childFilteredItems =
+    selectedChildId
+      ? items.filter((r) => r.child_id === selectedChildId || r.child_id == null)
+      : items;
+  const ideasItems = childFilteredItems.filter((r) => (r.kind === 'idea' || r.kind === 'category') && (r.want || r.have));
+  const productsItems = childFilteredItems.filter((r) => r.kind === 'product' && (r.want || r.have));
+  const giftsItems = childFilteredItems.filter((r) => r.gift);
   const counts = {
-    ideas: items.filter((r) => (r.kind === 'idea' || r.kind === 'category') && (r.want || r.have)).length,
-    products: items.filter((r) => r.kind === 'product' && (r.want || r.have)).length,
-    gifts: items.filter((r) => r.gift).length,
+    ideas: ideasItems.length,
+    products: productsItems.length,
+    gifts: giftsItems.length,
   };
-
-  const ideasItems = items.filter((r) => (r.kind === 'idea' || r.kind === 'category') && (r.want || r.have));
-  const productsItems = items.filter((r) => r.kind === 'product' && (r.want || r.have));
-  const giftsItems = items.filter((r) => r.gift);
 
   const updateItem = useCallback(
     async (row: ListItemRow, updates: { want?: boolean; have?: boolean; gift?: boolean }): Promise<boolean> => {
@@ -326,6 +336,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
         if (row.kind === 'product' && row.product_id) payload.p_product_id = row.product_id;
         else if (row.kind === 'category' && row.category_type_id) payload.p_category_type_id = row.category_type_id;
         else if (row.kind === 'idea' && row.ux_wrapper_id) payload.p_ux_wrapper_id = row.ux_wrapper_id;
+        payload.p_child_id = row.child_id ?? null;
         const { error } = await supabase.rpc('upsert_user_list_item', payload);
         if (!error) {
           await fetchList();
@@ -418,7 +429,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
           }
         });
     },
-    [user, refetchSubnavStats, fetchList]
+    [user, refetchSubnavStats, fetchList, selectedChildId]
   );
 
   const openExamplesModal = useCallback((row: ListItemRow) => {

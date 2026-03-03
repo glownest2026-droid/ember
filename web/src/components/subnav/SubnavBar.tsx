@@ -9,7 +9,49 @@ import { SimpleTooltip } from '@/components/ui/SimpleTooltip';
 import { createClient } from '@/utils/supabase/client';
 import { useState, useCallback, useEffect } from 'react';
 
-type SubnavChild = { id: string; child_name?: string | null; display_name?: string | null; age_band?: string | null };
+type SubnavChild = {
+  id: string;
+  child_name?: string | null;
+  display_name?: string | null;
+  age_band?: string | null;
+  gender?: string | null;
+};
+
+/** Normalize row from API (snake_case from Postgres) into SubnavChild. Reads child_name/display_name so "Geraldine"/"Alex" show when set. */
+function toSubnavChild(r: Record<string, unknown>): SubnavChild {
+  const raw = r as Record<string, unknown>;
+  const id = (raw.id as string) ?? '';
+  const child_name = (raw.child_name ?? raw.childName) as string | null | undefined;
+  const display_name = (raw.display_name ?? raw.displayName) as string | null | undefined;
+  const age_band = (raw.age_band ?? raw.ageBand) as string | null | undefined;
+  const gender = (raw.gender) as string | null | undefined;
+  return {
+    id,
+    child_name: (child_name && String(child_name).trim()) || null,
+    display_name: (display_name && String(display_name).trim()) || null,
+    age_band: age_band ?? null,
+    gender: gender ?? null,
+  };
+}
+
+/** Map stored gender to display label: Boy / Girl (not "male"/"female"). */
+function genderToLabel(gender: string): string {
+  const g = gender.trim().toLowerCase();
+  if (g === 'male') return 'Boy';
+  if (g === 'female') return 'Girl';
+  return 'Child'; // other, prefer_not_to_say, or unknown
+}
+
+/** Option label: "Name - Aged X" or "Boy/Girl - Aged X" or "Child N". Prefer real name (child_name/display_name). */
+function childOptionLabel(c: SubnavChild, index: number): string {
+  const name = (c.child_name || c.display_name)?.trim();
+  const age = c.age_band?.trim();
+  const genderRaw = c.gender?.trim();
+  const sep = ' - ';
+  if (name) return age ? `${name}${sep}Aged ${age}` : name;
+  if (genderRaw) return age ? `${genderToLabel(genderRaw)}${sep}Aged ${age}` : genderToLabel(genderRaw);
+  return `Child ${index + 1}`;
+}
 
 const REMINDERS_TOOLTIP =
   "We'll automatically send you proactive play ideas at just the right time for your child's next developmental needs.";
@@ -25,30 +67,70 @@ export function SubnavBar() {
   const remindersEnabled = stats?.remindersEnabled ?? false;
   const selectedChildId = searchParams.get('child') ?? '';
 
-  useEffect(() => {
+  const fetchChildren = useCallback(() => {
     if (!user?.id) return;
     const supabase = createClient();
-    // Try full columns first (child_name, display_name from migrations); on error fallback to core columns so list always loads
+    // 1) Prefer child_name only (no display_name) so DBs without display_name column still show names
     supabase
       .from('children')
-      .select('id, child_name, display_name, age_band')
+      .select('id, child_name, age_band, gender')
       .order('created_at', { ascending: false })
       .then(({ data, error }) => {
-        if (!error) {
-          setChildren((data as SubnavChild[]) ?? []);
+        if (!error && Array.isArray(data)) {
+          setChildren(data.map((r) => toSubnavChild(r as Record<string, unknown>)));
           return;
         }
-        // Fallback: same columns as FamilyDashboardClient (guaranteed to exist)
+        // 2) Try with display_name (for DBs that have it)
         supabase
           .from('children')
-          .select('id, birthdate, gender, age_band')
+          .select('id, display_name, age_band, gender')
           .order('created_at', { ascending: false })
-          .then(({ data: fallbackData }) => {
-            const list = (fallbackData ?? []) as { id: string; age_band?: string | null }[];
-            setChildren(list.map((c) => ({ id: c.id, child_name: null, display_name: null, age_band: c.age_band ?? null })));
+          .then(({ data: data2, error: err2 }) => {
+            if (!err2 && Array.isArray(data2)) {
+              setChildren(data2.map((r) => toSubnavChild({ ...(r as object), child_name: (r as Record<string, unknown>).display_name } as Record<string, unknown>)));
+              return;
+            }
+            // 3) Core only: gender + age
+            supabase
+              .from('children')
+              .select('id, gender, age_band')
+              .order('created_at', { ascending: false })
+              .then(({ data: fallbackData }) => {
+                if (Array.isArray(fallbackData)) {
+                  setChildren(fallbackData.map((r) => toSubnavChild({ ...(r as object), child_name: null, display_name: null } as Record<string, unknown>)));
+                }
+              });
           });
       });
   }, [user?.id]);
+
+  // Refetch when pathname changes (e.g. after redirect from add-children) so new/edited names appear in toggle.
+  useEffect(() => {
+    fetchChildren();
+    const isSubnav = pathname?.startsWith('/discover') || pathname?.startsWith('/my-ideas') || pathname?.startsWith('/family');
+    if (isSubnav) {
+      const t = setTimeout(fetchChildren, 300);
+      return () => clearTimeout(t);
+    }
+  }, [pathname, fetchChildren]);
+
+  // Refetch when tab becomes visible so returning from add-children or another tab shows latest list.
+  useEffect(() => {
+    if (!user?.id) return;
+    const onVisible = () => {
+      const isSubnav = pathname?.startsWith('/discover') || pathname?.startsWith('/my-ideas') || pathname?.startsWith('/family');
+      if (isSubnav && document.visibilityState === 'visible') fetchChildren();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [user?.id, pathname, fetchChildren]);
+
+  // Refetch stats when pathname or selected child changes so counts match (e.g. 0 for a new child when selected)
+  const subnavPage = pathname?.startsWith('/discover') || pathname?.startsWith('/my-ideas') || pathname?.startsWith('/family');
+  useEffect(() => {
+    if (!user?.id || !subnavPage) return;
+    refetch(selectedChildId || undefined);
+  }, [pathname, selectedChildId, user?.id, refetch, subnavPage]);
 
   const handleRemindersChange = useCallback(
     async (checked: boolean) => {
@@ -61,14 +143,14 @@ export function SubnavBar() {
           { onConflict: 'user_id' }
         );
         if (error) throw error;
-        await refetch();
+        await refetch(selectedChildId || undefined);
       } catch {
         setRemindersBusy(false);
         return;
       }
       setRemindersBusy(false);
     },
-    [user, refetch]
+    [user, refetch, selectedChildId]
   );
 
   if (!user || !stats) return null;
@@ -129,7 +211,7 @@ export function SubnavBar() {
                 <option value="">All children</option>
                 {children.map((c, i) => (
                   <option key={c.id} value={c.id}>
-                    {(c.child_name || c.display_name)?.trim() || `Child ${i + 1}`}
+                    {childOptionLabel(c, i)}
                   </option>
                 ))}
               </select>

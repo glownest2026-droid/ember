@@ -20,7 +20,8 @@ interface ChildProfile {
 export function FamilyDashboardClient({
   saved = false,
   deleted = false,
-}: { saved?: boolean; deleted?: boolean } = {}) {
+  initialChildId,
+}: { saved?: boolean; deleted?: boolean; initialChildId?: string } = {}) {
   const [children, setChildren] = useState<ChildProfile[]>([]);
 
   const fetchChildren = useCallback(async () => {
@@ -36,6 +37,12 @@ export function FamilyDashboardClient({
   useEffect(() => {
     fetchChildren();
   }, [fetchChildren]);
+
+  useEffect(() => {
+    if (!initialChildId || !children.some((c) => c.id === initialChildId)) return;
+    const el = document.getElementById(`child-profile-${initialChildId}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [initialChildId, children]);
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, var(--brand-bg-1, #FFFCF8) 0%, var(--brand-bg-2, #FFFFFF) 100%)' }}>
@@ -101,11 +108,16 @@ export function FamilyDashboardClient({
             <div className="space-y-3">
               {children.map((child) => {
                 const ageBand = child.age_band || (child.birthdate ? calculateAgeBand(child.birthdate) : null) || '—';
+                const isSelected = initialChildId === child.id;
                 return (
                   <div
                     key={child.id}
-                    className="rounded-2xl border p-4 bg-white flex items-start justify-between"
-                    style={{ borderColor: 'var(--ember-border-subtle)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
+                    id={`child-profile-${child.id}`}
+                    className="rounded-2xl border p-4 bg-white flex items-start justify-between scroll-mt-4"
+                    style={{
+                      borderColor: isSelected ? 'var(--ember-accent-base)' : 'var(--ember-border-subtle)',
+                      boxShadow: isSelected ? '0 0 0 2px rgba(255,99,71,0.3)' : '0 1px 3px rgba(0,0,0,0.04)',
+                    }}
                   >
                     <div className="space-y-0.5">
                       <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
