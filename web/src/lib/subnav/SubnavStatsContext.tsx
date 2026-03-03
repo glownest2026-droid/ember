@@ -46,7 +46,9 @@ export function SubnavStatsProvider({ children }: { children: React.ReactNode })
       setStats(null);
       return;
     }
-    const { data, error } = await supabase.rpc('get_my_subnav_stats', childId ? { p_child_id: childId } : {});
+    // Always pass p_child_id explicitly: null = aggregate all, uuid = that child only (avoids ambiguity).
+    const hasChild = typeof childId === 'string' && childId.trim() !== '';
+    const { data, error } = await supabase.rpc('get_my_subnav_stats', { p_child_id: hasChild ? (childId as string).trim() : null });
     if (error) {
       setStats({ ...defaultStats });
       return;
