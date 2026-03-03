@@ -44,14 +44,24 @@ export default function DiscoverStickyHeader() {
 
   return (
     <header
-      className="sticky top-0 left-0 right-0 z-50 bg-[var(--ember-surface-primary)] border-b border-[var(--ember-border-subtle)]"
+      className="sticky top-0 left-0 right-0 z-50 bg-[var(--ember-surface-primary)] border-b border-[var(--ember-border-subtle)] w-full min-w-0 overflow-hidden"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         minHeight: 'var(--header-height)',
       }}
     >
-      <div className="h-full max-w-[90rem] mx-auto px-6 lg:px-12 py-5">
-        <div className="flex items-center justify-between gap-6">
+      <div className="h-full w-full min-w-0 max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-12 py-5">
+        <div className="flex items-center justify-between gap-2 sm:gap-6 min-w-0">
+          {/* Mobile: hamburger first (top-left), then logo, then nav */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((o) => !o)}
+            className="md:hidden p-2 rounded-lg text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors shrink-0 order-first"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" strokeWidth={2} /> : <Menu className="w-6 h-6" strokeWidth={2} />}
+          </button>
           <Link
             href="/"
             onClick={(e) => {
@@ -60,24 +70,75 @@ export default function DiscoverStickyHeader() {
                 scrollToTop();
               }
             }}
-            className="flex items-center gap-3 min-w-0 shrink-0 leading-none"
+            className="flex items-center gap-2 sm:gap-3 min-w-0 shrink leading-none overflow-hidden"
             aria-label="Ember home"
           >
             <Image
               src={EMBER_LOGO_SRC}
               alt=""
-              className="h-12 w-auto object-contain flex-shrink-0"
+              className="h-10 w-auto min-w-0 shrink-0 object-contain sm:h-12"
               width={96}
               height={96}
               priority
             />
             <span
-              className="text-2xl text-[var(--ember-text-high)] truncate whitespace-nowrap"
+              className="text-xl sm:text-2xl text-[var(--ember-text-high)] truncate whitespace-nowrap"
               style={{ fontWeight: 500 }}
             >
               Ember
             </span>
           </Link>
+
+          {/* Mobile: signed out = Sign in + Get started in bar; signed in = 4 nav icons in bar (one less click) */}
+          <nav className="md:hidden flex items-center gap-1 sm:gap-2 shrink-0 min-w-0">
+            {user ? (
+              <>
+                <Link
+                  href="/discover"
+                  className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                  aria-label="Discover"
+                >
+                  <Compass className="w-5 h-5" strokeWidth={2} />
+                </Link>
+                <Link
+                  href="/my-ideas"
+                  className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                  aria-label="My Saves"
+                >
+                  <Bookmark className="w-5 h-5" strokeWidth={2} />
+                </Link>
+                <Link
+                  href="/products"
+                  className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                  aria-label="Marketplace"
+                >
+                  <ShoppingBag className="w-5 h-5" strokeWidth={2} />
+                </Link>
+                <Link
+                  href="/family"
+                  className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                  aria-label="Family"
+                >
+                  <Users className="w-5 h-5" strokeWidth={2} />
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href={`/signin${pathname && pathname !== '/' ? `?next=${encodeURIComponent(pathname)}` : ''}`}
+                  className="text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] whitespace-nowrap"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href={getStartedHref}
+                  className="px-3 py-1.5 text-sm font-medium bg-[var(--ember-accent-base)] text-white rounded-lg hover:bg-[var(--ember-accent-hover)] transition-colors whitespace-nowrap"
+                >
+                  Get started
+                </Link>
+              </>
+            )}
+          </nav>
 
           {/* Desktop nav: 4 main links (icon + text) + 2 footer links */}
           <nav className="hidden md:flex items-center gap-6 shrink-0">
@@ -150,17 +211,6 @@ export default function DiscoverStickyHeader() {
               </>
             )}
           </nav>
-
-          {/* Mobile menu button */}
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen((o) => !o)}
-            className="md:hidden p-2 rounded-lg text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" strokeWidth={2} /> : <Menu className="w-6 h-6" strokeWidth={2} />}
-          </button>
         </div>
       </div>
 

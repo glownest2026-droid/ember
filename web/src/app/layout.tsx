@@ -30,8 +30,8 @@ export const dynamic = 'force-dynamic';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="antialiased">
+    <html lang="en" className="overflow-x-hidden">
+      <body className="antialiased min-w-0 max-w-[100vw]">
         <ThemeProvider>
           <SubnavStatsProvider>
             <ConditionalHeader />
