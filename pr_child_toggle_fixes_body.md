@@ -45,6 +45,12 @@ After opening the PR, use the Vercel bot comment or the "Deployments" tab for th
 - **Fix 2 – Stats:** New migration `supabase/sql/202603031000_subnav_stats_per_child.sql` adds optional `p_child_id` to `get_my_subnav_stats()`. When provided, counts are filtered to that child (items where `child_id = p_child_id OR child_id IS NULL`). SubnavStatsContext `refetch(childId?)` passes the selected child; SubnavBar calls `refetch(selectedChildId)` when pathname or selected child changes, so selecting the new child shows 0 ideas / 0 toys / 0 gifts.
 - **Apply migration:** Run the new SQL migration in Supabase so per-child stats work. Without it, stats remain all-children when a child is selected.
 
+## Follow-up 2: dropdown names + save against child (same PR)
+
+- **Dropdown names:** First children query now selects `id, child_name, display_name, age_band, gender`; `toSubnavChild()` normalizes the row so "Geraldine" / "Alex" show when `child_name` or `display_name` is set. Fallbacks: then `display_name, age_band, gender`; then `gender, age_band`.
+- **Save against child:** When a user saves an idea or product from /discover with a child selected in the subnav, the save is stored against that child. New migration `202603031100_upsert_user_list_item_child.sql` adds `p_child_id` to `upsert_user_list_item`; all discover save/have flows pass `p_child_id` when `?child=` is set. Replay-after-sign-in payload includes `childId` so the replayed save also uses the correct child. Return URL preserves `?child=` so after sign-in the user returns with the same child selected.
+- **Apply migrations:** Run both `202603031000_subnav_stats_per_child.sql` and `202603031100_upsert_user_list_item_child.sql` in Supabase.
+
 ## Build
 
 - `pnpm build` (from `web`) passes.
