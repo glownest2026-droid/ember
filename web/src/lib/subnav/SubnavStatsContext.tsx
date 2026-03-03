@@ -16,7 +16,8 @@ interface SubnavStatsContextValue {
   user: User | null;
   stats: SubnavStats | null;
   loading: boolean;
-  refetch: () => Promise<void>;
+  /** Refetch stats; pass childId to show counts for that child (e.g. 0 for a new child). */
+  refetch: (childId?: string) => Promise<void>;
 }
 
 const defaultStats: SubnavStats = {
@@ -30,7 +31,7 @@ const SubnavStatsContext = createContext<SubnavStatsContextValue>({
   user: null,
   stats: null,
   loading: true,
-  refetch: async () => {},
+  refetch: async (_childId?: string) => {},
 });
 
 export function SubnavStatsProvider({ children }: { children: React.ReactNode }) {
@@ -38,14 +39,14 @@ export function SubnavStatsProvider({ children }: { children: React.ReactNode })
   const [stats, setStats] = useState<SubnavStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchStats = useCallback(async () => {
+  const fetchStats = useCallback(async (childId?: string) => {
     const supabase = createClient();
     const { data: { user: u } } = await supabase.auth.getUser();
     if (!u) {
       setStats(null);
       return;
     }
-    const { data, error } = await supabase.rpc('get_my_subnav_stats');
+    const { data, error } = await supabase.rpc('get_my_subnav_stats', childId ? { p_child_id: childId } : {});
     if (error) {
       setStats({ ...defaultStats });
       return;
@@ -55,11 +56,11 @@ export function SubnavStatsProvider({ children }: { children: React.ReactNode })
     // If RPC doesn't return gifts_saved_count (migration not applied), fetch from user_list_items
     // so subnav matches the /family My list count (same source of truth).
     if (typeof raw?.gifts_saved_count !== 'number') {
-      const { count } = await supabase
-        .from('user_list_items')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', u.id)
-        .eq('gift', true);
+      let query = supabase.from('user_list_items').select('id', { count: 'exact', head: true }).eq('user_id', u.id).eq('gift', true);
+      if (childId) {
+        query = query.or(`child_id.eq.${childId},child_id.is.null`);
+      }
+      const { count } = await query;
       giftsSaved = typeof count === 'number' ? count : 0;
     }
     setStats({
@@ -70,9 +71,9 @@ export function SubnavStatsProvider({ children }: { children: React.ReactNode })
     });
   }, []);
 
-  const refetch = useCallback(async () => {
+  const refetch = useCallback(async (childId?: string) => {
     if (!user) return;
-    await fetchStats();
+    await fetchStats(childId);
   }, [user, fetchStats]);
 
   useEffect(() => {

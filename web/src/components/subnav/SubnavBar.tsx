@@ -41,6 +41,7 @@ export function SubnavBar() {
   const remindersEnabled = stats?.remindersEnabled ?? false;
   const selectedChildId = searchParams.get('child') ?? '';
 
+  // Refetch children when pathname changes so new/edited children appear after add-children flow
   useEffect(() => {
     if (!user?.id) return;
     const supabase = createClient();
@@ -74,7 +75,14 @@ export function SubnavBar() {
               });
           });
       });
-  }, [user?.id]);
+  }, [user?.id, pathname]);
+
+  // Refetch stats when pathname or selected child changes so counts match (e.g. 0 for a new child when selected)
+  const subnavPage = pathname?.startsWith('/discover') || pathname?.startsWith('/my-ideas') || pathname?.startsWith('/family');
+  useEffect(() => {
+    if (!user?.id || !subnavPage) return;
+    refetch(selectedChildId || undefined);
+  }, [pathname, selectedChildId, user?.id, refetch, subnavPage]);
 
   const handleRemindersChange = useCallback(
     async (checked: boolean) => {
@@ -87,14 +95,14 @@ export function SubnavBar() {
           { onConflict: 'user_id' }
         );
         if (error) throw error;
-        await refetch();
+        await refetch(selectedChildId || undefined);
       } catch {
         setRemindersBusy(false);
         return;
       }
       setRemindersBusy(false);
     },
-    [user, refetch]
+    [user, refetch, selectedChildId]
   );
 
   if (!user || !stats) return null;

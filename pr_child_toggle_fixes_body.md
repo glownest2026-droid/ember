@@ -38,6 +38,13 @@
 
 After opening the PR, use the Vercel bot comment or the "Deployments" tab for the preview URL (e.g. `https://ember-git-fix-child-toggle-labels-and-context-…vercel.app`).
 
+## Follow-up: new child in toggle + stats refresh (same PR)
+
+- **Issue:** After adding a new child (e.g. "Geraldine"), the child did not appear in the subnav toggle, and stat counters did not refresh to 0 for that child.
+- **Fix 1 – Toggle:** SubnavBar now refetches the children list when `pathname` changes. After redirect from add-children → /discover, the new child appears in the dropdown.
+- **Fix 2 – Stats:** New migration `supabase/sql/202603031000_subnav_stats_per_child.sql` adds optional `p_child_id` to `get_my_subnav_stats()`. When provided, counts are filtered to that child (items where `child_id = p_child_id OR child_id IS NULL`). SubnavStatsContext `refetch(childId?)` passes the selected child; SubnavBar calls `refetch(selectedChildId)` when pathname or selected child changes, so selecting the new child shows 0 ideas / 0 toys / 0 gifts.
+- **Apply migration:** Run the new SQL migration in Supabase so per-child stats work. Without it, stats remain all-children when a child is selected.
+
 ## Build
 
 - `pnpm build` (from `web`) passes.

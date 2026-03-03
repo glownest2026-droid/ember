@@ -4,6 +4,7 @@ _Last updated: 2026-03-03_
 ## fix(child-toggle): dropdown labels, family/discover/my-ideas use child param, list filter by child (2026-03-03)
 - Branch: fix/child-toggle-labels-and-context
 - Snags: (1) Subnav child dropdown: show "Name – Aged X" or "Gender – Aged X" instead of "Child 1/2/3"; robust query (child_name/display_name then fallback with gender). (2) Family: pass params.child to FamilyDashboardClient; highlight and scroll to selected child card. (3) Discover: read ?child= in searchParams; pass initialChildId to DiscoveryPageClient; show "Ideas for Alex" / "Chosen for Alex" when child selected; redirect from /discover preserves child. (4) My-ideas: fetch user_list_items with child_id; filter list by selected child (child_id = selected OR null); counts and tabs reflect filtered list.
+- **Follow-up (same PR):** New child not in toggle after add; stats not 0 for new child. (5) SubnavBar refetches children when pathname changes so new/edited child appears after add-children. (6) get_my_subnav_stats(p_child_id) optional param; when set, counts only items for that child (child_id = p_child_id OR null). SubnavStatsContext refetch(childId); SubnavBar calls refetch(selectedChildId) when pathname/selectedChildId change so stat counters show per-child (e.g. 0 for new child). Migration: 202603031000_subnav_stats_per_child.sql.
 
 ## fix(snag-pack): mobile nav 1-click, child name on discover/my-ideas, subnav toggle + deeplinks (2026-03-03)
 - Branch: fix/snag-pack-nav-discover-subnav
