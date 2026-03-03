@@ -336,6 +336,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
         if (row.kind === 'product' && row.product_id) payload.p_product_id = row.product_id;
         else if (row.kind === 'category' && row.category_type_id) payload.p_category_type_id = row.category_type_id;
         else if (row.kind === 'idea' && row.ux_wrapper_id) payload.p_ux_wrapper_id = row.ux_wrapper_id;
+        payload.p_child_id = row.child_id ?? null;
         const { error } = await supabase.rpc('upsert_user_list_item', payload);
         if (!error) {
           await fetchList();
@@ -428,7 +429,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
           }
         });
     },
-    [user, refetchSubnavStats, fetchList]
+    [user, refetchSubnavStats, fetchList, selectedChildId]
   );
 
   const openExamplesModal = useCallback((row: ListItemRow) => {

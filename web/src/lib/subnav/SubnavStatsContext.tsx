@@ -58,7 +58,7 @@ export function SubnavStatsProvider({ children }: { children: React.ReactNode })
     if (typeof raw?.gifts_saved_count !== 'number') {
       let query = supabase.from('user_list_items').select('id', { count: 'exact', head: true }).eq('user_id', u.id).eq('gift', true);
       if (childId) {
-        query = query.or(`child_id.eq.${childId},child_id.is.null`);
+        query = query.eq('child_id', childId);
       }
       const { count } = await query;
       giftsSaved = typeof count === 'number' ? count : 0;
