@@ -1,6 +1,6 @@
 -- Optional per-child filter for get_my_subnav_stats.
--- When p_child_id is set, counts only items for that child (child_id = p_child_id OR child_id IS NULL).
--- Safe to run after 202602261000_subnav_gifts_count.
+-- When p_child_id is set, counts ONLY items saved to that child (child_id = p_child_id). No inheritance of unassigned.
+-- When p_child_id is null, aggregates all items. Safe to run after 202602261000_subnav_gifts_count.
 
 CREATE OR REPLACE FUNCTION public.get_my_subnav_stats(p_child_id UUID DEFAULT NULL)
 RETURNS JSON
@@ -26,19 +26,20 @@ BEGIN
   END IF;
 
   IF p_child_id IS NOT NULL THEN
+    -- Per child only: items explicitly saved to this child. No unassigned (child_id IS NULL) items.
     SELECT count(*)::INT INTO toys_count
     FROM public.user_list_items uli
-    WHERE uli.user_id = uid AND (uli.child_id = p_child_id OR uli.child_id IS NULL)
+    WHERE uli.user_id = uid AND uli.child_id = p_child_id
       AND uli.kind = 'product' AND (uli.want = true OR uli.have = true);
 
     SELECT count(*)::INT INTO ideas_count
     FROM public.user_list_items uli
-    WHERE uli.user_id = uid AND (uli.child_id = p_child_id OR uli.child_id IS NULL)
+    WHERE uli.user_id = uid AND uli.child_id = p_child_id
       AND uli.kind IN ('idea', 'category') AND (uli.want = true OR uli.have = true);
 
     SELECT count(*)::INT INTO gifts_count
     FROM public.user_list_items uli
-    WHERE uli.user_id = uid AND (uli.child_id = p_child_id OR uli.child_id IS NULL) AND uli.gift = true;
+    WHERE uli.user_id = uid AND uli.child_id = p_child_id AND uli.gift = true;
   ELSE
     SELECT count(*)::INT INTO toys_count
     FROM public.user_list_items
