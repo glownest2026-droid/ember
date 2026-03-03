@@ -1,6 +1,16 @@
 # CTO Snapshot (Source of Truth)
 _Last updated: 2026-03-03_
 
+## feat(family): Figma Make overhaul on /family (2026-03-03)
+- Branch: feat/family-figma-make-overhaul
+- **Route:** `/family` (unchanged). App shell (ConditionalHeader, SubnavGate) preserved.
+- **UI:** Manage My Family page replaced with Figma Make design: header (title + Settings), left column (Child profiles section with grid of cards + Add a child CTA + Add another child card), right column on desktop (hero image, 2 secondary images, “Growing together” card). Layout: `max-w-[90rem]`, `lg:grid-cols-[1fr_400px]`, responsive; sidebar hidden on mobile.
+- **Data wiring (unchanged):** `children` table (id, birthdate, gender, age_band); per-child stats via `get_my_subnav_stats(p_child_id)` (ideas_saved_count, toys_saved_count, gifts_saved_count). No DB schema or RLS changes.
+- **Privacy:** No child name displayed; card title “Little One”, avatar initial from deterministic `getAvatarInitial(child.id)` (no PII).
+- **Files:** `web/src/app/family/page.tsx` → uses `FamilyFigmaClient`; `web/src/components/figma/family/*` (FamilyFigmaClient, ChildProfilesSection, ChildProfileCard, AddChildCard, EmptyChildProfiles, GenderIcon, ImageWithFallback, utils). Sidebar images: Unsplash URLs (existing remotePatterns).
+- **Verification:** Sign in → go to /family → see new layout; child cards show birthdate, age, ideas/toys/gifts; Edit → /add-children/[id]; Add a child → /add-children; Settings → /account; Go to My ideas → /my-ideas. ?saved=1 / ?deleted=1 toasts still work; ?child=id scrolls to card.
+- **Known debt:** Gender tooltip uses native `title` (no Radix); optional later: Radix Tooltip for exact Figma behaviour.
+
 ## fix(my-ideas): My List grid filtered by selected child (2026-03-03)
 - Branch: fix/my-ideas-grid-filter-by-child
 - Bug: On /my-ideas with a child selected in subnav (e.g. Geraldine, "1 idea"), the My List grid showed all items (9 ideas, 3 toys, 3 gifts). Grid was not wired to child.

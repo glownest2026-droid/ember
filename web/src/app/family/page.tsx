@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { createClient } from '@/utils/supabase/server';
 import { FamilySignInRequired } from '@/components/family/FamilySignInRequired';
-import { FamilyDashboardClient } from '@/components/family/FamilyDashboardClient';
+import { FamilyFigmaClient } from '@/components/figma/family/FamilyFigmaClient';
 
 /** /family — Manage My Family dashboard (authenticated). Shell only; no DB reads/writes. */
 export default async function FamilyPage({
@@ -24,7 +24,7 @@ export default async function FamilyPage({
 
   return (
     <div className="container-wrap min-h-screen py-6">
-      <FamilyDashboardClient
+      <FamilyFigmaClient
         saved={params.saved === '1'}
         deleted={params.deleted === '1'}
         initialChildId={params.child ?? undefined}
