@@ -44,14 +44,14 @@ export default function DiscoverStickyHeader() {
 
   return (
     <header
-      className="sticky top-0 left-0 right-0 z-50 bg-[var(--ember-surface-primary)] border-b border-[var(--ember-border-subtle)]"
+      className="sticky top-0 left-0 right-0 z-50 bg-[var(--ember-surface-primary)] border-b border-[var(--ember-border-subtle)] w-full min-w-0 overflow-hidden"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         minHeight: 'var(--header-height)',
       }}
     >
-      <div className="h-full max-w-[90rem] mx-auto px-6 lg:px-12 py-5">
-        <div className="flex items-center justify-between gap-6">
+      <div className="h-full w-full min-w-0 max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-12 py-5">
+        <div className="flex items-center justify-between gap-2 sm:gap-6 min-w-0">
           {/* Mobile: hamburger first (top-left), then logo, then nav */}
           <button
             type="button"
@@ -70,19 +70,19 @@ export default function DiscoverStickyHeader() {
                 scrollToTop();
               }
             }}
-            className="flex items-center gap-3 min-w-0 shrink-0 leading-none"
+            className="flex items-center gap-2 sm:gap-3 min-w-0 shrink leading-none overflow-hidden"
             aria-label="Ember home"
           >
             <Image
               src={EMBER_LOGO_SRC}
               alt=""
-              className="h-12 w-auto object-contain flex-shrink-0"
+              className="h-10 w-auto min-w-0 shrink-0 object-contain sm:h-12"
               width={96}
               height={96}
               priority
             />
             <span
-              className="text-2xl text-[var(--ember-text-high)] truncate whitespace-nowrap"
+              className="text-xl sm:text-2xl text-[var(--ember-text-high)] truncate whitespace-nowrap"
               style={{ fontWeight: 500 }}
             >
               Ember
@@ -90,7 +90,7 @@ export default function DiscoverStickyHeader() {
           </Link>
 
           {/* Mobile: signed out = Sign in + Get started in bar; signed in = 4 nav icons in bar (one less click) */}
-          <nav className="md:hidden flex items-center gap-2 shrink-0">
+          <nav className="md:hidden flex items-center gap-1 sm:gap-2 shrink-0 min-w-0">
             {user ? (
               <>
                 <Link

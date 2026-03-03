@@ -95,16 +95,16 @@ export function SubnavBar() {
 
   return (
     <div
-      className="sticky left-0 right-0 z-40 border-b"
+      className="sticky left-0 right-0 z-40 border-b w-full min-w-0 overflow-hidden"
       style={{
         top: 'calc(var(--header-height) + env(safe-area-inset-top, 0px))',
         borderColor: 'var(--ember-border-subtle, #E5E7EB)',
         backgroundColor: 'var(--ember-surface-secondary, #F9FAFB)',
       }}
     >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 w-full">
+      <div className="mx-auto max-w-6xl w-full min-w-0 px-4 sm:px-6">
         {/* First row: Child toggle (amber CTA) first, then + Add a child as secondary */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between py-3 gap-3">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between py-3 gap-3 min-w-0">
           <div className="flex items-center gap-3 lg:gap-6">
             {/* Child selector = first (amber) CTA */}
             <div className="flex items-center gap-2 min-w-0 max-w-[12rem] sm:max-w-[14rem]">

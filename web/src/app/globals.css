@@ -60,7 +60,7 @@
 }
 
 /* Background wash + crisp text rendering (Brandbook: ember-bg-canvas fallback).
-   Note: overflow-x not set on html/body so position:sticky works on nav bars. */
+   overflow-x: hidden keeps mobile view fixed to display width (no horizontal scroll). */
 html, body {
   background: linear-gradient(180deg, var(--brand-bg-1, var(--ember-bg-canvas)) 0%, var(--brand-bg-2, var(--ember-surface-primary)) 100%);
   color: var(--brand-text, var(--ember-text-high));
@@ -69,6 +69,8 @@ html, body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Brandbook: H1/H2 Serif (editorial), H3+ Sans (UI) */
