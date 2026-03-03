@@ -1,6 +1,12 @@
 # CTO Snapshot (Source of Truth)
 _Last updated: 2026-03-03_
 
+## fix(my-ideas): My List grid filtered by selected child (2026-03-03)
+- Branch: fix/my-ideas-grid-filter-by-child
+- Bug: On /my-ideas with a child selected in subnav (e.g. Geraldine, "1 idea"), the My List grid showed all items (9 ideas, 3 toys, 3 gifts). Grid was not wired to child.
+- Root cause: (1) childFilteredItems included `child_id == null` when a child was selected (inherited unassigned). (2) When URL had no ?child= (All children), fetchChildren defaulted selectedChildId to list[0].id so grid showed first child + unassigned instead of all.
+- Fix: MyIdeasClient: filter to only `child_id === selectedChildId` when a child is selected (no inheritance). When initialChildId absent, keep selectedChildId null and sync from URL so "All children" shows all items. Effect syncs selectedChildId to null when initialChildId is cleared.
+
 ## fix(child-toggle): dropdown labels, family/discover/my-ideas use child param, list filter by child (2026-03-03)
 - Branch: fix/child-toggle-labels-and-context
 - Snags: (1) Subnav child dropdown: show "Name – Aged X" or "Gender – Aged X" instead of "Child 1/2/3"; robust query (child_name/display_name then fallback with gender). (2) Family: pass params.child to FamilyDashboardClient; highlight and scroll to selected child card. (3) Discover: read ?child= in searchParams; pass initialChildId to DiscoveryPageClient; show "Ideas for Alex" / "Chosen for Alex" when child selected; redirect from /discover preserves child. (4) My-ideas: fetch user_list_items with child_id; filter list by selected child (child_id = selected OR null); counts and tabs reflect filtered list.

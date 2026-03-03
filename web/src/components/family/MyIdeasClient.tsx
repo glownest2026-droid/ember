@@ -141,6 +141,8 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     if (list.length > 0) {
       setSelectedChildId((prev) => {
         if (initialChildId && list.some((c) => c.id === initialChildId)) return initialChildId;
+        // No child in URL (All children): keep null so grid shows all items.
+        if (initialChildId == null || initialChildId === '') return null;
         if (prev && list.some((c) => c.id === prev)) return prev;
         return list[0].id;
       });
@@ -152,7 +154,9 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
   }, [fetchChildren]);
 
   useEffect(() => {
-    if (initialChildId && children.some((c) => c.id === initialChildId)) {
+    if (initialChildId == null || initialChildId === '') {
+      setSelectedChildId(null);
+    } else if (children.some((c) => c.id === initialChildId)) {
       setSelectedChildId(initialChildId);
     }
   }, [initialChildId, children]);
@@ -304,9 +308,11 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     }
   }, [items]);
 
+  // When a child is selected: show only items saved to that child (no inheritance of unassigned).
+  // When no child selected (All children): show all items.
   const childFilteredItems =
     selectedChildId
-      ? items.filter((r) => r.child_id === selectedChildId || r.child_id == null)
+      ? items.filter((r) => r.child_id === selectedChildId)
       : items;
   const ideasItems = childFilteredItems.filter((r) => (r.kind === 'idea' || r.kind === 'category') && (r.want || r.have));
   const productsItems = childFilteredItems.filter((r) => r.kind === 'product' && (r.want || r.have));
