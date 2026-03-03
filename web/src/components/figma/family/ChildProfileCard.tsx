@@ -4,12 +4,14 @@ import Link from 'next/link';
 import { GenderIcon } from './GenderIcon';
 import { formatBirthMonthYear, formatAge, getAvatarInitial } from './utils';
 
-/** Ember child from DB (no name field – privacy). */
+/** Ember child from DB. child_name/display_name optional (what parent calls them). */
 export interface FamilyChild {
   id: string;
   birthdate: string | null;
   gender: string | null;
   age_band: string | null;
+  child_name?: string | null;
+  display_name?: string | null;
 }
 
 /** Per-child stats from get_my_subnav_stats(p_child_id). */
@@ -25,9 +27,12 @@ type ChildProfileCardProps = {
   onEdit?: (id: string) => void;
 };
 
-/** Single child card – exact Figma layout. Privacy: no name; display "Little One" and initial from id. */
+/** Single child card – exact Figma layout. Shows real child_name/display_name when set, else "Little One". */
 export function ChildProfileCard({ child, stats }: ChildProfileCardProps) {
-  const initial = getAvatarInitial(child.id);
+  const displayName = (child.child_name || child.display_name)?.trim() || 'Little One';
+  const initial = displayName !== 'Little One'
+    ? displayName.charAt(0).toUpperCase()
+    : getAvatarInitial(child.id);
   const savedIdeas = stats?.ideas ?? 0;
   const savedToys = stats?.toys ?? 0;
   const savedGifts = stats?.gifts ?? 0;
@@ -52,7 +57,7 @@ export function ChildProfileCard({ child, stats }: ChildProfileCardProps) {
           <div className="flex items-start justify-between gap-3 mb-3">
             <div className="flex-1 min-w-0">
               <h3 className="text-lg sm:text-xl font-medium text-[#1A1E23] mb-0.5">
-                Little One
+                {displayName}
               </h3>
               <p className="text-xs sm:text-sm text-[#5C646D]">
                 Born {formatBirthMonthYear(child.birthdate)}

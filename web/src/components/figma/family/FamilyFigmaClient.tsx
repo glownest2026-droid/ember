@@ -38,7 +38,7 @@ export function FamilyFigmaClient({
     const supabase = createClient();
     const { data } = await supabase
       .from('children')
-      .select('id, birthdate, gender, age_band')
+      .select('id, birthdate, gender, age_band, child_name, display_name')
       .order('created_at', { ascending: false });
     const list = (data ?? []) as FamilyChild[];
     setChildren(list.map((c) => ({ ...c, stats: null })));
