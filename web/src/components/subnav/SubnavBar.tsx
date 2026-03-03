@@ -67,12 +67,9 @@ export function SubnavBar() {
   const remindersEnabled = stats?.remindersEnabled ?? false;
   const selectedChildId = searchParams.get('child') ?? '';
 
-  // Refetch children when pathname changes so new/edited children appear after add-children flow.
-  // Try full columns first (child_name, display_name) so "Geraldine"/"Alex" show; fallback to display_name only, then gender/age.
-  useEffect(() => {
+  const fetchChildren = useCallback(() => {
     if (!user?.id) return;
     const supabase = createClient();
-    // 1) Full query: child_name + display_name (form saves to child_name)
     supabase
       .from('children')
       .select('id, child_name, display_name, age_band, gender')
@@ -82,7 +79,6 @@ export function SubnavBar() {
           setChildren(data.map((r) => toSubnavChild(r as Record<string, unknown>)));
           return;
         }
-        // 2) Without child_name (in case column missing in some envs)
         supabase
           .from('children')
           .select('id, display_name, age_band, gender')
@@ -92,7 +88,6 @@ export function SubnavBar() {
               setChildren(data2.map((r) => toSubnavChild({ ...(r as object), child_name: null } as Record<string, unknown>)));
               return;
             }
-            // 3) Core only: gender + age for "Boy - Aged 2" / "Girl - Aged 2-3y"
             supabase
               .from('children')
               .select('id, gender, age_band')
@@ -104,7 +99,28 @@ export function SubnavBar() {
               });
           });
       });
-  }, [user?.id, pathname]);
+  }, [user?.id]);
+
+  // Refetch when pathname changes (e.g. after redirect from add-children) so new/edited names appear in toggle.
+  useEffect(() => {
+    fetchChildren();
+    const isSubnav = pathname?.startsWith('/discover') || pathname?.startsWith('/my-ideas') || pathname?.startsWith('/family');
+    if (isSubnav) {
+      const t = setTimeout(fetchChildren, 300);
+      return () => clearTimeout(t);
+    }
+  }, [pathname, fetchChildren]);
+
+  // Refetch when tab becomes visible so returning from add-children or another tab shows latest list.
+  useEffect(() => {
+    if (!user?.id) return;
+    const onVisible = () => {
+      const isSubnav = pathname?.startsWith('/discover') || pathname?.startsWith('/my-ideas') || pathname?.startsWith('/family');
+      if (isSubnav && document.visibilityState === 'visible') fetchChildren();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [user?.id, pathname, fetchChildren]);
 
   // Refetch stats when pathname or selected child changes so counts match (e.g. 0 for a new child when selected)
   const subnavPage = pathname?.startsWith('/discover') || pathname?.startsWith('/my-ideas') || pathname?.startsWith('/family');

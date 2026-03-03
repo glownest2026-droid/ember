@@ -31,7 +31,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
   const [childName, setChildName] = useState(initial?.child_name ?? '');
   const [dateOfBirth, setDateOfBirth] = useState(initial?.birthdate ?? '');
   const [gender, setGender] = useState(initial?.gender ?? '');
-  const [consentGiven, setConsentGiven] = useState(false);
+  const [consentGiven, setConsentGiven] = useState(!!initial?.id);
   const [remindersEnabled, setRemindersEnabled] = useState(true);
   const [reminderFrequency, setReminderFrequency] = useState('monthly');
   const [coParentEmail, setCoParentEmail] = useState('');
@@ -232,7 +232,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
             ) : (
               <>
                 <Sparkles className="w-5 h-5" strokeWidth={2} />
-                <span>Add a child</span>
+                <span>{initial?.id ? 'Save changes' : 'Add a child'}</span>
               </>
             )}
           </button>
