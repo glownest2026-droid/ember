@@ -1,5 +1,9 @@
 # CTO Snapshot (Source of Truth)
-_Last updated: 2026-02-28_
+_Last updated: 2026-03-03_
+
+## fix(snag-pack): mobile nav 1-click, child name on discover/my-ideas, subnav toggle + deeplinks (2026-03-03)
+- Branch: fix/snag-pack-nav-discover-subnav
+- Snags: (A) Mobile nav: signed out = Sign in + Get started in main bar (no hamburger click); signed in = Discover/My Saves/Marketplace/Family icons in main bar + same links in hamburger. (B) /discover and my-ideas: "My child" replaced with child's name from children.child_name/display_name when populated. (C) Subnav: child toggle stays on current page (discover/my-ideas/family) with ?child=; first CTA = child selector (amber), second = "+ Add a child"; stat counters (ideas/toys/gifts) link to /my-ideas?tab=ideas|products|gifts. MyIdeasClient accepts initialTab from URL for deeplinks.
 
 ## fix(snag-pack): nav 4+2, discover hero hide when signed-in, family/my-ideas split, Examples modal (2026-02-28)
 - Branch: fix/snag-pack-nav-and-family

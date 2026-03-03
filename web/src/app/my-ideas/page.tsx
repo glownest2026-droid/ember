@@ -8,7 +8,7 @@ import { MyIdeasClient } from '@/components/family/MyIdeasClient';
 export default async function MyIdeasPage({
   searchParams,
 }: {
-  searchParams: Promise<{ child?: string }>;
+  searchParams: Promise<{ child?: string; tab?: string }>;
 }) {
   const params = await searchParams;
   const supabase = createClient();
@@ -24,7 +24,7 @@ export default async function MyIdeasPage({
 
   return (
     <div className="container-wrap min-h-screen py-6">
-      <MyIdeasClient initialChildId={params.child ?? undefined} />
+      <MyIdeasClient initialChildId={params.child ?? undefined} initialTab={params.tab ?? undefined} />
     </div>
   );
 }

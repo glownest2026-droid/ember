@@ -14,12 +14,14 @@ const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
 
 type TabId = 'ideas' | 'products' | 'gifts';
 
-/** Child profile from DB (no name field – privacy). */
+/** Child profile from DB. child_name/display_name optional (what parent calls them in UI). */
 interface ChildProfile {
   id: string;
   birthdate: string | null;
   gender: string | null;
   age_band: string | null;
+  child_name?: string | null;
+  display_name?: string | null;
 }
 
 /** List item from user_list_items; joined names and image (Supabase may return relation as object or single-element array). */
@@ -87,10 +89,16 @@ function formatSavedTime(createdAt: string): string {
   return `Saved ${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) === 1 ? '' : 's'} ago`;
 }
 
-export function MyIdeasClient({ initialChildId }: { initialChildId?: string } = {}) {
+const TAB_IDS: TabId[] = ['ideas', 'products', 'gifts'];
+function parseTab(t: string | undefined): TabId {
+  if (t && TAB_IDS.includes(t as TabId)) return t as TabId;
+  return 'ideas';
+}
+
+export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?: string; initialTab?: string } = {}) {
   const [children, setChildren] = useState<ChildProfile[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(initialChildId ?? null);
-  const [activeTab, setActiveTab] = useState<TabId>('ideas');
+  const [activeTab, setActiveTab] = useState<TabId>(() => parseTab(initialTab));
   const [items, setItems] = useState<ListItemRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -113,17 +121,19 @@ export function MyIdeasClient({ initialChildId }: { initialChildId?: string } = 
   const remindersEnabled = stats?.remindersEnabled ?? false;
 
   const selectedChild = children.find((c) => c.id === selectedChildId) ?? children[0] ?? null;
-  const displayName = 'My child';
+  const displayName = selectedChild
+    ? (selectedChild.child_name || selectedChild.display_name)?.trim() || 'My child'
+    : 'My child';
   const displayAgeBand = selectedChild ? (selectedChild.age_band || (selectedChild.birthdate ? calculateAgeBand(selectedChild.birthdate) : null) || '—') : '—';
   const personalizationSubtext = selectedChild
-    ? `My child (aged ${displayAgeBand}): —.`
+    ? `${displayName} (aged ${displayAgeBand}): —.`
     : 'Add a child profile to see tailored next steps.';
 
   const fetchChildren = useCallback(async () => {
     const supabase = createClient();
     const { data } = await supabase
       .from('children')
-      .select('id, birthdate, gender, age_band')
+      .select('id, birthdate, gender, age_band, child_name, display_name')
       .order('created_at', { ascending: false });
     const list = (data ?? []) as ChildProfile[];
     setChildren(list);
@@ -145,6 +155,10 @@ export function MyIdeasClient({ initialChildId }: { initialChildId?: string } = 
       setSelectedChildId(initialChildId);
     }
   }, [initialChildId, children]);
+
+  useEffect(() => {
+    if (initialTab != null && initialTab !== '') setActiveTab(parseTab(initialTab));
+  }, [initialTab]);
 
   const fetchList = useCallback(async () => {
     const supabase = createClient();
@@ -419,7 +433,7 @@ export function MyIdeasClient({ initialChildId }: { initialChildId?: string } = 
         onSave={handleSaveProductFromExamples}
         onHave={handleHaveProductFromExamples}
         getProductUrl={getProductUrl}
-        ageRangeLabel={displayAgeBand !== '—' ? `${displayAgeBand}` : 'My child'}
+        ageRangeLabel={displayAgeBand !== '—' ? `${displayAgeBand}` : displayName}
       />
       <header
         className="border-b bg-[var(--ember-surface-primary)]"
@@ -452,7 +466,7 @@ export function MyIdeasClient({ initialChildId }: { initialChildId?: string } = 
                 style={{ backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', border: '1px solid var(--ember-border-subtle)' }}
                 disabled
               >
-                My child · —
+                {displayName} · —
               </button>
             ) : (
               children.map((child) => {
@@ -470,7 +484,7 @@ export function MyIdeasClient({ initialChildId }: { initialChildId?: string } = 
                         : { backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', border: '1px solid var(--ember-border-subtle)' }
                     }
                   >
-                    {displayName} · {ageBand}
+                    {(child.child_name || child.display_name)?.trim() || 'My child'} · {ageBand}
                   </button>
                 );
               })

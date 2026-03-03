@@ -79,6 +79,57 @@ export default function DiscoverStickyHeader() {
             </span>
           </Link>
 
+          {/* Mobile: signed out = Sign in + Get started in bar; signed in = 4 nav icons in bar (one less click) */}
+          <nav className="md:hidden flex items-center gap-2 shrink-0">
+            {user ? (
+              <>
+                <Link
+                  href="/discover"
+                  className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                  aria-label="Discover"
+                >
+                  <Compass className="w-5 h-5" strokeWidth={2} />
+                </Link>
+                <Link
+                  href="/my-ideas"
+                  className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                  aria-label="My Saves"
+                >
+                  <Bookmark className="w-5 h-5" strokeWidth={2} />
+                </Link>
+                <Link
+                  href="/products"
+                  className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                  aria-label="Marketplace"
+                >
+                  <ShoppingBag className="w-5 h-5" strokeWidth={2} />
+                </Link>
+                <Link
+                  href="/family"
+                  className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                  aria-label="Family"
+                >
+                  <Users className="w-5 h-5" strokeWidth={2} />
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href={`/signin${pathname && pathname !== '/' ? `?next=${encodeURIComponent(pathname)}` : ''}`}
+                  className="text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] whitespace-nowrap"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href={getStartedHref}
+                  className="px-3 py-1.5 text-sm font-medium bg-[var(--ember-accent-base)] text-white rounded-lg hover:bg-[var(--ember-accent-hover)] transition-colors whitespace-nowrap"
+                >
+                  Get started
+                </Link>
+              </>
+            )}
+          </nav>
+
           {/* Desktop nav: 4 main links (icon + text) + 2 footer links */}
           <nav className="hidden md:flex items-center gap-6 shrink-0">
             {user ? (
