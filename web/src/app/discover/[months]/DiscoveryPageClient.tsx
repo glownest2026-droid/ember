@@ -91,6 +91,7 @@ export default function DiscoveryPageClient({
     open: boolean;
     signedIn: boolean;
     signinUrl: string;
+    viewMyListHref?: string;
   }>({ open: false, signedIn: false, signinUrl: '' });
   const saveModalFocusRef = useRef<HTMLButtonElement | null>(null);
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
@@ -311,6 +312,7 @@ export default function DiscoveryPageClient({
             open: true,
             signedIn: true,
             signinUrl: getSigninUrlForCategory(categoryId),
+            viewMyListHref: withChildParam('/my-ideas?tab=ideas'),
           });
           break;
         }
@@ -349,6 +351,7 @@ export default function DiscoveryPageClient({
             open: true,
             signedIn: true,
             signinUrl: getSigninUrl(productId),
+            viewMyListHref: withChildParam('/my-ideas?tab=products'),
           });
           break;
         }
@@ -576,6 +579,7 @@ export default function DiscoveryPageClient({
           open: true,
           signedIn: true,
           signinUrl: getSigninUrlForCategory(categoryId),
+          viewMyListHref: withChildParam('/my-ideas?tab=ideas'),
         });
       },
       openAuthModal: ({ signinUrl }) =>
@@ -642,6 +646,7 @@ export default function DiscoveryPageClient({
           open: true,
           signedIn: true,
           signinUrl: getSigninUrl(productId),
+          viewMyListHref: withChildParam('/my-ideas?tab=products'),
         });
       },
       openAuthModal: ({ signinUrl }) =>
@@ -948,6 +953,7 @@ export default function DiscoveryPageClient({
           onClose={() => setSaveModal((s) => ({ ...s, open: false }))}
           signedIn={saveModal.signedIn}
           signinUrl={saveModal.signinUrl}
+          viewMyListHref={saveModal.viewMyListHref}
           onCloseFocusRef={saveModalFocusRef}
           onAuthSuccess={handleAuthSuccess}
         />

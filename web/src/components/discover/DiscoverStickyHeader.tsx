@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useReducedMotion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
@@ -17,6 +17,9 @@ const EMBER_LOGO_SRC = 'https://shjccflwlayacppuyskl.supabase.co/storage/v1/obje
  */
 export default function DiscoverStickyHeader() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const childParam = searchParams?.get('child') ?? '';
+  const withChild = (path: string) => (childParam ? `${path}${path.includes('?') ? '&' : '?'}child=${encodeURIComponent(childParam)}` : path);
   const shouldReduceMotion = useReducedMotion() ?? false;
   const [user, setUser] = useState<AuthUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -94,14 +97,14 @@ export default function DiscoverStickyHeader() {
             {user ? (
               <>
                 <Link
-                  href="/discover"
+                  href={withChild('/discover')}
                   className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
                   aria-label="Discover"
                 >
                   <Compass className="w-5 h-5" strokeWidth={2} />
                 </Link>
                 <Link
-                  href="/my-ideas"
+                  href={withChild('/my-ideas')}
                   className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
                   aria-label="My Saves"
                 >
@@ -115,7 +118,7 @@ export default function DiscoverStickyHeader() {
                   <ShoppingBag className="w-5 h-5" strokeWidth={2} />
                 </Link>
                 <Link
-                  href="/family"
+                  href={withChild('/family')}
                   className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
                   aria-label="Family"
                 >
@@ -145,7 +148,7 @@ export default function DiscoverStickyHeader() {
             {user ? (
               <>
                 <Link
-                  href="/discover"
+                  href={withChild('/discover')}
                   className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
                   aria-label="Discover"
                 >
@@ -153,7 +156,7 @@ export default function DiscoverStickyHeader() {
                   Discover
                 </Link>
                 <Link
-                  href="/my-ideas"
+                  href={withChild('/my-ideas')}
                   className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
                   aria-label="My Saves"
                 >
@@ -169,7 +172,7 @@ export default function DiscoverStickyHeader() {
                   Marketplace
                 </Link>
                 <Link
-                  href="/family"
+                  href={withChild('/family')}
                   className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
                   aria-label="Family"
                 >
@@ -224,7 +227,7 @@ export default function DiscoverStickyHeader() {
             {user ? (
               <>
                 <Link
-                  href="/discover"
+                  href={withChild('/discover')}
                   onClick={() => setMobileMenuOpen(false)}
                   className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
                 >
@@ -232,7 +235,7 @@ export default function DiscoverStickyHeader() {
                   Discover
                 </Link>
                 <Link
-                  href="/my-ideas"
+                  href={withChild('/my-ideas')}
                   onClick={() => setMobileMenuOpen(false)}
                   className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
                 >
@@ -248,7 +251,7 @@ export default function DiscoverStickyHeader() {
                   Marketplace
                 </Link>
                 <Link
-                  href="/family"
+                  href={withChild('/family')}
                   onClick={() => setMobileMenuOpen(false)}
                   className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
                 >
