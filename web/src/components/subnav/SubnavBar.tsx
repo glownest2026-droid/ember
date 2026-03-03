@@ -17,23 +17,39 @@ type SubnavChild = {
   gender?: string | null;
 };
 
-/** Normalize row from API (may use snake_case) into SubnavChild. */
-function toSubnavChild(r: Record<string, unknown>, index: number): SubnavChild {
-  const id = (r.id as string) ?? '';
-  const child_name = (r.child_name ?? (r as Record<string, unknown>).child_name) as string | null | undefined;
-  const display_name = (r.display_name ?? (r as Record<string, unknown>).display_name) as string | null | undefined;
-  const age_band = (r.age_band ?? (r as Record<string, unknown>).age_band) as string | null | undefined;
-  const gender = (r.gender ?? (r as Record<string, unknown>).gender) as string | null | undefined;
-  return { id, child_name: child_name ?? null, display_name: display_name ?? null, age_band: age_band ?? null, gender: gender ?? null };
+/** Normalize row from API (snake_case from Postgres) into SubnavChild. Reads child_name/display_name so "Geraldine"/"Alex" show when set. */
+function toSubnavChild(r: Record<string, unknown>): SubnavChild {
+  const raw = r as Record<string, unknown>;
+  const id = (raw.id as string) ?? '';
+  const child_name = (raw.child_name ?? raw.childName) as string | null | undefined;
+  const display_name = (raw.display_name ?? raw.displayName) as string | null | undefined;
+  const age_band = (raw.age_band ?? raw.ageBand) as string | null | undefined;
+  const gender = (raw.gender) as string | null | undefined;
+  return {
+    id,
+    child_name: (child_name && String(child_name).trim()) || null,
+    display_name: (display_name && String(display_name).trim()) || null,
+    age_band: age_band ?? null,
+    gender: gender ?? null,
+  };
 }
 
-/** Option label: "Name - Aged X" or "Gender - Aged X" or "Child N". Prefer real name (child_name/display_name). */
+/** Map stored gender to display label: Boy / Girl (not "male"/"female"). */
+function genderToLabel(gender: string): string {
+  const g = gender.trim().toLowerCase();
+  if (g === 'male') return 'Boy';
+  if (g === 'female') return 'Girl';
+  return 'Child'; // other, prefer_not_to_say, or unknown
+}
+
+/** Option label: "Name - Aged X" or "Boy/Girl - Aged X" or "Child N". Prefer real name (child_name/display_name). */
 function childOptionLabel(c: SubnavChild, index: number): string {
   const name = (c.child_name || c.display_name)?.trim();
   const age = c.age_band?.trim();
-  const gender = c.gender?.trim();
-  if (name) return age ? `${name} – Aged ${age}` : name;
-  if (gender) return age ? `${gender} – Aged ${age}` : gender;
+  const genderRaw = c.gender?.trim();
+  const sep = ' - ';
+  if (name) return age ? `${name}${sep}Aged ${age}` : name;
+  if (genderRaw) return age ? `${genderToLabel(genderRaw)}${sep}Aged ${age}` : genderToLabel(genderRaw);
   return `Child ${index + 1}`;
 }
 
@@ -52,35 +68,38 @@ export function SubnavBar() {
   const selectedChildId = searchParams.get('child') ?? '';
 
   // Refetch children when pathname changes so new/edited children appear after add-children flow.
-  // Prefer query that includes child_name + display_name so "Geraldine"/"Alex" show; fallback to display_name only, then gender/age.
+  // Try full columns first (child_name, display_name) so "Geraldine"/"Alex" show; fallback to display_name only, then gender/age.
   useEffect(() => {
     if (!user?.id) return;
     const supabase = createClient();
+    // 1) Full query: child_name + display_name (form saves to child_name)
     supabase
       .from('children')
       .select('id, child_name, display_name, age_band, gender')
       .order('created_at', { ascending: false })
       .then(({ data, error }) => {
         if (!error && Array.isArray(data)) {
-          setChildren(data.map((r, i) => toSubnavChild(r as Record<string, unknown>, i)));
+          setChildren(data.map((r) => toSubnavChild(r as Record<string, unknown>)));
           return;
         }
+        // 2) Without child_name (in case column missing in some envs)
         supabase
           .from('children')
           .select('id, display_name, age_band, gender')
           .order('created_at', { ascending: false })
           .then(({ data: data2, error: err2 }) => {
             if (!err2 && Array.isArray(data2)) {
-              setChildren(data2.map((r, i) => toSubnavChild({ ...r, child_name: null } as Record<string, unknown>, i)));
+              setChildren(data2.map((r) => toSubnavChild({ ...(r as object), child_name: null } as Record<string, unknown>)));
               return;
             }
+            // 3) Core only: gender + age for "Boy - Aged 2" / "Girl - Aged 2-3y"
             supabase
               .from('children')
               .select('id, gender, age_band')
               .order('created_at', { ascending: false })
               .then(({ data: fallbackData }) => {
                 if (Array.isArray(fallbackData)) {
-                  setChildren(fallbackData.map((r, i) => toSubnavChild({ ...r, child_name: null, display_name: null } as Record<string, unknown>, i)));
+                  setChildren(fallbackData.map((r) => toSubnavChild({ ...(r as object), child_name: null, display_name: null } as Record<string, unknown>)));
                 }
               });
           });
