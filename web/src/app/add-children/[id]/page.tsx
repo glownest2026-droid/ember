@@ -15,7 +15,7 @@ export default async function EditChildPage({ params }: { params: Promise<{ id: 
 
   const { data: child, error } = await supabase
     .from('children')
-    .select('*')
+    .select('id, child_name, birthdate, gender')
     .eq('id', id)
     .eq('user_id', user.id)
     .single();
@@ -28,13 +28,14 @@ export default async function EditChildPage({ params }: { params: Promise<{ id: 
     );
   }
 
+  const row = child as { id: string; child_name?: string | null; birthdate?: string | null; gender?: string | null };
   return (
     <AddChildForm
       initial={{
-        id: child.id,
-        child_name: (child as { child_name?: string | null }).child_name ?? (child as { display_name?: string | null }).display_name ?? null,
-        birthdate: child.birthdate ?? null,
-        gender: child.gender ?? null,
+        id: row.id,
+        child_name: row.child_name ?? null,
+        birthdate: row.birthdate ?? null,
+        gender: row.gender ?? null,
       }}
       backHref="/family"
     />

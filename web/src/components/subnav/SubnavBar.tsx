@@ -70,24 +70,27 @@ export function SubnavBar() {
   const fetchChildren = useCallback(() => {
     if (!user?.id) return;
     const supabase = createClient();
+    // 1) Prefer child_name only (no display_name) so DBs without display_name column still show names
     supabase
       .from('children')
-      .select('id, child_name, display_name, age_band, gender')
+      .select('id, child_name, age_band, gender')
       .order('created_at', { ascending: false })
       .then(({ data, error }) => {
         if (!error && Array.isArray(data)) {
           setChildren(data.map((r) => toSubnavChild(r as Record<string, unknown>)));
           return;
         }
+        // 2) Try with display_name (for DBs that have it)
         supabase
           .from('children')
           .select('id, display_name, age_band, gender')
           .order('created_at', { ascending: false })
           .then(({ data: data2, error: err2 }) => {
             if (!err2 && Array.isArray(data2)) {
-              setChildren(data2.map((r) => toSubnavChild({ ...(r as object), child_name: null } as Record<string, unknown>)));
+              setChildren(data2.map((r) => toSubnavChild({ ...(r as object), child_name: (r as Record<string, unknown>).display_name } as Record<string, unknown>)));
               return;
             }
+            // 3) Core only: gender + age
             supabase
               .from('children')
               .select('id, gender, age_band')

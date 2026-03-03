@@ -26,7 +26,6 @@ export async function saveChild(formData: FormData, childId?: string) {
   const childData: Record<string, unknown> = {
     user_id: user.id,
     child_name: nameValue,
-    display_name: nameValue,
     birthdate: birthdate || null,
     gender: gender || null,
     age_band: age_band,
