@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
@@ -158,6 +158,17 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
 
   useEffect(() => {
     if (initialTab != null && initialTab !== '') setActiveTab(parseTab(initialTab));
+  }, [initialTab]);
+
+  const myListSectionRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (initialTab == null || initialTab === '') return;
+    const el = myListSectionRef.current ?? document.getElementById('my-list');
+    if (!el) return;
+    const t = setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+    return () => clearTimeout(t);
   }, [initialTab]);
 
   const fetchList = useCallback(async () => {
@@ -520,7 +531,9 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
 
         <div className="lg:grid lg:grid-cols-[1fr_340px] lg:gap-8">
           <div
-            className="rounded-xl border p-5 sm:p-6 mb-6 lg:mb-0"
+            id="my-list"
+            ref={myListSectionRef}
+            className="rounded-xl border p-5 sm:p-6 mb-6 lg:mb-0 scroll-mt-24"
             style={{
               backgroundColor: 'var(--ember-surface-primary)',
               borderColor: 'var(--ember-border-subtle)',

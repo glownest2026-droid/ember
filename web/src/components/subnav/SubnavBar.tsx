@@ -26,14 +26,29 @@ export function SubnavBar() {
   const selectedChildId = searchParams.get('child') ?? '';
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
     const supabase = createClient();
+    // Try full columns first (child_name, display_name from migrations); on error fallback to core columns so list always loads
     supabase
       .from('children')
       .select('id, child_name, display_name, age_band')
       .order('created_at', { ascending: false })
-      .then(({ data }) => setChildren((data as SubnavChild[]) ?? []));
-  }, [user]);
+      .then(({ data, error }) => {
+        if (!error) {
+          setChildren((data as SubnavChild[]) ?? []);
+          return;
+        }
+        // Fallback: same columns as FamilyDashboardClient (guaranteed to exist)
+        supabase
+          .from('children')
+          .select('id, birthdate, gender, age_band')
+          .order('created_at', { ascending: false })
+          .then(({ data: fallbackData }) => {
+            const list = (fallbackData ?? []) as { id: string; age_band?: string | null }[];
+            setChildren(list.map((c) => ({ id: c.id, child_name: null, display_name: null, age_band: c.age_band ?? null })));
+          });
+      });
+  }, [user?.id]);
 
   const handleRemindersChange = useCallback(
     async (checked: boolean) => {

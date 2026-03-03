@@ -52,6 +52,16 @@ export default function DiscoverStickyHeader() {
     >
       <div className="h-full max-w-[90rem] mx-auto px-6 lg:px-12 py-5">
         <div className="flex items-center justify-between gap-6">
+          {/* Mobile: hamburger first (top-left), then logo, then nav */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((o) => !o)}
+            className="md:hidden p-2 rounded-lg text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors shrink-0 order-first"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" strokeWidth={2} /> : <Menu className="w-6 h-6" strokeWidth={2} />}
+          </button>
           <Link
             href="/"
             onClick={(e) => {
@@ -201,17 +211,6 @@ export default function DiscoverStickyHeader() {
               </>
             )}
           </nav>
-
-          {/* Mobile menu button */}
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen((o) => !o)}
-            className="md:hidden p-2 rounded-lg text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" strokeWidth={2} /> : <Menu className="w-6 h-6" strokeWidth={2} />}
-          </button>
         </div>
       </div>
 
