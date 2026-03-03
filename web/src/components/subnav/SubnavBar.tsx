@@ -9,7 +9,23 @@ import { SimpleTooltip } from '@/components/ui/SimpleTooltip';
 import { createClient } from '@/utils/supabase/client';
 import { useState, useCallback, useEffect } from 'react';
 
-type SubnavChild = { id: string; child_name?: string | null; display_name?: string | null; age_band?: string | null };
+type SubnavChild = {
+  id: string;
+  child_name?: string | null;
+  display_name?: string | null;
+  age_band?: string | null;
+  gender?: string | null;
+};
+
+/** Option label: "Name - Aged X" or "Gender - Aged X" or "Child N". */
+function childOptionLabel(c: SubnavChild, index: number): string {
+  const name = (c.child_name || c.display_name)?.trim();
+  const age = c.age_band?.trim();
+  const gender = c.gender?.trim();
+  if (name) return age ? `${name} – Aged ${age}` : name;
+  if (gender) return age ? `${gender} – Aged ${age}` : gender;
+  return `Child ${index + 1}`;
+}
 
 const REMINDERS_TOOLTIP =
   "We'll automatically send you proactive play ideas at just the right time for your child's next developmental needs.";
@@ -28,7 +44,7 @@ export function SubnavBar() {
   useEffect(() => {
     if (!user?.id) return;
     const supabase = createClient();
-    // Try full columns first (child_name, display_name from migrations); on error fallback to core columns so list always loads
+    // Try full columns first (child_name, display_name); on error try without child_name, then fallback to core
     supabase
       .from('children')
       .select('id, child_name, display_name, age_band')
@@ -38,14 +54,24 @@ export function SubnavBar() {
           setChildren((data as SubnavChild[]) ?? []);
           return;
         }
-        // Fallback: same columns as FamilyDashboardClient (guaranteed to exist)
         supabase
           .from('children')
-          .select('id, birthdate, gender, age_band')
+          .select('id, display_name, age_band')
           .order('created_at', { ascending: false })
-          .then(({ data: fallbackData }) => {
-            const list = (fallbackData ?? []) as { id: string; age_band?: string | null }[];
-            setChildren(list.map((c) => ({ id: c.id, child_name: null, display_name: null, age_band: c.age_band ?? null })));
+          .then(({ data: data2, error: err2 }) => {
+            if (!err2 && data2?.length !== undefined) {
+              const list = data2 as { id: string; display_name?: string | null; age_band?: string | null }[];
+              setChildren(list.map((c) => ({ id: c.id, child_name: null, display_name: c.display_name ?? null, age_band: c.age_band ?? null, gender: null })));
+              return;
+            }
+            supabase
+              .from('children')
+              .select('id, birthdate, gender, age_band')
+              .order('created_at', { ascending: false })
+              .then(({ data: fallbackData }) => {
+                const list = (fallbackData ?? []) as { id: string; gender?: string | null; age_band?: string | null }[];
+                setChildren(list.map((c) => ({ id: c.id, child_name: null, display_name: null, age_band: c.age_band ?? null, gender: c.gender ?? null })));
+              });
           });
       });
   }, [user?.id]);
@@ -129,7 +155,7 @@ export function SubnavBar() {
                 <option value="">All children</option>
                 {children.map((c, i) => (
                   <option key={c.id} value={c.id}>
-                    {(c.child_name || c.display_name)?.trim() || `Child ${i + 1}`}
+                    {childOptionLabel(c, i)}
                   </option>
                 ))}
               </select>

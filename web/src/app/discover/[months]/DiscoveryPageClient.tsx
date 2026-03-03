@@ -61,6 +61,7 @@ interface DiscoveryPageClientProps {
   exampleProducts: PickItem[];
   categoryTypes: GatewayCategoryTypePublic[];
   showDebug?: boolean;
+  initialChildId?: string;
 }
 
 export default function DiscoveryPageClient({
@@ -76,9 +77,11 @@ export default function DiscoveryPageClient({
   exampleProducts,
   categoryTypes,
   showDebug = false,
+  initialChildId,
 }: DiscoveryPageClientProps) {
   const router = useRouter();
   const shouldReduceMotion = useReducedMotion() ?? false;
+  const [selectedChildLabel, setSelectedChildLabel] = useState<string | null>(null);
   const [howWeChooseOpen, setHowWeChooseOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [actionToast, setActionToast] = useState<{ productId: string; message: string } | null>(null);
@@ -97,6 +100,32 @@ export default function DiscoveryPageClient({
   const { user, refetch: refetchSubnavStats } = useSubnavStats();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (!initialChildId || !user) {
+      setSelectedChildLabel(null);
+      return;
+    }
+    const supabase = createClient();
+    supabase
+      .from('children')
+      .select('id, child_name, display_name, age_band')
+      .eq('id', initialChildId)
+      .single()
+      .then(
+        ({ data }) => {
+          if (!data) {
+            setSelectedChildLabel(null);
+            return;
+          }
+          const d = data as { child_name?: string | null; display_name?: string | null; age_band?: string | null };
+          const name = (d.child_name || d.display_name)?.trim();
+          const age = d.age_band?.trim();
+          setSelectedChildLabel(name ? (age ? `${name} (${age})` : name) : null);
+        },
+        () => setSelectedChildLabel(null)
+      );
+  }, [initialChildId, user]);
 
   const scrollToSection = useCallback(
     (id: string) => {
@@ -640,7 +669,7 @@ export default function DiscoveryPageClient({
               className="block text-sm mb-2"
               style={{ fontFamily: 'var(--font-mono)', color: 'var(--ember-text-high)', fontSize: '14px' }}
             >
-              {formatBandLabel(selectedBand)}
+              {selectedChildLabel ? `Ideas for ${selectedChildLabel}` : formatBandLabel(selectedBand)}
             </span>
             <div
               className="discovery-slider-wrap relative w-full"
@@ -786,7 +815,7 @@ export default function DiscoveryPageClient({
           Next steps for {selectedWrapperLabel}
         </h2>
         <p className="text-sm mb-4 flex flex-wrap items-center gap-1" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-          Chosen for {formatBandLabel(selectedBand)} •{' '}
+          Chosen for {selectedChildLabel ?? formatBandLabel(selectedBand)} •{' '}
           <button
             type="button"
             onClick={() => setHowWeChooseOpen(true)}
@@ -853,7 +882,7 @@ export default function DiscoveryPageClient({
         ) : (
           <>
             <p className="text-xs mb-2" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-              Chosen for {formatBandLabel(selectedBand)}
+              Chosen for {selectedChildLabel ?? formatBandLabel(selectedBand)}
             </p>
             <DiscoverCardStack
               picks={displayIdeas.slice(0, 12)}

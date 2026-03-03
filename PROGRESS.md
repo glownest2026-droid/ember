@@ -1,6 +1,10 @@
 # CTO Snapshot (Source of Truth)
 _Last updated: 2026-03-03_
 
+## fix(child-toggle): dropdown labels, family/discover/my-ideas use child param, list filter by child (2026-03-03)
+- Branch: fix/child-toggle-labels-and-context
+- Snags: (1) Subnav child dropdown: show "Name – Aged X" or "Gender – Aged X" instead of "Child 1/2/3"; robust query (child_name/display_name then fallback with gender). (2) Family: pass params.child to FamilyDashboardClient; highlight and scroll to selected child card. (3) Discover: read ?child= in searchParams; pass initialChildId to DiscoveryPageClient; show "Ideas for Alex" / "Chosen for Alex" when child selected; redirect from /discover preserves child. (4) My-ideas: fetch user_list_items with child_id; filter list by selected child (child_id = selected OR null); counts and tabs reflect filtered list.
+
 ## fix(snag-pack): mobile nav 1-click, child name on discover/my-ideas, subnav toggle + deeplinks (2026-03-03)
 - Branch: fix/snag-pack-nav-discover-subnav
 - Snags: (A) Mobile nav: signed out = Sign in + Get started in main bar (no hamburger click); signed in = Discover/My Saves/Marketplace/Family icons in main bar + same links in hamburger. (B) /discover and my-ideas: "My child" replaced with child's name from children.child_name/display_name when populated. (C) Subnav: child toggle stays on current page (discover/my-ideas/family) with ?child=; first CTA = child selector (amber), second = "+ Add a child"; stat counters (ideas/toys/gifts) link to /my-ideas?tab=ideas|products|gifts. MyIdeasClient accepts initialTab from URL for deeplinks.
