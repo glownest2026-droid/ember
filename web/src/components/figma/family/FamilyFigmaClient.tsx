@@ -36,10 +36,25 @@ export function FamilyFigmaClient({
 
   const fetchChildren = useCallback(async () => {
     const supabase = createClient();
-    const { data } = await supabase
+    let { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      await new Promise((r) => setTimeout(r, 400));
+      const retry = await supabase.auth.getUser();
+      user = retry.data.user;
+    }
+    if (!user) {
+      setChildren([]);
+      return;
+    }
+    const { data, error } = await supabase
       .from('children')
       .select('id, birthdate, gender, age_band, child_name, display_name')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
+    if (error) {
+      setChildren([]);
+      return;
+    }
     const list = (data ?? []) as FamilyChild[];
     setChildren(list.map((c) => ({ ...c, stats: null })));
   }, []);
