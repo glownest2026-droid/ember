@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
+import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { Settings as SettingsIcon } from 'lucide-react';
 import { ChildProfilesSection } from './ChildProfilesSection';
 import { ImageWithFallback } from './ImageWithFallback';
@@ -31,25 +32,19 @@ export function FamilyFigmaClient({
   deleted?: boolean;
   initialChildId?: string;
 } = {}) {
+  const { user } = useSubnavStats();
   const [children, setChildren] = useState<ChildWithStats[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchChildren = useCallback(async () => {
-    const supabase = createClient();
-    let { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      await new Promise((r) => setTimeout(r, 400));
-      const retry = await supabase.auth.getUser();
-      user = retry.data.user;
-    }
-    if (!user) {
+    if (!user?.id) {
       setChildren([]);
       return;
     }
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('children')
       .select('id, birthdate, gender, age_band, child_name, display_name')
-      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
     if (error) {
       setChildren([]);
@@ -57,7 +52,7 @@ export function FamilyFigmaClient({
     }
     const list = (data ?? []) as FamilyChild[];
     setChildren(list.map((c) => ({ ...c, stats: null })));
-  }, []);
+  }, [user?.id]);
 
   const fetchStatsForChild = useCallback(async (childId: string): Promise<ChildStats> => {
     const supabase = createClient();
@@ -73,6 +68,12 @@ export function FamilyFigmaClient({
   }, []);
 
   useEffect(() => {
+    if (!user) {
+      setChildren([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     let cancelled = false;
     (async () => {
       await fetchChildren();
@@ -82,7 +83,7 @@ export function FamilyFigmaClient({
     return () => {
       cancelled = true;
     };
-  }, [fetchChildren]);
+  }, [user, fetchChildren]);
 
   const childIds = children.map((c) => c.id).join(',');
   useEffect(() => {
