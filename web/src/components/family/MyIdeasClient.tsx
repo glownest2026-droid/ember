@@ -410,55 +410,55 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
   const effectiveChildForSave = filterChildId ?? selectedChildId;
 
   const handleSaveProductFromExamples = useCallback(
-    (productId: string, _triggerEl: HTMLButtonElement | null) => {
+    async (productId: string, _triggerEl: HTMLButtonElement | null) => {
       if (!user) return;
-      const supabase = createClient();
-      supabase
-        .rpc('upsert_user_list_item', {
+      try {
+        const supabase = createClient();
+        const { error } = await supabase.rpc('upsert_user_list_item', {
           p_kind: 'product',
           p_product_id: productId,
           p_want: true,
           p_have: false,
           p_gift: false,
           ...(effectiveChildForSave ? { p_child_id: effectiveChildForSave } : {}),
-        })
-        .then(({ error }) => {
-          if (!error) {
-            refetchSubnavStats(effectiveChildForSave ?? undefined);
-            fetchList();
-            setActionError(null);
-          } else {
-            setActionError('Could not save. Please try again.');
-          }
-        })
-        .catch(() => setActionError('Could not save. Please try again.'));
+        });
+        if (!error) {
+          refetchSubnavStats(effectiveChildForSave ?? undefined);
+          fetchList();
+          setActionError(null);
+        } else {
+          setActionError('Could not save. Please try again.');
+        }
+      } catch {
+        setActionError('Could not save. Please try again.');
+      }
     },
     [user, refetchSubnavStats, fetchList, effectiveChildForSave]
   );
 
   const handleHaveProductFromExamples = useCallback(
-    (productId: string) => {
+    async (productId: string) => {
       if (!user) return;
-      const supabase = createClient();
-      supabase
-        .rpc('upsert_user_list_item', {
+      try {
+        const supabase = createClient();
+        const { error } = await supabase.rpc('upsert_user_list_item', {
           p_kind: 'product',
           p_product_id: productId,
           p_want: true,
           p_have: true,
           p_gift: false,
           ...(effectiveChildForSave ? { p_child_id: effectiveChildForSave } : {}),
-        })
-        .then(({ error }) => {
-          if (!error) {
-            refetchSubnavStats(effectiveChildForSave ?? undefined);
-            fetchList();
-            setActionError(null);
-          } else {
-            setActionError("Couldn't update. Please try again.");
-          }
-        })
-        .catch(() => setActionError("Couldn't update. Please try again."));
+        });
+        if (!error) {
+          refetchSubnavStats(effectiveChildForSave ?? undefined);
+          fetchList();
+          setActionError(null);
+        } else {
+          setActionError("Couldn't update. Please try again.");
+        }
+      } catch {
+        setActionError("Couldn't update. Please try again.");
+      }
     },
     [user, refetchSubnavStats, fetchList, effectiveChildForSave]
   );
