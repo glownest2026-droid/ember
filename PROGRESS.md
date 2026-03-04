@@ -3,11 +3,11 @@ _Last updated: 2026-03-05_
 
 ## fix(my-ideas): Hide saves for suppressed children (2026-03-05)
 - **Branch:** fix/suppress-saves-when-child-removed
-- **Problem:** When a user removes (suppresses) all child profiles, legacy saves for those children still appeared in the My List grid and subnav counters (e.g. "10 ideas, 4 toys, 5 gifts").
+- **Problem:** When a user removes (suppresses) all child profiles, legacy saves still appeared in the My List grid and subnav counters.
 - **Requirement:** When a child is removed, their saves must be hidden in the UI but remain in the database for potential recovery.
-- **Solution:** (1) **RLS:** `user_list_items` SELECT policy now excludes rows whose `child_id` references a child with `is_suppressed = true`. Unassigned items (`child_id IS NULL`) and items for non-suppressed children still visible. (2) **Stats:** `get_my_subnav_stats` (both "all" and per-child) excludes counts for items belonging to suppressed children; per-child count for a suppressed child returns 0.
-- **Migration:** `supabase/sql/202603051000_suppress_saves_for_suppressed_children.sql`
-- **Verification:** Remove all child profiles → My List grid and subnav counters show 0 / empty (or only unassigned saves if any). Data for suppressed children remains in `user_list_items` in DB.
+- **Solution:** (1) **RLS:** `user_list_items` SELECT: exclude rows for suppressed children; **when user has no visible children, also hide unassigned items** (`child_id IS NULL`) so list and counters show 0. (2) **Stats:** `get_my_subnav_stats` uses the same rule (unassigned only counted when user has ≥1 visible child).
+- **Migrations:** Run in order — `202603051000_PART1_rls_only.sql` then `202603051000_PART2_stats_only.sql`. Or run full `202603051000_suppress_saves_for_suppressed_children.sql` in one go.
+- **Verification:** Remove all child profiles → My List and subnav show 0 ideas, 0 toys, 0 gifts. Data remains in DB.
 
 ## feat(gifts): Public gift sharing /gift/[slug] (2026-03-04)
 - **Branch:** feat/gift-share-widget

@@ -1,42 +1,5 @@
--- When a child is removed (is_suppressed = true), hide their saves in UI but keep data in DB.
--- Run PART 1 first, then PART 2 (in case one part fails you can fix and re-run).
---
--- PART 1: RLS — hide items for suppressed children; when user has NO visible children, hide
---         unassigned (child_id IS NULL) items too so My List and counters show 0.
--- PART 2: get_my_subnav_stats — same visibility rule for counts.
-
--- ============================================================================
--- PART 1: user_list_items SELECT policy
--- ============================================================================
--- Run this block first. Then run PART 2 below.
-
-DROP POLICY IF EXISTS "user_list_items_select_own" ON public.user_list_items;
-CREATE POLICY "user_list_items_select_own" ON public.user_list_items
-  FOR SELECT USING (
-    user_id = auth.uid()
-    AND (
-      -- Unassigned items: only visible if user has at least one non-suppressed child
-      (user_list_items.child_id IS NULL AND EXISTS (
-        SELECT 1 FROM public.children c
-        WHERE c.user_id = auth.uid()
-          AND (c.is_suppressed = false OR c.is_suppressed IS NULL)
-      ))
-      OR
-      -- Assigned items: only visible if that child is not suppressed
-      (user_list_items.child_id IS NOT NULL AND EXISTS (
-        SELECT 1 FROM public.children c
-        WHERE c.id = user_list_items.child_id
-          AND c.user_id = auth.uid()
-          AND (c.is_suppressed = false OR c.is_suppressed IS NULL)
-      ))
-    )
-  );
-
-COMMENT ON POLICY "user_list_items_select_own" ON public.user_list_items IS 'Own rows only; hide items for suppressed children; when no visible children, hide unassigned too; data kept in DB.';
-
--- ============================================================================
--- PART 2: get_my_subnav_stats — exclude suppressed children from counts
--- ============================================================================
+-- PART 2 of 2: get_my_subnav_stats only. Run after PART 1.
+-- Counts exclude suppressed children; unassigned only counted when user has at least one visible child.
 
 CREATE OR REPLACE FUNCTION public.get_my_subnav_stats(p_child_id UUID DEFAULT NULL)
 RETURNS JSON
@@ -62,7 +25,6 @@ BEGIN
   END IF;
 
   IF p_child_id IS NOT NULL THEN
-    -- Per child: only items for this child, and only if child is not suppressed
     IF NOT EXISTS (SELECT 1 FROM public.children c WHERE c.id = p_child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)) THEN
       toys_count := 0;
       ideas_count := 0;
@@ -83,7 +45,6 @@ BEGIN
       WHERE uli.user_id = uid AND uli.child_id = p_child_id AND uli.gift = true;
     END IF;
   ELSE
-    -- All children: same rule as RLS — unassigned only if user has visible child; assigned only if child visible
     SELECT count(*)::INT INTO toys_count
     FROM public.user_list_items uli
     WHERE uli.user_id = uid AND uli.kind = 'product' AND (uli.want = true OR uli.have = true)
@@ -122,4 +83,4 @@ BEGIN
 END;
 $$;
 
-COMMENT ON FUNCTION public.get_my_subnav_stats(UUID) IS 'Counts for subnav; excludes items for suppressed (removed) children so stats and My List match.';
+COMMENT ON FUNCTION public.get_my_subnav_stats(UUID) IS 'Counts for subnav; excludes items for suppressed children; unassigned only when user has visible child.';
