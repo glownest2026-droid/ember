@@ -18,20 +18,16 @@ const UNASSIGNED_VALUE = '__unassigned__';
 export function GiftListClient({
   items,
   listTitle = 'Their',
-  childrenIds = [],
+  childrenOptions = [],
 }: {
   items: PublicGiftItem[];
   listTitle?: string;
-  childrenIds?: string[];
+  childrenOptions?: { id: string; label: string }[];
 }) {
   const { childOptions, hasUnassigned } = useMemo(() => {
-    const list: { id: string; label: string }[] = childrenIds.map((id, i) => ({
-      id,
-      label: `Child ${i + 1}`,
-    }));
     const unassigned = items.some((row) => !row.child_id);
-    return { childOptions: list, hasUnassigned: unassigned };
-  }, [items, childrenIds]);
+    return { childOptions: childrenOptions, hasUnassigned: unassigned };
+  }, [items, childrenOptions]);
 
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
 

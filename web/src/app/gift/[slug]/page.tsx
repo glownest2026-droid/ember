@@ -41,15 +41,18 @@ export default async function GiftListPage({
       ? String(titleRes.data).trim()
       : 'Their';
 
-  const childrenIds: string[] = Array.isArray(childrenRes.data)
-    ? (childrenRes.data as { child_id: string }[]).map((r) => String(r.child_id))
+  const childrenOptions: { id: string; label: string }[] = Array.isArray(childrenRes.data)
+    ? (childrenRes.data as { child_id: string; label?: string | null }[]).map((r, i) => ({
+        id: String(r.child_id),
+        label: r.label && String(r.label).trim() ? String(r.label).trim() : `Child ${i + 1}`,
+      }))
     : [];
 
   return (
     <GiftListClient
       items={items}
       listTitle={listTitle}
-      childrenIds={childrenIds}
+      childrenOptions={childrenOptions}
     />
   );
 }

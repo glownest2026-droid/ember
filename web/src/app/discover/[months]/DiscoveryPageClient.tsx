@@ -157,18 +157,19 @@ export default function DiscoveryPageClient({
     return () => clearTimeout(t);
   }, [actionToast]);
 
-  // Open auth modal when URL has openAuth=1 (e.g. "Join free" on discover)
+  // Open auth modal when URL has openAuth=1 (e.g. "Join free" on discover). Preserve child param.
   useEffect(() => {
     if (searchParams?.get('openAuth') !== '1') return;
-    const next = pathname && pathname.startsWith('/discover') ? pathname : `${basePath}/${monthParam ?? 26}`;
-    const signinUrl = `/signin?next=${encodeURIComponent(next)}`;
-    setSaveModal({ open: true, signedIn: false, signinUrl });
-    const target = pathname || '/discover';
     const params = new URLSearchParams(searchParams?.toString() || '');
     params.delete('openAuth');
+    const nextPath = pathname && pathname.startsWith('/discover') ? pathname : `${basePath}/${monthParam ?? 26}`;
+    const nextWithChild = selectedChildId ? `${nextPath}${nextPath.includes('?') ? '&' : '?'}child=${encodeURIComponent(selectedChildId)}` : nextPath;
+    const signinUrl = `/signin?next=${encodeURIComponent(nextWithChild)}`;
+    setSaveModal({ open: true, signedIn: false, signinUrl });
+    const target = pathname || '/discover';
     const query = params.toString();
     router.replace(query ? `${target}?${query}` : target, { scroll: false });
-  }, [searchParams, pathname, monthParam, basePath, router]);
+  }, [searchParams, pathname, monthParam, basePath, router, selectedChildId]);
 
   const getBandRange = (band: AgeBand | null): { min: number; max: number } | null => {
     if (!band) return null;
@@ -224,7 +225,7 @@ export default function DiscoveryPageClient({
     if (selectedBandIndex !== propBandIndex) {
       const nextBand = ageBands[selectedBandIndex] ?? null;
       const repMonth = getRepresentativeMonthForBand(nextBand) ?? currentMonth;
-      router.push(`${basePath}/${repMonth}`, { scroll: false });
+      router.push(withChildParam(`${basePath}/${repMonth}`), { scroll: false });
     }
   }, [selectedBandIndex, basePath, currentMonth, ageBands, propBandIndex, router]);
 
@@ -248,13 +249,13 @@ export default function DiscoveryPageClient({
     setSelectedCategoryId(null);
     setShowingExamples(false);
     setPendingScrollToNextSteps(true);
-    router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`, { scroll: false });
+    router.push(withChildParam(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`), { scroll: false });
   };
 
   const handleShowExamples = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
     setShowingExamples(true);
-    router.push(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper!)}&show=1&category=${encodeURIComponent(categoryId)}`, { scroll: false });
+    router.push(withChildParam(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper!)}&show=1&category=${encodeURIComponent(categoryId)}`), { scroll: false });
     requestAnimationFrame(() => {
       requestAnimationFrame(() => scrollToSection('examplesProgressBar'));
     });
@@ -435,17 +436,22 @@ export default function DiscoveryPageClient({
       actionId: 'have_category',
       payload: { categoryId, childId: selectedChildId },
       run: async () => {
-        const supabase = createClient();
-        const { error } = await supabase.rpc('upsert_user_list_item', {
-          p_kind: 'category',
-          p_category_type_id: categoryId,
-          p_want: true,
-          p_have: true,
-          p_gift: false,
-          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
-        });
-        if (!error) await refetchSubnavStats(selectedChildId);
-        setActionToast({ productId: categoryId, message: "We've noted it." });
+        try {
+          const supabase = createClient();
+          const { error } = await supabase.rpc('upsert_user_list_item', {
+            p_kind: 'category',
+            p_category_type_id: categoryId,
+            p_want: true,
+            p_have: true,
+            p_gift: false,
+            ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
+          });
+          if (error) throw error;
+          await refetchSubnavStats(selectedChildId);
+          setActionToast({ productId: categoryId, message: "We've noted it." });
+        } catch {
+          setActionToast({ productId: categoryId, message: "Couldn't update. Please try again." });
+        }
       },
       openAuthModal: ({ signinUrl }) => {
         saveModalFocusRef.current = null;
@@ -545,42 +551,46 @@ export default function DiscoveryPageClient({
       actionId: 'save_category',
       payload: { categoryId, childId: selectedChildId },
       run: async () => {
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        let ok = false;
-        const { error: rpcError } = await supabase.rpc('upsert_user_list_item', {
-          p_kind: 'category',
-          p_category_type_id: categoryId,
-          p_want: true,
-          p_have: false,
-          p_gift: false,
-          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
-        });
-        if (!rpcError) {
-          ok = true;
-        } else {
-          const fallback = rpcError.code === '42883' || rpcError.message?.includes('does not exist') || rpcError.message?.includes('function');
-          if (fallback) {
-            const { error: legacyError } = await supabase.from('user_saved_ideas').upsert(
-              { user_id: user.id, idea_id: categoryId },
-              { onConflict: 'user_id,idea_id' }
-            );
-            if (!legacyError) ok = true;
+        try {
+          const supabase = createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+          let ok = false;
+          const { error: rpcError } = await supabase.rpc('upsert_user_list_item', {
+            p_kind: 'category',
+            p_category_type_id: categoryId,
+            p_want: true,
+            p_have: false,
+            p_gift: false,
+            ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
+          });
+          if (!rpcError) {
+            ok = true;
+          } else {
+            const fallback = rpcError.code === '42883' || rpcError.message?.includes('does not exist') || rpcError.message?.includes('function');
+            if (fallback) {
+              const { error: legacyError } = await supabase.from('user_saved_ideas').upsert(
+                { user_id: user.id, idea_id: categoryId },
+                { onConflict: 'user_id,idea_id' }
+              );
+              if (!legacyError) ok = true;
+            }
           }
-        }
-        if (!ok) {
+          if (!ok) {
+            setActionToast({ productId: categoryId, message: 'Could not save idea. Please try again.' });
+            return;
+          }
+          await refetchSubnavStats(selectedChildId);
+          setActionToast({ productId: categoryId, message: 'Saved.' });
+          setSaveModal({
+            open: true,
+            signedIn: true,
+            signinUrl: getSigninUrlForCategory(categoryId),
+            viewMyListHref: withChildParam('/my-ideas?tab=ideas'),
+          });
+        } catch {
           setActionToast({ productId: categoryId, message: 'Could not save idea. Please try again.' });
-          return;
         }
-        await refetchSubnavStats(selectedChildId);
-        setActionToast({ productId: categoryId, message: 'Saved.' });
-        setSaveModal({
-          open: true,
-          signedIn: true,
-          signinUrl: getSigninUrlForCategory(categoryId),
-          viewMyListHref: withChildParam('/my-ideas?tab=ideas'),
-        });
       },
       openAuthModal: ({ signinUrl }) =>
         setSaveModal({ open: true, signedIn: false, signinUrl }),
