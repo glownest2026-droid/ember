@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { calculateAgeBand } from '@/lib/ageBand';
 import { SubnavSwitch } from '@/components/subnav/SubnavSwitch';
 import { FamilyExamplesModal } from '@/components/family/FamilyExamplesModal';
+import { ShareYourGiftListWidget } from '@/components/figma/family/ShareYourGiftListWidget';
 import type { GatewayPick } from '@/lib/pl/public';
 import { Plus, Gift, ImageOff, Search } from 'lucide-react';
 
@@ -97,8 +99,10 @@ function parseTab(t: string | undefined): TabId {
 }
 
 export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?: string; initialTab?: string } = {}) {
+  const searchParams = useSearchParams();
+  const childFromUrl = searchParams.get('child') ?? undefined;
   const [children, setChildren] = useState<ChildProfile[]>([]);
-  const [selectedChildId, setSelectedChildId] = useState<string | null>(initialChildId ?? null);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(initialChildId ?? childFromUrl ?? null);
   const [activeTab, setActiveTab] = useState<TabId>(() => parseTab(initialTab));
   const [items, setItems] = useState<ListItemRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,10 +122,15 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     ageBandId: string | null;
     wrapperSlug: string | null;
   }>({ open: false, ideaTitle: '', categoryTypeId: '', ageBandId: null, wrapperSlug: null });
+  const initialLoadDoneRef = useRef(false);
   const { user, stats, refetch: refetchSubnavStats } = useSubnavStats();
   const remindersEnabled = stats?.remindersEnabled ?? false;
 
-  const selectedChild = children.find((c) => c.id === selectedChildId) ?? children[0] ?? null;
+  const effectiveChildId = childFromUrl ?? initialChildId;
+  const filterChildId = (effectiveChildId?.trim()) ? effectiveChildId : null;
+  const resolvedChild =
+    (filterChildId && children.find((c) => c.id === filterChildId)) ?? children.find((c) => c.id === selectedChildId) ?? children[0] ?? null;
+  const selectedChild: ChildProfile | null = resolvedChild && typeof resolvedChild === 'object' && 'id' in resolvedChild ? resolvedChild : null;
   const displayName = selectedChild
     ? (selectedChild.child_name || selectedChild.display_name)?.trim() || 'My child'
     : 'My child';
@@ -141,26 +150,27 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     setChildren(list);
     if (list.length > 0) {
       setSelectedChildId((prev) => {
-        if (initialChildId && list.some((c) => c.id === initialChildId)) return initialChildId;
+        const urlChild = childFromUrl ?? initialChildId;
+        if (urlChild && list.some((c) => c.id === urlChild)) return urlChild;
         // No child in URL (All children): keep null so grid shows all items.
-        if (initialChildId == null || initialChildId === '') return null;
+        if (urlChild == null || urlChild === '') return null;
         if (prev && list.some((c) => c.id === prev)) return prev;
-        return list[0].id;
+        return null;
       });
     }
-  }, [initialChildId]);
+  }, [initialChildId, childFromUrl]);
 
   useEffect(() => {
     fetchChildren();
   }, [fetchChildren]);
 
   useEffect(() => {
-    if (initialChildId == null || initialChildId === '') {
+    if (effectiveChildId == null || effectiveChildId === '') {
       setSelectedChildId(null);
-    } else if (children.some((c) => c.id === initialChildId)) {
-      setSelectedChildId(initialChildId);
+    } else if (children.some((c) => c.id === effectiveChildId)) {
+      setSelectedChildId(effectiveChildId);
     }
-  }, [initialChildId, children]);
+  }, [effectiveChildId, children]);
 
   useEffect(() => {
     if (initialTab != null && initialTab !== '') setActiveTab(parseTab(initialTab));
@@ -246,10 +256,14 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     setItems(legacyRows);
   }, []);
 
+  // Fetch list once on mount only; do not refetch on tab visibility or context updates (grid stays settled).
   useEffect(() => {
-    setLoading(true);
-    fetchList().finally(() => setLoading(false));
-  }, [fetchList, refetchSubnavStats]);
+    if (!initialLoadDoneRef.current) setLoading(true);
+    fetchList().finally(() => {
+      setLoading(false);
+      initialLoadDoneRef.current = true;
+    });
+  }, [fetchList]);
 
   useEffect(() => {
     const ids = [...new Set(items.map((r) => (r.kind === 'category' || r.kind === 'idea') && r.category_type_id ? r.category_type_id : null).filter(Boolean) as string[])];
@@ -309,12 +323,10 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     }
   }, [items]);
 
-  // When a child is selected: show only items saved to that child (no inheritance of unassigned).
-  // When no child selected (All children): show all items.
-  const childFilteredItems =
-    selectedChildId
-      ? items.filter((r) => r.child_id === selectedChildId)
-      : items;
+  // Filter by URL-driven child so grid updates instantly when user toggles child in subnav (no refresh needed).
+  const childFilteredItems = filterChildId
+    ? items.filter((r) => r.child_id === filterChildId)
+    : items;
   const ideasItems = childFilteredItems.filter((r) => (r.kind === 'idea' || r.kind === 'category') && (r.want || r.have));
   const productsItems = childFilteredItems.filter((r) => r.kind === 'product' && (r.want || r.have));
   const giftsItems = childFilteredItems.filter((r) => r.gift);
@@ -395,51 +407,64 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#',
   []);
 
+  const effectiveChildForSave = filterChildId ?? selectedChildId;
+
   const handleSaveProductFromExamples = useCallback(
-    (productId: string, _triggerEl: HTMLButtonElement | null) => {
+    async (productId: string, _triggerEl: HTMLButtonElement | null) => {
       if (!user) return;
-      const supabase = createClient();
-      supabase
-        .rpc('upsert_user_list_item', {
+      try {
+        const supabase = createClient();
+        const { error } = await supabase.rpc('upsert_user_list_item', {
           p_kind: 'product',
           p_product_id: productId,
           p_want: true,
           p_have: false,
           p_gift: false,
-        })
-        .then(({ error }) => {
-          if (!error) {
-            refetchSubnavStats();
-            fetchList();
-          }
+          ...(effectiveChildForSave ? { p_child_id: effectiveChildForSave } : {}),
         });
+        if (!error) {
+          refetchSubnavStats(effectiveChildForSave ?? undefined);
+          fetchList();
+          setActionError(null);
+        } else {
+          setActionError('Could not save. Please try again.');
+        }
+      } catch {
+        setActionError('Could not save. Please try again.');
+      }
     },
-    [user, refetchSubnavStats, fetchList]
+    [user, refetchSubnavStats, fetchList, effectiveChildForSave]
   );
 
   const handleHaveProductFromExamples = useCallback(
-    (productId: string) => {
+    async (productId: string) => {
       if (!user) return;
-      const supabase = createClient();
-      supabase
-        .rpc('upsert_user_list_item', {
+      try {
+        const supabase = createClient();
+        const { error } = await supabase.rpc('upsert_user_list_item', {
           p_kind: 'product',
           p_product_id: productId,
           p_want: true,
           p_have: true,
           p_gift: false,
-        })
-        .then(({ error }) => {
-          if (!error) {
-            refetchSubnavStats();
-            fetchList();
-          }
+          ...(effectiveChildForSave ? { p_child_id: effectiveChildForSave } : {}),
         });
+        if (!error) {
+          refetchSubnavStats(effectiveChildForSave ?? undefined);
+          fetchList();
+          setActionError(null);
+        } else {
+          setActionError("Couldn't update. Please try again.");
+        }
+      } catch {
+        setActionError("Couldn't update. Please try again.");
+      }
     },
-    [user, refetchSubnavStats, fetchList, selectedChildId]
+    [user, refetchSubnavStats, fetchList, effectiveChildForSave]
   );
 
   const openExamplesModal = useCallback((row: ListItemRow) => {
+    setActionError(null);
     const title = itemTitle(row);
     const categoryTypeId = row.category_type_id ?? '';
     const ageBandId = selectedChild?.age_band ?? null;
@@ -594,6 +619,12 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
                 </button>
               ))}
             </div>
+
+            {activeTab === 'gifts' && (
+              <div className="mb-6">
+                <ShareYourGiftListWidget />
+              </div>
+            )}
 
             {actionError && (
               <p className="text-sm mb-3 py-2 px-3 rounded-lg" style={{ backgroundColor: 'var(--ember-surface-soft)', color: 'var(--ember-accent-base)' }}>
@@ -758,11 +789,6 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
               </div>
             )}
 
-            <div className="mt-6 pt-6 border-t" style={{ borderColor: 'var(--ember-border-subtle)' }}>
-              <button type="button" className="text-sm opacity-70 hover:opacity-100" style={{ color: 'var(--ember-text-low)' }}>
-                Share my list <span className="text-xs">(Coming soon)</span>
-              </button>
-            </div>
           </div>
 
           <div className="space-y-6">

@@ -6,6 +6,7 @@ import { createClient } from '@/utils/supabase/client';
 import { Settings as SettingsIcon } from 'lucide-react';
 import { ChildProfilesSection } from './ChildProfilesSection';
 import { ImageWithFallback } from './ImageWithFallback';
+import { ShareYourGiftListWidget } from './ShareYourGiftListWidget';
 import { Heart } from 'lucide-react';
 import { suppressChild } from '@/lib/children/actions';
 import type { FamilyChild } from './ChildProfileCard';
@@ -216,6 +217,10 @@ export function FamilyFigmaClient({
                 Go to My ideas
               </Link>
             </div>
+
+            <div className="mt-6 lg:hidden">
+              <ShareYourGiftListWidget />
+            </div>
           </div>
 
           <div className="hidden lg:block space-y-6">
@@ -248,6 +253,8 @@ export function FamilyFigmaClient({
                 />
               </div>
             </div>
+
+            <ShareYourGiftListWidget />
 
             <div className="bg-white rounded-3xl p-6 border-2 border-[#E5E7EB] shadow-sm">
               <Heart className="w-8 h-8 text-[#FF6347] fill-[#FF6347] mb-3" />
