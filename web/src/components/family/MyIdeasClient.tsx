@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { calculateAgeBand } from '@/lib/ageBand';
 import { SubnavSwitch } from '@/components/subnav/SubnavSwitch';
 import { FamilyExamplesModal } from '@/components/family/FamilyExamplesModal';
+import { ShareYourGiftListWidget } from '@/components/figma/family/ShareYourGiftListWidget';
 import type { GatewayPick } from '@/lib/pl/public';
 import { Plus, Gift, ImageOff, Search } from 'lucide-react';
 
@@ -97,8 +99,10 @@ function parseTab(t: string | undefined): TabId {
 }
 
 export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?: string; initialTab?: string } = {}) {
+  const searchParams = useSearchParams();
+  const childFromUrl = searchParams.get('child') ?? undefined;
   const [children, setChildren] = useState<ChildProfile[]>([]);
-  const [selectedChildId, setSelectedChildId] = useState<string | null>(initialChildId ?? null);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(initialChildId ?? childFromUrl ?? null);
   const [activeTab, setActiveTab] = useState<TabId>(() => parseTab(initialTab));
   const [items, setItems] = useState<ListItemRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -141,26 +145,29 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     setChildren(list);
     if (list.length > 0) {
       setSelectedChildId((prev) => {
-        if (initialChildId && list.some((c) => c.id === initialChildId)) return initialChildId;
+        const urlChild = childFromUrl ?? initialChildId;
+        if (urlChild && list.some((c) => c.id === urlChild)) return urlChild;
         // No child in URL (All children): keep null so grid shows all items.
-        if (initialChildId == null || initialChildId === '') return null;
+        if (urlChild == null || urlChild === '') return null;
         if (prev && list.some((c) => c.id === prev)) return prev;
-        return list[0].id;
+        return null;
       });
     }
-  }, [initialChildId]);
+  }, [initialChildId, childFromUrl]);
 
   useEffect(() => {
     fetchChildren();
   }, [fetchChildren]);
 
+  // Keep selected child in sync with URL (subnav drives ?child=); single source of truth so grid matches subnav.
+  const effectiveChildId = childFromUrl ?? initialChildId;
   useEffect(() => {
-    if (initialChildId == null || initialChildId === '') {
+    if (effectiveChildId == null || effectiveChildId === '') {
       setSelectedChildId(null);
-    } else if (children.some((c) => c.id === initialChildId)) {
-      setSelectedChildId(initialChildId);
+    } else if (children.some((c) => c.id === effectiveChildId)) {
+      setSelectedChildId(effectiveChildId);
     }
-  }, [initialChildId, children]);
+  }, [effectiveChildId, children]);
 
   useEffect(() => {
     if (initialTab != null && initialTab !== '') setActiveTab(parseTab(initialTab));
@@ -759,9 +766,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
             )}
 
             <div className="mt-6 pt-6 border-t" style={{ borderColor: 'var(--ember-border-subtle)' }}>
-              <button type="button" className="text-sm opacity-70 hover:opacity-100" style={{ color: 'var(--ember-text-low)' }}>
-                Share my list <span className="text-xs">(Coming soon)</span>
-              </button>
+              <ShareYourGiftListWidget />
             </div>
           </div>
 
