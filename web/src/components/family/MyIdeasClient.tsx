@@ -128,8 +128,9 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
 
   const effectiveChildId = childFromUrl ?? initialChildId;
   const filterChildId = (effectiveChildId?.trim()) ? effectiveChildId : null;
-  const selectedChild =
+  const resolvedChild =
     (filterChildId && children.find((c) => c.id === filterChildId)) ?? children.find((c) => c.id === selectedChildId) ?? children[0] ?? null;
+  const selectedChild: ChildProfile | null = resolvedChild && typeof resolvedChild === 'object' && 'id' in resolvedChild ? resolvedChild : null;
   const displayName = selectedChild
     ? (selectedChild.child_name || selectedChild.display_name)?.trim() || 'My child'
     : 'My child';
