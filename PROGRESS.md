@@ -1,5 +1,13 @@
 # CTO Snapshot (Source of Truth)
-_Last updated: 2026-03-04_
+_Last updated: 2026-03-05_
+
+## fix(my-ideas): Hide saves for suppressed children (2026-03-05)
+- **Branch:** fix/suppress-saves-when-child-removed
+- **Problem:** When a user removes (suppresses) all child profiles, legacy saves for those children still appeared in the My List grid and subnav counters (e.g. "10 ideas, 4 toys, 5 gifts").
+- **Requirement:** When a child is removed, their saves must be hidden in the UI but remain in the database for potential recovery.
+- **Solution:** (1) **RLS:** `user_list_items` SELECT policy now excludes rows whose `child_id` references a child with `is_suppressed = true`. Unassigned items (`child_id IS NULL`) and items for non-suppressed children still visible. (2) **Stats:** `get_my_subnav_stats` (both "all" and per-child) excludes counts for items belonging to suppressed children; per-child count for a suppressed child returns 0.
+- **Migration:** `supabase/sql/202603051000_suppress_saves_for_suppressed_children.sql`
+- **Verification:** Remove all child profiles → My List grid and subnav counters show 0 / empty (or only unassigned saves if any). Data for suppressed children remains in `user_list_items` in DB.
 
 ## feat(gifts): Public gift sharing /gift/[slug] (2026-03-04)
 - **Branch:** feat/gift-share-widget
