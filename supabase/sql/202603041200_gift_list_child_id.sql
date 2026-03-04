@@ -1,5 +1,8 @@
 -- Add child_id to get_public_gift_list so /gift/[slug] can filter by child (All vs specific child).
 -- child_id is nullable (unassigned items). No child names exposed; client labels as "Child 1", "Child 2".
+-- Must DROP first because return type (OUT parameters) is changing.
+
+DROP FUNCTION IF EXISTS public.get_public_gift_list(TEXT);
 
 CREATE OR REPLACE FUNCTION public.get_public_gift_list(p_slug TEXT)
 RETURNS TABLE (
@@ -46,3 +49,6 @@ END;
 $$;
 
 COMMENT ON FUNCTION public.get_public_gift_list(TEXT) IS 'Returns read-only gift list for /gift/[slug]. Includes child_id for filtering by child. Callable by anon; exposes only gift-flagged items.';
+
+GRANT EXECUTE ON FUNCTION public.get_public_gift_list(TEXT) TO anon;
+GRANT EXECUTE ON FUNCTION public.get_public_gift_list(TEXT) TO authenticated;

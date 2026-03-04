@@ -53,7 +53,7 @@ export default function DiscoverStickyHeader() {
         minHeight: 'var(--header-height)',
       }}
     >
-      <div className="h-full w-full min-w-0 max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-12 py-5">
+      <div className={`h-full w-full min-w-0 mx-auto px-4 sm:px-6 lg:px-12 py-5 ${pathname?.startsWith('/gift') ? 'max-w-3xl' : 'max-w-[90rem]'}`}>
         <div className="flex items-center justify-between gap-2 sm:gap-6 min-w-0">
           {/* Mobile: hamburger first (top-left), then logo, then nav */}
           <button

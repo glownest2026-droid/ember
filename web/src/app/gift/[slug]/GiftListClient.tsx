@@ -13,49 +13,60 @@ export type PublicGiftItem = {
   child_id: string | null;
 };
 
-export function GiftListClient({ items }: { items: PublicGiftItem[] }) {
-  const childOptions = useMemo(() => {
+const UNASSIGNED_VALUE = '__unassigned__';
+
+export function GiftListClient({ items, listTitle = 'Their' }: { items: PublicGiftItem[]; listTitle?: string }) {
+  const { childOptions, hasUnassigned } = useMemo(() => {
     const seen = new Set<string>();
     const list: { id: string; label: string }[] = [];
     let index = 0;
+    let unassigned = false;
     for (const row of items) {
       if (row.child_id && !seen.has(row.child_id)) {
         seen.add(row.child_id);
         index += 1;
         list.push({ id: row.child_id, label: `Child ${index}` });
       }
+      if (!row.child_id) unassigned = true;
     }
-    return list;
+    return { childOptions: list, hasUnassigned: unassigned };
   }, [items]);
 
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
 
   const filteredItems = useMemo(() => {
     if (!selectedChildId) return items;
+    if (selectedChildId === UNASSIGNED_VALUE) return items.filter((r) => !r.child_id);
     return items.filter((r) => r.child_id === selectedChildId);
   }, [items, selectedChildId]);
+
+  const showChildToggle = items.length > 0;
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-semibold text-[#1A1E23] mb-1">
-            Gift list
+            Gift list for {listTitle}&apos;s family
           </h1>
           <p className="text-sm text-[#5C646D] mb-4">
-            Items shared from their list. Read-only.
+            Here&apos;s what they&apos;re hoping for.
           </p>
 
-          {childOptions.length > 0 && (
+          {showChildToggle && (
             <div className="flex flex-wrap items-center gap-2">
               <Users className="w-4 h-4 text-[#5C646D]" aria-hidden />
               <select
                 value={selectedChildId ?? ''}
-                onChange={(e) => setSelectedChildId(e.target.value || null)}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setSelectedChildId(v || null);
+                }}
                 className="h-9 pl-3 pr-8 rounded-lg border border-[#E5E7EB] bg-white text-sm text-[#1A1E23] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#FF6347] focus:ring-offset-0 min-w-[10rem]"
                 aria-label="Filter by child"
               >
                 <option value="">All children</option>
+                {hasUnassigned && <option value={UNASSIGNED_VALUE}>Unassigned</option>}
                 {childOptions.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.label}

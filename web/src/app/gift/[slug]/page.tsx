@@ -13,14 +13,15 @@ export default async function GiftListPage({
   const { slug } = await params;
   const supabase = createClient();
 
-  const { data: rows, error } = await supabase.rpc('get_public_gift_list', {
-    p_slug: slug,
-  });
+  const [listRes, titleRes] = await Promise.all([
+    supabase.rpc('get_public_gift_list', { p_slug: slug }),
+    supabase.rpc('get_gift_share_list_title', { p_slug: slug }),
+  ]);
 
-  if (error) {
+  if (listRes.error) {
     notFound();
   }
-  const raw = Array.isArray(rows) ? rows : [];
+  const raw = Array.isArray(listRes.data) ? listRes.data : [];
   if (raw.length === 0) {
     notFound();
   }
@@ -34,5 +35,10 @@ export default async function GiftListPage({
     child_id: row.child_id != null ? String(row.child_id) : null,
   }));
 
-  return <GiftListClient items={items} />;
+  const listTitle =
+    !titleRes.error && titleRes.data != null && String(titleRes.data).trim()
+      ? String(titleRes.data).trim()
+      : 'Their';
+
+  return <GiftListClient items={items} listTitle={listTitle} />;
 }
