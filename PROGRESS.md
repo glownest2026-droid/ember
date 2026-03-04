@@ -10,6 +10,7 @@ _Last updated: 2026-03-04_
 - **Security:** Anonymous cannot read gift_shares or user_list_items; only get_public_gift_list(slug) returns gift rows. No service_role in client.
 - **Verification:** Apply migration; sign in → /family → Copy link → paste in new tab (or Preview) → see gift list when logged out. Add/remove gift items on /my-ideas; shared link reflects only gift-flagged items.
 - **Follow-up (same branch):** My List on /my-ideas: (1) Grid filters by URL `?child=` so it auto-updates when subnav child toggle changes (no hard refresh). (2) List fetches once on mount; no refetch on browser tab visibility so grid stays settled. (3) “Share your gift list” widget moved to top of Gifts tab only (inside My list card, above the grid).
+- **Follow-up 2 (same branch):** Public /gift/[slug] page: family members can filter by child. Migration `202603041200_gift_list_child_id.sql`: get_public_gift_list now returns child_id (nullable). GiftListClient shows "All children" dropdown plus "Child 1", "Child 2" (no names; order by first appearance). Grid filters by selected child; subnav-like behaviour.
 
 ## feat(family): Remove child profile (soft) + is_suppressed (2026-03-04)
 - **Scope:** Child profile cards get a working Remove flow with confirmation; removed children are hidden (soft) via `is_suppressed`, not hard-deleted.
