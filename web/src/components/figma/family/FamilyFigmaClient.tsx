@@ -7,6 +7,7 @@ import { Settings as SettingsIcon } from 'lucide-react';
 import { ChildProfilesSection } from './ChildProfilesSection';
 import { ImageWithFallback } from './ImageWithFallback';
 import { Heart } from 'lucide-react';
+import { suppressChild } from '@/lib/children/actions';
 import type { FamilyChild } from './ChildProfileCard';
 import type { ChildStats } from './ChildProfileCard';
 
@@ -49,6 +50,7 @@ export function FamilyFigmaClient({
       .from('children')
       .select('id, birthdate, gender, age_band, child_name, display_name')
       .eq('user_id', userId)
+      .eq('is_suppressed', false)
       .order('created_at', { ascending: false });
     if (!fullError && fullData != null) {
       const list = fullData as FamilyChild[];
@@ -60,6 +62,7 @@ export function FamilyFigmaClient({
       .from('children')
       .select('id, birthdate, gender, age_band, child_name')
       .eq('user_id', userId)
+      .eq('is_suppressed', false)
       .order('created_at', { ascending: false });
     if (!err1 && dataWithChildName != null) {
       const list = dataWithChildName as FamilyChild[];
@@ -71,6 +74,7 @@ export function FamilyFigmaClient({
       .from('children')
       .select('id, birthdate, gender, age_band, display_name')
       .eq('user_id', userId)
+      .eq('is_suppressed', false)
       .order('created_at', { ascending: false });
     if (!err2 && dataWithDisplayName != null) {
       const list = dataWithDisplayName.map((r) => ({
@@ -85,6 +89,7 @@ export function FamilyFigmaClient({
       .from('children')
       .select('id, birthdate, gender, age_band')
       .eq('user_id', userId)
+      .eq('is_suppressed', false)
       .order('created_at', { ascending: false });
     if (err3 || !minimalData) {
       setChildren([]);
@@ -195,7 +200,13 @@ export function FamilyFigmaClient({
               </div>
             )}
 
-            <ChildProfilesSection children={children} />
+            <ChildProfilesSection
+              children={children}
+              onRemove={async (id) => {
+                const result = await suppressChild(id);
+                if (!result?.error) fetchChildren();
+              }}
+            />
 
             <div className="mt-6">
               <Link

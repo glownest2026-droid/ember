@@ -11,11 +11,13 @@ type ChildWithStats = FamilyChild & { stats?: ChildStats | null };
 type ChildProfilesSectionProps = {
   children: ChildWithStats[];
   onEditChild?: (id: string) => void;
+  onRemove?: (id: string) => void | Promise<void>;
 };
 
 /** Child profiles grid + empty state + add card – exact Figma layout. */
 export function ChildProfilesSection({
   children,
+  onRemove,
 }: ChildProfilesSectionProps) {
   return (
     <section className="mb-8">
@@ -51,6 +53,7 @@ export function ChildProfilesSection({
               key={child.id}
               child={child}
               stats={child.stats}
+              onRemove={onRemove}
             />
           ))}
           <AddChildCard />

@@ -150,6 +150,7 @@ export function SaveToListModal({
     void supabase
       .from('children')
       .select('gender')
+      .eq('is_suppressed', false)
       .order('created_at', { ascending: false })
       .limit(1)
       .then(({ data }) => {

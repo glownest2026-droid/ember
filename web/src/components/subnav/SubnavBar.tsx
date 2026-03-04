@@ -74,6 +74,7 @@ export function SubnavBar() {
     supabase
       .from('children')
       .select('id, child_name, age_band, gender')
+      .eq('is_suppressed', false)
       .order('created_at', { ascending: false })
       .then(({ data, error }) => {
         if (!error && Array.isArray(data)) {
@@ -84,6 +85,7 @@ export function SubnavBar() {
         supabase
           .from('children')
           .select('id, display_name, age_band, gender')
+          .eq('is_suppressed', false)
           .order('created_at', { ascending: false })
           .then(({ data: data2, error: err2 }) => {
             if (!err2 && Array.isArray(data2)) {
@@ -94,6 +96,7 @@ export function SubnavBar() {
             supabase
               .from('children')
               .select('id, gender, age_band')
+              .eq('is_suppressed', false)
               .order('created_at', { ascending: false })
               .then(({ data: fallbackData }) => {
                 if (Array.isArray(fallbackData)) {
