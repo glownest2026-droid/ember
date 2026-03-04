@@ -1,38 +1,26 @@
 -- When a child is removed (is_suppressed = true), hide their saves in UI but keep data in DB.
--- Run PART 1 first, then PART 2 (in case one part fails you can fix and re-run).
---
--- PART 1: RLS — hide items for suppressed children; when user has NO visible children, hide
---         unassigned (child_id IS NULL) items too so My List and counters show 0.
--- PART 2: get_my_subnav_stats — same visibility rule for counts.
+-- Only items assigned to a visible (non-suppressed) child are shown; unassigned (child_id IS NULL)
+-- are never shown so legacy saves do not reappear when user adds a new child.
+-- Run PART 1 first, then PART 2.
 
 -- ============================================================================
 -- PART 1: user_list_items SELECT policy
 -- ============================================================================
--- Run this block first. Then run PART 2 below.
 
 DROP POLICY IF EXISTS "user_list_items_select_own" ON public.user_list_items;
 CREATE POLICY "user_list_items_select_own" ON public.user_list_items
   FOR SELECT USING (
     user_id = auth.uid()
-    AND (
-      -- Unassigned items: only visible if user has at least one non-suppressed child
-      (user_list_items.child_id IS NULL AND EXISTS (
-        SELECT 1 FROM public.children c
-        WHERE c.user_id = auth.uid()
-          AND (c.is_suppressed = false OR c.is_suppressed IS NULL)
-      ))
-      OR
-      -- Assigned items: only visible if that child is not suppressed
-      (user_list_items.child_id IS NOT NULL AND EXISTS (
-        SELECT 1 FROM public.children c
-        WHERE c.id = user_list_items.child_id
-          AND c.user_id = auth.uid()
-          AND (c.is_suppressed = false OR c.is_suppressed IS NULL)
-      ))
+    AND user_list_items.child_id IS NOT NULL
+    AND EXISTS (
+      SELECT 1 FROM public.children c
+      WHERE c.id = user_list_items.child_id
+        AND c.user_id = auth.uid()
+        AND (c.is_suppressed = false OR c.is_suppressed IS NULL)
     )
   );
 
-COMMENT ON POLICY "user_list_items_select_own" ON public.user_list_items IS 'Own rows only; hide items for suppressed children; when no visible children, hide unassigned too; data kept in DB.';
+COMMENT ON POLICY "user_list_items_select_own" ON public.user_list_items IS 'Own rows only; show only items assigned to a visible child; unassigned never shown so legacy saves do not reappear when adding a new child.';
 
 -- ============================================================================
 -- PART 2: get_my_subnav_stats — exclude suppressed children from counts
@@ -83,30 +71,24 @@ BEGIN
       WHERE uli.user_id = uid AND uli.child_id = p_child_id AND uli.gift = true;
     END IF;
   ELSE
-    -- All children: same rule as RLS — unassigned only if user has visible child; assigned only if child visible
+    -- All children: only items assigned to a visible child (exclude unassigned)
     SELECT count(*)::INT INTO toys_count
     FROM public.user_list_items uli
     WHERE uli.user_id = uid AND uli.kind = 'product' AND (uli.want = true OR uli.have = true)
-      AND (
-        (uli.child_id IS NULL AND EXISTS (SELECT 1 FROM public.children c WHERE c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)))
-        OR (uli.child_id IS NOT NULL AND EXISTS (SELECT 1 FROM public.children c WHERE c.id = uli.child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)))
-      );
+      AND uli.child_id IS NOT NULL
+      AND EXISTS (SELECT 1 FROM public.children c WHERE c.id = uli.child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL));
 
     SELECT count(*)::INT INTO ideas_count
     FROM public.user_list_items uli
     WHERE uli.user_id = uid AND uli.kind IN ('idea', 'category') AND (uli.want = true OR uli.have = true)
-      AND (
-        (uli.child_id IS NULL AND EXISTS (SELECT 1 FROM public.children c WHERE c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)))
-        OR (uli.child_id IS NOT NULL AND EXISTS (SELECT 1 FROM public.children c WHERE c.id = uli.child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)))
-      );
+      AND uli.child_id IS NOT NULL
+      AND EXISTS (SELECT 1 FROM public.children c WHERE c.id = uli.child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL));
 
     SELECT count(*)::INT INTO gifts_count
     FROM public.user_list_items uli
     WHERE uli.user_id = uid AND uli.gift = true
-      AND (
-        (uli.child_id IS NULL AND EXISTS (SELECT 1 FROM public.children c WHERE c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)))
-        OR (uli.child_id IS NOT NULL AND EXISTS (SELECT 1 FROM public.children c WHERE c.id = uli.child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)))
-      );
+      AND uli.child_id IS NOT NULL
+      AND EXISTS (SELECT 1 FROM public.children c WHERE c.id = uli.child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL));
   END IF;
 
   SELECT COALESCE(development_reminders_enabled, false) INTO reminders_on
@@ -122,4 +104,4 @@ BEGIN
 END;
 $$;
 
-COMMENT ON FUNCTION public.get_my_subnav_stats(UUID) IS 'Counts for subnav; excludes items for suppressed (removed) children so stats and My List match.';
+COMMENT ON FUNCTION public.get_my_subnav_stats(UUID) IS 'Counts for subnav; only items assigned to a visible child; unassigned never counted so legacy saves do not reappear when adding a new child.';

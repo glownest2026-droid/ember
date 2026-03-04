@@ -1,5 +1,5 @@
 -- PART 2 of 2: get_my_subnav_stats only. Run after PART 1.
--- Counts exclude suppressed children; unassigned only counted when user has at least one visible child.
+-- Count only items assigned to a visible child; unassigned (child_id IS NULL) never counted.
 
 CREATE OR REPLACE FUNCTION public.get_my_subnav_stats(p_child_id UUID DEFAULT NULL)
 RETURNS JSON
@@ -45,29 +45,24 @@ BEGIN
       WHERE uli.user_id = uid AND uli.child_id = p_child_id AND uli.gift = true;
     END IF;
   ELSE
+    -- All children: only items assigned to a visible child (exclude unassigned)
     SELECT count(*)::INT INTO toys_count
     FROM public.user_list_items uli
     WHERE uli.user_id = uid AND uli.kind = 'product' AND (uli.want = true OR uli.have = true)
-      AND (
-        (uli.child_id IS NULL AND EXISTS (SELECT 1 FROM public.children c WHERE c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)))
-        OR (uli.child_id IS NOT NULL AND EXISTS (SELECT 1 FROM public.children c WHERE c.id = uli.child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)))
-      );
+      AND uli.child_id IS NOT NULL
+      AND EXISTS (SELECT 1 FROM public.children c WHERE c.id = uli.child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL));
 
     SELECT count(*)::INT INTO ideas_count
     FROM public.user_list_items uli
     WHERE uli.user_id = uid AND uli.kind IN ('idea', 'category') AND (uli.want = true OR uli.have = true)
-      AND (
-        (uli.child_id IS NULL AND EXISTS (SELECT 1 FROM public.children c WHERE c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)))
-        OR (uli.child_id IS NOT NULL AND EXISTS (SELECT 1 FROM public.children c WHERE c.id = uli.child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)))
-      );
+      AND uli.child_id IS NOT NULL
+      AND EXISTS (SELECT 1 FROM public.children c WHERE c.id = uli.child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL));
 
     SELECT count(*)::INT INTO gifts_count
     FROM public.user_list_items uli
     WHERE uli.user_id = uid AND uli.gift = true
-      AND (
-        (uli.child_id IS NULL AND EXISTS (SELECT 1 FROM public.children c WHERE c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)))
-        OR (uli.child_id IS NOT NULL AND EXISTS (SELECT 1 FROM public.children c WHERE c.id = uli.child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL)))
-      );
+      AND uli.child_id IS NOT NULL
+      AND EXISTS (SELECT 1 FROM public.children c WHERE c.id = uli.child_id AND c.user_id = uid AND (c.is_suppressed = false OR c.is_suppressed IS NULL));
   END IF;
 
   SELECT COALESCE(development_reminders_enabled, false) INTO reminders_on
@@ -83,4 +78,4 @@ BEGIN
 END;
 $$;
 
-COMMENT ON FUNCTION public.get_my_subnav_stats(UUID) IS 'Counts for subnav; excludes items for suppressed children; unassigned only when user has visible child.';
+COMMENT ON FUNCTION public.get_my_subnav_stats(UUID) IS 'Counts for subnav; only items assigned to a visible child; unassigned never counted.';
