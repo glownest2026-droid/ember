@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
-import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { Settings as SettingsIcon } from 'lucide-react';
 import { ChildProfilesSection } from './ChildProfilesSection';
 import { ImageWithFallback } from './ImageWithFallback';
@@ -24,35 +23,50 @@ interface ChildWithStats extends FamilyChild {
 
 /** Manage My Family page – Figma Make layout exact. Data: children table + get_my_subnav_stats(p_child_id). */
 export function FamilyFigmaClient({
+  serverUserId,
   saved = false,
   deleted = false,
   initialChildId,
 }: {
+  /** User id from server auth – used to fetch children immediately without waiting for client context. */
+  serverUserId?: string;
   saved?: boolean;
   deleted?: boolean;
   initialChildId?: string;
 } = {}) {
-  const { user } = useSubnavStats();
   const [children, setChildren] = useState<ChildWithStats[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchChildren = useCallback(async () => {
-    if (!user?.id) {
+    const userId = serverUserId;
+    if (!userId) {
       setChildren([]);
       return;
     }
     const supabase = createClient();
+    const fullSelect = 'id, birthdate, gender, age_band, child_name, display_name';
     const { data, error } = await supabase
       .from('children')
-      .select('id, birthdate, gender, age_band, child_name, display_name')
+      .select(fullSelect)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false });
     if (error) {
-      setChildren([]);
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('children')
+        .select('id, birthdate, gender, age_band')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      if (fallbackError || !fallbackData) {
+        setChildren([]);
+        return;
+      }
+      const list = (fallbackData ?? []) as FamilyChild[];
+      setChildren(list.map((c) => ({ ...c, stats: null })));
       return;
     }
     const list = (data ?? []) as FamilyChild[];
     setChildren(list.map((c) => ({ ...c, stats: null })));
-  }, [user?.id]);
+  }, [serverUserId]);
 
   const fetchStatsForChild = useCallback(async (childId: string): Promise<ChildStats> => {
     const supabase = createClient();
@@ -68,7 +82,7 @@ export function FamilyFigmaClient({
   }, []);
 
   useEffect(() => {
-    if (!user) {
+    if (!serverUserId) {
       setChildren([]);
       setLoading(false);
       return;
@@ -83,7 +97,7 @@ export function FamilyFigmaClient({
     return () => {
       cancelled = true;
     };
-  }, [user, fetchChildren]);
+  }, [serverUserId, fetchChildren]);
 
   const childIds = children.map((c) => c.id).join(',');
   useEffect(() => {
@@ -112,10 +126,6 @@ export function FamilyFigmaClient({
     const el = document.getElementById(`child-profile-${initialChildId}`);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [initialChildId, children]);
-
-  const handleEditChild = (id: string) => {
-    window.location.href = `/add-children/${id}`;
-  };
 
   if (loading) {
     return (

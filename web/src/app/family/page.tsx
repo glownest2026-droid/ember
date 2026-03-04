@@ -25,6 +25,7 @@ export default async function FamilyPage({
   return (
     <div className="container-wrap min-h-screen py-6">
       <FamilyFigmaClient
+        serverUserId={user.id}
         saved={params.saved === '1'}
         deleted={params.deleted === '1'}
         initialChildId={params.child ?? undefined}
