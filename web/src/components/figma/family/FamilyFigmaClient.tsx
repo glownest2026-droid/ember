@@ -44,27 +44,53 @@ export function FamilyFigmaClient({
       return;
     }
     const supabase = createClient();
-    const fullSelect = 'id, birthdate, gender, age_band, child_name, display_name';
-    const { data, error } = await supabase
+
+    const { data: fullData, error: fullError } = await supabase
       .from('children')
-      .select(fullSelect)
+      .select('id, birthdate, gender, age_band, child_name, display_name')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
-    if (error) {
-      const { data: fallbackData, error: fallbackError } = await supabase
-        .from('children')
-        .select('id, birthdate, gender, age_band')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-      if (fallbackError || !fallbackData) {
-        setChildren([]);
-        return;
-      }
-      const list = (fallbackData ?? []) as FamilyChild[];
+    if (!fullError && fullData != null) {
+      const list = fullData as FamilyChild[];
       setChildren(list.map((c) => ({ ...c, stats: null })));
       return;
     }
-    const list = (data ?? []) as FamilyChild[];
+
+    const { data: dataWithChildName, error: err1 } = await supabase
+      .from('children')
+      .select('id, birthdate, gender, age_band, child_name')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (!err1 && dataWithChildName != null) {
+      const list = dataWithChildName as FamilyChild[];
+      setChildren(list.map((c) => ({ ...c, stats: null })));
+      return;
+    }
+
+    const { data: dataWithDisplayName, error: err2 } = await supabase
+      .from('children')
+      .select('id, birthdate, gender, age_band, display_name')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (!err2 && dataWithDisplayName != null) {
+      const list = dataWithDisplayName.map((r) => ({
+        ...r,
+        child_name: (r as { display_name?: string | null }).display_name ?? null,
+      })) as FamilyChild[];
+      setChildren(list.map((c) => ({ ...c, stats: null })));
+      return;
+    }
+
+    const { data: minimalData, error: err3 } = await supabase
+      .from('children')
+      .select('id, birthdate, gender, age_band')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (err3 || !minimalData) {
+      setChildren([]);
+      return;
+    }
+    const list = (minimalData ?? []) as FamilyChild[];
     setChildren(list.map((c) => ({ ...c, stats: null })));
   }, [serverUserId]);
 
