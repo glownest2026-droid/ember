@@ -122,10 +122,14 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     ageBandId: string | null;
     wrapperSlug: string | null;
   }>({ open: false, ideaTitle: '', categoryTypeId: '', ageBandId: null, wrapperSlug: null });
+  const initialLoadDoneRef = useRef(false);
   const { user, stats, refetch: refetchSubnavStats } = useSubnavStats();
   const remindersEnabled = stats?.remindersEnabled ?? false;
 
-  const selectedChild = children.find((c) => c.id === selectedChildId) ?? children[0] ?? null;
+  const effectiveChildId = childFromUrl ?? initialChildId;
+  const filterChildId = (effectiveChildId?.trim()) ? effectiveChildId : null;
+  const selectedChild =
+    (filterChildId && children.find((c) => c.id === filterChildId)) ?? children.find((c) => c.id === selectedChildId) ?? children[0] ?? null;
   const displayName = selectedChild
     ? (selectedChild.child_name || selectedChild.display_name)?.trim() || 'My child'
     : 'My child';
@@ -159,8 +163,6 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     fetchChildren();
   }, [fetchChildren]);
 
-  // Keep selected child in sync with URL (subnav drives ?child=); single source of truth so grid matches subnav.
-  const effectiveChildId = childFromUrl ?? initialChildId;
   useEffect(() => {
     if (effectiveChildId == null || effectiveChildId === '') {
       setSelectedChildId(null);
@@ -253,10 +255,14 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     setItems(legacyRows);
   }, []);
 
+  // Fetch list once on mount only; do not refetch on tab visibility or context updates (grid stays settled).
   useEffect(() => {
-    setLoading(true);
-    fetchList().finally(() => setLoading(false));
-  }, [fetchList, refetchSubnavStats]);
+    if (!initialLoadDoneRef.current) setLoading(true);
+    fetchList().finally(() => {
+      setLoading(false);
+      initialLoadDoneRef.current = true;
+    });
+  }, [fetchList]);
 
   useEffect(() => {
     const ids = [...new Set(items.map((r) => (r.kind === 'category' || r.kind === 'idea') && r.category_type_id ? r.category_type_id : null).filter(Boolean) as string[])];
@@ -316,12 +322,10 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     }
   }, [items]);
 
-  // When a child is selected: show only items saved to that child (no inheritance of unassigned).
-  // When no child selected (All children): show all items.
-  const childFilteredItems =
-    selectedChildId
-      ? items.filter((r) => r.child_id === selectedChildId)
-      : items;
+  // Filter by URL-driven child so grid updates instantly when user toggles child in subnav (no refresh needed).
+  const childFilteredItems = filterChildId
+    ? items.filter((r) => r.child_id === filterChildId)
+    : items;
   const ideasItems = childFilteredItems.filter((r) => (r.kind === 'idea' || r.kind === 'category') && (r.want || r.have));
   const productsItems = childFilteredItems.filter((r) => r.kind === 'product' && (r.want || r.have));
   const giftsItems = childFilteredItems.filter((r) => r.gift);
@@ -602,6 +606,12 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
               ))}
             </div>
 
+            {activeTab === 'gifts' && (
+              <div className="mb-6">
+                <ShareYourGiftListWidget />
+              </div>
+            )}
+
             {actionError && (
               <p className="text-sm mb-3 py-2 px-3 rounded-lg" style={{ backgroundColor: 'var(--ember-surface-soft)', color: 'var(--ember-accent-base)' }}>
                 {actionError}
@@ -765,9 +775,6 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
               </div>
             )}
 
-            <div className="mt-6 pt-6 border-t" style={{ borderColor: 'var(--ember-border-subtle)' }}>
-              <ShareYourGiftListWidget />
-            </div>
           </div>
 
           <div className="space-y-6">

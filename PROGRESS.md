@@ -6,9 +6,10 @@ _Last updated: 2026-03-04_
 - **Scope:** Share your gift list widget on /family: Copy link + Preview. Public route /gift/[slug] shows read-only gift list (no auth).
 - **Part A — Slug model:** Migration `supabase/sql/202603041100_gift_shares.sql`: table `gift_shares` (id, user_id, slug, created_at), UNIQUE(user_id), UNIQUE(slug). RLS: owner CRUD only; anon cannot read table. Functions: `resolve_gift_slug_user_id(p_slug)` (internal), `get_public_gift_list(p_slug)` SECURITY DEFINER returns only gift-flagged items; GRANT EXECUTE to anon/authenticated.
 - **Part B — Public route:** `web/src/app/gift/[slug]/page.tsx`: server component, no auth; calls `get_public_gift_list(slug)`; 404 if slug invalid or no items; renders read-only list (title, image, saved time). No user IDs or edit/remove.
-- **Part C — Widget:** `ShareYourGiftListWidget` in FamilyFigmaClient: Copy link (getOrCreateGiftShareSlug → clipboard, “Link copied”), Preview (open /gift/{slug} in new tab). Slug created on first use (8–12 char URL-safe). Server action `lib/gift/actions.ts`: getOrCreateGiftShareSlug().
+- **Part C — Widget:** `ShareYourGiftListWidget` in FamilyFigmaClient and MyIdeasClient (Gifts tab): Copy link (getOrCreateGiftShareSlug → clipboard, “Link copied”), Preview (open /gift/{slug} in new tab). Slug created on first use (8–12 char URL-safe). Server action `lib/gift/actions.ts`: getOrCreateGiftShareSlug().
 - **Security:** Anonymous cannot read gift_shares or user_list_items; only get_public_gift_list(slug) returns gift rows. No service_role in client.
 - **Verification:** Apply migration; sign in → /family → Copy link → paste in new tab (or Preview) → see gift list when logged out. Add/remove gift items on /my-ideas; shared link reflects only gift-flagged items.
+- **Follow-up (same branch):** My List on /my-ideas: (1) Grid filters by URL `?child=` so it auto-updates when subnav child toggle changes (no hard refresh). (2) List fetches once on mount; no refetch on browser tab visibility so grid stays settled. (3) “Share your gift list” widget moved to top of Gifts tab only (inside My list card, above the grid).
 
 ## feat(family): Remove child profile (soft) + is_suppressed (2026-03-04)
 - **Scope:** Child profile cards get a working Remove flow with confirmation; removed children are hidden (soft) via `is_suppressed`, not hard-deleted.
