@@ -73,3 +73,25 @@ export async function deleteChild(childId: string) {
 
   redirect(`${FAMILY_PAGE}?deleted=1`);
 }
+
+/** Soft-remove: set is_suppressed = true so child is hidden from family/subnav/discover. */
+export async function suppressChild(childId: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/signin?next=${FAMILY_PAGE}`);
+  }
+
+  const { error } = await supabase
+    .from('children')
+    .update({ is_suppressed: true })
+    .eq('id', childId)
+    .eq('user_id', user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { ok: true };
+}

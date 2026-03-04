@@ -27,6 +27,7 @@ export default async function RecommendationsPage({
     .from('children')
     .select('*')
     .eq('user_id', user.id)
+    .eq('is_suppressed', false)
     .order('updated_at', { ascending: false });
 
   if (childrenError) {

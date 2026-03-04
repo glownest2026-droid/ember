@@ -29,6 +29,7 @@ export function FamilyDashboardClient({
     const { data } = await supabase
       .from('children')
       .select('id, birthdate, gender, age_band')
+      .eq('is_suppressed', false)
       .order('created_at', { ascending: false });
     const list = (data ?? []) as ChildProfile[];
     setChildren(list);

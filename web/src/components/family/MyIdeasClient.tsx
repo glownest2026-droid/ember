@@ -135,6 +135,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     const { data } = await supabase
       .from('children')
       .select('id, birthdate, gender, age_band, child_name, display_name')
+      .eq('is_suppressed', false)
       .order('created_at', { ascending: false });
     const list = (data ?? []) as ChildProfile[];
     setChildren(list);
