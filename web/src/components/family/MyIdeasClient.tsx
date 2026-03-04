@@ -407,6 +407,8 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#',
   []);
 
+  const effectiveChildForSave = filterChildId ?? selectedChildId;
+
   const handleSaveProductFromExamples = useCallback(
     (productId: string, _triggerEl: HTMLButtonElement | null) => {
       if (!user) return;
@@ -418,15 +420,20 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
           p_want: true,
           p_have: false,
           p_gift: false,
+          ...(effectiveChildForSave ? { p_child_id: effectiveChildForSave } : {}),
         })
         .then(({ error }) => {
           if (!error) {
-            refetchSubnavStats();
+            refetchSubnavStats(effectiveChildForSave ?? undefined);
             fetchList();
+            setActionError(null);
+          } else {
+            setActionError('Could not save. Please try again.');
           }
-        });
+        })
+        .catch(() => setActionError('Could not save. Please try again.'));
     },
-    [user, refetchSubnavStats, fetchList]
+    [user, refetchSubnavStats, fetchList, effectiveChildForSave]
   );
 
   const handleHaveProductFromExamples = useCallback(
@@ -440,18 +447,24 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
           p_want: true,
           p_have: true,
           p_gift: false,
+          ...(effectiveChildForSave ? { p_child_id: effectiveChildForSave } : {}),
         })
         .then(({ error }) => {
           if (!error) {
-            refetchSubnavStats();
+            refetchSubnavStats(effectiveChildForSave ?? undefined);
             fetchList();
+            setActionError(null);
+          } else {
+            setActionError("Couldn't update. Please try again.");
           }
-        });
+        })
+        .catch(() => setActionError("Couldn't update. Please try again."));
     },
-    [user, refetchSubnavStats, fetchList, selectedChildId]
+    [user, refetchSubnavStats, fetchList, effectiveChildForSave]
   );
 
   const openExamplesModal = useCallback((row: ListItemRow) => {
+    setActionError(null);
     const title = itemTitle(row);
     const categoryTypeId = row.category_type_id ?? '';
     const ageBandId = selectedChild?.age_band ?? null;

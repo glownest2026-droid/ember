@@ -7,6 +7,7 @@ import { getOrCreateGiftShareSlug } from '@/lib/gift/actions';
 /** Share your gift list: Copy link + Preview. Slug is created on first use. */
 export function ShareYourGiftListWidget() {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
 
   const ensureSlug = useCallback(async (): Promise<string | null> => {
@@ -39,9 +40,14 @@ export function ShareYourGiftListWidget() {
 
   const handlePreview = useCallback(async () => {
     setPreviewError(null);
-    const slug = await ensureSlug();
-    if (!slug) return;
-    window.open(`/gift/${slug}`, '_blank', 'noopener,noreferrer');
+    setPreviewLoading(true);
+    try {
+      const slug = await ensureSlug();
+      if (!slug) return;
+      window.open(`/gift/${slug}`, '_blank', 'noopener,noreferrer');
+    } finally {
+      setPreviewLoading(false);
+    }
   }, [ensureSlug]);
 
   return (
@@ -70,10 +76,11 @@ export function ShareYourGiftListWidget() {
         <button
           type="button"
           onClick={handlePreview}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-white border-2 border-[#E5E7EB] text-[#1A1E23] hover:bg-[#F5F5F5] transition-colors"
+          disabled={previewLoading}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-white border-2 border-[#E5E7EB] text-[#1A1E23] hover:bg-[#F5F5F5] transition-colors disabled:opacity-70 disabled:cursor-wait"
         >
-          <ExternalLink className="w-4 h-4" aria-hidden />
-          Preview
+          <ExternalLink className="w-4 h-4 shrink-0" aria-hidden />
+          {previewLoading ? 'Loading...' : 'Preview'}
         </button>
       </div>
     </div>
