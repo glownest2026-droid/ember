@@ -136,7 +136,7 @@ export function ChildProfileCard({ child, stats, onRemove }: ChildProfileCardPro
               Are you sure?
             </h2>
             <p className="text-sm text-[#5C646D] mb-4">
-              This child will be removed from your account but kept in the registry.
+              This child will be removed from your account.
             </p>
             <div className="flex gap-3 justify-end">
               <button
