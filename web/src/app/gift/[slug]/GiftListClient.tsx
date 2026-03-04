@@ -15,22 +15,23 @@ export type PublicGiftItem = {
 
 const UNASSIGNED_VALUE = '__unassigned__';
 
-export function GiftListClient({ items, listTitle = 'Their' }: { items: PublicGiftItem[]; listTitle?: string }) {
+export function GiftListClient({
+  items,
+  listTitle = 'Their',
+  childrenIds = [],
+}: {
+  items: PublicGiftItem[];
+  listTitle?: string;
+  childrenIds?: string[];
+}) {
   const { childOptions, hasUnassigned } = useMemo(() => {
-    const seen = new Set<string>();
-    const list: { id: string; label: string }[] = [];
-    let index = 0;
-    let unassigned = false;
-    for (const row of items) {
-      if (row.child_id && !seen.has(row.child_id)) {
-        seen.add(row.child_id);
-        index += 1;
-        list.push({ id: row.child_id, label: `Child ${index}` });
-      }
-      if (!row.child_id) unassigned = true;
-    }
+    const list: { id: string; label: string }[] = childrenIds.map((id, i) => ({
+      id,
+      label: `Child ${i + 1}`,
+    }));
+    const unassigned = items.some((row) => !row.child_id);
     return { childOptions: list, hasUnassigned: unassigned };
-  }, [items]);
+  }, [items, childrenIds]);
 
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
 
@@ -40,7 +41,7 @@ export function GiftListClient({ items, listTitle = 'Their' }: { items: PublicGi
     return items.filter((r) => r.child_id === selectedChildId);
   }, [items, selectedChildId]);
 
-  const showChildToggle = items.length > 0;
+  const showChildToggle = items.length > 0 || childOptions.length > 0;
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
