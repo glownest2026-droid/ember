@@ -1,6 +1,14 @@
 # CTO Snapshot (Source of Truth)
 _Last updated: 2026-03-05_
 
+## feat(marketplace): Pre-list flow (Figma exact) + wiring (2026-03-05)
+- **Branch:** feat/marketplace-prelist-figma-wiring
+- **Scope:** One PR: pre-launch listing flow from Figma Make code pack, wired to PR1 backend. No DB/schema changes.
+- **Route:** /marketplace (logged-in): widget above hero + modal; /app/listings: view/manage listings.
+- **Flow:** Step 1 item + pg_trgm suggestions; Step 2 condition + photo upload (storage + marketplace_listing_photos); Step 3 pickup area + marketplace_preferences; Step 4 pricing intent (in notes); Step 5 review + submit (status=submitted). Success modal; "Email me when Marketplace launches" → user_notification_prefs.
+- **Files:** web/src/components/figma/marketplace-prelist/* (ListingWidget, ListingModal, SuccessModal, steps/*); web/src/app/marketplace/page.tsx; web/src/app/(app)/app/listings/page.tsx; web/src/lib/marketplace/actions.ts; globals.css (prelist tokens).
+- **Verification:** Login → /marketplace → List an item → type "chair" → pick suggestion → upload photo → submit → /app/listings shows listing; Edit (prefilled modal); Delete (archive + remove photos).
+
 ## feat(marketplace): Listings backend — schema, storage, pg_trgm (2026-03-05)
 - **Branch:** feat/marketplace-listings-backend
 - **Scope:** One PR: (a) pre-launch marketplace listings schema, (b) photo upload storage bucket, (c) fuzzy item-type suggestions via pg_trgm.
