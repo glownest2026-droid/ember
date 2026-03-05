@@ -14,13 +14,11 @@ import {
   Settings,
   MessageCircle,
   ShieldCheck,
-  Bell,
   Calendar,
 } from "lucide-react";
 import { NotificationAnimation } from "@/components/figma/marketplace/NotificationAnimation";
 import { SellSuggestions } from "@/components/figma/marketplace/SellSuggestions";
 import { Button } from "@/components/figma/marketplace/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/figma/marketplace/ui/card";
 import {
   Accordion,
   AccordionContent,
@@ -77,7 +75,7 @@ export default function MarketplacePage() {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFF5F3] border border-primary/20"
               >
                 <Calendar className="h-4 w-4 text-primary" strokeWidth={2} />
-                <span className="text-sm font-medium text-primary">Launching Spring 2026</span>
+                <span className="text-sm font-medium text-primary">Coming Soon</span>
               </motion.div>
 
               <motion.div
@@ -255,63 +253,6 @@ export default function MarketplacePage() {
         </div>
       </section>
 
-      {/* Early Access Benefits */}
-      <section className="py-16 lg:py-20 bg-white">
-        <div className="container mx-auto px-6 lg:px-12 max-w-4xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-normal text-[#1A1E23] mb-3 leading-[1.1] tracking-tight">
-              Join early access
-            </h2>
-            <p className="text-lg text-[#5C646D] font-light">Be first to experience the marketplace</p>
-          </div>
-
-          <div className="grid sm:grid-cols-3 gap-6">
-            <Card className="rounded-3xl border-[#E5E7EB] hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-shadow duration-300">
-              <CardHeader className="p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFF5F3] mb-3">
-                  <Bell className="h-6 w-6 text-primary" strokeWidth={2} />
-                </div>
-                <CardTitle className="text-lg font-medium text-[#1A1E23]">Get notified first</CardTitle>
-                <CardDescription className="text-sm text-[#5C646D] font-light">
-                  Be the first to know when we launch in your area
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="rounded-3xl border-[#E5E7EB] hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-shadow duration-300">
-              <CardHeader className="p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFF5F3] mb-3">
-                  <ShoppingBag className="h-6 w-6 text-primary" strokeWidth={2} />
-                </div>
-                <CardTitle className="text-lg font-medium text-[#1A1E23]">Early member perks</CardTitle>
-                <CardDescription className="text-sm text-[#5C646D] font-light">
-                  Exclusive features and priority matching for founding members
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="rounded-3xl border-[#E5E7EB] hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-shadow duration-300">
-              <CardHeader className="p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFF5F3] mb-3">
-                  <MessageCircle className="h-6 w-6 text-primary" strokeWidth={2} />
-                </div>
-                <CardTitle className="text-lg font-medium text-[#1A1E23]">Shape the product</CardTitle>
-                <CardDescription className="text-sm text-[#5C646D] font-light">
-                  Give feedback and help us build something you&apos;ll love
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </div>
-
-          <div className="text-center mt-10">
-            <Button size="lg" asChild>
-              <Link href="/signin">Join early access</Link>
-            </Button>
-            <p className="text-xs text-[#5C646D] mt-4">No payment required • Launching Spring 2026</p>
-          </div>
-        </div>
-      </section>
-
       {/* FAQ */}
       <section className="py-16 lg:py-20 bg-[#FAFAFA]">
         <div className="container mx-auto px-6 lg:px-12 max-w-3xl">
@@ -389,7 +330,7 @@ export default function MarketplacePage() {
             Be first to experience stage-matched trading
           </p>
           <p className="text-sm text-[#E5E7EB]/70 mb-8 max-w-2xl mx-auto font-light">
-            Launching Spring 2026
+            Coming Soon
           </p>
           <Button size="lg" variant="secondary" asChild className="bg-white text-[#1A1E23] hover:bg-[#F1F3F2]">
             <Link href="/signin">Join early access</Link>

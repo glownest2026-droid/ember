@@ -776,9 +776,13 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
                                   'Examples'
                                 )}
                               </span>
-                              <span className="text-xs" style={{ color: 'var(--ember-text-low)' }} title="Coming soon">
+                              <Link
+                                href="/marketplace"
+                                className="text-xs hover:underline"
+                                style={{ color: 'var(--ember-accent-base)' }}
+                              >
                                 Move it on
-                              </span>
+                              </Link>
                             </>
                           )}
                         </div>
