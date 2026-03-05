@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import Link from "next/link";
 import {
@@ -16,6 +18,7 @@ import {
   ShieldCheck,
   Calendar,
 } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 import { NotificationAnimation } from "@/components/figma/marketplace/NotificationAnimation";
 import { SellSuggestions } from "@/components/figma/marketplace/SellSuggestions";
 import { Button } from "@/components/figma/marketplace/ui/button";
@@ -25,15 +28,124 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/figma/marketplace/ui/accordion";
+import { ListingWidget } from "@/components/figma/marketplace-prelist/ListingWidget";
+import { ListingModal } from "@/components/figma/marketplace-prelist/ListingModal";
+import { SuccessModal } from "@/components/figma/marketplace-prelist/SuccessModal";
+import type { ListingData } from "@/components/figma/marketplace-prelist/types";
 
 /**
  * Marketplace marketing page — Figma Make exact implementation.
  * Route: /marketplace. Uses existing app shell (ConditionalHeader + SubnavGate from root layout).
- * Links: /join, /notify, /login → /signin; /app/sell → /products (see SellSuggestions).
+ * Logged-in: prelist widget above hero; List an item opens modal → backend (PR1).
  */
 export default function MarketplacePage() {
+  const [user, setUser] = useState<{ id: string } | null>(null);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [selectedChildName, setSelectedChildName] = useState("your child");
+  const [ageBandLabel, setAgeBandLabel] = useState<string | undefined>(undefined);
+  const [listingModalOpen, setListingModalOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [submittedListing, setSubmittedListing] = useState<ListingData | null>(null);
+  const [editListingId, setEditListingId] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState<Partial<ListingData> | null>(null);
+  const [editPhotos, setEditPhotos] = useState<{ id: string; storagePath: string; previewUrl?: string }[]>([]);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      setUser(u ?? null);
+      if (!u) return;
+      supabase
+        .from("children")
+        .select("id, child_name, display_name, age_band")
+        .eq("user_id", u.id)
+        .eq("is_suppressed", false)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .single()
+        .then(({ data: c }) => {
+          if (c) {
+            setSelectedChildId(c.id);
+            const name =
+              (c as { child_name?: string; display_name?: string }).child_name ||
+              (c as { child_name?: string; display_name?: string }).display_name ||
+              "your child";
+            setSelectedChildName(name);
+            setAgeBandLabel((c as { age_band?: string }).age_band ?? undefined);
+          }
+        });
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const editId = searchParams.get("edit");
+  useEffect(() => {
+    if (!editId || !user) {
+      setEditListingId(null);
+      setEditFormData(null);
+      setEditPhotos([]);
+      return;
+    }
+    const supabase = createClient();
+    (async () => {
+      const { data: row, error } = await supabase
+        .from("marketplace_listings")
+        .select("id, raw_item_text, condition, notes, postcode, radius_miles, selected_item_type_id")
+        .eq("id", editId)
+        .eq("user_id", user.id)
+        .single();
+      if (error || !row) {
+        setEditListingId(null);
+        return;
+      }
+      setEditListingId(row.id);
+      setEditFormData({
+        itemName: row.raw_item_text ?? "",
+        condition: row.condition ?? "",
+        notes: row.notes ?? "",
+        postcode: row.postcode ?? "",
+        radius: row.radius_miles != null ? String(row.radius_miles) : "5",
+        selectedItemTypeId: (row as { selected_item_type_id?: string }).selected_item_type_id ?? null,
+      });
+      const { data: photoRows } = await supabase
+        .from("marketplace_listing_photos")
+        .select("id, storage_path")
+        .eq("listing_id", row.id)
+        .order("sort_order", { ascending: true });
+      const withUrls = await Promise.all(
+        (photoRows ?? []).map(async (p) => {
+          const { data: signed } = await supabase.storage
+            .from("marketplace-listing-photos")
+            .createSignedUrl(p.storage_path, 3600);
+          return { id: p.id, storagePath: p.storage_path, previewUrl: signed?.signedUrl };
+        })
+      );
+      setEditPhotos(withUrls);
+      setListingModalOpen(true);
+    })();
+  }, [editId, user?.id]);
+
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
+      {/* Prelist widget (logged-in only) */}
+      {user && (
+        <section className="pt-8 pb-0">
+          <div className="container mx-auto px-6 lg:px-12 max-w-[90rem]">
+            <ListingWidget
+              selectedChildName={selectedChildName}
+              ageBandLabel={ageBandLabel}
+              onListItem={() => setListingModalOpen(true)}
+            />
+          </div>
+        </section>
+      )}
+
       {/* Hero Section */}
       <section className="bg-white border-b border-[#E5E7EB] pt-12 pb-16 lg:pt-20 lg:pb-24">
         <div className="container mx-auto px-6 lg:px-12 max-w-[90rem]">
@@ -377,6 +489,43 @@ export default function MarketplacePage() {
           </div>
         </div>
       </footer>
+
+      {user && (
+        <>
+          <ListingModal
+            isOpen={listingModalOpen}
+            onClose={() => {
+              setListingModalOpen(false);
+              setEditListingId(null);
+              setEditFormData(null);
+              setEditPhotos([]);
+            }}
+            onComplete={(data) => {
+              setSubmittedListing(data);
+              setListingModalOpen(false);
+              setSuccessModalOpen(true);
+              setEditListingId(null);
+              setEditFormData(null);
+              setEditPhotos([]);
+            }}
+            selectedChildId={selectedChildId}
+            selectedChildName={selectedChildName}
+            initialListingId={editListingId}
+            initialFormData={editFormData}
+            initialPhotos={editPhotos}
+          />
+          <SuccessModal
+            isOpen={successModalOpen}
+            onClose={() => setSuccessModalOpen(false)}
+            listing={submittedListing}
+            onListAnother={() => {
+              setSuccessModalOpen(false);
+              setListingModalOpen(true);
+            }}
+            selectedChildName={selectedChildName}
+          />
+        </>
+      )}
     </div>
   );
 }
