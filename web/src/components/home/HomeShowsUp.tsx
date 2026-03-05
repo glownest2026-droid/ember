@@ -25,7 +25,7 @@ const CARDS = [
     title: 'Marketplace',
     body: 'Pass items on locally and safely. Match with the next family who needs them.',
     cta: 'Explore marketplace',
-    href: '/products',
+    href: '/marketplace',
   },
 ];
 

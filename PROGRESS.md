@@ -1,6 +1,17 @@
 # CTO Snapshot (Source of Truth)
 _Last updated: 2026-03-05_
 
+## feat(marketplace): Figma Make overhaul — /marketplace (2026-03-05)
+- **Branch:** feat/marketplace-figma-make-overhaul
+- **Route:** `/marketplace` (new). Public marketing page; uses existing app shell (ConditionalHeader, SubnavGate from root layout). No Figma Header — per brief, do not import code-pack navbar.
+- **UI (exact from Figma Make pack):** Hero (value prop + NotificationAnimation), How it works (3 steps), Trust & safety (6 pillars), Pre-launch preview (SellSuggestions), Early access benefits (3 cards), FAQ (6-item accordion), Final CTA, Footer. Layout/typography/spacing/animations match code pack; desktop + mobile responsive.
+- **Data wiring:** None. Static marketing content; no new tables or API. Links: /join, /notify, /login → /signin; SellSuggestions “Start a listing” / “List a bundle” → /products.
+- **Files:** `web/src/app/marketplace/page.tsx`; `web/src/components/figma/marketplace/*` (NotificationAnimation, SellSuggestions, ui/button, ui/card, ui/accordion, ui/utils). Design tokens added to `globals.css` @theme (primary, border, muted, accent, etc.) and accordion keyframes for Radix content height animation.
+- **Dependencies added:** @radix-ui/react-accordion, @radix-ui/react-slot, class-variance-authority (scoped to figma/marketplace UI).
+- **Nav:** DiscoverStickyHeader and HomeShowsUp “Marketplace” links now point to /marketplace (was /products).
+- **Verification:** Visit /marketplace → hero, notification carousel, how it works, trust, sell suggestions, early access cards, FAQ accordion, final CTA, footer. Nav “Marketplace” and homepage “Explore marketplace” go to /marketplace. Build passes.
+- **Known debt:** Footer “About”, “Trust & Safety”, “Contact”, “Privacy”, “Terms” link to / (placeholder until those routes exist).
+
 ## fix(my-ideas): Hide saves for suppressed children (2026-03-05)
 - **Branch:** fix/suppress-saves-when-child-removed
 - **Problem:** When a user removes all child profiles, legacy saves still appeared; after adding a new child, those saves "came flooding back."
