@@ -496,7 +496,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-xl sm:text-2xl font-semibold" style={{ color: 'var(--ember-text-high)', ...baseStyle }}>
-              My ideas
+              {(childFromUrl ?? initialChildId) && selectedChild ? `My ideas for ${displayName}` : 'My ideas'}
             </h1>
             <div className="flex items-center gap-2">
               <Link href="/family" className="p-2 rounded-lg opacity-70 hover:opacity-100 text-sm" style={{ color: 'var(--ember-text-low)' }}>
@@ -504,74 +504,10 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
               </Link>
             </div>
           </div>
-          <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
-            Your saved ideas, products, and gift list – in one place.
-          </p>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <div className="mb-4 overflow-x-auto -mx-4 px-4 pb-2">
-          <div className="flex gap-2 min-w-min">
-            {children.length === 0 ? (
-              <button
-                type="button"
-                className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
-                style={{ backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', border: '1px solid var(--ember-border-subtle)' }}
-                disabled
-              >
-                {displayName} · —
-              </button>
-            ) : (
-              children.map((child) => {
-                const ageBand = child.age_band || (child.birthdate ? calculateAgeBand(child.birthdate) : null) || '—';
-                const isSelected = selectedChildId === child.id;
-                return (
-                  <button
-                    key={child.id}
-                    type="button"
-                    onClick={() => setSelectedChildId(child.id)}
-                    className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all"
-                    style={
-                      isSelected
-                        ? { backgroundColor: 'var(--ember-accent-base)', color: 'white', boxShadow: '0 0 0 3px var(--ember-glow, rgba(184,67,43,0.2))' }
-                        : { backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', border: '1px solid var(--ember-border-subtle)' }
-                    }
-                  >
-                    {(child.child_name || child.display_name)?.trim() || 'My child'} · {ageBand}
-                  </button>
-                );
-              })
-            )}
-            <Link
-              href="/add-children"
-              className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap border border-dashed inline-flex items-center"
-              style={{ borderColor: 'var(--ember-border-subtle)', color: 'var(--ember-accent-base)' }}
-            >
-              + Add child
-            </Link>
-          </div>
-        </div>
-
-        <div
-          className="rounded-xl border p-5 mb-6"
-          style={{
-            background: 'linear-gradient(to bottom right, var(--ember-surface-primary), var(--ember-surface-secondary, #f5f5f5))',
-            borderColor: 'var(--ember-border-subtle)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-          }}
-        >
-          <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--ember-text-high)', ...baseStyle }}>
-            Today for {displayName}
-          </h2>
-          <p className="text-sm mb-1" style={{ color: 'var(--ember-text-high)', ...baseStyle }}>
-            {personalizationSubtext}
-          </p>
-          <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
-            Next steps and focus areas will appear here when we support them.
-          </p>
-        </div>
-
         <div className="lg:grid lg:grid-cols-[1fr_340px] lg:gap-8">
           <div
             id="my-list"

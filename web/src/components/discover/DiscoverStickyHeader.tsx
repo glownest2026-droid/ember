@@ -117,13 +117,6 @@ export default function DiscoverStickyHeader() {
                 >
                   <ShoppingBag className="w-5 h-5" strokeWidth={2} />
                 </Link>
-                <Link
-                  href={withChild('/family')}
-                  className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
-                  aria-label="Family"
-                >
-                  <Users className="w-5 h-5" strokeWidth={2} />
-                </Link>
               </>
             ) : (
               <>
@@ -170,14 +163,6 @@ export default function DiscoverStickyHeader() {
                 >
                   <ShoppingBag className="w-5 h-5 shrink-0" strokeWidth={2} />
                   Marketplace
-                </Link>
-                <Link
-                  href={withChild('/family')}
-                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
-                  aria-label="Family"
-                >
-                  <Users className="w-5 h-5 shrink-0" strokeWidth={2} />
-                  Family
                 </Link>
                 <span className="text-[var(--ember-border-subtle)]" aria-hidden>|</span>
                 <Link

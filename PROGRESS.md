@@ -1,6 +1,11 @@
 # CTO Snapshot (Source of Truth)
 _Last updated: 2026-03-05_
 
+## fix(snag-pack): Nav and pages snags (2026-03-05)
+- **Branch:** fix/snag-pack-nav-and-pages
+- **Snags:** (A) /gift header → "Live gift list for..."; (B) /my-ideas: removed content between header and My list grid, removed "Today for My Child" box, header "My ideas for [Child Name]" when child in URL; (C) Subnav "toys" → "products"; (D) Main nav: Family icon hidden on desktop and mobile bar, kept in hamburger only; (E) /discover: age slider preset from child age when ?child= and known age, else 25–27 months; (F) /add-children: hero height reduced by third (h-64→h-[168px]), future birth dates allowed, birthdate modal blurb updated.
+- **Files:** GiftListClient, MyIdeasClient, SubnavBar, DiscoverStickyHeader, discover/page.tsx, AddChildForm, PrivacySheet.
+
 ## feat(marketplace): Figma Make overhaul — /marketplace (2026-03-05)
 - **Branch:** feat/marketplace-figma-make-overhaul
 - **Route:** `/marketplace` (new). Public marketing page; uses existing app shell (ConditionalHeader, SubnavGate from root layout). No Figma Header — per brief, do not import code-pack navbar.

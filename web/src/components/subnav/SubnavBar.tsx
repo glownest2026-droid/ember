@@ -252,7 +252,7 @@ export function SubnavBar() {
                   {stats.toysSaved}
                 </div>
                 <div className="text-xs lg:text-sm whitespace-nowrap" style={{ color: 'var(--ember-text-low)' }}>
-                  toys
+                  products
                 </div>
               </Link>
               <div className="h-6 w-px bg-gray-300" aria-hidden />
