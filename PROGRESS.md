@@ -1,5 +1,14 @@
 # CTO Snapshot (Source of Truth)
-_Last updated: 2026-03-04_
+_Last updated: 2026-03-05_
+
+## fix(my-ideas): Hide saves for suppressed children (2026-03-05)
+- **Branch:** fix/suppress-saves-when-child-removed
+- **Problem:** When a user removes all child profiles, legacy saves still appeared; after adding a new child, those saves "came flooding back."
+- **Requirement:** Saves for removed children must be hidden and stay hidden; data remains in DB for recovery.
+- **Solution:** (1) **RLS:** Show only rows where `child_id IS NOT NULL` and that child is visible (not suppressed). **Unassigned items (`child_id IS NULL`) are never shown** so legacy unassigned saves do not reappear when the user adds a new child. (2) **Stats:** Same rule — only count items assigned to a visible child; unassigned never counted.
+- **Migrations:** Run `202603051000_PART1_rls_only.sql` then `202603051000_PART2_stats_only.sql` (or full `202603051000_suppress_saves_for_suppressed_children.sql`).
+- **Verification:** Remove all children → 0/empty; add a new child → still 0 until user saves new items for that child. Legacy unassigned and suppressed-child saves stay in DB but never surface.
+- **Gift page:** Migration `202603051100_gift_list_hide_legacy.sql`: `get_public_gift_list` now returns only items assigned to a visible (non-suppressed) child; unassigned and suppressed-child gift items are excluded so /gift does not show legacy content. Dropdown "Unassigned" no longer appears when there are no unassigned items.
 
 ## feat(gifts): Public gift sharing /gift/[slug] (2026-03-04)
 - **Branch:** feat/gift-share-widget
