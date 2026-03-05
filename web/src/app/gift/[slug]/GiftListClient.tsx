@@ -44,7 +44,7 @@ export function GiftListClient({
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-semibold text-[#1A1E23] mb-1">
-            Gift list for {listTitle}&apos;s family
+            Live gift list for {listTitle}&apos;s family
           </h1>
           <p className="text-sm text-[#5C646D] mb-4">
             Here&apos;s what they&apos;re hoping for.

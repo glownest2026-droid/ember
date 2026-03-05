@@ -1,6 +1,19 @@
 # CTO Snapshot (Source of Truth)
 _Last updated: 2026-03-05_
 
+## feat(marketplace): Listings backend — schema, storage, pg_trgm (2026-03-05)
+- **Branch:** feat/marketplace-listings-backend
+- **Scope:** One PR: (a) pre-launch marketplace listings schema, (b) photo upload storage bucket, (c) fuzzy item-type suggestions via pg_trgm.
+- **DB migrations (apply in order):** `202603051200_marketplace_pg_trgm_item_types.sql`, `202603051201_marketplace_listings_tables.sql`, `202603051202_marketplace_rls.sql`, `202603051203_marketplace_storage.sql`, `202603051204_marketplace_suggest_rpc.sql`.
+- **Deliverables:** pg_trgm + `marketplace_item_types` (search_text, GIN index, seed); `marketplace_listings` + `marketplace_listing_photos` + `marketplace_preferences`; RLS on all; private bucket `marketplace-listing-photos` with path `{user_id}/{listing_id}/{filename}`; RPC `suggest_marketplace_item_types(query_text, limit)`.
+- **Smoke tests:** `docs/marketplace_smoke_tests.sql` — run in Supabase SQL Editor after migrations.
+- **Verification:** Migrations apply cleanly; RLS blocks cross-user access; bucket exists; RPC returns suggestions for "chair", "hi chair", "bath".
+
+## fix(snag-pack): Nav and pages snags (2026-03-05)
+- **Branch:** fix/snag-pack-nav-and-pages
+- **Snags:** (A) /gift header → "Live gift list for..."; (B) /my-ideas: removed content between header and My list grid, removed "Today for My Child" box, header "My ideas for [Child Name]" when child in URL; (C) Subnav "toys" → "products"; (D) Main nav: Family icon hidden on desktop and mobile bar, kept in hamburger only; (E) /discover: age slider preset from child age when ?child= and known age, else 25–27 months; (F) /add-children: hero height reduced by third (h-64→h-[168px]), future birth dates allowed, birthdate modal blurb updated.
+- **Files:** GiftListClient, MyIdeasClient, SubnavBar, DiscoverStickyHeader, discover/page.tsx, AddChildForm, PrivacySheet.
+
 ## feat(marketplace): Figma Make overhaul — /marketplace (2026-03-05)
 - **Branch:** feat/marketplace-figma-make-overhaul
 - **Route:** `/marketplace` (new). Public marketing page; uses existing app shell (ConditionalHeader, SubnavGate from root layout). No Figma Header — per brief, do not import code-pack navbar.

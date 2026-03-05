@@ -47,11 +47,8 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
       return;
     }
     const dob = new Date(dateOfBirth);
-    if (dob > new Date()) {
-      setError('Date of birth cannot be in the future');
-      return;
-    }
-    const ageInYears = (Date.now() - dob.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+    // Allow future dates for expecting parents
+    const ageInYears = dob > new Date() ? 0 : (Date.now() - dob.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
     if (ageInYears > 5) {
       setShowOlderChildWarning(true);
       return;
@@ -126,7 +123,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
           <img
             src={HERO_IMAGE}
             alt="Happy child playing with toys"
-            className="w-full h-64 object-cover"
+            className="w-full h-[168px] object-cover"
           />
         </div>
         <div className="mb-8 text-center">

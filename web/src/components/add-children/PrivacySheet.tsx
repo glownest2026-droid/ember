@@ -57,7 +57,7 @@ export function PrivacySheet({ open, onOpenChange }: PrivacySheetProps) {
             Why we ask this
           </h2>
           <p className="text-base text-[var(--ember-text-low)] leading-relaxed mt-1">
-            We&apos;re transparent about how we use your information
+            We use little one&apos;s birth date to explain what they&apos;re learning now — and what&apos;s likely coming next.
           </p>
         </div>
         <div className="px-6 space-y-6 pb-6">
@@ -66,9 +66,9 @@ export function PrivacySheet({ open, onOpenChange }: PrivacySheetProps) {
               <Shield className="w-6 h-6 text-[var(--ember-accent-base)]" strokeWidth={2} />
             </div>
             <div>
-              <h3 className="text-base font-medium text-[var(--ember-text-high)] mb-1">Date of birth or age</h3>
+              <h3 className="text-base font-medium text-[var(--ember-text-high)] mb-1">Right toy, right time</h3>
               <p className="text-sm text-[var(--ember-text-low)] leading-relaxed">
-                We only need this to choose the right developmental stage and recommend appropriate activities and products.
+                We use age/stage to recommend play ideas and products that fit your child&apos;s next developmental steps.
               </p>
             </div>
           </div>
@@ -77,9 +77,9 @@ export function PrivacySheet({ open, onOpenChange }: PrivacySheetProps) {
               <Eye className="w-6 h-6 text-[var(--ember-accent-base)]" strokeWidth={2} />
             </div>
             <div>
-              <h3 className="text-base font-medium text-[var(--ember-text-high)] mb-1">We don&apos;t need names</h3>
+              <h3 className="text-base font-medium text-[var(--ember-text-high)] mb-1">Proactive ideas, not guesswork</h3>
               <p className="text-sm text-[var(--ember-text-low)] leading-relaxed">
-                We never ask for or store your child&apos;s name. Age and stage are all we need to personalise recommendations.
+                Ember helps you stay ahead with timely suggestions, so you can feel confident about what to introduce next.
               </p>
             </div>
           </div>
@@ -88,9 +88,9 @@ export function PrivacySheet({ open, onOpenChange }: PrivacySheetProps) {
               <Trash2 className="w-6 h-6 text-[var(--ember-accent-base)]" strokeWidth={2} />
             </div>
             <div>
-              <h3 className="text-base font-medium text-[var(--ember-text-high)] mb-1">You can delete anytime</h3>
+              <h3 className="text-base font-medium text-[var(--ember-text-high)] mb-1">You&apos;re always in control</h3>
               <p className="text-sm text-[var(--ember-text-low)] leading-relaxed">
-                You have full control over your child&apos;s profile. Edit or permanently delete it whenever you choose.
+                You can edit or delete your child profile at any time.
               </p>
             </div>
           </div>
@@ -99,9 +99,9 @@ export function PrivacySheet({ open, onOpenChange }: PrivacySheetProps) {
               <Lock className="w-6 h-6 text-[var(--ember-accent-base)]" strokeWidth={2} />
             </div>
             <div>
-              <h3 className="text-base font-medium text-[var(--ember-text-high)] mb-1">We never sell personal data</h3>
+              <h3 className="text-base font-medium text-[var(--ember-text-high)] mb-1">Your data stays private</h3>
               <p className="text-sm text-[var(--ember-text-low)] leading-relaxed">
-                Your information is used only to personalise your Ember experience. We never sell or share it with third parties.
+                We only use this information to personalise your Ember experience. We never sell personal data.
               </p>
             </div>
           </div>
