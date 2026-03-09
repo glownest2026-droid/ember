@@ -104,12 +104,20 @@ export function ListingModal({
     if (!isOpen) return;
     void getMarketplacePreferences().then((r) => {
       if (!("error" in r) && r.postcode) {
-        setSavedArea({ postcode: r.postcode, radius: r.radius });
+        const area = { postcode: r.postcode, radius: r.radius };
+        setSavedArea(area);
+        if (!initialListingId) {
+          setFormData((prev) => ({
+            ...prev,
+            postcode: area.postcode,
+            radius: area.radius,
+          }));
+        }
       } else {
         setSavedArea(null);
       }
     });
-  }, [isOpen]);
+  }, [isOpen, initialListingId]);
 
   const suggestItemTypes = useCallback(
     async (query: string): Promise<ItemTypeSuggestion[]> => {
@@ -310,7 +318,7 @@ export function ListingModal({
         style={{ boxShadow: "var(--shadow-xl)" }}
       >
         <div
-          className="p-6 lg:p-8 border-b"
+          className="flex-shrink-0 p-6 lg:p-8 border-b"
           style={{ borderColor: "var(--ember-gray-300)" }}
         >
           <div className="flex items-center justify-between mb-6">
@@ -377,7 +385,7 @@ export function ListingModal({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 lg:p-8">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 lg:p-8">
           {currentStep === 1 && (
             <ItemNameStep
               data={formData}
@@ -430,7 +438,7 @@ export function ListingModal({
         )}
 
         <div
-          className="p-6 lg:p-8 border-t"
+          className="flex-shrink-0 p-6 lg:p-8 border-t"
           style={{ borderColor: "var(--ember-gray-300)" }}
         >
           <div className="flex justify-between gap-4">

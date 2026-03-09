@@ -96,18 +96,53 @@ export function ReviewStep({
           </div>
 
           <div className="p-6 space-y-6">
+            {photos.length > 0 && (
+              <div>
+                <div className="text-xs font-medium mb-2" style={{ color: "var(--ember-gray-600)" }}>
+                  Photos
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {photos.map((p) => (
+                    <div
+                      key={p.id}
+                      className="w-20 h-20 rounded-xl overflow-hidden border border-[var(--ember-gray-300)] bg-[var(--ember-gray-100)] flex-shrink-0"
+                    >
+                      {p.previewUrl ? (
+                        <img
+                          src={p.previewUrl}
+                          alt=""
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Package className="w-6 h-6" style={{ color: "var(--ember-gray-500)" }} />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <div>
               <div className="flex items-start gap-3 mb-4">
                 <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                  className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 border border-[var(--ember-gray-200)]"
                   style={{ backgroundColor: "var(--ember-primary-10)" }}
                 >
-                  <Package
-                    className="w-6 h-6"
-                    style={{ color: "var(--ember-primary)" }}
-                  />
+                  {photos[0]?.previewUrl ? (
+                    <img
+                      src={photos[0].previewUrl}
+                      alt=""
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <Package
+                      className="w-6 h-6"
+                      style={{ color: "var(--ember-primary)" }}
+                    />
+                  )}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <h4
                     className="text-2xl font-medium mb-1"
                     style={{ color: "var(--ember-gray-900)" }}

@@ -78,6 +78,18 @@ export async function submitListing(
     .eq("user_id", user.id);
 
   if (error) return { error: error.message };
+
+  if (payload.postcode?.trim()) {
+    await supabase.from("marketplace_preferences").upsert(
+      {
+        user_id: user.id,
+        postcode: payload.postcode.trim(),
+        radius_miles: payload.radiusMiles,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" }
+    );
+  }
   return { ok: true };
 }
 
