@@ -89,17 +89,17 @@ export function ReviewStep({
             <div>
               <div className="flex items-start gap-3 mb-2">
                 <div
-                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 border border-[var(--ember-gray-200)] bg-[var(--ember-gray-100)]"
+                  className="w-32 h-32 sm:w-40 sm:h-40 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 border border-[var(--ember-gray-200)] bg-[var(--ember-gray-100)]"
                 >
                   {photos[0]?.previewUrl ? (
                     <img
                       src={photos[0].previewUrl}
                       alt=""
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <Package
-                      className="w-8 h-8"
+                      className="w-10 h-10"
                       style={{ color: "var(--ember-primary)" }}
                     />
                   )}
