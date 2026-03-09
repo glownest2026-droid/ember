@@ -198,15 +198,15 @@ export default function MarketplaceListingsPage() {
               className="rounded-2xl border border-[#E5E7EB] bg-white p-6 flex flex-col sm:flex-row sm:items-center gap-4"
             >
               <div className="flex gap-4 flex-1 min-w-0">
-                <div className="w-20 h-20 rounded-xl overflow-hidden border border-[#E5E7EB] bg-[#F1F3F2] flex-shrink-0 flex items-center justify-center aspect-square">
+                <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-xl overflow-hidden border border-[#E5E7EB] bg-[#F1F3F2] flex-shrink-0 flex items-center justify-center">
                   {listing.photos[0]?.preview_url ? (
                     <img
                       src={listing.photos[0].preview_url}
                       alt=""
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
-                    <Package className="w-8 h-8 text-[#5C646D]" />
+                    <Package className="w-10 h-10 text-[#5C646D]" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1 space-y-1">

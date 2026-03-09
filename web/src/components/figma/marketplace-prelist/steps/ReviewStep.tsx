@@ -87,10 +87,9 @@ export function ReviewStep({
 
           <div className="p-4 space-y-3">
             <div>
-              <div className="flex items-start gap-2 mb-2">
+              <div className="flex items-start gap-3 mb-2">
                 <div
-                  className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0 border border-[var(--ember-gray-200)]"
-                  style={{ backgroundColor: "var(--ember-primary-10)" }}
+                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 border border-[var(--ember-gray-200)] bg-[var(--ember-gray-100)]"
                 >
                   {photos[0]?.previewUrl ? (
                     <img
@@ -100,7 +99,7 @@ export function ReviewStep({
                     />
                   ) : (
                     <Package
-                      className="w-6 h-6"
+                      className="w-8 h-8"
                       style={{ color: "var(--ember-primary)" }}
                     />
                   )}
