@@ -69,16 +69,64 @@ export default function MarketplacePage() {
 
   useEffect(() => {
     const supabase = createClient();
-    const fetchChildren = (userId: string) => {
+    const setLoaded = () => setChildrenLoaded(true);
+    const fetchChildren = () => {
+      setChildrenLoaded(false);
       supabase
         .from("children")
-        .select("id, child_name, display_name, age_band, gender")
-        .eq("user_id", userId)
+        .select("id, child_name, age_band, gender")
         .eq("is_suppressed", false)
         .order("created_at", { ascending: true })
-        .then(({ data: list }) => {
-          setChildren((list as ChildRow[]) ?? []);
-          setChildrenLoaded(true);
+        .then(({ data, error }) => {
+          if (!error && Array.isArray(data)) {
+            setChildren(
+              (data as ChildRow[]).map((r) => ({
+                ...r,
+                display_name: (r as Record<string, unknown>).display_name as string | undefined,
+              }))
+            );
+            setLoaded();
+            return;
+          }
+          supabase
+            .from("children")
+            .select("id, display_name, age_band, gender")
+            .eq("is_suppressed", false)
+            .order("created_at", { ascending: true })
+            .then(({ data: data2, error: err2 }) => {
+              if (!err2 && Array.isArray(data2)) {
+                setChildren(
+                  (data2 as Record<string, unknown>[]).map((r) => ({
+                    id: r.id as string,
+                    child_name: r.display_name as string | undefined,
+                    display_name: r.display_name as string | undefined,
+                    age_band: r.age_band as string | undefined,
+                    gender: r.gender as string | undefined,
+                  }))
+                );
+                setLoaded();
+                return;
+              }
+              supabase
+                .from("children")
+                .select("id, gender, age_band")
+                .eq("is_suppressed", false)
+                .order("created_at", { ascending: true })
+                .then(({ data: fallback }) => {
+                  setChildren(
+                    Array.isArray(fallback)
+                      ? (fallback as Record<string, unknown>[]).map((r) => ({
+                          id: r.id as string,
+                          child_name: undefined,
+                          display_name: undefined,
+                          age_band: r.age_band as string | undefined,
+                          gender: r.gender as string | undefined,
+                        }))
+                      : []
+                  );
+                  setLoaded();
+                });
+            });
         });
     };
     supabase.auth.getUser().then(({ data: { user: u } }) => {
@@ -87,7 +135,7 @@ export default function MarketplacePage() {
         setChildrenLoaded(true);
         return;
       }
-      fetchChildren(u.id);
+      fetchChildren();
     });
     const {
       data: { subscription },
@@ -99,8 +147,7 @@ export default function MarketplacePage() {
         setChildrenLoaded(false);
         return;
       }
-      setChildrenLoaded(false);
-      fetchChildren(u.id);
+      fetchChildren();
     });
     return () => subscription.unsubscribe();
   }, []);
