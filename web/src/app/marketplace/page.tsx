@@ -120,7 +120,7 @@ export default function MarketplacePage() {
       return;
     }
     let match: ChildRow | null = childParam ? children.find((c) => c.id === childParam) ?? null : null;
-    if (!match && children.length === 1 && !childParam) {
+    if (!match && children.length >= 1 && !childParam) {
       match = children[0];
     }
     if (match) {
