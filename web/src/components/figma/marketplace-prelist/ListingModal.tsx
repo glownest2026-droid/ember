@@ -314,7 +314,7 @@ export function ListingModal({
       style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
     >
       <div
-        className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-white rounded-3xl max-w-3xl w-full h-[90vh] max-h-[90vh] overflow-hidden flex flex-col"
         style={{ boxShadow: "var(--shadow-xl)" }}
       >
         <div
