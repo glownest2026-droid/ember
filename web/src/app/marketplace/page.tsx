@@ -55,6 +55,7 @@ function childDisplayName(c: ChildRow, index: number): string {
 export default function MarketplacePage() {
   const [user, setUser] = useState<{ id: string } | null>(null);
   const [children, setChildren] = useState<ChildRow[]>([]);
+  const [childrenLoaded, setChildrenLoaded] = useState(false);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [selectedChildName, setSelectedChildName] = useState("your child");
   const [ageBandLabel, setAgeBandLabel] = useState<string | undefined>(undefined);
@@ -68,29 +69,45 @@ export default function MarketplacePage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user: u } }) => {
-      setUser(u ?? null);
-      if (!u) return;
+    const fetchChildren = (userId: string) => {
       supabase
         .from("children")
         .select("id, child_name, display_name, age_band, gender")
-        .eq("user_id", u.id)
+        .eq("user_id", userId)
         .eq("is_suppressed", false)
         .order("created_at", { ascending: true })
         .then(({ data: list }) => {
           setChildren((list as ChildRow[]) ?? []);
+          setChildrenLoaded(true);
         });
+    };
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      setUser(u ?? null);
+      if (!u) {
+        setChildrenLoaded(true);
+        return;
+      }
+      fetchChildren(u.id);
     });
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
+      const u = session?.user ?? null;
+      setUser(u);
+      if (!u) {
+        setChildren([]);
+        setChildrenLoaded(false);
+        return;
+      }
+      setChildrenLoaded(false);
+      fetchChildren(u.id);
     });
     return () => subscription.unsubscribe();
   }, []);
 
   const childParam = searchParams.get("child");
   useEffect(() => {
+    if (!childrenLoaded) return;
     if (children.length === 0) {
       if (!childParam) {
         setSelectedChildId(null);
@@ -152,7 +169,7 @@ export default function MarketplacePage() {
       setSelectedChildName("your child");
       setAgeBandLabel(undefined);
     }
-  }, [children, childParam]);
+  }, [children, childParam, childrenLoaded]);
 
   const editId = searchParams.get("edit");
   useEffect(() => {
