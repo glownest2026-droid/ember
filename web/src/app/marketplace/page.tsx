@@ -38,7 +38,16 @@ import type { ListingData } from "@/components/figma/marketplace-prelist/types";
  * Route: /marketplace. Uses existing app shell (ConditionalHeader + SubnavGate from root layout).
  * Logged-in: prelist widget above hero; List an item opens modal → backend (PR1).
  */
-type ChildRow = { id: string; child_name?: string; display_name?: string; age_band?: string };
+type ChildRow = { id: string; child_name?: string; display_name?: string; age_band?: string; gender?: string };
+
+function childDisplayName(c: ChildRow, index: number): string {
+  const name = (c.child_name || c.display_name || "").trim();
+  if (name) return name;
+  const g = (c.gender || "").trim().toLowerCase();
+  if (g === "male") return "Boy";
+  if (g === "female") return "Girl";
+  return `Child ${index + 1}`;
+}
 
 export default function MarketplacePage() {
   const [user, setUser] = useState<{ id: string } | null>(null);
@@ -88,9 +97,8 @@ export default function MarketplacePage() {
     const match = childParam ? children.find((c) => c.id === childParam) : null;
     if (match) {
       setSelectedChildId(match.id);
-      setSelectedChildName(
-        match.child_name || match.display_name || "your child"
-      );
+      const idx = children.indexOf(match);
+      setSelectedChildName(childDisplayName(match, idx >= 0 ? idx : 0));
       setAgeBandLabel(match.age_band ?? undefined);
     } else {
       setSelectedChildId(null);

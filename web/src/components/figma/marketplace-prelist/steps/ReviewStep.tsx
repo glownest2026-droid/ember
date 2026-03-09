@@ -3,7 +3,6 @@
 import {
   Package,
   MapPin,
-  PoundSterling,
   CheckCircle,
   Mail,
 } from "lucide-react";
@@ -284,17 +283,13 @@ export function ReviewStep({
             />
 
             <div className="flex items-start gap-3">
-              <PoundSterling
-                className="w-5 h-5 flex-shrink-0"
-                style={{ color: "var(--ember-primary)" }}
-              />
               <div>
                 <div
                   className="text-sm font-medium mb-1"
                   style={{ color: "var(--ember-gray-900)" }}
                 >
                   {data.pricingIntent === "rough" && data.priceAmount
-                    ? `£${data.priceAmount} (GBP)`
+                    ? `£${data.priceAmount}`
                     : pricingLabels[data.pricingIntent || "later"]}
                 </div>
                 <div

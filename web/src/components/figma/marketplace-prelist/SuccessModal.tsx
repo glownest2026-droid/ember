@@ -101,7 +101,15 @@ export function SuccessModal({
                   <strong style={{ color: "var(--ember-gray-900)" }}>
                     {listing.itemName}
                   </strong>{" "}
-                  safely — you can edit it anytime from &quot;My listings&quot;
+                  safely — you can edit it anytime from{" "}
+                  <Link
+                    href="/marketplace/listings"
+                    onClick={onClose}
+                    className="font-medium underline hover:no-underline"
+                    style={{ color: "var(--ember-primary)" }}
+                  >
+                    My listings
+                  </Link>
                 </p>
               </div>
               <div className="flex gap-3">
