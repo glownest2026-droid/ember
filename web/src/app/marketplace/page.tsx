@@ -41,9 +41,12 @@ import type { ListingData } from "@/components/figma/marketplace-prelist/types";
 type ChildRow = { id: string; child_name?: string; display_name?: string; age_band?: string; gender?: string };
 
 function childDisplayName(c: ChildRow, index: number): string {
-  const name = (c.child_name || c.display_name || "").trim();
+  const raw = c as Record<string, unknown>;
+  const name = (
+    (raw.child_name ?? raw.childName ?? raw.display_name ?? raw.displayName ?? "") as string
+  ).trim();
   if (name) return name;
-  const g = (c.gender || "").trim().toLowerCase();
+  const g = ((raw.gender as string) ?? "").trim().toLowerCase();
   if (g === "male") return "Boy";
   if (g === "female") return "Girl";
   return `Child ${index + 1}`;
@@ -70,7 +73,7 @@ export default function MarketplacePage() {
       if (!u) return;
       supabase
         .from("children")
-        .select("id, child_name, display_name, age_band")
+        .select("id, child_name, display_name, age_band, gender")
         .eq("user_id", u.id)
         .eq("is_suppressed", false)
         .order("created_at", { ascending: true })
@@ -89,17 +92,61 @@ export default function MarketplacePage() {
   const childParam = searchParams.get("child");
   useEffect(() => {
     if (children.length === 0) {
-      setSelectedChildId(null);
-      setSelectedChildName("your child");
-      setAgeBandLabel(undefined);
+      if (!childParam) {
+        setSelectedChildId(null);
+        setSelectedChildName("your child");
+        setAgeBandLabel(undefined);
+      } else {
+        const supabase = createClient();
+        supabase
+          .from("children")
+          .select("id, child_name, display_name, age_band, gender")
+          .eq("id", childParam)
+          .eq("is_suppressed", false)
+          .single()
+          .then(({ data: one }) => {
+            if (one) {
+              const row = one as ChildRow;
+              setSelectedChildId(row.id);
+              setSelectedChildName(childDisplayName(row, 0));
+              setAgeBandLabel(row.age_band ?? undefined);
+            } else {
+              setSelectedChildId(null);
+              setSelectedChildName("your child");
+              setAgeBandLabel(undefined);
+            }
+          });
+      }
       return;
     }
-    const match = childParam ? children.find((c) => c.id === childParam) : null;
+    let match: ChildRow | null = childParam ? children.find((c) => c.id === childParam) ?? null : null;
+    if (!match && children.length === 1 && !childParam) {
+      match = children[0];
+    }
     if (match) {
       setSelectedChildId(match.id);
       const idx = children.indexOf(match);
       setSelectedChildName(childDisplayName(match, idx >= 0 ? idx : 0));
-      setAgeBandLabel(match.age_band ?? undefined);
+      setAgeBandLabel((match.age_band as string) ?? undefined);
+    } else if (childParam) {
+      setSelectedChildId(childParam);
+      const supabase = createClient();
+      supabase
+        .from("children")
+        .select("id, child_name, display_name, age_band, gender")
+        .eq("id", childParam)
+        .eq("is_suppressed", false)
+        .single()
+        .then(({ data: one }) => {
+          if (one) {
+            const row = one as ChildRow;
+            setSelectedChildName(childDisplayName(row, 0));
+            setAgeBandLabel(row.age_band ?? undefined);
+          } else {
+            setSelectedChildName("your child");
+            setAgeBandLabel(undefined);
+          }
+        });
     } else {
       setSelectedChildId(null);
       setSelectedChildName("your child");
