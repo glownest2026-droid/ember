@@ -162,7 +162,8 @@ export function SubnavBar() {
   const isDiscover = basePath.startsWith('/discover');
   const isMyIdeas = basePath.startsWith('/my-ideas');
   const isFamily = basePath.startsWith('/family');
-  const childToggleApplies = isDiscover || isMyIdeas || isFamily;
+  const isMarketplace = basePath.startsWith('/marketplace');
+  const childToggleApplies = isDiscover || isMyIdeas || isFamily || isMarketplace;
 
   const buildUrlWithChild = (path: string, childId: string | null) => {
     const params = new URLSearchParams(searchParams?.toString() ?? '');
