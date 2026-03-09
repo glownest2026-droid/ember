@@ -385,7 +385,9 @@ export function ListingModal({
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-6 lg:p-8">
+        <div
+          className={`flex-1 min-h-0 overflow-y-auto ${currentStep === 5 ? "px-6 py-4 lg:px-8 lg:py-5" : "p-6 lg:p-8"}`}
+        >
           {currentStep === 1 && (
             <ItemNameStep
               data={formData}
