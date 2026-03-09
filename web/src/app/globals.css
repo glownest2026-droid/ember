@@ -325,4 +325,23 @@ button[data-subnav-reminders-switch]:not(:disabled) {
   animation: accordion-up 0.2s ease-out;
 }
 
+/* Figma prelist flow tokens (marketplace-prelist components) */
+:root {
+  --ember-primary: #FF6347;
+  --ember-primary-dark: #B8432B;
+  --ember-primary-light: #FF8870;
+  --ember-gray-900: #1A1E23;
+  --ember-gray-600: #5C646D;
+  --ember-gray-300: #E5E7EB;
+  --ember-gray-200: #F1F3F2;
+  --ember-gray-100: #FAFAFA;
+  --ember-blush: #FFF5F3;
+  --ember-primary-10: rgba(255, 99, 71, 0.1);
+  --ember-primary-5: rgba(255, 99, 71, 0.05);
+  --shadow-md: 0px 8px 32px rgba(0,0,0,0.08);
+  --shadow-xl: 0px 20px 60px rgba(0,0,0,0.12);
+  --shadow-primary: 0px 8px 32px rgba(255,99,71,0.3);
+  --font-body: var(--font-sans), system-ui, sans-serif;
+}
+
 @import "./../styles/theme.css";

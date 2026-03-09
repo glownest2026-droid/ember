@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import Link from "next/link";
 import {
@@ -16,6 +18,7 @@ import {
   ShieldCheck,
   Calendar,
 } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 import { NotificationAnimation } from "@/components/figma/marketplace/NotificationAnimation";
 import { SellSuggestions } from "@/components/figma/marketplace/SellSuggestions";
 import { Button } from "@/components/figma/marketplace/ui/button";
@@ -25,15 +28,255 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/figma/marketplace/ui/accordion";
+import { ListingWidget } from "@/components/figma/marketplace-prelist/ListingWidget";
+import { ListingModal } from "@/components/figma/marketplace-prelist/ListingModal";
+import { SuccessModal } from "@/components/figma/marketplace-prelist/SuccessModal";
+import type { ListingData } from "@/components/figma/marketplace-prelist/types";
 
 /**
  * Marketplace marketing page — Figma Make exact implementation.
  * Route: /marketplace. Uses existing app shell (ConditionalHeader + SubnavGate from root layout).
- * Links: /join, /notify, /login → /signin; /app/sell → /products (see SellSuggestions).
+ * Logged-in: prelist widget above hero; List an item opens modal → backend (PR1).
  */
+type ChildRow = { id: string; child_name?: string; display_name?: string; age_band?: string; gender?: string };
+
+function childDisplayName(c: ChildRow, index: number): string {
+  const raw = c as Record<string, unknown>;
+  const name = (
+    (raw.child_name ?? raw.childName ?? raw.display_name ?? raw.displayName ?? "") as string
+  ).trim();
+  if (name) return name;
+  const g = ((raw.gender as string) ?? "").trim().toLowerCase();
+  if (g === "male") return "Boy";
+  if (g === "female") return "Girl";
+  return `Child ${index + 1}`;
+}
+
 export default function MarketplacePage() {
+  const [user, setUser] = useState<{ id: string } | null>(null);
+  const [children, setChildren] = useState<ChildRow[]>([]);
+  const [childrenLoaded, setChildrenLoaded] = useState(false);
+  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [selectedChildName, setSelectedChildName] = useState("your child");
+  const [ageBandLabel, setAgeBandLabel] = useState<string | undefined>(undefined);
+  const [listingModalOpen, setListingModalOpen] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [submittedListing, setSubmittedListing] = useState<ListingData | null>(null);
+  const [editListingId, setEditListingId] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState<Partial<ListingData> | null>(null);
+  const [editPhotos, setEditPhotos] = useState<{ id: string; storagePath: string; previewUrl?: string }[]>([]);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const supabase = createClient();
+    const setLoaded = () => setChildrenLoaded(true);
+    const fetchChildren = () => {
+      setChildrenLoaded(false);
+      supabase
+        .from("children")
+        .select("id, child_name, age_band, gender")
+        .eq("is_suppressed", false)
+        .order("created_at", { ascending: true })
+        .then(({ data, error }) => {
+          if (!error && Array.isArray(data)) {
+            setChildren(
+              (data as ChildRow[]).map((r) => ({
+                ...r,
+                display_name: (r as Record<string, unknown>).display_name as string | undefined,
+              }))
+            );
+            setLoaded();
+            return;
+          }
+          supabase
+            .from("children")
+            .select("id, display_name, age_band, gender")
+            .eq("is_suppressed", false)
+            .order("created_at", { ascending: true })
+            .then(({ data: data2, error: err2 }) => {
+              if (!err2 && Array.isArray(data2)) {
+                setChildren(
+                  (data2 as Record<string, unknown>[]).map((r) => ({
+                    id: r.id as string,
+                    child_name: r.display_name as string | undefined,
+                    display_name: r.display_name as string | undefined,
+                    age_band: r.age_band as string | undefined,
+                    gender: r.gender as string | undefined,
+                  }))
+                );
+                setLoaded();
+                return;
+              }
+              supabase
+                .from("children")
+                .select("id, gender, age_band")
+                .eq("is_suppressed", false)
+                .order("created_at", { ascending: true })
+                .then(({ data: fallback }) => {
+                  setChildren(
+                    Array.isArray(fallback)
+                      ? (fallback as Record<string, unknown>[]).map((r) => ({
+                          id: r.id as string,
+                          child_name: undefined,
+                          display_name: undefined,
+                          age_band: r.age_band as string | undefined,
+                          gender: r.gender as string | undefined,
+                        }))
+                      : []
+                  );
+                  setLoaded();
+                });
+            });
+        });
+    };
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      setUser(u ?? null);
+      if (!u) {
+        setChildrenLoaded(true);
+        return;
+      }
+      fetchChildren();
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_e, session) => {
+      const u = session?.user ?? null;
+      setUser(u);
+      if (!u) {
+        setChildren([]);
+        setChildrenLoaded(false);
+        return;
+      }
+      fetchChildren();
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const childParam = searchParams.get("child");
+  useEffect(() => {
+    if (!childrenLoaded) return;
+    if (children.length === 0) {
+      if (!childParam) {
+        setSelectedChildId(null);
+        setSelectedChildName("your child");
+        setAgeBandLabel(undefined);
+      } else {
+        const supabase = createClient();
+        supabase
+          .from("children")
+          .select("id, child_name, display_name, age_band, gender")
+          .eq("id", childParam)
+          .eq("is_suppressed", false)
+          .single()
+          .then(({ data: one }) => {
+            if (one) {
+              const row = one as ChildRow;
+              setSelectedChildId(row.id);
+              setSelectedChildName(childDisplayName(row, 0));
+              setAgeBandLabel(row.age_band ?? undefined);
+            } else {
+              setSelectedChildId(null);
+              setSelectedChildName("your child");
+              setAgeBandLabel(undefined);
+            }
+          });
+      }
+      return;
+    }
+    const match: ChildRow | null = childParam ? children.find((c) => c.id === childParam) ?? null : null;
+    if (match) {
+      setSelectedChildId(match.id);
+      const idx = children.indexOf(match);
+      setSelectedChildName(childDisplayName(match, idx >= 0 ? idx : 0));
+      setAgeBandLabel((match.age_band as string) ?? undefined);
+    } else if (childParam) {
+      setSelectedChildId(childParam);
+      const supabase = createClient();
+      supabase
+        .from("children")
+        .select("id, child_name, display_name, age_band, gender")
+        .eq("id", childParam)
+        .eq("is_suppressed", false)
+        .single()
+        .then(({ data: one }) => {
+          if (one) {
+            const row = one as ChildRow;
+            setSelectedChildName(childDisplayName(row, 0));
+            setAgeBandLabel(row.age_band ?? undefined);
+          } else {
+            setSelectedChildName("your child");
+            setAgeBandLabel(undefined);
+          }
+        });
+    } else {
+      setSelectedChildId(null);
+      setSelectedChildName("your child");
+      setAgeBandLabel(undefined);
+    }
+  }, [children, childParam, childrenLoaded]);
+
+  const editId = searchParams.get("edit");
+  useEffect(() => {
+    if (!editId || !user) {
+      setEditListingId(null);
+      setEditFormData(null);
+      setEditPhotos([]);
+      return;
+    }
+    const supabase = createClient();
+    (async () => {
+      const { data: row, error } = await supabase
+        .from("marketplace_listings")
+        .select("id, raw_item_text, condition, notes, postcode, radius_miles, selected_item_type_id")
+        .eq("id", editId)
+        .eq("user_id", user.id)
+        .single();
+      if (error || !row) {
+        setEditListingId(null);
+        return;
+      }
+      setEditListingId(row.id);
+      setEditFormData({
+        itemName: row.raw_item_text ?? "",
+        condition: row.condition ?? "",
+        notes: row.notes ?? "",
+        postcode: row.postcode ?? "",
+        radius: row.radius_miles != null ? String(row.radius_miles) : "5",
+        selectedItemTypeId: (row as { selected_item_type_id?: string }).selected_item_type_id ?? null,
+      });
+      const { data: photoRows } = await supabase
+        .from("marketplace_listing_photos")
+        .select("id, storage_path")
+        .eq("listing_id", row.id)
+        .order("sort_order", { ascending: true });
+      const withUrls = await Promise.all(
+        (photoRows ?? []).map(async (p) => {
+          const { data: signed } = await supabase.storage
+            .from("marketplace-listing-photos")
+            .createSignedUrl(p.storage_path, 3600);
+          return { id: p.id, storagePath: p.storage_path, previewUrl: signed?.signedUrl };
+        })
+      );
+      setEditPhotos(withUrls);
+      setListingModalOpen(true);
+    })();
+  }, [editId, user?.id]);
+
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
+      {/* Prelist widget (logged-in only) */}
+      {user && (
+        <section className="pt-8 pb-0">
+          <div className="container mx-auto px-6 lg:px-12 max-w-[90rem]">
+            <ListingWidget
+              selectedChildName={selectedChildName}
+              ageBandLabel={ageBandLabel}
+              onListItem={() => setListingModalOpen(true)}
+            />
+          </div>
+        </section>
+      )}
+
       {/* Hero Section */}
       <section className="bg-white border-b border-[#E5E7EB] pt-12 pb-16 lg:pt-20 lg:pb-24">
         <div className="container mx-auto px-6 lg:px-12 max-w-[90rem]">
@@ -377,6 +620,43 @@ export default function MarketplacePage() {
           </div>
         </div>
       </footer>
+
+      {user && (
+        <>
+          <ListingModal
+            isOpen={listingModalOpen}
+            onClose={() => {
+              setListingModalOpen(false);
+              setEditListingId(null);
+              setEditFormData(null);
+              setEditPhotos([]);
+            }}
+            onComplete={(data) => {
+              setSubmittedListing(data);
+              setListingModalOpen(false);
+              setSuccessModalOpen(true);
+              setEditListingId(null);
+              setEditFormData(null);
+              setEditPhotos([]);
+            }}
+            selectedChildId={selectedChildId}
+            selectedChildName={selectedChildName}
+            initialListingId={editListingId}
+            initialFormData={editFormData}
+            initialPhotos={editPhotos}
+          />
+          <SuccessModal
+            isOpen={successModalOpen}
+            onClose={() => setSuccessModalOpen(false)}
+            listing={submittedListing}
+            onListAnother={() => {
+              setSuccessModalOpen(false);
+              setListingModalOpen(true);
+            }}
+            selectedChildName={selectedChildName}
+          />
+        </>
+      )}
     </div>
   );
 }
