@@ -413,6 +413,7 @@ export function ListingModal({
             <ReviewStep
               data={formData}
               selectedChildName={selectedChildName}
+              photos={photos}
               emailWhenLaunch={emailWhenLaunch}
               onEmailWhenLaunchChange={setEmailWhenLaunch}
             />

@@ -4,10 +4,11 @@ _Last updated: 2026-03-05_
 ## feat(marketplace): Pre-list flow (Figma exact) + wiring (2026-03-05)
 - **Branch:** feat/marketplace-prelist-figma-wiring
 - **Scope:** One PR: pre-launch listing flow from Figma Make code pack, wired to PR1 backend. No DB/schema changes.
-- **Route:** /marketplace (logged-in): widget above hero + modal; /app/listings: view/manage listings.
-- **Flow:** Step 1 item + pg_trgm suggestions; Step 2 condition + photo upload (storage + marketplace_listing_photos); Step 3 pickup area + marketplace_preferences; Step 4 pricing intent (in notes); Step 5 review + submit (status=submitted). Success modal; "Email me when Marketplace launches" → user_notification_prefs.
-- **Files:** web/src/components/figma/marketplace-prelist/* (ListingWidget, ListingModal, SuccessModal, steps/*); web/src/app/marketplace/page.tsx; web/src/app/(app)/app/listings/page.tsx; web/src/lib/marketplace/actions.ts; globals.css (prelist tokens).
-- **Verification:** Login → /marketplace → List an item → type "chair" → pick suggestion → upload photo → submit → /app/listings shows listing; Edit (prefilled modal); Delete (archive + remove photos).
+- **Route:** /marketplace (logged-in): widget above hero + modal; /marketplace/listings: canonical My listings page; /app/listings redirects to /marketplace/listings.
+- **Flow:** Step 1 item + pg_trgm suggestions; Step 2 condition + photo upload (storage + marketplace_listing_photos); Step 3 pickup area + marketplace_preferences; Step 4 pricing intent (GBP, rough price visible); Step 5 review (photos + £ price) + submit (status=submitted). Success modal → "View my listings" → /marketplace/listings.
+- **Snag fixes:** (1) Pricing step: compact layout so Rough price box visible; GBP (£) everywhere, no conversion. (2) Review step: show uploaded photos; price as £ (GBP). (3) Listings at /marketplace/listings; link from SuccessModal; /app/listings redirect. (4) Listing cards: object-contain for photo (no squish); notes parsed for price display; show condition, area, price. (5) Subnav: Marketplace links preserve ?child=; marketplace page reads ?child= for header "Ready to pass anything on for [child name]?" else "your child".
+- **Files:** web/src/components/figma/marketplace-prelist/* (ListingWidget, ListingModal, SuccessModal, steps/*); web/src/app/marketplace/page.tsx; web/src/app/marketplace/listings/page.tsx; web/src/app/(app)/app/listings/page.tsx (redirect); DiscoverStickyHeader, MyIdeasClient (withChild links); lib/marketplace/actions.ts; globals.css (prelist tokens).
+- **Verification:** Login → /marketplace → List an item → set rough price £10 → Review shows photo + £10 (GBP) → submit → View my listings → /marketplace/listings; card shows photo (correct aspect), condition, price. From /my-ideas?child=id → Marketplace → header uses child name; subnav shows same child.
 
 ## feat(marketplace): Listings backend — schema, storage, pg_trgm (2026-03-05)
 - **Branch:** feat/marketplace-listings-backend

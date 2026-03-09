@@ -38,8 +38,11 @@ import type { ListingData } from "@/components/figma/marketplace-prelist/types";
  * Route: /marketplace. Uses existing app shell (ConditionalHeader + SubnavGate from root layout).
  * Logged-in: prelist widget above hero; List an item opens modal → backend (PR1).
  */
+type ChildRow = { id: string; child_name?: string; display_name?: string; age_band?: string };
+
 export default function MarketplacePage() {
   const [user, setUser] = useState<{ id: string } | null>(null);
+  const [children, setChildren] = useState<ChildRow[]>([]);
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
   const [selectedChildName, setSelectedChildName] = useState("your child");
   const [ageBandLabel, setAgeBandLabel] = useState<string | undefined>(undefined);
@@ -62,18 +65,8 @@ export default function MarketplacePage() {
         .eq("user_id", u.id)
         .eq("is_suppressed", false)
         .order("created_at", { ascending: true })
-        .limit(1)
-        .single()
-        .then(({ data: c }) => {
-          if (c) {
-            setSelectedChildId(c.id);
-            const name =
-              (c as { child_name?: string; display_name?: string }).child_name ||
-              (c as { child_name?: string; display_name?: string }).display_name ||
-              "your child";
-            setSelectedChildName(name);
-            setAgeBandLabel((c as { age_band?: string }).age_band ?? undefined);
-          }
+        .then(({ data: list }) => {
+          setChildren((list as ChildRow[]) ?? []);
         });
     });
     const {
@@ -83,6 +76,28 @@ export default function MarketplacePage() {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  const childParam = searchParams.get("child");
+  useEffect(() => {
+    if (children.length === 0) {
+      setSelectedChildId(null);
+      setSelectedChildName("your child");
+      setAgeBandLabel(undefined);
+      return;
+    }
+    const match = childParam ? children.find((c) => c.id === childParam) : null;
+    if (match) {
+      setSelectedChildId(match.id);
+      setSelectedChildName(
+        match.child_name || match.display_name || "your child"
+      );
+      setAgeBandLabel(match.age_band ?? undefined);
+    } else {
+      setSelectedChildId(null);
+      setSelectedChildName("your child");
+      setAgeBandLabel(undefined);
+    }
+  }, [children, childParam]);
 
   const editId = searchParams.get("edit");
   useEffect(() => {

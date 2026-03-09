@@ -3,15 +3,22 @@
 import {
   Package,
   MapPin,
-  DollarSign,
+  PoundSterling,
   CheckCircle,
   Mail,
 } from "lucide-react";
 import type { ListingData } from "../types";
 
+interface ReviewPhoto {
+  id: string;
+  storagePath: string;
+  previewUrl?: string;
+}
+
 interface ReviewStepProps {
   data: Partial<ListingData>;
   selectedChildName: string;
+  photos?: ReviewPhoto[];
   emailWhenLaunch?: boolean;
   onEmailWhenLaunchChange?: (value: boolean) => void;
 }
@@ -19,14 +26,13 @@ interface ReviewStepProps {
 export function ReviewStep({
   data,
   selectedChildName,
+  photos = [],
   emailWhenLaunch,
   onEmailWhenLaunchChange,
 }: ReviewStepProps) {
   const pricingLabels: Record<string, string> = {
     later: "I'll decide later",
-    rough: data.priceAmount
-      ? `£${data.priceAmount}`
-      : "Rough price",
+    rough: "Rough price",
     free: "Free to a family nearby",
     offers: "Open to offers",
   };
@@ -278,7 +284,7 @@ export function ReviewStep({
             />
 
             <div className="flex items-start gap-3">
-              <DollarSign
+              <PoundSterling
                 className="w-5 h-5 flex-shrink-0"
                 style={{ color: "var(--ember-primary)" }}
               />
@@ -287,7 +293,9 @@ export function ReviewStep({
                   className="text-sm font-medium mb-1"
                   style={{ color: "var(--ember-gray-900)" }}
                 >
-                  {pricingLabels[data.pricingIntent || "later"]}
+                  {data.pricingIntent === "rough" && data.priceAmount
+                    ? `£${data.priceAmount} (GBP)`
+                    : pricingLabels[data.pricingIntent || "later"]}
                 </div>
                 <div
                   className="text-xs"

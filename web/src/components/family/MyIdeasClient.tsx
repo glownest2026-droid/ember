@@ -713,7 +713,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
                                 )}
                               </span>
                               <Link
-                                href="/marketplace"
+                                href={childFromUrl ? `/marketplace?child=${encodeURIComponent(childFromUrl)}` : '/marketplace'}
                                 className="text-xs hover:underline"
                                 style={{ color: 'var(--ember-accent-base)' }}
                               >

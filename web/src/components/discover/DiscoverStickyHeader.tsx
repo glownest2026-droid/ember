@@ -111,7 +111,7 @@ export default function DiscoverStickyHeader() {
                   <Bookmark className="w-5 h-5" strokeWidth={2} />
                 </Link>
                 <Link
-                  href="/marketplace"
+                  href={withChild('/marketplace')}
                   className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
                   aria-label="Marketplace"
                 >
@@ -157,7 +157,7 @@ export default function DiscoverStickyHeader() {
                   My Saves
                 </Link>
                 <Link
-                  href="/marketplace"
+                  href={withChild('/marketplace')}
                   className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
                   aria-label="Marketplace"
                 >
@@ -228,7 +228,7 @@ export default function DiscoverStickyHeader() {
                   My Saves
                 </Link>
                 <Link
-                  href="/marketplace"
+                  href={withChild('/marketplace')}
                   onClick={() => setMobileMenuOpen(false)}
                   className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
                 >

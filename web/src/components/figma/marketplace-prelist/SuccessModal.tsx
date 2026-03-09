@@ -252,7 +252,7 @@ export function SuccessModal({
               </span>
             </button>
             <Link
-              href="/app/listings"
+              href="/marketplace/listings"
               onClick={onClose}
               className="flex-1 px-6 py-4 rounded-xl font-medium border transition-all duration-300 hover:border-[var(--ember-primary)] text-center"
               style={{
