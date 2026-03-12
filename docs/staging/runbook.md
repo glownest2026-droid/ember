@@ -4,6 +4,15 @@ Use these steps in order. All steps are clerical (no engineering judgment). If a
 
 ---
 
+## 0. (If opening the staging-foundation PR manually)
+
+1. Go to: **https://github.com/glownest2026-droid/ember/compare/main...feat/staging-frontend-foundation**
+2. Click **Create pull request**.
+3. **Title:** `chore(staging): Establish staging frontend/deployment foundation`
+4. **Description:** Paste the contents of `.pr_staging_foundation_body.md` from the branch (e.g. open `https://github.com/glownest2026-droid/ember/blob/feat/staging-frontend-foundation/.pr_staging_foundation_body.md` and copy the raw content), then click **Create pull request**. After the PR is created, the Vercel check will post or you can find the preview URL under **Deployments** or the PR’s **Checks** tab.
+
+---
+
 ## 1. Create or verify the `staging` branch (GitHub)
 
 1. Open the repo on GitHub.
