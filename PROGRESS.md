@@ -1,5 +1,12 @@
 # CTO Snapshot (Source of Truth)
-_Last updated: 2026-03-05_
+_Last updated: 2026-03-12_
+
+## chore(staging): Frontend/deployment foundation — staging lane (2026-03-12)
+- **Branch:** feat/staging-frontend-foundation
+- **Scope:** One PR: confirm current truth, lock staging topology (main → prod, staging branch → stable staging, PRs → preview), add docs and runbook. No staging backend, seed data, or feature flags.
+- **Deliverables:** `docs/staging/current-truth.md`, `docs/staging/topology-decision.md`, `docs/staging/runbook.md`, `docs/staging/environment-matrix.md`; optional creation/push of `staging` branch; PROGRESS.md and state/latest.json updated.
+- **Verification:** Build passes; PR checks green; Vercel preview URL works. Founder: follow runbook for creating/verifying `staging` branch, Vercel Staging environment, and staging env vars.
+- **Rollback:** Revert PR; delete `docs/staging/` if desired; no production or DB changes.
 
 ## feat(marketplace): Pre-list flow (Figma exact) + wiring (2026-03-05)
 - **Branch:** feat/marketplace-prelist-figma-wiring

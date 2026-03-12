@@ -1,32 +1,34 @@
 {
   "pr": {
     "number": null,
-    "title": "chore(prod): sync /family improvements to main",
-    "branch": "feat/prod-sync-family",
+    "title": "Establish Ember's staging frontend/deployment foundation",
+    "branch": "feat/staging-frontend-foundation",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
-    "rollback": "Revert PR. DB: DROP TABLE IF EXISTS public.user_list_items CASCADE; then restore get_my_subnav_stats from 202602190000 if needed."
+    "rollback": "Revert PR. Delete docs/staging/ if desired. No production or DB changes."
   },
   "receipt": {
-    "goal": "Production sync: bring /family list plumbing + images/toggles/gift from feat/family-my-list-plumbing onto main.",
-    "source_branch": "feat/family-my-list-plumbing",
-    "commands_run": ["git checkout main", "git checkout -b feat/prod-sync-family", "git merge origin/feat/family-my-list-plumbing", "cd web && pnpm install && pnpm run build"],
+    "goal": "Confirm current truth, lock staging topology (main=prod, staging branch=stable staging, PRs=preview), add docs/runbook and optional staging branch. No staging backend, seed data, or feature flags.",
+    "source_branch": "main",
+    "commands_run": ["git checkout main", "git pull origin main", "git checkout -b feat/staging-frontend-foundation", "cd web && pnpm install && pnpm run build"],
     "files_changed": [
-      "supabase/sql/202602250000_family_user_list_items.sql",
-      "supabase/sql/verify_family_user_list_items.sql",
-      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
-      "web/src/components/family/FamilyDashboardClient.tsx",
+      "docs/staging/current-truth.md",
+      "docs/staging/topology-decision.md",
+      "docs/staging/runbook.md",
+      "docs/staging/environment-matrix.md",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "qa_steps": [
-      "Apply migration 202602250000 in Supabase SQL Editor if not already applied",
-      "Sign in; go to /family; confirm Ideas/Products/Gifts tabs, real list, Want/Have toggle, Gift list, images",
-      "Build: cd web && pnpm install && pnpm run build passes"
+      "Review PR summary in plain English",
+      "Open Vercel preview URL; confirm app loads and basic navigation works",
+      "Review docs/staging/* in GitHub",
+      "After merge: follow docs/staging/runbook.md for staging branch, Vercel Staging env, env vars, redeploy"
     ],
-    "rollback": "Revert PR. DB: DROP TABLE user_list_items CASCADE; optionally restore get_my_subnav_stats."
+    "rollback": "Revert PR. No production secrets or DB changes.",
+    "decision_notes": "Staging = branch-based; staging branch gets stable URL via Vercel Staging environment; same env key names as prod, values set in Vercel for Staging only."
   },
   "commit": null,
-  "timestamp": "2026-02-26T00:00:00.000Z"
+  "timestamp": "2026-03-12T00:00:00.000Z"
 }
