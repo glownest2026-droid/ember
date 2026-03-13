@@ -12,7 +12,7 @@ All keys below are **actually referenced** in the repo. Use this to configure Ve
 | `SUPABASE_URL` | Prod project URL | **Staging project URL** | — | go/[id]/route.ts, api/cron/link-health |
 | `SUPABASE_SERVICE_ROLE` | Prod service role | **Staging service role** (if go/cron used on staging) | — | Same two files |
 
-**Critical:** For the **staging** branch deployment, set the five keys above to the **staging** Supabase project in Vercel under the **Staging** environment only. Production and Preview keep production values. Then staging app and cron/admin routes use staging backend only.
+Set the five Supabase keys to the **staging** project in Vercel → **Staging** environment only. Production and Preview stay on production values.
 
 ## Auth (Supabase Auth — tied to Supabase project above)
 
@@ -52,13 +52,4 @@ Can be same or different per environment. Staging can use a smaller allowlist.
 
 Cron and /go use `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE`. When those are set to staging in Vercel Staging env, staging deployment’s cron and /go hit staging DB only.
 
-## Proof that staging uses staging backend
-
-1. Vercel **Staging** environment is assigned only to the `staging` branch (Settings → Environments).
-2. In **Staging**, `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set to the staging Supabase project URL and anon key.
-3. No code path reads Supabase URL/keys from anywhere else (see `current-truth-backend.md`).
-4. After redeploying the staging branch, open staging URL → e.g. sign in or load discover. Staging Supabase Auth and data are used. Optional: in staging Supabase dashboard, create a test user and confirm sign-in on staging URL uses that project.
-
-## Local development
-
-Copy `web/.env.example` to `web/.env.local` and set at least `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Never commit `.env.local`.
+**Check:** After redeploy, sign in on the staging URL; the user should appear in the staging Supabase project (Authentication → Users), not in production.

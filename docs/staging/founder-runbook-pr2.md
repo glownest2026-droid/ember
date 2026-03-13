@@ -1,6 +1,6 @@
 # Founder runbook — PR2: Staging backend isolation
 
-Exact clerical steps. No engineering decisions. Do in order.
+**START HERE — do in this order:** (1) Create staging Supabase project → (2) Get URL + anon + service_role keys → (3) Apply migrations (SQL Editor, in runbook order) → (4) Add Auth redirect URL for staging → (5) Set 5 Supabase env vars in Vercel **Staging** only → (6) Redeploy staging branch → (7) Open staging URL, sign in; confirm user appears in staging Supabase Auth only.
 
 ---
 
@@ -116,4 +116,4 @@ Open each file from the repo (on `main` or this branch), copy full contents, pas
 3. **Sign-in check:** Sign in (or sign up) on the staging URL. In the **staging** Supabase project, go to **Authentication** → **Users**. You should see the test user there (and not in production). That proves the app is using the staging Supabase project.
 4. Optional: Create a test child or list item on staging; confirm it appears in the staging project in Supabase (Table Editor), not in production.
 
-If any step fails, stop and use the docs (e.g. `docs/staging/current-truth-backend.md`, `environment-matrix.md`) or get engineering support; do not guess values or skip steps.
+If a step fails, stop and ask for help; don’t guess values or skip steps.
