@@ -1,6 +1,14 @@
 # CTO Snapshot (Source of Truth)
 _Last updated: 2026-03-12_
 
+## chore(staging): Backend isolation — staging Supabase + env separation (2026-03-12)
+- **Branch:** feat/staging-backend-isolation
+- **Scope:** One PR: create/document staging Supabase topology, reproduce schema via repo migrations, wire Vercel staging branch to staging Supabase URL + keys via env only. No seed-data rollout, no feature flags.
+- **Deliverables:** `docs/staging/current-truth-backend.md`, `docs/staging/supabase-topology-decision.md`, `docs/staging/environment-matrix.md` (updated with prod/staging/preview), `docs/staging/founder-runbook-pr2.md`; PROGRESS.md and state/latest.json updated.
+- **Topology:** Separate Supabase project for staging (migrations applied manually); Vercel Staging env holds staging URL/anon/service role so staging deployment uses staging backend only.
+- **Verification:** Build passes; PR checks green; Vercel preview URL works. Founder: follow founder-runbook-pr2.md to create staging project, run migrations, set Staging env vars in Vercel, redeploy staging branch; confirm sign-in on staging URL creates user in staging Supabase only.
+- **Rollback:** Revert PR; remove staging env vars from Vercel Staging if desired; no production code or prod secrets changed.
+
 ## chore(staging): Frontend/deployment foundation — staging lane (2026-03-12)
 - **Branch:** feat/staging-frontend-foundation
 - **Scope:** One PR: confirm current truth, lock staging topology (main → prod, staging branch → stable staging, PRs → preview), add docs and runbook. No staging backend, seed data, or feature flags.

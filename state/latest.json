@@ -1,33 +1,34 @@
 {
   "pr": {
     "number": null,
-    "title": "Establish Ember's staging frontend/deployment foundation",
-    "branch": "feat/staging-frontend-foundation",
+    "title": "Create Ember's isolated staging backend and wire staging branch to it",
+    "branch": "feat/staging-backend-isolation",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
-    "rollback": "Revert PR. Delete docs/staging/ if desired. No production or DB changes."
+    "rollback": "Revert PR. Remove staging env vars from Vercel Staging if desired. No production code or prod secrets changed."
   },
   "receipt": {
-    "goal": "Confirm current truth, lock staging topology (main=prod, staging branch=stable staging, PRs=preview), add docs/runbook and optional staging branch. No staging backend, seed data, or feature flags.",
+    "goal": "Staging backend isolation: staging Supabase topology (separate project), schema from repo migrations, Vercel Staging env = staging URL/keys only. No seed rollout, no feature flags.",
     "source_branch": "main",
-    "commands_run": ["git checkout main", "git pull origin main", "git checkout -b feat/staging-frontend-foundation", "cd web && pnpm install && pnpm run build"],
+    "commands_run": ["git checkout main", "git pull origin main", "git checkout -b feat/staging-backend-isolation", "cd web && pnpm install && pnpm run build"],
     "files_changed": [
-      "docs/staging/current-truth.md",
-      "docs/staging/topology-decision.md",
-      "docs/staging/runbook.md",
+      "docs/staging/current-truth-backend.md",
+      "docs/staging/supabase-topology-decision.md",
       "docs/staging/environment-matrix.md",
+      "docs/staging/founder-runbook-pr2.md",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "qa_steps": [
-      "Review PR summary in plain English",
-      "Open Vercel preview URL; confirm app loads and basic navigation works",
-      "Review docs/staging/* in GitHub",
-      "After merge: follow docs/staging/runbook.md for staging branch, Vercel Staging env, env vars, redeploy"
+      "Open PR summary in GitHub; review environment matrix and runbook",
+      "Perform Supabase/Vercel UI steps in founder-runbook-pr2.md if not yet done",
+      "Redeploy staging branch after env changes",
+      "Open stable staging URL; confirm site loads",
+      "Sign in on staging URL; confirm user appears in staging Supabase Auth only (not prod)"
     ],
-    "rollback": "Revert PR. No production secrets or DB changes.",
-    "decision_notes": "Staging = branch-based; staging branch gets stable URL via Vercel Staging environment; same env key names as prod, values set in Vercel for Staging only."
+    "rollback": "Revert PR. Staging env vars in Vercel can be removed; production untouched.",
+    "decision_notes": "Supabase staging = separate project (not persistent branch); repo has no Supabase GitHub integration; migrations applied manually; Vercel Staging environment scopes staging URL/keys to staging branch only."
   },
   "commit": null,
   "timestamp": "2026-03-12T00:00:00.000Z"
