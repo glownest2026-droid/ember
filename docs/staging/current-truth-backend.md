@@ -21,7 +21,7 @@ All app-facing Supabase usage goes through these helpers. **There is no other en
 | **Affiliate redirect** | `web/src/app/go/[id]/route.ts` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE` |
 | **Cron (link health)** | `web/src/app/api/cron/link-health/route.ts` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE` |
 
-Note: Admin routes use `SUPABASE_SERVICE_ROLE_KEY`; `/go` and cron use `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE`. For staging, all must point at the **staging** Supabase instance when the deployment is the staging branch (via Vercel Staging environment).
+Note: Admin routes use `SUPABASE_SERVICE_ROLE_KEY`; `/go` and cron use `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE`. For staging, all must point at the **staging** Supabase instance when the deployment is the staging branch (on Vercel Hobby: set these in **Preview** scoped to branch **staging**).
 
 ## Schema source of truth
 

@@ -1,18 +1,20 @@
 # Environment variable matrix (from code references)
 
-All keys below are **actually referenced** in the repo. Use this to configure Vercel **Production**, **Preview**, and **Staging** and to separate staging backend from production.
+All keys below are **actually referenced** in the repo. Use this to configure Vercel **Production** and **Preview** and to separate staging backend from production.
+
+**Vercel Hobby:** There is no custom “Staging” environment. Set the five Supabase keys in **Preview** and scope them to the **staging** branch only (so only deployments of the `staging` branch use the staging Supabase project). Production stays on production values.
 
 ## Supabase (backend isolation)
 
-| Variable | Production | Staging | Preview | Where used |
-|----------|------------|---------|---------|------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Prod project URL | **Staging project URL** | Usually prod or leave unset | client.ts, server.ts, route-handler.ts, middleware.ts, next.config.js, play/page.tsx, products/page.tsx, admin APIs, admin pl page |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Prod anon key | **Staging anon key** | Usually prod or leave unset | Same as above |
-| `SUPABASE_SERVICE_ROLE_KEY` | Prod service role | **Staging service role** (if admin used on staging) | — | api/admin/products, category-types, theme |
-| `SUPABASE_URL` | Prod project URL | **Staging project URL** | — | go/[id]/route.ts, api/cron/link-health |
-| `SUPABASE_SERVICE_ROLE` | Prod service role | **Staging service role** (if go/cron used on staging) | — | Same two files |
+| Variable | Production | Preview (branch `staging` only) | Where used |
+|----------|------------|---------------------------------|------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Prod project URL | Staging project URL | client.ts, server.ts, route-handler.ts, middleware.ts, next.config.js, play/page.tsx, products/page.tsx, admin APIs, admin pl page |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Prod anon key | Staging anon key | Same as above |
+| `SUPABASE_SERVICE_ROLE_KEY` | Prod service role | Staging service role | api/admin/products, category-types, theme |
+| `SUPABASE_URL` | Prod project URL | Staging project URL | go/[id]/route.ts, api/cron/link-health |
+| `SUPABASE_SERVICE_ROLE` | Prod service role | Staging service role | Same two files |
 
-Set the five Supabase keys to the **staging** project in Vercel → **Staging** environment only. Production and Preview stay on production values.
+Add these five in Vercel → **Preview**, then restrict to branch **staging** so only the staging deployment gets them.
 
 ## Auth (Supabase Auth — tied to Supabase project above)
 
@@ -50,6 +52,6 @@ Can be same or different per environment. Staging can use a smaller allowlist.
 | `VERCEL_GIT_COMMIT_SHA` | Display only (admin panel) |
 | `VERCEL_ENV` | Display only |
 
-Cron and /go use `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE`. When those are set to staging in Vercel Staging env, staging deployment’s cron and /go hit staging DB only.
+Cron and /go use `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE`. When those are set for Preview + branch `staging`, the staging deployment’s cron and /go hit the staging DB only.
 
 **Check:** After redeploy, sign in on the staging URL; the user should appear in the staging Supabase project (Authentication → Users), not in production.
