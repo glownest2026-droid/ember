@@ -2101,3 +2101,8 @@ Category-only cards remain publishable.
 - **Proof:** `pnpm -C web build` passes. Manual: navbar signed-in shows three icons; homepage copy, layout, animation and logo as above.
 - **PR:** #157 fix(snag-pack): homepage + navbar tweaks
 - **Follow-up (same PR):** (1) "How we choose." box: list text left-aligned (`text-left` on grid in `HomeHowWeChoose.tsx`). (2) Navbar: "Sign in" link added before "Get started" for signed-out users (`DiscoverStickyHeader.tsx`). (3) Navbar logo already set to Ember_Logo_Robin1.png URL.
+- 
+## 2026-13-03 — Staging
+
+### Summary
+- Manual commit to trigger Vercel staging branch.
