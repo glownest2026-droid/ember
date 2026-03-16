@@ -1,5 +1,16 @@
 # CTO Snapshot (Source of Truth)
-_Last updated: 2026-03-12_
+_Last updated: 2026-03-16_
+
+## feat(ui): Unified signed-in navigation (Figma Subnav Bar V3) — 2026-03-16
+- **Branch:** feat/unified-signed-in-nav
+- **Goal:** Upgrade navigation for signed-in users by consolidating the previous two navs (header + subnav) into one sticky bar from the Figma Subnav Bar V3 code pack.
+- **Scope:** One PR. ConditionalHeader shows UnifiedSignedInNav when signed-in, DiscoverStickyHeader when signed-out. SubnavGate no longer renders SubnavBar (returns null). ContentSpacer uses --unified-nav-height when signed-in.
+- **Figma pack:** `C:\Users\timwo\OneDrive\Documents\Project Leaf\Project Leaf - UI Components\Figma - Subnav Bar V3` (App.tsx). Assets replaced with Ember logo URL and lucide-react icons; no figma:asset imports.
+- **Data:** useSubnavStats (user, stats, refetch), children from Supabase, pathname/searchParams for active section and ?child=. All links/buttons wired: Discover, Saves, Marketplace, child dropdown (Add a child → /add-children, Manage my family → /family), stats → my-ideas?tab=, Account, Sign out, Reminders toggle + tooltip.
+- **Non-negotiables:** Sticky on scroll; subnav hidden for logged-out users; width max-w-[90rem] px-4 md:px-6 lg:px-12; no dead buttons/icons.
+- **Files changed:** web/src/components/subnav/UnifiedSignedInNav.tsx (new), ConditionalHeader.tsx, SubnavGate.tsx, ContentSpacer.tsx, app/globals.css (--unified-nav-height). SubnavBar.tsx retained but no longer rendered.
+- **Verification:** Signed out → single header (logo, Sign in, Get started). Signed in → one sticky bar: logo, Discover/Saves/Marketplace, child switcher, stats (ideas/products/gifts), Reminders toggle, profile dropdown (email, Account, Sign out); mobile: tabs + stats row + reminders. Build passes.
+- **Rollback:** Revert PR; restore ConditionalHeader to only DiscoverStickyHeader; restore SubnavGate to render SubnavBar when user; restore ContentSpacer to header+subnav height.
 
 ## chore(staging): Frontend/deployment foundation — staging lane (2026-03-12)
 - **Branch:** feat/staging-frontend-foundation

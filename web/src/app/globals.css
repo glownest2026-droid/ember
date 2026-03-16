@@ -52,7 +52,14 @@
 /* Header and subnav height for content offset / stacking (Figma navbar: py-5 + content) */
 :root {
   --header-height: 88px; /* Figma navbar height */
-  --subnav-height: 52px; /* Subnav bar when shown (signed-in) */
+  --subnav-height: 52px; /* Subnav bar when shown (signed-in) - legacy, unused when unified nav */
+  /* Unified signed-in nav: one bar (main row + optional mobile tabs + stats) */
+  --unified-nav-height: 64px;
+}
+@media (max-width: 1023px) {
+  :root {
+    --unified-nav-height: 176px; /* main row + mobile tabs + stats row */
+  }
 }
 
 /* Ember 2026 Brandbook design tokens (Unified UX + Brand) */
