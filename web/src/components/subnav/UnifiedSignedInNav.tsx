@@ -821,7 +821,7 @@ export function UnifiedSignedInNav() {
         )}
 
         {/* Mobile nav tabs - sticky on scroll so only this row stays visible */}
-        <div className="lg:hidden sticky top-0 z-[100] border-t border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)]">
+        <div className="lg:hidden sticky top-0 z-[100] border-t border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)]" data-unified-nav-mobile-tabs>
           <div className="grid grid-cols-3">
             <Link
               href={buildUrlWithChild('/discover', selectedChildId || null)}
