@@ -258,7 +258,7 @@ export function UnifiedSignedInNav() {
 
   return (
     <header
-      className="sticky top-0 left-0 right-0 z-50 w-full min-w-0 overflow-hidden bg-[var(--ember-surface-primary)] border-b border-[var(--ember-border-subtle)]"
+      className="sticky top-0 left-0 right-0 z-[100] w-full min-w-0 bg-[var(--ember-surface-primary)] border-b border-[var(--ember-border-subtle)]"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         minHeight: 'var(--header-height)',
@@ -364,7 +364,7 @@ export function UnifiedSignedInNav() {
 
               {isChildDropdownOpen && (
                 <div
-                  className="absolute left-0 top-full mt-2 w-80 rounded-2xl overflow-hidden z-50 bg-[var(--ember-surface-primary)] border border-[var(--ember-border-subtle)] shadow-lg"
+                  className="absolute left-0 top-full mt-2 w-80 rounded-2xl overflow-hidden z-[110] bg-[var(--ember-surface-primary)] border border-[var(--ember-border-subtle)] shadow-lg"
                   role="listbox"
                 >
                   <div className="p-3">
@@ -532,7 +532,7 @@ export function UnifiedSignedInNav() {
               </button>
               {isChildDropdownOpen && (
                 <div
-                  className="absolute left-0 right-0 top-full mt-2 max-h-[400px] overflow-y-auto rounded-2xl bg-[var(--ember-surface-primary)] border border-[var(--ember-border-subtle)] shadow-lg z-50"
+                  className="absolute left-0 right-0 top-full mt-2 max-h-[400px] overflow-y-auto rounded-2xl bg-[var(--ember-surface-primary)] border border-[var(--ember-border-subtle)] shadow-lg z-[110]"
                   role="listbox"
                 >
                   <div className="p-3">
@@ -742,7 +742,7 @@ export function UnifiedSignedInNav() {
               </button>
               {isProfileDropdownOpen && (
                 <div
-                  className="absolute right-0 top-full mt-2 w-56 rounded-2xl overflow-hidden z-50 bg-[var(--ember-surface-primary)] border border-[var(--ember-border-subtle)] shadow-lg"
+                  className="absolute right-0 top-full mt-2 w-56 rounded-2xl overflow-hidden z-[110] bg-[var(--ember-surface-primary)] border border-[var(--ember-border-subtle)] shadow-lg"
                   role="menu"
                 >
                   <div className="p-3">
