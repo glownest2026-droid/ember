@@ -258,7 +258,7 @@ export function UnifiedSignedInNav() {
 
   return (
     <header
-      className="sticky top-0 left-0 right-0 z-[100] w-full min-w-0 bg-[var(--ember-surface-primary)] border-b border-[var(--ember-border-subtle)]"
+      className="top-0 left-0 right-0 z-[100] w-full min-w-0 bg-[var(--ember-surface-primary)] border-b border-[var(--ember-border-subtle)] lg:sticky"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         minHeight: 'var(--header-height)',
@@ -820,8 +820,8 @@ export function UnifiedSignedInNav() {
           </div>
         )}
 
-        {/* Mobile nav tabs */}
-        <div className="lg:hidden border-t border-[var(--ember-border-subtle)]">
+        {/* Mobile nav tabs - sticky on scroll so only this row stays visible */}
+        <div className="lg:hidden sticky top-0 z-[100] border-t border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)]">
           <div className="grid grid-cols-3">
             <Link
               href={buildUrlWithChild('/discover', selectedChildId || null)}
