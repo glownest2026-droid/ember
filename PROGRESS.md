@@ -1,5 +1,37 @@
 # CTO Snapshot (Source of Truth)
-_Last updated: 2026-03-16_
+_Last updated: 2026-03-17_
+
+## fix(auth): Google SSO production callback domain (emberplay.app) — 2026-03-17
+- **Branch:** `fix/google-sso-production-domain`
+- **Goal:** OAuth and magic-link `redirectTo` uses `https://emberplay.app/auth/callback` in production (via `NEXT_PUBLIC_SITE_URL`); localhost unchanged (always browser origin).
+- **Code:** `web/src/lib/auth-callback-url.ts` — `buildAuthCallbackUrl()`; wired in `signin/page.tsx`, `SaveToListModal.tsx`, `account/page.tsx` (link Google/Apple). `/auth/callback` route unchanged (`exchangeCodeForSession`).
+- **Vercel Production:** Set `NEXT_PUBLIC_SITE_URL=https://emberplay.app` (no trailing slash). Do not set locally.
+- **Verification:** `pnpm run build` + `pnpm run lint` in `web/`; code review: production build with env → `redirectTo` base is emberplay.app; localhost → `http://localhost:3000/auth/callback`.
+- **Rollback:** Revert PR; remove `NEXT_PUBLIC_SITE_URL` from Vercel if needed.
+
+### Founder follow-up: Google Cloud + Supabase settings
+
+**Must do (production Google sign-in)**
+
+1. **Supabase → Authentication → URL configuration**
+   - **Site URL:** `https://emberplay.app`
+   - **Redirect URLs:** include `https://emberplay.app/auth/callback` and `http://localhost:3000/auth/callback` (and preview URLs if you test OAuth on Vercel previews).
+
+2. **Vercel → Production env:** add `NEXT_PUBLIC_SITE_URL` = `https://emberplay.app`, redeploy.
+
+3. **Google Cloud → Credentials → OAuth 2.0 Client ID → Authorized redirect URIs:** keep **`https://<project-ref>.supabase.co/auth/v1/callback`** (copy exact URL from Supabase → Authentication → Providers → Google). The app does **not** use `emberplay.app` as Google’s redirect URI — Google returns to Supabase first; Supabase then sends the user to our `/auth/callback`.
+
+**Should do (branding & trust)**
+
+4. **Google Cloud → OAuth consent screen:** App name **Ember**; **Authorized domains** include `emberplay.app`; **Application home page** `https://emberplay.app`; add privacy policy / terms links if you have them; support email.
+
+5. **Google Cloud → Credentials → Authorized JavaScript origins:** include `https://emberplay.app` (and `http://localhost:3000` for local testing).
+
+**Nice to do**
+
+6. Logo on consent screen; verified app status when ready.
+
+---
 
 ## feat(ui): Unified signed-in navigation (Figma Subnav Bar V3) — 2026-03-16
 - **Branch:** feat/unified-signed-in-nav

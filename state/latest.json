@@ -1,34 +1,44 @@
 {
   "pr": {
     "number": null,
-    "title": "Establish Ember's staging frontend/deployment foundation",
-    "branch": "feat/staging-frontend-foundation",
+    "title": "fix(auth): Google SSO production callback domain (emberplay.app)",
+    "branch": "fix/google-sso-production-domain",
     "base": "main",
-    "url": null,
-    "vercel_preview_url": null,
-    "rollback": "Revert PR. Delete docs/staging/ if desired. No production or DB changes."
+    "url": "https://github.com/glownest2026-droid/ember/compare/main...fix/google-sso-production-domain",
+    "vercel_preview_url": "(open PR on GitHub for Vercel preview)",
+    "rollback": "Revert PR. Remove NEXT_PUBLIC_SITE_URL from Vercel Production if reverting behavior."
   },
   "receipt": {
-    "goal": "Confirm current truth, lock staging topology (main=prod, staging branch=stable staging, PRs=preview), add docs/runbook and optional staging branch. No staging backend, seed data, or feature flags.",
+    "goal": "Production OAuth/magic-link redirectTo uses https://emberplay.app/auth/callback via NEXT_PUBLIC_SITE_URL; localhost uses window origin always.",
     "source_branch": "main",
-    "commands_run": ["git checkout main", "git pull origin main", "git checkout -b feat/staging-frontend-foundation", "cd web && pnpm install && pnpm run build"],
+    "commands_run": [
+      "git checkout main; git pull origin main",
+      "cd web && pnpm install && pnpm run build",
+      "pnpm run lint fails: Next.js 16 CLI has no next lint (script invokes invalid path); TypeScript checked via next build"
+    ],
     "files_changed": [
-      "docs/staging/current-truth.md",
-      "docs/staging/topology-decision.md",
-      "docs/staging/runbook.md",
-      "docs/staging/environment-matrix.md",
+      "web/src/lib/auth-callback-url.ts",
+      "web/src/app/signin/page.tsx",
+      "web/src/components/ui/SaveToListModal.tsx",
+      "web/src/app/account/page.tsx",
+      "web/.env.example",
+      "web/docs/FEB_2026_AUTH_SETUP.md",
       "PROGRESS.md",
-      "state/latest.json"
+      "state/latest.json",
+      "pr_google_sso_production_domain.md"
+    ],
+    "decisions": [
+      "Google Cloud redirect URI stays Supabase /auth/v1/callback per standard Supabase Google flow.",
+      "NEXT_PUBLIC_SITE_URL only affects non-localhost hosts; localhost/127.0.0.1 always use browser origin.",
+      "Previews without NEXT_PUBLIC_SITE_URL keep preview-origin /auth/callback."
     ],
     "qa_steps": [
-      "Review PR summary in plain English",
-      "Open Vercel preview URL; confirm app loads and basic navigation works",
-      "Review docs/staging/* in GitHub",
-      "After merge: follow docs/staging/runbook.md for staging branch, Vercel Staging env, env vars, redeploy"
+      "Vercel Production: set NEXT_PUBLIC_SITE_URL=https://emberplay.app and Supabase redirect allowlist.",
+      "Sign in with Google from emberplay.app after deploy.",
+      "Local: Google/magic link still uses localhost:3000/auth/callback without setting SITE_URL."
     ],
-    "rollback": "Revert PR. No production secrets or DB changes.",
-    "decision_notes": "Staging = branch-based; staging branch gets stable URL via Vercel Staging environment; same env key names as prod, values set in Vercel for Staging only."
+    "rollback": "Git revert branch; unset NEXT_PUBLIC_SITE_URL on Vercel Production."
   },
   "commit": null,
-  "timestamp": "2026-03-12T00:00:00.000Z"
+  "timestamp": "2026-03-17T12:00:00.000Z"
 }

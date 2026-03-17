@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { AUTH_ENABLE_GOOGLE, AUTH_ENABLE_APPLE } from '@/lib/auth-flags';
+import { buildAuthCallbackUrl } from '@/lib/auth-callback-url';
 import type { User } from '@supabase/supabase-js';
 
 const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
@@ -68,9 +69,7 @@ export default function AccountPage() {
     setLinkLoading(provider);
     const supabase = createClient();
     const redirectTo =
-      typeof window !== 'undefined'
-        ? `${window.location.origin}/auth/callback?next=${encodeURIComponent('/account')}`
-        : '';
+      typeof window !== 'undefined' ? buildAuthCallbackUrl('/account') : '';
     supabase.auth
       .linkIdentity({ provider, options: { redirectTo } })
       .then(({ error }) => {

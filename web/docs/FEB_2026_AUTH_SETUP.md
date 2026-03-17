@@ -13,6 +13,7 @@ Set these in **Vercel** (or `.env.local` for local). Only **keys** are listed; a
 | `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE` | (unset = off) | Set to `true` to show “Continue with Google” in the auth modal. |
 | `NEXT_PUBLIC_AUTH_ENABLE_APPLE` | (unset = off) | Set to `true` to show “Continue with Apple” in the auth modal. |
 | `NEXT_PUBLIC_AUTH_ENABLE_EMAIL_OTP` | `true` | Set to `false` to hide “Continue with Email” (6-digit code) in the auth modal. |
+| `NEXT_PUBLIC_SITE_URL` | (omit locally) | **Production only:** canonical origin, e.g. `https://emberplay.app`. OAuth and magic links then use `https://emberplay.app/auth/callback` instead of the Vercel default host. Omit on Preview unless you want previews to use production callbacks (unusual). |
 
 **Safe for merge:** All provider flags default off except Email OTP (on). Turn on Google/Apple when Supabase and redirect URLs are configured.
 
@@ -29,17 +30,17 @@ The app uses **one** callback route: `/auth/callback`. The `next` query param se
 1. **Supabase Dashboard** → **Authentication** → **Providers** → **Google** → turn **On**.
 2. **Google Cloud Console:** [APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials) → Create OAuth 2.0 Client ID (or use existing) → Application type: **Web application**.
    - **Authorized JavaScript origins:** Add your app origins (no path). Examples:
-     - `https://ember-mocha-eight.vercel.app`
+     - `https://emberplay.app` (production)
      - `https://your-preview-name.vercel.app` (each preview that will use Google sign-in)
-     - `http://localhost:3000` (local only; remove for production)
+     - `http://localhost:3000` (local)
    - **Authorized redirect URIs:** Add your **Supabase** auth callback URL (not the app URL). Get it from Supabase: **Authentication** → **Providers** → **Google** → copy the redirect URI shown there. It looks like:
      - `https://<project-ref>.supabase.co/auth/v1/callback`  
      (Replace `<project-ref>` with your Supabase project reference, e.g. from the project URL.)
 3. Copy **Client ID** and **Client Secret** from Google → paste into Supabase **Google** provider → **Save**.
-4. **Supabase URL Configuration:** **Authentication** → **URL Configuration** (or **Redirect URLs**). Add every URL where users land after sign-in (our app’s callback, not Google’s):
-   - `https://ember-mocha-eight.vercel.app/auth/callback`
-   - `https://*.vercel.app/auth/callback` (if your allowlist supports wildcards for Vercel previews)
-   - `http://localhost:3000/auth/callback` (local)
+4. **Supabase URL Configuration:** **Authentication** → **URL Configuration** (or **Redirect URLs**). Add every URL where users land after OAuth (our app’s `/auth/callback`, not Google’s Supabase callback):
+   - **Must (production):** `https://emberplay.app/auth/callback` (required once `NEXT_PUBLIC_SITE_URL=https://emberplay.app` is set on Vercel Production)
+   - Previews: `https://*.vercel.app/auth/callback` or each preview host (if testing Google on previews)
+   - Local: `http://localhost:3000/auth/callback`
 5. **Scopes:** Supabase needs `openid`, `userinfo.email`, `userinfo.profile`. Google’s default OAuth client usually includes these; if you created a custom OAuth consent screen, ensure these scopes are added.
 
 ---
@@ -63,8 +64,8 @@ The app uses **one** callback route: `/auth/callback`. The `next` query param se
 
 In **Authentication** → **URL Configuration** (or **Redirect URLs**), add every origin that hosts the app, with path `/auth/callback`:
 
-- Production: `https://ember-mocha-eight.vercel.app/auth/callback`
-- Previews: add each preview host or use `https://*.vercel.app/auth/callback` if allowlist supports it
+- Production: `https://emberplay.app/auth/callback` (plus any legacy hosts you still serve)
+- Previews: each preview host or `https://*.vercel.app/auth/callback` if supported
 - Local: `http://localhost:3000/auth/callback`
 
 ---
@@ -80,8 +81,9 @@ Enable Google/Apple only **after** Supabase provider and redirect URLs are confi
    |-----|--------|------|
    | `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE` | `true` | Show “Continue with Google” in auth modal. |
    | `NEXT_PUBLIC_AUTH_ENABLE_APPLE` | `true` | Show “Continue with Apple” in auth modal. |
+   | `NEXT_PUBLIC_SITE_URL` | `https://emberplay.app` | **Production environment only.** Ensures OAuth returns to Ember’s domain. |
 
-3. **Do not** set to `true` until Supabase Google/Apple providers and redirect URLs are done. Redeploy after changing.
+3. **Do not** set provider flags to `true` until Supabase Google/Apple providers and redirect URLs are done. Set `NEXT_PUBLIC_SITE_URL` on Production after `https://emberplay.app/auth/callback` is in Supabase Redirect URLs. Redeploy after changing.
 
 ---
 

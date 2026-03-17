@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
+import { buildAuthCallbackUrl } from '@/lib/auth-callback-url';
 import { AUTH_ENABLE_GOOGLE, AUTH_ENABLE_APPLE, AUTH_ENABLE_EMAIL_OTP } from '@/lib/auth-flags';
 import { GoogleMark } from '@/components/icons/GoogleMark';
 
@@ -214,10 +215,7 @@ export function SaveToListModal({
     return window.location.pathname + window.location.search + window.location.hash || '/discover';
   };
 
-  const getCallbackUrl = (next: string) => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    return `${origin}/auth/callback?next=${encodeURIComponent(next)}`;
-  };
+  const getCallbackUrl = (next: string) => buildAuthCallbackUrl(next);
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
