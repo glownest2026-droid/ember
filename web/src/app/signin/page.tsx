@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '../../utils/supabase/client';
 import { AUTH_ENABLE_GOOGLE } from '@/lib/auth-flags';
+import { buildAuthCallbackUrl } from '@/lib/auth-callback-url';
 import { GoogleMark } from '@/components/icons/GoogleMark';
 
 export default function SignInPage() {
@@ -19,8 +20,7 @@ export default function SignInPage() {
 
     const supabase = createClient();
 
-    const origin = window.location.origin;
-    const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(next)}`;
+    const redirectTo = buildAuthCallbackUrl(next);
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -61,8 +61,7 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = () => {
     const supabase = createClient();
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(next)}`;
+    const redirectTo = buildAuthCallbackUrl(next);
     supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo },
