@@ -97,6 +97,11 @@ export function UnifiedSignedInNav() {
   const [remindersBusy, setRemindersBusy] = useState(false);
   const childDropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  /** Mobile: 1px sentinel directly above tab row — when it scrolls above viewport, dock tabs as fixed (sticky fails inside tall header). */
+  const mobileTabsSentinelRef = useRef<HTMLDivElement>(null);
+  const mobileTabsBarRef = useRef<HTMLDivElement>(null);
+  const [mobileTabsDocked, setMobileTabsDocked] = useState(false);
+  const [mobileTabsSpacerPx, setMobileTabsSpacerPx] = useState(48);
 
   const selectedChildId = searchParams?.get('child') ?? '';
   const remindersEnabled = stats?.remindersEnabled ?? false;
@@ -203,6 +208,40 @@ export function UnifiedSignedInNav() {
     if (!user?.id || !(isDiscover || isMyIdeas || basePath.startsWith('/family'))) return;
     refetch(selectedChildId || undefined);
   }, [pathname, selectedChildId, user?.id, refetch, isDiscover, isMyIdeas, basePath]);
+
+  useEffect(() => {
+    const measureSpacer = () => {
+      const bar = mobileTabsBarRef.current;
+      if (bar && window.innerWidth < 1024) {
+        setMobileTabsSpacerPx(bar.offsetHeight || 48);
+      }
+    };
+    const updateDocked = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileTabsDocked(false);
+        return;
+      }
+      const sentinel = mobileTabsSentinelRef.current;
+      if (!sentinel) return;
+      setMobileTabsDocked(sentinel.getBoundingClientRect().top < 0);
+    };
+    const onResize = () => {
+      measureSpacer();
+      updateDocked();
+    };
+    measureSpacer();
+    updateDocked();
+    window.addEventListener('scroll', updateDocked, { passive: true });
+    window.addEventListener('resize', onResize);
+    const barEl = mobileTabsBarRef.current;
+    const ro = barEl ? new ResizeObserver(measureSpacer) : null;
+    if (barEl && ro) ro.observe(barEl);
+    return () => {
+      window.removeEventListener('scroll', updateDocked);
+      window.removeEventListener('resize', onResize);
+      ro?.disconnect();
+    };
+  }, [pathname, isMobileMenuOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -820,9 +859,37 @@ export function UnifiedSignedInNav() {
           </div>
         )}
 
-        {/* Mobile nav tabs - sticky on scroll so only this row stays visible */}
-        <div className="lg:hidden sticky top-0 z-[100] border-t border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)]" data-unified-nav-mobile-tabs>
-          <div className="grid grid-cols-3">
+        {/* Mobile: sentinel marks where tab row starts; scroll past → dock row as fixed (CSS sticky fails inside tall header) */}
+        <div
+          ref={mobileTabsSentinelRef}
+          className="lg:hidden h-px w-full shrink-0 bg-transparent pointer-events-none"
+          aria-hidden
+        />
+        {mobileTabsDocked && (
+          <div
+            className="lg:hidden w-full shrink-0"
+            style={{ height: mobileTabsSpacerPx }}
+            aria-hidden
+          />
+        )}
+        <div
+          ref={mobileTabsBarRef}
+          className={`lg:hidden border-t border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)] ${
+            mobileTabsDocked
+              ? 'fixed left-0 right-0 z-[100] border-b shadow-sm'
+              : 'relative z-[1]'
+          }`}
+          style={
+            mobileTabsDocked
+              ? {
+                  top: 0,
+                  paddingTop: 'env(safe-area-inset-top, 0px)',
+                }
+              : undefined
+          }
+          data-unified-nav-mobile-tabs
+        >
+          <div className="grid grid-cols-3 max-w-[90rem] mx-auto px-4 md:px-6">
             <Link
               href={buildUrlWithChild('/discover', selectedChildId || null)}
               className={`py-3 text-center text-sm font-medium transition-colors ${

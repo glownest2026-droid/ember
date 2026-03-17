@@ -69,10 +69,7 @@
     top: 0;
   }
 }
-[data-unified-nav-mobile-tabs] {
-  position: sticky;
-  top: 0;
-}
+/* Mobile tab row uses JS + position:fixed when scrolled (see UnifiedSignedInNav) */
 
 /* Ember 2026 Brandbook design tokens (Unified UX + Brand) */
 :root {
