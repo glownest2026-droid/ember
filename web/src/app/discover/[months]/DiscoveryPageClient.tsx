@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { createClient } from '@/utils/supabase/client';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
@@ -12,9 +12,13 @@ import {
   SUGGESTED_DOORWAY_KEYS_25_27,
   resolveDoorwayToWrapper,
 } from '@/lib/discover/doorways';
-import { CategoryCarousel } from '@/components/discover/CategoryCarousel';
-import { DiscoverCardStack } from '@/components/discover/DiscoverCardStack';
 import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
+import { DiscoverFigmaChildHero } from '@/components/discover/figma/DiscoverFigmaChildHero';
+import { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigmaNeedCard';
+import { DiscoverFigmaScienceSection } from '@/components/discover/figma/DiscoverFigmaScienceSection';
+import { DiscoverFigmaPlayCarousel } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
+import { DiscoverFigmaProductCarousel } from '@/components/discover/figma/DiscoverFigmaProductCarousel';
+import { displayChildName, firstNameFromProfile } from '@/lib/discover/personalization';
 import { DiscoverHeroPocketPlayGuide } from '@/components/discover/DiscoverHeroPocketPlayGuide';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
@@ -30,13 +34,6 @@ import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 type DiscoverState = 'NoFocusSelected' | 'FocusSelected' | 'CategorySelected' | 'ShowingExamples';
 
 /* Hero: calm gradient + subtle ember glow; no competing effects */
-
-const SURFACE_STYLE = {
-  backgroundColor: 'var(--ember-surface-primary)',
-  borderRadius: '12px',
-  boxShadow: '0px 4px 24px rgba(0,0,0,0.04)',
-};
-
 
 interface AgeBand {
   id: string;
@@ -81,7 +78,10 @@ export default function DiscoveryPageClient({
 }: DiscoveryPageClientProps) {
   const router = useRouter();
   const shouldReduceMotion = useReducedMotion() ?? false;
-  const [selectedChildLabel, setSelectedChildLabel] = useState<string | null>(null);
+  const [childProfile, setChildProfile] = useState<{ firstName: string | null; gender: string | null }>({
+    firstName: null,
+    gender: null,
+  });
   const [howWeChooseOpen, setHowWeChooseOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [actionToast, setActionToast] = useState<{ productId: string; message: string } | null>(null);
@@ -107,29 +107,37 @@ export default function DiscoveryPageClient({
 
   useEffect(() => {
     if (!initialChildId || !user) {
-      setSelectedChildLabel(null);
+      setChildProfile({ firstName: null, gender: null });
       return;
     }
     const supabase = createClient();
     supabase
       .from('children')
-      .select('id, child_name, display_name, age_band')
+      .select('id, child_name, display_name, gender')
       .eq('id', initialChildId)
       .single()
       .then(
         ({ data }) => {
           if (!data) {
-            setSelectedChildLabel(null);
+            setChildProfile({ firstName: null, gender: null });
             return;
           }
-          const d = data as { child_name?: string | null; display_name?: string | null; age_band?: string | null };
-          const name = (d.child_name || d.display_name)?.trim();
-          const age = d.age_band?.trim();
-          setSelectedChildLabel(name ? (age ? `${name} (${age})` : name) : null);
+          const d = data as { child_name?: string | null; display_name?: string | null; gender?: string | null };
+          setChildProfile({
+            firstName: firstNameFromProfile(d.child_name, d.display_name),
+            gender: d.gender?.trim() || null,
+          });
         },
-        () => setSelectedChildLabel(null)
+        () => setChildProfile({ firstName: null, gender: null })
       );
   }, [initialChildId, user]);
+
+  const categoryFromUrl = searchParams.get('category');
+  useEffect(() => {
+    if (showPicks && categoryFromUrl && categoryTypes.some((c) => c.id === categoryFromUrl)) {
+      setSelectedCategoryId(categoryFromUrl);
+    }
+  }, [showPicks, categoryFromUrl, categoryTypes]);
 
   const scrollToSection = useCallback(
     (id: string) => {
@@ -245,12 +253,28 @@ export default function DiscoveryPageClient({
   }, [layerBReady, pendingScrollToNextSteps, shouldReduceMotion]);
 
   const handleWrapperSelect = (wrapperSlug: string) => {
+    if (selectedWrapper === wrapperSlug) {
+      setSelectedWrapper(null);
+      setSelectedCategoryId(null);
+      setShowingExamples(false);
+      router.push(withChildParam(`${basePath}/${currentMonth}`), { scroll: false });
+      return;
+    }
     setSelectedWrapper(wrapperSlug);
     setSelectedCategoryId(null);
     setShowingExamples(false);
     setPendingScrollToNextSteps(true);
     router.push(withChildParam(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`), { scroll: false });
   };
+
+  const handleDiscoverStartOver = useCallback(() => {
+    setSelectedWrapper(null);
+    setSelectedCategoryId(null);
+    setShowingExamples(false);
+    router.push(withChildParam(`${basePath}/${currentMonth}`), { scroll: false });
+    const top = document.getElementById('discover-figma-stage1');
+    top?.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }, [basePath, currentMonth, router, shouldReduceMotion, withChildParam]);
 
   const handleShowExamples = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
@@ -684,297 +708,303 @@ export default function DiscoveryPageClient({
     }
   }, []);
 
-  const btnStyle = {
-    borderColor: 'var(--ember-border-subtle)',
-    backgroundColor: 'var(--ember-surface-primary)',
-    color: 'var(--ember-text-high)',
-    fontFamily: 'var(--font-sans)',
-  };
+  const chosenForLabel = childProfile.firstName
+    ? `${childProfile.firstName} • ${formatBandLabel(selectedBand)}`
+    : formatBandLabel(selectedBand);
+
+  const selectedWrapperRecord = wrappers.find((w) => w.ux_slug === selectedWrapper) ?? null;
+  const scienceBody = (selectedWrapperRecord?.ux_description || '').trim();
+  const playIdeaItems = useMemo(
+    () =>
+      categoryTypes.map((ct) => ({
+        id: ct.id,
+        title: (ct.label || ct.name || 'Play idea').trim(),
+        description: (ct.rationale || ct.description || '').trim(),
+        scienceConnection: formatBandLabel(selectedBand),
+        imageUrl: ct.image_url?.trim() || '',
+      })),
+    [categoryTypes, selectedBand]
+  );
+
+  const whyWorksHeading = `Why this works for ${displayChildName(childProfile.firstName)}`;
+  const scienceTitle = `Why this matters for ${displayChildName(childProfile.firstName)}`;
+  const startOverVisible = Boolean(selectedWrapper || (showPicks && displayIdeas.length > 0));
+  const possessiveChild = childProfile.firstName ? `${childProfile.firstName}'s` : "your child's";
 
   const heroSection = !user ? (
     <DiscoverHeroPocketPlayGuide
-      onGetStarted={() => scrollToSection('discover-start')}
+      onGetStarted={() => scrollToSection('discover-figma-stage1')}
       hideGetStarted={false}
     />
   ) : null;
 
-  const leftSurface = (
-    <div className="w-full min-w-0 flex-1" style={SURFACE_STYLE}>
-      <div className="py-6 px-4 sm:px-6 sm:py-8">
-        <div className="relative">
-          <div className="mb-5">
-            <span
-              className="block text-sm mb-2"
-              style={{ fontFamily: 'var(--font-mono)', color: 'var(--ember-text-high)', fontSize: '14px' }}
-            >
-              {selectedChildLabel ? `Ideas for ${selectedChildLabel}` : formatBandLabel(selectedBand)}
-            </span>
-            <div
-              className="discovery-slider-wrap relative w-full"
-              style={{ '--slider-progress': `${sliderProgress}%` } as React.CSSProperties}
-            >
-              <input
-                type="range"
-                min={0}
-                max={Math.max(0, ageBands.length - 1)}
-                step={1}
-                value={selectedBandIndex}
-                onChange={(e) => setSelectedBandIndex(Number(e.target.value))}
-                className="discovery-age-slider w-full"
-                aria-label="Age range"
-              />
-            </div>
-            {debugText && (
-              <div className="mt-2 text-[11px] px-2 py-1 rounded bg-amber-50" style={{ color: 'var(--ember-text-low)' }}>
-                {debugText}
-              </div>
-            )}
-          </div>
-
-          {selectedBandHasPicks ? (
-            <>
-              <div className="mb-6">
-                <h2 className="text-base font-medium mb-1" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
-                  What they&apos;re learning right now
-                </h2>
-                <p
-                  className="mb-3 text-sm"
-                  style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
-                >
-                  At this age, these are especially common. Pick one to start.
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
-                  {allTiles.map((tile) => {
-                    if (tile.type === 'doorway' && !tile.resolved) {
-                      return (
-                        <div
-                          key={tile.key}
-                          className="min-h-[120px] rounded-xl p-3 flex flex-col gap-1 overflow-hidden opacity-60 cursor-not-allowed border border-[var(--ember-border-subtle)]"
-                          style={{ fontFamily: 'var(--font-sans)' }}
-                        >
-                          <tile.icon size={18} strokeWidth={1.5} style={{ color: '#B8432B', flexShrink: 0 }} />
-                          <span className="block font-medium line-clamp-2 text-sm leading-snug" style={{ color: 'var(--ember-text-high)' }} title={tile.label}>{tile.label}</span>
-                          <span className="block text-xs line-clamp-2 leading-snug" style={{ color: 'var(--ember-text-low)' }}>Coming soon</span>
-                        </div>
-                      );
-                    }
-                    const slug = tile.resolved!.ux_slug;
-                    const label = tile.label;
-                    const helper = tile.helper;
-                    const isSelected = selectedWrapper === slug;
-                    const showSuggested = is25to27 && SUGGESTED_DOORWAY_KEYS_25_27.includes(tile.key);
-                    const Icon = tile.icon;
-                    return (
-                      <button
-                        key={slug}
-                        type="button"
-                        onClick={() => handleWrapperSelect(slug)}
-                        className={`min-h-[120px] rounded-xl p-3 text-left cursor-pointer flex flex-col gap-1 overflow-hidden border transition-[box-shadow,transform] duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none motion-reduce:translate-y-0 ${isSelected ? '-translate-y-px' : ''}`}
-                        style={{
-                          fontFamily: 'var(--font-sans)',
-                          backgroundColor: 'var(--ember-surface-primary)',
-                          borderColor: isSelected ? 'transparent' : 'var(--ember-border-subtle)',
-                          boxShadow: isSelected ? '0px 0px 28px rgba(255, 99, 71, 0.35), 0px 10px 30px rgba(0,0,0,0.06)' : 'none',
-                          outline: 'none',
-                        }}
-                        aria-selected={isSelected}
-                      >
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <Icon size={18} strokeWidth={1.5} style={{ color: '#B8432B', flexShrink: 0 }} />
-                          {showSuggested && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: 'rgba(184,67,43,0.12)', color: '#B8432B' }}>
-                              Suggested
-                            </span>
-                          )}
-                        </div>
-                        <span
-                          className="block font-medium line-clamp-2 text-sm leading-snug"
-                          style={{ color: 'var(--ember-text-high)' }}
-                          title={label}
-                        >
-                          {label}
-                        </span>
-                        <span
-                          className="block text-xs line-clamp-2 leading-snug"
-                          style={{ color: 'var(--ember-text-low)' }}
-                          title={helper}
-                        >
-                          {helper}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-                {!showMore && MORE_DOORWAYS.length > 0 && (
-                  <button
-                    type="button"
-                    className="mt-2 text-sm font-medium"
-                    style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
-                    onClick={() => setShowMore(true)}
-                  >
-                    See all
-                  </button>
-                )}
-              </div>
-
-            </>
-          ) : (
-            <div
-              className="rounded-xl border p-6 text-center"
-              style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)' }}
-            >
-              <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
-                Catalogue coming soon for {formatBandLabel(ageBand)}.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
-  const nextStepsSection = discoverState !== 'NoFocusSelected' && selectedBandHasPicks && (
-    <section
-      ref={nextStepsSectionRef}
-      id="nextStepsSection"
-      className="w-full scroll-mt-6"
-      style={SURFACE_STYLE}
-    >
-      <div className="py-6 px-4 sm:px-6 sm:py-8">
-        <button
-          type="button"
-          onClick={() => scrollToSection('discover-start')}
-          className="mb-4 text-sm font-medium"
-          style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}
-        >
-          ← Back to choices
-        </button>
-        <h2 className="text-lg font-medium mb-1" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
-          Next steps for {selectedWrapperLabel}
-        </h2>
-        <p className="text-sm mb-4 flex flex-wrap items-center gap-1" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-          Chosen for {selectedChildLabel ?? formatBandLabel(selectedBand)} •{' '}
-          <button
-            type="button"
-            onClick={() => setHowWeChooseOpen(true)}
-            className="inline-flex items-center gap-0.5 cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1 rounded px-1"
-            style={{ color: 'var(--ember-text-low)' }}
-          >
-            Explained <span aria-hidden>ⓘ</span>
-          </button>
-        </p>
-        {categoryTypes.length > 0 ? (
-          <CategoryCarousel
-            resetKey={selectedWrapper ?? ''}
-            categories={categoryTypes.map((ct) => ({
-              id: ct.id,
-              slug: ct.slug,
-              label: ct.label,
-              name: ct.name,
-              rationale: ct.rationale,
-              image_url: ct.image_url,
-            }))}
-            onShowExamples={handleShowExamples}
-            onSaveIdea={handleSaveCategory}
-            onHaveThem={handleHaveThemCategory}
-          />
-        ) : (
-          <div className="rounded-xl border p-6 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)' }}>
-            <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
-              We&apos;re adding more ideas here.
-            </p>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-
-  const examplesSection = discoverState === 'ShowingExamples' && (
-    <section
-      id="examplesSection"
-      className="w-full scroll-mt-6"
-      style={SURFACE_STYLE}
-    >
-      <div className="py-6 px-4 sm:px-6 sm:py-8 flex flex-col gap-6">
-        <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
-          <h2 className="text-lg font-medium m-0" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
-            Examples you might like
-          </h2>
-          {displayIdeas.length > 0 && (
-            <button
-              type="button"
-              className="rounded-lg border-0 bg-transparent py-2 px-0 text-sm cursor-pointer hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-1"
-              style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)', fontSize: '14px' }}
-              onClick={() => setHowWeChooseOpen(true)}
-            >
-              Why these?
-            </button>
-          )}
-        </div>
-        {!selectedBandHasPicks || (displayIdeas.length === 0) ? (
-          <div className="rounded-xl border p-4 text-center" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}>
-            <p className="text-sm m-0" style={{ color: 'var(--ember-text-low)' }}>
-              We&apos;re still building ideas for this focus. Try another.
-            </p>
-          </div>
-        ) : (
-          <>
-            <p className="text-xs mb-2" style={{ fontFamily: 'var(--font-sans)', color: 'var(--ember-text-low)' }}>
-              Chosen for {selectedChildLabel ?? formatBandLabel(selectedBand)}
-            </p>
-            <DiscoverCardStack
-              picks={displayIdeas.slice(0, 12)}
-              ageRangeLabel={formatBandLabel(selectedBand)}
-              wrapperLabel={selectedWrapperLabel}
-              onSave={handleSaveToList}
-              onHave={handleHaveItAlready}
-              getProductUrl={getProductUrl}
-              progressBarId="examplesProgressBar"
-            />
-          </>
-        )}
-      </div>
-    </section>
-  );
-
-  const selectorWithId = (
-    <div id="discover-start" className="scroll-mt-6">
-      {leftSurface}
-    </div>
-  );
-
   return (
     <div
-      className="min-h-screen w-full"
-      style={{ backgroundColor: 'var(--ember-bg-canvas)' }}
-      data-discover-version="acq-v2-vertical"
+      className="min-h-screen w-full bg-[var(--ember-surface-soft)]"
+      data-discover-version="figma-redesign-v1"
     >
-      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
-        {actionToast && (
+      {actionToast && (
+        <div className="max-w-[90rem] mx-auto px-6 lg:px-12 pt-4">
           <div
-            className="rounded-lg border py-2 px-3 text-sm mb-4"
-            style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-soft)', color: 'var(--ember-text-high)', fontFamily: 'var(--font-sans)' }}
+            className="rounded-lg border py-2 px-3 text-sm"
+            style={{
+              borderColor: 'var(--ember-border-subtle)',
+              backgroundColor: 'var(--ember-surface-primary)',
+              color: 'var(--ember-text-high)',
+            }}
           >
             {actionToast.message}
           </div>
-        )}
-        <SaveToListModal
-          open={saveModal.open}
-          onClose={() => setSaveModal((s) => ({ ...s, open: false }))}
-          signedIn={saveModal.signedIn}
-          signinUrl={saveModal.signinUrl}
-          viewMyListHref={saveModal.viewMyListHref}
-          onCloseFocusRef={saveModalFocusRef}
-          onAuthSuccess={handleAuthSuccess}
-        />
-        <HowWeChooseSheet open={howWeChooseOpen} onClose={() => setHowWeChooseOpen(false)} />
-        {heroSection}
-        <div className={`w-full flex flex-col gap-8 ${!user ? 'py-6 sm:py-8' : 'pt-2 pb-6 sm:pt-2 sm:pb-8'}`}>
-          {selectorWithId}
-          {nextStepsSection}
-          {examplesSection}
         </div>
-      </div>
+      )}
+      <SaveToListModal
+        open={saveModal.open}
+        onClose={() => setSaveModal((s) => ({ ...s, open: false }))}
+        signedIn={saveModal.signedIn}
+        signinUrl={saveModal.signinUrl}
+        viewMyListHref={saveModal.viewMyListHref}
+        onCloseFocusRef={saveModalFocusRef}
+        onAuthSuccess={handleAuthSuccess}
+      />
+      <HowWeChooseSheet open={howWeChooseOpen} onClose={() => setHowWeChooseOpen(false)} />
+
+      {heroSection}
+
+      <main className="max-w-[90rem] mx-auto px-6 lg:px-12 py-6 lg:py-10">
+        {selectedBandHasPicks ? (
+          <>
+            {user ? (
+              <DiscoverFigmaChildHero
+                childFirstName={childProfile.firstName}
+                childGender={childProfile.gender}
+                monthAge={currentMonth}
+                heroImageUrl={categoryTypes[0]?.image_url}
+              />
+            ) : null}
+
+            <div id="discover-figma-stage1" className="scroll-mt-6 mb-6">
+              <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
+                {chosenForLabel}
+              </p>
+              <div
+                className="discovery-slider-wrap relative w-full max-w-xl mb-6"
+                style={{ '--slider-progress': `${sliderProgress}%` } as React.CSSProperties}
+              >
+                <input
+                  type="range"
+                  min={0}
+                  max={Math.max(0, ageBands.length - 1)}
+                  step={1}
+                  value={selectedBandIndex}
+                  onChange={(e) => setSelectedBandIndex(Number(e.target.value))}
+                  className="discovery-age-slider w-full"
+                  aria-label="Age range"
+                />
+              </div>
+              {debugText ? (
+                <div className="mb-4 text-[11px] px-2 py-1 rounded bg-amber-50 text-[var(--ember-text-low)]">{debugText}</div>
+              ) : null}
+
+              <div className="mb-5 lg:mb-8">
+                <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
+                  Stage 1: Understanding development
+                </p>
+                <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
+                  Choose what you&apos;d like to explore
+                </h2>
+                {!user ? (
+                  <p className="text-sm text-[var(--ember-text-low)] mt-2">Pick a focus for this age. Sign in to personalize with your child.</p>
+                ) : null}
+              </div>
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                {allTiles.map((tile) => {
+                  if (tile.type === 'doorway' && !tile.resolved) {
+                    return (
+                      <DiscoverFigmaNeedCard
+                        key={tile.key}
+                        icon={tile.icon}
+                        title={tile.label}
+                        description={tile.helper}
+                        science="Coming soon"
+                        isSelected={false}
+                        onClick={() => {}}
+                        disabled
+                      />
+                    );
+                  }
+                  const slug = tile.resolved!.ux_slug;
+                  const isSelected = selectedWrapper === slug;
+                  const showSuggested = is25to27 && SUGGESTED_DOORWAY_KEYS_25_27.includes(tile.key);
+                  return (
+                    <div key={slug} className="relative">
+                      {showSuggested ? (
+                        <span className="absolute -top-2 left-2 z-10 text-[10px] px-2 py-0.5 rounded-full font-medium bg-[rgba(184,67,43,0.12)] text-[#B8432B]">
+                          Suggested
+                        </span>
+                      ) : null}
+                      <DiscoverFigmaNeedCard
+                        icon={tile.icon}
+                        title={tile.label}
+                        description={tile.helper}
+                        science={showSuggested ? 'Great fit for this age' : 'Tap to explore'}
+                        isSelected={isSelected}
+                        onClick={() => handleWrapperSelect(slug)}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+              {!showMore && MORE_DOORWAYS.length > 0 ? (
+                <button
+                  type="button"
+                  className="mt-4 text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)]"
+                  onClick={() => setShowMore(true)}
+                >
+                  See all
+                </button>
+              ) : null}
+            </div>
+
+            {selectedWrapper ? (
+              <section className="mb-10 lg:mb-20 scroll-mt-6">
+                <button
+                  type="button"
+                  onClick={() => handleWrapperSelect(selectedWrapper)}
+                  className="mb-4 text-sm font-medium text-[var(--ember-text-low)] hover:underline"
+                >
+                  ← Back to choices
+                </button>
+                <div className="mb-5 lg:mb-8">
+                  <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
+                    Stage 2: Why this matters
+                  </p>
+                  <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">{selectedWrapperLabel}</h2>
+                  <p className="text-sm text-[var(--ember-text-low)] mt-2 flex flex-wrap items-center gap-1">
+                    Chosen for {chosenForLabel} •{' '}
+                    <button
+                      type="button"
+                      onClick={() => setHowWeChooseOpen(true)}
+                      className="inline-flex items-center gap-0.5 hover:underline focus:outline-none focus-visible:ring-2 rounded"
+                    >
+                      Explained <span aria-hidden>ⓘ</span>
+                    </button>
+                  </p>
+                </div>
+                {scienceBody ? (
+                  <DiscoverFigmaScienceSection title={scienceTitle} description={scienceBody} />
+                ) : (
+                  <p className="text-[var(--ember-text-low)] text-sm mb-8">
+                    We&apos;re adding more detail for this focus soon.
+                  </p>
+                )}
+              </section>
+            ) : null}
+
+            {selectedWrapper ? (
+              <section ref={nextStepsSectionRef} id="discover-figma-stage3" className="mb-10 lg:mb-20 scroll-mt-6">
+                <div className="mb-5 lg:mb-8">
+                  <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
+                    Stage 3: Play ideas
+                  </p>
+                  <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
+                    Try these ideas to support {selectedWrapperLabel.toLowerCase()}
+                  </h2>
+                </div>
+                {playIdeaItems.length > 0 ? (
+                  <DiscoverFigmaPlayCarousel
+                    items={playIdeaItems}
+                    selectedId={selectedCategoryId}
+                    onSelect={setSelectedCategoryId}
+                    onSeeExamples={handleShowExamples}
+                    onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
+                    onHaveThem={handleHaveThemCategory}
+                  />
+                ) : (
+                  <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-[var(--ember-text-low)] text-sm">
+                    We&apos;re adding more ideas here.
+                  </div>
+                )}
+              </section>
+            ) : null}
+
+            {discoverState === 'ShowingExamples' ? (
+              <section id="discover-figma-products" className="mb-10 lg:mb-24 pb-8 scroll-mt-6">
+                <div id="examplesProgressBar" className="mb-5 lg:mb-8">
+                  <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
+                    Stage 4: Product examples
+                  </p>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium m-0">
+                      Examples you might like
+                    </h2>
+                    {displayIdeas.length > 0 ? (
+                      <button
+                        type="button"
+                        className="text-sm text-[var(--ember-text-low)] hover:underline"
+                        onClick={() => setHowWeChooseOpen(true)}
+                      >
+                        Why these?
+                      </button>
+                    ) : null}
+                  </div>
+                  <p className="text-xs text-[var(--ember-text-low)] mt-2">Chosen for {chosenForLabel}</p>
+                </div>
+                {!selectedBandHasPicks || displayIdeas.length === 0 ? (
+                  <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]">
+                    We&apos;re still building ideas for this focus. Try another category or focus.
+                  </div>
+                ) : (
+                  <DiscoverFigmaProductCarousel
+                    key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}`}
+                    picks={displayIdeas.slice(0, 12)}
+                    ageRangeLabel={formatBandLabel(selectedBand)}
+                    whyWorksHeading={whyWorksHeading}
+                    onSave={handleSaveToList}
+                    onHave={handleHaveItAlready}
+                    getProductUrl={getProductUrl}
+                  />
+                )}
+              </section>
+            ) : null}
+
+            {startOverVisible && displayIdeas.length > 0 && discoverState === 'ShowingExamples' ? (
+              <div className="max-w-2xl mx-auto text-center mb-16">
+                <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-sm border border-[var(--ember-border-subtle)]">
+                  <h3 className="text-xl lg:text-2xl mb-3 text-[var(--ember-text-high)] font-medium">Want to explore another area?</h3>
+                  <p className="text-base lg:text-lg text-[var(--ember-text-low)] mb-6">
+                    Start over to discover more ways to support {possessiveChild} development
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleDiscoverStartOver}
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--ember-accent-base)] text-white rounded-full font-medium text-base lg:text-lg hover:opacity-95 shadow-lg transition-opacity"
+                  >
+                    Start over
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </>
+        ) : (
+          <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-10 text-center text-[var(--ember-text-low)]">
+            Catalogue coming soon for {formatBandLabel(ageBand)}.
+          </div>
+        )}
+      </main>
+
+      {startOverVisible ? (
+        <div className="fixed bottom-20 lg:bottom-6 left-0 right-0 z-30 pointer-events-none">
+          <div className="max-w-[90rem] mx-auto px-6 lg:px-12 flex justify-center">
+            <button
+              type="button"
+              onClick={handleDiscoverStartOver}
+              className="pointer-events-auto inline-flex items-center gap-2 px-6 py-3 bg-white/95 backdrop-blur-sm text-[var(--ember-text-high)] rounded-full font-medium text-sm lg:text-base shadow-xl border border-[var(--ember-border-subtle)] hover:border-[var(--ember-accent-base)] transition-colors"
+            >
+              Start over
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,44 +1,43 @@
 {
   "pr": {
     "number": null,
-    "title": "fix(auth): Google SSO production callback domain (emberplay.app)",
-    "branch": "fix/google-sso-production-domain",
+    "title": "feat(ui): Discover Figma redesign + child name personalization",
+    "branch": "feat/discover-figma-redesign",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/compare/main...fix/google-sso-production-domain",
-    "vercel_preview_url": "(open PR on GitHub for Vercel preview)",
-    "rollback": "Revert PR. Remove NEXT_PUBLIC_SITE_URL from Vercel Production if reverting behavior."
+    "url": "https://github.com/glownest2026-droid/ember/compare/main...feat/discover-figma-redesign",
+    "vercel_preview_url": "(push branch and open PR for preview)",
+    "rollback": "Revert PR; restore DiscoveryPageClient + remove web/src/components/discover/figma/"
   },
   "receipt": {
-    "goal": "Production OAuth/magic-link redirectTo uses https://emberplay.app/auth/callback via NEXT_PUBLIC_SITE_URL; localhost uses window origin always.",
+    "goal": "Figma Discover stages on /discover with real gateway data; child first name from DB when ?child= + signed in; fallbacks your child/your family.",
     "source_branch": "main",
-    "commands_run": [
-      "git checkout main; git pull origin main",
-      "cd web && pnpm install && pnpm run build",
-      "pnpm run lint fails: Next.js 16 CLI has no next lint (script invokes invalid path); TypeScript checked via next build"
-    ],
+    "commands_run": ["git checkout -b feat/discover-figma-redesign", "cd web && pnpm run build"],
     "files_changed": [
-      "web/src/lib/auth-callback-url.ts",
-      "web/src/app/signin/page.tsx",
-      "web/src/components/ui/SaveToListModal.tsx",
-      "web/src/app/account/page.tsx",
-      "web/.env.example",
-      "web/docs/FEB_2026_AUTH_SETUP.md",
+      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
+      "web/src/lib/discover/personalization.ts",
+      "web/src/components/discover/figma/DiscoverFigmaChildHero.tsx",
+      "web/src/components/discover/figma/DiscoverFigmaNeedCard.tsx",
+      "web/src/components/discover/figma/DiscoverFigmaScienceSection.tsx",
+      "web/src/components/discover/figma/DiscoverFigmaPlayCarousel.tsx",
+      "web/src/components/discover/figma/DiscoverFigmaPlayIdeaCard.tsx",
+      "web/src/components/discover/figma/DiscoverFigmaProductCarousel.tsx",
+      "web/src/components/discover/figma/DiscoverFigmaImage.tsx",
       "PROGRESS.md",
       "state/latest.json",
-      "pr_google_sso_production_domain.md"
+      "pr_discover_figma_redesign.md"
     ],
     "decisions": [
-      "Google Cloud redirect URI stays Supabase /auth/v1/callback per standard Supabase Google flow.",
-      "NEXT_PUBLIC_SITE_URL only affects non-localhost hosts; localhost/127.0.0.1 always use browser origin.",
-      "Previews without NEXT_PUBLIC_SITE_URL keep preview-origin /auth/callback."
+      "No Figma AppBar; ConditionalHeader/UnifiedSignedInNav only.",
+      "Play ideas = gateway category types; products = existing picks stack data in horizontal carousel.",
+      "Tap same doorway again clears focus (back to stage 1 only)."
     ],
     "qa_steps": [
-      "Vercel Production: set NEXT_PUBLIC_SITE_URL=https://emberplay.app and Supabase redirect allowlist.",
-      "Sign in with Google from emberplay.app after deploy.",
-      "Local: Google/magic link still uses localhost:3000/auth/callback without setting SITE_URL."
+      "Open /discover/26 signed in with ?child= on a child with display_name → see personalized hero.",
+      "Complete flow: doorway → See examples on a category → Save product.",
+      "Start over returns to doorway grid."
     ],
-    "rollback": "Git revert branch; unset NEXT_PUBLIC_SITE_URL on Vercel Production."
+    "rollback": "git revert merge commit of feat/discover-figma-redesign"
   },
   "commit": null,
-  "timestamp": "2026-03-17T12:00:00.000Z"
+  "timestamp": "2026-03-17T18:00:00.000Z"
 }

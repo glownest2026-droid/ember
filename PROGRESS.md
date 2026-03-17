@@ -1,6 +1,15 @@
 # CTO Snapshot (Source of Truth)
 _Last updated: 2026-03-17_
 
+## feat(ui): Discover page Figma redesign + child personalization — 2026-03-17
+- **Branch:** `feat/discover-figma-redesign`
+- **Goal:** Implement Figma Discover layout on `/discover/[months]` (REPLACE UI); keep doorway → category → picks flow, Save/Have/Visit, How we choose sheet, age band slider. No duplicate AppBar (global header unchanged).
+- **Personalization:** When signed in and `?child=`, load `child_name`, `display_name`, `gender` from Supabase; **first name** for hero/stage copy (“Curated for Ben”, “Why this matters for Ben”); if no name → **your child** / **your family**. Gender stored for fallbacks; product blurb heading “Why this works for {name|your child}”.
+- **New files:** `web/src/lib/discover/personalization.ts`; `web/src/components/discover/figma/` (ChildHero, NeedCard, ScienceSection, PlayCarousel, PlayIdeaCard, ProductCarousel, Image).
+- **Removed from discover page:** `CategoryCarousel`, `DiscoverCardStack` (replaced by Figma carousels). Guest still sees `DiscoverHeroPocketPlayGuide`.
+- **Verification:** `pnpm run build` in `web/`. Manual: `/discover/26?child=<uuid>` signed in; doorway toggle deselect; Start over.
+- **Rollback:** Revert PR / branch.
+
 ## fix(auth): Google SSO production callback domain (emberplay.app) — 2026-03-17
 - **Branch:** `fix/google-sso-production-domain`
 - **Goal:** OAuth and magic-link `redirectTo` uses `https://emberplay.app/auth/callback` in production (via `NEXT_PUBLIC_SITE_URL`); localhost unchanged (always browser origin).
