@@ -52,8 +52,24 @@
 /* Header and subnav height for content offset / stacking (Figma navbar: py-5 + content) */
 :root {
   --header-height: 88px; /* Figma navbar height */
-  --subnav-height: 52px; /* Subnav bar when shown (signed-in) */
+  --subnav-height: 52px; /* Subnav bar when shown (signed-in) - legacy, unused when unified nav */
+  /* Unified signed-in nav: one bar (main row + optional mobile tabs + stats) */
+  --unified-nav-height: 64px;
 }
+@media (max-width: 1023px) {
+  :root {
+    --unified-nav-height: 176px; /* main row + mobile tabs + stats row */
+  }
+}
+
+/* Unified signed-in nav: explicit sticky so it works (overflow-x: clip on body allows sticky) */
+@media (min-width: 1024px) {
+  [data-unified-signed-in-nav] {
+    position: sticky;
+    top: 0;
+  }
+}
+/* Mobile tab row uses JS + position:fixed when scrolled (see UnifiedSignedInNav) */
 
 /* Ember 2026 Brandbook design tokens (Unified UX + Brand) */
 :root {
@@ -82,7 +98,8 @@
 }
 
 /* Background wash + crisp text rendering (Brandbook: ember-bg-canvas fallback).
-   overflow-x: hidden keeps mobile view fixed to display width (no horizontal scroll). */
+   overflow-x: clip keeps mobile view fixed to display width without breaking position:sticky
+   (overflow-x: hidden on body/html would prevent sticky nav from working). */
 html, body {
   background: linear-gradient(180deg, var(--brand-bg-1, var(--ember-bg-canvas)) 0%, var(--brand-bg-2, var(--ember-surface-primary)) 100%);
   color: var(--brand-text, var(--ember-text-high));
@@ -91,7 +108,7 @@ html, body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100vw;
 }
 
