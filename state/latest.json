@@ -4,8 +4,8 @@
     "title": "fix(auth): Google SSO production callback domain (emberplay.app)",
     "branch": "fix/google-sso-production-domain",
     "base": "main",
-    "url": null,
-    "vercel_preview_url": null,
+    "url": "https://github.com/glownest2026-droid/ember/compare/main...fix/google-sso-production-domain",
+    "vercel_preview_url": "(open PR on GitHub for Vercel preview)",
     "rollback": "Revert PR. Remove NEXT_PUBLIC_SITE_URL from Vercel Production if reverting behavior."
   },
   "receipt": {
@@ -14,7 +14,7 @@
     "commands_run": [
       "git checkout main; git pull origin main",
       "cd web && pnpm install && pnpm run build",
-      "cd web && pnpm run lint"
+      "pnpm run lint fails: Next.js 16 CLI has no next lint (script invokes invalid path); TypeScript checked via next build"
     ],
     "files_changed": [
       "web/src/lib/auth-callback-url.ts",
