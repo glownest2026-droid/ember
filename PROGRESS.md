@@ -10,6 +10,7 @@ _Last updated: 2026-03-16_
 - **Non-negotiables:** Sticky on scroll; subnav hidden for logged-out users; width max-w-[90rem] px-4 md:px-6 lg:px-12; no dead buttons/icons.
 - **Files changed:** web/src/components/subnav/UnifiedSignedInNav.tsx (new), ConditionalHeader.tsx, SubnavGate.tsx, ContentSpacer.tsx, app/globals.css (--unified-nav-height). SubnavBar.tsx retained but no longer rendered.
 - **Verification:** Signed out → single header (logo, Sign in, Get started). Signed in → one sticky bar: logo, Discover/Saves/Marketplace, child switcher, stats (ideas/products/gifts), Reminders toggle, profile dropdown (email, Account, Sign out); mobile: tabs + stats row + reminders. Build passes.
+- **Mobile tab row (2026-03-17):** CSS `position: sticky` for Discover/Saves/Marketplace did not work inside the tall `<header>`. Fix: scroll listener + 1px sentinel above tab row; when sentinel scrolls above viewport, tab row switches to `position: fixed` with spacer to avoid layout jump; safe-area padding on fixed bar. Desktop unchanged (`lg:sticky` on header).
 - **Rollback:** Revert PR; restore ConditionalHeader to only DiscoverStickyHeader; restore SubnavGate to render SubnavBar when user; restore ContentSpacer to header+subnav height.
 
 ## chore(staging): Frontend/deployment foundation — staging lane (2026-03-12)
