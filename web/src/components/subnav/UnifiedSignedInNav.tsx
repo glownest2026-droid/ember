@@ -284,13 +284,24 @@ export function UnifiedSignedInNav() {
   const handleChildSelect = useCallback(
     (childId: string | null) => {
       setIsChildDropdownOpen(false);
+      const row = childId ? children.find((c) => c.id === childId) : null;
+      const toastMsg =
+        childId && row
+          ? `Personalizing for ${childDisplayName(row, Math.max(0, children.indexOf(row)))}`
+          : childId
+            ? 'Child profile selected'
+            : 'Showing all family';
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('ember:toast', { detail: { message: toastMsg } }));
+      }
       if (childToggleApplies) {
         router.push(buildUrlWithChild(basePath, childId));
       } else {
         router.push(childId ? `/family?child=${encodeURIComponent(childId)}` : '/family');
       }
+      router.refresh();
     },
-    [childToggleApplies, basePath, buildUrlWithChild, router]
+    [childToggleApplies, basePath, buildUrlWithChild, children, router]
   );
 
   if (!user || !stats) return null;

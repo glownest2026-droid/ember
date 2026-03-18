@@ -771,51 +771,59 @@ export default function DiscoveryPageClient({
       {heroSection}
 
       <main className="max-w-[90rem] mx-auto px-6 lg:px-12 py-6 lg:py-10">
+        {user ? (
+          <DiscoverFigmaChildHero
+            childFirstName={childProfile.firstName}
+            childGender={childProfile.gender}
+            monthAge={currentMonth}
+            heroImageUrl={selectedBandHasPicks ? categoryTypes[0]?.image_url : null}
+          />
+        ) : null}
+
+        {/* Age slider always visible (prod parity) so users can leave bands with no catalogue */}
+        <div id="discover-figma-stage1" className="scroll-mt-6 mb-8">
+          <span
+            className="block text-sm mb-2"
+            style={{ fontFamily: 'var(--font-mono)', color: 'var(--ember-text-high)', fontSize: '14px' }}
+          >
+            {chosenForLabel}
+          </span>
+          <div
+            className="discovery-slider-wrap relative w-full max-w-xl mb-2"
+            style={{ '--slider-progress': `${sliderProgress}%` } as React.CSSProperties}
+          >
+            <input
+              type="range"
+              min={0}
+              max={Math.max(0, ageBands.length - 1)}
+              step={1}
+              value={selectedBandIndex}
+              onChange={(e) => setSelectedBandIndex(Number(e.target.value))}
+              className="discovery-age-slider w-full"
+              aria-label="Age range"
+            />
+          </div>
+          <p className="text-sm text-[var(--ember-text-low)] mb-2 max-w-xl">
+            Slide to a different age band if you don&apos;t see recommendations here.
+          </p>
+          {debugText ? (
+            <div className="mb-4 text-[11px] px-2 py-1 rounded bg-amber-50 text-[var(--ember-text-low)]">{debugText}</div>
+          ) : null}
+        </div>
+
         {selectedBandHasPicks ? (
           <>
-            {user ? (
-              <DiscoverFigmaChildHero
-                childFirstName={childProfile.firstName}
-                childGender={childProfile.gender}
-                monthAge={currentMonth}
-                heroImageUrl={categoryTypes[0]?.image_url}
-              />
-            ) : null}
-
-            <div id="discover-figma-stage1" className="scroll-mt-6 mb-6">
+            <div className="mb-5 lg:mb-8">
               <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
-                {chosenForLabel}
+                Stage 1: Understanding development
               </p>
-              <div
-                className="discovery-slider-wrap relative w-full max-w-xl mb-6"
-                style={{ '--slider-progress': `${sliderProgress}%` } as React.CSSProperties}
-              >
-                <input
-                  type="range"
-                  min={0}
-                  max={Math.max(0, ageBands.length - 1)}
-                  step={1}
-                  value={selectedBandIndex}
-                  onChange={(e) => setSelectedBandIndex(Number(e.target.value))}
-                  className="discovery-age-slider w-full"
-                  aria-label="Age range"
-                />
-              </div>
-              {debugText ? (
-                <div className="mb-4 text-[11px] px-2 py-1 rounded bg-amber-50 text-[var(--ember-text-low)]">{debugText}</div>
+              <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
+                Choose what you&apos;d like to explore
+              </h2>
+              {!user ? (
+                <p className="text-sm text-[var(--ember-text-low)] mt-2">Pick a focus for this age. Sign in to personalize with your child.</p>
               ) : null}
-
-              <div className="mb-5 lg:mb-8">
-                <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
-                  Stage 1: Understanding development
-                </p>
-                <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
-                  Choose what you&apos;d like to explore
-                </h2>
-                {!user ? (
-                  <p className="text-sm text-[var(--ember-text-low)] mt-2">Pick a focus for this age. Sign in to personalize with your child.</p>
-                ) : null}
-              </div>
+            </div>
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                 {allTiles.map((tile) => {
                   if (tile.type === 'doorway' && !tile.resolved) {
@@ -863,7 +871,6 @@ export default function DiscoveryPageClient({
                   See all
                 </button>
               ) : null}
-            </div>
 
             {selectedWrapper ? (
               <section className="mb-10 lg:mb-20 scroll-mt-6">
@@ -986,8 +993,13 @@ export default function DiscoveryPageClient({
             ) : null}
           </>
         ) : (
-          <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-10 text-center text-[var(--ember-text-low)]">
-            Catalogue coming soon for {formatBandLabel(ageBand)}.
+          <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-10 text-center max-w-2xl mx-auto">
+            <p className="text-[var(--ember-text-high)] font-medium m-0 mb-2">
+              Catalogue coming soon for {formatBandLabel(selectedBand)}.
+            </p>
+            <p className="text-sm text-[var(--ember-text-low)] m-0">
+              Use the age slider above to switch to another stage — picks may be available there.
+            </p>
           </div>
         )}
       </main>
