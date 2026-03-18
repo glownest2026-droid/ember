@@ -9,6 +9,29 @@ export function firstNameFromProfile(childName: string | null | undefined, displ
   return first || null;
 }
 
+const DISPLAY_LABEL_MAX = 48;
+
+/** Full label for copy (matches nav: child_name then display_name). */
+export function displayLabelFromProfile(
+  childName: string | null | undefined,
+  displayName: string | null | undefined
+): string | null {
+  const raw = (childName || displayName || '').trim();
+  if (!raw) return null;
+  return raw.length > DISPLAY_LABEL_MAX ? `${raw.slice(0, DISPLAY_LABEL_MAX - 1)}…` : raw;
+}
+
+/** Completed months since birthdate (>=0); null if missing/invalid. Aligns with /discover redirect logic. */
+export function monthsOldFromBirthdate(birthdate: string | null | undefined): number | null {
+  if (!birthdate || typeof birthdate !== 'string') return null;
+  const birth = new Date(birthdate.trim());
+  if (Number.isNaN(birth.getTime())) return null;
+  const now = new Date();
+  const months =
+    (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+  return months >= 0 ? months : null;
+}
+
 /** Subject pronoun for short copy */
 export function subjectPronoun(gender: string | null | undefined): 'he' | 'she' | 'they' {
   const g = (gender || '').trim().toLowerCase();
@@ -25,9 +48,9 @@ export function possessivePronoun(gender: string | null | undefined): 'his' | 'h
   return 'their';
 }
 
-/** "Ben" / "your child" for headings */
-export function displayChildName(firstName: string | null): string {
-  return firstName?.trim() || 'your child';
+/** "Ben" / "Pop pop" / "your child" for headings */
+export function displayChildName(label: string | null): string {
+  return label?.trim() || 'your child';
 }
 
 /** "Ben is" / "Your child is" (sentence start) */

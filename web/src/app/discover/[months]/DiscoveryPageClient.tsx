@@ -18,7 +18,7 @@ import { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigma
 import { DiscoverFigmaScienceSection } from '@/components/discover/figma/DiscoverFigmaScienceSection';
 import { DiscoverFigmaPlayCarousel } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
 import { DiscoverFigmaProductCarousel } from '@/components/discover/figma/DiscoverFigmaProductCarousel';
-import { displayChildName, firstNameFromProfile } from '@/lib/discover/personalization';
+import { displayChildName, displayLabelFromProfile, monthsOldFromBirthdate } from '@/lib/discover/personalization';
 import { DiscoverHeroPocketPlayGuide } from '@/components/discover/DiscoverHeroPocketPlayGuide';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
@@ -82,9 +82,14 @@ export default function DiscoveryPageClient({
 }: DiscoveryPageClientProps) {
   const router = useRouter();
   const shouldReduceMotion = useReducedMotion() ?? false;
-  const [childProfile, setChildProfile] = useState<{ firstName: string | null; gender: string | null }>({
-    firstName: serverPersonalization?.firstName ?? null,
+  const [childProfile, setChildProfile] = useState<{
+    displayLabel: string | null;
+    gender: string | null;
+    monthsOld: number | null;
+  }>({
+    displayLabel: serverPersonalization?.displayLabel ?? null,
     gender: serverPersonalization?.gender ?? null,
+    monthsOld: serverPersonalization?.monthsOld ?? null,
   });
   const [howWeChooseOpen, setHowWeChooseOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
@@ -113,13 +118,14 @@ export default function DiscoveryPageClient({
 
   useEffect(() => {
     if (!childIdForPersonalization) {
-      setChildProfile({ firstName: null, gender: null });
+      setChildProfile({ displayLabel: null, gender: null, monthsOld: null });
       return;
     }
     if (serverPersonalization) {
       setChildProfile({
-        firstName: serverPersonalization.firstName,
+        displayLabel: serverPersonalization.displayLabel,
         gender: serverPersonalization.gender,
+        monthsOld: serverPersonalization.monthsOld,
       });
     }
   }, [childIdForPersonalization, serverPersonalization]);
@@ -131,16 +137,22 @@ export default function DiscoveryPageClient({
     const supabase = createClient();
     supabase
       .from('children')
-      .select('child_name, display_name, gender')
+      .select('child_name, display_name, gender, birthdate')
       .eq('id', childIdForPersonalization)
       .maybeSingle()
       .then(({ data, error }) => {
         if (cancelled || error || !data) return;
-        const d = data as { child_name?: string | null; display_name?: string | null; gender?: string | null };
-        setChildProfile({
-          firstName: firstNameFromProfile(d.child_name, d.display_name),
-          gender: d.gender?.trim() || null,
-        });
+        const d = data as {
+          child_name?: string | null;
+          display_name?: string | null;
+          gender?: string | null;
+          birthdate?: string | null;
+        };
+        setChildProfile((prev) => ({
+          displayLabel: displayLabelFromProfile(d.child_name, d.display_name) ?? prev.displayLabel,
+          gender: d.gender?.trim() || prev.gender,
+          monthsOld: monthsOldFromBirthdate(d.birthdate) ?? prev.monthsOld,
+        }));
       });
     return () => {
       cancelled = true;
@@ -723,8 +735,8 @@ export default function DiscoveryPageClient({
     }
   }, []);
 
-  const chosenForLabel = childProfile.firstName
-    ? `${childProfile.firstName} • ${formatBandLabel(selectedBand)}`
+  const chosenForLabel = childProfile.displayLabel
+    ? `${childProfile.displayLabel} • ${formatBandLabel(selectedBand)}`
     : formatBandLabel(selectedBand);
 
   const selectedWrapperRecord = wrappers.find((w) => w.ux_slug === selectedWrapper) ?? null;
@@ -741,10 +753,10 @@ export default function DiscoveryPageClient({
     [categoryTypes, selectedBand]
   );
 
-  const whyWorksHeading = `Why this works for ${displayChildName(childProfile.firstName)}`;
-  const scienceTitle = `Why this matters for ${displayChildName(childProfile.firstName)}`;
+  const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
+  const scienceTitle = `Why this matters for ${displayChildName(childProfile.displayLabel)}`;
   const startOverVisible = Boolean(selectedWrapper || (showPicks && displayIdeas.length > 0));
-  const possessiveChild = childProfile.firstName ? `${childProfile.firstName}'s` : "your child's";
+  const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
 
   const heroSection = !user ? (
     <DiscoverHeroPocketPlayGuide
@@ -788,9 +800,13 @@ export default function DiscoveryPageClient({
       <main className="max-w-[90rem] mx-auto px-6 lg:px-12 py-6 lg:py-10">
         {user ? (
           <DiscoverFigmaChildHero
-            childFirstName={childProfile.firstName}
+            childDisplayLabel={childProfile.displayLabel}
             childGender={childProfile.gender}
-            monthAge={currentMonth}
+            monthAge={
+              childIdForPersonalization && childProfile.monthsOld != null
+                ? childProfile.monthsOld
+                : (monthParam ?? 26)
+            }
             heroImageUrl={selectedBandHasPicks ? categoryTypes[0]?.image_url : null}
           />
         ) : null}
