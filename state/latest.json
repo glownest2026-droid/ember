@@ -1,44 +1,33 @@
 {
   "pr": {
     "number": null,
-    "title": "fix(auth): Google SSO production callback domain (emberplay.app)",
-    "branch": "fix/google-sso-production-domain",
+    "title": "feat(ui): Discover Figma redesign + Preview OAuth PKCE fix",
+    "branch": "feat/discover-figma-redesign",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/compare/main...fix/google-sso-production-domain",
-    "vercel_preview_url": "(open PR on GitHub for Vercel preview)",
-    "rollback": "Revert PR. Remove NEXT_PUBLIC_SITE_URL from Vercel Production if reverting behavior."
+    "url": "https://github.com/glownest2026-droid/ember/compare/main...feat/discover-figma-redesign",
+    "vercel_preview_url": "(open PR → Vercel Preview)",
+    "rollback": "Revert PR"
   },
   "receipt": {
-    "goal": "Production OAuth/magic-link redirectTo uses https://emberplay.app/auth/callback via NEXT_PUBLIC_SITE_URL; localhost uses window origin always.",
-    "source_branch": "main",
-    "commands_run": [
-      "git checkout main; git pull origin main",
-      "cd web && pnpm install && pnpm run build",
-      "pnpm run lint fails: Next.js 16 CLI has no next lint (script invokes invalid path); TypeScript checked via next build"
-    ],
-    "files_changed": [
+    "goal": "Discover Figma UI + OAuth callback stays on current tab origin (fixes Preview PKCE).",
+    "commands_run": ["pnpm run build in web/"],
+    "files_changed_recent": [
       "web/src/lib/auth-callback-url.ts",
-      "web/src/app/signin/page.tsx",
-      "web/src/components/ui/SaveToListModal.tsx",
-      "web/src/app/account/page.tsx",
-      "web/.env.example",
       "web/docs/FEB_2026_AUTH_SETUP.md",
+      "pr_discover_figma_redesign.md",
       "PROGRESS.md",
-      "state/latest.json",
-      "pr_google_sso_production_domain.md"
+      "state/latest.json"
     ],
-    "decisions": [
-      "Google Cloud redirect URI stays Supabase /auth/v1/callback per standard Supabase Google flow.",
-      "NEXT_PUBLIC_SITE_URL only affects non-localhost hosts; localhost/127.0.0.1 always use browser origin.",
-      "Previews without NEXT_PUBLIC_SITE_URL keep preview-origin /auth/callback."
-    ],
-    "qa_steps": [
-      "Vercel Production: set NEXT_PUBLIC_SITE_URL=https://emberplay.app and Supabase redirect allowlist.",
-      "Sign in with Google from emberplay.app after deploy.",
-      "Local: Google/magic link still uses localhost:3000/auth/callback without setting SITE_URL."
-    ],
-    "rollback": "Git revert branch; unset NEXT_PUBLIC_SITE_URL on Vercel Production."
+    "auth_fix": {
+      "root_cause": "NEXT_PUBLIC_SITE_URL used for non-localhost browser → Preview sent redirectTo to emberplay.app while PKCE was on *.vercel.app.",
+      "fix": "getAuthCallbackOrigin(): browser → window.location.origin; server preview → VERCEL_URL; production → SITE_URL.",
+      "supabase_redirect_urls": [
+        "https://emberplay.app/auth/callback",
+        "http://localhost:3000/auth/callback",
+        "https://*.vercel.app/auth/callback (if supported) or add preview hosts"
+      ]
+    },
+    "rollback": "git revert merge commit"
   },
-  "commit": null,
-  "timestamp": "2026-03-17T12:00:00.000Z"
+  "timestamp": "2026-03-17T20:00:00.000Z"
 }

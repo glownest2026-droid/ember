@@ -13,7 +13,7 @@ Set these in **Vercel** (or `.env.local` for local). Only **keys** are listed; a
 | `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE` | (unset = off) | Set to `true` to show “Continue with Google” in the auth modal. |
 | `NEXT_PUBLIC_AUTH_ENABLE_APPLE` | (unset = off) | Set to `true` to show “Continue with Apple” in the auth modal. |
 | `NEXT_PUBLIC_AUTH_ENABLE_EMAIL_OTP` | `true` | Set to `false` to hide “Continue with Email” (6-digit code) in the auth modal. |
-| `NEXT_PUBLIC_SITE_URL` | (omit locally) | **Production only:** canonical origin, e.g. `https://emberplay.app`. OAuth and magic links then use `https://emberplay.app/auth/callback` instead of the Vercel default host. Omit on Preview unless you want previews to use production callbacks (unusual). |
+| `NEXT_PUBLIC_SITE_URL` | (omit locally) | **Vercel Production only:** canonical origin `https://emberplay.app` (server-side fallback). **Browser OAuth/magic links** use the **current tab’s origin** (`window.location.origin`) so Preview stays on Preview and PKCE works. Do **not** rely on setting this on Preview to fix auth — use Supabase Redirect URLs for preview hosts instead. |
 
 **Safe for merge:** All provider flags default off except Email OTP (on). Turn on Google/Apple when Supabase and redirect URLs are configured.
 
@@ -38,9 +38,9 @@ The app uses **one** callback route: `/auth/callback`. The `next` query param se
      (Replace `<project-ref>` with your Supabase project reference, e.g. from the project URL.)
 3. Copy **Client ID** and **Client Secret** from Google → paste into Supabase **Google** provider → **Save**.
 4. **Supabase URL Configuration:** **Authentication** → **URL Configuration** (or **Redirect URLs**). Add every URL where users land after OAuth (our app’s `/auth/callback`, not Google’s Supabase callback):
-   - **Must (production):** `https://emberplay.app/auth/callback` (required once `NEXT_PUBLIC_SITE_URL=https://emberplay.app` is set on Vercel Production)
-   - Previews: `https://*.vercel.app/auth/callback` or each preview host (if testing Google on previews)
-   - Local: `http://localhost:3000/auth/callback`
+   - **Must (production):** `https://emberplay.app/auth/callback`
+   - **Must (previews):** Google OAuth on a Vercel Preview returns to **that preview’s** origin, e.g. `https://<deployment>.vercel.app/auth/callback`. Add a wildcard Supabase allows (e.g. `https://*.vercel.app/auth/callback`) **or** per-preview URLs, or Preview sign-in will fail with PKCE / redirect errors.
+   - **Local:** `http://localhost:3000/auth/callback`
 5. **Scopes:** Supabase needs `openid`, `userinfo.email`, `userinfo.profile`. Google’s default OAuth client usually includes these; if you created a custom OAuth consent screen, ensure these scopes are added.
 
 ---
@@ -68,6 +68,14 @@ In **Authentication** → **URL Configuration** (or **Redirect URLs**), add ever
 - Previews: each preview host or `https://*.vercel.app/auth/callback` if supported
 - Local: `http://localhost:3000/auth/callback`
 
+### Auth fix for Preview deployments (PKCE)
+
+**Before:** If `NEXT_PUBLIC_SITE_URL=https://emberplay.app` was present in Preview builds, the app sent `redirectTo=https://emberplay.app/auth/callback` while the user started OAuth on `https://….vercel.app`. PKCE state lived on the preview origin → Supabase returned to production → **“invalid request: both auth code and code verifier should be non-empty”.**
+
+**After:** In the browser, callback origin is always **`window.location.origin`**. Preview → preview `/auth/callback`; production tab on `emberplay.app` → that callback; localhost → localhost.
+
+**Founder:** Supabase **must** allow preview callback URLs (wildcard or explicit). Google Cloud **Authorized JavaScript origins** should include preview origins if you test Google on previews.
+
 ---
 
 ## 3. Vercel Environment Variables
@@ -81,9 +89,9 @@ Enable Google/Apple only **after** Supabase provider and redirect URLs are confi
    |-----|--------|------|
    | `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE` | `true` | Show “Continue with Google” in auth modal. |
    | `NEXT_PUBLIC_AUTH_ENABLE_APPLE` | `true` | Show “Continue with Apple” in auth modal. |
-   | `NEXT_PUBLIC_SITE_URL` | `https://emberplay.app` | **Production environment only.** Ensures OAuth returns to Ember’s domain. |
+   | `NEXT_PUBLIC_SITE_URL` | `https://emberplay.app` | **Production environment only** (server fallback). Users on `emberplay.app` get that origin in the browser anyway; do not duplicate this var on Preview if it pointed production at Preview builds (that caused PKCE failures). |
 
-3. **Do not** set provider flags to `true` until Supabase Google/Apple providers and redirect URLs are done. Set `NEXT_PUBLIC_SITE_URL` on Production after `https://emberplay.app/auth/callback` is in Supabase Redirect URLs. Redeploy after changing.
+3. **Do not** set provider flags to `true` until Supabase Google/Apple providers and redirect URLs are done. **Previews:** ensure Supabase Redirect URLs include your Vercel preview pattern. Redeploy after changing.
 
 ---
 

@@ -1,6 +1,20 @@
 # CTO Snapshot (Source of Truth)
 _Last updated: 2026-03-17_
 
+## feat(ui): Discover page Figma redesign + child personalization — 2026-03-17
+- **Branch:** `feat/discover-figma-redesign`
+- **Goal:** Implement Figma Discover layout on `/discover/[months]` (REPLACE UI); keep doorway → category → picks flow, Save/Have/Visit, How we choose sheet, age band slider. No duplicate AppBar (global header unchanged).
+- **Personalization:** When signed in and `?child=`, load `child_name`, `display_name`, `gender`, `birthdate`. **Full display label** (child_name || display_name, e.g. “Pop pop”) for hero/stage copy; hero **month count** from **birthdate** when available (not URL band). Closing line uses gender object pronoun (**her/him/them**). If no name → **your child** / **your family**.
+- **New files:** `web/src/lib/discover/personalization.ts`; `web/src/components/discover/figma/` (ChildHero, NeedCard, ScienceSection, PlayCarousel, PlayIdeaCard, ProductCarousel, Image).
+- **Removed from discover page:** `CategoryCarousel`, `DiscoverCardStack` (replaced by Figma carousels). Guest still sees `DiscoverHeroPocketPlayGuide`.
+- **Auth (Preview PKCE fix, same PR):** `web/src/lib/auth-callback-url.ts` — browser OAuth/magic `redirectTo` uses **`window.location.origin`** so Vercel Preview returns to the same preview host. Server: `VERCEL_ENV=preview` → `https://${VERCEL_URL}`; production → `NEXT_PUBLIC_SITE_URL`; else localhost. Docs: `web/docs/FEB_2026_AUTH_SETUP.md` §2c. **Supabase** must allow preview `/auth/callback` URLs (wildcard or explicit).
+- **Nav (child toggle dead clicks, same PR):** `UnifiedSignedInNav` used one `ref` for both desktop and mobile child dropdowns; React kept only the mobile node, so desktop **click-outside** fired on mousedown inside the open menu and unmounted it before `handleChildSelect` ran. **Fix:** separate `childDropdownDesktopRef` / `childDropdownMobileRef`; click-outside treats either as inside.
+- **Discover + nav (same PR):** On Discover, child switch → **full load** `/discover?child=` (or `/discover`) so server redirects to that child’s age band + **`?child=`**; hero personalizes from URL child id. Toggle **accent ring** ~850ms (sessionStorage after full navigation). Toast host removed. **Age slider** always when band empty.
+- **Discover personalization (server):** `getDiscoverServerPersonalization(childParam)` uses **`select('*')`** on `children` + shared `personalizationFromChildrenRow` (avoids fixed column lists breaking on schema drift).
+- **Discover personalization (client):** Same `select('*')`; **`getUser()` + `onAuthStateChange(INITIAL_SESSION | SIGNED_IN)`** so load runs after session is ready (fixes race vs SubnavStats `user`).
+- **Verification:** `pnpm run build` in `web/`. Discover: `/discover/26?child=<uuid>`. Auth: Google sign-in on a Preview deployment completes on that preview origin without PKCE error.
+- **Rollback:** Revert PR / branch.
+
 ## fix(auth): Google SSO production callback domain (emberplay.app) — 2026-03-17
 - **Branch:** `fix/google-sso-production-domain`
 - **Goal:** OAuth and magic-link `redirectTo` uses `https://emberplay.app/auth/callback` in production (via `NEXT_PUBLIC_SITE_URL`); localhost unchanged (always browser origin).
