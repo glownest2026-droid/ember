@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayCategoryTypesForAgeBandAndWrapper, getGatewayTopPicksForAgeBandAndCategoryType, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayTopProductsForAgeBand, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
+import { getDiscoverServerPersonalization } from '../../../lib/discover/serverDiscoverChild';
 import DiscoveryPageClient from './DiscoveryPageClient';
 
 interface DiscoverMonthsPageProps {
@@ -76,9 +77,12 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
     }
   }
 
+  const serverPersonalization = await getDiscoverServerPersonalization(childParam);
+
   return (
     <main className="min-h-screen">
       <DiscoveryPageClient
+        key={`discover-${monthParam}-${childParam ?? 'none'}`}
         ageBands={ageBands}
         ageBand={ageBand}
         monthParam={monthParam}
@@ -91,6 +95,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
         categoryTypes={categoryTypes}
         showDebug={showDebug}
         initialChildId={childParam ?? undefined}
+        serverPersonalization={serverPersonalization}
       />
     </main>
   );

@@ -22,6 +22,7 @@ import { displayChildName, firstNameFromProfile } from '@/lib/discover/personali
 import { DiscoverHeroPocketPlayGuide } from '@/components/discover/DiscoverHeroPocketPlayGuide';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
+import type { DiscoverChildPersonalization } from '@/lib/discover/serverDiscoverChild';
 import {
   requireAuthThen,
   replayPendingAuthAction,
@@ -59,6 +60,8 @@ interface DiscoveryPageClientProps {
   categoryTypes: GatewayCategoryTypePublic[];
   showDebug?: boolean;
   initialChildId?: string;
+  /** From server (reliable session); fixes hero when client searchParams/user timing is wrong */
+  serverPersonalization?: DiscoverChildPersonalization | null;
 }
 
 export default function DiscoveryPageClient({
@@ -75,12 +78,13 @@ export default function DiscoveryPageClient({
   categoryTypes,
   showDebug = false,
   initialChildId,
+  serverPersonalization = null,
 }: DiscoveryPageClientProps) {
   const router = useRouter();
   const shouldReduceMotion = useReducedMotion() ?? false;
   const [childProfile, setChildProfile] = useState<{ firstName: string | null; gender: string | null }>({
-    firstName: null,
-    gender: null,
+    firstName: serverPersonalization?.firstName ?? null,
+    gender: serverPersonalization?.gender ?? null,
   });
   const [howWeChooseOpen, setHowWeChooseOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
@@ -105,33 +109,42 @@ export default function DiscoveryPageClient({
   const withChildParam = (url: string) =>
     selectedChildId ? `${url}${url.includes('?') ? '&' : '?'}child=${encodeURIComponent(selectedChildId)}` : url;
 
-  /** Must follow URL ?child= (not only server prop) so nav child toggle updates hero immediately after navigation. */
-  const childIdForPersonalization = selectedChildId?.trim() || undefined;
+  const childIdForPersonalization = selectedChildId?.trim() || initialChildId?.trim() || undefined;
+
   useEffect(() => {
-    if (!childIdForPersonalization || !user) {
+    if (!childIdForPersonalization) {
       setChildProfile({ firstName: null, gender: null });
       return;
     }
+    if (serverPersonalization) {
+      setChildProfile({
+        firstName: serverPersonalization.firstName,
+        gender: serverPersonalization.gender,
+      });
+    }
+  }, [childIdForPersonalization, serverPersonalization]);
+
+  /** Client backup: only apply when row returned (never clear server-filled name on fetch miss). */
+  useEffect(() => {
+    if (!childIdForPersonalization || !user) return;
+    let cancelled = false;
     const supabase = createClient();
     supabase
       .from('children')
-      .select('id, child_name, display_name, gender')
+      .select('child_name, display_name, gender')
       .eq('id', childIdForPersonalization)
-      .single()
-      .then(
-        ({ data }) => {
-          if (!data) {
-            setChildProfile({ firstName: null, gender: null });
-            return;
-          }
-          const d = data as { child_name?: string | null; display_name?: string | null; gender?: string | null };
-          setChildProfile({
-            firstName: firstNameFromProfile(d.child_name, d.display_name),
-            gender: d.gender?.trim() || null,
-          });
-        },
-        () => setChildProfile({ firstName: null, gender: null })
-      );
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (cancelled || error || !data) return;
+        const d = data as { child_name?: string | null; display_name?: string | null; gender?: string | null };
+        setChildProfile({
+          firstName: firstNameFromProfile(d.child_name, d.display_name),
+          gender: d.gender?.trim() || null,
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [childIdForPersonalization, user]);
 
   const categoryFromUrl = searchParams.get('category');
