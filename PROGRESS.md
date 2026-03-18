@@ -7,7 +7,8 @@ _Last updated: 2026-03-17_
 - **Personalization:** When signed in and `?child=`, load `child_name`, `display_name`, `gender` from Supabase; **first name** for hero/stage copy (“Curated for Ben”, “Why this matters for Ben”); if no name → **your child** / **your family**. Gender stored for fallbacks; product blurb heading “Why this works for {name|your child}”.
 - **New files:** `web/src/lib/discover/personalization.ts`; `web/src/components/discover/figma/` (ChildHero, NeedCard, ScienceSection, PlayCarousel, PlayIdeaCard, ProductCarousel, Image).
 - **Removed from discover page:** `CategoryCarousel`, `DiscoverCardStack` (replaced by Figma carousels). Guest still sees `DiscoverHeroPocketPlayGuide`.
-- **Verification:** `pnpm run build` in `web/`. Manual: `/discover/26?child=<uuid>` signed in; doorway toggle deselect; Start over.
+- **Auth (Preview PKCE fix, same PR):** `web/src/lib/auth-callback-url.ts` — browser OAuth/magic `redirectTo` uses **`window.location.origin`** so Vercel Preview returns to the same preview host. Server: `VERCEL_ENV=preview` → `https://${VERCEL_URL}`; production → `NEXT_PUBLIC_SITE_URL`; else localhost. Docs: `web/docs/FEB_2026_AUTH_SETUP.md` §2c. **Supabase** must allow preview `/auth/callback` URLs (wildcard or explicit).
+- **Verification:** `pnpm run build` in `web/`. Discover: `/discover/26?child=<uuid>`. Auth: Google sign-in on a Preview deployment completes on that preview origin without PKCE error.
 - **Rollback:** Revert PR / branch.
 
 ## fix(auth): Google SSO production callback domain (emberplay.app) — 2026-03-17

@@ -1,25 +1,30 @@
 /**
  * Base URL for Supabase OAuth and magic-link redirects to `/auth/callback`.
  *
- * Production (Vercel): set `NEXT_PUBLIC_SITE_URL=https://emberplay.app` so Google OAuth
- * completes on Ember’s domain (Supabase then redirects here with ?code=).
+ * **Browser (sign-in tab):** Always `window.location.origin` so the callback matches
+ * where PKCE started — required for Google OAuth on Vercel Preview (same deployment
+ * origin). Production users on `https://emberplay.app` get that origin; Preview gets
+ * `https://…vercel.app`; localhost stays local.
  *
- * Local: leave unset — localhost/127.0.0.1 always uses `window.location.origin` so
- * `.env.local` mistakes cannot break local auth.
+ * **Server (no `window`):** Preview → `https://${VERCEL_URL}`; Production →
+ * `NEXT_PUBLIC_SITE_URL` (canonical `https://emberplay.app`); else `http://localhost:3000`.
  *
- * Previews: unset — uses the preview host’s origin.
+ * Supabase Redirect URLs must allow each origin you use (production, localhost, and a
+ * Vercel preview pattern — see docs).
  */
 export function getAuthCallbackOrigin(): string {
   if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    if (host === 'localhost' || host === '127.0.0.1') {
-      return window.location.origin;
-    }
+    return window.location.origin;
+  }
+  if (process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_URL) {
+    const host = process.env.VERCEL_URL.replace(/^https?:\/\//, '').split('/')[0];
+    return `https://${host}`;
   }
   const trimmed = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, '');
-  if (trimmed) return trimmed;
-  if (typeof window !== 'undefined') return window.location.origin;
-  return '';
+  if (process.env.VERCEL_ENV === 'production' && trimmed) {
+    return trimmed;
+  }
+  return 'http://localhost:3000';
 }
 
 /** Full callback URL with `next` path/query (e.g. `/discover` or `/discover/26?child=x`). */

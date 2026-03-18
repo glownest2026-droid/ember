@@ -1,43 +1,33 @@
 {
   "pr": {
     "number": null,
-    "title": "feat(ui): Discover Figma redesign + child name personalization",
+    "title": "feat(ui): Discover Figma redesign + Preview OAuth PKCE fix",
     "branch": "feat/discover-figma-redesign",
     "base": "main",
     "url": "https://github.com/glownest2026-droid/ember/compare/main...feat/discover-figma-redesign",
-    "vercel_preview_url": "(push branch and open PR for preview)",
-    "rollback": "Revert PR; restore DiscoveryPageClient + remove web/src/components/discover/figma/"
+    "vercel_preview_url": "(open PR → Vercel Preview)",
+    "rollback": "Revert PR"
   },
   "receipt": {
-    "goal": "Figma Discover stages on /discover with real gateway data; child first name from DB when ?child= + signed in; fallbacks your child/your family.",
-    "source_branch": "main",
-    "commands_run": ["git checkout -b feat/discover-figma-redesign", "cd web && pnpm run build"],
-    "files_changed": [
-      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
-      "web/src/lib/discover/personalization.ts",
-      "web/src/components/discover/figma/DiscoverFigmaChildHero.tsx",
-      "web/src/components/discover/figma/DiscoverFigmaNeedCard.tsx",
-      "web/src/components/discover/figma/DiscoverFigmaScienceSection.tsx",
-      "web/src/components/discover/figma/DiscoverFigmaPlayCarousel.tsx",
-      "web/src/components/discover/figma/DiscoverFigmaPlayIdeaCard.tsx",
-      "web/src/components/discover/figma/DiscoverFigmaProductCarousel.tsx",
-      "web/src/components/discover/figma/DiscoverFigmaImage.tsx",
+    "goal": "Discover Figma UI + OAuth callback stays on current tab origin (fixes Preview PKCE).",
+    "commands_run": ["pnpm run build in web/"],
+    "files_changed_recent": [
+      "web/src/lib/auth-callback-url.ts",
+      "web/docs/FEB_2026_AUTH_SETUP.md",
+      "pr_discover_figma_redesign.md",
       "PROGRESS.md",
-      "state/latest.json",
-      "pr_discover_figma_redesign.md"
+      "state/latest.json"
     ],
-    "decisions": [
-      "No Figma AppBar; ConditionalHeader/UnifiedSignedInNav only.",
-      "Play ideas = gateway category types; products = existing picks stack data in horizontal carousel.",
-      "Tap same doorway again clears focus (back to stage 1 only)."
-    ],
-    "qa_steps": [
-      "Open /discover/26 signed in with ?child= on a child with display_name → see personalized hero.",
-      "Complete flow: doorway → See examples on a category → Save product.",
-      "Start over returns to doorway grid."
-    ],
-    "rollback": "git revert merge commit of feat/discover-figma-redesign"
+    "auth_fix": {
+      "root_cause": "NEXT_PUBLIC_SITE_URL used for non-localhost browser → Preview sent redirectTo to emberplay.app while PKCE was on *.vercel.app.",
+      "fix": "getAuthCallbackOrigin(): browser → window.location.origin; server preview → VERCEL_URL; production → SITE_URL.",
+      "supabase_redirect_urls": [
+        "https://emberplay.app/auth/callback",
+        "http://localhost:3000/auth/callback",
+        "https://*.vercel.app/auth/callback (if supported) or add preview hosts"
+      ]
+    },
+    "rollback": "git revert merge commit"
   },
-  "commit": null,
-  "timestamp": "2026-03-17T18:00:00.000Z"
+  "timestamp": "2026-03-17T20:00:00.000Z"
 }
