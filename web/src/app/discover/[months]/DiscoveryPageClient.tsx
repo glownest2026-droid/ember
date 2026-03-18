@@ -18,11 +18,14 @@ import { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigma
 import { DiscoverFigmaScienceSection } from '@/components/discover/figma/DiscoverFigmaScienceSection';
 import { DiscoverFigmaPlayCarousel } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
 import { DiscoverFigmaProductCarousel } from '@/components/discover/figma/DiscoverFigmaProductCarousel';
-import { displayChildName, displayLabelFromProfile, monthsOldFromBirthdate } from '@/lib/discover/personalization';
+import {
+  displayChildName,
+  personalizationFromChildrenRow,
+  type DiscoverChildPersonalization,
+} from '@/lib/discover/personalization';
 import { DiscoverHeroPocketPlayGuide } from '@/components/discover/DiscoverHeroPocketPlayGuide';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
-import type { DiscoverChildPersonalization } from '@/lib/discover/serverDiscoverChild';
 import {
   requireAuthThen,
   replayPendingAuthAction,
@@ -130,34 +133,34 @@ export default function DiscoveryPageClient({
     }
   }, [childIdForPersonalization, serverPersonalization]);
 
-  /** Client backup: only apply when row returned (never clear server-filled name on fetch miss). */
+  /**
+   * Client load: select('*') avoids hard-coded columns failing on older schemas.
+   * Uses getUser() here (not SubnavStats user) so we don't race context hydration.
+   */
   useEffect(() => {
-    if (!childIdForPersonalization || !user) return;
+    if (!childIdForPersonalization) return;
     let cancelled = false;
     const supabase = createClient();
-    supabase
-      .from('children')
-      .select('child_name, display_name, gender, birthdate')
-      .eq('id', childIdForPersonalization)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (cancelled || error || !data) return;
-        const d = data as {
-          child_name?: string | null;
-          display_name?: string | null;
-          gender?: string | null;
-          birthdate?: string | null;
-        };
-        setChildProfile((prev) => ({
-          displayLabel: displayLabelFromProfile(d.child_name, d.display_name) ?? prev.displayLabel,
-          gender: d.gender?.trim() || prev.gender,
-          monthsOld: monthsOldFromBirthdate(d.birthdate) ?? prev.monthsOld,
-        }));
-      });
+    const id = childIdForPersonalization.trim();
+
+    async function pull() {
+      const { data: { user: u } } = await supabase.auth.getUser();
+      if (!u || cancelled) return;
+      const { data, error } = await supabase.from('children').select('*').eq('id', id).maybeSingle();
+      if (cancelled || error || !data) return;
+      setChildProfile(personalizationFromChildrenRow(data as Record<string, unknown>));
+    }
+
+    void pull();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (cancelled || !session?.user) return;
+      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') void pull();
+    });
     return () => {
       cancelled = true;
+      subscription.unsubscribe();
     };
-  }, [childIdForPersonalization, user]);
+  }, [childIdForPersonalization]);
 
   const categoryFromUrl = searchParams.get('category');
   useEffect(() => {

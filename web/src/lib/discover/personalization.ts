@@ -32,6 +32,35 @@ export function monthsOldFromBirthdate(birthdate: string | null | undefined): nu
   return months >= 0 ? months : null;
 }
 
+export type DiscoverChildPersonalization = {
+  displayLabel: string | null;
+  gender: string | null;
+  monthsOld: number | null;
+};
+
+function strCell(v: unknown): string | null {
+  if (v == null || v === '') return null;
+  if (typeof v === 'string') {
+    const t = v.trim();
+    return t || null;
+  }
+  if (v instanceof Date && !Number.isNaN(v.getTime())) {
+    return v.toISOString().split('T')[0];
+  }
+  const s = String(v).trim();
+  return s || null;
+}
+
+/** Map a children row (e.g. select('*')) to discover hero copy fields. */
+export function personalizationFromChildrenRow(row: Record<string, unknown>): DiscoverChildPersonalization {
+  const birth = strCell(row.birthdate) ?? strCell(row.date_of_birth);
+  return {
+    displayLabel: displayLabelFromProfile(strCell(row.child_name), strCell(row.display_name)),
+    gender: strCell(row.gender),
+    monthsOld: monthsOldFromBirthdate(birth),
+  };
+}
+
 /** Subject pronoun for short copy */
 export function subjectPronoun(gender: string | null | undefined): 'he' | 'she' | 'they' {
   const g = (gender || '').trim().toLowerCase();
