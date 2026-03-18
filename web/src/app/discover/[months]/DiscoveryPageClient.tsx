@@ -105,8 +105,10 @@ export default function DiscoveryPageClient({
   const withChildParam = (url: string) =>
     selectedChildId ? `${url}${url.includes('?') ? '&' : '?'}child=${encodeURIComponent(selectedChildId)}` : url;
 
+  /** Must follow URL ?child= (not only server prop) so nav child toggle updates hero immediately after navigation. */
+  const childIdForPersonalization = selectedChildId?.trim() || undefined;
   useEffect(() => {
-    if (!initialChildId || !user) {
+    if (!childIdForPersonalization || !user) {
       setChildProfile({ firstName: null, gender: null });
       return;
     }
@@ -114,7 +116,7 @@ export default function DiscoveryPageClient({
     supabase
       .from('children')
       .select('id, child_name, display_name, gender')
-      .eq('id', initialChildId)
+      .eq('id', childIdForPersonalization)
       .single()
       .then(
         ({ data }) => {
@@ -130,7 +132,7 @@ export default function DiscoveryPageClient({
         },
         () => setChildProfile({ firstName: null, gender: null })
       );
-  }, [initialChildId, user]);
+  }, [childIdForPersonalization, user]);
 
   const categoryFromUrl = searchParams.get('category');
   useEffect(() => {

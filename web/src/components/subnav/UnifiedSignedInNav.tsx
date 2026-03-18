@@ -31,6 +31,8 @@ const CHILD_AVATAR_COLORS = ['#FF8870', '#B8432B', '#FFB347', '#E67A9E', '#7B68B
 const REMINDERS_TOOLTIP =
   "We'll automatically send you proactive play ideas at just the right time for your child's next developmental needs.";
 
+const CHILD_TOGGLE_AFFIRM_KEY = 'ember_child_toggle_affirm';
+
 type SubnavChild = {
   id: string;
   child_name?: string | null;
@@ -104,6 +106,8 @@ export function UnifiedSignedInNav() {
   const mobileTabsBarRef = useRef<HTMLDivElement>(null);
   const [mobileTabsDocked, setMobileTabsDocked] = useState(false);
   const [mobileTabsSpacerPx, setMobileTabsSpacerPx] = useState(48);
+  /** Brief accent on child toggle after selection (replaces toast). */
+  const [childToggleAffirm, setChildToggleAffirm] = useState(false);
 
   const selectedChildId = searchParams?.get('child') ?? '';
   const remindersEnabled = stats?.remindersEnabled ?? false;
@@ -212,6 +216,23 @@ export function UnifiedSignedInNav() {
   }, [pathname, selectedChildId, user?.id, refetch, isDiscover, isMyIdeas, basePath]);
 
   useEffect(() => {
+    if (!childToggleAffirm) return;
+    const t = window.setTimeout(() => setChildToggleAffirm(false), 850);
+    return () => window.clearTimeout(t);
+  }, [childToggleAffirm]);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(CHILD_TOGGLE_AFFIRM_KEY) === '1') {
+        sessionStorage.removeItem(CHILD_TOGGLE_AFFIRM_KEY);
+        setChildToggleAffirm(true);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [pathname, selectedChildId]);
+
+  useEffect(() => {
     const measureSpacer = () => {
       const bar = mobileTabsBarRef.current;
       if (bar && window.innerWidth < 1024) {
@@ -284,24 +305,30 @@ export function UnifiedSignedInNav() {
   const handleChildSelect = useCallback(
     (childId: string | null) => {
       setIsChildDropdownOpen(false);
-      const row = childId ? children.find((c) => c.id === childId) : null;
-      const toastMsg =
-        childId && row
-          ? `Personalizing for ${childDisplayName(row, Math.max(0, children.indexOf(row)))}`
-          : childId
-            ? 'Child profile selected'
-            : 'Showing all family';
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('ember:toast', { detail: { message: toastMsg } }));
+      if (typeof window !== 'undefined' && isDiscover) {
+        try {
+          sessionStorage.setItem(CHILD_TOGGLE_AFFIRM_KEY, '1');
+        } catch {
+          /* ignore */
+        }
+        const o = window.location.origin;
+        if (childId) {
+          window.location.assign(`${o}/discover?child=${encodeURIComponent(childId)}`);
+        } else {
+          window.location.assign(`${o}/discover`);
+        }
+        return;
       }
+      setChildToggleAffirm(true);
       if (childToggleApplies) {
         router.push(buildUrlWithChild(basePath, childId));
+        router.refresh();
       } else {
         router.push(childId ? `/family?child=${encodeURIComponent(childId)}` : '/family');
+        router.refresh();
       }
-      router.refresh();
     },
-    [childToggleApplies, basePath, buildUrlWithChild, children, router]
+    [childToggleApplies, basePath, buildUrlWithChild, isDiscover, router]
   );
 
   if (!user || !stats) return null;
@@ -373,7 +400,11 @@ export function UnifiedSignedInNav() {
               <button
                 type="button"
                 onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)] text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[var(--ember-text-high)] transition-all duration-300 ${
+                  childToggleAffirm
+                    ? 'border-[var(--ember-accent-base)] bg-[rgba(255,99,71,0.12)] ring-2 ring-[var(--ember-accent-base)] ring-offset-2'
+                    : 'border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)] hover:bg-[var(--ember-surface-soft)]'
+                }`}
                 aria-expanded={isChildDropdownOpen}
                 aria-haspopup="listbox"
                 aria-label="Select child"
@@ -556,7 +587,11 @@ export function UnifiedSignedInNav() {
               <button
                 type="button"
                 onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl w-full border border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)] text-[var(--ember-text-high)]"
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl w-full border text-[var(--ember-text-high)] transition-all duration-300 ${
+                  childToggleAffirm
+                    ? 'border-[var(--ember-accent-base)] bg-[rgba(255,99,71,0.12)] ring-2 ring-[var(--ember-accent-base)]'
+                    : 'border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)]'
+                }`}
                 aria-expanded={isChildDropdownOpen}
                 aria-label="Select child"
               >
