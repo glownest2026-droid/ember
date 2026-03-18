@@ -95,7 +95,9 @@ export function UnifiedSignedInNav() {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [remindersBusy, setRemindersBusy] = useState(false);
-  const childDropdownRef = useRef<HTMLDivElement>(null);
+  /** Must be separate: one ref on both desktop+mobile would point to only the last node, so click-outside closed the desktop menu before child buttons received clicks. */
+  const childDropdownDesktopRef = useRef<HTMLDivElement>(null);
+  const childDropdownMobileRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   /** Mobile: 1px sentinel directly above tab row — when it scrolls above viewport, dock tabs as fixed (sticky fails inside tall header). */
   const mobileTabsSentinelRef = useRef<HTMLDivElement>(null);
@@ -245,10 +247,13 @@ export function UnifiedSignedInNav() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (childDropdownRef.current && !childDropdownRef.current.contains(event.target as Node)) {
+      const t = event.target as Node;
+      const inChildDropdown =
+        childDropdownDesktopRef.current?.contains(t) || childDropdownMobileRef.current?.contains(t);
+      if (isChildDropdownOpen && !inChildDropdown) {
         setIsChildDropdownOpen(false);
       }
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(t)) {
         setIsProfileDropdownOpen(false);
       }
     };
@@ -353,7 +358,7 @@ export function UnifiedSignedInNav() {
             </nav>
 
             {/* Child profile switcher */}
-            <div className="relative hidden lg:block" ref={childDropdownRef}>
+            <div className="relative hidden lg:block" ref={childDropdownDesktopRef}>
               <button
                 type="button"
                 onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
@@ -536,7 +541,7 @@ export function UnifiedSignedInNav() {
             </div>
 
             {/* Mobile child selector */}
-            <div className="lg:hidden relative flex-1 min-w-0 max-w-[180px]" ref={childDropdownRef}>
+            <div className="lg:hidden relative flex-1 min-w-0 max-w-[180px]" ref={childDropdownMobileRef}>
               <button
                 type="button"
                 onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
