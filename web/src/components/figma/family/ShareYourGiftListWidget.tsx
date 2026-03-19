@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Copy, ExternalLink } from 'lucide-react';
+import { Copy, ExternalLink, Gift } from 'lucide-react';
 import { getOrCreateGiftShareSlug } from '@/lib/gift/actions';
 
 /** Share your gift list: Copy link + Preview. Slug is created on first use. */
@@ -55,9 +55,14 @@ export function ShareYourGiftListWidget() {
       className="rounded-2xl p-5 border-2 border-[#E5E7EB] bg-[#F9FAFB] shadow-sm"
       style={{ borderColor: 'var(--ember-border-subtle, #E5E7EB)' }}
     >
-      <h3 className="text-lg font-medium text-[#1A1E23] mb-2">
-        Share your gift list
-      </h3>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#FF6347]/10">
+          <Gift className="w-4 h-4 text-[#FF6347]" />
+        </span>
+        <h3 className="text-lg font-medium text-[#1A1E23]">
+          Share your gift list
+        </h3>
+      </div>
       <p className="text-sm text-[#5C646D] mb-4 leading-relaxed">
         Send this link to family. They&apos;ll only see items marked Gift.
       </p>

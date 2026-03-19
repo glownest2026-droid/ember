@@ -9,20 +9,21 @@
     "rollback": "Revert PR"
   },
   "receipt": {
-    "goal": "Align `/family` closer to Figma screenshot by removing the right column and redundant child profile cards, while keeping existing data plumbing and real links/interactions.",
+    "goal": "Tighten `/family` parity to Figma code: add child tabs, strict 4-up household tools row, Figma-style reminders/gift elements, dynamic pulse text, and quick-add modal journey while preserving real Ember plumbing.",
     "commands_run": [
-      "pnpm exec eslint src/components/figma/family/FamilyFigmaClient.tsx",
+      "pnpm exec eslint src/components/figma/family/FamilyFigmaClient.tsx src/components/figma/family/ShareYourGiftListWidget.tsx",
       "pnpm build (web/)"
     ],
     "files_changed_recent": [
       "web/src/components/figma/family/FamilyFigmaClient.tsx",
+      "web/src/components/figma/family/ShareYourGiftListWidget.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "decisions_made": [
-      "Removed desktop right-side marketing/support rail for visual parity with the Figma screenshot.",
-      "Removed child profile card grid from `/family` to avoid duplicate management UI.",
-      "Kept existing route wiring and persistence: reminders toggle via user_notification_prefs; gift-share widget unchanged."
+      "Child tabs are dynamic from real children rows (`All` + each child), not hardcoded names.",
+      "Quick-add modal matches Figma journey but routes to existing `/discover` flow for actual save plumbing.",
+      "Both reminders switches map to existing reminders preference to avoid dead toggles."
     ],
     "verification_steps": [
       "Build succeeded: `pnpm build` in `web/`.",

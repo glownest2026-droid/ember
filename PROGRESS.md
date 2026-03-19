@@ -15,6 +15,13 @@
   - Removed the desktop right column (“Keep the home in sync” hero + duplicate right-side modules).
   - Removed the redundant bottom child profile card grid from `/family`.
   - Kept plumbing, counters, route links, gift-share widget, and reminder persistence intact in a single-column layout.
+- **Follow-up 2 (same PR, Figma parity tightening):**
+  - Added top child tabs (`All` + dynamic child tabs from real children data) to match Figma header controls.
+  - Updated household tools to keep a strict 4-card row on desktop (`lg:grid-cols-4`).
+  - Reworked reminders card to Figma structure with icon, subtitle, and 2 switch rows.
+  - Added gift icon treatment in gift-share card.
+  - Removed hardcoded child copy from headline/pulse; now derived from actual household data.
+  - Added full “Add what’s in your house” modal journey (search, suggested matches, assign-to, add-to-home CTA) with live routing back into existing Discover flow.
 
 ## fix(pwa): Android install icon (maskable + solid canvas) — 2026-03-18
 - **Goal:** Installed PWA on Android uses full-bleed, premium icon (no white tile from transparent PNG on launcher).
