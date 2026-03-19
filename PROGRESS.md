@@ -1,5 +1,13 @@
 # CTO Snapshot (Source of Truth)
-_Last updated: 2026-03-17_
+_Last updated: 2026-03-18_
+
+## fix(pwa): Android install icon (maskable + solid canvas) — 2026-03-18
+- **Goal:** Installed PWA on Android uses full-bleed, premium icon (no white tile from transparent PNG on launcher).
+- **Assets:** `web/public/icons/icon-192.png`, `icon-512.png`, `icon-512-maskable.png` — solid **#FFFCF8** canvas, trimmed robin centred (~76% for `any`, ~56% for maskable safe zone). **RGB only** (no alpha). `web/public/apple-touch-icon.png` regenerated to match.
+- **Why maskable:** Android adaptive icons crop to circle/squircle; `purpose: "maskable"` + smaller artwork keeps the robin inside the safe zone; `any` icons stay bolder for square contexts.
+- **Regenerate:** `node web/scripts/generate-pwa-icons.mjs` (fetches brand PNG once; do not point manifest at Supabase URL).
+- **Manifest:** `web/src/app/manifest.ts` — icons under `/icons/…` with `purpose: any` + `maskable`. `layout.tsx` `metadata.icons.icon` → `/icons/icon-192.png`.
+- **Verification:** `pnpm run build` in `web/`; open `/manifest.webmanifest`; install PWA on Android Chrome and confirm launcher icon.
 
 ## feat(ui): Discover page Figma redesign + child personalization — 2026-03-17
 - **Branch:** `feat/discover-figma-redesign`
