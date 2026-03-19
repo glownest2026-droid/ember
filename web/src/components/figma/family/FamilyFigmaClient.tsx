@@ -5,10 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { Settings as SettingsIcon, Plus, Sparkles, Eye, RefreshCw, ArrowRight, Gift } from 'lucide-react';
-import { ChildProfilesSection } from './ChildProfilesSection';
-import { ImageWithFallback } from './ImageWithFallback';
 import { ShareYourGiftListWidget } from './ShareYourGiftListWidget';
-import { suppressChild } from '@/lib/children/actions';
 import type { FamilyChild } from './ChildProfileCard';
 import type { ChildStats } from './ChildProfileCard';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
@@ -239,8 +236,8 @@ export function FamilyFigmaClient({
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
       <main className="w-full py-6 sm:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-6 sm:gap-8">
-          <div>
+        <div className="grid grid-cols-1">
+          <div className="max-w-[58rem]">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
               <div>
                 <h1 className="text-3xl sm:text-4xl font-normal text-[#1A1E23] mb-2">
@@ -432,7 +429,7 @@ export function FamilyFigmaClient({
                 </Link>
               </div>
 
-              <div className="mt-6 lg:hidden">
+              <div className="mt-6">
                 <div
                   className="rounded-2xl border p-5 bg-white"
                   style={{ borderColor: 'var(--ember-border-subtle)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
@@ -451,48 +448,10 @@ export function FamilyFigmaClient({
               </div>
             </section>
 
-            <div className="mt-6 lg:hidden">
+            <div className="mt-6">
               <ShareYourGiftListWidget />
             </div>
-
-            <ChildProfilesSection
-              familyChildren={children}
-              onRemove={async (id) => {
-                const result = await suppressChild(id);
-                if (!result?.error) fetchChildren();
-              }}
-            />
           </div>
-
-          <aside className="hidden lg:block space-y-6 self-start">
-            <div className="relative rounded-3xl overflow-hidden shadow-xl">
-              <ImageWithFallback
-                src="https://images.unsplash.com/photo-1771185716712-489c544632f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
-                alt="Child playing at home"
-                className="w-full h-72 object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1A1E23]/60 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                <p className="text-lg font-medium mb-1">Keep the home in sync</p>
-                <p className="text-sm opacity-90">Your next steps update automatically when you switch children.</p>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border p-6 bg-white" style={{ borderColor: 'var(--ember-border-subtle)' }}>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-[#1A1E23]">Remind me</h3>
-                <SubnavSwitch
-                  checked={remindersEnabled}
-                  onCheckedChange={handleRemindersChange}
-                  disabled={remindersBusy || !user}
-                  aria-label="Toggle development reminders"
-                />
-              </div>
-              <p className="text-xs text-[#5C646D]">A gentle email when your child hits the next stage.</p>
-            </div>
-
-            <ShareYourGiftListWidget />
-          </aside>
         </div>
       </main>
     </div>

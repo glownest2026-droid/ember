@@ -11,6 +11,10 @@
 - **Deviations from pack where plumbing is missing:** We did not port the pack’s mock “quick add / inventory drawer” flows (no matching inventory backend found); “Quick add” navigates to Discover.
 - **Verification:** `pnpm build` in `web/`; `pnpm exec eslint` on the modified `/family` components.
 - **Rollback:** Revert the branch / close the PR (no DB/schema changes were made).
+- **Follow-up (same PR, visual parity pass):**
+  - Removed the desktop right column (“Keep the home in sync” hero + duplicate right-side modules).
+  - Removed the redundant bottom child profile card grid from `/family`.
+  - Kept plumbing, counters, route links, gift-share widget, and reminder persistence intact in a single-column layout.
 
 ## fix(pwa): Android install icon (maskable + solid canvas) — 2026-03-18
 - **Goal:** Installed PWA on Android uses full-bleed, premium icon (no white tile from transparent PNG on launcher).

@@ -1,32 +1,34 @@
 {
   "pr": {
-    "number": null,
+    "number": 177,
     "title": "feat(ui): /family action-first redesign (Figma Manage Family V2)",
     "branch": "feat/family-figma-redesign",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/compare/main...feat/family-figma-redesign",
-    "vercel_preview_url": "(open PR → Vercel Preview)",
+    "url": "https://github.com/glownest2026-droid/ember/pull/177",
+    "vercel_preview_url": "https://ember-git-feat-family-figma-redesign-tims-projects-cd69a894.vercel.app",
     "rollback": "Revert PR"
   },
   "receipt": {
-    "goal": "Replace the existing signed-in `/family` UI with the local Figma Manage Family V2 action-first hierarchy, preserving children + per-child saved stats + gift-share plumbing.",
+    "goal": "Align `/family` closer to Figma screenshot by removing the right column and redundant child profile cards, while keeping existing data plumbing and real links/interactions.",
     "commands_run": [
-      "pnpm exec eslint src/components/figma/family/FamilyFigmaClient.tsx src/components/figma/family/ChildProfilesSection.tsx",
+      "pnpm exec eslint src/components/figma/family/FamilyFigmaClient.tsx",
       "pnpm build (web/)"
     ],
     "files_changed_recent": [
       "web/src/components/figma/family/FamilyFigmaClient.tsx",
-      "web/src/components/figma/family/ChildProfilesSection.tsx"
+      "PROGRESS.md",
+      "state/latest.json"
     ],
     "decisions_made": [
-      "Did not port pack mock quick-add/inventory drawer flows (no matching inventory backend plumbing found); Quick add navigates to Discover instead.",
-      "Renamed `ChildProfilesSection` prop from `children` to `familyChildren` to satisfy `react/no-children-prop` lint."
+      "Removed desktop right-side marketing/support rail for visual parity with the Figma screenshot.",
+      "Removed child profile card grid from `/family` to avoid duplicate management UI.",
+      "Kept existing route wiring and persistence: reminders toggle via user_notification_prefs; gift-share widget unchanged."
     ],
     "verification_steps": [
       "Build succeeded: `pnpm build` in `web/`.",
-      "Lint/TS: `pnpm exec eslint` on modified `/family` components."
+      "Lint/TS: `pnpm exec eslint` on modified `/family` component."
     ],
     "rollback_plan": "Revert/close the PR and switch back to `main` (no DB/schema changes were made)."
   },
-  "timestamp": "2026-03-17T20:00:00.000Z"
+  "timestamp": "2026-03-19T17:45:00.000Z"
 }
