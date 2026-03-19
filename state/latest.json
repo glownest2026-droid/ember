@@ -23,7 +23,9 @@
     "decisions_made": [
       "Child tabs are dynamic from real children rows (`All` + each child), not hardcoded names.",
       "Quick-add modal matches Figma journey but routes to existing `/discover` flow for actual save plumbing.",
-      "Both reminders switches map to existing reminders preference to avoid dead toggles."
+      "Both reminders switches map to existing reminders preference to avoid dead toggles.",
+      "Scope sync uses selected tab as single source of truth across pulse/counters/action text and child-scoped links.",
+      "Settings action removed from page header to match approved control set."
     ],
     "verification_steps": [
       "Build succeeded: `pnpm build` in `web/`.",

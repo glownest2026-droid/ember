@@ -22,6 +22,13 @@
   - Added gift icon treatment in gift-share card.
   - Removed hardcoded child copy from headline/pulse; now derived from actual household data.
   - Added full “Add what’s in your house” modal journey (search, suggested matches, assign-to, add-to-home CTA) with live routing back into existing Discover flow.
+- **Follow-up 3 (same PR, consistency + polish pass):**
+  - Synced scope logic so selected tab drives header pulse, counters, action subtitle, links, and action copy consistently.
+  - Removed non-approved header control (`Settings`) and kept focused controls (`Add child`, scope tabs, counters).
+  - Tightened top-card visual hierarchy (primary card density/shadow/spacing + calmer secondary cards).
+  - Added clearer tool-card specificity and stronger Find it vs At home separation.
+  - Reduced Gift list visual weight via compact integrated card presentation.
+  - Tightened section rhythm and reminders card hierarchy/copy for closer Figma pacing.
 
 ## fix(pwa): Android install icon (maskable + solid canvas) — 2026-03-18
 - **Goal:** Installed PWA on Android uses full-bleed, premium icon (no white tile from transparent PNG on launcher).

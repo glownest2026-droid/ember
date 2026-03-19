@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { Settings as SettingsIcon, Plus, Sparkles, Eye, RefreshCw, ArrowRight, Gift, Bell, Search, Camera, Check } from 'lucide-react';
+import { Plus, Sparkles, Eye, RefreshCw, ArrowRight, Gift, Bell, Search, Camera, Check } from 'lucide-react';
 import { ShareYourGiftListWidget } from './ShareYourGiftListWidget';
 import type { FamilyChild } from './ChildProfileCard';
 import type { ChildStats } from './ChildProfileCard';
@@ -191,24 +191,23 @@ export function FamilyFigmaClient({
   );
 
   const counters = selectedChild?.stats ?? totals;
+  const scopedChild = selectedChild;
+  const scopedChildId = scopedChild?.id ?? null;
 
-  const primaryChild = selectedChild ?? children[0] ?? null;
-  const primaryChildId = selectedChild?.id ?? null;
-
-  const discoverHref = primaryChildId ? `/discover?child=${encodeURIComponent(primaryChildId)}` : '/discover';
-  const myIdeasIdeasHref = primaryChildId
-    ? `/my-ideas?tab=ideas&child=${encodeURIComponent(primaryChildId)}`
+  const discoverHref = scopedChildId ? `/discover?child=${encodeURIComponent(scopedChildId)}` : '/discover';
+  const myIdeasIdeasHref = scopedChildId
+    ? `/my-ideas?tab=ideas&child=${encodeURIComponent(scopedChildId)}`
     : '/my-ideas?tab=ideas';
-  const myIdeasProductsHref = primaryChildId
-    ? `/my-ideas?tab=products&child=${encodeURIComponent(primaryChildId)}`
+  const myIdeasProductsHref = scopedChildId
+    ? `/my-ideas?tab=products&child=${encodeURIComponent(scopedChildId)}`
     : '/my-ideas?tab=products';
-  const marketplaceHref = primaryChildId ? `/marketplace?child=${encodeURIComponent(primaryChildId)}` : '/marketplace';
+  const marketplaceHref = scopedChildId ? `/marketplace?child=${encodeURIComponent(scopedChildId)}` : '/marketplace';
 
   const childLabel = (() => {
-    if (!primaryChild) return 'your household';
-    const idx = children.findIndex((c) => c.id === primaryChild.id);
+    if (!scopedChild) return 'your household';
+    const idx = children.findIndex((c) => c.id === scopedChild.id);
     const fallback = `Child ${Math.max(1, idx + 1)}`;
-    const name = (primaryChild.child_name || primaryChild.display_name)?.trim();
+    const name = (scopedChild.child_name || scopedChild.display_name)?.trim();
     return name || fallback;
   })();
 
@@ -216,11 +215,16 @@ export function FamilyFigmaClient({
     if (selectedChild) return `${childLabel} is in an active learning stage right now.`;
     const names = children
       .map((c, idx) => (c.child_name || c.display_name)?.trim() || `Child ${idx + 1}`)
-      .slice(0, 2);
+      .slice(0, 3);
+    if (names.length >= 3) return `${names[0]}, ${names[1]} and ${names[2]} are in active learning stages.`;
     if (names.length === 2) return `${names[0]} and ${names[1]} are in active learning stages.`;
     if (names.length === 1) return `${names[0]} is in an active learning stage right now.`;
     return 'Your household is in an active learning stage right now.';
   })();
+
+  const actionSubtitle = selectedView === 'all'
+    ? 'Top actions for your household right now'
+    : `Top actions for ${childLabel} right now`;
 
   const suggestedMatches = quickAddQuery.length > 2
     ? [
@@ -250,6 +254,18 @@ export function FamilyFigmaClient({
     setQuickAddAssignTo('unsure');
     router.push(`/discover${childParam}`);
   }, [quickAddAssignTo, router]);
+
+  const handleSelectView = useCallback((view: string) => {
+    setSelectedView(view);
+    const params = new URLSearchParams(searchParams.toString());
+    if (view === 'all') {
+      params.delete('child');
+    } else {
+      params.set('child', view);
+    }
+    const query = params.toString();
+    router.replace(query ? `/family?${query}` : '/family', { scroll: false });
+  }, [router, searchParams]);
 
   const { user, stats: subnavStats, refetch } = useSubnavStats();
   const remindersEnabled = subnavStats?.remindersEnabled ?? false;
@@ -302,20 +318,13 @@ export function FamilyFigmaClient({
                   <Plus className="w-4 h-4" />
                   Add child
                 </Link>
-                <Link
-                  href="/account"
-                  className="inline-flex items-center gap-2 text-[#5C646D] hover:text-[#1A1E23] px-2 py-1.5 rounded-md hover:bg-black/5"
-                >
-                  <SettingsIcon className="w-4 h-4" />
-                  Settings
-                </Link>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 mb-5">
+            <div className="flex items-center gap-2 mb-4">
               <button
                 type="button"
-                onClick={() => setSelectedView('all')}
+                onClick={() => handleSelectView('all')}
                 className={`rounded-lg h-9 px-4 text-sm transition-colors ${
                   selectedView === 'all'
                     ? 'bg-[#FF6347] text-white hover:bg-[#B8432B]'
@@ -330,7 +339,7 @@ export function FamilyFigmaClient({
                   <button
                     key={c.id}
                     type="button"
-                    onClick={() => setSelectedView(c.id)}
+                    onClick={() => handleSelectView(c.id)}
                     className={`rounded-lg h-9 px-4 text-sm transition-colors ${
                       selectedView === c.id
                         ? 'bg-[#FF6347] text-white hover:bg-[#B8432B]'
@@ -354,7 +363,7 @@ export function FamilyFigmaClient({
               </div>
             )}
 
-            <div className="flex flex-wrap items-center gap-3 mb-6">
+            <div className="flex flex-wrap items-center gap-3 mb-5">
               <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-[#E5E7EB]">
                 <Sparkles className="w-4 h-4 text-[#FF6347]" />
                 <span className="text-sm font-medium text-[#1A1E23]">{counters.ideas}</span>
@@ -372,15 +381,13 @@ export function FamilyFigmaClient({
               </div>
             </div>
 
-            <section className="mb-8">
+            <section className="mb-6">
               <div className="flex items-end justify-between gap-4 mb-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-medium text-[#1A1E23] mb-0.5">
                     What to do next
                   </h2>
-                  <p className="text-sm text-[#5C646D]">
-                    Action-led next steps for {primaryChild ? childLabel : 'your household'}.
-                  </p>
+                  <p className="text-sm text-[#5C646D]">{actionSubtitle}</p>
                 </div>
               </div>
 
@@ -391,18 +398,18 @@ export function FamilyFigmaClient({
                     e.preventDefault();
                     setQuickAddOpen(true);
                   }}
-                  className="group text-left rounded-2xl p-5 bg-gradient-to-br from-[#FF6347] to-[#FF8870] text-white shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all block"
+                  className="group text-left rounded-2xl px-5 py-5 lg:px-6 lg:py-6 min-h-[168px] bg-gradient-to-br from-[#FF6347] to-[#FF8870] text-white shadow-[0_8px_24px_rgba(255,99,71,0.22)] hover:shadow-[0_10px_28px_rgba(255,99,71,0.26)] transition-all block"
                 >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/20">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-white/20">
                       <Plus className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-base sm:text-lg font-medium m-0">Add what you already have</h3>
-                      <p className="text-sm text-white/90 mt-0.5">Type or snap - we&apos;ll match it.</p>
+                      <h3 className="text-base sm:text-lg font-medium m-0 leading-tight">Add what&apos;s in your house</h3>
+                      <p className="text-sm text-white/90 mt-1 leading-snug">Type or snap - we&apos;ll match it.</p>
                     </div>
                   </div>
-                  <div className="inline-flex items-center gap-2 font-medium mt-1">
+                  <div className="inline-flex items-center gap-2 text-sm font-medium mt-1">
                     Quick add
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </div>
@@ -410,7 +417,7 @@ export function FamilyFigmaClient({
 
                 <Link
                   href={myIdeasIdeasHref}
-                  className="group text-left rounded-2xl p-5 bg-white border border-[#E5E7EB] hover:border-[#FF6347] hover:shadow-md transition-all"
+                  className="group text-left rounded-2xl p-5 min-h-[168px] bg-white border border-[#E5E7EB] hover:border-[#FF6347]/50 hover:shadow-sm transition-all"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#FF6347]/10">
@@ -419,40 +426,40 @@ export function FamilyFigmaClient({
                     <div className="min-w-0">
                       <h3 className="text-base sm:text-lg font-medium m-0">Continue exploring</h3>
                       <p className="text-sm text-[#5C646D] mt-0.5">
-                        Keep going with your saved ideas.
+                        {selectedView === 'all' ? 'Narrow down from your saved interests.' : `Refine saved ideas for ${childLabel}.`}
                       </p>
                     </div>
                   </div>
                   <div className="inline-flex items-center gap-2 font-medium" style={{ color: '#FF6347' }}>
-                    My list
+                    Review saves
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </Link>
 
                 <Link
                   href={myIdeasProductsHref}
-                  className="group text-left rounded-2xl p-5 bg-white border border-[#E5E7EB] hover:border-[#FF6347] hover:shadow-md transition-all"
+                  className="group text-left rounded-2xl p-5 min-h-[168px] bg-white border border-[#E5E7EB] hover:border-[#FF6347]/50 hover:shadow-sm transition-all"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#FF6347]/10">
                       <RefreshCw className="w-5 h-5 text-[#FF6347]" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-base sm:text-lg font-medium m-0">Review move-on items</h3>
+                      <h3 className="text-base sm:text-lg font-medium m-0">Review ready-to-move items</h3>
                       <p className="text-sm text-[#5C646D] mt-0.5">
-                        Decide what to pass on next.
+                        {selectedView === 'all' ? 'Quick decisions on outgrown items.' : `See what ${childLabel} may be outgrowing.`}
                       </p>
                     </div>
                   </div>
                   <div className="inline-flex items-center gap-2 font-medium" style={{ color: '#FF6347' }}>
-                    Open products
+                    Review
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </Link>
               </div>
             </section>
 
-            <section className="mb-10">
+            <section className="mb-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Link
                   href={discoverHref}
@@ -464,7 +471,9 @@ export function FamilyFigmaClient({
                     </div>
                     <h3 className="text-base font-medium text-[#1A1E23] m-0">Learn it</h3>
                   </div>
-                  <p className="text-sm text-[#5C646D]">Stage-aware next steps</p>
+                  <p className="text-sm text-[#5C646D]">
+                    {selectedView === 'all' ? 'Stage guidance for your children' : `What ${childLabel} is learning now`}
+                  </p>
                 </Link>
 
                 <Link
@@ -477,7 +486,9 @@ export function FamilyFigmaClient({
                     </div>
                     <h3 className="text-base font-medium text-[#1A1E23] m-0">Find it</h3>
                   </div>
-                  <p className="text-sm text-[#5C646D]">Products that match your interests</p>
+                  <p className="text-sm text-[#5C646D]">
+                    {counters.toys} products saved - compare and narrow down
+                  </p>
                 </Link>
 
                 <Link
@@ -490,7 +501,9 @@ export function FamilyFigmaClient({
                     </div>
                     <h3 className="text-base font-medium text-[#1A1E23] m-0">At home</h3>
                   </div>
-                  <p className="text-sm text-[#5C646D]">Your saved + owned items</p>
+                  <p className="text-sm text-[#5C646D]">
+                    {counters.toys} items logged - what you already own
+                  </p>
                 </Link>
 
                 <Link
@@ -503,13 +516,15 @@ export function FamilyFigmaClient({
                     </div>
                     <h3 className="text-base font-medium text-[#1A1E23] m-0">Move it on</h3>
                   </div>
-                  <p className="text-sm text-[#5C646D]">Pass on what&apos;s outgrown</p>
+                  <p className="text-sm text-[#5C646D]">
+                    {selectedView === 'all' ? 'Items that may be outgrown soon' : `What ${childLabel} may be ready to move on`}
+                  </p>
                 </Link>
               </div>
 
-              <div className="mt-6">
+              <div className="mt-5 max-w-3xl">
                 <div
-                  className="rounded-2xl border p-5 bg-white"
+                  className="rounded-2xl border p-4 sm:p-5 bg-white"
                   style={{ borderColor: 'var(--ember-border-subtle)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -523,7 +538,10 @@ export function FamilyFigmaClient({
                       </div>
                     </div>
                   </div>
-                  <div className="space-y-3 mt-4">
+                  <p className="text-xs text-[#5C646D] mt-2 mb-3">
+                    We&apos;ll only send useful guidance tied to your current household stage.
+                  </p>
+                  <div className="space-y-2.5 mt-1">
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-[#1A1E23]">Monthly stage updates</p>
                       <SubnavSwitch
@@ -547,8 +565,8 @@ export function FamilyFigmaClient({
               </div>
             </section>
 
-            <div className="mt-6">
-              <ShareYourGiftListWidget />
+            <div className="mt-4 max-w-2xl">
+              <ShareYourGiftListWidget compact />
             </div>
           </div>
         </div>
