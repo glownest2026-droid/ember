@@ -9,14 +9,14 @@ import { AddChildCard } from './AddChildCard';
 type ChildWithStats = FamilyChild & { stats?: ChildStats | null };
 
 type ChildProfilesSectionProps = {
-  children: ChildWithStats[];
+  familyChildren: ChildWithStats[];
   onEditChild?: (id: string) => void;
   onRemove?: (id: string) => void | Promise<void>;
 };
 
 /** Child profiles grid + empty state + add card – exact Figma layout. */
 export function ChildProfilesSection({
-  children,
+  familyChildren,
   onRemove,
 }: ChildProfilesSectionProps) {
   return (
@@ -33,7 +33,7 @@ export function ChildProfilesSection({
             Your children and their stages
           </p>
         </div>
-        {children.length > 0 && (
+        {familyChildren.length > 0 && (
           <Link
             href="/add-children"
             className="inline-flex items-center justify-center gap-2 bg-[#FF6347] text-white hover:bg-[#B8432B] hover:shadow-[0px_8px_32px_rgba(255,99,71,0.3)] hover:scale-105 transition-all rounded-xl font-medium w-full sm:w-auto px-4 py-2.5"
@@ -44,11 +44,11 @@ export function ChildProfilesSection({
         )}
       </div>
 
-      {children.length === 0 ? (
+      {familyChildren.length === 0 ? (
         <EmptyChildProfiles />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {children.map((child) => (
+          {familyChildren.map((child) => (
             <ChildProfileCard
               key={child.id}
               child={child}

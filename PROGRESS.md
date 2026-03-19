@@ -1,5 +1,34 @@
 # CTO Snapshot (Source of Truth)
-_Last updated: 2026-03-18_
+ _Last updated: 2026-03-19_
+
+## feat(ui): /family action-first redesign (Figma Manage Family V2) — 2026-03-19
+- **Branch:** `feat/family-figma-redesign`
+- **Goal:** Redesign the signed-in `/family` page into an action-first “family control room” while preserving existing Supabase children + per-child saved stats + gift-share plumbing. Scope is `/family` only.
+- **UI wiring (no new backend logic):**
+  - Child saved counters use existing `get_my_subnav_stats(p_child_id)` calls already powering `/family`.
+  - “Remind me” toggle uses existing reminders model via `user_notification_prefs.development_reminders_enabled` (same pattern as `MyIdeasClient`).
+  - Action cards are wired to existing routes: `/discover?child=`, `/my-ideas?tab=ideas|products&child=`, `/marketplace?child=`.
+- **Deviations from pack where plumbing is missing:** We did not port the pack’s mock “quick add / inventory drawer” flows (no matching inventory backend found); “Quick add” navigates to Discover.
+- **Verification:** `pnpm build` in `web/`; `pnpm exec eslint` on the modified `/family` components.
+- **Rollback:** Revert the branch / close the PR (no DB/schema changes were made).
+- **Follow-up (same PR, visual parity pass):**
+  - Removed the desktop right column (“Keep the home in sync” hero + duplicate right-side modules).
+  - Removed the redundant bottom child profile card grid from `/family`.
+  - Kept plumbing, counters, route links, gift-share widget, and reminder persistence intact in a single-column layout.
+- **Follow-up 2 (same PR, Figma parity tightening):**
+  - Added top child tabs (`All` + dynamic child tabs from real children data) to match Figma header controls.
+  - Updated household tools to keep a strict 4-card row on desktop (`lg:grid-cols-4`).
+  - Reworked reminders card to Figma structure with icon, subtitle, and 2 switch rows.
+  - Added gift icon treatment in gift-share card.
+  - Removed hardcoded child copy from headline/pulse; now derived from actual household data.
+  - Added full “Add what’s in your house” modal journey (search, suggested matches, assign-to, add-to-home CTA) with live routing back into existing Discover flow.
+- **Follow-up 3 (same PR, consistency + polish pass):**
+  - Synced scope logic so selected tab drives header pulse, counters, action subtitle, links, and action copy consistently.
+  - Removed non-approved header control (`Settings`) and kept focused controls (`Add child`, scope tabs, counters).
+  - Tightened top-card visual hierarchy (primary card density/shadow/spacing + calmer secondary cards).
+  - Added clearer tool-card specificity and stronger Find it vs At home separation.
+  - Reduced Gift list visual weight via compact integrated card presentation.
+  - Tightened section rhythm and reminders card hierarchy/copy for closer Figma pacing.
 
 ## fix(pwa): Android install icon (maskable + solid canvas) — 2026-03-18
 - **Goal:** Installed PWA on Android uses full-bleed, premium icon (no white tile from transparent PNG on launcher).
