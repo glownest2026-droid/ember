@@ -1,33 +1,32 @@
 {
   "pr": {
     "number": null,
-    "title": "feat(ui): Discover Figma redesign + Preview OAuth PKCE fix",
-    "branch": "feat/discover-figma-redesign",
+    "title": "feat(ui): /family action-first redesign (Figma Manage Family V2)",
+    "branch": "feat/family-figma-redesign",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/compare/main...feat/discover-figma-redesign",
+    "url": "https://github.com/glownest2026-droid/ember/compare/main...feat/family-figma-redesign",
     "vercel_preview_url": "(open PR → Vercel Preview)",
     "rollback": "Revert PR"
   },
   "receipt": {
-    "goal": "Discover Figma UI + OAuth callback stays on current tab origin (fixes Preview PKCE).",
-    "commands_run": ["pnpm run build in web/"],
-    "files_changed_recent": [
-      "web/src/lib/auth-callback-url.ts",
-      "web/docs/FEB_2026_AUTH_SETUP.md",
-      "pr_discover_figma_redesign.md",
-      "PROGRESS.md",
-      "state/latest.json"
+    "goal": "Replace the existing signed-in `/family` UI with the local Figma Manage Family V2 action-first hierarchy, preserving children + per-child saved stats + gift-share plumbing.",
+    "commands_run": [
+      "pnpm exec eslint src/components/figma/family/FamilyFigmaClient.tsx src/components/figma/family/ChildProfilesSection.tsx",
+      "pnpm build (web/)"
     ],
-    "auth_fix": {
-      "root_cause": "NEXT_PUBLIC_SITE_URL used for non-localhost browser → Preview sent redirectTo to emberplay.app while PKCE was on *.vercel.app.",
-      "fix": "getAuthCallbackOrigin(): browser → window.location.origin; server preview → VERCEL_URL; production → SITE_URL.",
-      "supabase_redirect_urls": [
-        "https://emberplay.app/auth/callback",
-        "http://localhost:3000/auth/callback",
-        "https://*.vercel.app/auth/callback (if supported) or add preview hosts"
-      ]
-    },
-    "rollback": "git revert merge commit"
+    "files_changed_recent": [
+      "web/src/components/figma/family/FamilyFigmaClient.tsx",
+      "web/src/components/figma/family/ChildProfilesSection.tsx"
+    ],
+    "decisions_made": [
+      "Did not port pack mock quick-add/inventory drawer flows (no matching inventory backend plumbing found); Quick add navigates to Discover instead.",
+      "Renamed `ChildProfilesSection` prop from `children` to `familyChildren` to satisfy `react/no-children-prop` lint."
+    ],
+    "verification_steps": [
+      "Build succeeded: `pnpm build` in `web/`.",
+      "Lint/TS: `pnpm exec eslint` on modified `/family` components."
+    ],
+    "rollback_plan": "Revert/close the PR and switch back to `main` (no DB/schema changes were made)."
   },
   "timestamp": "2026-03-17T20:00:00.000Z"
 }
