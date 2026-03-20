@@ -860,9 +860,9 @@ export default function DiscoveryPageClient({
                   <Image
                     src={EMBER_LOGO_SRC}
                     alt=""
-                    width={36}
-                    height={36}
-                    className="h-[24px] w-[24px] sm:h-[30px] sm:w-[30px] lg:h-[36px] lg:w-[36px] object-contain"
+                        width={48}
+                        height={48}
+                        className="h-[28px] w-[28px] sm:h-[34px] sm:w-[34px] lg:h-[40px] lg:w-[40px] object-contain"
                   />
                   Choose what you&apos;d like to explore
                 </span>
@@ -937,9 +937,9 @@ export default function DiscoveryPageClient({
                       <Image
                         src={EMBER_LOGO_SRC}
                         alt=""
-                        width={36}
-                        height={36}
-                        className="h-[24px] w-[24px] sm:h-[30px] sm:w-[30px] lg:h-[36px] lg:w-[36px] object-contain"
+                        width={48}
+                        height={48}
+                        className="h-[28px] w-[28px] sm:h-[34px] sm:w-[34px] lg:h-[40px] lg:w-[40px] object-contain"
                       />
                       {selectedWrapperLabel}
                     </span>
@@ -976,9 +976,9 @@ export default function DiscoveryPageClient({
                       <Image
                         src={EMBER_LOGO_SRC}
                         alt=""
-                        width={36}
-                        height={36}
-                        className="h-[24px] w-[24px] sm:h-[30px] sm:w-[30px] lg:h-[36px] lg:w-[36px] object-contain"
+                        width={48}
+                        height={48}
+                        className="h-[28px] w-[28px] sm:h-[34px] sm:w-[34px] lg:h-[40px] lg:w-[40px] object-contain"
                       />
                       Try these ideas to support {selectedWrapperLabel.toLowerCase()}
                     </span>
@@ -1014,9 +1014,9 @@ export default function DiscoveryPageClient({
                         <Image
                           src={EMBER_LOGO_SRC}
                           alt=""
-                          width={36}
-                          height={36}
-                          className="h-[24px] w-[24px] sm:h-[30px] sm:w-[30px] lg:h-[36px] lg:w-[36px] object-contain"
+                          width={48}
+                          height={48}
+                          className="h-[28px] w-[28px] sm:h-[34px] sm:w-[34px] lg:h-[40px] lg:w-[40px] object-contain"
                         />
                         Examples you might like
                       </span>
