@@ -328,10 +328,7 @@ export default function MarketplacePage() {
                 transition={{ duration: 0.6, delay: 0.25 }}
               >
                 <Button size="lg" asChild>
-                  <Link href="/signin">Join early access</Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/signin">Get notified</Link>
+                  <Link href="/success">Join early access</Link>
                 </Button>
               </motion.div>
 
@@ -576,7 +573,7 @@ export default function MarketplacePage() {
             Coming Soon
           </p>
           <Button size="lg" variant="secondary" asChild className="bg-white text-[#1A1E23] hover:bg-[#F1F3F2]">
-            <Link href="/signin">Join early access</Link>
+            <Link href="/success">Join early access</Link>
           </Button>
         </div>
       </section>

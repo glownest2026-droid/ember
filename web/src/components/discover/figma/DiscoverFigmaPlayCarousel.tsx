@@ -20,6 +20,7 @@ export function DiscoverFigmaPlayCarousel({
   onSeeExamples,
   onSaveIdea,
   onHaveThem,
+  showHaveAction = true,
 }: {
   items: PlayIdeaItem[];
   selectedId: string | null;
@@ -27,6 +28,7 @@ export function DiscoverFigmaPlayCarousel({
   onSeeExamples: (id: string) => void;
   onSaveIdea: (categoryId: string, el: HTMLButtonElement | null) => void;
   onHaveThem: (categoryId: string) => void;
+  showHaveAction?: boolean;
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cardWidth, setCardWidth] = useState(380);
@@ -68,7 +70,7 @@ export function DiscoverFigmaPlayCarousel({
       onClick={() => onSelect(idea.id)}
       onSeeExamples={() => onSeeExamples(idea.id)}
       onSaveIdea={(e, el) => onSaveIdea(idea.id, el)}
-      onHaveThem={() => onHaveThem(idea.id)}
+      onHaveThem={showHaveAction ? () => onHaveThem(idea.id) : undefined}
     />
   );
 

@@ -32,12 +32,12 @@ export function SimpleTooltip({ content, children, minWidth = '20rem', maxWidth 
         <span
           id="simple-tooltip-content"
           role="tooltip"
-          className="absolute left-1/2 -translate-x-1/2 z-[60] px-3 py-2 rounded-lg text-sm text-white whitespace-normal shadow-lg pointer-events-none"
+          className="absolute right-0 z-[60] px-3 py-2 rounded-lg text-sm text-white whitespace-normal shadow-lg pointer-events-none"
           style={{
             backgroundColor: '#1A1E23',
             minWidth,
             maxWidth: maxWidth || '95vw',
-            width: minWidth,
+            width: `min(${minWidth}, calc(100vw - 16px))`,
             boxSizing: 'border-box',
             top: 'calc(100% + 8px)',
           }}

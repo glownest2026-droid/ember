@@ -16,6 +16,7 @@ import {
   LogOut,
   Users,
   Package,
+  ShoppingCart,
   Info,
 } from 'lucide-react';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
@@ -120,10 +121,10 @@ export function UnifiedSignedInNav() {
   const selectedChild = selectedChildId ? children.find((c) => c.id === selectedChildId) : null;
   const selectedChildName =
     selectedChildId === ''
-      ? 'Family'
+      ? 'All children'
       : selectedChild
         ? childDisplayName(selectedChild, children.findIndex((c) => c.id === selectedChild.id))
-        : 'Family';
+        : 'All children';
 
   const buildUrlWithChild = useCallback(
     (path: string, childId: string | null) => {
@@ -349,7 +350,7 @@ export function UnifiedSignedInNav() {
     >
       <div className="mx-auto w-full min-w-0 max-w-[90rem] px-4 md:px-6 lg:px-12">
         {/* Main row */}
-        <div className="flex h-16 items-center justify-between gap-4 lg:gap-6">
+        <div className="relative flex h-16 items-center justify-between gap-4 lg:gap-6">
           {/* Left: Logo + desktop nav + child selector */}
           <div className="flex flex-1 items-center gap-4 lg:gap-6 min-w-0">
             <Link
@@ -360,7 +361,7 @@ export function UnifiedSignedInNav() {
               <Image
                 src={EMBER_LOGO_SRC}
                 alt=""
-                className="h-10 w-10 md:h-11 md:w-11 object-contain"
+                className="h-12 w-12 md:h-11 md:w-11 object-contain"
                 width={48}
                 height={48}
                 priority
@@ -489,7 +490,7 @@ export function UnifiedSignedInNav() {
                           </div>
                           <div>
                             <div className="text-sm font-medium text-[var(--ember-text-high)]">
-                              Family
+                              All children
                             </div>
                             <div className="text-xs text-[var(--ember-text-low)]">All children</div>
                           </div>
@@ -583,7 +584,10 @@ export function UnifiedSignedInNav() {
             </div>
 
             {/* Mobile child selector */}
-            <div className="lg:hidden relative flex-1 min-w-0 max-w-[180px]" ref={childDropdownMobileRef}>
+            <div
+              className="lg:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1] w-[190px] max-w-[52vw]"
+              ref={childDropdownMobileRef}
+            >
               <button
                 type="button"
                 onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
@@ -661,7 +665,7 @@ export function UnifiedSignedInNav() {
                           </div>
                           <div>
                             <div className="text-sm font-medium text-[var(--ember-text-high)]">
-                              Family
+                              All children
                             </div>
                             <div className="text-xs text-[var(--ember-text-low)]">All children</div>
                           </div>
@@ -775,7 +779,7 @@ export function UnifiedSignedInNav() {
                 href={myIdeasUrl('products')}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors bg-[var(--ember-surface-soft)] hover:opacity-90"
               >
-                <Package className="w-3.5 h-3.5 text-[var(--ember-text-high)]" strokeWidth={2} />
+                <ShoppingCart className="w-3.5 h-3.5 text-[var(--ember-text-high)]" strokeWidth={2} />
                 <span className="text-sm font-semibold text-[var(--ember-text-high)]">
                   {stats.toysSaved}
                 </span>
@@ -854,6 +858,14 @@ export function UnifiedSignedInNav() {
                       <span className="text-sm font-medium">Account</span>
                     </Link>
                     <Link
+                      href="/family"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-left text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                    >
+                      <Users className="w-4 h-4 text-[var(--ember-text-low)]" strokeWidth={2} />
+                      <span className="text-sm font-medium">Family</span>
+                    </Link>
+                    <Link
                       href="/signout"
                       onClick={() => setIsProfileDropdownOpen(false)}
                       className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-left text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
@@ -897,6 +909,14 @@ export function UnifiedSignedInNav() {
               >
                 <Settings className="w-4 h-4" strokeWidth={2} />
                 Account
+              </Link>
+              <Link
+                href="/family"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-[var(--ember-text-low)] hover:bg-[var(--ember-surface-soft)]"
+              >
+                <Users className="w-4 h-4" strokeWidth={2} />
+                Family
               </Link>
               <Link
                 href="/signout"
@@ -993,7 +1013,7 @@ export function UnifiedSignedInNav() {
               href={myIdeasUrl('products')}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--ember-surface-soft)] transition-colors"
             >
-              <Package className="w-4 h-4 text-[var(--ember-text-high)]" strokeWidth={2} />
+              <ShoppingCart className="w-4 h-4 text-[var(--ember-text-high)]" strokeWidth={2} />
               <span className="text-sm font-semibold text-[var(--ember-text-high)]">
                 {stats.toysSaved} products
               </span>
@@ -1015,7 +1035,7 @@ export function UnifiedSignedInNav() {
                 disabled={remindersBusy}
                 aria-label="Send me development reminders"
               />
-              <SimpleTooltip content={REMINDERS_TOOLTIP} minWidth="44rem" maxWidth="min(44rem, 95vw)">
+              <SimpleTooltip content={REMINDERS_TOOLTIP} minWidth="16rem" maxWidth="calc(100vw - 16px)">
                 <button
                   type="button"
                   className="rounded-full p-0.5 text-[var(--ember-text-low)] hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ember-accent-hover)] cursor-pointer"

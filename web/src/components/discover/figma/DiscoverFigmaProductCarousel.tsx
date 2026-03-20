@@ -13,6 +13,7 @@ export function DiscoverFigmaProductCarousel({
   onSave,
   onHave,
   getProductUrl,
+  showHaveAction = true,
 }: {
   picks: GatewayPick[];
   ageRangeLabel: string;
@@ -20,6 +21,7 @@ export function DiscoverFigmaProductCarousel({
   onSave: (productId: string, triggerEl: HTMLButtonElement | null) => void;
   onHave: (productId: string) => void;
   getProductUrl: (p: GatewayPick) => string;
+  showHaveAction?: boolean;
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState<'left' | 'right'>('right');
@@ -128,14 +130,16 @@ export function DiscoverFigmaProductCarousel({
                     <Bookmark className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                     Save
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => onHave(current.id)}
-                    className="flex items-center justify-center gap-1.5 lg:gap-2 px-4 lg:px-5 py-2.5 lg:py-3 rounded-xl border-2 border-[var(--ember-border-subtle)] text-[var(--ember-text-high)] hover:border-[var(--ember-accent-base)] font-medium text-xs lg:text-sm flex-1 min-w-[100px]"
-                  >
-                    <Check className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
-                    Have
-                  </button>
+                  {showHaveAction ? (
+                    <button
+                      type="button"
+                      onClick={() => onHave(current.id)}
+                      className="flex items-center justify-center gap-1.5 lg:gap-2 px-4 lg:px-5 py-2.5 lg:py-3 rounded-xl border-2 border-[var(--ember-border-subtle)] text-[var(--ember-text-high)] hover:border-[var(--ember-accent-base)] font-medium text-xs lg:text-sm flex-1 min-w-[100px]"
+                    >
+                      <Check className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+                      Have
+                    </button>
+                  ) : null}
                   {canVisit ? (
                     <a
                       href={url}

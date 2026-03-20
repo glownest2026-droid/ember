@@ -18,6 +18,11 @@ const EMBER_LOGO_SRC = 'https://shjccflwlayacppuyskl.supabase.co/storage/v1/obje
 export default function DiscoverStickyHeader() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const queryString = searchParams?.toString() ?? '';
+  const currentPathWithQuery = pathname
+    ? `${pathname}${queryString ? `?${queryString}` : ''}`
+    : '/discover';
+  const signinHref = `/signin?next=${encodeURIComponent(currentPathWithQuery)}`;
   const childParam = searchParams?.get('child') ?? '';
   const withChild = (path: string) => (childParam ? `${path}${path.includes('?') ? '&' : '?'}child=${encodeURIComponent(childParam)}` : path);
   const shouldReduceMotion = useReducedMotion() ?? false;
@@ -121,7 +126,7 @@ export default function DiscoverStickyHeader() {
             ) : (
               <>
                 <Link
-                  href={`/signin${pathname && pathname !== '/' ? `?next=${encodeURIComponent(pathname)}` : ''}`}
+                  href={signinHref}
                   className="text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] whitespace-nowrap"
                 >
                   Sign in
@@ -185,7 +190,7 @@ export default function DiscoverStickyHeader() {
             ) : (
               <>
                 <Link
-                  href={`/signin${pathname && pathname !== '/' ? `?next=${encodeURIComponent(pathname)}` : ''}`}
+                  href={signinHref}
                   className="text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
                 >
                   Sign in
@@ -262,7 +267,7 @@ export default function DiscoverStickyHeader() {
             ) : (
               <>
                 <Link
-                  href={`/signin${pathname && pathname !== '/' ? `?next=${encodeURIComponent(pathname)}` : ''}`}
+                  href={signinHref}
                   onClick={() => setMobileMenuOpen(false)}
                   className="py-3 text-[var(--ember-text-high)] font-medium"
                 >
