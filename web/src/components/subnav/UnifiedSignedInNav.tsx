@@ -350,7 +350,7 @@ export function UnifiedSignedInNav() {
     >
       <div className="mx-auto w-full min-w-0 max-w-[90rem] px-4 md:px-6 lg:px-12">
         {/* Main row */}
-        <div className="flex h-16 items-center justify-between gap-4 lg:gap-6">
+        <div className="relative flex h-16 items-center justify-between gap-4 lg:gap-6">
           {/* Left: Logo + desktop nav + child selector */}
           <div className="flex flex-1 items-center gap-4 lg:gap-6 min-w-0">
             <Link
@@ -584,7 +584,10 @@ export function UnifiedSignedInNav() {
             </div>
 
             {/* Mobile child selector */}
-            <div className="lg:hidden relative flex-1 min-w-0 max-w-[180px]" ref={childDropdownMobileRef}>
+            <div
+              className="lg:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1] w-[190px] max-w-[52vw]"
+              ref={childDropdownMobileRef}
+            >
               <button
                 type="button"
                 onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
@@ -855,6 +858,14 @@ export function UnifiedSignedInNav() {
                       <span className="text-sm font-medium">Account</span>
                     </Link>
                     <Link
+                      href="/family"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-left text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                    >
+                      <Users className="w-4 h-4 text-[var(--ember-text-low)]" strokeWidth={2} />
+                      <span className="text-sm font-medium">Family</span>
+                    </Link>
+                    <Link
                       href="/signout"
                       onClick={() => setIsProfileDropdownOpen(false)}
                       className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-left text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
@@ -1024,7 +1035,7 @@ export function UnifiedSignedInNav() {
                 disabled={remindersBusy}
                 aria-label="Send me development reminders"
               />
-              <SimpleTooltip content={REMINDERS_TOOLTIP} minWidth="44rem" maxWidth="min(44rem, 95vw)">
+              <SimpleTooltip content={REMINDERS_TOOLTIP} minWidth="16rem" maxWidth="calc(100vw - 16px)">
                 <button
                   type="button"
                   className="rounded-full p-0.5 text-[var(--ember-text-low)] hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ember-accent-hover)] cursor-pointer"

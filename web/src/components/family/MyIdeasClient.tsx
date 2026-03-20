@@ -617,7 +617,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
                         <button
                           type="button"
                           aria-label="Remove or archive idea"
-                          className="h-6 w-6 rounded-full text-sm leading-none font-semibold text-[var(--ember-text-low)] hover:bg-[var(--ember-surface-soft)]"
+                          className="h-8 w-8 rounded-full text-xl leading-none font-bold text-[var(--ember-accent-base)] border border-[var(--ember-accent-base)]/40 hover:bg-[rgba(255,99,71,0.1)]"
                           onClick={() => setRemoveModalRow(row)}
                         >
                           -
@@ -814,7 +814,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
           />
           <div className="relative w-full max-w-sm rounded-2xl bg-white border border-[var(--ember-border-subtle)] p-5">
             <h3 className="text-lg font-semibold text-[var(--ember-text-high)] mb-2">Are you sure?</h3>
-            <p className="text-sm text-[var(--ember-text-low)] mb-4">{itemTitle(removeModalRow)}</p>
+            <p className="text-sm text-[var(--ember-text-low)] mb-4">Removing {itemTitle(removeModalRow)}</p>
             <div className="flex items-center justify-end gap-2">
               <button
                 type="button"
@@ -842,7 +842,10 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
                   const row = removeModalRow;
                   setRemoveModalRow(null);
                   if (!row) return;
-                  await updateItem(row, { want: false, have: false, gift: false });
+                  const ok = await updateItem(row, { want: false, have: false, gift: false });
+                  if (ok) {
+                    setItems((prev) => prev.filter((item) => item.id !== row.id));
+                  }
                 }}
               >
                 Remove

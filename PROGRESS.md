@@ -2233,3 +2233,11 @@ Category-only cards remain publishable.
   - `web/src/components/figma/family/FamilyFigmaClient.tsx` — email toggles moved before their text labels, made mutually exclusive; navbar reminders preference remains tied only to "Monthly stage updates".
   - `web/src/app/layout.tsx`, `web/src/app/globals.css` — set global white fallback background to avoid black flash before content render.
 - **Proof:** `pnpm -C web build` passes after changes.
+
+### follow-up snag pass (open feedback fixes)
+- Centered the signed-in mobile child toggle visually in navbar row and added desktop profile-dropdown `Family` link after `Account` (`web/src/components/subnav/UnifiedSignedInNav.tsx`).
+- Tightened mobile reminders tooltip sizing in unified nav to keep content inside viewport (`web/src/components/subnav/UnifiedSignedInNav.tsx`).
+- `/my-ideas`: made minus action more prominent, modal copy now `Removing <title>`, and on successful Remove the card is removed from the list immediately (`web/src/components/family/MyIdeasClient.tsx`).
+- Increased discover stage-header logo size for visibility (`web/src/app/discover/[months]/DiscoveryPageClient.tsx`).
+- `/family` email preference rows now place toggle + text adjacent and left-aligned; monthly and move-it-on are autonomous, while navbar reminders still map only to monthly stage updates (`web/src/components/figma/family/FamilyFigmaClient.tsx`).
+- **Proof:** `pnpm -C web build` passes after follow-up fixes.

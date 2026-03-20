@@ -857,7 +857,7 @@ export default function DiscoveryPageClient({
               </p>
               <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
                 <span className="inline-flex items-center gap-2">
-                  <Image src={EMBER_LOGO_SRC} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
+                  <Image src={EMBER_LOGO_SRC} alt="" width={28} height={28} className="h-[28px] w-[28px] object-contain" />
                   Choose what you&apos;d like to explore
                 </span>
               </h2>
@@ -928,7 +928,7 @@ export default function DiscoveryPageClient({
                   </p>
                   <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
                     <span className="inline-flex items-center gap-2">
-                      <Image src={EMBER_LOGO_SRC} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
+                      <Image src={EMBER_LOGO_SRC} alt="" width={28} height={28} className="h-[28px] w-[28px] object-contain" />
                       {selectedWrapperLabel}
                     </span>
                   </h2>
@@ -961,7 +961,7 @@ export default function DiscoveryPageClient({
                   </p>
                   <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
                     <span className="inline-flex items-center gap-2">
-                      <Image src={EMBER_LOGO_SRC} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
+                      <Image src={EMBER_LOGO_SRC} alt="" width={28} height={28} className="h-[28px] w-[28px] object-contain" />
                       Try these ideas to support {selectedWrapperLabel.toLowerCase()}
                     </span>
                   </h2>
@@ -993,7 +993,7 @@ export default function DiscoveryPageClient({
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium m-0">
                       <span className="inline-flex items-center gap-2">
-                        <Image src={EMBER_LOGO_SRC} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
+                        <Image src={EMBER_LOGO_SRC} alt="" width={28} height={28} className="h-[28px] w-[28px] object-contain" />
                         Examples you might like
                       </span>
                     </h2>
