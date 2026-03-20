@@ -857,7 +857,13 @@ export default function DiscoveryPageClient({
               </p>
               <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
                 <span className="inline-flex items-center gap-2">
-                  <Image src={EMBER_LOGO_SRC} alt="" width={28} height={28} className="h-[28px] w-[28px] object-contain" />
+                  <Image
+                    src={EMBER_LOGO_SRC}
+                    alt=""
+                    width={36}
+                    height={36}
+                    className="h-[24px] w-[24px] sm:h-[30px] sm:w-[30px] lg:h-[36px] lg:w-[36px] object-contain"
+                  />
                   Choose what you&apos;d like to explore
                 </span>
               </h2>
@@ -928,7 +934,13 @@ export default function DiscoveryPageClient({
                   </p>
                   <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
                     <span className="inline-flex items-center gap-2">
-                      <Image src={EMBER_LOGO_SRC} alt="" width={28} height={28} className="h-[28px] w-[28px] object-contain" />
+                      <Image
+                        src={EMBER_LOGO_SRC}
+                        alt=""
+                        width={36}
+                        height={36}
+                        className="h-[24px] w-[24px] sm:h-[30px] sm:w-[30px] lg:h-[36px] lg:w-[36px] object-contain"
+                      />
                       {selectedWrapperLabel}
                     </span>
                   </h2>
@@ -961,7 +973,13 @@ export default function DiscoveryPageClient({
                   </p>
                   <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
                     <span className="inline-flex items-center gap-2">
-                      <Image src={EMBER_LOGO_SRC} alt="" width={28} height={28} className="h-[28px] w-[28px] object-contain" />
+                      <Image
+                        src={EMBER_LOGO_SRC}
+                        alt=""
+                        width={36}
+                        height={36}
+                        className="h-[24px] w-[24px] sm:h-[30px] sm:w-[30px] lg:h-[36px] lg:w-[36px] object-contain"
+                      />
                       Try these ideas to support {selectedWrapperLabel.toLowerCase()}
                     </span>
                   </h2>
@@ -993,7 +1011,13 @@ export default function DiscoveryPageClient({
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium m-0">
                       <span className="inline-flex items-center gap-2">
-                        <Image src={EMBER_LOGO_SRC} alt="" width={28} height={28} className="h-[28px] w-[28px] object-contain" />
+                        <Image
+                          src={EMBER_LOGO_SRC}
+                          alt=""
+                          width={36}
+                          height={36}
+                          className="h-[24px] w-[24px] sm:h-[30px] sm:w-[30px] lg:h-[36px] lg:w-[36px] object-contain"
+                        />
                         Examples you might like
                       </span>
                     </h2>

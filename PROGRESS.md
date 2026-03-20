@@ -2241,3 +2241,8 @@ Category-only cards remain publishable.
 - Increased discover stage-header logo size for visibility (`web/src/app/discover/[months]/DiscoveryPageClient.tsx`).
 - `/family` email preference rows now place toggle + text adjacent and left-aligned; monthly and move-it-on are autonomous, while navbar reminders still map only to monthly stage updates (`web/src/components/figma/family/FamilyFigmaClient.tsx`).
 - **Proof:** `pnpm -C web build` passes after follow-up fixes.
+
+### final visual tweaks (snag 6 + 7)
+- `/my-ideas` minus icon tuned down (less prominent) and centered visually inside circle (`web/src/components/family/MyIdeasClient.tsx`).
+- Discover stage robin logo increased further with responsive sizing and non-stretched rendering on mobile + desktop (`web/src/app/discover/[months]/DiscoveryPageClient.tsx`).
+- **Proof:** `pnpm -C web build` passes after final visual tweaks.

@@ -617,10 +617,10 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
                         <button
                           type="button"
                           aria-label="Remove or archive idea"
-                          className="h-8 w-8 rounded-full text-xl leading-none font-bold text-[var(--ember-accent-base)] border border-[var(--ember-accent-base)]/40 hover:bg-[rgba(255,99,71,0.1)]"
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-full text-base leading-none font-semibold text-[var(--ember-text-low)] border border-[var(--ember-border-subtle)] hover:bg-[var(--ember-surface-soft)]"
                           onClick={() => setRemoveModalRow(row)}
                         >
-                          -
+                          <span className="relative -top-[1px]">-</span>
                         </button>
                       </div>
                       {imgUrl ? (
