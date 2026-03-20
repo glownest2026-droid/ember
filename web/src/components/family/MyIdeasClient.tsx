@@ -113,6 +113,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
   const [giftSuccessId, setGiftSuccessId] = useState<string | null>(null);
   const [remindersBusy, setRemindersBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [removeModalRow, setRemoveModalRow] = useState<ListItemRow | null>(null);
   const [optimisticHave, setOptimisticHave] = useState<Record<string, boolean>>({});
   const [optimisticGift, setOptimisticGift] = useState<Record<string, boolean>>({});
   const [examplesModal, setExamplesModal] = useState<{
@@ -612,6 +613,16 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
                       className="rounded-xl border overflow-hidden transition-all duration-200 hover:border-[var(--ember-text-low)]"
                       style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)' }}
                     >
+                      <div className="flex justify-end px-2 pt-2">
+                        <button
+                          type="button"
+                          aria-label="Remove or archive idea"
+                          className="h-6 w-6 rounded-full text-sm leading-none font-semibold text-[var(--ember-text-low)] hover:bg-[var(--ember-surface-soft)]"
+                          onClick={() => setRemoveModalRow(row)}
+                        >
+                          -
+                        </button>
+                      </div>
                       {imgUrl ? (
                         <div className="aspect-square bg-[var(--ember-surface-soft)] relative">
                           <img src={imgUrl} alt="" className="w-full h-full object-cover" />
@@ -793,6 +804,53 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
           </div>
         </div>
       </main>
+      {removeModalRow ? (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setRemoveModalRow(null)}
+            aria-label="Close remove modal"
+          />
+          <div className="relative w-full max-w-sm rounded-2xl bg-white border border-[var(--ember-border-subtle)] p-5">
+            <h3 className="text-lg font-semibold text-[var(--ember-text-high)] mb-2">Are you sure?</h3>
+            <p className="text-sm text-[var(--ember-text-low)] mb-4">{itemTitle(removeModalRow)}</p>
+            <div className="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                className="px-4 py-2 rounded-lg border border-[var(--ember-border-subtle)] text-sm"
+                onClick={() => setRemoveModalRow(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 rounded-lg border border-[var(--ember-border-subtle)] text-sm"
+                onClick={async () => {
+                  const row = removeModalRow;
+                  setRemoveModalRow(null);
+                  if (!row) return;
+                  await updateItem(row, { gift: true });
+                }}
+              >
+                Archive
+              </button>
+              <button
+                type="button"
+                className="px-4 py-2 rounded-lg bg-[var(--ember-accent-base)] text-white text-sm"
+                onClick={async () => {
+                  const row = removeModalRow;
+                  setRemoveModalRow(null);
+                  if (!row) return;
+                  await updateItem(row, { want: false, have: false, gift: false });
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

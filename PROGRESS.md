@@ -2217,3 +2217,19 @@ Category-only cards remain publishable.
 - **Proof:** `pnpm -C web build` passes. Manual: navbar signed-in shows three icons; homepage copy, layout, animation and logo as above.
 - **PR:** #157 fix(snag-pack): homepage + navbar tweaks
 - **Follow-up (same PR):** (1) "How we choose." box: list text left-aligned (`text-left` on grid in `HomeHowWeChoose.tsx`). (2) Navbar: "Sign in" link added before "Get started" for signed-out users (`DiscoverStickyHeader.tsx`). (3) Navbar logo already set to Ember_Logo_Robin1.png URL.
+
+---
+
+## fix(snag-pack): 13-item snag fixes (fix/snag-pack-homepage)
+
+- **Goal:** Resolve the 13 requested snags only (nav/mobile polish, discover/save/family UX, signin return path, and marketplace CTA tweaks).
+- **What changed:** 
+  - `web/src/components/subnav/UnifiedSignedInNav.tsx` — larger mobile logo for signed-in nav, "All children" label when no child selected, products counter icon switched from box/package to shopping cart, added `Family` link in mobile menu after `Account`.
+  - `web/src/components/ui/SimpleTooltip.tsx` — tooltip alignment/width constrained so reminders tooltip stays within viewport on mobile.
+  - `web/src/app/marketplace/page.tsx` — removed "Get notified"; changed "Join early access" CTAs to a simple confirmation route (`/success`).
+  - `web/src/components/family/MyIdeasClient.tsx` — added top-right minus affordance on cards plus modal overlay ("Are you sure?") with `Remove` and `Archive` actions.
+  - `web/src/app/discover/[months]/DiscoveryPageClient.tsx`, `web/src/components/discover/figma/DiscoverFigmaPlayCarousel.tsx`, `web/src/components/discover/figma/DiscoverFigmaPlayIdeaCard.tsx`, `web/src/components/discover/figma/DiscoverFigmaProductCarousel.tsx` — added Ember logo before each stage section header; hide "Have" action for signed-out users.
+  - `web/src/components/discover/DiscoverStickyHeader.tsx` — signin links now preserve current page + query in `next` so post-auth returns to same journey page.
+  - `web/src/components/figma/family/FamilyFigmaClient.tsx` — email toggles moved before their text labels, made mutually exclusive; navbar reminders preference remains tied only to "Monthly stage updates".
+  - `web/src/app/layout.tsx`, `web/src/app/globals.css` — set global white fallback background to avoid black flash before content render.
+- **Proof:** `pnpm -C web build` passes after changes.

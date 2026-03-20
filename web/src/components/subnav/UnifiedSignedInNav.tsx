@@ -16,6 +16,7 @@ import {
   LogOut,
   Users,
   Package,
+  ShoppingCart,
   Info,
 } from 'lucide-react';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
@@ -120,10 +121,10 @@ export function UnifiedSignedInNav() {
   const selectedChild = selectedChildId ? children.find((c) => c.id === selectedChildId) : null;
   const selectedChildName =
     selectedChildId === ''
-      ? 'Family'
+      ? 'All children'
       : selectedChild
         ? childDisplayName(selectedChild, children.findIndex((c) => c.id === selectedChild.id))
-        : 'Family';
+        : 'All children';
 
   const buildUrlWithChild = useCallback(
     (path: string, childId: string | null) => {
@@ -360,7 +361,7 @@ export function UnifiedSignedInNav() {
               <Image
                 src={EMBER_LOGO_SRC}
                 alt=""
-                className="h-10 w-10 md:h-11 md:w-11 object-contain"
+                className="h-12 w-12 md:h-11 md:w-11 object-contain"
                 width={48}
                 height={48}
                 priority
@@ -489,7 +490,7 @@ export function UnifiedSignedInNav() {
                           </div>
                           <div>
                             <div className="text-sm font-medium text-[var(--ember-text-high)]">
-                              Family
+                              All children
                             </div>
                             <div className="text-xs text-[var(--ember-text-low)]">All children</div>
                           </div>
@@ -661,7 +662,7 @@ export function UnifiedSignedInNav() {
                           </div>
                           <div>
                             <div className="text-sm font-medium text-[var(--ember-text-high)]">
-                              Family
+                              All children
                             </div>
                             <div className="text-xs text-[var(--ember-text-low)]">All children</div>
                           </div>
@@ -775,7 +776,7 @@ export function UnifiedSignedInNav() {
                 href={myIdeasUrl('products')}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors bg-[var(--ember-surface-soft)] hover:opacity-90"
               >
-                <Package className="w-3.5 h-3.5 text-[var(--ember-text-high)]" strokeWidth={2} />
+                <ShoppingCart className="w-3.5 h-3.5 text-[var(--ember-text-high)]" strokeWidth={2} />
                 <span className="text-sm font-semibold text-[var(--ember-text-high)]">
                   {stats.toysSaved}
                 </span>
@@ -899,6 +900,14 @@ export function UnifiedSignedInNav() {
                 Account
               </Link>
               <Link
+                href="/family"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-[var(--ember-text-low)] hover:bg-[var(--ember-surface-soft)]"
+              >
+                <Users className="w-4 h-4" strokeWidth={2} />
+                Family
+              </Link>
+              <Link
                 href="/signout"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-[var(--ember-text-low)] hover:bg-[var(--ember-surface-soft)]"
@@ -993,7 +1002,7 @@ export function UnifiedSignedInNav() {
               href={myIdeasUrl('products')}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--ember-surface-soft)] transition-colors"
             >
-              <Package className="w-4 h-4 text-[var(--ember-text-high)]" strokeWidth={2} />
+              <ShoppingCart className="w-4 h-4 text-[var(--ember-text-high)]" strokeWidth={2} />
               <span className="text-sm font-semibold text-[var(--ember-text-high)]">
                 {stats.toysSaved} products
               </span>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { createClient } from '@/utils/supabase/client';
@@ -66,6 +67,9 @@ interface DiscoveryPageClientProps {
   /** From server (reliable session); fixes hero when client searchParams/user timing is wrong */
   serverPersonalization?: DiscoverChildPersonalization | null;
 }
+
+const EMBER_LOGO_SRC =
+  'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
 export default function DiscoveryPageClient({
   ageBands,
@@ -852,7 +856,10 @@ export default function DiscoveryPageClient({
                 Stage 1: Understanding development
               </p>
               <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
-                Choose what you&apos;d like to explore
+                <span className="inline-flex items-center gap-2">
+                  <Image src={EMBER_LOGO_SRC} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
+                  Choose what you&apos;d like to explore
+                </span>
               </h2>
               {!user ? (
                 <p className="text-sm text-[var(--ember-text-low)] mt-2">Pick a focus for this age. Sign in to personalize with your child.</p>
@@ -919,7 +926,12 @@ export default function DiscoveryPageClient({
                   <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
                     Stage 2: Why this matters
                   </p>
-                  <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">{selectedWrapperLabel}</h2>
+                  <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
+                    <span className="inline-flex items-center gap-2">
+                      <Image src={EMBER_LOGO_SRC} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
+                      {selectedWrapperLabel}
+                    </span>
+                  </h2>
                   <p className="text-sm text-[var(--ember-text-low)] mt-2 flex flex-wrap items-center gap-1">
                     Chosen for {chosenForLabel} •{' '}
                     <button
@@ -948,7 +960,10 @@ export default function DiscoveryPageClient({
                     Stage 3: Play ideas
                   </p>
                   <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
-                    Try these ideas to support {selectedWrapperLabel.toLowerCase()}
+                    <span className="inline-flex items-center gap-2">
+                      <Image src={EMBER_LOGO_SRC} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
+                      Try these ideas to support {selectedWrapperLabel.toLowerCase()}
+                    </span>
                   </h2>
                 </div>
                 {playIdeaItems.length > 0 ? (
@@ -959,6 +974,7 @@ export default function DiscoveryPageClient({
                     onSeeExamples={handleShowExamples}
                     onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
                     onHaveThem={handleHaveThemCategory}
+                    showHaveAction={!!user}
                   />
                 ) : (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-[var(--ember-text-low)] text-sm">
@@ -976,7 +992,10 @@ export default function DiscoveryPageClient({
                   </p>
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium m-0">
-                      Examples you might like
+                      <span className="inline-flex items-center gap-2">
+                        <Image src={EMBER_LOGO_SRC} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
+                        Examples you might like
+                      </span>
                     </h2>
                     {displayIdeas.length > 0 ? (
                       <button
@@ -1003,6 +1022,7 @@ export default function DiscoveryPageClient({
                     onSave={handleSaveToList}
                     onHave={handleHaveItAlready}
                     getProductUrl={getProductUrl}
+                    showHaveAction={!!user}
                   />
                 )}
               </section>

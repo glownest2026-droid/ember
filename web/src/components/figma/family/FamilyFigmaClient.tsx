@@ -270,6 +270,7 @@ export function FamilyFigmaClient({
   const { user, stats: subnavStats, refetch } = useSubnavStats();
   const remindersEnabled = subnavStats?.remindersEnabled ?? false;
   const [remindersBusy, setRemindersBusy] = useState(false);
+  const [moveItOnPromptsEnabled, setMoveItOnPromptsEnabled] = useState(false);
 
   const handleRemindersChange = useCallback(
     async (checked: boolean) => {
@@ -543,22 +544,30 @@ export function FamilyFigmaClient({
                   </p>
                   <div className="space-y-2.5 mt-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm text-[#1A1E23]">Monthly stage updates</p>
                       <SubnavSwitch
                         checked={remindersEnabled}
-                        onCheckedChange={handleRemindersChange}
+                        onCheckedChange={(checked) => {
+                          setMoveItOnPromptsEnabled(false);
+                          void handleRemindersChange(checked);
+                        }}
                         disabled={remindersBusy || !user}
                         aria-label="Toggle monthly stage updates"
                       />
+                      <p className="text-sm text-[#1A1E23]">Monthly stage updates</p>
                     </div>
                     <div className="flex items-center justify-between">
-                      <p className="text-sm text-[#1A1E23]">Move-it-on prompts</p>
                       <SubnavSwitch
-                        checked={remindersEnabled}
-                        onCheckedChange={handleRemindersChange}
+                        checked={moveItOnPromptsEnabled}
+                        onCheckedChange={(checked) => {
+                          setMoveItOnPromptsEnabled(checked);
+                          if (checked && remindersEnabled) {
+                            void handleRemindersChange(false);
+                          }
+                        }}
                         disabled={remindersBusy || !user}
                         aria-label="Toggle move-it-on prompts"
                       />
+                      <p className="text-sm text-[#1A1E23]">Move-it-on prompts</p>
                     </div>
                   </div>
                 </div>
