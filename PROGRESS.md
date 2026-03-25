@@ -23,6 +23,21 @@
 - **Verification:** `pnpm -C web build` succeeds in `web/` on this branch.
 - **Rollback:** Revert branch / close the PR (PostHog integration is isolated to the analytics wrapper + event call sites).
 
+### debug(posthog): sessions visible but events absent — narrow hardening pass (same branch)
+- **Branch:** `feat/posthog-foundation` (same PR; no new PR)
+- **Observed founder symptom:** PostHog sessions appeared, but Activity/Events showed none (0 pageviews).
+- **Narrow fix:**
+  - Added compact browser debug logs in analytics wrapper to prove init/capture flow:
+    - init env presence yes/no
+    - provider mount
+    - capture attempts + event names
+    - identify attempts
+    - capture/identify errors
+  - Added auth state listener in `PostHogProvider` so `identify(user_id)` updates when auth state changes after initial mount.
+  - Kept event taxonomy unchanged (no new event types, no new vendors, no product feature changes).
+- **Files:** `web/src/lib/analytics/posthogClient.ts`, `web/src/lib/analytics/PostHogProvider.tsx`
+- **Verification:** `pnpm -C web build` passes after hardening patch.
+
 ## feat(ui): /family action-first redesign (Figma Manage Family V2) — 2026-03-19
 - **Branch:** `feat/family-figma-redesign`
 - **Goal:** Redesign the signed-in `/family` page into an action-first “family control room” while preserving existing Supabase children + per-child saved stats + gift-share plumbing. Scope is `/family` only.

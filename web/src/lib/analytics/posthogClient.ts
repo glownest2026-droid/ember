@@ -2,6 +2,19 @@ import posthog from 'posthog-js';
 
 let initAttempted = false;
 let enabled = false;
+let debugLoggedNoEnv = false;
+
+function debugLog(message: string, extra?: Record<string, unknown>): void {
+  try {
+    if (extra) {
+      console.info(`[ember-analytics] ${message}`, extra);
+    } else {
+      console.info(`[ember-analytics] ${message}`);
+    }
+  } catch {
+    // no-op
+  }
+}
 
 function getPosthogKey(): string | undefined {
   return process.env.NEXT_PUBLIC_POSTHOG_KEY;
@@ -17,8 +30,20 @@ export function initPosthogIfNeeded(): void {
 
   const key = getPosthogKey();
   const host = getPosthogHost();
+  debugLog('init:start', {
+    keyPresent: Boolean(key),
+    hostPresent: Boolean(host),
+  });
+
   if (!key || !host) {
     enabled = false;
+    if (!debugLoggedNoEnv) {
+      debugLoggedNoEnv = true;
+      debugLog('init:disabled_missing_env', {
+        keyPresent: Boolean(key),
+        hostPresent: Boolean(host),
+      });
+    }
     return;
   }
 
@@ -29,13 +54,15 @@ export function initPosthogIfNeeded(): void {
     capture_pageview: false,
     // No automatic page/click capture besides our own event calls.
     loaded: () => {
-      // Intentionally empty: we only need a reliable queue/loaded state.
+      debugLog('init:loaded');
     },
   });
+  debugLog('init:enabled');
 
   // Privacy-first: ensure session recording is not running.
   try {
     posthog.stopSessionRecording();
+    debugLog('session_recording:stopped');
   } catch {
     // Fail closed
   }
@@ -46,12 +73,24 @@ export function isPosthogEnabled(): boolean {
 }
 
 export function identifyUser(userId: string): void {
+  initPosthogIfNeeded();
   if (!enabled) return;
-  posthog.identify(userId);
+  try {
+    posthog.identify(userId);
+    debugLog('identify:attempted', { userIdPresent: Boolean(userId) });
+  } catch (error) {
+    debugLog('identify:error', { message: error instanceof Error ? error.message : String(error) });
+  }
 }
 
 export function trackEvent(eventName: string, properties?: Record<string, unknown>): void {
+  initPosthogIfNeeded();
+  debugLog('capture:attempted', { eventName, enabled });
   if (!enabled) return;
-  posthog.capture(eventName, properties ?? undefined);
+  try {
+    posthog.capture(eventName, properties ?? undefined);
+  } catch (error) {
+    debugLog('capture:error', { eventName, message: error instanceof Error ? error.message : String(error) });
+  }
 }
 

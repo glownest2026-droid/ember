@@ -9,14 +9,15 @@
     "rollback": "Revert PR"
   },
   "receipt": {
-    "goal": "PostHog Foundation: minimal, privacy-safe PostHog integration with strict NOW event allowlist.",
+    "goal": "PostHog Foundation: minimal, privacy-safe PostHog integration with strict NOW event allowlist, plus narrow debug hardening for sessions-without-events symptom.",
     "env_vars_required": [
       "NEXT_PUBLIC_POSTHOG_KEY",
       "NEXT_PUBLIC_POSTHOG_HOST"
     ],
     "commands_run": [
       "pnpm -C web add posthog-js",
-      "pnpm -C web build"
+      "pnpm -C web build",
+      "pnpm -C web build (after debug hardening pass)"
     ],
     "files_changed_recent": [
       "web/package.json",
@@ -69,10 +70,12 @@
     "decisions_made": [
       "Fail-closed PostHog init: analytics wrapper sends nothing when `NEXT_PUBLIC_POSTHOG_KEY`/`NEXT_PUBLIC_POSTHOG_HOST` are missing.",
       "Child events emitted from the client after `saveChild()` succeeds and returns a success payload (server actions cannot set cookies in this Next.js version).",
-      "Only manual captures are sent (no sensitive attribute capture; no session replay)."
+      "Only manual captures are sent (no sensitive attribute capture; no session replay).",
+      "Added temporary console debug signals and auth state listener to verify that capture/identify paths execute on preview."
     ],
     "verification_steps": [
-      "Build succeeded on `feat/posthog-foundation`: `pnpm -C web build`."
+      "Build succeeded on `feat/posthog-foundation`: `pnpm -C web build`.",
+      "Console should show `[ember-analytics]` init + capture attempts on preview runtime."
     ],
     "rollback_plan": "Revert/close the PR and remove PostHog wrapper + dependency if needed."
   },

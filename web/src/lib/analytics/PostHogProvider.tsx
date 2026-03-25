@@ -52,6 +52,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     initPosthogIfNeeded();
+    console.info('[ember-analytics] provider:mounted');
 
     // Load user id once for identify + event properties.
     const supabase = createClient();
@@ -63,6 +64,20 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
       .catch(() => {
         setUserId(null);
       });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id ?? null);
+      console.info('[ember-analytics] auth:state_change', {
+        event: _event,
+        userPresent: Boolean(session?.user?.id),
+      });
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
