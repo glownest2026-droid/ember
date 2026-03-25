@@ -619,13 +619,14 @@ export default function DiscoveryPageClient({
     shortlistTrackKeyRef.current = key;
 
     trackEvent(EVENTS.SHORTLIST_VIEWED, {
+      pathname: pathname ?? null,
       user_id: user?.id ?? null,
       child_id: selectedChildId ?? null,
       age_band_id: ageBand?.id ?? null,
       wrapper_slug: selectedWrapper ?? null,
       result_count: displayIdeas.length,
     });
-  }, [discoverState, displayIdeas.length, ageBand?.id, selectedWrapper, selectedChildId, user?.id]);
+  }, [discoverState, displayIdeas.length, ageBand?.id, selectedWrapper, selectedChildId, user?.id, pathname]);
 
   const handleHaveItAlready = (productId: string) => {
     requireAuthThen({

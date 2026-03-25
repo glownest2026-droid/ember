@@ -1,45 +1,25 @@
 {
   "pr": {
     "number": null,
-    "title": "PostHog Foundation",
-    "branch": "feat/posthog-foundation",
+    "title": "PostHog Starter Dashboards",
+    "branch": "feat/posthog-starter-dashboards",
     "base": "main",
-    "url": null,
+    "url": "https://github.com/glownest2026-droid/ember/compare/main...feat/posthog-starter-dashboards?expand=1",
     "vercel_preview_url": null,
-    "rollback": "Revert PR"
+    "rollback": "Revert PR; pathname on shortlist_viewed is reporting-only"
   },
   "receipt": {
-    "goal": "PostHog Foundation: minimal, privacy-safe PostHog integration with strict NOW event allowlist, plus narrow debug hardening for sessions-without-events symptom.",
+    "goal": "PostHog Starter Dashboards: founder runbook for dashboards built on live Ember events; one safe property (pathname) on shortlist_viewed for route breakdowns.",
     "env_vars_required": [
       "NEXT_PUBLIC_POSTHOG_KEY",
       "NEXT_PUBLIC_POSTHOG_HOST"
     ],
     "commands_run": [
-      "pnpm -C web add posthog-js",
-      "pnpm -C web build",
-      "pnpm -C web build (after debug hardening pass)"
+      "pnpm -C web build"
     ],
     "files_changed_recent": [
-      "web/package.json",
-      "web/pnpm-lock.yaml",
-      "web/src/app/layout.tsx",
-      "web/src/lib/analytics/eventNames.ts",
-      "web/src/lib/analytics/posthogClient.ts",
-      "web/src/lib/analytics/identifyUser.ts",
-      "web/src/lib/analytics/trackEvent.ts",
-      "web/src/lib/analytics/PostHogProvider.tsx",
-      "web/src/app/auth/callback/route.ts",
-      "web/src/app/auth/confirm/route.ts",
-      "web/src/app/verify/page.tsx",
-      "web/src/app/signin/password/page.tsx",
-      "web/src/lib/children/actions.ts",
-      "web/src/components/add-children/AddChildForm.tsx",
-      "web/src/app/(app)/app/children/_components/ChildForm.tsx",
+      "web/docs/posthog-starter-dashboard-runbook.md",
       "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
-      "web/src/app/(app)/app/recs/_components/ProductCard.tsx",
-      "web/src/app/gift/[slug]/page.tsx",
-      "web/src/app/gift/[slug]/GiftListClient.tsx",
-      "web/src/components/figma/family/ShareYourGiftListWidget.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
@@ -68,16 +48,15 @@
       "stage_transition_prompted"
     ],
     "decisions_made": [
-      "Fail-closed PostHog init: analytics wrapper sends nothing when `NEXT_PUBLIC_POSTHOG_KEY`/`NEXT_PUBLIC_POSTHOG_HOST` are missing.",
-      "Child events emitted from the client after `saveChild()` succeeds and returns a success payload (server actions cannot set cookies in this Next.js version).",
-      "Only manual captures are sent (no sensitive attribute capture; no session replay).",
-      "Added temporary console debug signals and auth state listener to verify that capture/identify paths execute on preview."
+      "Document all custom events in code in the runbook, not only the subset in the product brief, to avoid misleading empty dashboards.",
+      "Clarify PostHog $identify vs user expectation of an event named identify.",
+      "Add pathname to shortlist_viewed only; no other tracking expansion."
     ],
     "verification_steps": [
-      "Build succeeded on `feat/posthog-foundation`: `pnpm -C web build`.",
-      "Console should show `[ember-analytics]` init + capture attempts on preview runtime."
+      "pnpm -C web build on feat/posthog-starter-dashboards",
+      "After deploy: PostHog Activity shows shortlist_viewed with pathname on discover examples view"
     ],
-    "rollback_plan": "Revert/close the PR and remove PostHog wrapper + dependency if needed."
+    "rollback_plan": "Revert the PR; remove runbook and pathname on shortlist if desired."
   },
-  "timestamp": "2026-03-25T00:00:00.000Z"
+  "timestamp": "2026-03-25T22:25:00.000Z"
 }
