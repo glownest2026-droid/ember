@@ -4,7 +4,7 @@
     "title": "PostHog Starter Dashboards",
     "branch": "feat/posthog-starter-dashboards",
     "base": "main",
-    "url": null,
+    "url": "https://github.com/glownest2026-droid/ember/compare/main...feat/posthog-starter-dashboards?expand=1",
     "vercel_preview_url": null,
     "rollback": "Revert PR; pathname on shortlist_viewed is reporting-only"
   },
