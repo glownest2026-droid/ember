@@ -270,6 +270,18 @@ export function FamilyFigmaClient({
   const { user, stats: subnavStats, refetch } = useSubnavStats();
   const remindersEnabled = subnavStats?.remindersEnabled ?? false;
   const [remindersBusy, setRemindersBusy] = useState(false);
+  const [moveItOnPromptsEnabled, setMoveItOnPromptsEnabled] = useState(false);
+  const moveItOnKey = user?.id ? `ember.moveItOnPrompts.${user.id}` : null;
+
+  useEffect(() => {
+    if (!moveItOnKey) return;
+    try {
+      const raw = localStorage.getItem(moveItOnKey);
+      setMoveItOnPromptsEnabled(raw === '1');
+    } catch {
+      setMoveItOnPromptsEnabled(false);
+    }
+  }, [moveItOnKey]);
 
   const handleRemindersChange = useCallback(
     async (checked: boolean) => {
@@ -542,23 +554,31 @@ export function FamilyFigmaClient({
                     We&apos;ll only send useful guidance tied to your current household stage.
                   </p>
                   <div className="space-y-2.5 mt-1">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-[#1A1E23]">Monthly stage updates</p>
+                    <div className="flex items-center gap-3 justify-start">
                       <SubnavSwitch
                         checked={remindersEnabled}
                         onCheckedChange={handleRemindersChange}
                         disabled={remindersBusy || !user}
                         aria-label="Toggle monthly stage updates"
                       />
+                      <p className="text-sm text-[#1A1E23]">Monthly stage updates</p>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-[#1A1E23]">Move-it-on prompts</p>
+                    <div className="flex items-center gap-3 justify-start">
                       <SubnavSwitch
-                        checked={remindersEnabled}
-                        onCheckedChange={handleRemindersChange}
+                        checked={moveItOnPromptsEnabled}
+                        onCheckedChange={(checked) => {
+                          setMoveItOnPromptsEnabled(checked);
+                          if (!moveItOnKey) return;
+                          try {
+                            localStorage.setItem(moveItOnKey, checked ? '1' : '0');
+                          } catch {
+                            /* ignore local storage write failures */
+                          }
+                        }}
                         disabled={remindersBusy || !user}
                         aria-label="Toggle move-it-on prompts"
                       />
+                      <p className="text-sm text-[#1A1E23]">Move-it-on prompts</p>
                     </div>
                   </div>
                 </div>

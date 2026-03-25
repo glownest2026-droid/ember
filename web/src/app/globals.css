@@ -101,6 +101,7 @@
    overflow-x: clip keeps mobile view fixed to display width without breaking position:sticky
    (overflow-x: hidden on body/html would prevent sticky nav from working). */
 html, body {
+  background-color: #FFFFFF;
   background: linear-gradient(180deg, var(--brand-bg-1, var(--ember-bg-canvas)) 0%, var(--brand-bg-2, var(--ember-surface-primary)) 100%);
   color: var(--brand-text, var(--ember-text-high));
   font-family: var(--brand-font-body, var(--font-sans));

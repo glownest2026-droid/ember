@@ -23,7 +23,7 @@ export function DiscoverFigmaPlayIdeaCard({
   onClick: () => void;
   onSeeExamples: () => void;
   onSaveIdea: (e: React.MouseEvent, el: HTMLButtonElement | null) => void;
-  onHaveThem: (e: React.MouseEvent) => void;
+  onHaveThem?: (e: React.MouseEvent) => void;
 }) {
   return (
     <motion.div
@@ -96,16 +96,18 @@ export function DiscoverFigmaPlayIdeaCard({
         >
           Save
         </button>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onHaveThem(e);
-          }}
-          className="px-3.5 lg:px-4 py-2.5 lg:py-3 border-2 border-[var(--ember-border-subtle)] rounded-xl hover:border-[var(--ember-accent-base)] hover:bg-[rgba(255,99,71,0.06)] transition-colors text-xs lg:text-sm font-medium text-[var(--ember-text-high)]"
-        >
-          Have
-        </button>
+        {onHaveThem ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onHaveThem(e);
+            }}
+            className="px-3.5 lg:px-4 py-2.5 lg:py-3 border-2 border-[var(--ember-border-subtle)] rounded-xl hover:border-[var(--ember-accent-base)] hover:bg-[rgba(255,99,71,0.06)] transition-colors text-xs lg:text-sm font-medium text-[var(--ember-text-high)]"
+          >
+            Have
+          </button>
+        ) : null}
       </div>
     </motion.div>
   );

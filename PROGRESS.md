@@ -2266,3 +2266,30 @@ Category-only cards remain publishable.
 - **Analytics code check:** No vendor SDKs found (`posthog`, `segment`, `mixpanel`, `amplitude`, etc.). Existing first-party telemetry/logging points are `/api/click` (`product_clicks`) and `/go/[id]` (`click_events` best-effort insert).
 - **Baseline/build scout:** `main` builds cleanly after locked dependency install in clean worktree (`pnpm -C web install --frozen-lockfile` + `pnpm -C web build`).
 - **Rollback:** Revert this PR (docs/state updates only).
+
+## fix(snag-pack): 13-item snag fixes (fix/snag-pack-homepage)
+
+- **Goal:** Resolve the 13 requested snags only (nav/mobile polish, discover/save/family UX, signin return path, and marketplace CTA tweaks).
+- **What changed:** 
+  - `web/src/components/subnav/UnifiedSignedInNav.tsx` — larger mobile logo for signed-in nav, "All children" label when no child selected, products counter icon switched from box/package to shopping cart, added `Family` link in mobile menu after `Account`.
+  - `web/src/components/ui/SimpleTooltip.tsx` — tooltip alignment/width constrained so reminders tooltip stays within viewport on mobile.
+  - `web/src/app/marketplace/page.tsx` — removed "Get notified"; changed "Join early access" CTAs to a simple confirmation route (`/success`).
+  - `web/src/components/family/MyIdeasClient.tsx` — added top-right minus affordance on cards plus modal overlay ("Are you sure?") with `Remove` and `Archive` actions.
+  - `web/src/app/discover/[months]/DiscoveryPageClient.tsx`, `web/src/components/discover/figma/DiscoverFigmaPlayCarousel.tsx`, `web/src/components/discover/figma/DiscoverFigmaPlayIdeaCard.tsx`, `web/src/components/discover/figma/DiscoverFigmaProductCarousel.tsx` — added Ember logo before each stage section header; hide "Have" action for signed-out users.
+  - `web/src/components/discover/DiscoverStickyHeader.tsx` — signin links now preserve current page + query in `next` so post-auth returns to same journey page.
+  - `web/src/components/figma/family/FamilyFigmaClient.tsx` — email toggles moved before their text labels, made mutually exclusive; navbar reminders preference remains tied only to "Monthly stage updates".
+  - `web/src/app/layout.tsx`, `web/src/app/globals.css` — set global white fallback background to avoid black flash before content render.
+- **Proof:** `pnpm -C web build` passes after changes.
+
+### follow-up snag pass (open feedback fixes)
+- Centered the signed-in mobile child toggle visually in navbar row and added desktop profile-dropdown `Family` link after `Account` (`web/src/components/subnav/UnifiedSignedInNav.tsx`).
+- Tightened mobile reminders tooltip sizing in unified nav to keep content inside viewport (`web/src/components/subnav/UnifiedSignedInNav.tsx`).
+- `/my-ideas`: made minus action more prominent, modal copy now `Removing <title>`, and on successful Remove the card is removed from the list immediately (`web/src/components/family/MyIdeasClient.tsx`).
+- Increased discover stage-header logo size for visibility (`web/src/app/discover/[months]/DiscoveryPageClient.tsx`).
+- `/family` email preference rows now place toggle + text adjacent and left-aligned; monthly and move-it-on are autonomous, while navbar reminders still map only to monthly stage updates (`web/src/components/figma/family/FamilyFigmaClient.tsx`).
+- **Proof:** `pnpm -C web build` passes after follow-up fixes.
+
+### final visual tweaks (snag 6 + 7)
+- `/my-ideas` minus icon tuned down (less prominent) and centered visually inside circle (`web/src/components/family/MyIdeasClient.tsx`).
+- Discover stage robin logo increased further with responsive sizing and non-stretched rendering on mobile + desktop (`web/src/app/discover/[months]/DiscoveryPageClient.tsx`).
+- **Proof:** `pnpm -C web build` passes after final visual tweaks.
