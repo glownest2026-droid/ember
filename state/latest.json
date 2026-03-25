@@ -1,37 +1,52 @@
 {
   "pr": {
-    "number": 177,
-    "title": "feat(ui): /family action-first redesign (Figma Manage Family V2)",
-    "branch": "feat/family-figma-redesign",
+    "number": null,
+    "title": "Analytics Foundation Discovery",
+    "branch": "feat/analytics-foundation-discovery",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/pull/177",
-    "vercel_preview_url": "https://ember-git-feat-family-figma-redesign-tims-projects-cd69a894.vercel.app",
+    "url": null,
+    "vercel_preview_url": null,
     "rollback": "Revert PR"
   },
   "receipt": {
-    "goal": "Tighten `/family` parity to Figma code: add child tabs, strict 4-up household tools row, Figma-style reminders/gift elements, dynamic pulse text, and quick-add modal journey while preserving real Ember plumbing.",
+    "goal": "Discovery-first, contract-first analytics/lifecycle foundation pass with no vendor installation and no product behavior changes.",
     "commands_run": [
-      "pnpm exec eslint src/components/figma/family/FamilyFigmaClient.tsx src/components/figma/family/ShareYourGiftListWidget.tsx",
-      "pnpm build (web/)"
+      "git worktree add C:/Users/timwo/ember_main_baseline main",
+      "pnpm -C web install --frozen-lockfile",
+      "pnpm -C web build"
     ],
     "files_changed_recent": [
-      "web/src/components/figma/family/FamilyFigmaClient.tsx",
-      "web/src/components/figma/family/ShareYourGiftListWidget.tsx",
+      "web/docs/analytics-foundation-discovery.md",
       "PROGRESS.md",
       "state/latest.json"
     ],
-    "decisions_made": [
-      "Child tabs are dynamic from real children rows (`All` + each child), not hardcoded names.",
-      "Quick-add modal matches Figma journey but routes to existing `/discover` flow for actual save plumbing.",
-      "Both reminders switches map to existing reminders preference to avoid dead toggles.",
-      "Scope sync uses selected tab as single source of truth across pulse/counters/action text and child-scoped links.",
-      "Settings action removed from page header to match approved control set."
+    "routes_inspected": [
+      "/",
+      "/signin",
+      "/signin/password",
+      "/verify",
+      "/auth/callback",
+      "/auth/confirm",
+      "/add-children",
+      "/add-children/[id]",
+      "/family",
+      "/discover",
+      "/discover/[months]",
+      "/products",
+      "/my-ideas",
+      "/gift/[slug]",
+      "/marketplace",
+      "/marketplace/listings",
+      "/api/click",
+      "/go/[id]"
     ],
-    "verification_steps": [
-      "Build succeeded: `pnpm build` in `web/`.",
-      "Lint/TS: `pnpm exec eslint` on modified `/family` component."
+    "analytics_code_present": "No third-party analytics SDKs found. Existing first-party click logging exists in /api/click and /go/[id].",
+    "known_risks_debt": [
+      "Two click telemetry paths exist (`product_clicks` and `click_events`) and should be unified in a follow-up implementation PR.",
+      "Legacy fallback code paths remain for saved items and children naming columns; implementation PR should choose one canonical path.",
+      "Explicit sign-up flow is not currently represented; event semantics for signup_started/signup_completed need implementation-level guardrails."
     ],
-    "rollback_plan": "Revert/close the PR and switch back to `main` (no DB/schema changes were made)."
+    "next_starting_point": "Implement PR 1 from the discovery doc: PostHog foundation with strict event allowlist and privacy middleware, then instrument only NOW events."
   },
-  "timestamp": "2026-03-19T17:45:00.000Z"
+  "timestamp": "2026-03-25T00:00:00.000Z"
 }

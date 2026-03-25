@@ -2217,3 +2217,15 @@ Category-only cards remain publishable.
 - **Proof:** `pnpm -C web build` passes. Manual: navbar signed-in shows three icons; homepage copy, layout, animation and logo as above.
 - **PR:** #157 fix(snag-pack): homepage + navbar tweaks
 - **Follow-up (same PR):** (1) "How we choose." box: list text left-aligned (`text-left` on grid in `HomeHowWeChoose.tsx`). (2) Navbar: "Sign in" link added before "Get started" for signed-out users (`DiscoverStickyHeader.tsx`). (3) Navbar logo already set to Ember_Logo_Robin1.png URL.
+
+---
+
+## feat(analytics-foundation): discovery-first analytics contract (Mar 2026)
+
+- **Goal:** Ground Ember analytics and lifecycle foundations before any vendor install by locking real surfaces, canonical IDs, privacy boundaries, and NOW-vs-LATER events.
+- **What changed:** Added `web/docs/analytics-foundation-discovery.md` with required sections A-G: current truth, canonical IDs, do-not-invent IDs, NOW taxonomy, LATER taxonomy, privacy boundary, and recommended next 3 PRs. No runtime behavior, schema, SDK, or vendor integrations changed.
+- **Routes inspected:** `/`, `/signin`, `/signin/password`, `/verify`, `/auth/callback`, `/auth/confirm`, `/add-children`, `/add-children/[id]`, `/family`, `/discover`, `/discover/[months]`, `/products`, `/my-ideas`, `/gift/[slug]`, `/marketplace`, `/marketplace/listings`, `/api/click`, `/go/[id]`.
+- **Data/file evidence inspected:** `web/src/lib/pl/public.ts`, `web/src/lib/children/actions.ts`, `web/src/lib/gift/actions.ts`, `web/src/lib/marketplace/actions.ts`, `web/src/lib/discover/serverDiscoverChild.ts`, and Supabase migrations for core schema, list items, gift shares/public functions, and marketplace RLS/tables.
+- **Analytics code check:** No vendor SDKs found (`posthog`, `segment`, `mixpanel`, `amplitude`, etc.). Existing first-party telemetry/logging points are `/api/click` (`product_clicks`) and `/go/[id]` (`click_events` best-effort insert).
+- **Baseline/build scout:** `main` builds cleanly after locked dependency install in clean worktree (`pnpm -C web install --frozen-lockfile` + `pnpm -C web build`).
+- **Rollback:** Revert this PR (docs/state updates only).
