@@ -5,6 +5,11 @@ import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { AUTH_ENABLE_GOOGLE, AUTH_ENABLE_APPLE } from '@/lib/auth-flags';
 import { buildAuthCallbackUrl } from '@/lib/auth-callback-url';
+import {
+  getOneSignalAppId,
+  getOneSignalPermissionState,
+  requestOneSignalPushPermission,
+} from '@/lib/onesignal/client';
 import type { User } from '@supabase/supabase-js';
 
 const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
@@ -19,6 +24,9 @@ export default function AccountPage() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
   const [linkLoading, setLinkLoading] = useState<string | null>(null);
+  const [pushLoading, setPushLoading] = useState(false);
+  const [pushStatus, setPushStatus] = useState<NotificationPermission | null>(null);
+  const [pushMessage, setPushMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -37,6 +45,11 @@ export default function AccountPage() {
       }
     });
     return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!getOneSignalAppId()) return;
+    void getOneSignalPermissionState().then((state) => setPushStatus(state));
   }, []);
 
   const handleSetPassword = async (e: React.FormEvent) => {
@@ -92,6 +105,27 @@ export default function AccountPage() {
       });
   };
 
+  const handleEnablePush = async () => {
+    setPushLoading(true);
+    setPushMessage(null);
+    try {
+      const granted = await requestOneSignalPushPermission();
+      const state = await getOneSignalPermissionState();
+      setPushStatus(state);
+      if (granted || state === 'granted') {
+        setPushMessage('Push is now enabled on this browser.');
+      } else if (state === 'denied') {
+        setPushMessage('Browser notifications are blocked. Re-enable them in browser settings to continue.');
+      } else {
+        setPushMessage('No changes made yet. You can try again anytime.');
+      }
+    } catch {
+      setPushMessage('Could not start browser push permission. Please try again.');
+    } finally {
+      setPushLoading(false);
+    }
+  };
+
   if (!user) {
     return (
       <div className="container-wrap min-h-screen py-8">
@@ -118,6 +152,7 @@ export default function AccountPage() {
 
   const hasGoogle = identities.some((i) => i.provider === 'google');
   const hasApple = identities.some((i) => i.provider === 'apple');
+  const oneSignalReady = Boolean(getOneSignalAppId());
 
   return (
     <div className="container-wrap min-h-screen py-8 max-w-lg">
@@ -132,6 +167,59 @@ export default function AccountPage() {
         <p className="text-base" style={{ color: 'var(--ember-text-high)', ...baseStyle }}>
           {user.email}
         </p>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-sm font-medium mb-3" style={{ color: 'var(--ember-text-high)', ...baseStyle }}>
+          Push notifications
+        </h2>
+        {oneSignalReady ? (
+          <div
+            className="rounded-xl border p-4"
+            style={{
+              borderColor: 'var(--ember-border-subtle)',
+              backgroundColor: 'var(--ember-surface-primary)',
+            }}
+          >
+            <p className="text-sm mb-3" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+              Turn on calm reminder notifications for this browser. You can change this later in browser settings.
+            </p>
+            <button
+              type="button"
+              onClick={handleEnablePush}
+              disabled={pushLoading}
+              className="min-h-[44px] px-4 rounded-lg font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: 'var(--ember-accent-base)',
+                color: 'white',
+                border: 'none',
+                ...baseStyle,
+              }}
+            >
+              {pushLoading ? 'Opening browser prompt…' : 'Turn on reminders'}
+            </button>
+            {pushStatus && (
+              <p className="text-xs mt-3" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+                Browser permission: {pushStatus}
+              </p>
+            )}
+            {pushMessage && (
+              <p
+                className="text-sm mt-2"
+                style={{
+                  color: pushStatus === 'denied' ? '#dc2626' : 'var(--ember-text-low)',
+                  ...baseStyle,
+                }}
+              >
+                {pushMessage}
+              </p>
+            )}
+          </div>
+        ) : (
+          <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+            Push is not configured in this environment yet.
+          </p>
+        )}
       </section>
 
       <section className="mb-8">

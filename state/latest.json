@@ -1,62 +1,59 @@
 {
   "pr": {
     "number": null,
-    "title": "PostHog Starter Dashboards",
-    "branch": "feat/posthog-starter-dashboards",
+    "title": "OneSignal Web Push Foundation",
+    "branch": "cursor/onesignal-web-push-foundation-e61b",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/compare/main...feat/posthog-starter-dashboards?expand=1",
+    "url": null,
     "vercel_preview_url": null,
-    "rollback": "Revert PR; pathname on shortlist_viewed is reporting-only"
+    "rollback": "Revert PR; remove NEXT_PUBLIC_ONESIGNAL_APP_ID from Vercel envs."
   },
   "receipt": {
-    "goal": "PostHog Starter Dashboards: founder runbook for dashboards built on live Ember events; one safe property (pathname) on shortlist_viewed for route breakdowns.",
+    "goal": "Add minimal, privacy-safe OneSignal web push foundation to Ember PWA/web with one signed-in opt-in UI entry point and safe external user linkage.",
     "env_vars_required": [
-      "NEXT_PUBLIC_POSTHOG_KEY",
-      "NEXT_PUBLIC_POSTHOG_HOST"
+      "NEXT_PUBLIC_ONESIGNAL_APP_ID"
     ],
     "commands_run": [
+      "pnpm -C web install",
+      "pnpm -C web build",
+      "pnpm -C web add react-onesignal@latest",
       "pnpm -C web build"
     ],
     "files_changed_recent": [
-      "web/docs/posthog-starter-dashboard-runbook.md",
-      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
+      "web/package.json",
+      "web/pnpm-lock.yaml",
+      "web/src/lib/onesignal/client.ts",
+      "web/src/lib/onesignal/OneSignalProvider.tsx",
+      "web/src/app/layout.tsx",
+      "web/src/app/account/page.tsx",
+      "web/public/OneSignalSDKWorker.js",
+      "web/public/OneSignalSDKUpdaterWorker.js",
+      "web/.env.example",
+      "web/docs/onesignal-web-push-foundation-runbook.md",
       "PROGRESS.md",
       "state/latest.json"
     ],
-    "events_implemented_now": [
-      "page_view",
-      "sign_in_completed",
-      "child_profile_created",
-      "child_profile_updated",
-      "shortlist_viewed",
-      "retailer_outbound_clicked",
-      "product_saved",
-      "gift_page_viewed",
-      "gift_page_shared"
-    ],
-    "events_deferred": [
-      "garage_item_added",
-      "signup_started",
-      "signup_completed",
-      "product_detail_viewed",
-      "listing_created",
-      "demand_posted",
-      "local_match_found",
-      "purchase_confirmed",
-      "dispute_opened",
-      "dispute_closed",
-      "stage_transition_prompted"
-    ],
-    "decisions_made": [
-      "Document all custom events in code in the runbook, not only the subset in the product brief, to avoid misleading empty dashboards.",
-      "Clarify PostHog $identify vs user expectation of an event named identify.",
-      "Add pathname to shortlist_viewed only; no other tracking expansion."
-    ],
+    "privacy_boundary": {
+      "sent_to_onesignal": [
+        "stable Ember signed-in user id (external_id = user.id)"
+      ],
+      "not_sent_to_onesignal": [
+        "child names",
+        "exact DOB",
+        "due dates",
+        "exact postcode",
+        "precise location",
+        "free-text notes",
+        "message content/history",
+        "sensitive family context"
+      ]
+    },
     "verification_steps": [
-      "pnpm -C web build on feat/posthog-starter-dashboards",
-      "After deploy: PostHog Activity shows shortlist_viewed with pathname on discover examples view"
+      "Baseline on main: pnpm -C web build",
+      "Feature branch: pnpm -C web build",
+      "Preview smoke test: sign in -> /account -> Turn on reminders button shows browser permission flow"
     ],
-    "rollback_plan": "Revert the PR; remove runbook and pathname on shortlist if desired."
+    "rollback_plan": "Revert this PR and remove NEXT_PUBLIC_ONESIGNAL_APP_ID from Vercel env vars."
   },
-  "timestamp": "2026-03-25T22:25:00.000Z"
+  "timestamp": "2026-03-25T23:27:58Z"
 }

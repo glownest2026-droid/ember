@@ -2303,3 +2303,57 @@ Category-only cards remain publishable.
 - `/my-ideas` minus icon tuned down (less prominent) and centered visually inside circle (`web/src/components/family/MyIdeasClient.tsx`).
 - Discover stage robin logo increased further with responsive sizing and non-stretched rendering on mobile + desktop (`web/src/app/discover/[months]/DiscoveryPageClient.tsx`).
 - **Proof:** `pnpm -C web build` passes after final visual tweaks.
+
+
+## 2026-03-25 — OneSignal Web Push Foundation
+
+### Founder Exec Summary
+
+Added a minimal, privacy-safe OneSignal web push foundation for Ember PWA/web so a signed-in founder can opt in a browser device and receive a manual test push from OneSignal. This PR deliberately avoids journeys and complex messaging logic.
+
+### Summary
+
+- Integrated OneSignal Web SDK (v16 via `react-onesignal`) with guarded client initialization.
+- Added root-level OneSignal service worker files:
+  - `web/public/OneSignalSDKWorker.js`
+  - `web/public/OneSignalSDKUpdaterWorker.js`
+- Added a safe identity link from signed-in Ember user to OneSignal external ID using only stable `user.id`.
+- Added OneSignal provider in root app layout to keep identity linkage synced on auth changes.
+- Added one calm, explicit founder-testable UI entry point in signed-in Account page:
+  - Button: **Turn on reminders**
+  - No auto-prompt on load.
+- Added minimal env var support:
+  - `NEXT_PUBLIC_ONESIGNAL_APP_ID`
+- Added founder runbook with click-by-click OneSignal + Vercel setup, test flow, and rollback.
+
+### Privacy boundary enforced
+
+Sent to OneSignal in this PR:
+- Ember stable signed-in user id only (`user.id`) via `OneSignal.login(externalId)`.
+
+Not sent:
+- child names
+- exact DOB / due dates
+- exact postcode/location
+- free-text notes
+- message history/content
+- sensitive family context
+
+### Ground-truth paths used
+
+- PWA manifest: `web/src/app/manifest.ts`
+- Root layout wiring point: `web/src/app/layout.tsx`
+- Signed-in founder-safe surface for opt-in: `web/src/app/account/page.tsx`
+- User identity source: Supabase auth user id (`user.id`) in client auth session
+- Existing service worker setup before this PR: none found in app code/public root
+
+### Verification (Proof-of-Done)
+
+- Baseline main build (after dependency install): `pnpm -C web build` ✅
+- Feature branch build after changes: `pnpm -C web build` ✅
+
+### Rollback
+
+- Revert this PR to remove OneSignal foundation changes.
+- Optionally remove `NEXT_PUBLIC_ONESIGNAL_APP_ID` from Vercel environments.
+
