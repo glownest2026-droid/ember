@@ -1,6 +1,16 @@
 # CTO Snapshot (Source of Truth)
  _Last updated: 2026-03-25_
 
+## feat(posthog): Starter dashboards (founder runbook + tiny shortlist property) — 2026-03-25
+- **Branch:** `feat/posthog-starter-dashboards`
+- **PR title:** PostHog Starter Dashboards
+- **Goal:** Document founder-friendly PostHog dashboards using **existing** custom events (`page_view`, `sign_in_completed`, `shortlist_viewed`, `product_saved`, `retailer_outbound_clicked`, plus gift/child events in code). No new vendors, no lifecycle tooling, no broad tracking expansion.
+- **Deliverables:**
+  - `web/docs/posthog-starter-dashboard-runbook.md` — where to click in PostHog, dashboard sections (Acquisition / Activation / Engagement / Top content), property review, good vs bad early signals, what to ignore; clarifies **`$identify`** vs custom `identify` confusion.
+  - **Minimal code:** `shortlist_viewed` adds **`pathname`** so discover routes break down without implying new product behavior.
+- **Verification:** `pnpm -C web build` on branch.
+- **Rollback:** Revert PR; optional remove `pathname` from shortlist payload (reporting-only).
+
 ## feat(posthog): PostHog foundation (privacy-safe, discovery-grounded) — 2026-03-25
 - **Branch:** `feat/posthog-foundation`
 - **Goal:** Install a minimal, privacy-safe PostHog foundation for Ember using the analytics discovery contract as the source of truth, without changing runtime product behavior beyond necessary client navigation timing for child-save tracking.
