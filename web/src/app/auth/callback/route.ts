@@ -21,6 +21,17 @@ export async function GET(request: NextRequest) {
       signInUrl.searchParams.set('next', next);
       return NextResponse.redirect(signInUrl);
     }
+
+    // PostHog FOUNDATION: on successful session establishment, emit `sign_in_completed`.
+    // We skip recovery flows (which redirect to `/reset-password`).
+    if (!next.startsWith('/reset-password')) {
+      response.cookies.set('ember_ph_signin_completed', '1', {
+        path: '/',
+        sameSite: 'lax',
+        httpOnly: false,
+        secure: false,
+      });
+    }
   }
 
   return response;

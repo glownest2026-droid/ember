@@ -5,6 +5,7 @@ import ConditionalHeader from "../components/ConditionalHeader";
 import { ThemeProvider } from "../components/ThemeProvider";
 import { SubnavStatsProvider } from "../lib/subnav/SubnavStatsContext";
 import { SubnavGate } from "../components/subnav/SubnavGate";
+import { PostHogProvider } from "../lib/analytics/PostHogProvider";
 
 export const metadata: Metadata = {
   title: "Ember — Simple, trusted guidance from bump to big steps.",
@@ -34,11 +35,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="overflow-x-clip">
       <body className="antialiased min-w-0 max-w-[100vw]">
         <ThemeProvider>
-          <SubnavStatsProvider>
-            <ConditionalHeader />
-            <SubnavGate />
-            {children}
-          </SubnavStatsProvider>
+          <PostHogProvider>
+            <SubnavStatsProvider>
+              <ConditionalHeader />
+              <SubnavGate />
+              {children}
+            </SubnavStatsProvider>
+          </PostHogProvider>
         </ThemeProvider>
       </body>
     </html>

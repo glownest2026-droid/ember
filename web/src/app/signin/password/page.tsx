@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '../../../utils/supabase/client';
+import { EVENTS } from '@/lib/analytics/eventNames';
+import { trackEvent } from '@/lib/analytics/trackEvent';
 
 export default function PasswordSignInPage() {
   const [email, setEmail] = useState('');
@@ -25,6 +27,19 @@ export default function PasswordSignInPage() {
     if (error) {
       setError('Incorrect email or password.');
     } else {
+      // PostHog FOUNDATION: sign-in completed after successful password auth.
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (data.user?.id) {
+          trackEvent(EVENTS.SIGN_IN_COMPLETED, {
+            user_id: data.user.id,
+            auth_method: 'password',
+            result: 'success',
+          });
+        }
+      } catch {
+        // Fail closed
+      }
       router.push(next);
     }
   }

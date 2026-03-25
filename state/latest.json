@@ -1,52 +1,80 @@
 {
   "pr": {
     "number": null,
-    "title": "Analytics Foundation Discovery",
-    "branch": "feat/analytics-foundation-discovery",
+    "title": "PostHog Foundation",
+    "branch": "feat/posthog-foundation",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
     "rollback": "Revert PR"
   },
   "receipt": {
-    "goal": "Discovery-first, contract-first analytics/lifecycle foundation pass with no vendor installation and no product behavior changes.",
+    "goal": "PostHog Foundation: minimal, privacy-safe PostHog integration with strict NOW event allowlist.",
+    "env_vars_required": [
+      "NEXT_PUBLIC_POSTHOG_KEY",
+      "NEXT_PUBLIC_POSTHOG_HOST"
+    ],
     "commands_run": [
-      "git worktree add C:/Users/timwo/ember_main_baseline main",
-      "pnpm -C web install --frozen-lockfile",
+      "pnpm -C web add posthog-js",
       "pnpm -C web build"
     ],
     "files_changed_recent": [
-      "web/docs/analytics-foundation-discovery.md",
+      "web/package.json",
+      "web/pnpm-lock.yaml",
+      "web/src/app/layout.tsx",
+      "web/src/lib/analytics/eventNames.ts",
+      "web/src/lib/analytics/posthogClient.ts",
+      "web/src/lib/analytics/identifyUser.ts",
+      "web/src/lib/analytics/trackEvent.ts",
+      "web/src/lib/analytics/PostHogProvider.tsx",
+      "web/src/app/auth/callback/route.ts",
+      "web/src/app/auth/confirm/route.ts",
+      "web/src/app/verify/page.tsx",
+      "web/src/app/signin/password/page.tsx",
+      "web/src/lib/children/actions.ts",
+      "web/src/components/add-children/AddChildForm.tsx",
+      "web/src/app/(app)/app/children/_components/ChildForm.tsx",
+      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
+      "web/src/app/(app)/app/recs/_components/ProductCard.tsx",
+      "web/src/app/gift/[slug]/page.tsx",
+      "web/src/app/gift/[slug]/GiftListClient.tsx",
+      "web/src/components/figma/family/ShareYourGiftListWidget.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
-    "routes_inspected": [
-      "/",
-      "/signin",
-      "/signin/password",
-      "/verify",
-      "/auth/callback",
-      "/auth/confirm",
-      "/add-children",
-      "/add-children/[id]",
-      "/family",
-      "/discover",
-      "/discover/[months]",
-      "/products",
-      "/my-ideas",
-      "/gift/[slug]",
-      "/marketplace",
-      "/marketplace/listings",
-      "/api/click",
-      "/go/[id]"
+    "events_implemented_now": [
+      "page_view",
+      "sign_in_completed",
+      "child_profile_created",
+      "child_profile_updated",
+      "shortlist_viewed",
+      "retailer_outbound_clicked",
+      "product_saved",
+      "gift_page_viewed",
+      "gift_page_shared"
     ],
-    "analytics_code_present": "No third-party analytics SDKs found. Existing first-party click logging exists in /api/click and /go/[id].",
-    "known_risks_debt": [
-      "Two click telemetry paths exist (`product_clicks` and `click_events`) and should be unified in a follow-up implementation PR.",
-      "Legacy fallback code paths remain for saved items and children naming columns; implementation PR should choose one canonical path.",
-      "Explicit sign-up flow is not currently represented; event semantics for signup_started/signup_completed need implementation-level guardrails."
+    "events_deferred": [
+      "garage_item_added",
+      "signup_started",
+      "signup_completed",
+      "product_detail_viewed",
+      "listing_created",
+      "demand_posted",
+      "local_match_found",
+      "purchase_confirmed",
+      "dispute_opened",
+      "dispute_closed",
+      "stage_transition_prompted"
     ],
-    "next_starting_point": "Implement PR 1 from the discovery doc: PostHog foundation with strict event allowlist and privacy middleware, then instrument only NOW events."
+    "decisions_made": [
+      "Fail-closed PostHog init: analytics wrapper sends nothing when `NEXT_PUBLIC_POSTHOG_KEY`/`NEXT_PUBLIC_POSTHOG_HOST` are missing.",
+      "Child events emitted from the client after `saveChild()` succeeds and returns a success payload (server actions cannot set cookies in this Next.js version).",
+      "Only manual captures are sent (no sensitive attribute capture; no session replay)."
+    ],
+    "verification_steps": [
+      "Build succeeded on `feat/posthog-foundation`: `pnpm -C web build`."
+    ],
+    "rollback_plan": "Revert/close the PR and remove PostHog wrapper + dependency if needed."
   },
   "timestamp": "2026-03-25T00:00:00.000Z"
 }

@@ -1,5 +1,27 @@
 # CTO Snapshot (Source of Truth)
- _Last updated: 2026-03-19_
+ _Last updated: 2026-03-25_
+
+## feat(posthog): PostHog foundation (privacy-safe, discovery-grounded) — 2026-03-25
+- **Branch:** `feat/posthog-foundation`
+- **Goal:** Install a minimal, privacy-safe PostHog foundation for Ember using the analytics discovery contract as the source of truth, without changing runtime product behavior beyond necessary client navigation timing for child-save tracking.
+- **Scope (no vendors besides PostHog):**
+  - Client-side PostHog init + app-owned event wrapper (manual `page_view` capture only)
+  - No session replay (stopped after init), no heatmaps capture enablement, no surveys enablement
+  - Env-driven configuration via `NEXT_PUBLIC_POSTHOG_KEY` + `NEXT_PUBLIC_POSTHOG_HOST` with fail-closed behavior when missing
+- **Events implemented (NOW, grounded insertion points):**
+  - `page_view`
+  - `sign_in_completed` (auth callback/confirm via cookie + `/verify` + `/signin/password`)
+  - `child_profile_created` / `child_profile_updated` (emitted after successful `saveChild()` server action returns)
+  - `shortlist_viewed` (Discovery examples section entry)
+  - `retailer_outbound_clicked` (paired with existing `/api/click` logging insertion points)
+  - `product_saved` (Discovery save_product success)
+  - `gift_page_viewed` / `gift_page_shared` (gift list load + share copy success)
+- **Explicitly deferred:**
+  - `garage_item_added` (not proven as a deterministic insertion point yet)
+  - All other lifecycle/marketplace events reserved in the contract
+- **Stop-sign handling:** Did not widen anon access, did not invent canonical IDs, and only sent safe IDs/flags to PostHog.
+- **Verification:** `pnpm -C web build` succeeds in `web/` on this branch.
+- **Rollback:** Revert branch / close the PR (PostHog integration is isolated to the analytics wrapper + event call sites).
 
 ## feat(ui): /family action-first redesign (Figma Manage Family V2) — 2026-03-19
 - **Branch:** `feat/family-figma-redesign`

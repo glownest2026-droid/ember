@@ -16,6 +16,9 @@ export async function saveChild(formData: FormData, childId?: string) {
     redirect(`/signin?next=${NEXT_ADD_CHILDREN}`);
   }
 
+  const isUpdate = typeof childId === 'string' && childId.trim() !== '';
+
+  // Deterministic: if the caller passed an existing child_id, this mutation is an edit.
   const nameValue = String(formData.get('child_name') || formData.get('display_name') || '').trim() || null;
   const birthdate = String(formData.get('birthdate') || '').trim() || null;
   const gender = String(formData.get('gender') || '').trim() || null;
@@ -42,15 +45,37 @@ export async function saveChild(formData: FormData, childId?: string) {
     if (error) {
       return { error: error.message };
     }
+
+    return {
+      ok: true,
+      childId,
+      age_band_id: String(age_band ?? ''),
+      action: 'updated' as const,
+    };
   } else {
-    const { error } = await supabase.from('children').insert(childData);
+    const { error, data } = await supabase
+      .from('children')
+      .insert(childData)
+      .select('id')
+      .single();
 
     if (error) {
       return { error: error.message };
     }
-  }
 
-  redirect(DISCOVER_PAGE);
+    if (!data?.id) {
+      return { error: 'Child profile created but no id returned' };
+    }
+
+    childId = data.id;
+
+    return {
+      ok: true,
+      childId,
+      age_band_id: String(age_band ?? ''),
+      action: 'created' as const,
+    };
+  }
 }
 
 export async function deleteChild(childId: string) {

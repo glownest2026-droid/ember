@@ -4,6 +4,8 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { createClient } from '@/utils/supabase/client';
+import { EVENTS } from '@/lib/analytics/eventNames';
+import { trackEvent } from '@/lib/analytics/trackEvent';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
 import {
   ALL_DOORWAYS,
@@ -259,6 +261,28 @@ export default function DiscoveryPageClient({
         ? 'CategorySelected'
         : 'FocusSelected';
 
+  function safeHostFromUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    try {
+      const u = new URL(url);
+      return u.host;
+    } catch {
+      return null;
+    }
+  }
+
+  function getRetailerHostFromProductId(productId: string): string | null {
+    const all = [...picks, ...exampleProducts];
+    const pick = all.find((p) => p.product.id === productId);
+    const url =
+      pick?.product.canonical_url ||
+      pick?.product.amazon_uk_url ||
+      pick?.product.affiliate_url ||
+      pick?.product.affiliate_deeplink ||
+      null;
+    return safeHostFromUrl(url);
+  }
+
   useEffect(() => {
     if (selectedBandIndex !== propBandIndex) {
       const nextBand = ageBands[selectedBandIndex] ?? null;
@@ -392,7 +416,27 @@ export default function DiscoveryPageClient({
             );
             if (!legacyError) ok = true;
           }
-          if (ok) await refetchSubnavStats(selectedChildId);
+          if (ok) {
+            trackEvent(EVENTS.PRODUCT_SAVED, {
+              user_id: user.id,
+              kind: 'product',
+              product_id: productId,
+              source_surface: 'discover_save',
+              child_id: childId ?? null,
+            });
+            await refetchSubnavStats(selectedChildId);
+          }
+
+          trackEvent(EVENTS.RETAILER_OUTBOUND_CLICKED, {
+            user_id: user.id,
+            product_id: productId,
+            source_surface: 'discover',
+            source: 'discover_save',
+            click_path_type: 'api_click',
+            retailer_host: getRetailerHostFromProductId(productId),
+            child_id: childId ?? null,
+          });
+
           await fetch('/api/click', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -438,6 +482,17 @@ export default function DiscoveryPageClient({
             ...(childId ? { p_child_id: childId } : {}),
           });
           if (!error) await refetchSubnavStats(selectedChildId);
+
+          trackEvent(EVENTS.RETAILER_OUTBOUND_CLICKED, {
+            user_id: user.id,
+            product_id: productId,
+            source_surface: 'discover',
+            source: 'discover_owned',
+            click_path_type: 'api_click',
+            retailer_host: getRetailerHostFromProductId(productId),
+            child_id: childId ?? null,
+          });
+
           await fetch('/api/click', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -551,6 +606,23 @@ export default function DiscoveryPageClient({
 
   const displayIdeas = showPicks && picks.length > 0 ? picks : exampleProducts;
 
+  const shortlistTrackKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (discoverState !== 'ShowingExamples') return;
+    if (displayIdeas.length <= 0) return;
+    const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedChildId ?? 'none'}`;
+    if (shortlistTrackKeyRef.current === key) return;
+    shortlistTrackKeyRef.current = key;
+
+    trackEvent(EVENTS.SHORTLIST_VIEWED, {
+      user_id: user?.id ?? null,
+      child_id: selectedChildId ?? null,
+      age_band_id: ageBand?.id ?? null,
+      wrapper_slug: selectedWrapper ?? null,
+      result_count: displayIdeas.length,
+    });
+  }, [discoverState, displayIdeas.length, ageBand?.id, selectedWrapper, selectedChildId, user?.id]);
+
   const handleHaveItAlready = (productId: string) => {
     requireAuthThen({
       actionId: 'have_product',
@@ -567,6 +639,14 @@ export default function DiscoveryPageClient({
         });
         if (!error) await refetchSubnavStats(selectedChildId);
         try {
+          trackEvent(EVENTS.RETAILER_OUTBOUND_CLICKED, {
+            product_id: productId,
+            source_surface: 'discover',
+            source: 'discover_owned',
+            click_path_type: 'api_click',
+            retailer_host: getRetailerHostFromProductId(productId),
+            child_id: selectedChildId ?? null,
+          });
           await fetch('/api/click', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -696,6 +776,25 @@ export default function DiscoveryPageClient({
           return;
         }
         setActionToast({ productId, message: 'Saved.' });
+
+        trackEvent(EVENTS.PRODUCT_SAVED, {
+          user_id: user.id,
+          kind: 'product',
+          product_id: productId,
+          source_surface: 'discover_save',
+          child_id: selectedChildId ?? null,
+        });
+
+        trackEvent(EVENTS.RETAILER_OUTBOUND_CLICKED, {
+          user_id: user.id,
+          product_id: productId,
+          source_surface: 'discover',
+          source: 'discover_save',
+          click_path_type: 'api_click',
+          retailer_host: getRetailerHostFromProductId(productId),
+          child_id: selectedChildId ?? null,
+        });
+
         await fetch('/api/click', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
