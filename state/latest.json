@@ -1,11 +1,11 @@
 {
   "pr": {
-    "number": null,
+    "number": 181,
     "title": "OneSignal Web Push Foundation",
     "branch": "cursor/onesignal-web-push-foundation-e61b",
     "base": "main",
-    "url": null,
-    "vercel_preview_url": null,
+    "url": "https://github.com/glownest2026-droid/ember/pull/181",
+    "vercel_preview_url": "https://ember-git-cursor-onesignal-web-pu-524851-tims-projects-cd69a894.vercel.app",
     "rollback": "Revert PR; remove NEXT_PUBLIC_ONESIGNAL_APP_ID from Vercel envs."
   },
   "receipt": {
@@ -17,7 +17,8 @@
       "pnpm -C web install",
       "pnpm -C web build",
       "pnpm -C web add react-onesignal@latest",
-      "pnpm -C web build"
+      "pnpm -C web build",
+      "gh pr checks 181"
     ],
     "files_changed_recent": [
       "web/package.json",
@@ -55,5 +56,5 @@
     ],
     "rollback_plan": "Revert this PR and remove NEXT_PUBLIC_ONESIGNAL_APP_ID from Vercel env vars."
   },
-  "timestamp": "2026-03-25T23:27:58Z"
+  "timestamp": "2026-03-25T23:31:43Z"
 }
