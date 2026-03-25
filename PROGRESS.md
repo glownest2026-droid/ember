@@ -1,5 +1,42 @@
 # CTO Snapshot (Source of Truth)
- _Last updated: 2026-03-19_
+ _Last updated: 2026-03-25_
+
+## feat(posthog): PostHog foundation (privacy-safe, discovery-grounded) — 2026-03-25
+- **Branch:** `feat/posthog-foundation`
+- **Goal:** Install a minimal, privacy-safe PostHog foundation for Ember using the analytics discovery contract as the source of truth, without changing runtime product behavior beyond necessary client navigation timing for child-save tracking.
+- **Scope (no vendors besides PostHog):**
+  - Client-side PostHog init + app-owned event wrapper (manual `page_view` capture only)
+  - No session replay (stopped after init), no heatmaps capture enablement, no surveys enablement
+  - Env-driven configuration via `NEXT_PUBLIC_POSTHOG_KEY` + `NEXT_PUBLIC_POSTHOG_HOST` with fail-closed behavior when missing
+- **Events implemented (NOW, grounded insertion points):**
+  - `page_view`
+  - `sign_in_completed` (auth callback/confirm via cookie + `/verify` + `/signin/password`)
+  - `child_profile_created` / `child_profile_updated` (emitted after successful `saveChild()` server action returns)
+  - `shortlist_viewed` (Discovery examples section entry)
+  - `retailer_outbound_clicked` (paired with existing `/api/click` logging insertion points)
+  - `product_saved` (Discovery save_product success)
+  - `gift_page_viewed` / `gift_page_shared` (gift list load + share copy success)
+- **Explicitly deferred:**
+  - `garage_item_added` (not proven as a deterministic insertion point yet)
+  - All other lifecycle/marketplace events reserved in the contract
+- **Stop-sign handling:** Did not widen anon access, did not invent canonical IDs, and only sent safe IDs/flags to PostHog.
+- **Verification:** `pnpm -C web build` succeeds in `web/` on this branch.
+- **Rollback:** Revert branch / close the PR (PostHog integration is isolated to the analytics wrapper + event call sites).
+
+### debug(posthog): sessions visible but events absent — narrow hardening pass (same branch)
+- **Branch:** `feat/posthog-foundation` (same PR; no new PR)
+- **Observed founder symptom:** PostHog sessions appeared, but Activity/Events showed none (0 pageviews).
+- **Narrow fix:**
+  - Added compact browser debug logs in analytics wrapper to prove init/capture flow:
+    - init env presence yes/no
+    - provider mount
+    - capture attempts + event names
+    - identify attempts
+    - capture/identify errors
+  - Added auth state listener in `PostHogProvider` so `identify(user_id)` updates when auth state changes after initial mount.
+  - Kept event taxonomy unchanged (no new event types, no new vendors, no product feature changes).
+- **Files:** `web/src/lib/analytics/posthogClient.ts`, `web/src/lib/analytics/PostHogProvider.tsx`
+- **Verification:** `pnpm -C web build` passes after hardening patch.
 
 ## feat(ui): /family action-first redesign (Figma Manage Family V2) — 2026-03-19
 - **Branch:** `feat/family-figma-redesign`
@@ -2219,6 +2256,16 @@ Category-only cards remain publishable.
 - **Follow-up (same PR):** (1) "How we choose." box: list text left-aligned (`text-left` on grid in `HomeHowWeChoose.tsx`). (2) Navbar: "Sign in" link added before "Get started" for signed-out users (`DiscoverStickyHeader.tsx`). (3) Navbar logo already set to Ember_Logo_Robin1.png URL.
 
 ---
+
+## feat(analytics-foundation): discovery-first analytics contract (Mar 2026)
+
+- **Goal:** Ground Ember analytics and lifecycle foundations before any vendor install by locking real surfaces, canonical IDs, privacy boundaries, and NOW-vs-LATER events.
+- **What changed:** Added `web/docs/analytics-foundation-discovery.md` with required sections A-G: current truth, canonical IDs, do-not-invent IDs, NOW taxonomy, LATER taxonomy, privacy boundary, and recommended next 3 PRs. No runtime behavior, schema, SDK, or vendor integrations changed.
+- **Routes inspected:** `/`, `/signin`, `/signin/password`, `/verify`, `/auth/callback`, `/auth/confirm`, `/add-children`, `/add-children/[id]`, `/family`, `/discover`, `/discover/[months]`, `/products`, `/my-ideas`, `/gift/[slug]`, `/marketplace`, `/marketplace/listings`, `/api/click`, `/go/[id]`.
+- **Data/file evidence inspected:** `web/src/lib/pl/public.ts`, `web/src/lib/children/actions.ts`, `web/src/lib/gift/actions.ts`, `web/src/lib/marketplace/actions.ts`, `web/src/lib/discover/serverDiscoverChild.ts`, and Supabase migrations for core schema, list items, gift shares/public functions, and marketplace RLS/tables.
+- **Analytics code check:** No vendor SDKs found (`posthog`, `segment`, `mixpanel`, `amplitude`, etc.). Existing first-party telemetry/logging points are `/api/click` (`product_clicks`) and `/go/[id]` (`click_events` best-effort insert).
+- **Baseline/build scout:** `main` builds cleanly after locked dependency install in clean worktree (`pnpm -C web install --frozen-lockfile` + `pnpm -C web build`).
+- **Rollback:** Revert this PR (docs/state updates only).
 
 ## fix(snag-pack): 13-item snag fixes (fix/snag-pack-homepage)
 

@@ -10,6 +10,10 @@ import { CoParentCard } from './CoParentCard';
 import { PrivacySheet } from './PrivacySheet';
 import { ValidationErrorSheet } from './ValidationErrorSheet';
 import { OlderChildSheet } from './OlderChildSheet';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
+import { EVENTS } from '@/lib/analytics/eventNames';
+import { trackEvent } from '@/lib/analytics/trackEvent';
 
 type ChildData = {
   id?: string;
@@ -27,6 +31,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const router = useRouter();
 
   const [childName, setChildName] = useState(initial?.child_name ?? '');
   const [dateOfBirth, setDateOfBirth] = useState(initial?.birthdate ?? '');
@@ -59,7 +64,31 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
     formData.set('gender', gender);
     startTransition(async () => {
       const result = await saveChild(formData, initial?.id);
-      if (result?.error) setError(result.error);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+
+      // PostHog FOUNDATION: child create/update event (only after server action succeeds).
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        if (data.user?.id) {
+          const eventName =
+            result?.action === 'updated' ? EVENTS.CHILD_PROFILE_UPDATED : EVENTS.CHILD_PROFILE_CREATED;
+          if (result?.childId) {
+            trackEvent(eventName, {
+              user_id: data.user.id,
+              child_id: result.childId,
+              age_band_id: result.age_band_id ?? null,
+            });
+          }
+        }
+      } catch {
+        // Fail closed: don't block UX.
+      }
+
+      router.push('/discover');
     });
   };
 
@@ -75,7 +104,31 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
     formData.set('birthdate', dateOfBirth);
     formData.set('gender', gender);
     startTransition(async () => {
-      await saveChild(formData, initial?.id);
+      const result = await saveChild(formData, initial?.id);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        if (data.user?.id) {
+          const eventName =
+            result?.action === 'updated' ? EVENTS.CHILD_PROFILE_UPDATED : EVENTS.CHILD_PROFILE_CREATED;
+          if (result?.childId) {
+            trackEvent(eventName, {
+              user_id: data.user.id,
+              child_id: result.childId,
+              age_band_id: result.age_band_id ?? null,
+            });
+          }
+        }
+      } catch {
+        // Fail closed
+      }
+
+      router.push('/discover');
     });
   };
 

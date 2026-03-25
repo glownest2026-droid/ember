@@ -33,6 +33,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(errorUrl);
     }
 
+    // PostHog FOUNDATION: successful OTP verification. Skip recovery flows
+    // (which redirect to `/reset-password`) to avoid false sign-in completion.
+    if (type !== 'recovery') {
+      response.cookies.set('ember_ph_signin_completed', '1', {
+        path: '/',
+        sameSite: 'lax',
+        httpOnly: false,
+        secure: false,
+      });
+    }
+
     return response;
   } catch {
     const errorUrl = new URL('/auth/error', origin);

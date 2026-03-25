@@ -4,6 +4,8 @@
 import { useState } from 'react';
 import { createClient } from '../../utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { EVENTS } from '@/lib/analytics/eventNames';
+import { trackEvent } from '@/lib/analytics/trackEvent';
 
 export default function VerifyPage() {
   const [email, setEmail] = useState('');
@@ -20,8 +22,26 @@ export default function VerifyPage() {
       token: code,
       type: 'email', // 6-digit code from the email
     });
-    if (error) setError(error.message);
-    else router.push('/app');
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    // PostHog FOUNDATION: sign-in completed after successful OTP verification.
+    try {
+      const { data } = await supabase.auth.getUser();
+      if (data.user?.id) {
+        trackEvent(EVENTS.SIGN_IN_COMPLETED, {
+          user_id: data.user.id,
+          auth_method: 'otp',
+          result: 'success',
+        });
+      }
+    } catch {
+      // Fail closed: never block login UX.
+    }
+
+    router.push('/app');
   }
 
   return (

@@ -1,6 +1,10 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { saveChild, deleteChild } from '../_actions';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
+import { EVENTS } from '@/lib/analytics/eventNames';
+import { trackEvent } from '@/lib/analytics/trackEvent';
 
 type ChildData = {
   id?: string;
@@ -14,6 +18,7 @@ export default function ChildForm({ initial }: { initial?: ChildData }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const router = useRouter();
 
   async function handleSubmit(formData: FormData) {
     setError(null);
@@ -21,7 +26,27 @@ export default function ChildForm({ initial }: { initial?: ChildData }) {
       const result = await saveChild(formData, initial?.id);
       if (result?.error) {
         setError(result.error);
+        return;
       }
+
+      // PostHog FOUNDATION: child create/update event (only after server action succeeds).
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        if (data.user?.id && result?.childId) {
+          const eventName =
+            result?.action === 'updated' ? EVENTS.CHILD_PROFILE_UPDATED : EVENTS.CHILD_PROFILE_CREATED;
+          trackEvent(eventName, {
+            user_id: data.user.id,
+            child_id: result.childId,
+            age_band_id: result.age_band_id ?? null,
+          });
+        }
+      } catch {
+        // Fail closed
+      }
+
+      router.push('/discover');
     });
   }
 
