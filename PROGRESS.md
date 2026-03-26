@@ -2357,3 +2357,15 @@ Not sent:
 - Revert this PR to remove OneSignal foundation changes.
 - Optionally remove `NEXT_PUBLIC_ONESIGNAL_APP_ID` from Vercel environments.
 
+## 2026-03-26 — fix(onesignal): scope worker under /push/onesignal for live web push prompt
+
+- **Goal:** Fix live `/account` push opt-in error ("Could not start browser push permission. Please try again.") with the smallest safe change.
+- **Root cause hypothesis confirmed in code audit:** OneSignal foundation used root-level worker files and default init worker settings. That can collide with existing/expected PWA root worker behavior and block reliable OneSignal permission startup on live origin.
+- **What changed:** Moved OneSignal worker files from root to `web/public/push/onesignal/` and updated OneSignal init config to explicitly use:
+  - `serviceWorkerPath: "/push/onesignal/OneSignalSDKWorker.js"`
+  - `serviceWorkerUpdaterPath: "/push/onesignal/OneSignalSDKUpdaterWorker.js"`
+  - `serviceWorkerParam.scope: "/push/onesignal/"`
+- **Founder runbook update:** `web/docs/onesignal-web-push-foundation-runbook.md` now sets canonical Site URL to `https://www.emberplay.app`, service worker path/scope to `/push/onesignal/`, redeploy-after-merge guidance, and live-only test flow.
+- **Proof:** `pnpm -C web build` passes. Preview start command runs successfully for manual verification.
+- **Rollback:** Revert this PR to restore prior root-level worker setup.
+
