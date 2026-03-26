@@ -25,6 +25,9 @@ export async function initializeOneSignal(): Promise<void> {
   initPromise = OneSignal.init({
     appId: ONESIGNAL_APP_ID!,
     allowLocalhostAsSecureOrigin: true,
+    serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
+    serviceWorkerUpdaterPath: '/push/onesignal/OneSignalSDKUpdaterWorker.js',
+    serviceWorkerParam: { scope: '/push/onesignal/' },
   }).catch((error) => {
     // Allow retry if initialization fails due to transient runtime state.
     initPromise = null;
