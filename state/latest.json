@@ -8,7 +8,7 @@
     "rollback": "Revert PR to restore prior nav reminders behavior and account push CTA."
   },
   "receipt": {
-    "goal": "Make top-nav Reminders the real browser push master on/off control, move /account to status + manage link, and send info icon to /family#reminders.",
+    "goal": "PR1 revised: top-nav Reminders is a normal link to /family#reminders (not a toggle, no push on/off in nav). /account shows browser push status only + Manage reminders link. No DB reminder mutation from nav.",
     "commands_run": [
       "git fetch origin main",
       "pnpm -C web install --frozen-lockfile",
@@ -22,10 +22,10 @@
       "state/latest.json"
     ],
     "verification_steps": [
-      "Nav reminders switch ON requests/uses OneSignal and reaches enabled only with real push subscription",
-      "Nav reminders switch OFF performs OneSignal opt-out and reflects disabled",
-      "Nav reminders info icon opens /family#reminders",
-      "/account displays status + manage reminders link only",
+      "Signed-in nav shows Reminders as a normal clickable link (not a switch), no info icon",
+      "Clicking Reminders opens /family#reminders",
+      "/account is status-only + Manage reminders -> /family#reminders",
+      "No nav-based push enable/disable or OneSignal switch state",
       "pnpm -C web build passes"
     ],
     "rollback_plan": "Revert this PR."

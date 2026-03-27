@@ -150,9 +150,7 @@ export default function AccountPage() {
     unsupported: 'Unsupported',
     permission_default: 'Needs permission',
     blocked: 'Blocked',
-    enabling: 'Turning on...',
     enabled: 'On',
-    disabling: 'Turning off...',
     disabled: 'Off',
     recoverable_error: 'Recoverable error',
   };

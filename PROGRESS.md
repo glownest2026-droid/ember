@@ -2401,11 +2401,12 @@ Not sent:
 
 ## 2026-03-27 — feat(push-master-control): nav reminders as browser push master switch
 
-- **Build name:** Push Master Control Migration.
-- **Goal:** Make top-nav Reminders switch control real browser/device push ON/OFF, move `/account` to status + manage link, and route info icon to `/family#reminders`.
-- **What changed:** Added master push state helpers in `web/src/lib/onesignal/client.ts` (`getOneSignalMasterPushState`, `setOneSignalMasterPushEnabled`) with state model: `unsupported`, `permission_default`, `blocked`, `enabling`, `enabled`, `disabling`, `disabled`, `recoverable_error`.
-- **Nav behavior:** `web/src/components/subnav/UnifiedSignedInNav.tsx` reminders switch now toggles OneSignal push opt-in/opt-out for this browser/device and reflects effective state; info icon now navigates to `/family#reminders`.
-- **Account behavior:** `web/src/app/account/page.tsx` no longer uses push CTA as primary control; it now displays push status and a `Manage reminders` link to `/family#reminders`.
-- **Scope safety:** No new vendors, no journeys/topic targeting, no unrelated auth/analytics changes.
-- **Proof:** `pnpm -C web build` passes.
+- **Build name:** Push Master Control Migration (PR1).
+- **Revised scope (same PR, not merged as originally written):** Top-nav **Reminders** is **not** a toggle and does **not** enable/disable push or reflect OneSignal subscription state. It is a normal nav link to reminder management. Push enable/disable stays out of the nav (Family `/family#reminders` is the route in).
+- **Goal:** Nav cleanup: one clear route into reminder management; `/account` stays status-only for browser push + link to `/family#reminders`.
+- **What changed:** `web/src/components/subnav/UnifiedSignedInNav.tsx` — replaced Reminders switch + info icon with a single clickable **Reminders** item linking to `/family#reminders` (desktop xl + mobile stats row). No DB `user_notification_prefs` writes from nav, no OneSignal toggle in nav.
+- **OneSignal helpers:** `web/src/lib/onesignal/client.ts` — `getOneSignalMasterPushState` + `mapDiagnosticsToMasterPushState` for read-only status on `/account` only; removed nav-only `setOneSignalMasterPushEnabled` / opt-out toggle path.
+- **Account:** `web/src/app/account/page.tsx` — status text + **Manage reminders** → `/family#reminders` only.
+- **Scope safety:** No new vendors, no `/family` reminder model changes, no topic matrix, no per-child targeting in this PR.
+- **Proof:** `pnpm -C web build` passes after revision.
 
