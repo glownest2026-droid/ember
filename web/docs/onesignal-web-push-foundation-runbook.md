@@ -47,6 +47,7 @@ iPhone/iPad web push is trickier because Apple requires users to add the web app
    - Path: `/push/onesignal/`
    - Main filename: `OneSignalSDKWorker.js`
    - Updater filename: `OneSignalSDKUpdaterWorker.js`
+   - Registration scope: `/push/onesignal/`
 7. Go to **Settings -> Keys & IDs**.
 8. Copy the **OneSignal App ID** value.
 
