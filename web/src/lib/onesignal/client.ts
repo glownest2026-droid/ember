@@ -46,8 +46,8 @@ export async function initializeOneSignal(): Promise<void> {
   initPromise = OneSignal.init({
     appId: ONESIGNAL_APP_ID!,
     allowLocalhostAsSecureOrigin: true,
-    serviceWorkerPath: '/push/onesignal/OneSignalSDKWorker.js',
-    serviceWorkerUpdaterPath: '/push/onesignal/OneSignalSDKUpdaterWorker.js',
+    serviceWorkerPath: 'push/onesignal/OneSignalSDKWorker.js',
+    serviceWorkerUpdaterPath: 'push/onesignal/OneSignalSDKUpdaterWorker.js',
     serviceWorkerParam: { scope: '/push/onesignal/' },
   })
     .then(() => {

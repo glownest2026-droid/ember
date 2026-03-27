@@ -2388,3 +2388,14 @@ Not sent:
 - **UI/error behavior:** `web/src/app/account/page.tsx` now logs state transitions (`onesignal:state_transition:<from> -> <to>`) and only sets `recoverable_error` on genuine thrown exceptions with `onesignal:error:<message>`.
 - **Proof:** `pnpm -C web build` passes after changes.
 
+## 2026-03-27 — fix(onesignal): use relative OneSignal worker script paths
+
+- **Goal:** Fix live service worker registration error `origin of the provided scriptURL ('https://push') does not match the current origin`.
+- **Root cause:** `OneSignal.init()` used leading-slash worker script paths. For OneSignal custom code setup, script path fields must be relative (no leading slash), while scope remains absolute.
+- **What changed:** In `web/src/lib/onesignal/client.ts`, set:
+  - `serviceWorkerPath: "push/onesignal/OneSignalSDKWorker.js"`
+  - `serviceWorkerUpdaterPath: "push/onesignal/OneSignalSDKUpdaterWorker.js"`
+  - kept `serviceWorkerParam.scope: "/push/onesignal/"`
+- **Runbook alignment:** `web/docs/onesignal-web-push-foundation-runbook.md` now explicitly includes registration scope `/push/onesignal/` with existing path and filenames.
+- **Proof:** `pnpm -C web build` passes.
+
