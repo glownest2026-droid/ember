@@ -23,6 +23,11 @@ import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { SubnavSwitch } from './SubnavSwitch';
 import { SimpleTooltip } from '@/components/ui/SimpleTooltip';
 import { createClient } from '@/utils/supabase/client';
+import {
+  getOneSignalMasterPushState,
+  setOneSignalMasterPushEnabled,
+  type OneSignalMasterPushState,
+} from '@/lib/onesignal/client';
 
 const EMBER_LOGO_SRC =
   'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
@@ -98,6 +103,7 @@ export function UnifiedSignedInNav() {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [remindersBusy, setRemindersBusy] = useState(false);
+  const [pushState, setPushState] = useState<OneSignalMasterPushState>('unsupported');
   /** Must be separate: one ref on both desktop+mobile would point to only the last node, so click-outside closed the desktop menu before child buttons received clicks. */
   const childDropdownDesktopRef = useRef<HTMLDivElement>(null);
   const childDropdownMobileRef = useRef<HTMLDivElement>(null);
@@ -111,7 +117,7 @@ export function UnifiedSignedInNav() {
   const [childToggleAffirm, setChildToggleAffirm] = useState(false);
 
   const selectedChildId = searchParams?.get('child') ?? '';
-  const remindersEnabled = stats?.remindersEnabled ?? false;
+  const remindersEnabled = pushState === 'enabled' || pushState === 'enabling';
   const basePath = pathname || '/discover';
   const isDiscover = basePath.startsWith('/discover');
   const isMyIdeas = basePath.startsWith('/my-ideas');
@@ -217,6 +223,10 @@ export function UnifiedSignedInNav() {
   }, [pathname, selectedChildId, user?.id, refetch, isDiscover, isMyIdeas, basePath]);
 
   useEffect(() => {
+    void getOneSignalMasterPushState().then(setPushState);
+  }, []);
+
+  useEffect(() => {
     if (!childToggleAffirm) return;
     const t = window.setTimeout(() => setChildToggleAffirm(false), 850);
     return () => window.clearTimeout(t);
@@ -290,17 +300,14 @@ export function UnifiedSignedInNav() {
       if (!user) return;
       setRemindersBusy(true);
       try {
-        const supabase = createClient();
-        await supabase.from('user_notification_prefs').upsert(
-          { user_id: user.id, development_reminders_enabled: checked },
-          { onConflict: 'user_id' }
-        );
-        await refetch(selectedChildId || undefined);
+        setPushState(checked ? 'enabling' : 'disabling');
+        const next = await setOneSignalMasterPushEnabled(checked);
+        setPushState(next);
       } finally {
         setRemindersBusy(false);
       }
     },
-    [user, refetch, selectedChildId]
+    [user]
   );
 
   const handleChildSelect = useCallback(
@@ -812,6 +819,7 @@ export function UnifiedSignedInNav() {
               <SimpleTooltip content={REMINDERS_TOOLTIP} minWidth="44rem" maxWidth="min(44rem, 95vw)">
                 <button
                   type="button"
+                  onClick={() => router.push('/family#reminders')}
                   className="rounded-full p-0.5 text-[var(--ember-text-low)] hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ember-accent-hover)] cursor-pointer"
                   aria-label="Development reminders info"
                 >
@@ -1038,6 +1046,7 @@ export function UnifiedSignedInNav() {
               <SimpleTooltip content={REMINDERS_TOOLTIP} minWidth="16rem" maxWidth="calc(100vw - 16px)">
                 <button
                   type="button"
+                  onClick={() => router.push('/family#reminders')}
                   className="rounded-full p-0.5 text-[var(--ember-text-low)] hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ember-accent-hover)] cursor-pointer"
                   aria-label="Development reminders info"
                 >

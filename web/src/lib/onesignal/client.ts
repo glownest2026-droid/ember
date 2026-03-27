@@ -193,3 +193,76 @@ function sleep(ms: number): Promise<void> {
     window.setTimeout(resolve, ms);
   });
 }
+
+export type OneSignalMasterPushState =
+  | 'unsupported'
+  | 'permission_default'
+  | 'blocked'
+  | 'enabling'
+  | 'enabled'
+  | 'disabling'
+  | 'disabled'
+  | 'recoverable_error';
+
+function isPushUnsupported(): boolean {
+  return !isBrowser() || typeof window.Notification === 'undefined';
+}
+
+export function mapDiagnosticsToMasterPushState(
+  diagnostics: OneSignalPushDiagnostics | null
+): OneSignalMasterPushState {
+  if (isPushUnsupported()) return 'unsupported';
+  if (!diagnostics) return 'disabled';
+  if (diagnostics.permission === 'denied') return 'blocked';
+  if (diagnostics.permission === 'default') return 'permission_default';
+  if (diagnostics.fullySubscribed) return 'enabled';
+  return 'disabled';
+}
+
+async function waitForOptOut(timeoutMs: number): Promise<OneSignalPushDiagnostics> {
+  const startMs = Date.now();
+  let diagnostics = readPushDiagnosticsFromSdk();
+  if (!diagnostics.optedIn) return diagnostics;
+
+  while (Date.now() - startMs < timeoutMs) {
+    await sleep(250);
+    diagnostics = readPushDiagnosticsFromSdk();
+    if (!diagnostics.optedIn) {
+      console.log('onesignal:subscription_change');
+      return diagnostics;
+    }
+  }
+  return diagnostics;
+}
+
+export async function getOneSignalMasterPushState(): Promise<OneSignalMasterPushState> {
+  if (!isOneSignalConfigured() || isPushUnsupported()) return 'unsupported';
+  try {
+    const diagnostics = await getOneSignalPushDiagnostics();
+    return mapDiagnosticsToMasterPushState(diagnostics);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`onesignal:error:${message.slice(0, 120)}`);
+    return 'recoverable_error';
+  }
+}
+
+export async function setOneSignalMasterPushEnabled(
+  enabled: boolean
+): Promise<OneSignalMasterPushState> {
+  if (!isOneSignalConfigured() || isPushUnsupported()) return 'unsupported';
+  try {
+    if (enabled) {
+      const diagnostics = await ensureOneSignalPushSubscription();
+      return mapDiagnosticsToMasterPushState(diagnostics);
+    }
+    await initializeOneSignal();
+    await OneSignal.User.PushSubscription.optOut();
+    const diagnostics = await waitForOptOut(4000);
+    return mapDiagnosticsToMasterPushState(diagnostics);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`onesignal:error:${message.slice(0, 120)}`);
+    return 'recoverable_error';
+  }
+}

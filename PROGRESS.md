@@ -2399,3 +2399,13 @@ Not sent:
 - **Runbook alignment:** `web/docs/onesignal-web-push-foundation-runbook.md` now explicitly includes registration scope `/push/onesignal/` with existing path and filenames.
 - **Proof:** `pnpm -C web build` passes.
 
+## 2026-03-27 — feat(push-master-control): nav reminders as browser push master switch
+
+- **Build name:** Push Master Control Migration.
+- **Goal:** Make top-nav Reminders switch control real browser/device push ON/OFF, move `/account` to status + manage link, and route info icon to `/family#reminders`.
+- **What changed:** Added master push state helpers in `web/src/lib/onesignal/client.ts` (`getOneSignalMasterPushState`, `setOneSignalMasterPushEnabled`) with state model: `unsupported`, `permission_default`, `blocked`, `enabling`, `enabled`, `disabling`, `disabled`, `recoverable_error`.
+- **Nav behavior:** `web/src/components/subnav/UnifiedSignedInNav.tsx` reminders switch now toggles OneSignal push opt-in/opt-out for this browser/device and reflects effective state; info icon now navigates to `/family#reminders`.
+- **Account behavior:** `web/src/app/account/page.tsx` no longer uses push CTA as primary control; it now displays push status and a `Manage reminders` link to `/family#reminders`.
+- **Scope safety:** No new vendors, no journeys/topic targeting, no unrelated auth/analytics changes.
+- **Proof:** `pnpm -C web build` passes.
+
