@@ -2369,3 +2369,13 @@ Not sent:
 - **Proof:** `pnpm -C web build` passes. Preview start command runs successfully for manual verification.
 - **Rollback:** Revert this PR to restore prior root-level worker setup.
 
+## 2026-03-27 — fix(onesignal): prevent desktop SDK double-init on account CTA
+
+- **Build name:** OneSignal Double-Init Fix.
+- **Goal:** Fix desktop `/account` push CTA failures caused by `SDK already initialized`, while keeping OneSignal scope/auth behavior unchanged.
+- **Root cause in flow audit:** OneSignal init is reached from both app-level provider sync (`OneSignalProvider` -> `linkOneSignalExternalUser` / `unlinkOneSignalExternalUser`) and account push flow (`getOneSignalPushDiagnostics` on mount + CTA path). In some desktop runtimes this produced a second SDK init attempt and threw.
+- **What changed:** Added a hard single-init guard in `web/src/lib/onesignal/client.ts` (module + `window` flags), treat `"SDK already initialized"` as already-ready, and added diagnostics helpers so CTA uses current SDK state instead of optimistic permission-only success.
+- **UI state fix:** Account push state now distinguishes: not initialized, permission default, permission granted but not subscribed, fully subscribed, denied/blocked, and recoverable error.
+- **Temporary founder logs:** Added requested logs for init start/skip, permission, subscription id presence, token presence, optedIn, and CTA click.
+- **Proof:** `pnpm -C web build` passes; preview server started; worker URL check `http://localhost:3010/push/onesignal/OneSignalSDKWorker.js` returned `200`.
+

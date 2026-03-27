@@ -6,13 +6,30 @@ import { createClient } from '@/utils/supabase/client';
 import { AUTH_ENABLE_GOOGLE, AUTH_ENABLE_APPLE } from '@/lib/auth-flags';
 import { buildAuthCallbackUrl } from '@/lib/auth-callback-url';
 import {
+  ensureOneSignalPushSubscription,
   getOneSignalAppId,
-  getOneSignalPermissionState,
-  requestOneSignalPushPermission,
+  getOneSignalPushDiagnostics,
+  type OneSignalPushDiagnostics,
 } from '@/lib/onesignal/client';
 import type { User } from '@supabase/supabase-js';
 
 const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
+type PushUiState =
+  | 'not_initialized_yet'
+  | 'permission_default'
+  | 'permission_granted_not_subscribed'
+  | 'fully_subscribed'
+  | 'blocked_denied'
+  | 'recoverable_error';
+
+function mapPushUiState(diagnostics: OneSignalPushDiagnostics | null): PushUiState {
+  if (!diagnostics?.initialized) return 'not_initialized_yet';
+  if (diagnostics.permission === 'denied') return 'blocked_denied';
+  if (diagnostics.permission === 'default') return 'permission_default';
+  if (diagnostics.fullySubscribed) return 'fully_subscribed';
+  if (diagnostics.permission === 'granted') return 'permission_granted_not_subscribed';
+  return 'recoverable_error';
+}
 
 export default function AccountPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -25,7 +42,7 @@ export default function AccountPage() {
   const [linkError, setLinkError] = useState<string | null>(null);
   const [linkLoading, setLinkLoading] = useState<string | null>(null);
   const [pushLoading, setPushLoading] = useState(false);
-  const [pushStatus, setPushStatus] = useState<NotificationPermission | null>(null);
+  const [pushStatus, setPushStatus] = useState<PushUiState>('not_initialized_yet');
   const [pushMessage, setPushMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,7 +66,9 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (!getOneSignalAppId()) return;
-    void getOneSignalPermissionState().then((state) => setPushStatus(state));
+    void getOneSignalPushDiagnostics()
+      .then((diagnostics) => setPushStatus(mapPushUiState(diagnostics)))
+      .catch(() => setPushStatus('recoverable_error'));
   }, []);
 
   const handleSetPassword = async (e: React.FormEvent) => {
@@ -106,16 +125,19 @@ export default function AccountPage() {
   };
 
   const handleEnablePush = async () => {
+    console.log('onesignal:cta:clicked');
     setPushLoading(true);
     setPushMessage(null);
     try {
-      const granted = await requestOneSignalPushPermission();
-      const state = await getOneSignalPermissionState();
-      setPushStatus(state);
-      if (granted || state === 'granted') {
+      const diagnostics = await ensureOneSignalPushSubscription();
+      const nextStatus = mapPushUiState(diagnostics);
+      setPushStatus(nextStatus);
+      if (diagnostics?.fullySubscribed) {
         setPushMessage('Push is now enabled on this browser.');
-      } else if (state === 'denied') {
+      } else if (nextStatus === 'blocked_denied') {
         setPushMessage('Browser notifications are blocked. Re-enable them in browser settings to continue.');
+      } else if (nextStatus === 'permission_granted_not_subscribed') {
+        setPushMessage('Browser permission is granted, but push subscription is still pending. Try again in a moment.');
       } else {
         setPushMessage('No changes made yet. You can try again anytime.');
       }
@@ -200,14 +222,14 @@ export default function AccountPage() {
             </button>
             {pushStatus && (
               <p className="text-xs mt-3" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
-                Browser permission: {pushStatus}
+                Push state: {pushStatus}
               </p>
             )}
             {pushMessage && (
               <p
                 className="text-sm mt-2"
                 style={{
-                  color: pushStatus === 'denied' ? '#dc2626' : 'var(--ember-text-low)',
+                  color: pushStatus === 'blocked_denied' ? '#dc2626' : 'var(--ember-text-low)',
                   ...baseStyle,
                 }}
               >
