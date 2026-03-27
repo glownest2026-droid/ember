@@ -2379,3 +2379,12 @@ Not sent:
 - **Temporary founder logs:** Added requested logs for init start/skip, permission, subscription id presence, token presence, optedIn, and CTA click.
 - **Proof:** `pnpm -C web build` passes; preview server started; worker URL check `http://localhost:3010/push/onesignal/OneSignalSDKWorker.js` returned `200`.
 
+## 2026-03-27 — fix(onesignal): live desktop subscription handshake debug
+
+- **Build name:** OneSignal Live Desktop Subscription Debug.
+- **Goal:** Fix live desktop Chrome not becoming a real OneSignal subscriber (`Never Subscribed` / `No Push Token`) despite CTA and permission flow.
+- **Exact failure point found in code path:** `ensureOneSignalPushSubscription()` read subscription/token immediately after `requestPermission`/`optIn`. Desktop web can complete token/subscription asynchronously, so immediate reads often stayed empty (or threw on transient SDK state), producing false non-subscribed outcomes and occasional `recoverable_error`.
+- **What changed (small/safe):** Added stronger guarded diagnostics and handshake wait in `web/src/lib/onesignal/client.ts`: init done log, service worker registration log, safe PushSubscription reads, requestPermission/optIn start+result logs, short polling wait for real subscription completion, and short-form error logs.
+- **UI/error behavior:** `web/src/app/account/page.tsx` now logs state transitions (`onesignal:state_transition:<from> -> <to>`) and only sets `recoverable_error` on genuine thrown exceptions with `onesignal:error:<message>`.
+- **Proof:** `pnpm -C web build` passes after changes.
+

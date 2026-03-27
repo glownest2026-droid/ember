@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { AUTH_ENABLE_GOOGLE, AUTH_ENABLE_APPLE } from '@/lib/auth-flags';
@@ -44,6 +44,7 @@ export default function AccountPage() {
   const [pushLoading, setPushLoading] = useState(false);
   const [pushStatus, setPushStatus] = useState<PushUiState>('not_initialized_yet');
   const [pushMessage, setPushMessage] = useState<string | null>(null);
+  const prevPushStatusRef = useRef<PushUiState>('not_initialized_yet');
 
   useEffect(() => {
     const supabase = createClient();
@@ -68,8 +69,20 @@ export default function AccountPage() {
     if (!getOneSignalAppId()) return;
     void getOneSignalPushDiagnostics()
       .then((diagnostics) => setPushStatus(mapPushUiState(diagnostics)))
-      .catch(() => setPushStatus('recoverable_error'));
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        console.log(`onesignal:error:${message.slice(0, 120)}`);
+        setPushStatus('recoverable_error');
+      });
   }, []);
+
+  useEffect(() => {
+    const from = prevPushStatusRef.current;
+    if (from !== pushStatus) {
+      console.log(`onesignal:state_transition:${from} -> ${pushStatus}`);
+      prevPushStatusRef.current = pushStatus;
+    }
+  }, [pushStatus]);
 
   const handleSetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,7 +154,10 @@ export default function AccountPage() {
       } else {
         setPushMessage('No changes made yet. You can try again anytime.');
       }
-    } catch {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.log(`onesignal:error:${message.slice(0, 120)}`);
+      setPushStatus('recoverable_error');
       setPushMessage('Could not start browser push permission. Please try again.');
     } finally {
       setPushLoading(false);
