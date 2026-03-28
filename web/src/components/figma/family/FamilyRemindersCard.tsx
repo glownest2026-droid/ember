@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { Bell } from 'lucide-react';
+import type { PostgrestError } from '@supabase/supabase-js';
 import { createClient } from '@/utils/supabase/client';
 import {
   applyOneSignalBrowserPushMaster,
@@ -32,11 +33,32 @@ const emptyPrefs = (): NotificationPrefsRow => ({
 
 const REFETCH_MAX_MS = 12_000;
 
+const LOG_PREFIX = '[FamilyReminders]';
+
+function isMissingNewColumnsError(error: PostgrestError | null): boolean {
+  if (!error) return false;
+  const msg = (error.message ?? '').toLowerCase();
+  const code = String(error.code ?? '');
+  return (
+    code === '42703' ||
+    /column .* does not exist|could not find the .* column/i.test(error.message ?? '') ||
+    (msg.includes('schema cache') && msg.includes('column'))
+  );
+}
+
+function formatSaveError(error: PostgrestError): string {
+  const hint =
+    error.code === '42501' || error.message?.toLowerCase().includes('permission')
+      ? ' Signed-in session may be missing or RLS blocked the write.'
+      : '';
+  return `${error.message ?? 'Save failed'}${error.code ? ` (code ${error.code})` : ''}.${hint}`;
+}
+
 function sleepMs(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-/** Larger, higher-contrast switch for topic rows only. Email column ignores push state; push-only uses muted style when disabled. */
+/** Larger, higher-contrast switch for topic rows only. */
 function RemindersTopicSwitch({
   checked,
   onCheckedChange,
@@ -124,6 +146,8 @@ function withDerivedEmailMaster(p: NotificationPrefsRow): NotificationPrefsRow {
   };
 }
 
+type SchemaMode = 'full' | 'legacy';
+
 export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) {
   const { user, refetch } = useSubnavStats();
   const userId = user?.id ?? serverUserId;
@@ -134,6 +158,10 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
   const [pushState, setPushState] = useState<OneSignalMasterPushState>('disabled');
   const [browserPushOn, setBrowserPushOn] = useState(false);
   const [previewDomainHint, setPreviewDomainHint] = useState(false);
+  const [schemaMode, setSchemaMode] = useState<SchemaMode | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveNotice, setSaveNotice] = useState<string | null>(null);
 
   const oneSignalConfigured = Boolean(getOneSignalAppId());
 
@@ -155,7 +183,7 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
         sleepMs(REFETCH_MAX_MS).then(() => false as const),
       ]);
       if (!initOk) {
-        console.log('ember:family_reminders:onesignal_init_deadline');
+        console.warn(`${LOG_PREFIX} onesignal_init_deadline`);
         setPushState('recoverable_error');
         setBrowserPushOn(false);
         return;
@@ -176,22 +204,60 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
       setLoading(false);
       return;
     }
+    setLoadError(null);
     const supabase = createClient();
-    const { data, error } = await supabase
+
+    const fullSelect =
+      'email_master_enabled, email_topic_monthly_enabled, email_topic_moveit_enabled, push_topic_monthly_enabled, push_topic_moveit_enabled';
+
+    const { data: fullData, error: fullError } = await supabase
       .from('user_notification_prefs')
-      .select(
-        'email_master_enabled, email_topic_monthly_enabled, email_topic_moveit_enabled, push_topic_monthly_enabled, push_topic_moveit_enabled'
-      )
+      .select(fullSelect)
       .eq('user_id', userId)
       .maybeSingle();
 
-    if (error) {
-      setPrefs(emptyPrefs());
+    if (fullError && isMissingNewColumnsError(fullError)) {
+      console.warn(`${LOG_PREFIX} full column select failed (likely migration not applied), falling back to legacy`, fullError);
+      const { data: leg, error: legError } = await supabase
+        .from('user_notification_prefs')
+        .select('development_reminders_enabled')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (legError) {
+        const msg = formatSaveError(legError);
+        console.error(`${LOG_PREFIX} legacy load failed`, legError);
+        setLoadError(msg);
+        setPrefs(emptyPrefs());
+        setSchemaMode('legacy');
+        setLoading(false);
+        return;
+      }
+
+      setSchemaMode('legacy');
+      const monthly = Boolean(leg?.development_reminders_enabled);
+      setPrefs(
+        withDerivedEmailMaster({
+          ...emptyPrefs(),
+          email_topic_monthly_enabled: monthly,
+        })
+      );
       setLoading(false);
       return;
     }
 
-    if (!data) {
+    if (fullError) {
+      console.error(`${LOG_PREFIX} load failed`, fullError);
+      setLoadError(formatSaveError(fullError));
+      setPrefs(emptyPrefs());
+      setSchemaMode(null);
+      setLoading(false);
+      return;
+    }
+
+    setSchemaMode('full');
+
+    if (!fullData) {
       setPrefs(emptyPrefs());
       try {
         const raw = localStorage.getItem(lsMoveItKey(userId));
@@ -207,17 +273,20 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
             { user_id: userId, ...next },
             { onConflict: 'user_id' }
           );
-          if (!upErr) {
+          if (upErr) {
+            console.error(`${LOG_PREFIX} initial upsert from localStorage failed`, upErr);
+            setSaveError(formatSaveError(upErr));
+          } else {
             localStorage.removeItem(lsMoveItKey(userId));
             setPrefs(next);
           }
         }
-      } catch {
-        /* ignore */
+      } catch (e) {
+        console.error(`${LOG_PREFIX} localStorage migrate error`, e);
       }
     } else {
-      setPrefs(data as NotificationPrefsRow);
-      const row = data as NotificationPrefsRow;
+      setPrefs(fullData as NotificationPrefsRow);
+      const row = fullData as NotificationPrefsRow;
       try {
         const raw = localStorage.getItem(lsMoveItKey(userId));
         if (raw === '1' && !row.email_topic_moveit_enabled && !row.push_topic_moveit_enabled) {
@@ -230,13 +299,14 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
             { user_id: userId, ...next },
             { onConflict: 'user_id' }
           );
-          if (!upErr) {
+          if (upErr) console.error(`${LOG_PREFIX} migrate move-it upsert failed`, upErr);
+          else {
             localStorage.removeItem(lsMoveItKey(userId));
             setPrefs(next);
           }
         }
-      } catch {
-        /* ignore */
+      } catch (e) {
+        console.error(`${LOG_PREFIX} move-it migrate error`, e);
       }
     }
 
@@ -263,8 +333,44 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
 
   const persistPrefs = useCallback(
     async (next: NotificationPrefsRow) => {
-      if (!userId) return;
+      if (!userId || !prefs) return;
+      setSaveError(null);
+      setSaveNotice(null);
+
+      if (schemaMode === 'legacy') {
+        const prev = prefs;
+        setPrefs(withDerivedEmailMaster(next));
+        setSaveBusy(true);
+        try {
+          const supabase = createClient();
+          const { error } = await supabase.from('user_notification_prefs').upsert(
+            {
+              user_id: userId,
+              development_reminders_enabled: next.email_topic_monthly_enabled,
+            },
+            { onConflict: 'user_id' }
+          );
+          if (error) {
+            console.error(`${LOG_PREFIX} legacy upsert failed`, error);
+            setPrefs(prev);
+            setSaveError(formatSaveError(error));
+            return;
+          }
+          console.info(`${LOG_PREFIX} legacy upsert ok`, {
+            development_reminders_enabled: next.email_topic_monthly_enabled,
+          });
+          setSaveNotice('Saved.');
+          window.setTimeout(() => setSaveNotice(null), 3500);
+          await Promise.race([refetch(), sleepMs(REFETCH_MAX_MS)]);
+        } finally {
+          setSaveBusy(false);
+        }
+        return;
+      }
+
       const merged = withDerivedEmailMaster(next);
+      const previous = prefs;
+      setPrefs(merged);
       setSaveBusy(true);
       try {
         const supabase = createClient();
@@ -272,33 +378,48 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
           { user_id: userId, ...merged },
           { onConflict: 'user_id' }
         );
-        if (!error) {
-          setPrefs(merged);
-          await Promise.race([refetch(), sleepMs(REFETCH_MAX_MS)]);
+        if (error) {
+          console.error(`${LOG_PREFIX} upsert failed`, error);
+          setPrefs(previous);
+          setSaveError(formatSaveError(error));
+          return;
         }
+        console.info(`${LOG_PREFIX} upsert ok`, merged);
+        setSaveNotice('Saved.');
+        window.setTimeout(() => setSaveNotice(null), 3500);
+        await Promise.race([refetch(), sleepMs(REFETCH_MAX_MS)]);
       } finally {
         setSaveBusy(false);
       }
     },
-    [userId, refetch]
+    [userId, refetch, prefs, schemaMode]
   );
 
-  /** Updates prefs without saveBusy (push turn-off must not block email toggles). */
   const persistPrefsQuiet = useCallback(
     async (next: NotificationPrefsRow) => {
       if (!userId) return;
       const merged = withDerivedEmailMaster(next);
       const supabase = createClient();
+      if (schemaMode === 'legacy') {
+        const { error } = await supabase.from('user_notification_prefs').upsert(
+          { user_id: userId, development_reminders_enabled: merged.email_topic_monthly_enabled },
+          { onConflict: 'user_id' }
+        );
+        if (error) console.error(`${LOG_PREFIX} persistPrefsQuiet legacy failed`, error);
+        else setPrefs(merged);
+        return;
+      }
       const { error } = await supabase.from('user_notification_prefs').upsert(
         { user_id: userId, ...merged },
         { onConflict: 'user_id' }
       );
-      if (!error) {
+      if (error) console.error(`${LOG_PREFIX} persistPrefsQuiet failed`, error);
+      else {
         setPrefs(merged);
         await Promise.race([refetch(), sleepMs(REFETCH_MAX_MS)]);
       }
     },
-    [userId, refetch]
+    [userId, refetch, schemaMode]
   );
 
   if (!userId) return null;
@@ -321,7 +442,6 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
   const monthlyPush = prefs.push_topic_monthly_enabled;
   const moveitPush = prefs.push_topic_moveit_enabled;
 
-  /** Push column only: never tie to saveBusy (email saves must not lock the matrix). */
   const pushTopicDisabled =
     pushBusy ||
     !browserPushOn ||
@@ -338,6 +458,11 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
     pushState !== 'unsupported';
 
   const canTurnOffPush = oneSignalConfigured && browserPushOn;
+
+  /** Monthly email works in legacy mode (maps to development_reminders_enabled). */
+  const emailMonthlyDisabled = saveBusy;
+  /** Move-it-on email needs new columns — disabled until migration applied. */
+  const emailMoveitDisabled = saveBusy || schemaMode === 'legacy';
 
   const handleTurnOnPush = async () => {
     if (!canTurnOnPush || pushBusy) return;
@@ -374,6 +499,13 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
   };
 
   const handleEmailTopicMoveit = async (checked: boolean) => {
+    if (schemaMode === 'legacy') {
+      setSaveError(
+        'Move-it-on email needs the latest database migration. In Supabase → SQL: run `202603281200_family_reminder_household_prefs.sql`, then reload.'
+      );
+      console.warn(`${LOG_PREFIX} move-it email blocked in legacy schema mode`);
+      return;
+    }
     await persistPrefs({
       ...prefs,
       email_topic_moveit_enabled: checked,
@@ -382,11 +514,19 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
 
   const handlePushTopicMonthly = async (checked: boolean) => {
     if (pushTopicDisabled) return;
+    if (schemaMode === 'legacy') {
+      setSaveError('Push topic preferences need the database migration applied (new columns). Email for monthly updates still works.');
+      return;
+    }
     await persistPrefs({ ...prefs, push_topic_monthly_enabled: checked });
   };
 
   const handlePushTopicMoveit = async (checked: boolean) => {
     if (pushTopicDisabled) return;
+    if (schemaMode === 'legacy') {
+      setSaveError('Push topic preferences need the database migration applied.');
+      return;
+    }
     await persistPrefs({ ...prefs, push_topic_moveit_enabled: checked });
   };
 
@@ -405,9 +545,46 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
           </span>
           <h3 className="text-base font-semibold text-[#1A1E23] m-0">Reminders</h3>
         </div>
-        <p className="text-sm text-[#374151] mb-6 leading-snug">
+        <p className="text-sm text-[#374151] mb-4 leading-snug">
           Choose which useful reminders you want, and how you&apos;d like to receive them.
         </p>
+
+        {loadError && (
+          <div
+            className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900"
+            role="alert"
+          >
+            <strong className="font-semibold">Could not load reminder settings.</strong> {loadError}
+          </div>
+        )}
+
+        {schemaMode === 'legacy' && !loadError && (
+          <div
+            className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950"
+            role="status"
+          >
+            <strong className="font-semibold">Database: older schema.</strong> Monthly email uses the original
+            &quot;development reminders&quot; flag. Apply migration{' '}
+            <code className="text-xs bg-amber-100 px-1 rounded">202603281200_family_reminder_household_prefs.sql</code>{' '}
+            in Supabase (SQL Editor) for full reminder topics and push prefs.{' '}
+            <strong>Monthly stage updates → Email</strong> works below; Move-it-on email needs the migration.
+          </div>
+        )}
+
+        {saveError && (
+          <div
+            className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900"
+            role="alert"
+          >
+            <strong className="font-semibold">Save did not complete.</strong> {saveError}
+          </div>
+        )}
+
+        {saveNotice && !saveError && (
+          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-900" role="status">
+            {saveNotice}
+          </div>
+        )}
 
         {/* Section A: Push setup */}
         <div
@@ -485,7 +662,7 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
                 <RemindersTopicSwitch
                   checked={monthlyEmail}
                   onCheckedChange={(v) => void handleEmailTopicMonthly(v)}
-                  disabled={saveBusy}
+                  disabled={emailMonthlyDisabled}
                   aria-label="Monthly stage updates by email"
                 />
               </div>
@@ -493,8 +670,8 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
                 <RemindersTopicSwitch
                   checked={displayMonthlyPush}
                   onCheckedChange={(v) => void handlePushTopicMonthly(v)}
-                  disabled={pushTopicDisabled}
-                  variant={pushTopicDisabled ? 'pushInactive' : 'default'}
+                  disabled={pushTopicDisabled || schemaMode === 'legacy'}
+                  variant={pushTopicDisabled || schemaMode === 'legacy' ? 'pushInactive' : 'default'}
                   aria-label="Monthly stage updates by push"
                 />
               </div>
@@ -506,7 +683,7 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
                 <RemindersTopicSwitch
                   checked={moveitEmail}
                   onCheckedChange={(v) => void handleEmailTopicMoveit(v)}
-                  disabled={saveBusy}
+                  disabled={emailMoveitDisabled}
                   aria-label="Move-it-on prompts by email"
                 />
               </div>
@@ -514,8 +691,8 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
                 <RemindersTopicSwitch
                   checked={displayMoveitPush}
                   onCheckedChange={(v) => void handlePushTopicMoveit(v)}
-                  disabled={pushTopicDisabled}
-                  variant={pushTopicDisabled ? 'pushInactive' : 'default'}
+                  disabled={pushTopicDisabled || schemaMode === 'legacy'}
+                  variant={pushTopicDisabled || schemaMode === 'legacy' ? 'pushInactive' : 'default'}
                   aria-label="Move-it-on prompts by push"
                 />
               </div>
