@@ -1,34 +1,33 @@
 {
   "pr": {
     "number": null,
-    "title": "Push Master Control Migration",
-    "branch": "feat/push-master-control-migration",
+    "title": "PR2A: Reminder topic preferences (foundation)",
+    "branch": "feat/pr2a-reminder-topic-prefs",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/pull/new/feat/push-master-control-migration",
-    "rollback": "Revert PR to restore prior nav reminders behavior and account push CTA."
+    "url": null,
+    "rollback": "Revert the PR. If the database update was applied, your team can remove the new reminder preference table (this deletes saved rows)."
   },
   "receipt": {
-    "goal": "PR1 revised: top-nav Reminders is a normal link to /family#reminders (not a toggle, no push on/off in nav). /account shows browser push status only + Manage reminders link. No DB reminder mutation from nav.",
+    "goal": "PR2A: Clean reminder preference rows per user per topic; email toggles on /family#reminders; push UI placeholder; no old reminder flags.",
     "commands_run": [
-      "git fetch origin main",
-      "pnpm -C web install --frozen-lockfile",
+      "pnpm -C web install",
       "pnpm -C web build"
     ],
     "files_changed_recent": [
-      "web/src/lib/onesignal/client.ts",
-      "web/src/components/subnav/UnifiedSignedInNav.tsx",
-      "web/src/app/account/page.tsx",
+      "supabase/sql/202603291200_user_reminder_topic_prefs.sql",
+      "web/src/lib/reminders/topicKeys.ts",
+      "web/src/components/figma/family/FamilyRemindersTopicCard.tsx",
+      "web/src/components/figma/family/FamilyFigmaClient.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "verification_steps": [
-      "Signed-in nav shows Reminders as a normal clickable link (not a switch), no info icon",
-      "Clicking Reminders opens /family#reminders",
-      "/account is status-only + Manage reminders -> /family#reminders",
-      "No nav-based push enable/disable or OneSignal switch state",
+      "Sign in, open /family#reminders",
+      "Toggle Monthly stage updates and Move-it-on prompts Email on/off; refresh — state matches",
+      "Push switches stay off with helper text; push section shows status placeholder",
       "pnpm -C web build passes"
     ],
-    "rollback_plan": "Revert this PR."
+    "rollback_plan": "Revert the PR; optionally drop the new table if the database update was applied."
   },
-  "timestamp": "2026-03-27T13:05:00Z"
+  "timestamp": "2026-03-29T00:00:00Z"
 }
