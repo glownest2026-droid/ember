@@ -1,5 +1,28 @@
 # CTO Snapshot (Source of Truth)
- _Last updated: 2026-03-29_
+ _Last updated: 2026-03-30_
+
+## feat(reminders): /family stacked reminders settings UX — 2026-03-30
+- **Branch:** `cursor/reminders-settings-layout-7009`
+- **Goal:** Replace `/family#reminders` matrix/table and dual push buttons with a simpler Facebook-style stacked settings layout (master toggle, channels, topics), while keeping push permission truthfulness and preserving email persistence behavior.
+- **Deliverables:**
+  - `web/src/components/figma/family/FamilyRemindersTopicCard.tsx` redesigned to:
+    - show one master toggle: **Allow reminders from Ember**
+    - show channel toggles: **Push** and **Email**
+    - show topic toggles: **Monthly stage updates** and **Move-it-on prompts**
+    - hide matrix/table UI and remove separate push on/off buttons
+    - keep push toggle honest with browser state (blocked helper: "Push is blocked in your browser settings.")
+  - SQL migration `supabase/sql/202603301000_reminders_settings_columns.sql` adding:
+    - `reminders_enabled`
+    - `channel_email_enabled`
+    - `channel_push_enabled`
+    - `topic_monthly_stage_updates_enabled`
+    - `topic_move_it_on_prompts_enabled`
+    - plus idempotent legacy backfill from `development_reminders_enabled` and `user_reminder_topic_prefs`.
+- **Verification:** `pnpm -C web build` passes.
+- **Rollback:** Revert PR; optionally remove added columns from `user_notification_prefs` if the migration has already been applied.
+- **Follow-up fix (preview compatibility):**
+  - Added graceful runtime fallback in `FamilyRemindersTopicCard` for environments where new `user_notification_prefs` reminder columns are not yet migrated.
+  - Detects missing-column schema-cache errors, avoids red failure loop, and reads/writes via legacy fields/tables (`development_reminders_enabled` + `user_reminder_topic_prefs`) until migration is applied.
 
 ## feat(pr2a): Family reminders — OneSignal push + matrix UX — 2026-03-29
 - **Branch:** `feat/pr2a-reminder-topic-prefs`
