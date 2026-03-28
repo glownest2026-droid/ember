@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Bell } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
-import { SubnavSwitch } from '@/components/subnav/SubnavSwitch';
 import {
   applyOneSignalBrowserPushMaster,
   getOneSignalAppId,
@@ -31,6 +30,43 @@ const emptyPrefs = (): NotificationPrefsRow => ({
   push_topic_moveit_enabled: false,
 });
 
+/** Larger, higher-contrast switch for topic rows only. */
+function RemindersTopicSwitch({
+  checked,
+  onCheckedChange,
+  disabled,
+  'aria-label': ariaLabel,
+}: {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  disabled?: boolean;
+  'aria-label'?: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={ariaLabel ?? 'Toggle reminder topic'}
+      disabled={disabled}
+      onClick={() => onCheckedChange(!checked)}
+      className="inline-flex h-8 w-[3.25rem] shrink-0 items-center rounded-full border border-[#CBD5E1] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-2 pointer-events-auto disabled:opacity-40 disabled:grayscale"
+      style={{
+        backgroundColor: checked ? '#B8432B' : '#E7E8EA',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        boxShadow: checked ? 'inset 0 0 0 1px rgba(0,0,0,0.06)' : undefined,
+      }}
+    >
+      <span
+        className="block size-[1.375rem] rounded-full bg-white shadow-sm transition-transform pointer-events-none"
+        style={{
+          transform: checked ? 'translateX(calc(100% - 3px))' : 'translateX(3px)',
+        }}
+      />
+    </button>
+  );
+}
+
 function lsMoveItKey(userId: string) {
   return `ember.moveItOnPrompts.${userId}`;
 }
@@ -54,17 +90,25 @@ function pushStatusDetail(state: OneSignalMasterPushState): string {
   }
 }
 
-function pushTopicHelper(
+function pushMatrixHelper(
   state: OneSignalMasterPushState,
-  browserPushOn: boolean
+  browserPushOn: boolean,
+  oneSignalConfigured: boolean
 ): string | null {
-  if (browserPushOn) return null;
-  if (state === 'blocked') return 'Notifications are blocked in this browser\'s settings.';
-  if (state === 'unsupported') return 'This browser does not support push notifications.';
+  if (browserPushOn || !oneSignalConfigured) return null;
+  if (state === 'blocked') return 'Push notifications are blocked in this browser. Change the site setting to allow reminders.';
+  if (state === 'unsupported') return 'This browser cannot receive push notifications.';
   if (state === 'permission_default')
-    return 'Allow notifications when prompted, or turn on push reminders above.';
-  if (state === 'recoverable_error') return 'Push could not be updated. Try again in a moment.';
+    return 'Use Turn on push above, then allow notifications if the browser asks.';
+  if (state === 'recoverable_error') return 'Push could not be updated. Try Turn on push again.';
   return null;
+}
+
+function withDerivedEmailMaster(p: NotificationPrefsRow): NotificationPrefsRow {
+  return {
+    ...p,
+    email_master_enabled: p.email_topic_monthly_enabled || p.email_topic_moveit_enabled,
+  };
 }
 
 export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) {
@@ -76,8 +120,15 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
   const [pushBusy, setPushBusy] = useState(false);
   const [pushState, setPushState] = useState<OneSignalMasterPushState>('disabled');
   const [browserPushOn, setBrowserPushOn] = useState(false);
+  const [previewDomainHint, setPreviewDomainHint] = useState(false);
 
   const oneSignalConfigured = Boolean(getOneSignalAppId());
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const env = process.env.NEXT_PUBLIC_VERCEL_ENV;
+    setPreviewDomainHint(env === 'preview' || /\.vercel\.app$/i.test(window.location.hostname));
+  }, []);
 
   const refreshPush = useCallback(async () => {
     if (!oneSignalConfigured) {
@@ -123,13 +174,13 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
       try {
         const raw = localStorage.getItem(lsMoveItKey(userId));
         if (raw === '1') {
-          const next: NotificationPrefsRow = {
-            email_master_enabled: true,
+          const next = withDerivedEmailMaster({
+            email_master_enabled: false,
             email_topic_monthly_enabled: false,
             email_topic_moveit_enabled: true,
             push_topic_monthly_enabled: false,
             push_topic_moveit_enabled: true,
-          };
+          });
           const { error: upErr } = await supabase.from('user_notification_prefs').upsert(
             { user_id: userId, ...next },
             { onConflict: 'user_id' }
@@ -148,13 +199,11 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
       try {
         const raw = localStorage.getItem(lsMoveItKey(userId));
         if (raw === '1' && !row.email_topic_moveit_enabled && !row.push_topic_moveit_enabled) {
-          const next: NotificationPrefsRow = {
-            email_master_enabled: true,
-            email_topic_monthly_enabled: row.email_topic_monthly_enabled,
+          const next = withDerivedEmailMaster({
+            ...row,
             email_topic_moveit_enabled: true,
-            push_topic_monthly_enabled: row.push_topic_monthly_enabled,
             push_topic_moveit_enabled: true,
-          };
+          });
           const { error: upErr } = await supabase.from('user_notification_prefs').upsert(
             { user_id: userId, ...next },
             { onConflict: 'user_id' }
@@ -193,15 +242,16 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
   const persistPrefs = useCallback(
     async (next: NotificationPrefsRow) => {
       if (!userId) return;
+      const merged = withDerivedEmailMaster(next);
       setSaveBusy(true);
       try {
         const supabase = createClient();
         const { error } = await supabase.from('user_notification_prefs').upsert(
-          { user_id: userId, ...next },
+          { user_id: userId, ...merged },
           { onConflict: 'user_id' }
         );
         if (!error) {
-          setPrefs(next);
+          setPrefs(merged);
           await refetch();
         }
       } finally {
@@ -217,7 +267,7 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
     return (
       <div className="mt-5 max-w-3xl scroll-mt-[calc(var(--header-height)+12px)]" id="reminders">
         <div
-          className="rounded-2xl border p-4 sm:p-5 bg-white text-sm text-[#5C646D]"
+          className="rounded-2xl border p-4 sm:p-5 bg-white text-sm text-[#374151]"
           style={{ borderColor: 'var(--ember-border-subtle)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
         >
           Loading reminders…
@@ -226,17 +276,10 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
     );
   }
 
-  const emailMaster = prefs.email_master_enabled;
   const monthlyEmail = prefs.email_topic_monthly_enabled;
   const moveitEmail = prefs.email_topic_moveit_enabled;
   const monthlyPush = prefs.push_topic_monthly_enabled;
   const moveitPush = prefs.push_topic_moveit_enabled;
-
-  const pushMasterDisabled =
-    !oneSignalConfigured ||
-    pushState === 'unsupported' ||
-    pushState === 'blocked' ||
-    pushBusy;
 
   const pushTopicDisabled =
     saveBusy ||
@@ -246,59 +289,20 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
     pushState === 'unsupported' ||
     pushState === 'recoverable_error';
 
-  const topicPushHelper = pushTopicHelper(pushState, browserPushOn);
+  const matrixNote = pushMatrixHelper(pushState, browserPushOn, oneSignalConfigured);
 
-  const handleEmailMaster = async (checked: boolean) => {
-    if (!checked) {
-      await persistPrefs({
-        email_master_enabled: false,
-        email_topic_monthly_enabled: false,
-        email_topic_moveit_enabled: false,
-        push_topic_monthly_enabled: prefs.push_topic_monthly_enabled,
-        push_topic_moveit_enabled: prefs.push_topic_moveit_enabled,
-      });
-      return;
-    }
-    await persistPrefs({
-      ...prefs,
-      email_master_enabled: true,
-    });
-  };
+  const canTurnOnPush =
+    oneSignalConfigured &&
+    !browserPushOn &&
+    pushState !== 'blocked' &&
+    pushState !== 'unsupported';
 
-  const handleEmailTopicMonthly = async (checked: boolean) => {
-    const nextMonthly = checked;
-    const nextMaster = nextMonthly || moveitEmail;
-    await persistPrefs({
-      ...prefs,
-      email_topic_monthly_enabled: nextMonthly,
-      email_master_enabled: nextMaster,
-    });
-  };
+  const canTurnOffPush = oneSignalConfigured && browserPushOn;
 
-  const handleEmailTopicMoveit = async (checked: boolean) => {
-    const nextMove = checked;
-    const nextMaster = monthlyEmail || nextMove;
-    await persistPrefs({
-      ...prefs,
-      email_topic_moveit_enabled: nextMove,
-      email_master_enabled: nextMaster,
-    });
-  };
-
-  const handlePushMaster = async (checked: boolean) => {
-    if (!oneSignalConfigured) return;
+  const handleTurnOnPush = async () => {
+    if (!canTurnOnPush || pushBusy) return;
     setPushBusy(true);
     try {
-      if (!checked) {
-        await applyOneSignalBrowserPushMaster(false);
-        await persistPrefs({
-          ...prefs,
-          push_topic_monthly_enabled: false,
-          push_topic_moveit_enabled: false,
-        });
-        await refreshPush();
-        return;
-      }
       await applyOneSignalBrowserPushMaster(true);
       await refreshPush();
     } finally {
@@ -306,118 +310,179 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
     }
   };
 
+  const handleTurnOffPush = async () => {
+    if (!canTurnOffPush || pushBusy) return;
+    setPushBusy(true);
+    try {
+      await applyOneSignalBrowserPushMaster(false);
+      await persistPrefs({
+        ...prefs,
+        push_topic_monthly_enabled: false,
+        push_topic_moveit_enabled: false,
+      });
+      await refreshPush();
+    } finally {
+      setPushBusy(false);
+    }
+  };
+
+  const handleEmailTopicMonthly = async (checked: boolean) => {
+    await persistPrefs({
+      ...prefs,
+      email_topic_monthly_enabled: checked,
+    });
+  };
+
+  const handleEmailTopicMoveit = async (checked: boolean) => {
+    await persistPrefs({
+      ...prefs,
+      email_topic_moveit_enabled: checked,
+    });
+  };
+
   const handlePushTopicMonthly = async (checked: boolean) => {
-    if (!browserPushOn || pushTopicDisabled) return;
+    if (pushTopicDisabled) return;
     await persistPrefs({ ...prefs, push_topic_monthly_enabled: checked });
   };
 
   const handlePushTopicMoveit = async (checked: boolean) => {
-    if (!browserPushOn || pushTopicDisabled) return;
+    if (pushTopicDisabled) return;
     await persistPrefs({ ...prefs, push_topic_moveit_enabled: checked });
   };
 
-  const displayMonthlyEmail = emailMaster && monthlyEmail;
-  const displayMoveitEmail = emailMaster && moveitEmail;
   const displayMonthlyPush = browserPushOn && monthlyPush;
   const displayMoveitPush = browserPushOn && moveitPush;
 
   return (
     <div className="mt-5 max-w-3xl scroll-mt-[calc(var(--header-height)+12px)]" id="reminders">
       <div
-        className="rounded-2xl border p-4 sm:p-5 bg-white"
+        className="rounded-2xl border p-5 sm:p-6 bg-white"
         style={{ borderColor: 'var(--ember-border-subtle)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
       >
         <div className="flex items-center gap-2 mb-1">
-          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#FF6347]/10">
-            <Bell className="w-4 h-4 text-[#FF6347]" />
+          <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#FF6347]/10">
+            <Bell className="w-5 h-5 text-[#FF6347]" />
           </span>
-          <h3 className="text-sm font-medium text-[#1A1E23] m-0">Reminders</h3>
+          <h3 className="text-base font-semibold text-[#1A1E23] m-0">Reminders</h3>
         </div>
-        <p className="text-xs text-[#5C646D] mb-3">
+        <p className="text-sm text-[#374151] mb-6 leading-snug">
           Choose which useful reminders you want, and how you&apos;d like to receive them.
         </p>
 
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-sm text-[#1A1E23]">Email reminders</span>
-              <SubnavSwitch
-                checked={emailMaster}
-                onCheckedChange={(v) => void handleEmailMaster(v)}
-                disabled={saveBusy}
-                aria-label="Email reminders master"
-              />
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-sm text-[#1A1E23]">Push reminders on this browser</span>
-              <SubnavSwitch
-                checked={browserPushOn}
-                onCheckedChange={(v) => void handlePushMaster(v)}
-                disabled={pushMasterDisabled}
-                aria-label="Push reminders on this browser master"
-              />
-            </div>
-            {oneSignalConfigured && (
-              <p className="text-xs text-[#5C646D] mt-1.5">{pushStatusDetail(pushState)}</p>
+        {/* Section A: Push setup */}
+        <div
+          className="rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-4 sm:p-5 mb-6"
+          aria-labelledby="push-reminders-heading"
+        >
+          <h4 id="push-reminders-heading" className="text-sm font-semibold text-[#1A1E23] m-0 mb-3">
+            Push reminders on this browser
+          </h4>
+          <p className="text-sm font-medium text-[#1A1E23] mb-3" aria-live="polite">
+            Status:{' '}
+            <span className="font-semibold text-[#0f1419]">{pushStatusDetail(pushState)}</span>
+            {!oneSignalConfigured && (
+              <span className="font-normal text-[#374151]"> — Push is not configured in this environment.</span>
+            )}
+          </p>
+          <div className="flex flex-wrap gap-3 items-center">
+            {canTurnOnPush && (
+              <button
+                type="button"
+                onClick={() => void handleTurnOnPush()}
+                disabled={pushBusy}
+                className="min-h-[44px] px-5 rounded-xl text-sm font-semibold bg-[#FF6347] text-white hover:bg-[#e55a3f] disabled:opacity-60 transition-colors shadow-sm"
+              >
+                {pushBusy ? 'Working…' : 'Turn on push'}
+              </button>
+            )}
+            {canTurnOffPush && (
+              <button
+                type="button"
+                onClick={() => void handleTurnOffPush()}
+                disabled={pushBusy}
+                className="min-h-[44px] px-5 rounded-xl text-sm font-semibold border-2 border-[#D1D5DB] bg-white text-[#1A1E23] hover:bg-[#F3F4F6] disabled:opacity-60 transition-colors"
+              >
+                {pushBusy ? 'Working…' : 'Turn off push'}
+              </button>
             )}
             {!oneSignalConfigured && (
-              <p className="text-xs text-[#5C646D] mt-1.5">Push is not available in this environment.</p>
+              <span className="text-sm text-[#374151]">Push setup is unavailable here.</span>
+            )}
+            {oneSignalConfigured && pushState === 'blocked' && (
+              <span className="text-sm text-[#374151] max-w-md">
+                Unblock notifications for this site in your browser settings to use push.
+              </span>
+            )}
+            {oneSignalConfigured && pushState === 'unsupported' && (
+              <span className="text-sm text-[#374151]">Try a supported desktop browser for push.</span>
             )}
           </div>
+          {previewDomainHint && oneSignalConfigured && (
+            <p className="text-xs text-[#4B5563] mt-3 leading-relaxed border-t border-[#E5E7EB] pt-3">
+              Preview URLs often cannot complete push end-to-end (OneSignal domain allowlist). Use production or an
+              allowed domain to confirm delivery; this screen still shows real browser permission and subscription
+              state when the SDK runs.
+            </p>
+          )}
+        </div>
 
-          <div className="border-t border-[#E5E7EB] pt-3 space-y-4">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-sm text-[#1A1E23]">Monthly stage updates</span>
-              <div className="flex items-center gap-4 sm:justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-[#5C646D] w-9 shrink-0">Email</span>
-                  <SubnavSwitch
-                    checked={displayMonthlyEmail}
-                    onCheckedChange={(v) => void handleEmailTopicMonthly(v)}
-                    disabled={saveBusy || !emailMaster}
-                    aria-label="Monthly stage updates email"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-[#5C646D] w-9 shrink-0">Push</span>
-                  <SubnavSwitch
-                    checked={displayMonthlyPush}
-                    onCheckedChange={(v) => void handlePushTopicMonthly(v)}
-                    disabled={pushTopicDisabled}
-                    aria-label="Monthly stage updates push"
-                  />
-                </div>
+        {/* Section B: Topics */}
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-[#1A1E23] m-0">Reminder topics</p>
+
+          <div className="rounded-xl border border-[#E5E7EB] overflow-hidden">
+            <div className="grid grid-cols-[1fr_5.5rem_5.5rem] sm:grid-cols-[1fr_6rem_6rem] gap-x-2 gap-y-0 items-center bg-[#F3F4F6] px-3 py-2.5 text-sm font-semibold text-[#111827] border-b border-[#E5E7EB]">
+              <span>Topic</span>
+              <span className="text-center">Email</span>
+              <span className="text-center">Push</span>
+            </div>
+
+            <div className="grid grid-cols-[1fr_5.5rem_5.5rem] sm:grid-cols-[1fr_6rem_6rem] gap-x-2 items-center px-3 py-4 border-b border-[#E5E7EB] bg-white">
+              <span className="text-sm font-medium text-[#1A1E23] pr-2">Monthly stage updates</span>
+              <div className="flex justify-center">
+                <RemindersTopicSwitch
+                  checked={monthlyEmail}
+                  onCheckedChange={(v) => void handleEmailTopicMonthly(v)}
+                  disabled={saveBusy}
+                  aria-label="Monthly stage updates by email"
+                />
+              </div>
+              <div className="flex justify-center">
+                <RemindersTopicSwitch
+                  checked={displayMonthlyPush}
+                  onCheckedChange={(v) => void handlePushTopicMonthly(v)}
+                  disabled={pushTopicDisabled}
+                  aria-label="Monthly stage updates by push"
+                />
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-sm text-[#1A1E23]">Move-it-on prompts</span>
-              <div className="flex items-center gap-4 sm:justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-[#5C646D] w-9 shrink-0">Email</span>
-                  <SubnavSwitch
-                    checked={displayMoveitEmail}
-                    onCheckedChange={(v) => void handleEmailTopicMoveit(v)}
-                    disabled={saveBusy || !emailMaster}
-                    aria-label="Move-it-on prompts email"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-[#5C646D] w-9 shrink-0">Push</span>
-                  <SubnavSwitch
-                    checked={displayMoveitPush}
-                    onCheckedChange={(v) => void handlePushTopicMoveit(v)}
-                    disabled={pushTopicDisabled}
-                    aria-label="Move-it-on prompts push"
-                  />
-                </div>
+            <div className="grid grid-cols-[1fr_5.5rem_5.5rem] sm:grid-cols-[1fr_6rem_6rem] gap-x-2 items-center px-3 py-4 bg-white">
+              <span className="text-sm font-medium text-[#1A1E23] pr-2">Move-it-on prompts</span>
+              <div className="flex justify-center">
+                <RemindersTopicSwitch
+                  checked={moveitEmail}
+                  onCheckedChange={(v) => void handleEmailTopicMoveit(v)}
+                  disabled={saveBusy}
+                  aria-label="Move-it-on prompts by email"
+                />
+              </div>
+              <div className="flex justify-center">
+                <RemindersTopicSwitch
+                  checked={displayMoveitPush}
+                  onCheckedChange={(v) => void handlePushTopicMoveit(v)}
+                  disabled={pushTopicDisabled}
+                  aria-label="Move-it-on prompts by push"
+                />
               </div>
             </div>
-            {topicPushHelper && <p className="text-xs text-[#5C646D]">{topicPushHelper}</p>}
           </div>
+
+          {matrixNote && (
+            <p className="text-sm text-[#374151] leading-relaxed" role="note">
+              {matrixNote}
+            </p>
+          )}
         </div>
       </div>
     </div>

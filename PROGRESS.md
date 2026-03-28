@@ -10,6 +10,12 @@
 - **Rollback:** Revert PR; DB rollback only if migration was applied (drop new columns/trigger or restore prior function from prior migration file).
 - **Preview caveat:** OneSignal may not validate on Vercel preview domains (origin/app ID); push ON/OFF is still implemented against the SDK.
 
+### Rework (same branch, founder UX) — 2026-03-28
+- **Removed:** Separate Email master and Push master switches (duplicative with topic matrix).
+- **Push:** One **Push reminders on this browser** block with truthful **Status:** line + primary **Turn on push** / **Turn off push** buttons (only place that calls OneSignal subscribe/unsubscribe). Preview hostname or `NEXT_PUBLIC_VERCEL_ENV=preview` shows explicit note that preview may not prove end-to-end delivery.
+- **Topics:** Matrix is the preference surface: larger **RemindersTopicSwitch**, darker headers (**Topic** / **Email** / **Push**), bordered table layout. Email topic toggles work even when push unavailable; push topic toggles enabled only when browser push is actually on.
+- **DB:** `supabase/sql/202603291000_family_reminders_email_topic_only_legacy.sql` — legacy `development_reminders_enabled` + RPC subnav flag = **monthly email topic only** (matches “development reminders”); trigger fires on `email_topic_monthly_enabled` only. App still sets `email_master_enabled` as derived OR of email topics for column compatibility.
+
 ## feat(posthog): Starter dashboards (founder runbook + tiny shortlist property) — 2026-03-25
 - **Branch:** `feat/posthog-starter-dashboards`
 - **PR title:** PostHog Starter Dashboards
