@@ -171,6 +171,19 @@ export async function ensureOneSignalPushSubscription(): Promise<OneSignalPushDi
   return diagnostics;
 }
 
+/** Unsubscribe this browser from push in OneSignal (user can opt in again later). */
+export async function disableOneSignalPushSubscription(): Promise<OneSignalPushDiagnostics | null> {
+  if (!isBrowser() || !isOneSignalConfigured()) return null;
+  await initializeOneSignal();
+  try {
+    await OneSignal.User.PushSubscription.optOut();
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`onesignal:optOut:error:${message.slice(0, 120)}`);
+  }
+  return getOneSignalPushDiagnostics();
+}
+
 async function waitForSubscriptionReady(timeoutMs: number): Promise<OneSignalPushDiagnostics> {
   const startMs = Date.now();
   let diagnostics = readPushDiagnosticsFromSdk();

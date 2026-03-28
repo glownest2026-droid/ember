@@ -5,6 +5,13 @@ import { Bell } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { SubnavSwitch } from '@/components/subnav/SubnavSwitch';
 import { REMINDER_TOPIC_KEYS, type ReminderTopicKey } from '@/lib/reminders/topicKeys';
+import {
+  disableOneSignalPushSubscription,
+  ensureOneSignalPushSubscription,
+  getOneSignalAppId,
+  getOneSignalMasterPushState,
+  type OneSignalMasterPushState,
+} from '@/lib/onesignal/client';
 
 type TopicRow = {
   topic_key: ReminderTopicKey;
@@ -32,8 +39,17 @@ function emptyRows(): Record<ReminderTopicKey, TopicRow> {
   };
 }
 
+const PUSH_STATE_LABEL: Record<OneSignalMasterPushState, string> = {
+  unsupported: 'Unsupported browser',
+  permission_default: 'Needs permission',
+  blocked: 'Blocked in browser settings',
+  enabled: 'On',
+  disabled: 'Off',
+  recoverable_error: 'Recoverable error',
+};
+
 /**
- * /family#reminders — reminder topic preferences (PR2A: email save only; push section placeholder; push column off until PR2B).
+ * /family#reminders — reminder topic preferences + browser push setup (OneSignal).
  */
 export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: string }) {
   const [rows, setRows] = useState<Record<ReminderTopicKey, TopicRow> | null>(null);
@@ -42,8 +58,30 @@ export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: strin
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveOk, setSaveOk] = useState(false);
+  const [pushMasterState, setPushMasterState] = useState<OneSignalMasterPushState | null>(null);
+  const [pushActionBusy, setPushActionBusy] = useState(false);
 
   const userId = serverUserId;
+  const oneSignalConfigured = Boolean(getOneSignalAppId());
+  const browserPushEnabledForUi = oneSignalConfigured && pushMasterState === 'enabled';
+  const pushColumnDisabled = !browserPushEnabledForUi;
+
+  const refreshPushState = useCallback(async () => {
+    if (!oneSignalConfigured) {
+      setPushMasterState(null);
+      return;
+    }
+    try {
+      const s = await getOneSignalMasterPushState();
+      setPushMasterState(s);
+    } catch {
+      setPushMasterState('recoverable_error');
+    }
+  }, [oneSignalConfigured]);
+
+  useEffect(() => {
+    void refreshPushState();
+  }, [refreshPushState]);
 
   const load = useCallback(async () => {
     if (!userId) {
@@ -120,13 +158,46 @@ export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: strin
         }
         console.info('[FamilyReminders] saved', { topicKey, ...nextRow });
         setSaveOk(true);
-        window.setTimeout(() => setSaveOk(false), 2500);
+        window.setTimeout(() => setSaveOk(false), 2800);
       } finally {
         setSaveBusy(false);
       }
     },
     [userId, rows]
   );
+
+  const handleTurnOnPush = useCallback(async () => {
+    if (!oneSignalConfigured) return;
+    setPushActionBusy(true);
+    try {
+      await Promise.race([
+        ensureOneSignalPushSubscription(),
+        new Promise<null>((_, reject) => {
+          window.setTimeout(() => reject(new Error('push_enable_timeout')), 14_000);
+        }),
+      ]);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.log(`[FamilyReminders] push turn on finished: ${msg.slice(0, 80)}`);
+    } finally {
+      setPushActionBusy(false);
+      await refreshPushState();
+    }
+  }, [oneSignalConfigured, refreshPushState]);
+
+  const handleTurnOffPush = useCallback(async () => {
+    if (!oneSignalConfigured) return;
+    setPushActionBusy(true);
+    try {
+      await disableOneSignalPushSubscription();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.log(`[FamilyReminders] push turn off error: ${msg.slice(0, 80)}`);
+    } finally {
+      setPushActionBusy(false);
+      await refreshPushState();
+    }
+  }, [oneSignalConfigured, refreshPushState]);
 
   if (!userId) return null;
 
@@ -143,9 +214,26 @@ export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: strin
     );
   }
 
-  const pushColumnDisabled = true;
-  const pushHelper =
-    'Push choices stay off until browser push is turned on in a later update. Your saved push preferences are stored for then.';
+  const pushStatusLine = !oneSignalConfigured
+    ? 'Not configured in this environment'
+    : pushMasterState != null
+      ? PUSH_STATE_LABEL[pushMasterState]
+      : 'Checking…';
+
+  const turnOnDisabled =
+    !oneSignalConfigured ||
+    pushActionBusy ||
+    pushMasterState === 'enabled' ||
+    pushMasterState === 'unsupported' ||
+    pushMasterState === 'blocked';
+
+  const turnOffDisabled =
+    !oneSignalConfigured || pushActionBusy || pushMasterState !== 'enabled';
+
+  const pushHelperMatrix =
+    browserPushEnabledForUi
+      ? 'Push choices below apply when this browser is subscribed.'
+      : 'Turn on push above and allow notifications if the browser asks. Until then, push topic switches stay off.';
 
   return (
     <div className="mt-5 max-w-3xl scroll-mt-[calc(var(--header-height)+12px)]" id="reminders">
@@ -170,19 +258,7 @@ export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: strin
           </div>
         )}
 
-        {saveError && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900" role="alert">
-            <strong className="font-semibold">Save did not complete.</strong> {saveError}
-          </div>
-        )}
-
-        {saveOk && !saveError && (
-          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-900" role="status">
-            Saved.
-          </div>
-        )}
-
-        {/* A — Push setup (PR2B will wire OneSignal); read-only placeholder */}
+        {/* A — Push setup (OneSignal) */}
         <div
           className="rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-4 sm:p-5 mb-6"
           aria-labelledby="push-reminders-heading"
@@ -190,57 +266,81 @@ export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: strin
           <h4 id="push-reminders-heading" className="text-sm font-semibold text-[#1A1E23] m-0 mb-2">
             Push reminders on this browser
           </h4>
-          <p className="text-sm font-medium text-[#1A1E23] mb-3">
-            Status: <span className="font-semibold">Not set up yet</span>
+          <p className="text-sm font-medium text-[#111827] mb-3">
+            Status: <span className="font-semibold">{pushStatusLine}</span>
           </p>
-          <p className="text-sm text-[#374151] mb-3">
-            Turning browser push on or off will be available in the next release. Email preferences below work now.
-          </p>
+          {!oneSignalConfigured && (
+            <p className="text-sm text-[#374151] mb-3 leading-relaxed">
+              Browser push is not turned on for this deployment (missing app configuration). Email preferences below
+              still work.
+            </p>
+          )}
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
-              disabled
-              className="min-h-[44px] px-5 rounded-xl text-sm font-semibold bg-[#FF6347]/50 text-white cursor-not-allowed"
+              disabled={turnOnDisabled}
+              onClick={() => void handleTurnOnPush()}
+              className="min-h-[44px] px-5 rounded-xl text-sm font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed bg-[#FF6347] hover:bg-[#e55a3f]"
             >
-              Turn on push
+              {pushActionBusy ? 'Working…' : 'Turn on push'}
             </button>
             <button
               type="button"
-              disabled
-              className="min-h-[44px] px-5 rounded-xl text-sm font-semibold border-2 border-[#D1D5DB] bg-white text-[#9CA3AF] cursor-not-allowed"
+              disabled={turnOffDisabled}
+              onClick={() => void handleTurnOffPush()}
+              className="min-h-[44px] px-5 rounded-xl text-sm font-semibold border-2 border-[#D1D5DB] bg-white text-[#111827] hover:bg-[#F9FAFB] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Turn off push
+              {pushActionBusy ? 'Working…' : 'Turn off push'}
             </button>
           </div>
         </div>
 
         {/* B — Topics */}
         <div className="space-y-3">
-          <p className="text-sm font-semibold text-[#1A1E23] m-0">Reminder topics</p>
+          <p className="text-sm font-semibold text-[#111827] m-0">Reminder topics</p>
+
+          {saveError && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-900" role="alert">
+              <strong className="font-semibold">Save did not complete.</strong> {saveError}
+            </div>
+          )}
+
+          {saveOk && !saveError && (
+            <div
+              className="rounded-lg border border-green-200 bg-green-50 px-3 py-2.5 text-sm text-green-900"
+              role="status"
+            >
+              Saved your reminder choices.
+            </div>
+          )}
 
           <div className="rounded-xl border border-[#E5E7EB] overflow-hidden">
-            <div className="grid grid-cols-[1fr_5.5rem_5.5rem] sm:grid-cols-[1fr_6rem_6rem] gap-x-2 items-center bg-[#F3F4F6] px-3 py-2.5 text-sm font-semibold text-[#111827] border-b border-[#E5E7EB]">
+            <div className="grid grid-cols-[1fr_5.5rem_5.5rem] sm:grid-cols-[1fr_6rem_6rem] gap-x-2 items-center bg-[#E5E7EB] px-3 py-3 text-sm font-semibold text-[#111827] border-b border-[#D1D5DB]">
               <span>Topic</span>
-              <span className="text-center">Email</span>
-              <span className="text-center">Push</span>
+              <span className="text-center tabular-nums">Email</span>
+              <span className="text-center tabular-nums">Push</span>
             </div>
 
-            {([REMINDER_TOPIC_KEYS.MONTHLY_STAGE_UPDATES, REMINDER_TOPIC_KEYS.MOVE_IT_ON_PROMPTS] as const).map((key) => (
+            {(
+              [REMINDER_TOPIC_KEYS.MONTHLY_STAGE_UPDATES, REMINDER_TOPIC_KEYS.MOVE_IT_ON_PROMPTS] as const
+            ).map((key) => (
               <div
                 key={key}
-                className="grid grid-cols-[1fr_5.5rem_5.5rem] sm:grid-cols-[1fr_6rem_6rem] gap-x-2 items-center px-3 py-4 border-b border-[#E5E7EB] bg-white last:border-b-0"
+                className="grid grid-cols-[1fr_5.5rem_5.5rem] sm:grid-cols-[1fr_6rem_6rem] gap-x-2 items-center px-3 py-5 border-b border-[#E5E7EB] bg-white last:border-b-0"
               >
-                <span className="text-sm font-medium text-[#1A1E23] pr-2">{TOPIC_LABELS[key]}</span>
-                <div className="flex justify-center">
+                <span className="text-sm font-medium text-[#111827] pr-2">{TOPIC_LABELS[key]}</span>
+                <div className="flex justify-center py-1">
                   <SubnavSwitch
+                    size="comfortable"
                     checked={rows[key].email_enabled}
                     onCheckedChange={(checked) => void persistTopic(key, { email_enabled: checked })}
                     disabled={saveBusy}
                     aria-label={`${TOPIC_LABELS[key]} email`}
                   />
                 </div>
-                <div className="flex justify-center">
+                <div className="flex justify-center py-1">
                   <SubnavSwitch
+                    size="comfortable"
                     checked={rows[key].push_enabled}
                     onCheckedChange={(checked) => void persistTopic(key, { push_enabled: checked })}
                     disabled={saveBusy || pushColumnDisabled}
@@ -252,7 +352,7 @@ export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: strin
           </div>
 
           <p className="text-sm text-[#374151] leading-relaxed" role="note">
-            {pushHelper}
+            {pushHelperMatrix}
           </p>
         </div>
       </div>

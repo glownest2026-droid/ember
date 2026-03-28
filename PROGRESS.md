@@ -1,6 +1,10 @@
 # CTO Snapshot (Source of Truth)
  _Last updated: 2026-03-29_
 
+## feat(pr2a): Family reminders — OneSignal push + matrix UX — 2026-03-29
+- **Branch:** `feat/pr2a-reminder-topic-prefs`
+- **Goal:** Wire push setup buttons to OneSignal; truthful status labels; topic **Push** column only when subscription is on; **Saved** message next to topic table; larger matrix toggles; deployment without OneSignal env shows clear copy (buttons disabled with reason).
+
 ## feat(pr2a): Reminder topic preferences (email save, foundation) — 2026-03-29
 - **Branch:** `feat/pr2a-reminder-topic-prefs`
 - **Goal:** PR2A — new `user_reminder_topic_prefs` database table (one saved preference row per signed-in user per topic); `/family#reminders` email toggles persist; push column disabled + placeholder push section (no OneSignal writes); no legacy reminder flags.
