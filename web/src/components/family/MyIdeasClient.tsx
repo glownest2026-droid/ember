@@ -392,8 +392,20 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
       setRemindersBusy(true);
       try {
         const supabase = createClient();
+        const { data: row } = await supabase
+          .from('user_notification_prefs')
+          .select('email_topic_moveit_enabled')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        const moveit = Boolean(
+          (row as { email_topic_moveit_enabled?: boolean } | null)?.email_topic_moveit_enabled
+        );
         const { error } = await supabase.from('user_notification_prefs').upsert(
-          { user_id: user.id, development_reminders_enabled: checked },
+          {
+            user_id: user.id,
+            email_topic_monthly_enabled: checked,
+            email_master_enabled: checked || moveit,
+          },
           { onConflict: 'user_id' }
         );
         if (!error) await refetchSubnavStats();

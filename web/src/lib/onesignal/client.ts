@@ -228,3 +228,82 @@ export async function getOneSignalMasterPushState(): Promise<OneSignalMasterPush
     return 'recoverable_error';
   }
 }
+
+/** True when this browser is opted in with a live subscription (not a DB flag). */
+export function isBrowserPushMasterOn(diagnostics: OneSignalPushDiagnostics | null): boolean {
+  if (!diagnostics) return false;
+  return diagnostics.fullySubscribed;
+}
+
+async function waitForPushOptInState(
+  wantOptedIn: boolean,
+  timeoutMs: number
+): Promise<OneSignalPushDiagnostics> {
+  const startMs = Date.now();
+  let diagnostics = readPushDiagnosticsFromSdk();
+  if (wantOptedIn) {
+    if (diagnostics.fullySubscribed) return diagnostics;
+  } else if (!diagnostics.optedIn) {
+    return diagnostics;
+  }
+
+  while (Date.now() - startMs < timeoutMs) {
+    await sleep(250);
+    diagnostics = readPushDiagnosticsFromSdk();
+    if (wantOptedIn && diagnostics.fullySubscribed) return diagnostics;
+    if (!wantOptedIn && !diagnostics.optedIn) return diagnostics;
+  }
+
+  return diagnostics;
+}
+
+/** Max time for subscribe/unsubscribe before returning (avoids hung UI on preview / bad origins). */
+const PUSH_MASTER_ACTION_TIMEOUT_MS = 22_000;
+
+function raceWithTimeout<T>(promise: Promise<T>, ms: number): Promise<T | 'timeout'> {
+  return new Promise((resolve) => {
+    const t = window.setTimeout(() => resolve('timeout'), ms);
+    promise.then(
+      (v) => {
+        window.clearTimeout(t);
+        resolve(v);
+      },
+      () => {
+        window.clearTimeout(t);
+        resolve('timeout');
+      }
+    );
+  });
+}
+
+/**
+ * Enable or disable push for this browser via OneSignal (subscribe / opt out).
+ * Waits for SDK-reported state to settle before returning diagnostics, bounded by timeout.
+ */
+export async function applyOneSignalBrowserPushMaster(
+  wantOn: boolean
+): Promise<OneSignalPushDiagnostics | null> {
+  if (!isBrowser() || !isOneSignalConfigured() || isPushUnsupported()) return null;
+
+  const work = (async (): Promise<OneSignalPushDiagnostics | null> => {
+    await initializeOneSignal();
+    try {
+      if (wantOn) {
+        return await ensureOneSignalPushSubscription();
+      }
+      await OneSignal.User.PushSubscription.optOut();
+      return await waitForPushOptInState(false, 8000);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.log(`onesignal:error:${message.slice(0, 120)}`);
+      return await getOneSignalPushDiagnostics();
+    }
+  })();
+
+  const result = await raceWithTimeout(work, PUSH_MASTER_ACTION_TIMEOUT_MS);
+  if (result === 'timeout') {
+    console.log('onesignal:push_master_action_timeout');
+    return await getOneSignalPushDiagnostics().catch(() => null);
+  }
+  return result;
+}

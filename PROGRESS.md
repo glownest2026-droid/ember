@@ -1,5 +1,45 @@
 # CTO Snapshot (Source of Truth)
- _Last updated: 2026-03-25_
+ _Last updated: 2026-03-28_
+
+## feat(family): Household reminder controls (/family#reminders) — 2026-03-28
+- **Branch:** `feat/family-reminders-preferences`
+- **Goal:** Single management surface on `/family#reminders`: **Reminders** card with email master + push master (real OneSignal subscribe/opt-out), and two topic rows (Monthly stage updates, Move-it-on prompts) with per-channel toggles; household prefs in `user_notification_prefs`. Top nav Reminders unchanged (link only). `/account` remains status + Manage reminders.
+- **DB:** `supabase/sql/202603281200_family_reminder_household_prefs.sql` — columns `email_master_enabled`, `email_topic_*`, `push_topic_*`, `marketplace_launch_email`; trigger keeps `development_reminders_enabled` = email master ∧ monthly topic; `get_my_subnav_stats` returns that for `development_reminders_enabled`.
+- **Client:** `FamilyRemindersCard.tsx`, `applyOneSignalBrowserPushMaster` in `onesignal/client.ts`; ListingModal writes `marketplace_launch_email`; MyIdeas/SubnavBar “remind” upserts new email topic columns.
+- **Verification:** `pnpm -C web build`. Apply migration on Supabase before relying on new columns.
+- **Rollback:** Revert PR; DB rollback only if migration was applied (drop new columns/trigger or restore prior function from prior migration file).
+- **Preview caveat:** OneSignal may not validate on Vercel preview domains (origin/app ID); push ON/OFF is still implemented against the SDK.
+
+### Rework (same branch, founder UX) — 2026-03-28
+- **Removed:** Separate Email master and Push master switches (duplicative with topic matrix).
+- **Push:** One **Push reminders on this browser** block with truthful **Status:** line + primary **Turn on push** / **Turn off push** buttons (only place that calls OneSignal subscribe/unsubscribe). Preview hostname or `NEXT_PUBLIC_VERCEL_ENV=preview` shows explicit note that preview may not prove end-to-end delivery.
+- **Topics:** Matrix is the preference surface: larger **RemindersTopicSwitch**, darker headers (**Topic** / **Email** / **Push**), bordered table layout. Email topic toggles work even when push unavailable; push topic toggles enabled only when browser push is actually on.
+- **DB:** `supabase/sql/202603291000_family_reminders_email_topic_only_legacy.sql` — legacy `development_reminders_enabled` + RPC subnav flag = **monthly email topic only** (matches “development reminders”); trigger fires on `email_topic_monthly_enabled` only. App still sets `email_master_enabled` as derived OR of email topics for column compatibility.
+
+### PR2 preview bugfixes (same branch) — 2026-03-28
+- **Bug (fixed):** Push button could stay **Working…** if OneSignal work hung; **timeout** (22s) in `applyOneSignalBrowserPushMaster` + bounded `initializeOneSignal` (12s) in `refreshPush` so UI always settles.
+- **Bug (fixed):** **Email** toggles were tied to `pushTopicDisabled` via **`saveBusy`** — any save (or slow `refetch`) disabled the whole matrix. **Push column** no longer uses `saveBusy`; email-only uses `saveBusy`. **Turn off push** uses `persistPrefsQuiet` (no `saveBusy`) so email stays interactive.
+- **Preview vs product:** Card copy distinguishes **preview OneSignal allowlist** limitation from **UI stuck loading**; button always exits Working… within the timeout window.
+
+**Founder test (Vercel preview):**
+1. Open `/family#reminders`, click **Turn on push**, wait — button must return to **Turn on push** / **Turn off push** (not infinite **Working…**); **Status** must be one of On / Off / Needs permission / Blocked / Unsupported / Recoverable error.
+2. Toggle **Monthly stage updates** → **Email** on/off, refresh — persists (migration applied).
+3. Toggle **Move-it-on prompts** → **Email** on/off, refresh — persists.
+4. **Push** topic toggles stay off/disabled until **Status: On** (browser genuinely subscribed).
+5. Read preview note: allowlist limitation is separate from “stuck loading.”
+
+### Email toggles + migration diagnosis (same branch) — 2026-03-28
+- **Cannot verify from repo:** whether Supabase preview DB has run `202603281200` / `202603291000` — only the project owner can confirm in **Supabase → Table Editor** (`user_notification_prefs` has `email_topic_monthly_enabled` etc.) or **SQL** run history.
+- **Root cause when email “did nothing”:** upsert failed (often missing columns) but UI had **no error**; controlled switches reverted → looked broken.
+- **Fix:** `console.info` / `console.error` with `[FamilyReminders]` prefix; **red banner** on load/save failure; **green “Saved.”** on success; **legacy mode** if full `select` fails with missing-column errors → read/write **`development_reminders_enabled`** only so **Monthly stage updates → Email** works without new columns; amber banner explains migration for full topics.
+- **Founder applies migration (if missing):** Supabase Dashboard → **SQL** → New query → paste contents of `supabase/sql/202603281200_family_reminder_household_prefs.sql` → Run → then `202603291000_family_reminders_email_topic_only_legacy.sql` → Run → reload app.
+
+**Founder test — email only:**
+1. Open Vercel preview, sign in, go to `/family#reminders`.
+2. Turn **Monthly stage updates → Email** on, refresh — stays on; turn off, refresh — stays off.
+3. If schema is fully migrated: repeat for **Move-it-on prompts → Email**.
+4. If you see **older schema** banner: Monthly email should still work; Move-it-on email stays disabled until migration.
+5. Trigger a failed save (e.g. sign out in another tab) — expect **Save did not complete** red banner, not silent no-op.
 
 ## feat(posthog): Starter dashboards (founder runbook + tiny shortlist property) — 2026-03-25
 - **Branch:** `feat/posthog-starter-dashboards`

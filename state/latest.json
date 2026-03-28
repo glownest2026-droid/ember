@@ -1,34 +1,29 @@
 {
   "pr": {
     "number": null,
-    "title": "Push Master Control Migration",
-    "branch": "feat/push-master-control-migration",
+    "title": "Household reminder controls on /family (email + push topics)",
+    "branch": "feat/family-reminders-preferences",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/pull/new/feat/push-master-control-migration",
-    "rollback": "Revert PR to restore prior nav reminders behavior and account push CTA."
+    "url": "https://github.com/glownest2026-droid/ember/pull/new/feat/family-reminders-preferences",
+    "rollback": "Revert PR; run inverse SQL for applied migrations (202603281200 + 202603291000)."
   },
   "receipt": {
-    "goal": "PR1 revised: top-nav Reminders is a normal link to /family#reminders (not a toggle, no push on/off in nav). /account shows browser push status only + Manage reminders link. No DB reminder mutation from nav.",
+    "goal": "PR2: push action timeout + bounded refresh; decouple email toggles from push/saveBusy; persistPrefsQuiet on turn-off push. Preview note: allowlist vs loading bug.",
     "commands_run": [
-      "git fetch origin main",
-      "pnpm -C web install --frozen-lockfile",
       "pnpm -C web build"
     ],
     "files_changed_recent": [
-      "web/src/lib/onesignal/client.ts",
-      "web/src/components/subnav/UnifiedSignedInNav.tsx",
-      "web/src/app/account/page.tsx",
+      "supabase/sql/202603291000_family_reminders_email_topic_only_legacy.sql",
+      "web/src/components/figma/family/FamilyRemindersCard.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "verification_steps": [
-      "Signed-in nav shows Reminders as a normal clickable link (not a switch), no info icon",
-      "Clicking Reminders opens /family#reminders",
-      "/account is status-only + Manage reminders -> /family#reminders",
-      "No nav-based push enable/disable or OneSignal switch state",
-      "pnpm -C web build passes"
+      "Apply SQL migrations in order on Supabase",
+      "pnpm -C web build passes",
+      "/family#reminders: buttons + matrix; email toggles work without push"
     ],
-    "rollback_plan": "Revert this PR."
+    "rollback_plan": "git revert; restore prior get_my_subnav_stats + trigger from earlier migration file if 202603291000 was applied."
   },
-  "timestamp": "2026-03-27T13:05:00Z"
+  "timestamp": "2026-03-28T12:00:00Z"
 }
