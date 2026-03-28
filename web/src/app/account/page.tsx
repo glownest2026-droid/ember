@@ -6,30 +6,14 @@ import { createClient } from '@/utils/supabase/client';
 import { AUTH_ENABLE_GOOGLE, AUTH_ENABLE_APPLE } from '@/lib/auth-flags';
 import { buildAuthCallbackUrl } from '@/lib/auth-callback-url';
 import {
-  ensureOneSignalPushSubscription,
   getOneSignalAppId,
-  getOneSignalPushDiagnostics,
-  type OneSignalPushDiagnostics,
+  getOneSignalMasterPushState,
+  type OneSignalMasterPushState,
 } from '@/lib/onesignal/client';
 import type { User } from '@supabase/supabase-js';
 
 const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
-type PushUiState =
-  | 'not_initialized_yet'
-  | 'permission_default'
-  | 'permission_granted_not_subscribed'
-  | 'fully_subscribed'
-  | 'blocked_denied'
-  | 'recoverable_error';
-
-function mapPushUiState(diagnostics: OneSignalPushDiagnostics | null): PushUiState {
-  if (!diagnostics?.initialized) return 'not_initialized_yet';
-  if (diagnostics.permission === 'denied') return 'blocked_denied';
-  if (diagnostics.permission === 'default') return 'permission_default';
-  if (diagnostics.fullySubscribed) return 'fully_subscribed';
-  if (diagnostics.permission === 'granted') return 'permission_granted_not_subscribed';
-  return 'recoverable_error';
-}
+type PushUiState = OneSignalMasterPushState;
 
 export default function AccountPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -41,10 +25,8 @@ export default function AccountPage() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
   const [linkLoading, setLinkLoading] = useState<string | null>(null);
-  const [pushLoading, setPushLoading] = useState(false);
-  const [pushStatus, setPushStatus] = useState<PushUiState>('not_initialized_yet');
-  const [pushMessage, setPushMessage] = useState<string | null>(null);
-  const prevPushStatusRef = useRef<PushUiState>('not_initialized_yet');
+  const [pushStatus, setPushStatus] = useState<PushUiState>('unsupported');
+  const prevPushStatusRef = useRef<PushUiState>('unsupported');
 
   useEffect(() => {
     const supabase = createClient();
@@ -67,8 +49,8 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (!getOneSignalAppId()) return;
-    void getOneSignalPushDiagnostics()
-      .then((diagnostics) => setPushStatus(mapPushUiState(diagnostics)))
+    void getOneSignalMasterPushState()
+      .then((state) => setPushStatus(state))
       .catch((error: unknown) => {
         const message = error instanceof Error ? error.message : String(error);
         console.log(`onesignal:error:${message.slice(0, 120)}`);
@@ -137,33 +119,6 @@ export default function AccountPage() {
       });
   };
 
-  const handleEnablePush = async () => {
-    console.log('onesignal:cta:clicked');
-    setPushLoading(true);
-    setPushMessage(null);
-    try {
-      const diagnostics = await ensureOneSignalPushSubscription();
-      const nextStatus = mapPushUiState(diagnostics);
-      setPushStatus(nextStatus);
-      if (diagnostics?.fullySubscribed) {
-        setPushMessage('Push is now enabled on this browser.');
-      } else if (nextStatus === 'blocked_denied') {
-        setPushMessage('Browser notifications are blocked. Re-enable them in browser settings to continue.');
-      } else if (nextStatus === 'permission_granted_not_subscribed') {
-        setPushMessage('Browser permission is granted, but push subscription is still pending. Try again in a moment.');
-      } else {
-        setPushMessage('No changes made yet. You can try again anytime.');
-      }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.log(`onesignal:error:${message.slice(0, 120)}`);
-      setPushStatus('recoverable_error');
-      setPushMessage('Could not start browser push permission. Please try again.');
-    } finally {
-      setPushLoading(false);
-    }
-  };
-
   if (!user) {
     return (
       <div className="container-wrap min-h-screen py-8">
@@ -191,6 +146,14 @@ export default function AccountPage() {
   const hasGoogle = identities.some((i) => i.provider === 'google');
   const hasApple = identities.some((i) => i.provider === 'apple');
   const oneSignalReady = Boolean(getOneSignalAppId());
+  const pushStatusLabel: Record<PushUiState, string> = {
+    unsupported: 'Unsupported',
+    permission_default: 'Needs permission',
+    blocked: 'Blocked',
+    enabled: 'On',
+    disabled: 'Off',
+    recoverable_error: 'Recoverable error',
+  };
 
   return (
     <div className="container-wrap min-h-screen py-8 max-w-lg">
@@ -220,38 +183,25 @@ export default function AccountPage() {
             }}
           >
             <p className="text-sm mb-3" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
-              Turn on calm reminder notifications for this browser. You can change this later in browser settings.
+              Push on this browser is shown below. To change reminder settings, use Family settings.
             </p>
-            <button
-              type="button"
-              onClick={handleEnablePush}
-              disabled={pushLoading}
-              className="min-h-[44px] px-4 rounded-lg font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            <div
+              className="rounded-lg border px-3 py-2 text-sm"
               style={{
-                backgroundColor: 'var(--ember-accent-base)',
-                color: 'white',
-                border: 'none',
+                borderColor: 'var(--ember-border-subtle)',
+                color: 'var(--ember-text-high)',
                 ...baseStyle,
               }}
             >
-              {pushLoading ? 'Opening browser prompt…' : 'Turn on reminders'}
-            </button>
-            {pushStatus && (
-              <p className="text-xs mt-3" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
-                Push state: {pushStatus}
-              </p>
-            )}
-            {pushMessage && (
-              <p
-                className="text-sm mt-2"
-                style={{
-                  color: pushStatus === 'blocked_denied' ? '#dc2626' : 'var(--ember-text-low)',
-                  ...baseStyle,
-                }}
-              >
-                {pushMessage}
-              </p>
-            )}
+              Push on this browser: {pushStatusLabel[pushStatus]}
+            </div>
+            <Link
+              href="/family#reminders"
+              className="inline-flex mt-3 min-h-[44px] items-center px-4 rounded-lg font-medium text-sm"
+              style={{ backgroundColor: 'var(--ember-accent-base)', color: 'white', ...baseStyle }}
+            >
+              Manage reminders
+            </Link>
           </div>
         ) : (
           <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>

@@ -193,3 +193,38 @@ function sleep(ms: number): Promise<void> {
     window.setTimeout(resolve, ms);
   });
 }
+
+export type OneSignalMasterPushState =
+  | 'unsupported'
+  | 'permission_default'
+  | 'blocked'
+  | 'enabled'
+  | 'disabled'
+  | 'recoverable_error';
+
+function isPushUnsupported(): boolean {
+  return !isBrowser() || typeof window.Notification === 'undefined';
+}
+
+export function mapDiagnosticsToMasterPushState(
+  diagnostics: OneSignalPushDiagnostics | null
+): OneSignalMasterPushState {
+  if (isPushUnsupported()) return 'unsupported';
+  if (!diagnostics) return 'disabled';
+  if (diagnostics.permission === 'denied') return 'blocked';
+  if (diagnostics.permission === 'default') return 'permission_default';
+  if (diagnostics.fullySubscribed) return 'enabled';
+  return 'disabled';
+}
+
+export async function getOneSignalMasterPushState(): Promise<OneSignalMasterPushState> {
+  if (!isOneSignalConfigured() || isPushUnsupported()) return 'unsupported';
+  try {
+    const diagnostics = await getOneSignalPushDiagnostics();
+    return mapDiagnosticsToMasterPushState(diagnostics);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`onesignal:error:${message.slice(0, 120)}`);
+    return 'recoverable_error';
+  }
+}

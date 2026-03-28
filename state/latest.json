@@ -1,60 +1,34 @@
 {
   "pr": {
-    "number": 181,
-    "title": "OneSignal Web Push Foundation",
-    "branch": "cursor/onesignal-web-push-foundation-e61b",
+    "number": null,
+    "title": "Push Master Control Migration",
+    "branch": "feat/push-master-control-migration",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/pull/181",
-    "vercel_preview_url": "https://ember-git-cursor-onesignal-web-pu-524851-tims-projects-cd69a894.vercel.app",
-    "rollback": "Revert PR; remove NEXT_PUBLIC_ONESIGNAL_APP_ID from Vercel envs."
+    "url": "https://github.com/glownest2026-droid/ember/pull/new/feat/push-master-control-migration",
+    "rollback": "Revert PR to restore prior nav reminders behavior and account push CTA."
   },
   "receipt": {
-    "goal": "Add minimal, privacy-safe OneSignal web push foundation to Ember PWA/web with one signed-in opt-in UI entry point and safe external user linkage.",
-    "env_vars_required": [
-      "NEXT_PUBLIC_ONESIGNAL_APP_ID"
-    ],
+    "goal": "PR1 revised: top-nav Reminders is a normal link to /family#reminders (not a toggle, no push on/off in nav). /account shows browser push status only + Manage reminders link. No DB reminder mutation from nav.",
     "commands_run": [
-      "pnpm -C web install",
-      "pnpm -C web build",
-      "pnpm -C web add react-onesignal@latest",
-      "pnpm -C web build",
-      "gh pr checks 181"
+      "git fetch origin main",
+      "pnpm -C web install --frozen-lockfile",
+      "pnpm -C web build"
     ],
     "files_changed_recent": [
-      "web/package.json",
-      "web/pnpm-lock.yaml",
       "web/src/lib/onesignal/client.ts",
-      "web/src/lib/onesignal/OneSignalProvider.tsx",
-      "web/src/app/layout.tsx",
+      "web/src/components/subnav/UnifiedSignedInNav.tsx",
       "web/src/app/account/page.tsx",
-      "web/public/OneSignalSDKWorker.js",
-      "web/public/OneSignalSDKUpdaterWorker.js",
-      "web/.env.example",
-      "web/docs/onesignal-web-push-foundation-runbook.md",
       "PROGRESS.md",
       "state/latest.json"
     ],
-    "privacy_boundary": {
-      "sent_to_onesignal": [
-        "stable Ember signed-in user id (external_id = user.id)"
-      ],
-      "not_sent_to_onesignal": [
-        "child names",
-        "exact DOB",
-        "due dates",
-        "exact postcode",
-        "precise location",
-        "free-text notes",
-        "message content/history",
-        "sensitive family context"
-      ]
-    },
     "verification_steps": [
-      "Baseline on main: pnpm -C web build",
-      "Feature branch: pnpm -C web build",
-      "Preview smoke test: sign in -> /account -> Turn on reminders button shows browser permission flow"
+      "Signed-in nav shows Reminders as a normal clickable link (not a switch), no info icon",
+      "Clicking Reminders opens /family#reminders",
+      "/account is status-only + Manage reminders -> /family#reminders",
+      "No nav-based push enable/disable or OneSignal switch state",
+      "pnpm -C web build passes"
     ],
-    "rollback_plan": "Revert this PR and remove NEXT_PUBLIC_ONESIGNAL_APP_ID from Vercel env vars."
+    "rollback_plan": "Revert this PR."
   },
-  "timestamp": "2026-03-25T23:31:43Z"
+  "timestamp": "2026-03-27T13:05:00Z"
 }
