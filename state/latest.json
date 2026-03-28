@@ -4,7 +4,7 @@
     "title": "Household reminder controls on /family (email + push topics)",
     "branch": "feat/family-reminders-preferences",
     "base": "main",
-    "url": null,
+    "url": "https://github.com/glownest2026-droid/ember/pull/new/feat/family-reminders-preferences",
     "rollback": "Revert PR; optionally drop new columns/trigger/RPC replace from supabase/sql/202603281200_family_reminder_household_prefs.sql on DB."
   },
   "receipt": {
