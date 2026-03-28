@@ -1,5 +1,16 @@
 # CTO Snapshot (Source of Truth)
- _Last updated: 2026-03-25_
+ _Last updated: 2026-03-29_
+
+## feat(pr2a): Family reminders — OneSignal push + matrix UX — 2026-03-29
+- **Branch:** `feat/pr2a-reminder-topic-prefs`
+- **Goal:** Wire push setup buttons to OneSignal; truthful status labels; topic **Push** column only when subscription is on; **Saved** message next to topic table; larger matrix toggles; deployment without OneSignal env shows clear copy (buttons disabled with reason).
+
+## feat(pr2a): Reminder topic preferences (email save, foundation) — 2026-03-29
+- **Branch:** `feat/pr2a-reminder-topic-prefs`
+- **Goal:** PR2A — new `user_reminder_topic_prefs` database table (one saved preference row per signed-in user per topic); `/family#reminders` email toggles persist; push column disabled + placeholder push section (no OneSignal writes); no legacy reminder flags.
+- **Deliverables:** SQL migration `supabase/sql/202603291200_user_reminder_topic_prefs.sql`; `FamilyRemindersTopicCard` + `web/src/lib/reminders/topicKeys.ts`; `FamilyFigmaClient` removes old single-email-reminders card wiring.
+- **Verification:** `pnpm -C web build` on branch; apply migration in Supabase before expecting saves to succeed in preview/prod.
+- **Rollback:** Revert PR; optional `DROP TABLE public.user_reminder_topic_prefs CASCADE` if migration was applied (data loss).
 
 ## feat(posthog): Starter dashboards (founder runbook + tiny shortlist property) — 2026-03-25
 - **Branch:** `feat/posthog-starter-dashboards`
