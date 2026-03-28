@@ -20,6 +20,14 @@ type ReminderPrefs = {
   topic_move_it_on_prompts_enabled: boolean;
 };
 
+type LegacyTopicKey = 'monthly_stage_updates' | 'move_it_on_prompts';
+
+type LegacyTopicRow = {
+  topic_key: LegacyTopicKey;
+  email_enabled: boolean;
+  push_enabled: boolean;
+};
+
 const DEFAULT_PREFS: ReminderPrefs = {
   reminders_enabled: false,
   channel_email_enabled: false,
@@ -29,12 +37,36 @@ const DEFAULT_PREFS: ReminderPrefs = {
 };
 
 const PUSH_BLOCKED_HELPER = 'Push is blocked in your browser settings.';
+const LEGACY_TOPIC_KEYS: LegacyTopicKey[] = ['monthly_stage_updates', 'move_it_on_prompts'];
+
+function isMissingColumnError(error: { code?: string; message?: string } | null | undefined): boolean {
+  if (!error) return false;
+  const message = String(error.message ?? '');
+  return error.code === 'PGRST204' || (message.includes('Could not find the') && message.includes('schema cache'));
+}
+
+function prefsFromLegacy(masterEnabled: boolean, topicRows: LegacyTopicRow[] | null | undefined): ReminderPrefs {
+  const monthly = topicRows?.find((r) => r.topic_key === 'monthly_stage_updates');
+  const moveItOn = topicRows?.find((r) => r.topic_key === 'move_it_on_prompts');
+  const channelEmail = Boolean(topicRows?.some((r) => r.email_enabled));
+  const channelPush = Boolean(topicRows?.some((r) => r.push_enabled));
+  const monthlyEnabled = Boolean(monthly?.email_enabled || monthly?.push_enabled);
+  const moveItOnEnabled = Boolean(moveItOn?.email_enabled || moveItOn?.push_enabled);
+  return {
+    reminders_enabled: Boolean(masterEnabled || channelEmail || channelPush || monthlyEnabled || moveItOnEnabled),
+    channel_email_enabled: channelEmail,
+    channel_push_enabled: channelPush,
+    topic_monthly_stage_updates_enabled: monthlyEnabled,
+    topic_move_it_on_prompts_enabled: moveItOnEnabled,
+  };
+}
 
 /**
  * /family#reminders — simple reminders preferences, mobile-first stacked layout.
  */
 export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: string }) {
   const [prefs, setPrefs] = useState<ReminderPrefs | null>(null);
+  const [useLegacyPrefsFallback, setUseLegacyPrefsFallback] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saveBusy, setSaveBusy] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -64,6 +96,25 @@ export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: strin
     void refreshPushState();
   }, [refreshPushState]);
 
+  const loadLegacyPrefs = useCallback(
+    async (supabase: ReturnType<typeof createClient>): Promise<ReminderPrefs> => {
+      const { data: masterData } = await supabase
+        .from('user_notification_prefs')
+        .select('development_reminders_enabled')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      const { data: topicRows } = await supabase
+        .from('user_reminder_topic_prefs')
+        .select('topic_key, email_enabled, push_enabled')
+        .eq('user_id', userId)
+        .in('topic_key', LEGACY_TOPIC_KEYS);
+
+      return prefsFromLegacy(Boolean(masterData?.development_reminders_enabled), (topicRows ?? []) as LegacyTopicRow[]);
+    },
+    [userId]
+  );
+
   const load = useCallback(async () => {
     if (!userId) {
       setPrefs(null);
@@ -79,6 +130,14 @@ export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: strin
       )
       .eq('user_id', userId)
       .maybeSingle();
+
+    if (isMissingColumnError(error as { code?: string; message?: string } | null)) {
+      setUseLegacyPrefsFallback(true);
+      const fallback = await loadLegacyPrefs(supabase);
+      setPrefs(fallback);
+      setLoading(false);
+      return;
+    }
 
     const isNoRow = error?.code === 'PGRST116';
     if (error && !isNoRow) {
@@ -132,13 +191,57 @@ export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: strin
       }
     }
 
+    setUseLegacyPrefsFallback(false);
     setPrefs(next);
     setLoading(false);
-  }, [userId]);
+  }, [loadLegacyPrefs, userId]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  const persistLegacyPrefs = useCallback(
+    async (next: ReminderPrefs) => {
+      const supabase = createClient();
+      const { error: masterError } = await supabase.from('user_notification_prefs').upsert(
+        {
+          user_id: userId,
+          development_reminders_enabled: next.reminders_enabled,
+        },
+        { onConflict: 'user_id' }
+      );
+      if (masterError) {
+        throw masterError;
+      }
+
+      const legacyRows: LegacyTopicRow[] = [
+        {
+          topic_key: 'monthly_stage_updates',
+          email_enabled: next.channel_email_enabled && next.topic_monthly_stage_updates_enabled,
+          push_enabled: next.channel_push_enabled && next.topic_monthly_stage_updates_enabled,
+        },
+        {
+          topic_key: 'move_it_on_prompts',
+          email_enabled: next.channel_email_enabled && next.topic_move_it_on_prompts_enabled,
+          push_enabled: next.channel_push_enabled && next.topic_move_it_on_prompts_enabled,
+        },
+      ];
+
+      const { error: topicError } = await supabase.from('user_reminder_topic_prefs').upsert(
+        legacyRows.map((row) => ({
+          user_id: userId,
+          topic_key: row.topic_key,
+          email_enabled: row.email_enabled,
+          push_enabled: row.push_enabled,
+        })),
+        { onConflict: 'user_id,topic_key' }
+      );
+      if (topicError) {
+        throw topicError;
+      }
+    },
+    [userId]
+  );
 
   const persistPrefs = useCallback(
     async (patch: Partial<ReminderPrefs>) => {
@@ -153,33 +256,44 @@ export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: strin
       setPrefs(next);
       setSaveBusy(true);
       try {
-        const supabase = createClient();
-        const { error } = await supabase.from('user_notification_prefs').upsert(
-          {
-            user_id: userId,
-            development_reminders_enabled: next.reminders_enabled,
-            reminders_enabled: next.reminders_enabled,
-            channel_email_enabled: next.channel_email_enabled,
-            channel_push_enabled: next.channel_push_enabled,
-            topic_monthly_stage_updates_enabled: next.topic_monthly_stage_updates_enabled,
-            topic_move_it_on_prompts_enabled: next.topic_move_it_on_prompts_enabled,
-          },
-          { onConflict: 'user_id' }
-        );
-        if (error) {
-          console.error('[FamilyReminders] save failed', error);
-          setPrefs(prev);
-          setSaveError(error.message ?? 'Could not save.');
-          return;
+        if (useLegacyPrefsFallback) {
+          await persistLegacyPrefs(next);
+        } else {
+          const supabase = createClient();
+          const { error } = await supabase.from('user_notification_prefs').upsert(
+            {
+              user_id: userId,
+              development_reminders_enabled: next.reminders_enabled,
+              reminders_enabled: next.reminders_enabled,
+              channel_email_enabled: next.channel_email_enabled,
+              channel_push_enabled: next.channel_push_enabled,
+              topic_monthly_stage_updates_enabled: next.topic_monthly_stage_updates_enabled,
+              topic_move_it_on_prompts_enabled: next.topic_move_it_on_prompts_enabled,
+            },
+            { onConflict: 'user_id' }
+          );
+          if (error) {
+            if (isMissingColumnError(error as { code?: string; message?: string } | null)) {
+              setUseLegacyPrefsFallback(true);
+              await persistLegacyPrefs(next);
+            } else {
+              throw error;
+            }
+          }
         }
         console.info('[FamilyReminders] saved', next);
         setSaveOk(true);
         window.setTimeout(() => setSaveOk(false), 2800);
+      } catch (error) {
+        console.error('[FamilyReminders] save failed', error);
+        setPrefs(prev);
+        const message = error instanceof Error ? error.message : 'Could not save.';
+        setSaveError(message);
       } finally {
         setSaveBusy(false);
       }
     },
-    [userId, prefs]
+    [userId, prefs, persistLegacyPrefs, useLegacyPrefsFallback]
   );
 
   const handlePushToggle = useCallback(async (checked: boolean) => {

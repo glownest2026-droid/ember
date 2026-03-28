@@ -20,6 +20,9 @@
     - plus idempotent legacy backfill from `development_reminders_enabled` and `user_reminder_topic_prefs`.
 - **Verification:** `pnpm -C web build` passes.
 - **Rollback:** Revert PR; optionally remove added columns from `user_notification_prefs` if the migration has already been applied.
+- **Follow-up fix (preview compatibility):**
+  - Added graceful runtime fallback in `FamilyRemindersTopicCard` for environments where new `user_notification_prefs` reminder columns are not yet migrated.
+  - Detects missing-column schema-cache errors, avoids red failure loop, and reads/writes via legacy fields/tables (`development_reminders_enabled` + `user_reminder_topic_prefs`) until migration is applied.
 
 ## feat(pr2a): Family reminders — OneSignal push + matrix UX — 2026-03-29
 - **Branch:** `feat/pr2a-reminder-topic-prefs`
