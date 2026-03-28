@@ -30,18 +30,28 @@ const emptyPrefs = (): NotificationPrefsRow => ({
   push_topic_moveit_enabled: false,
 });
 
-/** Larger, higher-contrast switch for topic rows only. */
+const REFETCH_MAX_MS = 12_000;
+
+function sleepMs(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+/** Larger, higher-contrast switch for topic rows only. Email column ignores push state; push-only uses muted style when disabled. */
 function RemindersTopicSwitch({
   checked,
   onCheckedChange,
   disabled,
+  variant = 'default',
   'aria-label': ariaLabel,
 }: {
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
   disabled?: boolean;
+  variant?: 'default' | 'pushInactive';
   'aria-label'?: string;
 }) {
+  const offBg = variant === 'pushInactive' ? '#E5E7EB' : '#E7E8EA';
+  const offBorder = variant === 'pushInactive' ? '#D1D5DB' : '#CBD5E1';
   return (
     <button
       type="button"
@@ -50,11 +60,14 @@ function RemindersTopicSwitch({
       aria-label={ariaLabel ?? 'Toggle reminder topic'}
       disabled={disabled}
       onClick={() => onCheckedChange(!checked)}
-      className="inline-flex h-8 w-[3.25rem] shrink-0 items-center rounded-full border border-[#CBD5E1] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-2 pointer-events-auto disabled:opacity-40 disabled:grayscale"
+      className="inline-flex h-8 w-[3.25rem] shrink-0 items-center rounded-full border transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#B8432B] focus-visible:ring-offset-2 pointer-events-auto"
       style={{
-        backgroundColor: checked ? '#B8432B' : '#E7E8EA',
+        borderColor: offBorder,
+        backgroundColor: checked ? '#B8432B' : offBg,
         cursor: disabled ? 'not-allowed' : 'pointer',
         boxShadow: checked ? 'inset 0 0 0 1px rgba(0,0,0,0.06)' : undefined,
+        opacity: disabled ? 0.45 : 1,
+        filter: disabled ? 'grayscale(0.25)' : undefined,
       }}
     >
       <span
@@ -137,7 +150,16 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
       return;
     }
     try {
-      await initializeOneSignal();
+      const initOk = await Promise.race([
+        initializeOneSignal().then(() => true as const),
+        sleepMs(REFETCH_MAX_MS).then(() => false as const),
+      ]);
+      if (!initOk) {
+        console.log('ember:family_reminders:onesignal_init_deadline');
+        setPushState('recoverable_error');
+        setBrowserPushOn(false);
+        return;
+      }
       const d = await getOneSignalPushDiagnostics();
       const master = await getOneSignalMasterPushState();
       setPushState(master);
@@ -252,10 +274,28 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
         );
         if (!error) {
           setPrefs(merged);
-          await refetch();
+          await Promise.race([refetch(), sleepMs(REFETCH_MAX_MS)]);
         }
       } finally {
         setSaveBusy(false);
+      }
+    },
+    [userId, refetch]
+  );
+
+  /** Updates prefs without saveBusy (push turn-off must not block email toggles). */
+  const persistPrefsQuiet = useCallback(
+    async (next: NotificationPrefsRow) => {
+      if (!userId) return;
+      const merged = withDerivedEmailMaster(next);
+      const supabase = createClient();
+      const { error } = await supabase.from('user_notification_prefs').upsert(
+        { user_id: userId, ...merged },
+        { onConflict: 'user_id' }
+      );
+      if (!error) {
+        setPrefs(merged);
+        await Promise.race([refetch(), sleepMs(REFETCH_MAX_MS)]);
       }
     },
     [userId, refetch]
@@ -281,8 +321,8 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
   const monthlyPush = prefs.push_topic_monthly_enabled;
   const moveitPush = prefs.push_topic_moveit_enabled;
 
+  /** Push column only: never tie to saveBusy (email saves must not lock the matrix). */
   const pushTopicDisabled =
-    saveBusy ||
     pushBusy ||
     !browserPushOn ||
     pushState === 'blocked' ||
@@ -304,9 +344,9 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
     setPushBusy(true);
     try {
       await applyOneSignalBrowserPushMaster(true);
-      await refreshPush();
     } finally {
       setPushBusy(false);
+      await refreshPush();
     }
   };
 
@@ -315,14 +355,14 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
     setPushBusy(true);
     try {
       await applyOneSignalBrowserPushMaster(false);
-      await persistPrefs({
+      await persistPrefsQuiet({
         ...prefs,
         push_topic_monthly_enabled: false,
         push_topic_moveit_enabled: false,
       });
-      await refreshPush();
     } finally {
       setPushBusy(false);
+      await refreshPush();
     }
   };
 
@@ -418,10 +458,12 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
             )}
           </div>
           {previewDomainHint && oneSignalConfigured && (
-            <p className="text-xs text-[#4B5563] mt-3 leading-relaxed border-t border-[#E5E7EB] pt-3">
-              Preview URLs often cannot complete push end-to-end (OneSignal domain allowlist). Use production or an
-              allowed domain to confirm delivery; this screen still shows real browser permission and subscription
-              state when the SDK runs.
+            <p className="text-xs text-[#374151] mt-3 leading-relaxed border-t border-[#E5E7EB] pt-3">
+              <strong className="font-semibold text-[#1A1E23]">Preview limitation:</strong> many preview hostnames are
+              not allowlisted in OneSignal, so push may not finish even though the UI is working.{' '}
+              <strong className="font-semibold text-[#1A1E23]">Not a loading bug:</strong> the Turn on/off button always
+              exits Working… within a few seconds; status then reflects the real SDK result (including Recoverable
+              error). Use production or an allowed domain to confirm delivery.
             </p>
           )}
         </div>
@@ -452,6 +494,7 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
                   checked={displayMonthlyPush}
                   onCheckedChange={(v) => void handlePushTopicMonthly(v)}
                   disabled={pushTopicDisabled}
+                  variant={pushTopicDisabled ? 'pushInactive' : 'default'}
                   aria-label="Monthly stage updates by push"
                 />
               </div>
@@ -472,6 +515,7 @@ export function FamilyRemindersCard({ serverUserId }: { serverUserId: string }) 
                   checked={displayMoveitPush}
                   onCheckedChange={(v) => void handlePushTopicMoveit(v)}
                   disabled={pushTopicDisabled}
+                  variant={pushTopicDisabled ? 'pushInactive' : 'default'}
                   aria-label="Move-it-on prompts by push"
                 />
               </div>

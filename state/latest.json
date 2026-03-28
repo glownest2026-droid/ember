@@ -8,7 +8,7 @@
     "rollback": "Revert PR; run inverse SQL for applied migrations (202603281200 + 202603291000)."
   },
   "receipt": {
-    "goal": "/family#reminders: Reminders card — push status + Turn on/off push (OneSignal only there); topic matrix (Email/Push per topic); no separate email/push masters. Second SQL aligns legacy development_reminders_enabled with monthly email topic. Preview caveat in UI for Vercel preview.",
+    "goal": "PR2: push action timeout + bounded refresh; decouple email toggles from push/saveBusy; persistPrefsQuiet on turn-off push. Preview note: allowlist vs loading bug.",
     "commands_run": [
       "pnpm -C web build"
     ],

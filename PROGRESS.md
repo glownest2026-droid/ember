@@ -16,6 +16,18 @@
 - **Topics:** Matrix is the preference surface: larger **RemindersTopicSwitch**, darker headers (**Topic** / **Email** / **Push**), bordered table layout. Email topic toggles work even when push unavailable; push topic toggles enabled only when browser push is actually on.
 - **DB:** `supabase/sql/202603291000_family_reminders_email_topic_only_legacy.sql` — legacy `development_reminders_enabled` + RPC subnav flag = **monthly email topic only** (matches “development reminders”); trigger fires on `email_topic_monthly_enabled` only. App still sets `email_master_enabled` as derived OR of email topics for column compatibility.
 
+### PR2 preview bugfixes (same branch) — 2026-03-28
+- **Bug (fixed):** Push button could stay **Working…** if OneSignal work hung; **timeout** (22s) in `applyOneSignalBrowserPushMaster` + bounded `initializeOneSignal` (12s) in `refreshPush` so UI always settles.
+- **Bug (fixed):** **Email** toggles were tied to `pushTopicDisabled` via **`saveBusy`** — any save (or slow `refetch`) disabled the whole matrix. **Push column** no longer uses `saveBusy`; email-only uses `saveBusy`. **Turn off push** uses `persistPrefsQuiet` (no `saveBusy`) so email stays interactive.
+- **Preview vs product:** Card copy distinguishes **preview OneSignal allowlist** limitation from **UI stuck loading**; button always exits Working… within the timeout window.
+
+**Founder test (Vercel preview):**
+1. Open `/family#reminders`, click **Turn on push**, wait — button must return to **Turn on push** / **Turn off push** (not infinite **Working…**); **Status** must be one of On / Off / Needs permission / Blocked / Unsupported / Recoverable error.
+2. Toggle **Monthly stage updates** → **Email** on/off, refresh — persists (migration applied).
+3. Toggle **Move-it-on prompts** → **Email** on/off, refresh — persists.
+4. **Push** topic toggles stay off/disabled until **Status: On** (browser genuinely subscribed).
+5. Read preview note: allowlist limitation is separate from “stuck loading.”
+
 ## feat(posthog): Starter dashboards (founder runbook + tiny shortlist property) — 2026-03-25
 - **Branch:** `feat/posthog-starter-dashboards`
 - **PR title:** PostHog Starter Dashboards
