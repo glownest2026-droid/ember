@@ -1,5 +1,14 @@
 # CTO Snapshot (Source of Truth)
- _Last updated: 2026-03-25_
+ _Last updated: 2026-03-28_
+
+## feat(family): Household reminder controls (/family#reminders) — 2026-03-28
+- **Branch:** `feat/family-reminders-preferences`
+- **Goal:** Single management surface on `/family#reminders`: **Reminders** card with email master + push master (real OneSignal subscribe/opt-out), and two topic rows (Monthly stage updates, Move-it-on prompts) with per-channel toggles; household prefs in `user_notification_prefs`. Top nav Reminders unchanged (link only). `/account` remains status + Manage reminders.
+- **DB:** `supabase/sql/202603281200_family_reminder_household_prefs.sql` — columns `email_master_enabled`, `email_topic_*`, `push_topic_*`, `marketplace_launch_email`; trigger keeps `development_reminders_enabled` = email master ∧ monthly topic; `get_my_subnav_stats` returns that for `development_reminders_enabled`.
+- **Client:** `FamilyRemindersCard.tsx`, `applyOneSignalBrowserPushMaster` in `onesignal/client.ts`; ListingModal writes `marketplace_launch_email`; MyIdeas/SubnavBar “remind” upserts new email topic columns.
+- **Verification:** `pnpm -C web build`. Apply migration on Supabase before relying on new columns.
+- **Rollback:** Revert PR; DB rollback only if migration was applied (drop new columns/trigger or restore prior function from prior migration file).
+- **Preview caveat:** OneSignal may not validate on Vercel preview domains (origin/app ID); push ON/OFF is still implemented against the SDK.
 
 ## feat(posthog): Starter dashboards (founder runbook + tiny shortlist property) — 2026-03-25
 - **Branch:** `feat/posthog-starter-dashboards`

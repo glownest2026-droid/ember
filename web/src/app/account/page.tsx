@@ -147,9 +147,9 @@ export default function AccountPage() {
   const hasApple = identities.some((i) => i.provider === 'apple');
   const oneSignalReady = Boolean(getOneSignalAppId());
   const pushStatusLabel: Record<PushUiState, string> = {
-    unsupported: 'Unsupported',
+    unsupported: 'Unsupported browser',
     permission_default: 'Needs permission',
-    blocked: 'Blocked',
+    blocked: 'Blocked in browser settings',
     enabled: 'On',
     disabled: 'Off',
     recoverable_error: 'Recoverable error',

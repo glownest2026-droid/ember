@@ -1,34 +1,36 @@
 {
   "pr": {
     "number": null,
-    "title": "Push Master Control Migration",
-    "branch": "feat/push-master-control-migration",
+    "title": "Household reminder controls on /family (email + push topics)",
+    "branch": "feat/family-reminders-preferences",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/pull/new/feat/push-master-control-migration",
-    "rollback": "Revert PR to restore prior nav reminders behavior and account push CTA."
+    "url": null,
+    "rollback": "Revert PR; optionally drop new columns/trigger/RPC replace from supabase/sql/202603281200_family_reminder_household_prefs.sql on DB."
   },
   "receipt": {
-    "goal": "PR1 revised: top-nav Reminders is a normal link to /family#reminders (not a toggle, no push on/off in nav). /account shows browser push status only + Manage reminders link. No DB reminder mutation from nav.",
+    "goal": "/family#reminders: Reminders card with email + push masters, two topic rows (monthly + move-it-on), DB persistence on user_notification_prefs; push master uses OneSignal opt-in/opt-out. /account status copy aligned. Migration adds household columns + marketplace_launch_email.",
     "commands_run": [
-      "git fetch origin main",
-      "pnpm -C web install --frozen-lockfile",
       "pnpm -C web build"
     ],
     "files_changed_recent": [
+      "supabase/sql/202603281200_family_reminder_household_prefs.sql",
+      "web/src/components/figma/family/FamilyRemindersCard.tsx",
+      "web/src/components/figma/family/FamilyFigmaClient.tsx",
       "web/src/lib/onesignal/client.ts",
-      "web/src/components/subnav/UnifiedSignedInNav.tsx",
       "web/src/app/account/page.tsx",
+      "web/src/components/family/MyIdeasClient.tsx",
+      "web/src/components/subnav/SubnavBar.tsx",
+      "web/src/components/figma/marketplace-prelist/ListingModal.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "verification_steps": [
-      "Signed-in nav shows Reminders as a normal clickable link (not a switch), no info icon",
-      "Clicking Reminders opens /family#reminders",
-      "/account is status-only + Manage reminders -> /family#reminders",
-      "No nav-based push enable/disable or OneSignal switch state",
-      "pnpm -C web build passes"
+      "Apply SQL migration to Supabase",
+      "pnpm -C web build passes",
+      "Signed-in: /family#reminders shows Reminders card; toggles persist",
+      "Push master reflects browser; preview may block OneSignal by domain — see PR notes"
     ],
-    "rollback_plan": "Revert this PR."
+    "rollback_plan": "git revert merge commit; run inverse SQL if columns were applied."
   },
-  "timestamp": "2026-03-27T13:05:00Z"
+  "timestamp": "2026-03-28T06:30:00Z"
 }

@@ -4,12 +4,11 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { Plus, Sparkles, Eye, RefreshCw, ArrowRight, Gift, Bell, Search, Camera, Check } from 'lucide-react';
+import { Plus, Sparkles, Eye, RefreshCw, ArrowRight, Gift, Search, Camera, Check } from 'lucide-react';
 import { ShareYourGiftListWidget } from './ShareYourGiftListWidget';
 import type { FamilyChild } from './ChildProfileCard';
 import type { ChildStats } from './ChildProfileCard';
-import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
-import { SubnavSwitch } from '@/components/subnav/SubnavSwitch';
+import { FamilyRemindersCard } from './FamilyRemindersCard';
 
 /** Per-child stats from get_my_subnav_stats RPC. */
 interface SubnavStatsRaw {
@@ -267,42 +266,6 @@ export function FamilyFigmaClient({
     router.replace(query ? `/family?${query}` : '/family', { scroll: false });
   }, [router, searchParams]);
 
-  const { user, stats: subnavStats, refetch } = useSubnavStats();
-  const remindersEnabled = subnavStats?.remindersEnabled ?? false;
-  const [remindersBusy, setRemindersBusy] = useState(false);
-  const [moveItOnPromptsEnabled, setMoveItOnPromptsEnabled] = useState(false);
-  const moveItOnKey = user?.id ? `ember.moveItOnPrompts.${user.id}` : null;
-
-  useEffect(() => {
-    if (!moveItOnKey) return;
-    try {
-      const raw = localStorage.getItem(moveItOnKey);
-      setMoveItOnPromptsEnabled(raw === '1');
-    } catch {
-      setMoveItOnPromptsEnabled(false);
-    }
-  }, [moveItOnKey]);
-
-  const handleRemindersChange = useCallback(
-    async (checked: boolean) => {
-      if (!user) return;
-      setRemindersBusy(true);
-      try {
-        const supabase = createClient();
-        const { error } = await supabase
-          .from('user_notification_prefs')
-          .upsert(
-            { user_id: user.id, development_reminders_enabled: checked },
-            { onConflict: 'user_id' }
-          );
-        if (!error) await refetch();
-      } finally {
-        setRemindersBusy(false);
-      }
-    },
-    [user, refetch]
-  );
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
@@ -534,55 +497,7 @@ export function FamilyFigmaClient({
                 </Link>
               </div>
 
-              <div className="mt-5 max-w-3xl">
-                <div
-                  className="rounded-2xl border p-4 sm:p-5 bg-white"
-                  style={{ borderColor: 'var(--ember-border-subtle)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#FF6347]/10">
-                        <Bell className="w-4 h-4 text-[#FF6347]" />
-                      </span>
-                      <div>
-                        <h3 className="text-sm font-medium text-[#1A1E23]">Email reminders</h3>
-                        <p className="text-xs text-[#5C646D]">Useful guidance, not marketing</p>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-xs text-[#5C646D] mt-2 mb-3">
-                    We&apos;ll only send useful guidance tied to your current household stage.
-                  </p>
-                  <div className="space-y-2.5 mt-1">
-                    <div className="flex items-center gap-3 justify-start">
-                      <SubnavSwitch
-                        checked={remindersEnabled}
-                        onCheckedChange={handleRemindersChange}
-                        disabled={remindersBusy || !user}
-                        aria-label="Toggle monthly stage updates"
-                      />
-                      <p className="text-sm text-[#1A1E23]">Monthly stage updates</p>
-                    </div>
-                    <div className="flex items-center gap-3 justify-start">
-                      <SubnavSwitch
-                        checked={moveItOnPromptsEnabled}
-                        onCheckedChange={(checked) => {
-                          setMoveItOnPromptsEnabled(checked);
-                          if (!moveItOnKey) return;
-                          try {
-                            localStorage.setItem(moveItOnKey, checked ? '1' : '0');
-                          } catch {
-                            /* ignore local storage write failures */
-                          }
-                        }}
-                        disabled={remindersBusy || !user}
-                        aria-label="Toggle move-it-on prompts"
-                      />
-                      <p className="text-sm text-[#1A1E23]">Move-it-on prompts</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {serverUserId && <FamilyRemindersCard serverUserId={serverUserId} />}
             </section>
 
             <div className="mt-4 max-w-2xl">

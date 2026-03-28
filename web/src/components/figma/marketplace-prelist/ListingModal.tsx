@@ -290,7 +290,7 @@ export function ListingModal({
         if (u?.id) {
           await supabase.from("user_notification_prefs").upsert({
             user_id: u.id,
-            development_reminders_enabled: true,
+            marketplace_launch_email: true,
           });
         }
       }

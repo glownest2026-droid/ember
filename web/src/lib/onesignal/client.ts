@@ -228,3 +228,54 @@ export async function getOneSignalMasterPushState(): Promise<OneSignalMasterPush
     return 'recoverable_error';
   }
 }
+
+/** True when this browser is opted in with a live subscription (not a DB flag). */
+export function isBrowserPushMasterOn(diagnostics: OneSignalPushDiagnostics | null): boolean {
+  if (!diagnostics) return false;
+  return diagnostics.fullySubscribed;
+}
+
+async function waitForPushOptInState(
+  wantOptedIn: boolean,
+  timeoutMs: number
+): Promise<OneSignalPushDiagnostics> {
+  const startMs = Date.now();
+  let diagnostics = readPushDiagnosticsFromSdk();
+  if (wantOptedIn) {
+    if (diagnostics.fullySubscribed) return diagnostics;
+  } else if (!diagnostics.optedIn) {
+    return diagnostics;
+  }
+
+  while (Date.now() - startMs < timeoutMs) {
+    await sleep(250);
+    diagnostics = readPushDiagnosticsFromSdk();
+    if (wantOptedIn && diagnostics.fullySubscribed) return diagnostics;
+    if (!wantOptedIn && !diagnostics.optedIn) return diagnostics;
+  }
+
+  return diagnostics;
+}
+
+/**
+ * Enable or disable push for this browser via OneSignal (subscribe / opt out).
+ * Waits for SDK-reported state to settle before returning diagnostics.
+ */
+export async function applyOneSignalBrowserPushMaster(
+  wantOn: boolean
+): Promise<OneSignalPushDiagnostics | null> {
+  if (!isBrowser() || !isOneSignalConfigured() || isPushUnsupported()) return null;
+  await initializeOneSignal();
+
+  try {
+    if (wantOn) {
+      return await ensureOneSignalPushSubscription();
+    }
+    await OneSignal.User.PushSubscription.optOut();
+    return await waitForPushOptInState(false, 8000);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.log(`onesignal:error:${message.slice(0, 120)}`);
+    return await getOneSignalPushDiagnostics();
+  }
+}
