@@ -15,6 +15,8 @@ import {
   Settings,
   LogOut,
   Users,
+  Gem,
+  Package,
   ShoppingCart,
 } from 'lucide-react';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
@@ -828,6 +830,14 @@ export function UnifiedSignedInNav() {
                       <span className="text-sm font-medium">Family</span>
                     </Link>
                     <Link
+                      href="/pricing"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-left text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                    >
+                      <Gem className="w-4 h-4 text-[var(--ember-text-low)]" strokeWidth={2} />
+                      <span className="text-sm font-medium">Membership</span>
+                    </Link>
+                    <Link
                       href="/signout"
                       onClick={() => setIsProfileDropdownOpen(false)}
                       className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-left text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
@@ -879,6 +889,14 @@ export function UnifiedSignedInNav() {
               >
                 <Users className="w-4 h-4" strokeWidth={2} />
                 Family
+              </Link>
+              <Link
+                href="/pricing"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-[var(--ember-text-low)] hover:bg-[var(--ember-surface-soft)]"
+              >
+                <Gem className="w-4 h-4" strokeWidth={2} />
+                Membership
               </Link>
               <Link
                 href="/signout"

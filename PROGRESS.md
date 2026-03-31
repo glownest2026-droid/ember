@@ -1,26 +1,5 @@
 # CTO Snapshot (Source of Truth)
- _Last updated: 2026-03-29_
-
-## feat(pr2a): Family reminders — OneSignal push + matrix UX — 2026-03-29
-- **Branch:** `feat/pr2a-reminder-topic-prefs`
-- **Goal:** Wire push setup buttons to OneSignal; truthful status labels; topic **Push** column only when subscription is on; **Saved** message next to topic table; larger matrix toggles; deployment without OneSignal env shows clear copy (buttons disabled with reason).
-
-## feat(pr2a): Reminder topic preferences (email save, foundation) — 2026-03-29
-- **Branch:** `feat/pr2a-reminder-topic-prefs`
-- **Goal:** PR2A — new `user_reminder_topic_prefs` database table (one saved preference row per signed-in user per topic); `/family#reminders` email toggles persist; push column disabled + placeholder push section (no OneSignal writes); no legacy reminder flags.
-- **Deliverables:** SQL migration `supabase/sql/202603291200_user_reminder_topic_prefs.sql`; `FamilyRemindersTopicCard` + `web/src/lib/reminders/topicKeys.ts`; `FamilyFigmaClient` removes old single-email-reminders card wiring.
-- **Verification:** `pnpm -C web build` on branch; apply migration in Supabase before expecting saves to succeed in preview/prod.
-- **Rollback:** Revert PR; optional `DROP TABLE public.user_reminder_topic_prefs CASCADE` if migration was applied (data loss).
-
-## feat(posthog): Starter dashboards (founder runbook + tiny shortlist property) — 2026-03-25
-- **Branch:** `feat/posthog-starter-dashboards`
-- **PR title:** PostHog Starter Dashboards
-- **Goal:** Document founder-friendly PostHog dashboards using **existing** custom events (`page_view`, `sign_in_completed`, `shortlist_viewed`, `product_saved`, `retailer_outbound_clicked`, plus gift/child events in code). No new vendors, no lifecycle tooling, no broad tracking expansion.
-- **Deliverables:**
-  - `web/docs/posthog-starter-dashboard-runbook.md` — where to click in PostHog, dashboard sections (Acquisition / Activation / Engagement / Top content), property review, good vs bad early signals, what to ignore; clarifies **`$identify`** vs custom `identify` confusion.
-  - **Minimal code:** `shortlist_viewed` adds **`pathname`** so discover routes break down without implying new product behavior.
-- **Verification:** `pnpm -C web build` on branch.
-- **Rollback:** Revert PR; optional remove `pathname` from shortlist payload (reporting-only).
+ _Last updated: 2026-03-25_
 
 ## feat(posthog): PostHog foundation (privacy-safe, discovery-grounded) — 2026-03-25
 - **Branch:** `feat/posthog-foundation`
@@ -43,21 +22,6 @@
 - **Stop-sign handling:** Did not widen anon access, did not invent canonical IDs, and only sent safe IDs/flags to PostHog.
 - **Verification:** `pnpm -C web build` succeeds in `web/` on this branch.
 - **Rollback:** Revert branch / close the PR (PostHog integration is isolated to the analytics wrapper + event call sites).
-
-### debug(posthog): sessions visible but events absent — narrow hardening pass (same branch)
-- **Branch:** `feat/posthog-foundation` (same PR; no new PR)
-- **Observed founder symptom:** PostHog sessions appeared, but Activity/Events showed none (0 pageviews).
-- **Narrow fix:**
-  - Added compact browser debug logs in analytics wrapper to prove init/capture flow:
-    - init env presence yes/no
-    - provider mount
-    - capture attempts + event names
-    - identify attempts
-    - capture/identify errors
-  - Added auth state listener in `PostHogProvider` so `identify(user_id)` updates when auth state changes after initial mount.
-  - Kept event taxonomy unchanged (no new event types, no new vendors, no product feature changes).
-- **Files:** `web/src/lib/analytics/posthogClient.ts`, `web/src/lib/analytics/PostHogProvider.tsx`
-- **Verification:** `pnpm -C web build` passes after hardening patch.
 
 ## feat(ui): /family action-first redesign (Figma Manage Family V2) — 2026-03-19
 - **Branch:** `feat/family-figma-redesign`
@@ -2278,16 +2242,6 @@ Category-only cards remain publishable.
 
 ---
 
-## feat(analytics-foundation): discovery-first analytics contract (Mar 2026)
-
-- **Goal:** Ground Ember analytics and lifecycle foundations before any vendor install by locking real surfaces, canonical IDs, privacy boundaries, and NOW-vs-LATER events.
-- **What changed:** Added `web/docs/analytics-foundation-discovery.md` with required sections A-G: current truth, canonical IDs, do-not-invent IDs, NOW taxonomy, LATER taxonomy, privacy boundary, and recommended next 3 PRs. No runtime behavior, schema, SDK, or vendor integrations changed.
-- **Routes inspected:** `/`, `/signin`, `/signin/password`, `/verify`, `/auth/callback`, `/auth/confirm`, `/add-children`, `/add-children/[id]`, `/family`, `/discover`, `/discover/[months]`, `/products`, `/my-ideas`, `/gift/[slug]`, `/marketplace`, `/marketplace/listings`, `/api/click`, `/go/[id]`.
-- **Data/file evidence inspected:** `web/src/lib/pl/public.ts`, `web/src/lib/children/actions.ts`, `web/src/lib/gift/actions.ts`, `web/src/lib/marketplace/actions.ts`, `web/src/lib/discover/serverDiscoverChild.ts`, and Supabase migrations for core schema, list items, gift shares/public functions, and marketplace RLS/tables.
-- **Analytics code check:** No vendor SDKs found (`posthog`, `segment`, `mixpanel`, `amplitude`, etc.). Existing first-party telemetry/logging points are `/api/click` (`product_clicks`) and `/go/[id]` (`click_events` best-effort insert).
-- **Baseline/build scout:** `main` builds cleanly after locked dependency install in clean worktree (`pnpm -C web install --frozen-lockfile` + `pnpm -C web build`).
-- **Rollback:** Revert this PR (docs/state updates only).
-
 ## fix(snag-pack): 13-item snag fixes (fix/snag-pack-homepage)
 
 - **Goal:** Resolve the 13 requested snags only (nav/mobile polish, discover/save/family UX, signin return path, and marketplace CTA tweaks).
@@ -2315,140 +2269,30 @@ Category-only cards remain publishable.
 - Discover stage robin logo increased further with responsive sizing and non-stretched rendering on mobile + desktop (`web/src/app/discover/[months]/DiscoveryPageClient.tsx`).
 - **Proof:** `pnpm -C web build` passes after final visual tweaks.
 
+---
 
-## 2026-03-25 — OneSignal Web Push Foundation
+## feat(pricing): Project Leaf Pricing Page (exact) + wiring (Mar 2026)
 
-### Founder Exec Summary
+- **Summary:** Added new `/pricing` route using the supplied Figma Make pricing code as the UI source of truth, with minimal Ember integration.
+- **Routes:** Added `web/src/app/pricing/page.tsx`.
+- **Integration notes (minimal adaptation):** Kept Ember global shell unchanged (existing navbar/subnav in root layout). The Figma-internal header component was intentionally not mounted to avoid duplicate nav.
+- **Imported UI folder:** `web/src/components/figma/pricing/*` (`PricingPageFigmaClient.tsx`, `interactive-comparison.tsx`, `pricing-card.tsx`, `faq.tsx`).
+- **Data wiring:** No Supabase/API data path for this page; route is informational/static and does not change existing tables/endpoints/auth behavior.
+- **Verification:** `pnpm -C web build` passes and includes `/pricing` in generated app routes.
+- **Preview URL:** [To be added in PR after Vercel finishes]
+- **Known debt:** Figma pack includes a standalone header file not used in Ember integration by design; current CTA buttons are visual-only until product flow destination is specified.
 
-Added a minimal, privacy-safe OneSignal web push foundation for Ember PWA/web so a signed-in founder can opt in a browser device and receive a manual test push from OneSignal. This PR deliberately avoids journeys and complex messaging logic.
+### follow-up: pricing v2 top spacing pass
+- **Goal:** Apply v2 Figma spacing/card adjustments focused on top of page only (hero + pricing cards).
+- **What changed:** `web/src/components/figma/pricing/PricingPageFigmaClient.tsx` hero spacing updated to `pt-16 pb-20 lg:pt-24 lg:pb-28`; pricing section spacing updated to `pb-16 lg:pb-20`. `web/src/components/figma/pricing/pricing-card.tsx` updated to compact v2 card metrics (padding, badge size/offset, heading/price/type scales, feature spacing/icon size, CTA size/font).
+- **Proof:** `pnpm -C web build` passes after v2 spacing updates.
 
-### Summary
+### follow-up: pricing hero line break + conflict resolution
+- **Goal:** Force hero second sentence onto line 2 and clear PR merge conflicts.
+- **What changed:** Added explicit `<br />` between "Browse for free." and "Let Ember guide what to buy." in `web/src/components/figma/pricing/PricingPageFigmaClient.tsx`. Merged latest `origin/main` into pricing branch and resolved conflicts (kept `main` versions for unrelated `FamilyFigmaClient` and `UnifiedSignedInNav` files).
+- **Proof:** `pnpm -C web build` passes on merged branch; pushed to PR branch.
 
-- Integrated OneSignal Web SDK (v16 via `react-onesignal`) with guarded client initialization.
-- Added root-level OneSignal service worker files:
-  - `web/public/OneSignalSDKWorker.js`
-  - `web/public/OneSignalSDKUpdaterWorker.js`
-- Added a safe identity link from signed-in Ember user to OneSignal external ID using only stable `user.id`.
-- Added OneSignal provider in root app layout to keep identity linkage synced on auth changes.
-- Added one calm, explicit founder-testable UI entry point in signed-in Account page:
-  - Button: **Turn on reminders**
-  - No auto-prompt on load.
-- Added minimal env var support:
-  - `NEXT_PUBLIC_ONESIGNAL_APP_ID`
-- Added founder runbook with click-by-click OneSignal + Vercel setup, test flow, and rollback.
-
-### Privacy boundary enforced
-
-Sent to OneSignal in this PR:
-- Ember stable signed-in user id only (`user.id`) via `OneSignal.login(externalId)`.
-
-Not sent:
-- child names
-- exact DOB / due dates
-- exact postcode/location
-- free-text notes
-- message history/content
-- sensitive family context
-
-### Ground-truth paths used
-
-- PWA manifest: `web/src/app/manifest.ts`
-- Root layout wiring point: `web/src/app/layout.tsx`
-- Signed-in founder-safe surface for opt-in: `web/src/app/account/page.tsx`
-- User identity source: Supabase auth user id (`user.id`) in client auth session
-- Existing service worker setup before this PR: none found in app code/public root
-
-### Verification (Proof-of-Done)
-
-- Baseline main build (after dependency install): `pnpm -C web build` ✅
-- Feature branch build after changes: `pnpm -C web build` ✅
-
-### Rollback
-
-- Revert this PR to remove OneSignal foundation changes.
-- Optionally remove `NEXT_PUBLIC_ONESIGNAL_APP_ID` from Vercel environments.
-
-## 2026-03-26 — fix(onesignal): scope worker under /push/onesignal for live web push prompt
-
-- **Goal:** Fix live `/account` push opt-in error ("Could not start browser push permission. Please try again.") with the smallest safe change.
-- **Root cause hypothesis confirmed in code audit:** OneSignal foundation used root-level worker files and default init worker settings. That can collide with existing/expected PWA root worker behavior and block reliable OneSignal permission startup on live origin.
-- **What changed:** Moved OneSignal worker files from root to `web/public/push/onesignal/` and updated OneSignal init config to explicitly use:
-  - `serviceWorkerPath: "/push/onesignal/OneSignalSDKWorker.js"`
-  - `serviceWorkerUpdaterPath: "/push/onesignal/OneSignalSDKUpdaterWorker.js"`
-  - `serviceWorkerParam.scope: "/push/onesignal/"`
-- **Founder runbook update:** `web/docs/onesignal-web-push-foundation-runbook.md` now sets canonical Site URL to `https://www.emberplay.app`, service worker path/scope to `/push/onesignal/`, redeploy-after-merge guidance, and live-only test flow.
-- **Proof:** `pnpm -C web build` passes. Preview start command runs successfully for manual verification.
-- **Rollback:** Revert this PR to restore prior root-level worker setup.
-
-## 2026-03-27 — fix(onesignal): prevent desktop SDK double-init on account CTA
-
-- **Build name:** OneSignal Double-Init Fix.
-- **Goal:** Fix desktop `/account` push CTA failures caused by `SDK already initialized`, while keeping OneSignal scope/auth behavior unchanged.
-- **Root cause in flow audit:** OneSignal init is reached from both app-level provider sync (`OneSignalProvider` -> `linkOneSignalExternalUser` / `unlinkOneSignalExternalUser`) and account push flow (`getOneSignalPushDiagnostics` on mount + CTA path). In some desktop runtimes this produced a second SDK init attempt and threw.
-- **What changed:** Added a hard single-init guard in `web/src/lib/onesignal/client.ts` (module + `window` flags), treat `"SDK already initialized"` as already-ready, and added diagnostics helpers so CTA uses current SDK state instead of optimistic permission-only success.
-- **UI state fix:** Account push state now distinguishes: not initialized, permission default, permission granted but not subscribed, fully subscribed, denied/blocked, and recoverable error.
-- **Temporary founder logs:** Added requested logs for init start/skip, permission, subscription id presence, token presence, optedIn, and CTA click.
-- **Proof:** `pnpm -C web build` passes; preview server started; worker URL check `http://localhost:3010/push/onesignal/OneSignalSDKWorker.js` returned `200`.
-
-## 2026-03-27 — fix(onesignal): live desktop subscription handshake debug
-
-- **Build name:** OneSignal Live Desktop Subscription Debug.
-- **Goal:** Fix live desktop Chrome not becoming a real OneSignal subscriber (`Never Subscribed` / `No Push Token`) despite CTA and permission flow.
-- **Exact failure point found in code path:** `ensureOneSignalPushSubscription()` read subscription/token immediately after `requestPermission`/`optIn`. Desktop web can complete token/subscription asynchronously, so immediate reads often stayed empty (or threw on transient SDK state), producing false non-subscribed outcomes and occasional `recoverable_error`.
-- **What changed (small/safe):** Added stronger guarded diagnostics and handshake wait in `web/src/lib/onesignal/client.ts`: init done log, service worker registration log, safe PushSubscription reads, requestPermission/optIn start+result logs, short polling wait for real subscription completion, and short-form error logs.
-- **UI/error behavior:** `web/src/app/account/page.tsx` now logs state transitions (`onesignal:state_transition:<from> -> <to>`) and only sets `recoverable_error` on genuine thrown exceptions with `onesignal:error:<message>`.
-- **Proof:** `pnpm -C web build` passes after changes.
-
-## 2026-03-27 — fix(onesignal): use relative OneSignal worker script paths
-
-- **Goal:** Fix live service worker registration error `origin of the provided scriptURL ('https://push') does not match the current origin`.
-- **Root cause:** `OneSignal.init()` used leading-slash worker script paths. For OneSignal custom code setup, script path fields must be relative (no leading slash), while scope remains absolute.
-- **What changed:** In `web/src/lib/onesignal/client.ts`, set:
-  - `serviceWorkerPath: "push/onesignal/OneSignalSDKWorker.js"`
-  - `serviceWorkerUpdaterPath: "push/onesignal/OneSignalSDKUpdaterWorker.js"`
-  - kept `serviceWorkerParam.scope: "/push/onesignal/"`
-- **Runbook alignment:** `web/docs/onesignal-web-push-foundation-runbook.md` now explicitly includes registration scope `/push/onesignal/` with existing path and filenames.
-- **Proof:** `pnpm -C web build` passes.
-
-## 2026-03-27 — feat(push-master-control): nav reminders as browser push master switch
-
-- **Build name:** Push Master Control Migration (PR1).
-- **Revised scope (same PR, not merged as originally written):** Top-nav **Reminders** is **not** a toggle and does **not** enable/disable push or reflect OneSignal subscription state. It is a normal nav link to reminder management. Push enable/disable stays out of the nav (Family `/family#reminders` is the route in).
-- **Goal:** Nav cleanup: one clear route into reminder management; `/account` stays status-only for browser push + link to `/family#reminders`.
-- **What changed:** `web/src/components/subnav/UnifiedSignedInNav.tsx` — replaced Reminders switch + info icon with a single clickable **Reminders** item linking to `/family#reminders` (desktop xl + mobile stats row). No DB `user_notification_prefs` writes from nav, no OneSignal toggle in nav.
-- **OneSignal helpers:** `web/src/lib/onesignal/client.ts` — `getOneSignalMasterPushState` + `mapDiagnosticsToMasterPushState` for read-only status on `/account` only; removed nav-only `setOneSignalMasterPushEnabled` / opt-out toggle path.
-- **Account:** `web/src/app/account/page.tsx` — status text + **Manage reminders** → `/family#reminders` only.
-- **Scope safety:** No new vendors, no `/family` reminder model changes, no topic matrix, no per-child targeting in this PR.
-- **Proof:** `pnpm -C web build` passes after revision.
-
-## 2026-03-31 — feat(inventory): canonical spine + ranked match API
-
-- **Goal:** Build a canonical inventory spine for household item logging and expose a deterministic ranked match API (exact alias/label + FTS + trigram), with no polished UI changes.
-- **What changed:** Added migration `supabase/sql/202603311200_inventory_spine_and_match.sql` with `product_types`, `product_type_aliases`, `garage_items`, `inventory_search_events`, normalization function `normalize_inventory_alias`, and ranking RPC `inventory_match_product_types(query_text, p_limit)`.
-- **Security:** Added owner-only RLS for `garage_items` and `inventory_search_events`; authenticated read only for active canonical types/aliases; no anonymous widening on canonical tables.
-- **API:** Added authenticated route `web/src/app/api/inventory/match/route.ts` returning top candidates (`id`, `slug`, `label`, `subtitle`, `confidence_bucket`) and logging search telemetry.
-- **Seed/data rule:** Bootstraps canonical rows only from existing `marketplace_item_types` + synonyms (no fabricated catalogue rows).
-- **Proof:** `pnpm -C web build` passes on latest `main` baseline and after this branch changes.
-
-### completion receipts
-
-- **PR:** `https://github.com/glownest2026-droid/ember/pull/190`
-- **Vercel preview:** `https://ember-git-feat-inventory-spine-match-api-tims-projects-cd69a894.vercel.app`
-- **Checks:** GitHub checks green (`Vercel`, `Vercel Preview Comments` both `SUCCESS`).
-- **Migration applied to linked Ember prod project:** executed via Supabase CLI push path and confirmed object availability by live REST/RPC queries.
-- **Backfill proof:** `product_types_rows=10`, `product_type_aliases_rows=38`.
-- **Determinism proof:** `inventory_match_product_types('high chair',5)` run twice; same ordering, same confidence buckets, same scores.
-- **Example-gap proof:** `inventory_match_product_types('foot gauge',5)` returned no rows (term absent from real canonical seed truth); no fabricated rows added.
-- **RLS proof:** authenticated owner session can read own inserted `garage_items` (`owner_read_count=1`); second authenticated user sees `0`; anon sees `0`.
-- **Route proof (deployed preview):** `GET /api/inventory/match?q=high%20chair&limit=5` unauthenticated returns `401 {"error":"Unauthorized"}`.
-
-## 2026-03-31 — feat(family): PR2 quick-add wired to garage_items
-
-- **Goal:** Wire Family quick-add modal to real inventory matching + save flow while preserving `Find it` (`user_list_items`) vs `At home` (`garage_items`) separation.
-- **What changed:** `web/src/components/figma/family/FamilyFigmaClient.tsx` now calls `/api/inventory/match` with debounce (350ms) and min 3 characters, replacing hardcoded suggestions.
-- **Modal states:** Added loading, empty, and error states; users can select a candidate or choose explicit fallback ("None of these").
-- **Save flow:** Selected candidate saves to `garage_items` with child/shared/unknown mapping and `source='manual_match'`; fallback logs to `inventory_search_events` with no `user_list_items` writes.
-- **Success UX:** Modal shows clear success state and closes cleanly via Done.
-- **At-home refresh (safe/local):** Added Family-local owned count from `garage_items` and used it only in Family "At home" surfaces; global/subnav counters remain on `get_my_subnav_stats` / `user_list_items`.
-- **Proof:** `pnpm -C web build` passes.
-
+### follow-up: navbar discoverability links
+- **Goal:** Make pricing discoverable in signed-out and signed-in nav paths.
+- **What changed:** Signed-out navbar now includes `About` (`/`) and `Pricing` (`/pricing`) before `Sign in` in `web/src/components/discover/DiscoverStickyHeader.tsx` (desktop, mobile top bar, and mobile menu panel). Signed-in account menu now includes `Membership` (Gem icon, links to `/pricing`) after `Family` in `web/src/components/subnav/UnifiedSignedInNav.tsx` (desktop dropdown and mobile menu panel).
+- **Proof:** `pnpm -C web build` passes after navbar link additions.

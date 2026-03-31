@@ -126,6 +126,18 @@ export default function DiscoverStickyHeader() {
             ) : (
               <>
                 <Link
+                  href="/"
+                  className="text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] whitespace-nowrap"
+                >
+                  About
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] whitespace-nowrap"
+                >
+                  Pricing
+                </Link>
+                <Link
                   href={signinHref}
                   className="text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] whitespace-nowrap"
                 >
@@ -189,6 +201,18 @@ export default function DiscoverStickyHeader() {
               </>
             ) : (
               <>
+                <Link
+                  href="/"
+                  className="text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
+                >
+                  About
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
+                >
+                  Pricing
+                </Link>
                 <Link
                   href={signinHref}
                   className="text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
@@ -266,6 +290,20 @@ export default function DiscoverStickyHeader() {
               </>
             ) : (
               <>
+                <Link
+                  href="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 text-[var(--ember-text-high)] font-medium"
+                >
+                  About
+                </Link>
+                <Link
+                  href="/pricing"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 text-[var(--ember-text-high)] font-medium"
+                >
+                  Pricing
+                </Link>
                 <Link
                   href={signinHref}
                   onClick={() => setMobileMenuOpen(false)}
