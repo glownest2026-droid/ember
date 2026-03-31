@@ -2430,3 +2430,15 @@ Not sent:
 - **Seed/data rule:** Bootstraps canonical rows only from existing `marketplace_item_types` + synonyms (no fabricated catalogue rows).
 - **Proof:** `pnpm -C web build` passes on latest `main` baseline and after this branch changes.
 
+### completion receipts
+
+- **PR:** `https://github.com/glownest2026-droid/ember/pull/190`
+- **Vercel preview:** `https://ember-git-feat-inventory-spine-match-api-tims-projects-cd69a894.vercel.app`
+- **Checks:** GitHub checks green (`Vercel`, `Vercel Preview Comments` both `SUCCESS`).
+- **Migration applied to linked Ember prod project:** executed via Supabase CLI push path and confirmed object availability by live REST/RPC queries.
+- **Backfill proof:** `product_types_rows=10`, `product_type_aliases_rows=38`.
+- **Determinism proof:** `inventory_match_product_types('high chair',5)` run twice; same ordering, same confidence buckets, same scores.
+- **Example-gap proof:** `inventory_match_product_types('foot gauge',5)` returned no rows (term absent from real canonical seed truth); no fabricated rows added.
+- **RLS proof:** authenticated owner session can read own inserted `garage_items` (`owner_read_count=1`); second authenticated user sees `0`; anon sees `0`.
+- **Route proof (deployed preview):** `GET /api/inventory/match?q=high%20chair&limit=5` unauthenticated returns `401 {"error":"Unauthorized"}`.
+

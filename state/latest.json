@@ -1,11 +1,11 @@
 {
   "pr": {
-    "number": null,
+    "number": 190,
     "title": "feat(inventory): canonical spine + ranked match API",
     "branch": "feat/inventory-spine-match-api",
     "base": "main",
-    "url": null,
-    "vercel_preview_url": null,
+    "url": "https://github.com/glownest2026-droid/ember/pull/190",
+    "vercel_preview_url": "https://ember-git-feat-inventory-spine-match-api-tims-projects-cd69a894.vercel.app",
     "rollback": "Revert the PR; if migration already applied, add a follow-up rollback migration to drop new inventory objects."
   },
   "receipt": {
@@ -14,7 +14,11 @@
       "git fetch origin main",
       "git worktree add C:/Users/timwo/ember-main-baseline origin/main",
       "pnpm -C web install",
-      "pnpm -C web build"
+      "pnpm -C web build",
+      "supabase db push --include-all",
+      "gh pr create --base main --head feat/inventory-spine-match-api",
+      "gh pr checks 190",
+      "Live Supabase REST/RPC proof queries for backfill counts, ranking determinism, and RLS"
     ],
     "files_changed_recent": [
       "supabase/sql/202603311200_inventory_spine_and_match.sql",
@@ -25,9 +29,12 @@
     "verification_steps": [
       "pnpm -C web build succeeds on latest main baseline",
       "pnpm -C web build succeeds after inventory spine changes",
-      "Call GET /api/inventory/match?q=<query>&limit=5 while signed in",
+      "PR #190 exists and GitHub checks are green",
+      "Vercel preview deployment is green and URL is captured",
+      "Call GET /api/inventory/match?q=high%20chair&limit=5 on preview while signed out and verify 401",
       "Verify anon call returns 401 Unauthorized",
-      "Apply migration and run SQL proof queries for ranking and RLS"
+      "Apply migration and run live SQL-equivalent proof queries for ranking and RLS",
+      "Confirm product_types and product_type_aliases backfill counts and sample rows from live DB"
     ],
     "rollback_plan": "Revert PR; if SQL already applied, run a rollback migration that drops inventory_match_product_types, normalize_inventory_alias, telemetry/owned-items tables, aliases/types tables, and enum types."
   },
