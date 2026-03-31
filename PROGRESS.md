@@ -1,5 +1,27 @@
 # CTO Snapshot (Source of Truth)
- _Last updated: 2026-03-19_
+ _Last updated: 2026-03-25_
+
+## feat(posthog): PostHog foundation (privacy-safe, discovery-grounded) — 2026-03-25
+- **Branch:** `feat/posthog-foundation`
+- **Goal:** Install a minimal, privacy-safe PostHog foundation for Ember using the analytics discovery contract as the source of truth, without changing runtime product behavior beyond necessary client navigation timing for child-save tracking.
+- **Scope (no vendors besides PostHog):**
+  - Client-side PostHog init + app-owned event wrapper (manual `page_view` capture only)
+  - No session replay (stopped after init), no heatmaps capture enablement, no surveys enablement
+  - Env-driven configuration via `NEXT_PUBLIC_POSTHOG_KEY` + `NEXT_PUBLIC_POSTHOG_HOST` with fail-closed behavior when missing
+- **Events implemented (NOW, grounded insertion points):**
+  - `page_view`
+  - `sign_in_completed` (auth callback/confirm via cookie + `/verify` + `/signin/password`)
+  - `child_profile_created` / `child_profile_updated` (emitted after successful `saveChild()` server action returns)
+  - `shortlist_viewed` (Discovery examples section entry)
+  - `retailer_outbound_clicked` (paired with existing `/api/click` logging insertion points)
+  - `product_saved` (Discovery save_product success)
+  - `gift_page_viewed` / `gift_page_shared` (gift list load + share copy success)
+- **Explicitly deferred:**
+  - `garage_item_added` (not proven as a deterministic insertion point yet)
+  - All other lifecycle/marketplace events reserved in the contract
+- **Stop-sign handling:** Did not widen anon access, did not invent canonical IDs, and only sent safe IDs/flags to PostHog.
+- **Verification:** `pnpm -C web build` succeeds in `web/` on this branch.
+- **Rollback:** Revert branch / close the PR (PostHog integration is isolated to the analytics wrapper + event call sites).
 
 ## feat(ui): /family action-first redesign (Figma Manage Family V2) — 2026-03-19
 - **Branch:** `feat/family-figma-redesign`
@@ -2246,3 +2268,16 @@ Category-only cards remain publishable.
 - `/my-ideas` minus icon tuned down (less prominent) and centered visually inside circle (`web/src/components/family/MyIdeasClient.tsx`).
 - Discover stage robin logo increased further with responsive sizing and non-stretched rendering on mobile + desktop (`web/src/app/discover/[months]/DiscoveryPageClient.tsx`).
 - **Proof:** `pnpm -C web build` passes after final visual tweaks.
+
+---
+
+## feat(pricing): Project Leaf Pricing Page (exact) + wiring (Mar 2026)
+
+- **Summary:** Added new `/pricing` route using the supplied Figma Make pricing code as the UI source of truth, with minimal Ember integration.
+- **Routes:** Added `web/src/app/pricing/page.tsx`.
+- **Integration notes (minimal adaptation):** Kept Ember global shell unchanged (existing navbar/subnav in root layout). The Figma-internal header component was intentionally not mounted to avoid duplicate nav.
+- **Imported UI folder:** `web/src/components/figma/pricing/*` (`PricingPageFigmaClient.tsx`, `interactive-comparison.tsx`, `pricing-card.tsx`, `faq.tsx`).
+- **Data wiring:** No Supabase/API data path for this page; route is informational/static and does not change existing tables/endpoints/auth behavior.
+- **Verification:** `pnpm -C web build` passes and includes `/pricing` in generated app routes.
+- **Preview URL:** [To be added in PR after Vercel finishes]
+- **Known debt:** Figma pack includes a standalone header file not used in Ember integration by design; current CTA buttons are visual-only until product flow destination is specified.
