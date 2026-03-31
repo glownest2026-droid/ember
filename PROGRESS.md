@@ -2286,3 +2286,8 @@ Category-only cards remain publishable.
 - **Goal:** Apply v2 Figma spacing/card adjustments focused on top of page only (hero + pricing cards).
 - **What changed:** `web/src/components/figma/pricing/PricingPageFigmaClient.tsx` hero spacing updated to `pt-16 pb-20 lg:pt-24 lg:pb-28`; pricing section spacing updated to `pb-16 lg:pb-20`. `web/src/components/figma/pricing/pricing-card.tsx` updated to compact v2 card metrics (padding, badge size/offset, heading/price/type scales, feature spacing/icon size, CTA size/font).
 - **Proof:** `pnpm -C web build` passes after v2 spacing updates.
+
+### follow-up: navbar discoverability links
+- **Goal:** Make pricing discoverable in signed-out and signed-in nav paths.
+- **What changed:** Signed-out navbar now includes `About` (`/`) and `Pricing` (`/pricing`) before `Sign in` in `web/src/components/discover/DiscoverStickyHeader.tsx` (desktop, mobile top bar, and mobile menu panel). Signed-in account menu now includes `Membership` (Gem icon, links to `/pricing`) after `Family` in `web/src/components/subnav/UnifiedSignedInNav.tsx` (desktop dropdown and mobile menu panel).
+- **Proof:** `pnpm -C web build` passes after navbar link additions.
