@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { validateImage } from '../../../../../lib/imagePolicy';
+import { EVENTS } from '@/lib/analytics/eventNames';
+import { trackEvent } from '@/lib/analytics/trackEvent';
 
 type Product = {
   id: string;
@@ -50,6 +52,18 @@ export default function ProductCard({ product, selectedChildId, selectedChildAge
       dest_host: getDestHost(outboundUrl),
       source: 'recs_v0',
     };
+
+    // PostHog FOUNDATION: outbound click captured at the same insertion point
+    // as the existing first-party `/api/click` logging.
+    trackEvent(EVENTS.RETAILER_OUTBOUND_CLICKED, {
+      product_id: payload.product_id,
+      retailer_host: payload.dest_host,
+      source_surface: 'recs',
+      source: payload.source,
+      click_path_type: 'api_click',
+      child_id: payload.child_id ?? null,
+      age_band: payload.age_band ?? null,
+    });
 
     // Prefer sendBeacon (most reliable for navigation)
     if (navigator.sendBeacon) {

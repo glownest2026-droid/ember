@@ -3,6 +3,9 @@
 import { useState, useCallback } from 'react';
 import { Copy, ExternalLink, Gift } from 'lucide-react';
 import { getOrCreateGiftShareSlug } from '@/lib/gift/actions';
+import { createClient } from '@/utils/supabase/client';
+import { EVENTS } from '@/lib/analytics/eventNames';
+import { trackEvent } from '@/lib/analytics/trackEvent';
 
 /** Share your gift list: Copy link + Preview. Slug is created on first use. */
 export function ShareYourGiftListWidget({ compact = false }: { compact?: boolean } = {}) {
@@ -31,12 +34,28 @@ export function ShareYourGiftListWidget({ compact = false }: { compact?: boolean
     const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/gift/${slug}`;
     try {
       await navigator.clipboard.writeText(url);
+
+      // PostHog FOUNDATION: gift list share copied.
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        if (data.user?.id) {
+          trackEvent(EVENTS.GIFT_PAGE_SHARED, {
+            user_id: data.user.id,
+            gift_share_slug: slug,
+            share_surface: compact ? 'family' : 'my_ideas',
+          });
+        }
+      } catch {
+        // Fail closed
+      }
+
       setCopyStatus('copied');
       setTimeout(() => setCopyStatus('idle'), 2500);
     } catch {
       setCopyStatus('error');
     }
-  }, [ensureSlug]);
+  }, [ensureSlug, compact]);
 
   const handlePreview = useCallback(async () => {
     setPreviewError(null);

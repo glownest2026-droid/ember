@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { Gift, ImageOff, Users } from 'lucide-react';
+import { EVENTS } from '@/lib/analytics/eventNames';
+import { trackEvent } from '@/lib/analytics/trackEvent';
 
 export type PublicGiftItem = {
   id: string;
@@ -19,11 +21,20 @@ export function GiftListClient({
   items,
   listTitle = 'Their',
   childrenOptions = [],
+  giftShareSlug,
 }: {
   items: PublicGiftItem[];
   listTitle?: string;
   childrenOptions?: { id: string; label: string }[];
+  giftShareSlug: string;
 }) {
+  useEffect(() => {
+    trackEvent(EVENTS.GIFT_PAGE_VIEWED, {
+      gift_share_slug: giftShareSlug,
+      items_count: items.length,
+    });
+  }, [giftShareSlug, items.length]);
+
   const { childOptions, hasUnassigned } = useMemo(() => {
     const unassigned = items.some((row) => !row.child_id);
     return { childOptions: childrenOptions, hasUnassigned: unassigned };
