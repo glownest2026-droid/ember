@@ -16,6 +16,7 @@ export default function PricingPageFigmaClient() {
               style={{ fontSize: 'clamp(2.25rem, 4.5vw, 3.5rem)', fontWeight: 400, letterSpacing: '-0.01em', lineHeight: 1.15 }}
             >
               <span style={{ color: 'var(--ember-gray-900)' }}>Browse for free. </span>
+              <br />
               <span style={{ color: '#B8432B' }}>Let Ember guide what to buy.</span>
             </h1>
           </div>
