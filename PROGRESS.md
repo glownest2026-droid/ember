@@ -2296,3 +2296,13 @@ Category-only cards remain publishable.
 - **Goal:** Make pricing discoverable in signed-out and signed-in nav paths.
 - **What changed:** Signed-out navbar now includes `About` (`/`) and `Pricing` (`/pricing`) before `Sign in` in `web/src/components/discover/DiscoverStickyHeader.tsx` (desktop, mobile top bar, and mobile menu panel). Signed-in account menu now includes `Membership` (Gem icon, links to `/pricing`) after `Family` in `web/src/components/subnav/UnifiedSignedInNav.tsx` (desktop dropdown and mobile menu panel).
 - **Proof:** `pnpm -C web build` passes after navbar link additions.
+
+### follow-up: mobile signed-out nav de-cramp
+- **Goal:** Reduce top-bar crowding on signed-out mobile navbar.
+- **What changed:** Removed `About` from signed-out **mobile top bar** in `web/src/components/discover/DiscoverStickyHeader.tsx`; kept desktop signed-out nav and mobile menu panel entries unchanged.
+- **Proof:** `pnpm -C web build` passes after this tweak.
+
+### follow-up: mobile signed-out nav de-cramp v2
+- **Goal:** Further reduce signed-out mobile top-bar crowding.
+- **What changed:** Removed `Pricing` and `Sign in` from the signed-out **mobile top bar** in `web/src/components/discover/DiscoverStickyHeader.tsx`; `Get started` remains in the top bar. Desktop nav and mobile menu panel links remain unchanged.
+- **Proof:** `pnpm -C web build` passes after this tweak.
