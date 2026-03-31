@@ -2442,3 +2442,13 @@ Not sent:
 - **RLS proof:** authenticated owner session can read own inserted `garage_items` (`owner_read_count=1`); second authenticated user sees `0`; anon sees `0`.
 - **Route proof (deployed preview):** `GET /api/inventory/match?q=high%20chair&limit=5` unauthenticated returns `401 {"error":"Unauthorized"}`.
 
+## 2026-03-31 — feat(family): PR2 quick-add wired to garage_items
+
+- **Goal:** Wire Family quick-add modal to real inventory matching + save flow while preserving `Find it` (`user_list_items`) vs `At home` (`garage_items`) separation.
+- **What changed:** `web/src/components/figma/family/FamilyFigmaClient.tsx` now calls `/api/inventory/match` with debounce (350ms) and min 3 characters, replacing hardcoded suggestions.
+- **Modal states:** Added loading, empty, and error states; users can select a candidate or choose explicit fallback ("None of these").
+- **Save flow:** Selected candidate saves to `garage_items` with child/shared/unknown mapping and `source='manual_match'`; fallback logs to `inventory_search_events` with no `user_list_items` writes.
+- **Success UX:** Modal shows clear success state and closes cleanly via Done.
+- **At-home refresh (safe/local):** Added Family-local owned count from `garage_items` and used it only in Family "At home" surfaces; global/subnav counters remain on `get_my_subnav_stats` / `user_list_items`.
+- **Proof:** `pnpm -C web build` passes.
+
