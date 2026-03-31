@@ -339,13 +339,31 @@ export function FamilyFigmaClient({
         return;
       }
 
-      await supabase.from('inventory_search_events').insert({
+      const { data: searchEvent, error: searchEventError } = await supabase
+        .from('inventory_search_events')
+        .insert({
         user_id: user.id,
         raw_query: query,
         selected_product_type_id: null,
         confidence_bucket: null,
         was_confirmed: false,
+        })
+        .select('id')
+        .single();
+      if (searchEventError) {
+        setQuickAddError(searchEventError.message);
+        return;
+      }
+      const { error: unmatchedError } = await supabase.rpc('inventory_log_unmatched_query', {
+        p_raw_query: query,
+        p_latest_search_event_id: searchEvent?.id ?? null,
+        p_child_scope_type: childScopeType,
+        p_child_id: childId,
       });
+      if (unmatchedError) {
+        setQuickAddError(unmatchedError.message);
+        return;
+      }
       setQuickAddSavedToGarage(false);
       setQuickAddSaved(true);
     } finally {

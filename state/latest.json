@@ -1,35 +1,35 @@
 {
   "pr": {
     "number": null,
-    "title": "feat(family): wire quick-add modal to garage inventory flow",
-    "branch": "feat/pr2-family-quickadd-garage-flow",
+    "title": "feat(inventory): add founder unmatched review queue and views",
+    "branch": "feat/inventory-founder-unmatched-review-pr3",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
-    "rollback": "Revert PR2; no schema rollback required."
+    "rollback": "Revert PR3 commit(s); optionally drop new queue/views/function."
   },
   "receipt": {
-    "goal": "Wire Family/Home quick-add modal to real inventory matcher and garage_items save flow without contaminating Find it/user_list_items.",
+    "goal": "Build founder visibility into canonical inventory matching and unmatched/no-match queue without changing public UX boundaries.",
     "commands_run": [
       "git fetch origin main",
-      "git checkout -b feat/pr2-family-quickadd-garage-flow",
+      "git checkout -b feat/inventory-founder-unmatched-review-pr3",
       "pnpm -C web build"
     ],
     "files_changed_recent": [
+      "supabase/sql/202603311800_inventory_unmatched_queue_founder_views.sql",
       "web/src/components/figma/family/FamilyFigmaClient.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "verification_steps": [
-      "Family quick-add now calls /api/inventory/match with 350ms debounce and min 3 chars",
-      "Loading/empty/error states shown in modal",
-      "Candidate selection or explicit fallback is required before save",
-      "Selected candidate writes to garage_items with child/shared/unknown scope mapping",
-      "Fallback logs missing term to inventory_search_events without writing user_list_items",
-      "Family-local At home count refreshes from garage_items; subnav/global counters unchanged",
+      "No-match fallback inserts inventory_search_events row and logs/updates inventory_unmatched_queue via RPC",
+      "Repeated same normalized unmatched term increments times_seen and updates last_seen_at",
+      "Matched quick-add path remains garage_items insert flow",
+      "No-match path still creates no garage_items row",
+      "Founder review views exist: v_inventory_dictionary_review and v_inventory_unmatched_review",
       "pnpm -C web build passes"
     ],
-    "rollback_plan": "Revert PR2 branch commit(s)."
+    "rollback_plan": "Revert PR3 branch commit(s); optionally drop new queue/views/function."
   },
   "timestamp": "2026-03-31T00:00:00Z"
 }
