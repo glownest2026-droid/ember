@@ -383,9 +383,19 @@ export function FamilyFigmaClient({
           `/api/inventory/match?q=${encodeURIComponent(query)}&limit=5`,
           { method: 'GET', cache: 'no-store' }
         );
-        const payload = (await response.json()) as { candidates?: InventoryMatchCandidate[]; error?: string };
+        const rawText = await response.text();
+        let payload: { candidates?: InventoryMatchCandidate[]; error?: string } = {};
+        try {
+          payload = rawText ? (JSON.parse(rawText) as { candidates?: InventoryMatchCandidate[]; error?: string }) : {};
+        } catch {
+          payload = {};
+        }
         if (!response.ok) {
-          setQuickAddError(payload?.error ?? 'Could not load matches.');
+          if (response.status === 401) {
+            setQuickAddError('Your session expired in this preview. Please sign in again, or use fallback.');
+          } else {
+            setQuickAddError(payload?.error ?? 'Could not load matches.');
+          }
           setQuickAddCandidates([]);
           return;
         }
@@ -761,22 +771,25 @@ export function FamilyFigmaClient({
                       )}
                     </button>
                   ))}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setQuickAddMatch(null);
-                      setQuickAddAllowFallback(true);
-                    }}
-                    className={`w-full text-left p-3 rounded-xl border-2 transition-colors ${
-                      quickAddAllowFallback
-                        ? 'border-[#FF6347] bg-gradient-to-br from-[#FFF5F3] to-white'
-                        : 'border-[#E5E7EB] bg-white'
-                    }`}
-                  >
-                    <span className="block text-sm font-medium text-[#1A1E23]">None of these (log missing term)</span>
-                    <span className="block text-xs text-[#5C646D]">We&apos;ll log this query for canonical backfill.</span>
-                  </button>
                 </div>
+              )}
+
+              {!quickAddLoading && quickAddQuery.trim().length >= QUICK_ADD_MIN_CHARS && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuickAddMatch(null);
+                    setQuickAddAllowFallback(true);
+                  }}
+                  className={`w-full text-left p-3 rounded-xl border-2 transition-colors ${
+                    quickAddAllowFallback
+                      ? 'border-[#FF6347] bg-gradient-to-br from-[#FFF5F3] to-white'
+                      : 'border-[#E5E7EB] bg-white'
+                  }`}
+                >
+                  <span className="block text-sm font-medium text-[#1A1E23]">None of these (log missing term)</span>
+                  <span className="block text-xs text-[#5C646D]">We&apos;ll log this query for canonical backfill.</span>
+                </button>
               )}
 
               {(quickAddQuery || quickAddMatch || quickAddAllowFallback) && (
