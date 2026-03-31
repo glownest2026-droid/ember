@@ -1,42 +1,35 @@
 {
   "pr": {
-    "number": 190,
-    "title": "feat(inventory): canonical spine + ranked match API",
-    "branch": "feat/inventory-spine-match-api",
+    "number": null,
+    "title": "feat(family): wire quick-add modal to garage inventory flow",
+    "branch": "feat/pr2-family-quickadd-garage-flow",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/pull/190",
-    "vercel_preview_url": "https://ember-git-feat-inventory-spine-match-api-tims-projects-cd69a894.vercel.app",
-    "rollback": "Revert the PR; if migration already applied, add a follow-up rollback migration to drop new inventory objects."
+    "url": null,
+    "vercel_preview_url": null,
+    "rollback": "Revert PR2; no schema rollback required."
   },
   "receipt": {
-    "goal": "Build canonical inventory spine and deterministic ranked matching API for household item logging using real schema truth only.",
+    "goal": "Wire Family/Home quick-add modal to real inventory matcher and garage_items save flow without contaminating Find it/user_list_items.",
     "commands_run": [
       "git fetch origin main",
-      "git worktree add C:/Users/timwo/ember-main-baseline origin/main",
-      "pnpm -C web install",
-      "pnpm -C web build",
-      "supabase db push --include-all",
-      "gh pr create --base main --head feat/inventory-spine-match-api",
-      "gh pr checks 190",
-      "Live Supabase REST/RPC proof queries for backfill counts, ranking determinism, and RLS"
+      "git checkout -b feat/pr2-family-quickadd-garage-flow",
+      "pnpm -C web build"
     ],
     "files_changed_recent": [
-      "supabase/sql/202603311200_inventory_spine_and_match.sql",
-      "web/src/app/api/inventory/match/route.ts",
+      "web/src/components/figma/family/FamilyFigmaClient.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "verification_steps": [
-      "pnpm -C web build succeeds on latest main baseline",
-      "pnpm -C web build succeeds after inventory spine changes",
-      "PR #190 exists and GitHub checks are green",
-      "Vercel preview deployment is green and URL is captured",
-      "Call GET /api/inventory/match?q=high%20chair&limit=5 on preview while signed out and verify 401",
-      "Verify anon call returns 401 Unauthorized",
-      "Apply migration and run live SQL-equivalent proof queries for ranking and RLS",
-      "Confirm product_types and product_type_aliases backfill counts and sample rows from live DB"
+      "Family quick-add now calls /api/inventory/match with 350ms debounce and min 3 chars",
+      "Loading/empty/error states shown in modal",
+      "Candidate selection or explicit fallback is required before save",
+      "Selected candidate writes to garage_items with child/shared/unknown scope mapping",
+      "Fallback logs missing term to inventory_search_events without writing user_list_items",
+      "Family-local At home count refreshes from garage_items; subnav/global counters unchanged",
+      "pnpm -C web build passes"
     ],
-    "rollback_plan": "Revert PR; if SQL already applied, run a rollback migration that drops inventory_match_product_types, normalize_inventory_alias, telemetry/owned-items tables, aliases/types tables, and enum types."
+    "rollback_plan": "Revert PR2 branch commit(s)."
   },
   "timestamp": "2026-03-31T00:00:00Z"
 }
