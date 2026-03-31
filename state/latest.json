@@ -1,33 +1,42 @@
 {
   "pr": {
-    "number": null,
-    "title": "PR2A: Reminder topic preferences (foundation)",
-    "branch": "feat/pr2a-reminder-topic-prefs",
+    "number": 190,
+    "title": "feat(inventory): canonical spine + ranked match API",
+    "branch": "feat/inventory-spine-match-api",
     "base": "main",
-    "url": null,
-    "rollback": "Revert the PR. If the database update was applied, your team can remove the new reminder preference table (this deletes saved rows)."
+    "url": "https://github.com/glownest2026-droid/ember/pull/190",
+    "vercel_preview_url": "https://ember-git-feat-inventory-spine-match-api-tims-projects-cd69a894.vercel.app",
+    "rollback": "Revert the PR; if migration already applied, add a follow-up rollback migration to drop new inventory objects."
   },
   "receipt": {
-    "goal": "PR2A: Clean reminder preference rows per user per topic; email toggles on /family#reminders; push UI placeholder; no old reminder flags.",
+    "goal": "Build canonical inventory spine and deterministic ranked matching API for household item logging using real schema truth only.",
     "commands_run": [
+      "git fetch origin main",
+      "git worktree add C:/Users/timwo/ember-main-baseline origin/main",
       "pnpm -C web install",
-      "pnpm -C web build"
+      "pnpm -C web build",
+      "supabase db push --include-all",
+      "gh pr create --base main --head feat/inventory-spine-match-api",
+      "gh pr checks 190",
+      "Live Supabase REST/RPC proof queries for backfill counts, ranking determinism, and RLS"
     ],
     "files_changed_recent": [
-      "supabase/sql/202603291200_user_reminder_topic_prefs.sql",
-      "web/src/lib/reminders/topicKeys.ts",
-      "web/src/components/figma/family/FamilyRemindersTopicCard.tsx",
-      "web/src/components/figma/family/FamilyFigmaClient.tsx",
+      "supabase/sql/202603311200_inventory_spine_and_match.sql",
+      "web/src/app/api/inventory/match/route.ts",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "verification_steps": [
-      "Sign in, open /family#reminders",
-      "Toggle Monthly stage updates and Move-it-on prompts Email on/off; refresh — state matches",
-      "Push switches stay off with helper text; push section shows status placeholder",
-      "pnpm -C web build passes"
+      "pnpm -C web build succeeds on latest main baseline",
+      "pnpm -C web build succeeds after inventory spine changes",
+      "PR #190 exists and GitHub checks are green",
+      "Vercel preview deployment is green and URL is captured",
+      "Call GET /api/inventory/match?q=high%20chair&limit=5 on preview while signed out and verify 401",
+      "Verify anon call returns 401 Unauthorized",
+      "Apply migration and run live SQL-equivalent proof queries for ranking and RLS",
+      "Confirm product_types and product_type_aliases backfill counts and sample rows from live DB"
     ],
-    "rollback_plan": "Revert the PR; optionally drop the new table if the database update was applied."
+    "rollback_plan": "Revert PR; if SQL already applied, run a rollback migration that drops inventory_match_product_types, normalize_inventory_alias, telemetry/owned-items tables, aliases/types tables, and enum types."
   },
-  "timestamp": "2026-03-29T00:00:00Z"
+  "timestamp": "2026-03-31T00:00:00Z"
 }
