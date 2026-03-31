@@ -126,12 +126,6 @@ export default function DiscoverStickyHeader() {
             ) : (
               <>
                 <Link
-                  href="/"
-                  className="text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] whitespace-nowrap"
-                >
-                  About
-                </Link>
-                <Link
                   href="/pricing"
                   className="text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] whitespace-nowrap"
                 >
