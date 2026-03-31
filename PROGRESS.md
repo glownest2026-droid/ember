@@ -2286,3 +2286,8 @@ Category-only cards remain publishable.
 - **Goal:** Apply v2 Figma spacing/card adjustments focused on top of page only (hero + pricing cards).
 - **What changed:** `web/src/components/figma/pricing/PricingPageFigmaClient.tsx` hero spacing updated to `pt-16 pb-20 lg:pt-24 lg:pb-28`; pricing section spacing updated to `pb-16 lg:pb-20`. `web/src/components/figma/pricing/pricing-card.tsx` updated to compact v2 card metrics (padding, badge size/offset, heading/price/type scales, feature spacing/icon size, CTA size/font).
 - **Proof:** `pnpm -C web build` passes after v2 spacing updates.
+
+### follow-up: pricing hero line break + conflict resolution
+- **Goal:** Force hero second sentence onto line 2 and clear PR merge conflicts.
+- **What changed:** Added explicit `<br />` between "Browse for free." and "Let Ember guide what to buy." in `web/src/components/figma/pricing/PricingPageFigmaClient.tsx`. Merged latest `origin/main` into pricing branch and resolved conflicts (kept `main` versions for unrelated `FamilyFigmaClient` and `UnifiedSignedInNav` files).
+- **Proof:** `pnpm -C web build` passes on merged branch; pushed to PR branch.
