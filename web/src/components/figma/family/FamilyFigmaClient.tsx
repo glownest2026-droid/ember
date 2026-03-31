@@ -62,6 +62,7 @@ export function FamilyFigmaClient({
   const [quickAddAllowFallback, setQuickAddAllowFallback] = useState(false);
   const [quickAddSaving, setQuickAddSaving] = useState(false);
   const [quickAddSaved, setQuickAddSaved] = useState(false);
+  const [quickAddSavedToGarage, setQuickAddSavedToGarage] = useState(false);
   const [ownedCountTotal, setOwnedCountTotal] = useState(0);
   const [ownedCountByChild, setOwnedCountByChild] = useState<Record<string, number>>({});
   const QUICK_ADD_MIN_CHARS = 3;
@@ -287,6 +288,7 @@ export function FamilyFigmaClient({
     setQuickAddAllowFallback(false);
     setQuickAddSaving(false);
     setQuickAddSaved(false);
+    setQuickAddSavedToGarage(false);
   }, []);
 
   const handleQuickAddSave = useCallback(async () => {
@@ -332,6 +334,7 @@ export function FamilyFigmaClient({
           was_confirmed: true,
         });
         await fetchOwnedInventoryCounts();
+        setQuickAddSavedToGarage(true);
         setQuickAddSaved(true);
         return;
       }
@@ -343,6 +346,7 @@ export function FamilyFigmaClient({
         confidence_bucket: null,
         was_confirmed: false,
       });
+      setQuickAddSavedToGarage(false);
       setQuickAddSaved(true);
     } finally {
       setQuickAddSaving(false);
@@ -678,9 +682,9 @@ export function FamilyFigmaClient({
               <div className="rounded-xl border border-[#E5E7EB] bg-[#F8FFFA] p-4">
                 <p className="text-sm text-[#1A1E23] font-medium mb-1">Added to At home</p>
                 <p className="text-sm text-[#5C646D]">
-                  {quickAddMatch
-                    ? `Saved as “${quickAddMatch.label}”.`
-                    : 'No close match found, but your search was logged for canonical backfill.'}
+                  {quickAddSavedToGarage
+                    ? `Saved as “${quickAddMatch?.label ?? 'matched item'}”.`
+                    : 'No close canonical match found, so no At home item was created. We logged your search for canonical backfill.'}
                 </p>
                 <button
                   type="button"
@@ -817,6 +821,7 @@ export function FamilyFigmaClient({
             </div>
             )}
 
+            {!quickAddSaved && (
             <div className="flex gap-3 mt-6">
               <button
                 type="button"
@@ -838,6 +843,7 @@ export function FamilyFigmaClient({
                 {quickAddSaving ? 'Saving...' : 'Add to At home'}
               </button>
             </div>
+            )}
           </div>
         </div>
       )}
