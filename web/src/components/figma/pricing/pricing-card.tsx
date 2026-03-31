@@ -27,7 +27,7 @@ export function PricingCard({
 }: PricingCardProps) {
   return (
     <div
-      className="relative flex flex-col rounded-3xl p-8 lg:p-10 transition-all duration-300"
+      className="relative flex flex-col rounded-3xl p-5 lg:p-6 transition-all duration-300"
       style={{
         backgroundColor: recommended ? 'white' : 'var(--ember-gray-200)',
         border: recommended ? '2px solid var(--ember-primary)' : '1px solid var(--ember-gray-300)',
@@ -48,33 +48,34 @@ export function PricingCard({
     >
       {badge && (
         <div
-          className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm whitespace-nowrap"
+          className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full whitespace-nowrap"
           style={{
             backgroundColor: 'var(--ember-primary)',
             color: 'white',
             fontWeight: 600,
+            fontSize: '0.75rem',
           }}
         >
           {badge}
         </div>
       )}
 
-      <div className="mb-6">
+      <div className="mb-3.5">
         <h3
-          className="mb-2"
+          className="mb-1"
           style={{
             color: 'var(--ember-gray-900)',
-            fontSize: '1.5rem',
+            fontSize: '1.25rem',
             fontWeight: 400,
           }}
         >
           {name}
         </h3>
-        <div className="mb-3">
+        <div className="mb-1">
           <span
             className="inline-block"
             style={{
-              fontSize: '3.5rem',
+              fontSize: '2.5rem',
               fontWeight: 400,
               color: 'var(--ember-gray-900)',
               letterSpacing: '-0.02em',
@@ -85,10 +86,10 @@ export function PricingCard({
           </span>
           {period && (
             <span
-              className="ml-2"
+              className="ml-1"
               style={{
                 color: 'var(--ember-gray-600)',
-                fontSize: '1.125rem',
+                fontSize: '0.875rem',
               }}
             >
               {period}
@@ -97,8 +98,11 @@ export function PricingCard({
         </div>
         {annualPrice && (
           <p
-            className="mb-3 text-sm"
-            style={{ color: 'var(--ember-gray-600)' }}
+            className="mb-1"
+            style={{
+              color: 'var(--ember-gray-600)',
+              fontSize: '0.75rem',
+            }}
           >
             {annualPrice}
           </p>
@@ -106,37 +110,46 @@ export function PricingCard({
         <p
           style={{
             color: 'var(--ember-gray-600)',
-            fontSize: '1.0625rem',
-            lineHeight: 1.625,
+            fontSize: '0.8125rem',
+            lineHeight: 1.35,
           }}
         >
           {label}
         </p>
       </div>
 
-      <ul className="flex-1 mb-8 space-y-4">
+      <ul className="flex-1 mb-4 space-y-1.5">
         {features.map((feature, index) => (
-          <li key={index} className="flex items-start gap-3">
+          <li key={index} className="flex items-start gap-2">
             <Check
-              size={20}
+              size={15}
               className="mt-0.5 flex-shrink-0"
               style={{
                 color: 'var(--ember-primary)',
-                strokeWidth: 2,
+                strokeWidth: 2.5,
               }}
             />
-            <span style={{ color: 'var(--ember-gray-900)' }}>{feature}</span>
+            <span
+              style={{
+                color: 'var(--ember-gray-900)',
+                lineHeight: 1.4,
+                fontSize: '0.8125rem',
+              }}
+            >
+              {feature}
+            </span>
           </li>
         ))}
       </ul>
 
       <button
-        className="w-full rounded-xl px-8 py-4 transition-all duration-300"
+        className="w-full rounded-xl px-6 py-3 transition-all duration-300"
         style={{
           backgroundColor: recommended ? 'var(--ember-primary)' : 'transparent',
           color: recommended ? 'white' : 'var(--ember-gray-900)',
           border: recommended ? 'none' : '2px solid var(--ember-gray-300)',
           fontWeight: 600,
+          fontSize: '0.9375rem',
         }}
         onMouseEnter={(e) => {
           if (recommended) {

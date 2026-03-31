@@ -2281,3 +2281,8 @@ Category-only cards remain publishable.
 - **Verification:** `pnpm -C web build` passes and includes `/pricing` in generated app routes.
 - **Preview URL:** [To be added in PR after Vercel finishes]
 - **Known debt:** Figma pack includes a standalone header file not used in Ember integration by design; current CTA buttons are visual-only until product flow destination is specified.
+
+### follow-up: pricing v2 top spacing pass
+- **Goal:** Apply v2 Figma spacing/card adjustments focused on top of page only (hero + pricing cards).
+- **What changed:** `web/src/components/figma/pricing/PricingPageFigmaClient.tsx` hero spacing updated to `pt-16 pb-20 lg:pt-24 lg:pb-28`; pricing section spacing updated to `pb-16 lg:pb-20`. `web/src/components/figma/pricing/pricing-card.tsx` updated to compact v2 card metrics (padding, badge size/offset, heading/price/type scales, feature spacing/icon size, CTA size/font).
+- **Proof:** `pnpm -C web build` passes after v2 spacing updates.

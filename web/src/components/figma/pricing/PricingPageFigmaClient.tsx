@@ -8,7 +8,7 @@ import { PricingCard } from './pricing-card';
 export default function PricingPageFigmaClient() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--ember-gray-100)' }}>
-      <section className="pt-8 pb-6 lg:pt-10 lg:pb-6">
+      <section className="pt-16 pb-20 lg:pt-24 lg:pb-28">
         <div className="mx-auto max-w-[90rem] px-6 lg:px-12">
           <div className="max-w-4xl mx-auto text-center">
             <h1
@@ -22,7 +22,7 @@ export default function PricingPageFigmaClient() {
         </div>
       </section>
 
-      <section id="pricing" className="pb-12 lg:pb-16">
+      <section id="pricing" className="pb-16 lg:pb-20">
         <div className="mx-auto max-w-[90rem] px-6 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
             <PricingCard
