@@ -2421,3 +2421,12 @@ Not sent:
 - **Scope safety:** No new vendors, no `/family` reminder model changes, no topic matrix, no per-child targeting in this PR.
 - **Proof:** `pnpm -C web build` passes after revision.
 
+## 2026-03-31 — feat(inventory): canonical spine + ranked match API
+
+- **Goal:** Build a canonical inventory spine for household item logging and expose a deterministic ranked match API (exact alias/label + FTS + trigram), with no polished UI changes.
+- **What changed:** Added migration `supabase/sql/202603311200_inventory_spine_and_match.sql` with `product_types`, `product_type_aliases`, `garage_items`, `inventory_search_events`, normalization function `normalize_inventory_alias`, and ranking RPC `inventory_match_product_types(query_text, p_limit)`.
+- **Security:** Added owner-only RLS for `garage_items` and `inventory_search_events`; authenticated read only for active canonical types/aliases; no anonymous widening on canonical tables.
+- **API:** Added authenticated route `web/src/app/api/inventory/match/route.ts` returning top candidates (`id`, `slug`, `label`, `subtitle`, `confidence_bucket`) and logging search telemetry.
+- **Seed/data rule:** Bootstraps canonical rows only from existing `marketplace_item_types` + synonyms (no fabricated catalogue rows).
+- **Proof:** `pnpm -C web build` passes on latest `main` baseline and after this branch changes.
+

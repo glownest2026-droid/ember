@@ -1,33 +1,35 @@
 {
   "pr": {
     "number": null,
-    "title": "PR2A: Reminder topic preferences (foundation)",
-    "branch": "feat/pr2a-reminder-topic-prefs",
+    "title": "feat(inventory): canonical spine + ranked match API",
+    "branch": "feat/inventory-spine-match-api",
     "base": "main",
     "url": null,
-    "rollback": "Revert the PR. If the database update was applied, your team can remove the new reminder preference table (this deletes saved rows)."
+    "vercel_preview_url": null,
+    "rollback": "Revert the PR; if migration already applied, add a follow-up rollback migration to drop new inventory objects."
   },
   "receipt": {
-    "goal": "PR2A: Clean reminder preference rows per user per topic; email toggles on /family#reminders; push UI placeholder; no old reminder flags.",
+    "goal": "Build canonical inventory spine and deterministic ranked matching API for household item logging using real schema truth only.",
     "commands_run": [
+      "git fetch origin main",
+      "git worktree add C:/Users/timwo/ember-main-baseline origin/main",
       "pnpm -C web install",
       "pnpm -C web build"
     ],
     "files_changed_recent": [
-      "supabase/sql/202603291200_user_reminder_topic_prefs.sql",
-      "web/src/lib/reminders/topicKeys.ts",
-      "web/src/components/figma/family/FamilyRemindersTopicCard.tsx",
-      "web/src/components/figma/family/FamilyFigmaClient.tsx",
+      "supabase/sql/202603311200_inventory_spine_and_match.sql",
+      "web/src/app/api/inventory/match/route.ts",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "verification_steps": [
-      "Sign in, open /family#reminders",
-      "Toggle Monthly stage updates and Move-it-on prompts Email on/off; refresh — state matches",
-      "Push switches stay off with helper text; push section shows status placeholder",
-      "pnpm -C web build passes"
+      "pnpm -C web build succeeds on latest main baseline",
+      "pnpm -C web build succeeds after inventory spine changes",
+      "Call GET /api/inventory/match?q=<query>&limit=5 while signed in",
+      "Verify anon call returns 401 Unauthorized",
+      "Apply migration and run SQL proof queries for ranking and RLS"
     ],
-    "rollback_plan": "Revert the PR; optionally drop the new table if the database update was applied."
+    "rollback_plan": "Revert PR; if SQL already applied, run a rollback migration that drops inventory_match_product_types, normalize_inventory_alias, telemetry/owned-items tables, aliases/types tables, and enum types."
   },
-  "timestamp": "2026-03-29T00:00:00Z"
+  "timestamp": "2026-03-31T00:00:00Z"
 }
