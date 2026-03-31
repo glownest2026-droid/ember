@@ -2291,3 +2291,8 @@ Category-only cards remain publishable.
 - **Goal:** Force hero second sentence onto line 2 and clear PR merge conflicts.
 - **What changed:** Added explicit `<br />` between "Browse for free." and "Let Ember guide what to buy." in `web/src/components/figma/pricing/PricingPageFigmaClient.tsx`. Merged latest `origin/main` into pricing branch and resolved conflicts (kept `main` versions for unrelated `FamilyFigmaClient` and `UnifiedSignedInNav` files).
 - **Proof:** `pnpm -C web build` passes on merged branch; pushed to PR branch.
+
+### follow-up: navbar discoverability links
+- **Goal:** Make pricing discoverable in signed-out and signed-in nav paths.
+- **What changed:** Signed-out navbar now includes `About` (`/`) and `Pricing` (`/pricing`) before `Sign in` in `web/src/components/discover/DiscoverStickyHeader.tsx` (desktop, mobile top bar, and mobile menu panel). Signed-in account menu now includes `Membership` (Gem icon, links to `/pricing`) after `Family` in `web/src/components/subnav/UnifiedSignedInNav.tsx` (desktop dropdown and mobile menu panel).
+- **Proof:** `pnpm -C web build` passes after navbar link additions.
