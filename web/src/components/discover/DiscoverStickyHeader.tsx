@@ -126,18 +126,6 @@ export default function DiscoverStickyHeader() {
             ) : (
               <>
                 <Link
-                  href="/pricing"
-                  className="text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] whitespace-nowrap"
-                >
-                  Pricing
-                </Link>
-                <Link
-                  href={signinHref}
-                  className="text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] whitespace-nowrap"
-                >
-                  Sign in
-                </Link>
-                <Link
                   href={getStartedHref}
                   className="px-3 py-1.5 text-sm font-medium bg-[var(--ember-accent-base)] text-white rounded-lg hover:bg-[var(--ember-accent-hover)] transition-colors whitespace-nowrap"
                 >

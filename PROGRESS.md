@@ -2301,3 +2301,8 @@ Category-only cards remain publishable.
 - **Goal:** Reduce top-bar crowding on signed-out mobile navbar.
 - **What changed:** Removed `About` from signed-out **mobile top bar** in `web/src/components/discover/DiscoverStickyHeader.tsx`; kept desktop signed-out nav and mobile menu panel entries unchanged.
 - **Proof:** `pnpm -C web build` passes after this tweak.
+
+### follow-up: mobile signed-out nav de-cramp v2
+- **Goal:** Further reduce signed-out mobile top-bar crowding.
+- **What changed:** Removed `Pricing` and `Sign in` from the signed-out **mobile top bar** in `web/src/components/discover/DiscoverStickyHeader.tsx`; `Get started` remains in the top bar. Desktop nav and mobile menu panel links remain unchanged.
+- **Proof:** `pnpm -C web build` passes after this tweak.
