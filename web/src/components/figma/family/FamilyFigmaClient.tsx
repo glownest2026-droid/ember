@@ -29,6 +29,12 @@ interface InventoryMatchCandidate {
   confidence_bucket: 'high' | 'medium' | 'low';
 }
 
+interface InventoryMatchApiPayload {
+  candidates?: InventoryMatchCandidate[];
+  search_event_id?: string | null;
+  error?: string;
+}
+
 /** Manage My Family page – Figma Make layout exact. Data: children table + get_my_subnav_stats(p_child_id). */
 export function FamilyFigmaClient({
   serverUserId,
@@ -63,6 +69,10 @@ export function FamilyFigmaClient({
   const [quickAddSaving, setQuickAddSaving] = useState(false);
   const [quickAddSaved, setQuickAddSaved] = useState(false);
   const [quickAddSavedToGarage, setQuickAddSavedToGarage] = useState(false);
+  const [quickAddSearchEventId, setQuickAddSearchEventId] = useState<string | null>(null);
+  const [quickAddLastGarageItemId, setQuickAddLastGarageItemId] = useState<string | null>(null);
+  const [quickAddFeedbackBusy, setQuickAddFeedbackBusy] = useState(false);
+  const [quickAddFeedbackNotice, setQuickAddFeedbackNotice] = useState<string | null>(null);
   const [ownedCountTotal, setOwnedCountTotal] = useState(0);
   const [ownedCountByChild, setOwnedCountByChild] = useState<Record<string, number>>({});
   const QUICK_ADD_MIN_CHARS = 3;
@@ -289,7 +299,27 @@ export function FamilyFigmaClient({
     setQuickAddSaving(false);
     setQuickAddSaved(false);
     setQuickAddSavedToGarage(false);
+    setQuickAddSearchEventId(null);
+    setQuickAddLastGarageItemId(null);
+    setQuickAddFeedbackBusy(false);
+    setQuickAddFeedbackNotice(null);
   }, []);
+
+  const logMatchFeedback = useCallback(async (
+    feedbackType: 'bad_candidates' | 'wrong_match' | 'other',
+    comment?: string
+  ) => {
+    const supabase = createClient();
+    const { error } = await supabase.rpc('inventory_capture_match_feedback', {
+      p_feedback_type: feedbackType,
+      p_search_event_id: quickAddSearchEventId,
+      p_garage_item_id: quickAddLastGarageItemId,
+      p_raw_query: quickAddQuery.trim() || null,
+      p_selected_product_type_id: quickAddMatch?.id ?? null,
+      p_comment: comment ?? null,
+    });
+    if (error) throw error;
+  }, [quickAddLastGarageItemId, quickAddMatch?.id, quickAddQuery, quickAddSearchEventId]);
 
   const handleQuickAddSave = useCallback(async () => {
     const query = quickAddQuery.trim();
@@ -313,39 +343,65 @@ export function FamilyFigmaClient({
       const childId = childScopeType === 'single_child' ? quickAddAssignTo : null;
 
       if (quickAddMatch) {
-        const { error } = await supabase.from('garage_items').insert({
-          user_id: user.id,
-          product_type_id: quickAddMatch.id,
-          child_scope_type: childScopeType,
-          child_id: childId,
-          raw_query: query,
-          source: 'manual_match',
-          status: 'owned',
-        });
+        const { data: garageItem, error } = await supabase
+          .from('garage_items')
+          .insert({
+            user_id: user.id,
+            product_type_id: quickAddMatch.id,
+            child_scope_type: childScopeType,
+            child_id: childId,
+            raw_query: query,
+            source: 'manual_match',
+            status: 'owned',
+          })
+          .select('id')
+          .single();
         if (error) {
           setQuickAddError(error.message);
           return;
         }
-        await supabase.from('inventory_search_events').insert({
-          user_id: user.id,
-          raw_query: query,
-          selected_product_type_id: quickAddMatch.id,
-          confidence_bucket: quickAddMatch.confidence_bucket,
-          was_confirmed: true,
-        });
+        const { data: matchedSearch, error: matchedSearchError } = await supabase
+          .from('inventory_search_events')
+          .insert({
+            user_id: user.id,
+            raw_query: query,
+            selected_product_type_id: quickAddMatch.id,
+            confidence_bucket: quickAddMatch.confidence_bucket,
+            was_confirmed: true,
+          })
+          .select('id')
+          .single();
+        if (matchedSearchError) {
+          setQuickAddError(matchedSearchError.message);
+          return;
+        }
         await fetchOwnedInventoryCounts();
+        setQuickAddLastGarageItemId(garageItem?.id ?? null);
+        setQuickAddSearchEventId(matchedSearch?.id ?? null);
+        setQuickAddFeedbackNotice(null);
         setQuickAddSavedToGarage(true);
         setQuickAddSaved(true);
         return;
       }
 
-      await supabase.from('inventory_search_events').insert({
-        user_id: user.id,
-        raw_query: query,
-        selected_product_type_id: null,
-        confidence_bucket: null,
-        was_confirmed: false,
-      });
+      const { data: unmatchedSearch, error: unmatchedSearchError } = await supabase
+        .from('inventory_search_events')
+        .insert({
+          user_id: user.id,
+          raw_query: query,
+          selected_product_type_id: null,
+          confidence_bucket: null,
+          was_confirmed: false,
+        })
+        .select('id')
+        .single();
+      if (unmatchedSearchError) {
+        setQuickAddError(unmatchedSearchError.message);
+        return;
+      }
+      setQuickAddSearchEventId(unmatchedSearch?.id ?? null);
+      setQuickAddLastGarageItemId(null);
+      setQuickAddFeedbackNotice(null);
       setQuickAddSavedToGarage(false);
       setQuickAddSaved(true);
     } finally {
@@ -388,9 +444,9 @@ export function FamilyFigmaClient({
           { method: 'GET', cache: 'no-store' }
         );
         const rawText = await response.text();
-        let payload: { candidates?: InventoryMatchCandidate[]; error?: string } = {};
+        let payload: InventoryMatchApiPayload = {};
         try {
-          payload = rawText ? (JSON.parse(rawText) as { candidates?: InventoryMatchCandidate[]; error?: string }) : {};
+          payload = rawText ? (JSON.parse(rawText) as InventoryMatchApiPayload) : {};
         } catch {
           payload = {};
         }
@@ -405,6 +461,8 @@ export function FamilyFigmaClient({
         }
         const candidates = payload.candidates ?? [];
         setQuickAddCandidates(candidates);
+        setQuickAddSearchEventId(payload.search_event_id ?? null);
+        setQuickAddFeedbackNotice(null);
         if (quickAddMatch && !candidates.some((c) => c.id === quickAddMatch.id)) {
           setQuickAddMatch(null);
         }
@@ -693,6 +751,33 @@ export function FamilyFigmaClient({
                 >
                   Done
                 </button>
+                {quickAddSavedToGarage && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setQuickAddFeedbackBusy(true);
+                      setQuickAddError(null);
+                      try {
+                        await logMatchFeedback('wrong_match', 'Reported from quick-add success state');
+                        setQuickAddFeedbackNotice('Thanks - we logged this as a wrong match for review.');
+                      } catch (err) {
+                        const message = err instanceof Error ? err.message : 'Could not log feedback.';
+                        setQuickAddError(message);
+                      } finally {
+                        setQuickAddFeedbackBusy(false);
+                      }
+                    }}
+                    disabled={quickAddFeedbackBusy}
+                    className="mt-3 ml-3 h-10 px-4 rounded-xl border border-[#E5E7EB] text-sm text-[#1A1E23] disabled:opacity-60"
+                  >
+                    {quickAddFeedbackBusy ? 'Reporting...' : 'Wrong item? Report match issue'}
+                  </button>
+                )}
+                {quickAddFeedbackNotice && (
+                  <div className="rounded-xl border border-[#86EFAC] bg-[#F0FDF4] p-3 text-sm text-[#166534] mt-3">
+                    {quickAddFeedbackNotice}
+                  </div>
+                )}
               </div>
             ) : (
             <div className="space-y-5">
@@ -775,6 +860,35 @@ export function FamilyFigmaClient({
                       )}
                     </button>
                   ))}
+                </div>
+              )}
+
+              {quickAddCandidates.length > 0 && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setQuickAddFeedbackBusy(true);
+                    setQuickAddError(null);
+                    try {
+                      await logMatchFeedback('bad_candidates');
+                      setQuickAddFeedbackNotice('Thanks - we logged that these suggestions were not right.');
+                    } catch (err) {
+                      const message = err instanceof Error ? err.message : 'Could not log feedback.';
+                      setQuickAddError(message);
+                    } finally {
+                      setQuickAddFeedbackBusy(false);
+                    }
+                  }}
+                  disabled={quickAddFeedbackBusy}
+                  className="w-full text-left p-3 rounded-xl border border-[#FCA5A5] bg-[#FFF7F7] text-sm text-[#B91C1C] disabled:opacity-60"
+                >
+                  {quickAddFeedbackBusy ? 'Logging feedback...' : 'These suggestions are wrong (send feedback)'}
+                </button>
+              )}
+
+              {quickAddFeedbackNotice && (
+                <div className="rounded-xl border border-[#86EFAC] bg-[#F0FDF4] p-3 text-sm text-[#166534]">
+                  {quickAddFeedbackNotice}
                 </div>
               )}
 
