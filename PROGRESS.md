@@ -1,6 +1,16 @@
 # CTO Snapshot (Source of Truth)
  _Last updated: 2026-03-25_
 
+## feat(inventory): founder unmatched queue + review views (PR3) — 2026-03-31
+- **Branch:** `feat/inventory-founder-unmatched-review-pr3`
+- **Goal:** Add founder-safe visibility into canonical match dictionary and a durable unmatched/no-match review queue, without changing public UX or widening anon access.
+- **Ground truth:** Existing Family quick-add no-match fallback logs only to `inventory_search_events` in `FamilyFigmaClient` and does not create `garage_items`; no existing `inventory_unmatched_queue` or review views were present.
+- **What changed:** Added migration `supabase/sql/202603311800_inventory_unmatched_queue_founder_views.sql` creating `inventory_unmatched_queue`, `inventory_log_unmatched_query(...)` RPC, `v_inventory_dictionary_review`, and `v_inventory_unmatched_review`. Updated no-match fallback path in `web/src/components/figma/family/FamilyFigmaClient.tsx` to insert `inventory_search_events` (capturing event id) then call `inventory_log_unmatched_query(...)`.
+- **Boundaries protected:** Matched path still writes only to `garage_items`; unmatched path still writes no `garage_items` rows; Find it vs At home boundaries unchanged; no anon policy widening.
+- **Verification:** `pnpm -C web build` passes on latest `main` baseline and after PR3 edits.
+- **Rollback:** Revert PR3 commit(s). Optional DB rollback: drop new views, function, and `inventory_unmatched_queue`.
+- **Follow-up (same PR #194):** `/api/inventory/match` was returning 500 on Vercel because `NextResponse.next()` is invalid in App Router route handlers. Replaced with `NextResponse.json({})` as the Supabase cookie jar and merged `Set-Cookie` via `headers.getSetCookie()` on the final JSON response (`web/src/app/api/inventory/match/route.ts`).
+
 ## feat(posthog): PostHog foundation (privacy-safe, discovery-grounded) — 2026-03-25
 - **Branch:** `feat/posthog-foundation`
 - **Goal:** Install a minimal, privacy-safe PostHog foundation for Ember using the analytics discovery contract as the source of truth, without changing runtime product behavior beyond necessary client navigation timing for child-save tracking.
