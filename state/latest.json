@@ -1,11 +1,11 @@
 {
   "pr": {
-    "number": null,
+    "number": 196,
     "title": "feat(inventory): add match feedback capture and hygiene audit",
     "branch": "feat/inventory-pr5-feedback-hygiene",
     "base": "main",
-    "url": null,
-    "vercel_preview_url": null,
+    "url": "https://github.com/glownest2026-droid/ember/pull/196",
+    "vercel_preview_url": "https://ember-git-feat-inventory-pr5-feed-9aadf2-tims-projects-cd69a894.vercel.app",
     "rollback": "Revert PR5 commit(s); optional SQL rollback to drop PR5 feedback/hygiene objects."
   },
   "receipt": {
@@ -13,7 +13,9 @@
     "commands_run": [
       "git checkout -b feat/inventory-pr5-feedback-hygiene",
       "pnpm -C web install",
-      "pnpm -C web build"
+      "pnpm -C web build",
+      "git push -u origin feat/inventory-pr5-feedback-hygiene",
+      "gh pr create --base main --head feat/inventory-pr5-feedback-hygiene ..."
     ],
     "files_changed_recent": [
       "web/src/app/api/inventory/match/route.ts",
