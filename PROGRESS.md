@@ -1,6 +1,16 @@
 # CTO Snapshot (Source of Truth)
  _Last updated: 2026-03-25_
 
+## feat(inventory): controlled CSV canonical ingestion (PR4) — 2026-04-01
+- **Branch:** `feat/inventory-pr4-csv-canonical-ingestion`
+- **Goal:** Expand canonical dictionary coverage from attached draft CSV without bloating product_types or weakening canonical truth.
+- **Ground truth checks completed:** CSV parsed safely (1000 rows, 124 proposed canonical slugs). Controlled ingest keeps only `seed_confidence='medium'` rows (500). Overlap cluster detected and collapsed deterministically (`pram`/`pushchair`/`stroller` -> `stroller`).
+- **What changed:** Added migration `supabase/sql/202604011100_pr4_inventory_csv_controlled_ingestion.sql` that stages CSV rows, deterministically merges into existing dictionary (slug -> normalized label -> existing alias), creates minimal net-new `product_types`, inserts deduplicated aliases (<=3-word aliases + canonical label/slug forms), and resolves matching queue rows with `resolution_note='resolved via PR4 CSV seed'`.
+- **Verification bundle in migration:** emits before/after counts, new canonical rows, ambiguous deferred candidates, and matcher spot-check outputs for `pram`, `cash register`, `potty`, `foot gauge`.
+- **Boundaries protected:** no anon policy changes, no marketplace/lifecycle logic, no Find it/At home boundary changes.
+- **Verification:** `pnpm -C web build` passes.
+- **Rollback:** Revert PR4 commit(s). Optional DB rollback migration should remove only PR4-added product_types/aliases and revert queue resolution notes set by PR4.
+
 ## feat(posthog): PostHog foundation (privacy-safe, discovery-grounded) — 2026-03-25
 - **Branch:** `feat/posthog-foundation`
 - **Goal:** Install a minimal, privacy-safe PostHog foundation for Ember using the analytics discovery contract as the source of truth, without changing runtime product behavior beyond necessary client navigation timing for child-save tracking.
