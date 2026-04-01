@@ -1,6 +1,26 @@
 # CTO Snapshot (Source of Truth)
  _Last updated: 2026-03-25_
 
+## feat(inventory): feedback capture + targeted hygiene audit (PR5) — 2026-04-01
+- **Branch:** `feat/inventory-pr5-feedback-hygiene`
+- **Goal:** Improve match quality (not scope) by capturing bad-candidate/wrong-match feedback and recording deterministic hygiene decisions for obvious duplicate clusters.
+- **Ground truth checks completed:** Confirmed quick-add capture points in `FamilyFigmaClient` (candidate list render, candidate select, fallback action, matched-save success state). Confirmed stop-gate build on latest `main` passes. Reviewed cluster candidates: `baby-monitor/video-monitor/baby-monitor-camera`, `changing-table/changing-unit`, `cot/crib/bedside-crib`.
+- **What changed (app):** `/api/inventory/match` now returns `search_event_id` and uses route-handler-safe response pattern (no `NextResponse.next()`), enabling audit links for feedback. `FamilyFigmaClient` now logs:
+  - `bad_candidates` via “These suggestions are wrong (send feedback)” when candidate list is shown.
+  - `wrong_match` via “Wrong item? Report match issue” after a matched save success.
+- **What changed (SQL):** Added `supabase/sql/202604011430_inventory_match_feedback_and_hygiene.sql`:
+  - `inventory_match_feedback` table + enums + RLS policies.
+  - `inventory_capture_match_feedback(...)` RPC for deterministic audit capture.
+  - founder review view `v_inventory_match_feedback_review`.
+  - targeted hygiene decision audit table `inventory_dictionary_hygiene_decisions` + view `v_inventory_dictionary_hygiene_review`.
+  - cluster decisions recorded deterministically:
+    - `baby-monitor/video-monitor/baby-monitor-camera` -> keep separate.
+    - `changing-table/changing-unit` -> keep separate.
+    - `cot/crib/bedside-crib` -> keep separate.
+- **Boundaries protected:** no anon access widening, no marketplace/lifecycle logic, no Find it/At home boundary changes, no bulk ingestion.
+- **Verification:** `pnpm -C web build` passes on PR5 branch.
+- **Rollback:** Revert PR5 commit(s). Optional SQL rollback: drop PR5 feedback/hygiene objects.
+
 ## feat(inventory): controlled CSV canonical ingestion (PR4) — 2026-04-01
 - **Branch:** `feat/inventory-pr4-csv-canonical-ingestion`
 - **Goal:** Expand canonical dictionary coverage from attached draft CSV without bloating product_types or weakening canonical truth.

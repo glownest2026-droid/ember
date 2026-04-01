@@ -1,38 +1,38 @@
 {
   "pr": {
-    "number": null,
-    "title": "feat(inventory): controlled CSV canonical ingestion for PR4",
-    "branch": "feat/inventory-pr4-csv-canonical-ingestion",
+    "number": 196,
+    "title": "feat(inventory): add match feedback capture and hygiene audit",
+    "branch": "feat/inventory-pr5-feedback-hygiene",
     "base": "main",
-    "url": null,
-    "vercel_preview_url": null,
-    "rollback": "Revert PR4 commit(s); optional SQL rollback to remove PR4-inserted dictionary rows and queue resolution notes."
+    "url": "https://github.com/glownest2026-droid/ember/pull/196",
+    "vercel_preview_url": "https://ember-git-feat-inventory-pr5-feed-9aadf2-tims-projects-cd69a894.vercel.app",
+    "rollback": "Revert PR5 commit(s); optional SQL rollback to drop PR5 feedback/hygiene objects."
   },
   "receipt": {
-    "goal": "Expand canonical inventory coverage using controlled ingestion from draft CSV into product_types/product_type_aliases with deterministic merges and queue resolution.",
+    "goal": "Capture bad-candidates/wrong-match feedback in Family quick-add and provide founder-safe review surfaces with deterministic hygiene decisions.",
     "commands_run": [
-      "git fetch origin main",
-      "git switch main",
+      "git checkout -b feat/inventory-pr5-feedback-hygiene",
+      "pnpm -C web install",
       "pnpm -C web build",
-      "git switch -c feat/inventory-pr4-csv-canonical-ingestion",
-      "pnpm -C web build"
+      "git push -u origin feat/inventory-pr5-feedback-hygiene",
+      "gh pr create --base main --head feat/inventory-pr5-feedback-hygiene ..."
     ],
     "files_changed_recent": [
-      "supabase/sql/202604011100_pr4_inventory_csv_controlled_ingestion.sql",
+      "web/src/app/api/inventory/match/route.ts",
+      "web/src/components/figma/family/FamilyFigmaClient.tsx",
+      "supabase/sql/202604011430_inventory_match_feedback_and_hygiene.sql",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "verification_steps": [
-      "CSV parsed safely with 1000 rows and 124 canonical slug candidates",
-      "Only medium-confidence rows staged for ingestion (500 rows)",
-      "Deterministic merge precedence: slug -> normalized label -> existing alias",
-      "Overlap collapse applied for pram/pushchair/stroller into stroller canonical concept",
-      "Aliases deduplicated and filtered for practical household phrasing",
-      "Unmatched queue resolution updates only where deterministic alias mapping exists",
-      "Migration emits before/after counts and matcher proofs for pram/cash register/potty/foot gauge",
+      "Quick-add candidate path has explicit bad-candidates feedback action and logs via RPC",
+      "Matched-save success state has wrong-match feedback action and logs via RPC",
+      "Feedback-only actions do not insert garage_items rows",
+      "Founder review views exist: v_inventory_match_feedback_review and v_inventory_dictionary_hygiene_review",
+      "Targeted hygiene decisions are recorded for three requested clusters with keep/defer rationale",
       "pnpm -C web build passes"
     ],
-    "rollback_plan": "Revert PR4 commit(s); run targeted SQL rollback for PR4-added canonical/alias rows and queue notes."
+    "rollback_plan": "Revert PR5 commit(s); drop inventory_match_feedback objects and hygiene decision objects if required."
   },
   "timestamp": "2026-04-01T00:00:00Z"
 }
