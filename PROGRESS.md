@@ -9,6 +9,7 @@
 - **Boundaries protected:** Matched path still writes only to `garage_items`; unmatched path still writes no `garage_items` rows; Find it vs At home boundaries unchanged; no anon policy widening.
 - **Verification:** `pnpm -C web build` passes on latest `main` baseline and after PR3 edits.
 - **Rollback:** Revert PR3 commit(s). Optional DB rollback: drop new views, function, and `inventory_unmatched_queue`.
+- **Follow-up (same PR #194):** `/api/inventory/match` was returning 500 on Vercel because `NextResponse.next()` is invalid in App Router route handlers. Replaced with `NextResponse.json({})` as the Supabase cookie jar and merged `Set-Cookie` via `headers.getSetCookie()` on the final JSON response (`web/src/app/api/inventory/match/route.ts`).
 
 ## feat(posthog): PostHog foundation (privacy-safe, discovery-grounded) — 2026-03-25
 - **Branch:** `feat/posthog-foundation`
