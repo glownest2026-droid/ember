@@ -10,10 +10,8 @@ import { trackEvent } from '@/lib/analytics/trackEvent';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
 import {
   ALL_DOORWAYS,
-  DEFAULT_DOORWAYS,
-  MORE_DOORWAYS,
   SUGGESTED_DOORWAY_KEYS_25_27,
-  resolveDoorwayToWrapper,
+  normaliseSlug,
 } from '@/lib/discover/doorways';
 import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
 import { DiscoverFigmaChildHero } from '@/components/discover/figma/DiscoverFigmaChildHero';
@@ -21,6 +19,7 @@ import { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigma
 import { DiscoverFigmaScienceSection } from '@/components/discover/figma/DiscoverFigmaScienceSection';
 import { DiscoverFigmaPlayCarousel } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
 import { DiscoverFigmaProductCarousel } from '@/components/discover/figma/DiscoverFigmaProductCarousel';
+import { getWrapperIcon } from './_lib/wrapperIcons';
 import {
   displayChildName,
   personalizationFromChildrenRow,
@@ -56,6 +55,7 @@ interface DiscoveryPageClientProps {
   ageBands: AgeBand[];
   ageBand: AgeBand | null;
   selectedBandHasPicks: boolean;
+  selectedBandHasStage12Data: boolean;
   monthParam: number | null;
   resolutionDebug?: string | null;
   wrappers: Wrapper[];
@@ -77,6 +77,7 @@ export default function DiscoveryPageClient({
   ageBands,
   ageBand,
   selectedBandHasPicks,
+  selectedBandHasStage12Data,
   monthParam,
   resolutionDebug,
   wrappers,
@@ -587,19 +588,52 @@ export default function DiscoveryPageClient({
   const getProductUrl = (p: PickItem) =>
     p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
 
-  const visibleDoorwayList = showMore ? ALL_DOORWAYS : DEFAULT_DOORWAYS;
-  const selectedDoorway = visibleDoorwayList.find((d) => {
-    const r = resolveDoorwayToWrapper(d, wrappers);
-    return r && r.ux_slug === selectedWrapper;
-  });
-  const selectedWrapperLabel = selectedDoorway?.label ?? wrappers.find((w) => w.ux_slug === selectedWrapper)?.ux_label ?? selectedWrapper ?? '';
+  const doorwayMetaBySlug = useMemo(() => {
+    const map = new Map<string, { key: string; helper: string }>();
+    for (const doorway of ALL_DOORWAYS) {
+      const candidates = [doorway.wrapperSlug, ...(doorway.alternateSlugs ?? [])];
+      for (const slug of candidates) {
+        map.set(normaliseSlug(slug), { key: doorway.key, helper: doorway.helper });
+      }
+    }
+    return map;
+  }, []);
 
-  const doorwaysWithResolved = visibleDoorwayList.map((d) => ({
-    type: 'doorway' as const,
-    ...d,
-    resolved: resolveDoorwayToWrapper(d, wrappers),
-  }));
-  const allTiles = doorwaysWithResolved;
+  const suggestedDoorwaySlugSet = useMemo(() => {
+    const set = new Set<string>();
+    for (const doorway of ALL_DOORWAYS) {
+      if (!SUGGESTED_DOORWAY_KEYS_25_27.includes(doorway.key)) continue;
+      const candidates = [doorway.wrapperSlug, ...(doorway.alternateSlugs ?? [])];
+      for (const slug of candidates) {
+        set.add(normaliseSlug(slug));
+      }
+    }
+    return set;
+  }, []);
+
+  const allTiles = useMemo(
+    () =>
+      wrappers.map((wrapper) => {
+        const slugNorm = normaliseSlug(wrapper.ux_slug);
+        const meta = doorwayMetaBySlug.get(slugNorm);
+        const label = wrapper.ux_label?.trim() || wrapper.ux_slug;
+        return {
+          key: wrapper.ux_slug,
+          slug: wrapper.ux_slug,
+          label,
+          helper: meta?.helper ?? 'Tap to explore this focus area.',
+          icon: getWrapperIcon(wrapper.ux_slug, label),
+          showSuggested: is25to27 && suggestedDoorwaySlugSet.has(slugNorm),
+        };
+      }),
+    [wrappers, doorwayMetaBySlug, is25to27, suggestedDoorwaySlugSet]
+  );
+  const visibleTiles = showMore ? allTiles : allTiles.slice(0, 6);
+  const selectedWrapperLabel =
+    wrappers.find((w) => w.ux_slug === selectedWrapper)?.ux_label ??
+    allTiles.find((tile) => tile.slug === selectedWrapper)?.label ??
+    selectedWrapper ??
+    '';
 
   const debugText =
     showDebug && monthParam !== null && ageBand !== null
@@ -949,7 +983,7 @@ export default function DiscoveryPageClient({
           ) : null}
         </div>
 
-        {selectedBandHasPicks ? (
+        {selectedBandHasStage12Data ? (
           <>
             <div className="mb-5 lg:mb-8">
               <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
@@ -972,27 +1006,11 @@ export default function DiscoveryPageClient({
               ) : null}
             </div>
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                {allTiles.map((tile) => {
-                  if (tile.type === 'doorway' && !tile.resolved) {
-                    return (
-                      <DiscoverFigmaNeedCard
-                        key={tile.key}
-                        icon={tile.icon}
-                        title={tile.label}
-                        description={tile.helper}
-                        science="Coming soon"
-                        isSelected={false}
-                        onClick={() => {}}
-                        disabled
-                      />
-                    );
-                  }
-                  const slug = tile.resolved!.ux_slug;
-                  const isSelected = selectedWrapper === slug;
-                  const showSuggested = is25to27 && SUGGESTED_DOORWAY_KEYS_25_27.includes(tile.key);
+                {visibleTiles.map((tile) => {
+                  const isSelected = selectedWrapper === tile.slug;
                   return (
-                    <div key={slug} className="relative">
-                      {showSuggested ? (
+                    <div key={tile.slug} className="relative">
+                      {tile.showSuggested ? (
                         <span className="absolute -top-2 left-2 z-10 text-[10px] px-2 py-0.5 rounded-full font-medium bg-[rgba(184,67,43,0.12)] text-[#B8432B]">
                           Suggested
                         </span>
@@ -1001,15 +1019,15 @@ export default function DiscoveryPageClient({
                         icon={tile.icon}
                         title={tile.label}
                         description={tile.helper}
-                        science={showSuggested ? 'Great fit for this age' : 'Tap to explore'}
+                        science={tile.showSuggested ? 'Great fit for this age' : 'Tap to explore'}
                         isSelected={isSelected}
-                        onClick={() => handleWrapperSelect(slug)}
+                        onClick={() => handleWrapperSelect(tile.slug)}
                       />
                     </div>
                   );
                 })}
               </div>
-              {!showMore && MORE_DOORWAYS.length > 0 ? (
+              {!showMore && allTiles.length > 6 ? (
                 <button
                   type="button"
                   className="mt-4 text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)]"
@@ -1133,9 +1151,9 @@ export default function DiscoveryPageClient({
                   </div>
                   <p className="text-xs text-[var(--ember-text-low)] mt-2">Chosen for {chosenForLabel}</p>
                 </div>
-                {!selectedBandHasPicks || displayIdeas.length === 0 ? (
+                {displayIdeas.length === 0 ? (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]">
-                    We&apos;re still building ideas for this focus. Try another category or focus.
+                    Examples coming soon
                   </div>
                 ) : (
                   <DiscoverFigmaProductCarousel
