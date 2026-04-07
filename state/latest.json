@@ -27,6 +27,7 @@
       "supabase/migrations/20260407131500_import_34_36m_abi_v2.sql",
       "web/src/app/discover/[months]/page.tsx",
       "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
+      "web/src/components/discover/figma/DiscoverFigmaPlayCarousel.tsx",
       "web/src/lib/discover/doorways.ts",
       "PROGRESS.md",
       "state/latest.json"

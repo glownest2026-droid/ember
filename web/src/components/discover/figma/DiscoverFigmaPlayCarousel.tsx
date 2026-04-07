@@ -158,7 +158,7 @@ export function DiscoverFigmaPlayCarousel({
             type="button"
             onClick={handlePrevious}
             whileTap={{ scale: 0.9 }}
-            className="absolute left-2 top-[45%] -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm shadow-xl flex items-center justify-center z-20 border border-[var(--ember-border-subtle)]"
+            className="absolute left-2 top-[34%] -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm shadow-xl flex items-center justify-center z-20 border border-[var(--ember-border-subtle)]"
             aria-label="Previous play idea"
           >
             <ChevronLeft className="w-5 h-5 text-[var(--ember-accent-base)]" strokeWidth={2.5} />
@@ -169,7 +169,7 @@ export function DiscoverFigmaPlayCarousel({
             type="button"
             onClick={handleNext}
             whileTap={{ scale: 0.9 }}
-            className="absolute right-2 top-[45%] -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm shadow-xl flex items-center justify-center z-20 border border-[var(--ember-border-subtle)]"
+            className="absolute right-2 top-[34%] -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm shadow-xl flex items-center justify-center z-20 border border-[var(--ember-border-subtle)]"
             aria-label="Next play idea"
           >
             <ChevronRight className="w-5 h-5 text-[var(--ember-accent-base)]" strokeWidth={2.5} />

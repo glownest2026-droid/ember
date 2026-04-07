@@ -26,6 +26,13 @@
 - **Behavior:** 34–36 now shows dataset-driven Stage 1 wrapper labels; selecting `Pretend & story play` flows to Stage 2 categories including `Dressing-up clothes`.
 - **Proof:** `pnpm build` passes in `web/`.
 
+### follow-up: mobile arrow overlap in Stage 2 carousel (Apr 2026)
+
+- **Issue:** On mobile `/discover`, Stage 2 carousel arrows overlapped card title text/content.
+- **Fix:** Moved mobile-only Stage 2 carousel arrow controls higher by changing `top-[45%]` to `top-[34%]` in `web/src/components/discover/figma/DiscoverFigmaPlayCarousel.tsx`.
+- **Scope:** Minimal, mobile-only positioning change; desktop unchanged.
+- **Proof:** `pnpm build` passes in `web/`.
+
 # CTO Snapshot (Source of Truth)
  _Last updated: 2026-03-25_
 
