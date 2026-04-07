@@ -96,6 +96,58 @@ BEGIN
   END IF;
 END $$;
 
+-- Pre-deduplicate payloads by ON CONFLICT keys so one statement never tries
+-- to update the same target row more than once.
+CREATE TEMP TABLE tmp_abi_stage1_wrappers AS
+SELECT
+  s.stage1_wrapper_ux_slug,
+  s.stage1_wrapper_ux_label,
+  NULLIF(TRIM(COALESCE(s.stage1_why_it_matters_ux_description, '')), '') AS stage1_why_it_matters_ux_description
+FROM (
+  SELECT
+    s.*,
+    ROW_NUMBER() OVER (
+      PARTITION BY s.stage1_wrapper_ux_slug
+      ORDER BY
+        s.min_months ASC,
+        s.age_band_id ASC,
+        s.stage1_wrapper_rank_in_band ASC,
+        s.stage2_play_ideas_rank ASC,
+        s.stage2_category_type_slug ASC
+    ) AS rn
+  FROM tmp_abi_gateway_stage s
+) s
+WHERE s.rn = 1;
+
+CREATE TEMP TABLE tmp_abi_stage1_age_band_wrappers AS
+SELECT
+  s.age_band_id,
+  s.stage1_wrapper_ux_slug,
+  MIN(s.stage1_wrapper_rank_in_band) AS stage1_wrapper_rank_in_band,
+  BOOL_OR(s.stage1_mapping_is_active) AS stage1_mapping_is_active
+FROM tmp_abi_gateway_stage s
+GROUP BY s.age_band_id, s.stage1_wrapper_ux_slug;
+
+CREATE TEMP TABLE tmp_abi_stage2_category_types AS
+SELECT
+  s.stage2_category_type_slug,
+  s.stage2_category_type_label,
+  s.stage2_category_type_name
+FROM (
+  SELECT
+    s.*,
+    ROW_NUMBER() OVER (
+      PARTITION BY s.stage2_category_type_slug
+      ORDER BY
+        s.min_months ASC,
+        s.age_band_id ASC,
+        s.stage2_play_ideas_rank ASC,
+        s.stage1_wrapper_rank_in_band ASC
+    ) AS rn
+  FROM tmp_abi_gateway_stage s
+) s
+WHERE s.rn = 1;
+
 -- 1) Age bands
 INSERT INTO public.pl_age_bands (id, label, min_months, max_months, is_active)
 SELECT DISTINCT
@@ -162,12 +214,12 @@ INSERT INTO public.pl_ux_wrappers (
   ux_description,
   is_active
 )
-SELECT DISTINCT
+SELECT
   s.stage1_wrapper_ux_slug,
   s.stage1_wrapper_ux_label,
-  NULLIF(TRIM(COALESCE(s.stage1_why_it_matters_ux_description, '')), ''),
+  s.stage1_why_it_matters_ux_description,
   true
-FROM tmp_abi_gateway_stage s
+FROM tmp_abi_stage1_wrappers s
 ON CONFLICT (ux_slug) DO UPDATE
 SET
   ux_label = EXCLUDED.ux_label,
@@ -205,10 +257,10 @@ UPDATE public.pl_age_band_ux_wrappers abuw
 SET
   is_active = false,
   updated_at = now()
-WHERE abuw.age_band_id IN (SELECT DISTINCT age_band_id FROM tmp_abi_gateway_stage)
+WHERE abuw.age_band_id IN (SELECT DISTINCT age_band_id FROM tmp_abi_stage1_age_band_wrappers)
   AND NOT EXISTS (
     SELECT 1
-    FROM tmp_abi_gateway_stage s
+    FROM tmp_abi_stage1_age_band_wrappers s
     JOIN public.pl_ux_wrappers uw ON LOWER(uw.ux_slug) = LOWER(s.stage1_wrapper_ux_slug)
     WHERE s.age_band_id = abuw.age_band_id
       AND uw.id = abuw.ux_wrapper_id
@@ -220,12 +272,12 @@ INSERT INTO public.pl_age_band_ux_wrappers (
   rank,
   is_active
 )
-SELECT DISTINCT
+SELECT
   s.age_band_id,
   uw.id,
   s.stage1_wrapper_rank_in_band,
   s.stage1_mapping_is_active
-FROM tmp_abi_gateway_stage s
+FROM tmp_abi_stage1_age_band_wrappers s
 JOIN public.pl_ux_wrappers uw
   ON LOWER(uw.ux_slug) = LOWER(s.stage1_wrapper_ux_slug)
 ON CONFLICT (age_band_id, ux_wrapper_id) DO UPDATE
@@ -248,13 +300,7 @@ SELECT
   src.stage2_category_type_name,
   NULL,
   NULL
-FROM (
-  SELECT DISTINCT
-    s.stage2_category_type_slug,
-    s.stage2_category_type_label,
-    s.stage2_category_type_name
-  FROM tmp_abi_gateway_stage s
-) src
+FROM tmp_abi_stage2_category_types src
 LEFT JOIN public.pl_category_types ct_slug
   ON LOWER(COALESCE(ct_slug.slug, '')) = LOWER(src.stage2_category_type_slug)
 LEFT JOIN public.pl_category_types ct_name
@@ -271,13 +317,7 @@ SET
   label = COALESCE(NULLIF(ct.label, ''), src.stage2_category_type_label),
   name = COALESCE(NULLIF(ct.name, ''), src.stage2_category_type_name),
   updated_at = now()
-FROM (
-  SELECT DISTINCT
-    s.stage2_category_type_slug,
-    s.stage2_category_type_label,
-    s.stage2_category_type_name
-  FROM tmp_abi_gateway_stage s
-) src
+FROM tmp_abi_stage2_category_types src
 WHERE LOWER(COALESCE(ct.slug, '')) = LOWER(src.stage2_category_type_slug);
 
 -- 6) Stage 2 need->category mappings for age bands
