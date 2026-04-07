@@ -9,7 +9,7 @@
     "rollback": "Revert this PR, then remove 34-36m rows from gateway mapping tables if immediate DB rollback is required."
   },
   "receipt": {
-    "goal": "Execute ABI_34_36m_completed.csv through the real Discover gateway ingestion path and unlock Discover when Stage 1+2 exist; show explicit Stage 3 empty state when products are missing.",
+    "goal": "Execute ABI_34_36m_completed.csv through the real Discover gateway ingestion path, unlock Discover when Stage 1+2 exist, and render Stage 1 cards from dataset wrapper labels for 34-36m.",
     "commands_run": [
       "supabase link --project-ref shjccflwlayacppuyskl",
       "node scripts/generate-abi-34-36m-sql.mjs",
@@ -17,7 +17,8 @@
       "node (REST verification for v_gateway_* views at 34-36m)",
       "pnpm install --frozen-lockfile (web/)",
       "pnpm build (web/)",
-      "pnpm build (web/) after Stage1+2 unlock/UI update"
+      "pnpm build (web/) after Stage1+2 unlock/UI update",
+      "pnpm build (web/) after Stage1 dataset-driven card fix"
     ],
     "files_changed_recent": [
       "scripts/generate-abi-34-36m-sql.mjs",

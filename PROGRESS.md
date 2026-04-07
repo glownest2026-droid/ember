@@ -19,6 +19,13 @@
   - `web/src/lib/discover/doorways.ts` maps new 34–36m wrapper slugs to existing Lucide doorway definitions/icons (same visual system as existing 25–27m cards).
 - **Proof:** `pnpm build` passes in `web/`.
 
+### follow-up: fix Stage 1 cards to match 34-36m dataset (Apr 2026)
+
+- **Root cause found:** Stage 1 card UI text/labels were hardcoded doorway content; wrapper data was only used for slug resolution, not displayed label content.
+- **Fix:** `web/src/app/discover/[months]/DiscoveryPageClient.tsx` now renders non-25–27 age bands directly from `wrappers` data (label from DB, e.g. `Pretend & story play`) while preserving Lucide icon styling.
+- **Behavior:** 34–36 now shows dataset-driven Stage 1 wrapper labels; selecting `Pretend & story play` flows to Stage 2 categories including `Dressing-up clothes`.
+- **Proof:** `pnpm build` passes in `web/`.
+
 # CTO Snapshot (Source of Truth)
  _Last updated: 2026-03-25_
 
