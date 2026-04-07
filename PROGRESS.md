@@ -1,3 +1,14 @@
+## feat(discover): import ABI 34-36m CSV into gateway (Apr 2026)
+
+- **Goal:** Execute `ABI_34_36m_completed.csv` through the Discover gateway canonical path (ABI V2 Stage 1-3), with no fabricated Stage 3 products.
+- **Ground truth path used:** Discover reads `v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_wrapper_detail_public`, `v_gateway_category_types_public`, and `v_gateway_products_public` via `web/src/lib/pl/public.ts` and `/discover/[months]`.
+- **Ingestion path used:** New idempotent SQL migration `supabase/sql/202604071315_import_34_36m_abi_v2.sql` (also copied into `supabase/migrations/20260407131500_import_34_36m_abi_v2.sql`) plus generator `scripts/generate-abi-34-36m-sql.mjs`.
+- **What changed:** Inserted/updated age band `34-36m`, Stage 1 wrappers + wrapper->need links + age-band wrapper ranks, need meta, category-type masters, and age-band need->category mappings. Explicitly cleared Stage 3 product mappings for `34-36m` because CSV Stage 3 product fields are blank.
+- **Import proof:** CSV rows read: 22. Remote push succeeded (`supabase db push --yes`). Post-import REST checks: age band rows=1, wrappers=6, wrapper_detail=6, categories=22, products=0 for `34-36m`.
+- **Discover behavior proof:** Month 34 resolver returns `34-36m`; Stage 1 and Stage 2 data present; Stage 3 products intentionally absent, so `/discover/34` is expected to show the "Catalogue coming soon" empty-products state from CSV-only import.
+- **Build proof:** `pnpm install --frozen-lockfile` and `pnpm build` in `web/` passed.
+- **Rollback:** Revert this PR and run an inverse migration to remove `34-36m` mappings (or restore from DB backup snapshot if needed).
+
 # CTO Snapshot (Source of Truth)
  _Last updated: 2026-03-25_
 
