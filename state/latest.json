@@ -4,8 +4,8 @@
     "title": "feat(discover): import and wire 34-36m ABI CSV into gateway",
     "branch": "feat/discover-34-36m-abi-import",
     "base": "main",
-    "url": null,
-    "vercel_preview_url": null,
+    "url": "https://github.com/glownest2026-droid/ember/pull/198",
+    "vercel_preview_url": "https://ember-git-feat-discover-34-36m-ab-72c530-tims-projects-cd69a894.vercel.app",
     "rollback": "Revert this PR, then remove 34-36m rows from gateway mapping tables if immediate DB rollback is required."
   },
   "receipt": {
