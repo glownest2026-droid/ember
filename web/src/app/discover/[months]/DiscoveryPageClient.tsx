@@ -56,6 +56,7 @@ interface DiscoveryPageClientProps {
   ageBands: AgeBand[];
   ageBand: AgeBand | null;
   selectedBandHasPicks: boolean;
+  selectedBandHasStage12Data: boolean;
   monthParam: number | null;
   resolutionDebug?: string | null;
   wrappers: Wrapper[];
@@ -77,6 +78,7 @@ export default function DiscoveryPageClient({
   ageBands,
   ageBand,
   selectedBandHasPicks,
+  selectedBandHasStage12Data,
   monthParam,
   resolutionDebug,
   wrappers,
@@ -949,7 +951,7 @@ export default function DiscoveryPageClient({
           ) : null}
         </div>
 
-        {selectedBandHasPicks ? (
+        {selectedBandHasStage12Data ? (
           <>
             <div className="mb-5 lg:mb-8">
               <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
@@ -1133,9 +1135,9 @@ export default function DiscoveryPageClient({
                   </div>
                   <p className="text-xs text-[var(--ember-text-low)] mt-2">Chosen for {chosenForLabel}</p>
                 </div>
-                {!selectedBandHasPicks || displayIdeas.length === 0 ? (
+                {displayIdeas.length === 0 ? (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]">
-                    We&apos;re still building ideas for this focus. Try another category or focus.
+                    Examples coming soon
                   </div>
                 ) : (
                   <DiscoverFigmaProductCarousel

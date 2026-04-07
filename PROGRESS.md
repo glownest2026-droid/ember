@@ -9,6 +9,16 @@
 - **Build proof:** `pnpm install --frozen-lockfile` and `pnpm build` in `web/` passed.
 - **Rollback:** Revert this PR and run an inverse migration to remove `34-36m` mappings (or restore from DB backup snapshot if needed).
 
+### follow-up: unlock Stage 1+2 without Stage 3 products (Apr 2026)
+
+- **Goal:** If Stage 1 + Stage 2 exist, show the discover slide/doorway experience; when Stage 3 is missing, show explicit empty-state copy in Stage 3 section.
+- **What changed:**
+  - `web/src/app/discover/[months]/page.tsx` now computes `selectedBandHasStage12Data` from real wrapper + category data (not product presence), and uses it to unlock the experience.
+  - Stage 3 navigation (`show=1`) now works from Stage 2 even when product mappings are empty.
+  - `web/src/app/discover/[months]/DiscoveryPageClient.tsx` now gates main experience by Stage 1+2 availability and shows `Examples coming soon` in Stage 3 when no product examples exist.
+  - `web/src/lib/discover/doorways.ts` maps new 34–36m wrapper slugs to existing Lucide doorway definitions/icons (same visual system as existing 25–27m cards).
+- **Proof:** `pnpm build` passes in `web/`.
+
 # CTO Snapshot (Source of Truth)
  _Last updated: 2026-03-25_
 
