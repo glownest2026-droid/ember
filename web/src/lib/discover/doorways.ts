@@ -38,7 +38,7 @@ export const ALL_DOORWAYS: DoorwayDef[] = [
     helper: 'Running, climbing, jumping — getting steadier on their feet.',
     icon: Activity,
     wrapperSlug: 'burn-energy',
-    alternateSlugs: ['gross-motor-skills-and-physical-confidence'],
+    alternateSlugs: ['gross-motor-skills-and-physical-confidence', 'moving-and-playing-outside'],
   },
   {
     key: 'little-hands',
@@ -46,7 +46,7 @@ export const ALL_DOORWAYS: DoorwayDef[] = [
     helper: 'Twisting, turning, posting, stacking — using both hands together.',
     icon: Hand,
     wrapperSlug: 'little-hands',
-    alternateSlugs: ['fine-motor-control-and-hand-coordination'],
+    alternateSlugs: ['fine-motor-control-and-hand-coordination', 'little-hands-puzzles-and-early-maths'],
   },
   {
     key: 'talk-understand',
@@ -54,7 +54,7 @@ export const ALL_DOORWAYS: DoorwayDef[] = [
     helper: 'New words, little sentences — telling you what they want.',
     icon: MessageCircle,
     wrapperSlug: 'talk-understand',
-    alternateSlugs: ['language-development-and-communication'],
+    alternateSlugs: ['language-development-and-communication', 'language-books-and-conversation'],
   },
   {
     key: 'make-believe',
@@ -62,7 +62,7 @@ export const ALL_DOORWAYS: DoorwayDef[] = [
     helper: 'Copying you, role-play, little stories.',
     icon: Theater,
     wrapperSlug: 'pretend-stories',
-    alternateSlugs: ['pretend-play-and-imagination'],
+    alternateSlugs: ['pretend-play-and-imagination', 'pretend-and-story-play'],
   },
   {
     key: 'play-with-others',
@@ -78,7 +78,7 @@ export const ALL_DOORWAYS: DoorwayDef[] = [
     helper: 'Learning to cope with frustration, excitement, disappointment.',
     icon: HeartHandshake,
     wrapperSlug: 'big-feelings',
-    alternateSlugs: ['emotional-regulation-and-self-awareness'],
+    alternateSlugs: ['emotional-regulation-and-self-awareness', 'big-feelings-and-peer-play'],
   },
   {
     key: 'do-it-myself',
@@ -86,7 +86,7 @@ export const ALL_DOORWAYS: DoorwayDef[] = [
     helper: 'Helping out, feeding themselves, trying to do it solo.',
     icon: CheckCircle2,
     wrapperSlug: 'let-me-help',
-    alternateSlugs: ['independence-and-practical-life-skills'],
+    alternateSlugs: ['independence-and-practical-life-skills', 'toilet-learning-and-independence'],
   },
   {
     key: 'figure-it-out',
