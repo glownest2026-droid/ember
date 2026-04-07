@@ -10,18 +10,16 @@ import { trackEvent } from '@/lib/analytics/trackEvent';
 import type { GatewayPick, GatewayWrapperPublic } from '@/lib/pl/public';
 import {
   ALL_DOORWAYS,
-  DEFAULT_DOORWAYS,
-  MORE_DOORWAYS,
   SUGGESTED_DOORWAY_KEYS_25_27,
-  resolveDoorwayToWrapper,
+  normaliseSlug,
 } from '@/lib/discover/doorways';
-import { Sparkles } from 'lucide-react';
 import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
 import { DiscoverFigmaChildHero } from '@/components/discover/figma/DiscoverFigmaChildHero';
 import { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigmaNeedCard';
 import { DiscoverFigmaScienceSection } from '@/components/discover/figma/DiscoverFigmaScienceSection';
 import { DiscoverFigmaPlayCarousel } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
 import { DiscoverFigmaProductCarousel } from '@/components/discover/figma/DiscoverFigmaProductCarousel';
+import { getWrapperIcon } from './_lib/wrapperIcons';
 import {
   displayChildName,
   personalizationFromChildrenRow,
@@ -590,42 +588,52 @@ export default function DiscoveryPageClient({
   const getProductUrl = (p: PickItem) =>
     p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
 
-  const isCuratedDoorwayBand = is25to27;
-  const visibleDoorwayList = isCuratedDoorwayBand ? (showMore ? ALL_DOORWAYS : DEFAULT_DOORWAYS) : [];
-  const selectedDoorway = visibleDoorwayList.find((d) => {
-    const r = resolveDoorwayToWrapper(d, wrappers);
-    return r && r.ux_slug === selectedWrapper;
-  });
+  const doorwayMetaBySlug = useMemo(() => {
+    const map = new Map<string, { key: string; helper: string }>();
+    for (const doorway of ALL_DOORWAYS) {
+      const candidates = [doorway.wrapperSlug, ...(doorway.alternateSlugs ?? [])];
+      for (const slug of candidates) {
+        map.set(normaliseSlug(slug), { key: doorway.key, helper: doorway.helper });
+      }
+    }
+    return map;
+  }, []);
+
+  const suggestedDoorwaySlugSet = useMemo(() => {
+    const set = new Set<string>();
+    for (const doorway of ALL_DOORWAYS) {
+      if (!SUGGESTED_DOORWAY_KEYS_25_27.includes(doorway.key)) continue;
+      const candidates = [doorway.wrapperSlug, ...(doorway.alternateSlugs ?? [])];
+      for (const slug of candidates) {
+        set.add(normaliseSlug(slug));
+      }
+    }
+    return set;
+  }, []);
+
+  const allTiles = useMemo(
+    () =>
+      wrappers.map((wrapper) => {
+        const slugNorm = normaliseSlug(wrapper.ux_slug);
+        const meta = doorwayMetaBySlug.get(slugNorm);
+        const label = wrapper.ux_label?.trim() || wrapper.ux_slug;
+        return {
+          key: wrapper.ux_slug,
+          slug: wrapper.ux_slug,
+          label,
+          helper: meta?.helper ?? 'Tap to explore this focus area.',
+          icon: getWrapperIcon(wrapper.ux_slug, label),
+          showSuggested: is25to27 && suggestedDoorwaySlugSet.has(slugNorm),
+        };
+      }),
+    [wrappers, doorwayMetaBySlug, is25to27, suggestedDoorwaySlugSet]
+  );
+  const visibleTiles = showMore ? allTiles : allTiles.slice(0, 6);
   const selectedWrapperLabel =
     wrappers.find((w) => w.ux_slug === selectedWrapper)?.ux_label ??
-    selectedDoorway?.label ??
+    allTiles.find((tile) => tile.slug === selectedWrapper)?.label ??
     selectedWrapper ??
     '';
-
-  const allTiles = isCuratedDoorwayBand
-    ? visibleDoorwayList.map((d) => ({
-        type: 'doorway' as const,
-        key: d.key,
-        label: d.label,
-        helper: d.helper,
-        icon: d.icon,
-        resolved: resolveDoorwayToWrapper(d, wrappers),
-      }))
-    : wrappers.map((w) => {
-        const matched = ALL_DOORWAYS.find((d) => {
-          const r = resolveDoorwayToWrapper(d, [w]);
-          return !!r;
-        });
-        const shortDescription = (w.ux_description ?? '').split('.').map((s) => s.trim()).filter(Boolean)[0] ?? '';
-        return {
-          type: 'wrapper' as const,
-          key: w.ux_slug,
-          label: w.ux_label,
-          helper: matched?.helper || shortDescription || 'Tap to explore',
-          icon: matched?.icon ?? Sparkles,
-          resolved: { ux_slug: w.ux_slug, ux_label: w.ux_label },
-        };
-      });
 
   const debugText =
     showDebug && monthParam !== null && ageBand !== null
@@ -998,27 +1006,11 @@ export default function DiscoveryPageClient({
               ) : null}
             </div>
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                {allTiles.map((tile) => {
-                  if (tile.type === 'doorway' && !tile.resolved) {
-                    return (
-                      <DiscoverFigmaNeedCard
-                        key={tile.key}
-                        icon={tile.icon}
-                        title={tile.label}
-                        description={tile.helper}
-                        science="Coming soon"
-                        isSelected={false}
-                        onClick={() => {}}
-                        disabled
-                      />
-                    );
-                  }
-                  const slug = tile.resolved!.ux_slug;
-                  const isSelected = selectedWrapper === slug;
-                  const showSuggested = isCuratedDoorwayBand && SUGGESTED_DOORWAY_KEYS_25_27.includes(tile.key);
+                {visibleTiles.map((tile) => {
+                  const isSelected = selectedWrapper === tile.slug;
                   return (
-                    <div key={slug} className="relative">
-                      {showSuggested ? (
+                    <div key={tile.slug} className="relative">
+                      {tile.showSuggested ? (
                         <span className="absolute -top-2 left-2 z-10 text-[10px] px-2 py-0.5 rounded-full font-medium bg-[rgba(184,67,43,0.12)] text-[#B8432B]">
                           Suggested
                         </span>
@@ -1027,15 +1019,15 @@ export default function DiscoveryPageClient({
                         icon={tile.icon}
                         title={tile.label}
                         description={tile.helper}
-                        science={showSuggested ? 'Great fit for this age' : 'Tap to explore'}
+                        science={tile.showSuggested ? 'Great fit for this age' : 'Tap to explore'}
                         isSelected={isSelected}
-                        onClick={() => handleWrapperSelect(slug)}
+                        onClick={() => handleWrapperSelect(tile.slug)}
                       />
                     </div>
                   );
                 })}
               </div>
-              {isCuratedDoorwayBand && !showMore && MORE_DOORWAYS.length > 0 ? (
+              {!showMore && allTiles.length > 6 ? (
                 <button
                   type="button"
                   className="mt-4 text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)]"
