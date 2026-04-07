@@ -31,6 +31,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
   }
   const wrappers = await getGatewayWrappersForAgeBand(ageBand.id);
   const selectedBandHasPicks = bandsWithPicks.has(ageBand.id);
+  const selectedBandHasProducts = selectedBandHasPicks;
   let selectedBandHasStage12Data = false;
   for (const wrapper of wrappers) {
     const categories = await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, wrapper.ux_slug);
@@ -53,7 +54,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
   let effectiveWrapperSlug =
     selectedWrapperSlug ?? defaultSlug25to27 ?? wrappers[0]?.ux_slug ?? null;
   let picks: Awaited<ReturnType<typeof getGatewayTopPicksForAgeBandAndWrapperSlug>> = [];
-  const exampleProducts = selectedBandHasPicks
+  const exampleProducts = selectedBandHasProducts
     ? await getGatewayTopProductsForAgeBand(ageBand.id, 12)
     : [];
 
