@@ -1,22 +1,15 @@
 # CTO Snapshot (Source of Truth)
- _Last updated: 2026-04-07_
+ _Last updated: 2026-03-25_
 
-## feat(discover): ABI V2 stage naming (1–3) + template alignment — 2026-04-07
-- Updated `/discover/[months]` UI copy so deprecated Stage 2 label is removed (`Why this matters` only), and stage labels are now Stage 2 (Play ideas) and Stage 3 (Product examples).
-- Updated age-band import/export artifacts to ABI V2 columns: `stage1_why_it_matters_ux_description`, `stage2_*` (categories/play ideas), `stage3_*` (products/examples). Regenerated 25–27m full + sample CSVs from live gateway views.
-- **Verification:** `pnpm build` succeeds in `web/`; `node supabase/import_templates/scripts/export_gateway_age_band_csv.mjs` writes 163-row full export + 10-row sample.
-
-## plan: ABI Template V2 stage merge/deprecate — 2026-04-07
-- Produced implementation plan for merging legacy Stage 2 notes into Stage 1 (`stage1_why_it_matters_ux_description`), renaming legacy Stage 3→2 and Stage 4→3 across import/export, backend mapping, and `/discover` UI labels/content flow. Includes backward-compat bridge strategy, rollout, and verification gates.
-- **Verification:** N/A (planning only).
-
-## docs: Discover Stage 1→3 gateway plumbing + 31–33m DB brief (analysis) — 2026-04-06
-- Documented how `/discover/[months]` wires Figma “Stage 1” doorway cards to Phase A views (`v_gateway_wrappers_public` → `development_need_id` → `v_gateway_category_types_public` → `v_gateway_products_public`); noted UI labels Stage 3 = category tiles / Stage 4 = products.
-- **Verification:** N/A (documentation only).
-
-## import_templates: gateway age band bulk CSV (25–27m live export) — 2026-04-06
-- `gateway_age_band_bulk_import_template.csv` is generated from Supabase public gateway views for **25-27m** (163 product-mapping rows as of export). `gateway_age_band_25-27m_sample_10rows.csv` = first product per distinct category (10 rows). Generator: `supabase/import_templates/scripts/export_gateway_age_band_csv.mjs` (+ `README_gateway_age_band_import.txt`). Column dictionary updated for `ref_*` UUID columns.
-- **Verification:** `node supabase/import_templates/scripts/export_gateway_age_band_csv.mjs` (requires `web/.env.local`); expect full row count matching `v_gateway_products_public` for 25-27m.
+## feat(inventory): controlled CSV canonical ingestion (PR4) — 2026-04-01
+- **Branch:** `feat/inventory-pr4-csv-canonical-ingestion`
+- **Goal:** Expand canonical dictionary coverage from attached draft CSV without bloating product_types or weakening canonical truth.
+- **Ground truth checks completed:** CSV parsed safely (1000 rows, 124 proposed canonical slugs). Controlled ingest keeps only `seed_confidence='medium'` rows (500). Overlap cluster detected and collapsed deterministically (`pram`/`pushchair`/`stroller` -> `stroller`).
+- **What changed:** Added migration `supabase/sql/202604011100_pr4_inventory_csv_controlled_ingestion.sql` that stages CSV rows, deterministically merges into existing dictionary (slug -> normalized label -> existing alias), creates minimal net-new `product_types`, inserts deduplicated aliases (<=3-word aliases + canonical label/slug forms), and resolves matching queue rows with `resolution_note='resolved via PR4 CSV seed'`.
+- **Verification bundle in migration:** emits before/after counts, new canonical rows, ambiguous deferred candidates, and matcher spot-check outputs for `pram`, `cash register`, `potty`, `foot gauge`.
+- **Boundaries protected:** no anon policy changes, no marketplace/lifecycle logic, no Find it/At home boundary changes.
+- **Verification:** `pnpm -C web build` passes.
+- **Rollback:** Revert PR4 commit(s). Optional DB rollback migration should remove only PR4-added product_types/aliases and revert queue resolution notes set by PR4.
 
 ## feat(posthog): PostHog foundation (privacy-safe, discovery-grounded) — 2026-03-25
 - **Branch:** `feat/posthog-foundation`
@@ -2304,7 +2297,22 @@ Category-only cards remain publishable.
 - **What changed:** `web/src/components/figma/pricing/PricingPageFigmaClient.tsx` hero spacing updated to `pt-16 pb-20 lg:pt-24 lg:pb-28`; pricing section spacing updated to `pb-16 lg:pb-20`. `web/src/components/figma/pricing/pricing-card.tsx` updated to compact v2 card metrics (padding, badge size/offset, heading/price/type scales, feature spacing/icon size, CTA size/font).
 - **Proof:** `pnpm -C web build` passes after v2 spacing updates.
 
+### follow-up: pricing hero line break + conflict resolution
+- **Goal:** Force hero second sentence onto line 2 and clear PR merge conflicts.
+- **What changed:** Added explicit `<br />` between "Browse for free." and "Let Ember guide what to buy." in `web/src/components/figma/pricing/PricingPageFigmaClient.tsx`. Merged latest `origin/main` into pricing branch and resolved conflicts (kept `main` versions for unrelated `FamilyFigmaClient` and `UnifiedSignedInNav` files).
+- **Proof:** `pnpm -C web build` passes on merged branch; pushed to PR branch.
+
 ### follow-up: navbar discoverability links
 - **Goal:** Make pricing discoverable in signed-out and signed-in nav paths.
 - **What changed:** Signed-out navbar now includes `About` (`/`) and `Pricing` (`/pricing`) before `Sign in` in `web/src/components/discover/DiscoverStickyHeader.tsx` (desktop, mobile top bar, and mobile menu panel). Signed-in account menu now includes `Membership` (Gem icon, links to `/pricing`) after `Family` in `web/src/components/subnav/UnifiedSignedInNav.tsx` (desktop dropdown and mobile menu panel).
 - **Proof:** `pnpm -C web build` passes after navbar link additions.
+
+### follow-up: mobile signed-out nav de-cramp
+- **Goal:** Reduce top-bar crowding on signed-out mobile navbar.
+- **What changed:** Removed `About` from signed-out **mobile top bar** in `web/src/components/discover/DiscoverStickyHeader.tsx`; kept desktop signed-out nav and mobile menu panel entries unchanged.
+- **Proof:** `pnpm -C web build` passes after this tweak.
+
+### follow-up: mobile signed-out nav de-cramp v2
+- **Goal:** Further reduce signed-out mobile top-bar crowding.
+- **What changed:** Removed `Pricing` and `Sign in` from the signed-out **mobile top bar** in `web/src/components/discover/DiscoverStickyHeader.tsx`; `Get started` remains in the top bar. Desktop nav and mobile menu panel links remain unchanged.
+- **Proof:** `pnpm -C web build` passes after this tweak.

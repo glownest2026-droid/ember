@@ -18,20 +18,14 @@ import {
   Gem,
   Package,
   ShoppingCart,
-  Info,
 } from 'lucide-react';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
-import { SubnavSwitch } from './SubnavSwitch';
-import { SimpleTooltip } from '@/components/ui/SimpleTooltip';
 import { createClient } from '@/utils/supabase/client';
 
 const EMBER_LOGO_SRC =
   'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
 const CHILD_AVATAR_COLORS = ['#FF8870', '#B8432B', '#FFB347', '#E67A9E', '#7B68B6', '#4ECDC4'];
-
-const REMINDERS_TOOLTIP =
-  "We'll automatically send you proactive play ideas at just the right time for your child's next developmental needs.";
 
 const CHILD_TOGGLE_AFFIRM_KEY = 'ember_child_toggle_affirm';
 
@@ -86,7 +80,7 @@ function childColor(index: number): string {
 
 /**
  * Unified signed-in navigation (Figma Subnav Bar V3): one sticky bar with logo, Discover/Saves/Marketplace,
- * child switcher, stats (ideas/products/gifts), reminders toggle, and profile dropdown.
+ * child switcher, stats (ideas/products/gifts), reminders link, and profile dropdown.
  * Replaces the previous separate header + subnav for signed-in users.
  */
 export function UnifiedSignedInNav() {
@@ -98,7 +92,6 @@ export function UnifiedSignedInNav() {
   const [isChildDropdownOpen, setIsChildDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [remindersBusy, setRemindersBusy] = useState(false);
   /** Must be separate: one ref on both desktop+mobile would point to only the last node, so click-outside closed the desktop menu before child buttons received clicks. */
   const childDropdownDesktopRef = useRef<HTMLDivElement>(null);
   const childDropdownMobileRef = useRef<HTMLDivElement>(null);
@@ -112,11 +105,11 @@ export function UnifiedSignedInNav() {
   const [childToggleAffirm, setChildToggleAffirm] = useState(false);
 
   const selectedChildId = searchParams?.get('child') ?? '';
-  const remindersEnabled = stats?.remindersEnabled ?? false;
   const basePath = pathname || '/discover';
   const isDiscover = basePath.startsWith('/discover');
   const isMyIdeas = basePath.startsWith('/my-ideas');
   const isMarketplace = basePath.startsWith('/marketplace');
+  const isFamilyReminders = basePath.startsWith('/family');
   const childToggleApplies = isDiscover || isMyIdeas || basePath.startsWith('/family') || isMarketplace;
 
   const selectedChild = selectedChildId ? children.find((c) => c.id === selectedChildId) : null;
@@ -285,24 +278,6 @@ export function UnifiedSignedInNav() {
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isChildDropdownOpen, isProfileDropdownOpen]);
-
-  const handleRemindersChange = useCallback(
-    async (checked: boolean) => {
-      if (!user) return;
-      setRemindersBusy(true);
-      try {
-        const supabase = createClient();
-        await supabase.from('user_notification_prefs').upsert(
-          { user_id: user.id, development_reminders_enabled: checked },
-          { onConflict: 'user_id' }
-        );
-        await refetch(selectedChildId || undefined);
-      } finally {
-        setRemindersBusy(false);
-      }
-    },
-    [user, refetch, selectedChildId]
-  );
 
   const handleChildSelect = useCallback(
     (childId: string | null) => {
@@ -799,26 +774,14 @@ export function UnifiedSignedInNav() {
               </Link>
             </div>
 
-            {/* Reminders - desktop xl */}
-            <div className="hidden xl:flex items-center gap-2 mr-2">
-              <span className="text-xs text-[var(--ember-text-high)] hidden 2xl:inline">
+            {/* Reminders - desktop xl: link to family reminder settings (not a push toggle) */}
+            <div className="hidden xl:flex items-center mr-2">
+              <Link
+                href="/family#reminders"
+                className={`${navLinkClass} ${isFamilyReminders ? navLinkActive : navLinkInactive}`}
+              >
                 Reminders
-              </span>
-              <SubnavSwitch
-                checked={remindersEnabled}
-                onCheckedChange={handleRemindersChange}
-                disabled={remindersBusy}
-                aria-label="Send me development reminders"
-              />
-              <SimpleTooltip content={REMINDERS_TOOLTIP} minWidth="44rem" maxWidth="min(44rem, 95vw)">
-                <button
-                  type="button"
-                  className="rounded-full p-0.5 text-[var(--ember-text-low)] hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ember-accent-hover)] cursor-pointer"
-                  aria-label="Development reminders info"
-                >
-                  <Info className="w-4 h-4" />
-                </button>
-              </SimpleTooltip>
+              </Link>
             </div>
 
             {/* Profile dropdown - desktop */}
@@ -1044,24 +1007,16 @@ export function UnifiedSignedInNav() {
                 {typeof stats.giftsSaved === 'number' ? stats.giftsSaved : 0} gifts
               </span>
             </Link>
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs text-[var(--ember-text-high)]">Reminders</span>
-              <SubnavSwitch
-                checked={remindersEnabled}
-                onCheckedChange={handleRemindersChange}
-                disabled={remindersBusy}
-                aria-label="Send me development reminders"
-              />
-              <SimpleTooltip content={REMINDERS_TOOLTIP} minWidth="16rem" maxWidth="calc(100vw - 16px)">
-                <button
-                  type="button"
-                  className="rounded-full p-0.5 text-[var(--ember-text-low)] hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ember-accent-hover)] cursor-pointer"
-                  aria-label="Development reminders info"
-                >
-                  <Info className="w-4 h-4" />
-                </button>
-              </SimpleTooltip>
-            </div>
+            <Link
+              href="/family#reminders"
+              className={`shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                isFamilyReminders
+                  ? 'text-[var(--ember-text-high)] bg-[var(--ember-surface-soft)]'
+                  : 'text-[var(--ember-text-low)] hover:bg-[var(--ember-surface-soft)]'
+              }`}
+            >
+              Reminders
+            </Link>
           </div>
         </div>
       </div>

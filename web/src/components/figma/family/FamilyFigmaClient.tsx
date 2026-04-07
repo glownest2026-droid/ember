@@ -4,12 +4,11 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { Plus, Sparkles, Eye, RefreshCw, ArrowRight, Gift, Bell, Search, Camera, Check } from 'lucide-react';
+import { Plus, Sparkles, Eye, RefreshCw, ArrowRight, Gift, Search, Camera, Check } from 'lucide-react';
 import { ShareYourGiftListWidget } from './ShareYourGiftListWidget';
 import type { FamilyChild } from './ChildProfileCard';
 import type { ChildStats } from './ChildProfileCard';
-import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
-import { SubnavSwitch } from '@/components/subnav/SubnavSwitch';
+import { FamilyRemindersTopicCard } from './FamilyRemindersTopicCard';
 
 /** Per-child stats from get_my_subnav_stats RPC. */
 interface SubnavStatsRaw {
@@ -20,6 +19,14 @@ interface SubnavStatsRaw {
 
 interface ChildWithStats extends FamilyChild {
   stats?: ChildStats | null;
+}
+
+interface InventoryMatchCandidate {
+  id: string;
+  slug: string;
+  label: string;
+  subtitle?: string | null;
+  confidence_bucket: 'high' | 'medium' | 'low';
 }
 
 /** Manage My Family page – Figma Make layout exact. Data: children table + get_my_subnav_stats(p_child_id). */
@@ -47,8 +54,18 @@ export function FamilyFigmaClient({
   const [selectedView, setSelectedView] = useState<string>(selectedChildId || 'all');
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [quickAddQuery, setQuickAddQuery] = useState('');
-  const [quickAddMatch, setQuickAddMatch] = useState<string | null>(null);
+  const [quickAddMatch, setQuickAddMatch] = useState<InventoryMatchCandidate | null>(null);
   const [quickAddAssignTo, setQuickAddAssignTo] = useState<string>('unsure');
+  const [quickAddCandidates, setQuickAddCandidates] = useState<InventoryMatchCandidate[]>([]);
+  const [quickAddLoading, setQuickAddLoading] = useState(false);
+  const [quickAddError, setQuickAddError] = useState<string | null>(null);
+  const [quickAddAllowFallback, setQuickAddAllowFallback] = useState(false);
+  const [quickAddSaving, setQuickAddSaving] = useState(false);
+  const [quickAddSaved, setQuickAddSaved] = useState(false);
+  const [quickAddSavedToGarage, setQuickAddSavedToGarage] = useState(false);
+  const [ownedCountTotal, setOwnedCountTotal] = useState(0);
+  const [ownedCountByChild, setOwnedCountByChild] = useState<Record<string, number>>({});
+  const QUICK_ADD_MIN_CHARS = 3;
 
   const fetchChildren = useCallback(async () => {
     const userId = serverUserId;
@@ -193,6 +210,7 @@ export function FamilyFigmaClient({
   const counters = selectedChild?.stats ?? totals;
   const scopedChild = selectedChild;
   const scopedChildId = scopedChild?.id ?? null;
+  const atHomeCount = scopedChildId ? (ownedCountByChild[scopedChildId] ?? 0) : ownedCountTotal;
 
   const discoverHref = scopedChildId ? `/discover?child=${encodeURIComponent(scopedChildId)}` : '/discover';
   const myIdeasIdeasHref = scopedChildId
@@ -226,13 +244,28 @@ export function FamilyFigmaClient({
     ? 'Top actions for your household right now'
     : `Top actions for ${childLabel} right now`;
 
-  const suggestedMatches = quickAddQuery.length > 2
-    ? [
-        { id: '1', name: 'Shopping Till Playset', brand: 'Melissa & Doug', age: '3+ years', emoji: '🛒' },
-        { id: '2', name: 'Wooden Shopping Cart', brand: 'Le Toy Van', age: '2+ years', emoji: '🛍️' },
-        { id: '3', name: 'Cash Register Toy', brand: 'Fisher-Price', age: '2+ years', emoji: '💰' },
-      ]
-    : [];
+  const fetchOwnedInventoryCounts = useCallback(async () => {
+    if (!serverUserId) {
+      setOwnedCountTotal(0);
+      setOwnedCountByChild({});
+      return;
+    }
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('garage_items')
+      .select('child_id')
+      .eq('user_id', serverUserId)
+      .in('status', ['owned', 'ready_to_move_on', 'listed']);
+    if (error) return;
+    const rows = (data ?? []) as { child_id: string | null }[];
+    const byChild: Record<string, number> = {};
+    for (const row of rows) {
+      if (!row.child_id) continue;
+      byChild[row.child_id] = (byChild[row.child_id] ?? 0) + 1;
+    }
+    setOwnedCountTotal(rows.length);
+    setOwnedCountByChild(byChild);
+  }, [serverUserId]);
 
   const quickAddOptions = [
     ...(children.map((c, idx) => ({
@@ -244,16 +277,81 @@ export function FamilyFigmaClient({
     { value: 'unsure', label: 'Not sure', age: 'Decide later' },
   ];
 
-  const handleQuickAdd = useCallback(() => {
-    const childParam = quickAddAssignTo !== 'shared' && quickAddAssignTo !== 'unsure'
-      ? `?child=${encodeURIComponent(quickAddAssignTo)}`
-      : '';
+  const resetQuickAdd = useCallback(() => {
     setQuickAddOpen(false);
     setQuickAddQuery('');
     setQuickAddMatch(null);
     setQuickAddAssignTo('unsure');
-    router.push(`/discover${childParam}`);
-  }, [quickAddAssignTo, router]);
+    setQuickAddCandidates([]);
+    setQuickAddLoading(false);
+    setQuickAddError(null);
+    setQuickAddAllowFallback(false);
+    setQuickAddSaving(false);
+    setQuickAddSaved(false);
+    setQuickAddSavedToGarage(false);
+  }, []);
+
+  const handleQuickAddSave = useCallback(async () => {
+    const query = quickAddQuery.trim();
+    if (!query) return;
+    if (!quickAddMatch && !quickAddAllowFallback) return;
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setQuickAddError('Please sign in to add items.');
+      return;
+    }
+    setQuickAddSaving(true);
+    setQuickAddError(null);
+    try {
+      const childScopeType =
+        quickAddAssignTo === 'shared'
+          ? 'shared'
+          : quickAddAssignTo === 'unsure'
+            ? 'unknown'
+            : 'single_child';
+      const childId = childScopeType === 'single_child' ? quickAddAssignTo : null;
+
+      if (quickAddMatch) {
+        const { error } = await supabase.from('garage_items').insert({
+          user_id: user.id,
+          product_type_id: quickAddMatch.id,
+          child_scope_type: childScopeType,
+          child_id: childId,
+          raw_query: query,
+          source: 'manual_match',
+          status: 'owned',
+        });
+        if (error) {
+          setQuickAddError(error.message);
+          return;
+        }
+        await supabase.from('inventory_search_events').insert({
+          user_id: user.id,
+          raw_query: query,
+          selected_product_type_id: quickAddMatch.id,
+          confidence_bucket: quickAddMatch.confidence_bucket,
+          was_confirmed: true,
+        });
+        await fetchOwnedInventoryCounts();
+        setQuickAddSavedToGarage(true);
+        setQuickAddSaved(true);
+        return;
+      }
+
+      await supabase.from('inventory_search_events').insert({
+        user_id: user.id,
+        raw_query: query,
+        selected_product_type_id: null,
+        confidence_bucket: null,
+        was_confirmed: false,
+      });
+      setQuickAddSavedToGarage(false);
+      setQuickAddSaved(true);
+    } finally {
+      setQuickAddSaving(false);
+    }
+  }, [quickAddAllowFallback, quickAddAssignTo, quickAddMatch, quickAddQuery, fetchOwnedInventoryCounts]);
 
   const handleSelectView = useCallback((view: string) => {
     setSelectedView(view);
@@ -267,41 +365,58 @@ export function FamilyFigmaClient({
     router.replace(query ? `/family?${query}` : '/family', { scroll: false });
   }, [router, searchParams]);
 
-  const { user, stats: subnavStats, refetch } = useSubnavStats();
-  const remindersEnabled = subnavStats?.remindersEnabled ?? false;
-  const [remindersBusy, setRemindersBusy] = useState(false);
-  const [moveItOnPromptsEnabled, setMoveItOnPromptsEnabled] = useState(false);
-  const moveItOnKey = user?.id ? `ember.moveItOnPrompts.${user.id}` : null;
+  useEffect(() => {
+    fetchOwnedInventoryCounts();
+  }, [fetchOwnedInventoryCounts]);
 
   useEffect(() => {
-    if (!moveItOnKey) return;
-    try {
-      const raw = localStorage.getItem(moveItOnKey);
-      setMoveItOnPromptsEnabled(raw === '1');
-    } catch {
-      setMoveItOnPromptsEnabled(false);
+    if (!quickAddOpen) return;
+    const query = quickAddQuery.trim();
+    if (query.length < QUICK_ADD_MIN_CHARS) {
+      setQuickAddCandidates([]);
+      setQuickAddLoading(false);
+      setQuickAddError(null);
+      setQuickAddMatch(null);
+      return;
     }
-  }, [moveItOnKey]);
-
-  const handleRemindersChange = useCallback(
-    async (checked: boolean) => {
-      if (!user) return;
-      setRemindersBusy(true);
+    const timer = setTimeout(async () => {
+      setQuickAddLoading(true);
+      setQuickAddError(null);
       try {
-        const supabase = createClient();
-        const { error } = await supabase
-          .from('user_notification_prefs')
-          .upsert(
-            { user_id: user.id, development_reminders_enabled: checked },
-            { onConflict: 'user_id' }
-          );
-        if (!error) await refetch();
+        const response = await fetch(
+          `/api/inventory/match?q=${encodeURIComponent(query)}&limit=5`,
+          { method: 'GET', cache: 'no-store' }
+        );
+        const rawText = await response.text();
+        let payload: { candidates?: InventoryMatchCandidate[]; error?: string } = {};
+        try {
+          payload = rawText ? (JSON.parse(rawText) as { candidates?: InventoryMatchCandidate[]; error?: string }) : {};
+        } catch {
+          payload = {};
+        }
+        if (!response.ok) {
+          if (response.status === 401) {
+            setQuickAddError('Your session expired in this preview. Please sign in again, or use fallback.');
+          } else {
+            setQuickAddError(payload?.error ?? 'Could not load matches.');
+          }
+          setQuickAddCandidates([]);
+          return;
+        }
+        const candidates = payload.candidates ?? [];
+        setQuickAddCandidates(candidates);
+        if (quickAddMatch && !candidates.some((c) => c.id === quickAddMatch.id)) {
+          setQuickAddMatch(null);
+        }
+      } catch {
+        setQuickAddError('Could not load matches right now.');
+        setQuickAddCandidates([]);
       } finally {
-        setRemindersBusy(false);
+        setQuickAddLoading(false);
       }
-    },
-    [user, refetch]
-  );
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [quickAddOpen, quickAddQuery, quickAddMatch]);
 
   if (loading) {
     return (
@@ -459,7 +574,9 @@ export function FamilyFigmaClient({
                     <div className="min-w-0">
                       <h3 className="text-base sm:text-lg font-medium m-0">Review ready-to-move items</h3>
                       <p className="text-sm text-[#5C646D] mt-0.5">
-                        {selectedView === 'all' ? 'Quick decisions on outgrown items.' : `See what ${childLabel} may be outgrowing.`}
+                        {selectedView === 'all'
+                          ? `${atHomeCount} owned items currently logged.`
+                          : `${atHomeCount} owned items logged for ${childLabel}.`}
                       </p>
                     </div>
                   </div>
@@ -514,7 +631,7 @@ export function FamilyFigmaClient({
                     <h3 className="text-base font-medium text-[#1A1E23] m-0">At home</h3>
                   </div>
                   <p className="text-sm text-[#5C646D]">
-                    {counters.toys} items logged - what you already own
+                    {atHomeCount} items logged - what you already own
                   </p>
                 </Link>
 
@@ -534,55 +651,7 @@ export function FamilyFigmaClient({
                 </Link>
               </div>
 
-              <div className="mt-5 max-w-3xl">
-                <div
-                  className="rounded-2xl border p-4 sm:p-5 bg-white"
-                  style={{ borderColor: 'var(--ember-border-subtle)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#FF6347]/10">
-                        <Bell className="w-4 h-4 text-[#FF6347]" />
-                      </span>
-                      <div>
-                        <h3 className="text-sm font-medium text-[#1A1E23]">Email reminders</h3>
-                        <p className="text-xs text-[#5C646D]">Useful guidance, not marketing</p>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-xs text-[#5C646D] mt-2 mb-3">
-                    We&apos;ll only send useful guidance tied to your current household stage.
-                  </p>
-                  <div className="space-y-2.5 mt-1">
-                    <div className="flex items-center gap-3 justify-start">
-                      <SubnavSwitch
-                        checked={remindersEnabled}
-                        onCheckedChange={handleRemindersChange}
-                        disabled={remindersBusy || !user}
-                        aria-label="Toggle monthly stage updates"
-                      />
-                      <p className="text-sm text-[#1A1E23]">Monthly stage updates</p>
-                    </div>
-                    <div className="flex items-center gap-3 justify-start">
-                      <SubnavSwitch
-                        checked={moveItOnPromptsEnabled}
-                        onCheckedChange={(checked) => {
-                          setMoveItOnPromptsEnabled(checked);
-                          if (!moveItOnKey) return;
-                          try {
-                            localStorage.setItem(moveItOnKey, checked ? '1' : '0');
-                          } catch {
-                            /* ignore local storage write failures */
-                          }
-                        }}
-                        disabled={remindersBusy || !user}
-                        aria-label="Toggle move-it-on prompts"
-                      />
-                      <p className="text-sm text-[#1A1E23]">Move-it-on prompts</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {serverUserId && <FamilyRemindersTopicCard serverUserId={serverUserId} />}
             </section>
 
             <div className="mt-4 max-w-2xl">
@@ -609,6 +678,23 @@ export function FamilyFigmaClient({
             </div>
             <p className="text-base text-[#5C646D] mb-4">Tell us what you see - we&apos;ll help you match it</p>
 
+            {quickAddSaved ? (
+              <div className="rounded-xl border border-[#E5E7EB] bg-[#F8FFFA] p-4">
+                <p className="text-sm text-[#1A1E23] font-medium mb-1">Added to At home</p>
+                <p className="text-sm text-[#5C646D]">
+                  {quickAddSavedToGarage
+                    ? `Saved as “${quickAddMatch?.label ?? 'matched item'}”.`
+                    : 'No close canonical match found, so no At home item was created. We logged your search for canonical backfill.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={resetQuickAdd}
+                  className="mt-4 h-10 px-4 rounded-xl text-sm font-medium bg-gradient-to-br from-[#FF6347] to-[#FF8870] text-white"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
             <div className="space-y-5">
               <div>
                 <label htmlFor="quick-add-search" className="block text-sm font-medium text-[#1A1E23] mb-2">
@@ -625,6 +711,9 @@ export function FamilyFigmaClient({
                     className="w-full h-12 rounded-xl border border-[#E5E7EB] pl-11 pr-3 text-sm outline-none focus:border-[#FF6347]"
                   />
                 </div>
+                <p className="text-xs text-[#5C646D] mt-2">
+                  Type at least {QUICK_ADD_MIN_CHARS} characters to search canonical item types.
+                </p>
               </div>
 
               <button
@@ -635,26 +724,51 @@ export function FamilyFigmaClient({
                 Or snap a photo
               </button>
 
-              {suggestedMatches.length > 0 && (
+              {quickAddLoading && (
+                <div className="rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] p-3 text-sm text-[#5C646D]">
+                  Finding closest matches...
+                </div>
+              )}
+
+              {quickAddError && (
+                <div className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] p-3 text-sm text-[#B91C1C]">
+                  {quickAddError}
+                </div>
+              )}
+
+              {!quickAddLoading && !quickAddError && quickAddQuery.trim().length >= QUICK_ADD_MIN_CHARS && quickAddCandidates.length === 0 && (
+                <div className="rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] p-3 text-sm text-[#5C646D]">
+                  No close canonical matches yet for this term.
+                </div>
+              )}
+
+              {quickAddCandidates.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-[#1A1E23]">Is it one of these?</p>
-                  {suggestedMatches.map((match) => (
+                  {quickAddCandidates.map((match) => (
                     <button
                       key={match.id}
                       type="button"
-                      onClick={() => setQuickAddMatch(match.id)}
+                      onClick={() => {
+                        setQuickAddAllowFallback(false);
+                        setQuickAddMatch(match);
+                      }}
                       className={`w-full text-left flex items-center gap-3 p-3 rounded-xl border-2 transition-colors ${
-                        quickAddMatch === match.id
+                        quickAddMatch?.id === match.id
                           ? 'border-[#FF6347] bg-gradient-to-br from-[#FFF5F3] to-white'
                           : 'border-[#E5E7EB] bg-white'
                       }`}
                     >
-                      <span className="w-11 h-11 rounded-xl bg-[#F1F3F2] flex items-center justify-center text-xl">{match.emoji}</span>
-                      <span className="flex-1">
-                        <span className="block text-sm font-medium text-[#1A1E23]">{match.name}</span>
-                        <span className="block text-xs text-[#5C646D]">{match.brand} - {match.age}</span>
+                      <span className="w-11 h-11 rounded-xl bg-[#F1F3F2] flex items-center justify-center text-sm font-semibold uppercase text-[#5C646D]">
+                        {match.label.slice(0, 2)}
                       </span>
-                      {quickAddMatch === match.id && (
+                      <span className="flex-1">
+                        <span className="block text-sm font-medium text-[#1A1E23]">{match.label}</span>
+                        <span className="block text-xs text-[#5C646D]">
+                          {match.subtitle || 'Canonical type'} - confidence: {match.confidence_bucket}
+                        </span>
+                      </span>
+                      {quickAddMatch?.id === match.id && (
                         <span className="w-6 h-6 rounded-full bg-[#FF6347] flex items-center justify-center">
                           <Check className="w-4 h-4 text-white" strokeWidth={3} />
                         </span>
@@ -664,7 +778,25 @@ export function FamilyFigmaClient({
                 </div>
               )}
 
-              {(quickAddQuery || quickAddMatch) && (
+              {!quickAddLoading && quickAddQuery.trim().length >= QUICK_ADD_MIN_CHARS && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuickAddMatch(null);
+                    setQuickAddAllowFallback(true);
+                  }}
+                  className={`w-full text-left p-3 rounded-xl border-2 transition-colors ${
+                    quickAddAllowFallback
+                      ? 'border-[#FF6347] bg-gradient-to-br from-[#FFF5F3] to-white'
+                      : 'border-[#E5E7EB] bg-white'
+                  }`}
+                >
+                  <span className="block text-sm font-medium text-[#1A1E23]">None of these (log missing term)</span>
+                  <span className="block text-xs text-[#5C646D]">We&apos;ll log this query for canonical backfill.</span>
+                </button>
+              )}
+
+              {(quickAddQuery || quickAddMatch || quickAddAllowFallback) && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-[#1A1E23]">Who&apos;s it for?</p>
                   <div className="grid grid-cols-2 gap-2">
@@ -687,24 +819,31 @@ export function FamilyFigmaClient({
                 </div>
               )}
             </div>
+            )}
 
+            {!quickAddSaved && (
             <div className="flex gap-3 mt-6">
               <button
                 type="button"
-                onClick={() => setQuickAddOpen(false)}
+                onClick={resetQuickAdd}
                 className="flex-1 h-12 rounded-xl border border-[#E5E7EB] text-sm text-[#1A1E23] hover:bg-[#F7F7F7]"
               >
                 Cancel
               </button>
               <button
                 type="button"
-                onClick={handleQuickAdd}
-                disabled={!quickAddQuery && !quickAddMatch}
+                onClick={handleQuickAddSave}
+                disabled={
+                  quickAddSaving
+                  || !quickAddQuery.trim()
+                  || (!quickAddMatch && !quickAddAllowFallback)
+                }
                 className="flex-1 h-12 rounded-xl text-sm font-medium bg-gradient-to-br from-[#FF6347] to-[#FF8870] text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Add to home
+                {quickAddSaving ? 'Saving...' : 'Add to At home'}
               </button>
             </div>
+            )}
           </div>
         </div>
       )}

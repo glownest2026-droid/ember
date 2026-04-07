@@ -1,13 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { AUTH_ENABLE_GOOGLE, AUTH_ENABLE_APPLE } from '@/lib/auth-flags';
 import { buildAuthCallbackUrl } from '@/lib/auth-callback-url';
+import {
+  getOneSignalAppId,
+  getOneSignalMasterPushState,
+  type OneSignalMasterPushState,
+} from '@/lib/onesignal/client';
 import type { User } from '@supabase/supabase-js';
 
 const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
+type PushUiState = OneSignalMasterPushState;
 
 export default function AccountPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -19,6 +25,8 @@ export default function AccountPage() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
   const [linkLoading, setLinkLoading] = useState<string | null>(null);
+  const [pushStatus, setPushStatus] = useState<PushUiState>('unsupported');
+  const prevPushStatusRef = useRef<PushUiState>('unsupported');
 
   useEffect(() => {
     const supabase = createClient();
@@ -38,6 +46,25 @@ export default function AccountPage() {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!getOneSignalAppId()) return;
+    void getOneSignalMasterPushState()
+      .then((state) => setPushStatus(state))
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        console.log(`onesignal:error:${message.slice(0, 120)}`);
+        setPushStatus('recoverable_error');
+      });
+  }, []);
+
+  useEffect(() => {
+    const from = prevPushStatusRef.current;
+    if (from !== pushStatus) {
+      console.log(`onesignal:state_transition:${from} -> ${pushStatus}`);
+      prevPushStatusRef.current = pushStatus;
+    }
+  }, [pushStatus]);
 
   const handleSetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,6 +145,15 @@ export default function AccountPage() {
 
   const hasGoogle = identities.some((i) => i.provider === 'google');
   const hasApple = identities.some((i) => i.provider === 'apple');
+  const oneSignalReady = Boolean(getOneSignalAppId());
+  const pushStatusLabel: Record<PushUiState, string> = {
+    unsupported: 'Unsupported',
+    permission_default: 'Needs permission',
+    blocked: 'Blocked',
+    enabled: 'On',
+    disabled: 'Off',
+    recoverable_error: 'Recoverable error',
+  };
 
   return (
     <div className="container-wrap min-h-screen py-8 max-w-lg">
@@ -132,6 +168,46 @@ export default function AccountPage() {
         <p className="text-base" style={{ color: 'var(--ember-text-high)', ...baseStyle }}>
           {user.email}
         </p>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-sm font-medium mb-3" style={{ color: 'var(--ember-text-high)', ...baseStyle }}>
+          Push notifications
+        </h2>
+        {oneSignalReady ? (
+          <div
+            className="rounded-xl border p-4"
+            style={{
+              borderColor: 'var(--ember-border-subtle)',
+              backgroundColor: 'var(--ember-surface-primary)',
+            }}
+          >
+            <p className="text-sm mb-3" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+              Push on this browser is shown below. To change reminder settings, use Family settings.
+            </p>
+            <div
+              className="rounded-lg border px-3 py-2 text-sm"
+              style={{
+                borderColor: 'var(--ember-border-subtle)',
+                color: 'var(--ember-text-high)',
+                ...baseStyle,
+              }}
+            >
+              Push on this browser: {pushStatusLabel[pushStatus]}
+            </div>
+            <Link
+              href="/family#reminders"
+              className="inline-flex mt-3 min-h-[44px] items-center px-4 rounded-lg font-medium text-sm"
+              style={{ backgroundColor: 'var(--ember-accent-base)', color: 'white', ...baseStyle }}
+            >
+              Manage reminders
+            </Link>
+          </div>
+        ) : (
+          <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+            Push is not configured in this environment yet.
+          </p>
+        )}
       </section>
 
       <section className="mb-8">

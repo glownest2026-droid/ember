@@ -53,6 +53,7 @@ export default async function GiftListPage({
       items={items}
       listTitle={listTitle}
       childrenOptions={childrenOptions}
+      giftShareSlug={slug}
     />
   );
 }

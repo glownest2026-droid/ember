@@ -1,40 +1,38 @@
 {
   "pr": {
     "number": null,
-    "title": "feat(discover): adopt ABI V2 stage naming (1-3) and remove Stage 2 label block",
-    "branch": "feat/discover-stage-123-abi-v2",
+    "title": "feat(inventory): controlled CSV canonical ingestion for PR4",
+    "branch": "feat/inventory-pr4-csv-canonical-ingestion",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
-    "rollback": "Revert PR"
+    "rollback": "Revert PR4 commit(s); optional SQL rollback to remove PR4-inserted dictionary rows and queue resolution notes."
   },
   "receipt": {
-    "goal": "Merge deprecated Discover Stage 2 note semantics into Stage 1, relabel old Stage 3->2 and Stage 4->3, and align age-band template export/dictionary to ABI V2 column names.",
+    "goal": "Expand canonical inventory coverage using controlled ingestion from draft CSV into product_types/product_type_aliases with deterministic merges and queue resolution.",
     "commands_run": [
-      "node supabase/import_templates/scripts/export_gateway_age_band_csv.mjs",
-      "pnpm build (web/)"
+      "git fetch origin main",
+      "git switch main",
+      "pnpm -C web build",
+      "git switch -c feat/inventory-pr4-csv-canonical-ingestion",
+      "pnpm -C web build"
     ],
     "files_changed_recent": [
-      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
-      "supabase/import_templates/scripts/export_gateway_age_band_csv.mjs",
-      "supabase/import_templates/gateway_age_band_bulk_import_template.csv",
-      "supabase/import_templates/gateway_age_band_25-27m_sample_10rows.csv",
-      "supabase/import_templates/gateway_age_band_bulk_import_column_dictionary.csv",
-      "supabase/import_templates/README_gateway_age_band_import.txt",
+      "supabase/sql/202604011100_pr4_inventory_csv_controlled_ingestion.sql",
       "PROGRESS.md",
       "state/latest.json"
     ],
-    "decisions_made": [
-      "Kept database storage model unchanged; only stage naming semantics changed in template/docs/UI copy.",
-      "Renamed exported columns to ABI V2: stage1_why_it_matters_ux_description, stage2_*, stage3_*.",
-      "Removed explicit 'Stage 2' label from Discover notes section, now titled 'Why this matters'.",
-      "Relabeled Play ideas to Stage 2 and Product examples to Stage 3."
-    ],
     "verification_steps": [
-      "Build succeeded: pnpm build in web/",
-      "CSV regeneration succeeded: full 163 rows + 10-row sample from live 25-27m data"
+      "CSV parsed safely with 1000 rows and 124 canonical slug candidates",
+      "Only medium-confidence rows staged for ingestion (500 rows)",
+      "Deterministic merge precedence: slug -> normalized label -> existing alias",
+      "Overlap collapse applied for pram/pushchair/stroller into stroller canonical concept",
+      "Aliases deduplicated and filtered for practical household phrasing",
+      "Unmatched queue resolution updates only where deterministic alias mapping exists",
+      "Migration emits before/after counts and matcher proofs for pram/cash register/potty/foot gauge",
+      "pnpm -C web build passes"
     ],
-    "rollback_plan": "Revert this branch/PR; regenerate CSVs from previous script version if needed."
+    "rollback_plan": "Revert PR4 commit(s); run targeted SQL rollback for PR4-added canonical/alias rows and queue notes."
   },
-  "timestamp": "2026-04-07T00:00:00.000Z"
+  "timestamp": "2026-04-01T00:00:00Z"
 }
