@@ -930,7 +930,7 @@ export default function DiscoveryPageClient({
                 </button>
                 <div className="mb-5 lg:mb-8">
                   <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
-                    Stage 2: Why this matters
+                    Why this matters
                   </p>
                   <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
                     <span className="inline-flex items-center gap-2">
@@ -969,7 +969,7 @@ export default function DiscoveryPageClient({
               <section ref={nextStepsSectionRef} id="discover-figma-stage3" className="mb-10 lg:mb-20 scroll-mt-6">
                 <div className="mb-5 lg:mb-8">
                   <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
-                    Stage 3: Play ideas
+                    Stage 2: Play ideas
                   </p>
                   <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
                     <span className="inline-flex items-center gap-2">
@@ -1006,7 +1006,7 @@ export default function DiscoveryPageClient({
               <section id="discover-figma-products" className="mb-10 lg:mb-24 pb-8 scroll-mt-6">
                 <div id="examplesProgressBar" className="mb-5 lg:mb-8">
                   <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
-                    Stage 4: Product examples
+                    Stage 3: Product examples
                   </p>
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium m-0">

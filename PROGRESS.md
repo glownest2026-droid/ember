@@ -1,5 +1,22 @@
 # CTO Snapshot (Source of Truth)
- _Last updated: 2026-03-25_
+ _Last updated: 2026-04-07_
+
+## feat(discover): ABI V2 stage naming (1–3) + template alignment — 2026-04-07
+- Updated `/discover/[months]` UI copy so deprecated Stage 2 label is removed (`Why this matters` only), and stage labels are now Stage 2 (Play ideas) and Stage 3 (Product examples).
+- Updated age-band import/export artifacts to ABI V2 columns: `stage1_why_it_matters_ux_description`, `stage2_*` (categories/play ideas), `stage3_*` (products/examples). Regenerated 25–27m full + sample CSVs from live gateway views.
+- **Verification:** `pnpm build` succeeds in `web/`; `node supabase/import_templates/scripts/export_gateway_age_band_csv.mjs` writes 163-row full export + 10-row sample.
+
+## plan: ABI Template V2 stage merge/deprecate — 2026-04-07
+- Produced implementation plan for merging legacy Stage 2 notes into Stage 1 (`stage1_why_it_matters_ux_description`), renaming legacy Stage 3→2 and Stage 4→3 across import/export, backend mapping, and `/discover` UI labels/content flow. Includes backward-compat bridge strategy, rollout, and verification gates.
+- **Verification:** N/A (planning only).
+
+## docs: Discover Stage 1→3 gateway plumbing + 31–33m DB brief (analysis) — 2026-04-06
+- Documented how `/discover/[months]` wires Figma “Stage 1” doorway cards to Phase A views (`v_gateway_wrappers_public` → `development_need_id` → `v_gateway_category_types_public` → `v_gateway_products_public`); noted UI labels Stage 3 = category tiles / Stage 4 = products.
+- **Verification:** N/A (documentation only).
+
+## import_templates: gateway age band bulk CSV (25–27m live export) — 2026-04-06
+- `gateway_age_band_bulk_import_template.csv` is generated from Supabase public gateway views for **25-27m** (163 product-mapping rows as of export). `gateway_age_band_25-27m_sample_10rows.csv` = first product per distinct category (10 rows). Generator: `supabase/import_templates/scripts/export_gateway_age_band_csv.mjs` (+ `README_gateway_age_band_import.txt`). Column dictionary updated for `ref_*` UUID columns.
+- **Verification:** `node supabase/import_templates/scripts/export_gateway_age_band_csv.mjs` (requires `web/.env.local`); expect full row count matching `v_gateway_products_public` for 25-27m.
 
 ## feat(posthog): PostHog foundation (privacy-safe, discovery-grounded) — 2026-03-25
 - **Branch:** `feat/posthog-foundation`
