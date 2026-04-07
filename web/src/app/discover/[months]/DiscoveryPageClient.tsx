@@ -15,6 +15,7 @@ import {
   SUGGESTED_DOORWAY_KEYS_25_27,
   resolveDoorwayToWrapper,
 } from '@/lib/discover/doorways';
+import { Sparkles } from 'lucide-react';
 import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
 import { DiscoverFigmaChildHero } from '@/components/discover/figma/DiscoverFigmaChildHero';
 import { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigmaNeedCard';
@@ -56,6 +57,7 @@ interface DiscoveryPageClientProps {
   ageBands: AgeBand[];
   ageBand: AgeBand | null;
   selectedBandHasPicks: boolean;
+  selectedBandHasStage12Data: boolean;
   monthParam: number | null;
   resolutionDebug?: string | null;
   wrappers: Wrapper[];
@@ -77,6 +79,7 @@ export default function DiscoveryPageClient({
   ageBands,
   ageBand,
   selectedBandHasPicks,
+  selectedBandHasStage12Data,
   monthParam,
   resolutionDebug,
   wrappers,
@@ -587,19 +590,42 @@ export default function DiscoveryPageClient({
   const getProductUrl = (p: PickItem) =>
     p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
 
-  const visibleDoorwayList = showMore ? ALL_DOORWAYS : DEFAULT_DOORWAYS;
+  const isCuratedDoorwayBand = is25to27;
+  const visibleDoorwayList = isCuratedDoorwayBand ? (showMore ? ALL_DOORWAYS : DEFAULT_DOORWAYS) : [];
   const selectedDoorway = visibleDoorwayList.find((d) => {
     const r = resolveDoorwayToWrapper(d, wrappers);
     return r && r.ux_slug === selectedWrapper;
   });
-  const selectedWrapperLabel = selectedDoorway?.label ?? wrappers.find((w) => w.ux_slug === selectedWrapper)?.ux_label ?? selectedWrapper ?? '';
+  const selectedWrapperLabel =
+    wrappers.find((w) => w.ux_slug === selectedWrapper)?.ux_label ??
+    selectedDoorway?.label ??
+    selectedWrapper ??
+    '';
 
-  const doorwaysWithResolved = visibleDoorwayList.map((d) => ({
-    type: 'doorway' as const,
-    ...d,
-    resolved: resolveDoorwayToWrapper(d, wrappers),
-  }));
-  const allTiles = doorwaysWithResolved;
+  const allTiles = isCuratedDoorwayBand
+    ? visibleDoorwayList.map((d) => ({
+        type: 'doorway' as const,
+        key: d.key,
+        label: d.label,
+        helper: d.helper,
+        icon: d.icon,
+        resolved: resolveDoorwayToWrapper(d, wrappers),
+      }))
+    : wrappers.map((w) => {
+        const matched = ALL_DOORWAYS.find((d) => {
+          const r = resolveDoorwayToWrapper(d, [w]);
+          return !!r;
+        });
+        const shortDescription = (w.ux_description ?? '').split('.').map((s) => s.trim()).filter(Boolean)[0] ?? '';
+        return {
+          type: 'wrapper' as const,
+          key: w.ux_slug,
+          label: w.ux_label,
+          helper: matched?.helper || shortDescription || 'Tap to explore',
+          icon: matched?.icon ?? Sparkles,
+          resolved: { ux_slug: w.ux_slug, ux_label: w.ux_label },
+        };
+      });
 
   const debugText =
     showDebug && monthParam !== null && ageBand !== null
@@ -949,7 +975,7 @@ export default function DiscoveryPageClient({
           ) : null}
         </div>
 
-        {selectedBandHasPicks ? (
+        {selectedBandHasStage12Data ? (
           <>
             <div className="mb-5 lg:mb-8">
               <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
@@ -989,7 +1015,7 @@ export default function DiscoveryPageClient({
                   }
                   const slug = tile.resolved!.ux_slug;
                   const isSelected = selectedWrapper === slug;
-                  const showSuggested = is25to27 && SUGGESTED_DOORWAY_KEYS_25_27.includes(tile.key);
+                  const showSuggested = isCuratedDoorwayBand && SUGGESTED_DOORWAY_KEYS_25_27.includes(tile.key);
                   return (
                     <div key={slug} className="relative">
                       {showSuggested ? (
@@ -1009,7 +1035,7 @@ export default function DiscoveryPageClient({
                   );
                 })}
               </div>
-              {!showMore && MORE_DOORWAYS.length > 0 ? (
+              {isCuratedDoorwayBand && !showMore && MORE_DOORWAYS.length > 0 ? (
                 <button
                   type="button"
                   className="mt-4 text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)]"
@@ -1133,9 +1159,9 @@ export default function DiscoveryPageClient({
                   </div>
                   <p className="text-xs text-[var(--ember-text-low)] mt-2">Chosen for {chosenForLabel}</p>
                 </div>
-                {!selectedBandHasPicks || displayIdeas.length === 0 ? (
+                {displayIdeas.length === 0 ? (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]">
-                    We&apos;re still building ideas for this focus. Try another category or focus.
+                    Examples coming soon
                   </div>
                 ) : (
                   <DiscoverFigmaProductCarousel

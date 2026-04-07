@@ -1,38 +1,50 @@
 {
   "pr": {
     "number": null,
-    "title": "feat(inventory): controlled CSV canonical ingestion for PR4",
-    "branch": "feat/inventory-pr4-csv-canonical-ingestion",
+    "title": "feat(discover): import and wire 34-36m ABI CSV into gateway",
+    "branch": "feat/discover-34-36m-abi-import",
     "base": "main",
-    "url": null,
-    "vercel_preview_url": null,
-    "rollback": "Revert PR4 commit(s); optional SQL rollback to remove PR4-inserted dictionary rows and queue resolution notes."
+    "url": "https://github.com/glownest2026-droid/ember/pull/198",
+    "vercel_preview_url": "https://ember-git-feat-discover-34-36m-ab-72c530-tims-projects-cd69a894.vercel.app",
+    "rollback": "Revert this PR, then remove 34-36m rows from gateway mapping tables if immediate DB rollback is required."
   },
   "receipt": {
-    "goal": "Expand canonical inventory coverage using controlled ingestion from draft CSV into product_types/product_type_aliases with deterministic merges and queue resolution.",
+    "goal": "Execute ABI_34_36m_completed.csv through the real Discover gateway ingestion path, unlock Discover when Stage 1+2 exist, and render Stage 1 cards from dataset wrapper labels for 34-36m.",
     "commands_run": [
-      "git fetch origin main",
-      "git switch main",
-      "pnpm -C web build",
-      "git switch -c feat/inventory-pr4-csv-canonical-ingestion",
-      "pnpm -C web build"
+      "supabase link --project-ref shjccflwlayacppuyskl",
+      "node scripts/generate-abi-34-36m-sql.mjs",
+      "supabase db push --yes",
+      "node (REST verification for v_gateway_* views at 34-36m)",
+      "pnpm install --frozen-lockfile (web/)",
+      "pnpm build (web/)",
+      "pnpm build (web/) after Stage1+2 unlock/UI update",
+      "pnpm build (web/) after Stage1 dataset-driven card fix"
     ],
     "files_changed_recent": [
-      "supabase/sql/202604011100_pr4_inventory_csv_controlled_ingestion.sql",
+      "scripts/generate-abi-34-36m-sql.mjs",
+      "supabase/sql/202604071315_import_34_36m_abi_v2.sql",
+      "supabase/migrations/202603311200_placeholder.sql",
+      "supabase/migrations/20260407131500_import_34_36m_abi_v2.sql",
+      "web/src/app/discover/[months]/page.tsx",
+      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
+      "web/src/components/discover/figma/DiscoverFigmaPlayCarousel.tsx",
+      "web/src/lib/discover/doorways.ts",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "verification_steps": [
-      "CSV parsed safely with 1000 rows and 124 canonical slug candidates",
-      "Only medium-confidence rows staged for ingestion (500 rows)",
-      "Deterministic merge precedence: slug -> normalized label -> existing alias",
-      "Overlap collapse applied for pram/pushchair/stroller into stroller canonical concept",
-      "Aliases deduplicated and filtered for practical household phrasing",
-      "Unmatched queue resolution updates only where deterministic alias mapping exists",
-      "Migration emits before/after counts and matcher proofs for pram/cash register/potty/foot gauge",
-      "pnpm -C web build passes"
+      "Import migration applied successfully via supabase db push",
+      "CSV rows read: 22",
+      "Post-import gateway checks: age_band_rows=1, wrappers=6, wrapper_detail=6, categories=22, products=0 for 34-36m",
+      "Month resolution check: min_months<=34<=max_months resolves to age_band_id 34-36m",
+      "Expected frontend state from CSV-only import: Stage 1 and category layers present, Stage 3 empty-state copy reads 'Examples coming soon'",
+      "pnpm build passes in web/"
     ],
-    "rollback_plan": "Revert PR4 commit(s); run targeted SQL rollback for PR4-added canonical/alias rows and queue notes."
+    "rollback_plan": [
+      "git revert <import-commit-sha>",
+      "run a cleanup SQL migration deleting 34-36m rows from pl_age_band_category_type_products, pl_age_band_development_need_category_types, pl_age_band_development_need_meta, pl_age_band_ux_wrappers, and optionally pl_age_bands where id='34-36m' after confirming no dependencies",
+      "redeploy and re-verify /discover/34 behavior"
+    ]
   },
-  "timestamp": "2026-04-01T00:00:00Z"
+  "timestamp": "2026-04-07T00:00:00Z"
 }

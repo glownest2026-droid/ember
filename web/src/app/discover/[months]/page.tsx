@@ -29,9 +29,16 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
   if (!ageBand) {
     redirect('/discover');
   }
-  const selectedBandHasPicks = bandsWithPicks.has(ageBand.id);
-
   const wrappers = await getGatewayWrappersForAgeBand(ageBand.id);
+  const selectedBandHasPicks = bandsWithPicks.has(ageBand.id);
+  let selectedBandHasStage12Data = false;
+  for (const wrapper of wrappers) {
+    const categories = await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, wrapper.ux_slug);
+    if (categories.length > 0) {
+      selectedBandHasStage12Data = true;
+      break;
+    }
+  }
 
   const selectedWrapperSlug =
     wrapperSlugParam && wrappers.some(w => w.ux_slug === wrapperSlugParam)
@@ -42,7 +49,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
   const defaultSlug25to27 =
     is25to27 && wrappers.some(w => w.ux_slug === 'let-me-help') ? 'let-me-help' : null;
 
-  const shouldShowPicks = showParam === '1' && selectedBandHasPicks;
+  const shouldShowPicks = showParam === '1' && selectedBandHasStage12Data;
   let effectiveWrapperSlug =
     selectedWrapperSlug ?? defaultSlug25to27 ?? wrappers[0]?.ux_slug ?? null;
   let picks: Awaited<ReturnType<typeof getGatewayTopPicksForAgeBandAndWrapperSlug>> = [];
@@ -51,7 +58,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
     : [];
 
   const categoryTypes =
-    selectedBandHasPicks && selectedWrapperSlug
+    selectedBandHasStage12Data && selectedWrapperSlug
       ? await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, selectedWrapperSlug)
       : [];
 
@@ -62,14 +69,6 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
     } else if (selectedWrapperSlug) {
       picks = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, selectedWrapperSlug, 12);
     } else {
-      for (const w of wrappers) {
-        const candidate = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, w.ux_slug, 12);
-        if (candidate.length > 0) {
-          effectiveWrapperSlug = w.ux_slug;
-          picks = candidate;
-          break;
-        }
-      }
       if (effectiveWrapperSlug) {
         const childQ = childParam ? `&child=${encodeURIComponent(childParam)}` : '';
         redirect(`/discover/${monthParam}?wrapper=${encodeURIComponent(effectiveWrapperSlug)}&show=1${childQ}`);
@@ -87,6 +86,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
         ageBand={ageBand}
         monthParam={monthParam}
         selectedBandHasPicks={selectedBandHasPicks}
+        selectedBandHasStage12Data={selectedBandHasStage12Data}
         wrappers={wrappers}
         selectedWrapperSlug={selectedWrapperSlug}
         showPicks={shouldShowPicks}
