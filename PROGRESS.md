@@ -1,3 +1,23 @@
+## feat(discover): import and wire ABI 28-30m + 31-33m into Discover (Apr 2026)
+
+- **Branch:** `feat/discover-28-33m-abi-import`
+- **Goal:** Execute `ABI_28_30m_ready.csv` and `ABI_31_33m_ready.csv` through the existing ABI V2 gateway path for `/discover` and `/discover/[months]`, with Stage 3 explicitly empty where CSV product fields are blank.
+- **Ground-truth read path confirmed:** `web/src/app/discover/page.tsx`, `web/src/app/discover/[months]/page.tsx`, `web/src/app/discover/[months]/DiscoveryPageClient.tsx`, and `web/src/lib/pl/public.ts` read from curated gateway views (`v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_wrapper_detail_public`, `v_gateway_category_types_public`, `v_gateway_products_public`).
+- **Ingestion path used:** Added idempotent migration `supabase/sql/202604071200_discover_abi_28_33_import.sql` (canonical gateway tables only, no parallel runtime importer).
+- **What changed:**
+  - Imports Stage 1 + Stage 2 for `28-30m` and `31-33m` into canonical gateway tables.
+  - Reuses existing masters where resolvable by slug/name; creates missing global development needs/category types only when no clean match exists.
+  - Enforces Stage 3 empty semantics for these CSVs (deactivates Stage 3 product mappings for imported bands).
+  - Updates Discover unlock logic so Stage 1+2 can render even when Stage 3 products are absent.
+  - Updates Stage 1 cards to render from dataset wrappers (not hardcoded doorway labels), with existing Lucide style via slug→icon mapping in `wrapperIcons.tsx`.
+  - Updates Stage 3 empty state text to **`Examples coming soon`**.
+- **CSV stats (source files):**
+  - `ABI_28_30m_ready.csv`: 11 rows, 6 wrappers, 11 category slugs, Stage 3 product rows: 0.
+  - `ABI_31_33m_ready.csv`: 12 rows, 6 wrappers, 11 category slugs, Stage 3 product rows: 0.
+- **Execution status:** SQL import execution is **blocked in this runner** (`supabase` CLI and DB credentials are not present here), so migration was authored and committed but not applied from this environment.
+- **Build proof:** `pnpm -C web build` passes on this branch after changes.
+- **Rollback:** Revert commit `2e7cbe9`; if migration has been applied in another environment, run inverse deletes scoped to `age_band_id IN ('28-30m','31-33m')` from the gateway mapping tables listed in the migration footer.
+
 ## feat(discover): import ABI 34-36m CSV into gateway (Apr 2026)
 
 - **Goal:** Execute `ABI_34_36m_completed.csv` through the Discover gateway canonical path (ABI V2 Stage 1-3), with no fabricated Stage 3 products.

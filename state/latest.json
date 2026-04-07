@@ -1,49 +1,42 @@
 {
   "pr": {
     "number": null,
-    "title": "feat(discover): import and wire 34-36m ABI CSV into gateway",
-    "branch": "feat/discover-34-36m-abi-import",
+    "title": "feat(discover): import and wire 28-33m ABI CSVs into gateway",
+    "branch": "feat/discover-28-33m-abi-import",
     "base": "main",
-    "url": "https://github.com/glownest2026-droid/ember/pull/198",
-    "vercel_preview_url": "https://ember-git-feat-discover-34-36m-ab-72c530-tims-projects-cd69a894.vercel.app",
-    "rollback": "Revert this PR, then remove 34-36m rows from gateway mapping tables if immediate DB rollback is required."
+    "url": null,
+    "vercel_preview_url": null,
+    "rollback": "Revert this PR, then remove 28-30m and 31-33m rows from gateway mapping tables if immediate DB rollback is required."
   },
   "receipt": {
-    "goal": "Execute ABI_34_36m_completed.csv through the real Discover gateway ingestion path, unlock Discover when Stage 1+2 exist, and render Stage 1 cards from dataset wrapper labels for 34-36m.",
+    "goal": "Import ABI_28_30m_ready.csv and ABI_31_33m_ready.csv through the real Discover gateway ingestion path and wire Discover to unlock Stage 1+2 with Stage 3 empty-state handling.",
     "commands_run": [
-      "supabase link --project-ref shjccflwlayacppuyskl",
-      "node scripts/generate-abi-34-36m-sql.mjs",
-      "supabase db push --yes",
-      "node (REST verification for v_gateway_* views at 34-36m)",
-      "pnpm install --frozen-lockfile (web/)",
-      "pnpm build (web/)",
-      "pnpm build (web/) after Stage1+2 unlock/UI update",
-      "pnpm build (web/) after Stage1 dataset-driven card fix"
+      "git fetch origin main",
+      "git switch -c feat/discover-28-33m-abi-import origin/main",
+      "pnpm -C web install",
+      "pnpm -C web build",
+      "git commit -m \"feat(discover): import ABI 28-33m and wire stage fallback\"",
+      "git push -u origin feat/discover-28-33m-abi-import"
     ],
     "files_changed_recent": [
-      "scripts/generate-abi-34-36m-sql.mjs",
-      "supabase/sql/202604071315_import_34_36m_abi_v2.sql",
-      "supabase/migrations/202603311200_placeholder.sql",
-      "supabase/migrations/20260407131500_import_34_36m_abi_v2.sql",
+      "supabase/sql/202604071200_discover_abi_28_33_import.sql",
       "web/src/app/discover/[months]/page.tsx",
       "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
-      "web/src/components/discover/figma/DiscoverFigmaPlayCarousel.tsx",
-      "web/src/lib/discover/doorways.ts",
+      "web/src/app/discover/[months]/_lib/wrapperIcons.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
     "verification_steps": [
-      "Import migration applied successfully via supabase db push",
-      "CSV rows read: 22",
-      "Post-import gateway checks: age_band_rows=1, wrappers=6, wrapper_detail=6, categories=22, products=0 for 34-36m",
-      "Month resolution check: min_months<=34<=max_months resolves to age_band_id 34-36m",
-      "Expected frontend state from CSV-only import: Stage 1 and category layers present, Stage 3 empty-state copy reads 'Examples coming soon'",
-      "pnpm build passes in web/"
+      "CSV rows read from sources: 11 (28-30m) + 12 (31-33m) = 23",
+      "Stage 3 product fields are blank in both source CSVs (nonblank count: 0)",
+      "Migration is idempotent and only touches existing canonical gateway tables used by Discover reads",
+      "Discover now treats Stage 1+2 presence as unlock condition while Stage 3 empty state renders 'Examples coming soon'",
+      "pnpm -C web build passes"
     ],
     "rollback_plan": [
-      "git revert <import-commit-sha>",
-      "run a cleanup SQL migration deleting 34-36m rows from pl_age_band_category_type_products, pl_age_band_development_need_category_types, pl_age_band_development_need_meta, pl_age_band_ux_wrappers, and optionally pl_age_bands where id='34-36m' after confirming no dependencies",
-      "redeploy and re-verify /discover/34 behavior"
+      "git revert 2e7cbe9",
+      "delete 28-30m and 31-33m rows from pl_age_band_category_type_products, pl_age_band_development_need_category_types, pl_age_band_development_need_meta, and pl_age_band_ux_wrappers if DB rollback is required",
+      "optionally delete pl_age_bands rows 28-30m and 31-33m after confirming no dependencies"
     ]
   },
   "timestamp": "2026-04-07T00:00:00Z"
