@@ -2,7 +2,7 @@
   "pr": {
     "number": null,
     "title": "feat(discover): import and wire 28-33m ABI CSVs into gateway",
-    "branch": "feat/discover-28-33m-abi-import",
+    "branch": "cursor/age-band-abi-import-0f7a",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
@@ -16,7 +16,12 @@
       "pnpm -C web install",
       "pnpm -C web build",
       "git commit -m \"feat(discover): import ABI 28-33m and wire stage fallback\"",
-      "git push -u origin feat/discover-28-33m-abi-import"
+      "git push -u origin feat/discover-28-33m-abi-import",
+      "git switch cursor/age-band-abi-import-0f7a",
+      "git cherry-pick edf330b",
+      "git cherry-pick 482a634",
+      "git commit -m \"fix(sql): dedupe ABI upserts to avoid ON CONFLICT double-hit\"",
+      "git push -u origin cursor/age-band-abi-import-0f7a"
     ],
     "files_changed_recent": [
       "supabase/sql/202604071200_discover_abi_28_33_import.sql",
@@ -30,6 +35,7 @@
       "CSV rows read from sources: 11 (28-30m) + 12 (31-33m) = 23",
       "Stage 3 product fields are blank in both source CSVs (nonblank count: 0)",
       "Migration is idempotent and only touches existing canonical gateway tables used by Discover reads",
+      "Migration fix added: deduplicate payloads by conflict keys before upserts to prevent ON CONFLICT double-hit error (21000)",
       "Discover now treats Stage 1+2 presence as unlock condition while Stage 3 empty state renders 'Examples coming soon'",
       "pnpm -C web build passes"
     ],

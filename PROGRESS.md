@@ -15,6 +15,7 @@
   - `ABI_28_30m_ready.csv`: 11 rows, 6 wrappers, 11 category slugs, Stage 3 product rows: 0.
   - `ABI_31_33m_ready.csv`: 12 rows, 6 wrappers, 11 category slugs, Stage 3 product rows: 0.
 - **Execution status:** SQL import execution is **blocked in this runner** (`supabase` CLI and DB credentials are not present here), so migration was authored and committed but not applied from this environment.
+- **Follow-up fix (Apr 2026):** addressed SQL runtime error `ON CONFLICT DO UPDATE command cannot affect row a second time` by pre-deduplicating staged records per conflict key before upserts (`tmp_abi_stage1_wrappers`, `tmp_abi_stage1_age_band_wrappers`, `tmp_abi_stage2_category_types`) in the same migration file.
 - **Build proof:** `pnpm -C web build` passes on this branch after changes.
 - **Rollback:** Revert commit `2e7cbe9`; if migration has been applied in another environment, run inverse deletes scoped to `age_band_id IN ('28-30m','31-33m')` from the gateway mapping tables listed in the migration footer.
 
