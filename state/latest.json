@@ -1,49 +1,50 @@
 {
   "pr": {
     "number": null,
-    "title": "feat(discover): import and wire 28-33m ABI CSVs into gateway",
-    "branch": "cursor/age-band-abi-import-0f7a",
+    "title": "feat(data): import ABI 31-33m v8 child-voice csv",
+    "branch": "feat/abi-import-31-33m-v8",
     "base": "main",
     "url": null,
     "vercel_preview_url": null,
-    "rollback": "Revert this PR, then remove 28-30m and 31-33m rows from gateway mapping tables if immediate DB rollback is required."
+    "rollback": "Revert PR and run age-band-scoped rollback SQL for 31-33m mappings."
   },
   "receipt": {
-    "goal": "Import ABI_28_30m_ready.csv and ABI_31_33m_ready.csv through the real Discover gateway ingestion path and wire Discover to unlock Stage 1+2 with Stage 3 empty-state handling.",
+    "goal": "Import and wire ABI 31-33m v8 child-voice CSV into Discover via ABI V2 canonical gateway ingestion, with Stage 3 intentionally skipped.",
     "commands_run": [
-      "git fetch origin main",
-      "git switch -c feat/discover-28-33m-abi-import origin/main",
-      "pnpm -C web install",
-      "pnpm -C web build",
-      "git commit -m \"feat(discover): import ABI 28-33m and wire stage fallback\"",
-      "git push -u origin feat/discover-28-33m-abi-import",
-      "git switch cursor/age-band-abi-import-0f7a",
-      "git cherry-pick edf330b",
-      "git cherry-pick 482a634",
-      "git commit -m \"fix(sql): dedupe ABI upserts to avoid ON CONFLICT double-hit\"",
-      "git push -u origin cursor/age-band-abi-import-0f7a"
+      "git stash push -u -m pre-abi-import-v8-<timestamp>",
+      "git switch -c feat/abi-import-31-33m-v8 origin/main",
+      "node scripts/generate-abi-31-33m-v8-sql.mjs",
+      "supabase link --project-ref shjccflwlayacppuyskl",
+      "supabase db push --yes",
+      "pnpm install --frozen-lockfile",
+      "pnpm build"
     ],
     "files_changed_recent": [
-      "supabase/sql/202604071200_discover_abi_28_33_import.sql",
-      "web/src/app/discover/[months]/page.tsx",
-      "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
-      "web/src/app/discover/[months]/_lib/wrapperIcons.tsx",
+      "scripts/generate-abi-31-33m-v8-sql.mjs",
+      "supabase/sql/202604090840_import_31_33m_abi_v8_child_voice.sql",
+      "supabase/migrations/20260409084000_import_31_33m_abi_v8_child_voice.sql",
       "PROGRESS.md",
       "state/latest.json"
     ],
+    "import_execution_summary": {
+      "rows_read": 32,
+      "stage3_rows_present_in_csv_but_skipped": 8,
+      "migration_notice_rows_loaded": 32,
+      "migration_notice_distinct_stage1_wrappers": 7,
+      "migration_notice_distinct_stage2_category_types": 32,
+      "migration_notice_stage3_active_after_import": 0
+    },
     "verification_steps": [
-      "CSV rows read from sources: 11 (28-30m) + 12 (31-33m) = 23",
-      "Stage 3 product fields are blank in both source CSVs (nonblank count: 0)",
-      "Migration is idempotent and only touches existing canonical gateway tables used by Discover reads",
-      "Migration fix added: deduplicate payloads by conflict keys before upserts to prevent ON CONFLICT double-hit error (21000)",
-      "Discover now treats Stage 1+2 presence as unlock condition while Stage 3 empty state renders 'Examples coming soon'",
-      "pnpm -C web build passes"
+      "supabase db push applied 20260409084000_import_31_33m_abi_v8_child_voice.sql with expected notices",
+      "pnpm install --frozen-lockfile completed in web/",
+      "pnpm build completed successfully in web/"
     ],
-    "rollback_plan": [
-      "git revert 2e7cbe9",
-      "delete 28-30m and 31-33m rows from pl_age_band_category_type_products, pl_age_band_development_need_category_types, pl_age_band_development_need_meta, and pl_age_band_ux_wrappers if DB rollback is required",
-      "optionally delete pl_age_bands rows 28-30m and 31-33m after confirming no dependencies"
+    "rollback_steps": [
+      "DELETE FROM public.pl_age_band_development_need_category_types WHERE age_band_id = '31-33m';",
+      "DELETE FROM public.pl_age_band_ux_wrappers WHERE age_band_id = '31-33m';",
+      "DELETE FROM public.pl_age_band_development_need_meta WHERE age_band_id = '31-33m';",
+      "UPDATE public.pl_age_band_category_type_products SET is_active = false WHERE age_band_id = '31-33m';"
     ]
   },
-  "timestamp": "2026-04-07T00:00:00Z"
+  "timestamp": "2026-04-09T00:00:00Z"
 }
