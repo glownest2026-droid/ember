@@ -113,6 +113,7 @@ export default function DiscoveryPageClient({
     viewMyListHref?: string;
   }>({ open: false, signedIn: false, signinUrl: '' });
   const saveModalFocusRef = useRef<HTMLButtonElement | null>(null);
+  const whyMattersSectionRef = useRef<HTMLElement | null>(null);
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
   const replayAttemptedRef = useRef(false);
@@ -299,7 +300,7 @@ export default function DiscoveryPageClient({
   const layerBReady = selectedWrapper && categoryTypes.length > 0;
   useEffect(() => {
     if (!layerBReady || !pendingScrollToNextSteps) return;
-    const el = nextStepsSectionRef.current;
+    const el = whyMattersSectionRef.current;
     if (!el) return;
     const behavior = shouldReduceMotion ? ('auto' as const) : ('smooth' as const);
     requestAnimationFrame(() => {
@@ -886,7 +887,8 @@ export default function DiscoveryPageClient({
     () =>
       categoryTypes.map((ct) => ({
         id: ct.id,
-        title: (ct.label || ct.name || 'Play idea').trim(),
+        // Remove explicit product examples from Stage 2 labels (e.g. "... (e.g. Snail's Pace)").
+        title: (ct.label || ct.name || 'Play idea').replace(/\s*\(e\.g\.[^)]+\)\s*/gi, ' ').trim(),
         description: (ct.rationale || ct.description || '').trim(),
         scienceConnection: formatBandLabel(selectedBand),
         imageUrl: ct.image_url?.trim() || '',
@@ -1038,7 +1040,7 @@ export default function DiscoveryPageClient({
               ) : null}
 
             {selectedWrapper ? (
-              <section className="mb-10 lg:mb-20 scroll-mt-6">
+              <section ref={whyMattersSectionRef} className="mb-10 lg:mb-20 scroll-mt-24">
                 <button
                   type="button"
                   onClick={() => handleWrapperSelect(selectedWrapper)}

@@ -19,6 +19,17 @@
 - **Status:** Live migration applied; PR creation/checks/preview tracking in progress.
 - **Rollback:** Revert this PR and run rollback steps in migration footer (scoped deletes/deactivations for `31-33m` mappings only).
 
+### follow-up: discover UX polish for Stage 1/2 (Apr 2026)
+
+- **Goal:** Fix Stage 1 click scroll anchor, diversify Stage 1 icons by wrapper meaning, and remove product-example text from Stage 2 card titles.
+- **What changed:**
+  - `web/src/app/discover/[months]/DiscoveryPageClient.tsx`
+    - Stage 1 card click now scrolls to the Stage 1 "Why this matters" section (not directly to Stage 2), with increased scroll margin.
+    - Stage 2 card title text now strips parenthetical `"(e.g. ...)"` fragments at render time.
+  - `web/src/app/discover/[months]/_lib/wrapperIcons.tsx`
+    - Added explicit icon mapping for 31–33m wrapper slugs (`social_emotional`, `self_care_independence`, `fine_motor`, `gross_motor`, `language_communication`, `cognitive_problem_solving`, `toileting`) to avoid identical fallback icons.
+- **Proof:** `pnpm build` passes in `web/`.
+
 ## feat(discover): import and wire ABI 28-30m + 31-33m into Discover (Apr 2026)
 
 - **Branch:** `feat/discover-28-33m-abi-import`

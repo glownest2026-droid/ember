@@ -18,6 +18,13 @@ import {
 } from 'lucide-react';
 
 const SLUG_TO_ICON: Record<string, LucideIcon> = {
+  social_emotional: Users,
+  self_care_independence: CheckCircle2,
+  fine_motor: Hand,
+  gross_motor: Activity,
+  language_communication: MessageCircle,
+  cognitive_problem_solving: Puzzle,
+  toileting: CalendarCheck2,
   'creative-expression-and-mark-making': Pencil,
   'emotional-regulation-and-self-awareness': HeartHandshake,
   'emotions-and-feelings': HeartHandshake,
