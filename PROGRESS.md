@@ -1,3 +1,46 @@
+## feat(data): import ABI 31-33m v8 child-voice csv (Apr 2026)
+
+- **Branch:** `feat/abi-import-31-33m-v8`
+- **Goal:** Execute `ABI_31_33m_v8_ready_child_voice.csv` through the existing Discover ABI V2 ingestion path for `31-33m`, overriding this age band only and skipping Stage 3 import.
+- **Ground-truth read path confirmed:** `web/src/app/discover/page.tsx`, `web/src/app/discover/[months]/page.tsx`, and `web/src/lib/pl/public.ts` read from curated views (`v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_wrapper_detail_public`, `v_gateway_category_types_public`, `v_gateway_products_public`).
+- **Ingestion path used:** New idempotent migration `supabase/migrations/20260409084000_import_31_33m_abi_v8_child_voice.sql` (authored from `scripts/generate-abi-31-33m-v8-sql.mjs`; mirrored in `supabase/sql/202604090840_import_31_33m_abi_v8_child_voice.sql`).
+- **What changed:**
+  - Normalized CSV formatting at import boundary (`True` booleans and `1.0` numeric ranks coerced to typed SQL values, whitespace trimmed).
+  - Upserted Stage 1 wrappers + need links + age-band wrapper rankings for `31-33m`.
+  - Upserted Stage 2 category masters + need->category mappings for `31-33m`.
+  - Deactivated Stage 3 product mappings for `31-33m` by design (`DO NOT IMPORT Stage 3` for this task), even though CSV includes some product columns.
+  - Kept scope deterministic and limited to `age_band_id = '31-33m'`.
+- **Import execution proof:** `supabase db push --yes` applied migration successfully with notices:
+  - `ABI 31-33 v8 rows loaded: 32`
+  - `Distinct Stage 1 wrappers: 7`
+  - `Distinct Stage 2 category types: 32`
+  - `Stage 3 active mappings (expected 0): 0`
+- **Build proof:** `pnpm install --frozen-lockfile` and `pnpm build` passed in `web/`.
+- **Status:** Live migration applied; PR creation/checks/preview tracking in progress.
+- **Rollback:** Revert this PR and run rollback steps in migration footer (scoped deletes/deactivations for `31-33m` mappings only).
+
+### follow-up: discover UX polish for Stage 1/2 (Apr 2026)
+
+- **Goal:** Fix Stage 1 click scroll anchor, diversify Stage 1 icons by wrapper meaning, and remove product-example text from Stage 2 card titles.
+- **What changed:**
+  - `web/src/app/discover/[months]/DiscoveryPageClient.tsx`
+    - Stage 1 card click now scrolls to the Stage 1 "Why this matters" section (not directly to Stage 2), with increased scroll margin.
+    - Stage 2 card title text now strips parenthetical `"(e.g. ...)"` fragments at render time.
+  - `web/src/app/discover/[months]/_lib/wrapperIcons.tsx`
+    - Added explicit icon mapping for 31–33m wrapper slugs (`social_emotional`, `self_care_independence`, `fine_motor`, `gross_motor`, `language_communication`, `cognitive_problem_solving`, `toileting`) to avoid identical fallback icons.
+- **Proof:** `pnpm build` passes in `web/`.
+
+### follow-up: anchor + explainer placement adjustment (Apr 2026)
+
+- **Goal:** Fine-tune Stage 1 anchor position and move `Explained ⓘ` into the explainer card header.
+- **What changed:**
+  - `web/src/components/discover/figma/DiscoverFigmaScienceSection.tsx`
+    - Added optional `onExplain` action and rendered `Explained ⓘ` inline after `Why this matters for your child`.
+  - `web/src/app/discover/[months]/DiscoveryPageClient.tsx`
+    - Removed the separate `Chosen for 31–33 months • Explained` line under Stage 1 title.
+    - Updated Stage 1 click auto-scroll to land slightly lower (`targetTop = sectionTop + 64`) so the explainer and Stage 2 CTA area can coexist in first view.
+- **Proof:** `pnpm build` passes in `web/`.
+
 ## feat(discover): import and wire ABI 28-30m + 31-33m into Discover (Apr 2026)
 
 - **Branch:** `feat/discover-28-33m-abi-import`
