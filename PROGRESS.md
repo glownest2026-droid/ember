@@ -30,6 +30,17 @@
     - Added explicit icon mapping for 31–33m wrapper slugs (`social_emotional`, `self_care_independence`, `fine_motor`, `gross_motor`, `language_communication`, `cognitive_problem_solving`, `toileting`) to avoid identical fallback icons.
 - **Proof:** `pnpm build` passes in `web/`.
 
+### follow-up: anchor + explainer placement adjustment (Apr 2026)
+
+- **Goal:** Fine-tune Stage 1 anchor position and move `Explained ⓘ` into the explainer card header.
+- **What changed:**
+  - `web/src/components/discover/figma/DiscoverFigmaScienceSection.tsx`
+    - Added optional `onExplain` action and rendered `Explained ⓘ` inline after `Why this matters for your child`.
+  - `web/src/app/discover/[months]/DiscoveryPageClient.tsx`
+    - Removed the separate `Chosen for 31–33 months • Explained` line under Stage 1 title.
+    - Updated Stage 1 click auto-scroll to land slightly lower (`targetTop = sectionTop + 64`) so the explainer and Stage 2 CTA area can coexist in first view.
+- **Proof:** `pnpm build` passes in `web/`.
+
 ## feat(discover): import and wire ABI 28-30m + 31-33m into Discover (Apr 2026)
 
 - **Branch:** `feat/discover-28-33m-abi-import`

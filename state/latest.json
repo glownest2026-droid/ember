@@ -18,7 +18,8 @@
       "supabase db push --yes",
       "pnpm install --frozen-lockfile",
       "pnpm build",
-      "pnpm build (follow-up UX fixes)"
+      "pnpm build (follow-up UX fixes)",
+      "pnpm build (anchor + explainer placement adjustment)"
     ],
     "files_changed_recent": [
       "scripts/generate-abi-31-33m-v8-sql.mjs",
@@ -26,6 +27,7 @@
       "supabase/migrations/20260409084000_import_31_33m_abi_v8_child_voice.sql",
       "web/src/app/discover/[months]/DiscoveryPageClient.tsx",
       "web/src/app/discover/[months]/_lib/wrapperIcons.tsx",
+      "web/src/components/discover/figma/DiscoverFigmaScienceSection.tsx",
       "PROGRESS.md",
       "state/latest.json"
     ],
@@ -43,7 +45,8 @@
       "pnpm build completed successfully in web/",
       "Stage 1 click now anchors to 'Why this matters' section top with improved scroll margin",
       "Stage 1 icons now map to 31-33m wrapper-specific slugs instead of generic fallback",
-      "Stage 2 titles strip parenthetical '(e.g. ...)' product examples"
+      "Stage 2 titles strip parenthetical '(e.g. ...)' product examples",
+      "Explained action moved into explainer card header and 'Chosen for 31-33 months' helper line removed"
     ],
     "rollback_steps": [
       "DELETE FROM public.pl_age_band_development_need_category_types WHERE age_band_id = '31-33m';",

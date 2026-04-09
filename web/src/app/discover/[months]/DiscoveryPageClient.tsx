@@ -305,8 +305,10 @@ export default function DiscoveryPageClient({
     const behavior = shouldReduceMotion ? ('auto' as const) : ('smooth' as const);
     requestAnimationFrame(() => {
       const top = el.getBoundingClientRect().top + window.scrollY;
-      if (window.scrollY < top - 40) {
-        el.scrollIntoView({ behavior, block: 'start' });
+      // Land slightly lower than section start so Why + Stage 2 CTAs are visible together.
+      const targetTop = Math.max(0, top + 64);
+      if (window.scrollY < targetTop - 20) {
+        window.scrollTo({ top: targetTop, behavior });
       }
       setPendingScrollToNextSteps(false);
     });
@@ -1064,19 +1066,13 @@ export default function DiscoveryPageClient({
                       {selectedWrapperLabel}
                     </span>
                   </h2>
-                  <p className="text-sm text-[var(--ember-text-low)] mt-2 flex flex-wrap items-center gap-1">
-                    Chosen for {chosenForLabel} •{' '}
-                    <button
-                      type="button"
-                      onClick={() => setHowWeChooseOpen(true)}
-                      className="inline-flex items-center gap-0.5 hover:underline focus:outline-none focus-visible:ring-2 rounded"
-                    >
-                      Explained <span aria-hidden>ⓘ</span>
-                    </button>
-                  </p>
                 </div>
                 {scienceBody ? (
-                  <DiscoverFigmaScienceSection title={scienceTitle} description={scienceBody} />
+                  <DiscoverFigmaScienceSection
+                    title={scienceTitle}
+                    description={scienceBody}
+                    onExplain={() => setHowWeChooseOpen(true)}
+                  />
                 ) : (
                   <p className="text-[var(--ember-text-low)] text-sm mb-8">
                     We&apos;re adding more detail for this focus soon.
