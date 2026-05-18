@@ -1,6 +1,10 @@
 import { redirect } from 'next/navigation';
 import { getAgeBandForAge, getGatewayAgeBandIdsWithPicks, getGatewayAgeBandsPublic, getGatewayCategoryTypesForAgeBandAndWrapper, getGatewayTopPicksForAgeBandAndCategoryType, getGatewayTopPicksForAgeBandAndWrapperSlug, getGatewayTopProductsForAgeBand, getGatewayWrappersForAgeBand } from '../../../lib/pl/public';
 import { getDiscoverServerPersonalization } from '../../../lib/discover/serverDiscoverChild';
+import {
+  applyCategoryImageOverrides,
+  fetchDiscoverV2ImageMappings,
+} from '../../../lib/discover/categoryImageOverrides';
 import DiscoveryPageClient from './DiscoveryPageClient';
 
 interface DiscoverMonthsPageProps {
@@ -58,10 +62,13 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
     ? await getGatewayTopProductsForAgeBand(ageBand.id, 12)
     : [];
 
-  const categoryTypes =
+  const categoryTypesRaw =
     selectedBandHasStage12Data && selectedWrapperSlug
       ? await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, selectedWrapperSlug)
       : [];
+  const v2ImageMappings =
+    categoryTypesRaw.length > 0 ? await fetchDiscoverV2ImageMappings(categoryTypesRaw) : [];
+  const categoryTypes = applyCategoryImageOverrides(categoryTypesRaw, v2ImageMappings);
 
   if (shouldShowPicks) {
     const categoryTypeId = categoryParam && categoryTypes.some((c) => c.id === categoryParam) ? categoryParam : null;

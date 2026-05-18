@@ -18,12 +18,30 @@ import {
 } from 'lucide-react';
 
 const SLUG_TO_ICON: Record<string, LucideIcon> = {
+  'burn-energy': Activity,
+  'little-hands': Hand,
+  'talk-understand': MessageCircle,
+  'pretend-stories': Theater,
+  'playing-with-others': Users,
+  'big-feelings': HeartHandshake,
+  'let-me-help': CheckCircle2,
+  'figuring-things-out': Puzzle,
+  'build-puzzles': Blocks,
+  'shapes-colours': Shapes,
+  transitions: CalendarCheck2,
+  'drawing-making': Pencil,
   social_emotional: Users,
+  'social-emotional': Users,
   self_care_independence: CheckCircle2,
+  'self-care-independence': CheckCircle2,
   fine_motor: Hand,
+  'fine-motor': Hand,
   gross_motor: Activity,
+  'gross-motor': Activity,
   language_communication: MessageCircle,
+  'language-communication': MessageCircle,
   cognitive_problem_solving: Puzzle,
+  'cognitive-problem-solving': Puzzle,
   toileting: CalendarCheck2,
   'creative-expression-and-mark-making': Pencil,
   'emotional-regulation-and-self-awareness': HeartHandshake,
@@ -52,8 +70,36 @@ const SLUG_TO_ICON: Record<string, LucideIcon> = {
   'shapes-and-colors': Shapes,
 };
 
+const LABEL_PATTERNS: { test: RegExp; icon: LucideIcon }[] = [
+  { test: /play with other|social emotional|big feelings|feelings/i, icon: Users },
+  { test: /doing more by myself|independence|myself|let me help/i, icon: CheckCircle2 },
+  { test: /hands can|fine motor|little hands/i, icon: Hand },
+  { test: /bigger moves|gross motor|physical|burn energy/i, icon: Activity },
+  { test: /more to say|talk|language|understand/i, icon: MessageCircle },
+  { test: /make.believe|pretend|stories/i, icon: Theater },
+  { test: /figuring things|cognitive|problem/i, icon: Puzzle },
+  { test: /build|puzzle|blocks/i, icon: Blocks },
+  { test: /shapes|colou?rs/i, icon: Shapes },
+  { test: /routine|transition|daily/i, icon: CalendarCheck2 },
+  { test: /draw|making|mark/i, icon: Pencil },
+];
+
+function slugLookupKeys(uxSlug: string): string[] {
+  const raw = (uxSlug ?? '').toLowerCase().trim();
+  if (!raw) return [];
+  const hyphen = raw.replace(/\s+/g, '-').replace(/_/g, '-');
+  const underscore = raw.replace(/\s+/g, '_').replace(/-/g, '_');
+  return [...new Set([raw, hyphen, underscore])];
+}
+
 export function getWrapperIcon(uxSlug: string, uxLabel: string): LucideIcon {
-  const slugNorm = (uxSlug ?? '').toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-');
-  if (SLUG_TO_ICON[slugNorm]) return SLUG_TO_ICON[slugNorm];
+  for (const key of slugLookupKeys(uxSlug)) {
+    const icon = SLUG_TO_ICON[key];
+    if (icon) return icon;
+  }
+  const label = (uxLabel ?? '').toLowerCase();
+  for (const { test, icon } of LABEL_PATTERNS) {
+    if (test.test(label)) return icon;
+  }
   return Shapes;
 }

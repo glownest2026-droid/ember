@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { createClient } from '@/utils/supabase/client';
@@ -25,7 +24,7 @@ import {
   personalizationFromChildrenRow,
   type DiscoverChildPersonalization,
 } from '@/lib/discover/personalization';
-import { DiscoverHeroPocketPlayGuide } from '@/components/discover/DiscoverHeroPocketPlayGuide';
+import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
 import {
@@ -68,10 +67,8 @@ interface DiscoveryPageClientProps {
   initialChildId?: string;
   /** From server (reliable session); fixes hero when client searchParams/user timing is wrong */
   serverPersonalization?: DiscoverChildPersonalization | null;
+  v2ImageMappings?: { filename: string; matchedCategoryName: string | null; confidence: string }[];
 }
-
-const EMBER_LOGO_SRC =
-  'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
 export default function DiscoveryPageClient({
   ageBands,
@@ -300,14 +297,29 @@ export default function DiscoveryPageClient({
   const layerBReady = selectedWrapper && categoryTypes.length > 0;
   useEffect(() => {
     if (!layerBReady || !pendingScrollToNextSteps) return;
-    const el = whyMattersSectionRef.current;
-    if (!el) return;
     const behavior = shouldReduceMotion ? ('auto' as const) : ('smooth' as const);
     requestAnimationFrame(() => {
-      const top = el.getBoundingClientRect().top + window.scrollY;
-      // Land slightly lower than section start so Why + Stage 2 CTAs are visible together.
-      const targetTop = Math.max(0, top + 64);
-      if (window.scrollY < targetTop - 20) {
+      const isMobile = window.matchMedia('(max-width: 767px)').matches;
+      const el = isMobile ? nextStepsSectionRef.current : whyMattersSectionRef.current;
+      if (!el) {
+        setPendingScrollToNextSteps(false);
+        return;
+      }
+      const headerOffset = 72;
+      const bottomNavOffset = isMobile ? 88 : 0;
+      const rect = el.getBoundingClientRect();
+      let targetTop = rect.top + window.scrollY - headerOffset;
+      if (isMobile) {
+        // Nudge into ideas carousel so the first card CTA row stays above the bottom tab bar.
+        targetTop = Math.max(0, targetTop + 48);
+        const viewport = window.innerHeight - headerOffset - bottomNavOffset;
+        const ideasEnd = targetTop + el.offsetHeight;
+        const maxScroll = Math.max(0, ideasEnd - viewport + 24);
+        targetTop = Math.min(targetTop, maxScroll);
+      } else {
+        targetTop = Math.max(0, targetTop + 64);
+      }
+      if (window.scrollY < targetTop - 20 || window.scrollY > targetTop + 20) {
         window.scrollTo({ top: targetTop, behavior });
       }
       setPendingScrollToNextSteps(false);
@@ -592,11 +604,11 @@ export default function DiscoveryPageClient({
     p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
 
   const doorwayMetaBySlug = useMemo(() => {
-    const map = new Map<string, { key: string; helper: string }>();
+    const map = new Map<string, { key: string; helper: string; icon: (typeof ALL_DOORWAYS)[number]['icon'] }>();
     for (const doorway of ALL_DOORWAYS) {
       const candidates = [doorway.wrapperSlug, ...(doorway.alternateSlugs ?? [])];
       for (const slug of candidates) {
-        map.set(normaliseSlug(slug), { key: doorway.key, helper: doorway.helper });
+        map.set(normaliseSlug(slug), { key: doorway.key, helper: doorway.helper, icon: doorway.icon });
       }
     }
     return map;
@@ -625,7 +637,7 @@ export default function DiscoveryPageClient({
           slug: wrapper.ux_slug,
           label,
           helper: meta?.helper ?? 'Tap to explore this focus area.',
-          icon: getWrapperIcon(wrapper.ux_slug, label),
+          icon: meta?.icon ?? getWrapperIcon(wrapper.ux_slug, label),
           showSuggested: is25to27 && suggestedDoorwaySlugSet.has(slugNorm),
         };
       }),
@@ -899,32 +911,22 @@ export default function DiscoveryPageClient({
   );
 
   const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
-  const scienceTitle = `Why this matters for ${displayChildName(childProfile.displayLabel)}`;
+  const scienceTitle = 'Why this matters now';
+  const ideasSectionTitle = selectedWrapperLabel
+    ? `Ideas for ${selectedWrapperLabel.toLowerCase()}`
+    : 'Ideas to try';
   const startOverVisible = Boolean(selectedWrapper || (showPicks && displayIdeas.length > 0));
   const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
-
-  const heroSection = !user ? (
-    <DiscoverHeroPocketPlayGuide
-      onGetStarted={() => scrollToSection('discover-figma-stage1')}
-      hideGetStarted={false}
-    />
-  ) : null;
+  const bandLabel = formatBandLabel(selectedBand);
 
   return (
     <div
-      className="min-h-screen w-full bg-[var(--ember-surface-soft)]"
-      data-discover-version="figma-redesign-v1"
+      className="min-h-screen w-full bg-[#FBFAF7]"
+      data-discover-version="figma-may-2026"
     >
       {actionToast && (
-        <div className="max-w-[90rem] mx-auto px-6 lg:px-12 pt-4">
-          <div
-            className="rounded-lg border py-2 px-3 text-sm"
-            style={{
-              borderColor: 'var(--ember-border-subtle)',
-              backgroundColor: 'var(--ember-surface-primary)',
-              color: 'var(--ember-text-high)',
-            }}
-          >
+        <div className={`${EMBER_FIGMA_APP_CONTAINER} pt-4`}>
+          <div className="rounded-lg border border-[#E7E2DC] bg-white py-2 px-3 text-sm text-[#253044]">
             {actionToast.message}
           </div>
         </div>
@@ -940,133 +942,66 @@ export default function DiscoveryPageClient({
       />
       <HowWeChooseSheet open={howWeChooseOpen} onClose={() => setHowWeChooseOpen(false)} />
 
-      {heroSection}
+      <main className={`${EMBER_FIGMA_APP_CONTAINER} py-6 lg:py-10 pb-28 md:pb-12 flex flex-col gap-10 md:gap-14`}>
+        <section id="discover-figma-stage1" className="scroll-mt-6"><DiscoverFigmaChildHero
+          childDisplayLabel={childProfile.displayLabel}
+          childGender={childProfile.gender}
+          monthAge={
+            childIdForPersonalization && childProfile.monthsOld != null
+              ? childProfile.monthsOld
+              : (monthParam ?? 26)
+          }
+          bandLabel={bandLabel}
+          heroImageUrl={categoryTypes[0]?.image_url ?? exampleProducts[0]?.product?.image_url ?? null}
+          selectedBandIndex={selectedBandIndex}
+          bandCount={ageBands.length}
+          sliderProgress={sliderProgress}
+          onBandIndexChange={setSelectedBandIndex}
+        />
+        </section>
 
-      <main className="max-w-[90rem] mx-auto px-6 lg:px-12 py-6 lg:py-10">
-        {user ? (
-          <DiscoverFigmaChildHero
-            childDisplayLabel={childProfile.displayLabel}
-            childGender={childProfile.gender}
-            monthAge={
-              childIdForPersonalization && childProfile.monthsOld != null
-                ? childProfile.monthsOld
-                : (monthParam ?? 26)
-            }
-            heroImageUrl={selectedBandHasPicks ? categoryTypes[0]?.image_url : null}
-          />
+        {debugText ? (
+          <p className="text-[11px] px-2 py-1 rounded bg-amber-50 text-[#66717D]">{debugText}</p>
         ) : null}
-
-        {/* Age slider always visible (prod parity) so users can leave bands with no catalogue */}
-        <div id="discover-figma-stage1" className="scroll-mt-6 mb-8">
-          <span
-            className="block text-sm mb-2"
-            style={{ fontFamily: 'var(--font-mono)', color: 'var(--ember-text-high)', fontSize: '14px' }}
-          >
-            {chosenForLabel}
-          </span>
-          <div
-            className="discovery-slider-wrap relative w-full max-w-xl mb-2"
-            style={{ '--slider-progress': `${sliderProgress}%` } as React.CSSProperties}
-          >
-            <input
-              type="range"
-              min={0}
-              max={Math.max(0, ageBands.length - 1)}
-              step={1}
-              value={selectedBandIndex}
-              onChange={(e) => setSelectedBandIndex(Number(e.target.value))}
-              className="discovery-age-slider w-full"
-              aria-label="Age range"
-            />
-          </div>
-          <p className="text-sm text-[var(--ember-text-low)] mb-2 max-w-xl">
-            Slide to a different age band if you don&apos;t see recommendations here.
-          </p>
-          {debugText ? (
-            <div className="mb-4 text-[11px] px-2 py-1 rounded bg-amber-50 text-[var(--ember-text-low)]">{debugText}</div>
-          ) : null}
-        </div>
 
         {selectedBandHasStage12Data ? (
           <>
-            <div className="mb-5 lg:mb-8">
-              <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
-                Stage 1: Understanding development
-              </p>
-              <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
-                <span className="inline-flex items-center gap-2">
-                  <Image
-                    src={EMBER_LOGO_SRC}
-                    alt=""
-                    width={64}
-                    height={64}
-                    className="h-[36px] w-[36px] sm:h-[44px] sm:w-[44px] lg:h-[52px] lg:w-[52px] object-contain"
-                  />
-                  Choose what you&apos;d like to explore
-                </span>
-              </h2>
-              {!user ? (
-                <p className="text-sm text-[var(--ember-text-low)] mt-2">Pick a focus for this age. Sign in to personalize with your child.</p>
-              ) : null}
-            </div>
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <section className="flex flex-col gap-5">
+              <div>
+                <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">Choose a focus</h2>
+                {!user ? (
+                  <p className="text-sm text-[#66717D] mt-2">Pick a focus for this age. Sign in to personalize with your child.</p>
+                ) : null}
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
                 {visibleTiles.map((tile) => {
                   const isSelected = selectedWrapper === tile.slug;
                   return (
-                    <div key={tile.slug} className="relative">
-                      {tile.showSuggested ? (
-                        <span className="absolute -top-2 left-2 z-10 text-[10px] px-2 py-0.5 rounded-full font-medium bg-[rgba(184,67,43,0.12)] text-[#B8432B]">
-                          Suggested
-                        </span>
-                      ) : null}
-                      <DiscoverFigmaNeedCard
-                        icon={tile.icon}
-                        title={tile.label}
-                        description={tile.helper}
-                        science={tile.showSuggested ? 'Great fit for this age' : 'Tap to explore'}
-                        isSelected={isSelected}
-                        onClick={() => handleWrapperSelect(tile.slug)}
-                      />
-                    </div>
+                    <DiscoverFigmaNeedCard
+                      key={tile.slug}
+                      icon={tile.icon}
+                      title={tile.label}
+                      description={tile.helper}
+                      isSelected={isSelected}
+                      showSuggested={tile.showSuggested}
+                      onClick={() => handleWrapperSelect(tile.slug)}
+                    />
                   );
                 })}
               </div>
               {!showMore && allTiles.length > 6 ? (
                 <button
                   type="button"
-                  className="mt-4 text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)]"
+                  className="text-sm font-medium text-[#66717D] hover:text-[#253044] self-start"
                   onClick={() => setShowMore(true)}
                 >
                   See all
                 </button>
               ) : null}
+            </section>
 
             {selectedWrapper ? (
-              <section ref={whyMattersSectionRef} className="mb-10 lg:mb-20 scroll-mt-24">
-                <button
-                  type="button"
-                  onClick={() => handleWrapperSelect(selectedWrapper)}
-                  className="mb-4 text-sm font-medium text-[var(--ember-text-low)] hover:underline"
-                >
-                  ← Back to choices
-                </button>
-                <div className="mb-5 lg:mb-8">
-                  <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
-                    Why this matters
-                  </p>
-                  <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
-                    <span className="inline-flex items-center gap-2">
-                      <Image
-                        src={EMBER_LOGO_SRC}
-                        alt=""
-                        width={64}
-                        height={64}
-                        className="h-[36px] w-[36px] sm:h-[44px] sm:w-[44px] lg:h-[52px] lg:w-[52px] object-contain"
-                      />
-                      {selectedWrapperLabel}
-                    </span>
-                  </h2>
-                </div>
+              <section ref={whyMattersSectionRef} className="scroll-mt-24">
                 {scienceBody ? (
                   <DiscoverFigmaScienceSection
                     title={scienceTitle}
@@ -1082,27 +1017,11 @@ export default function DiscoveryPageClient({
             ) : null}
 
             {selectedWrapper ? (
-              <section ref={nextStepsSectionRef} id="discover-figma-stage3" className="mb-10 lg:mb-20 scroll-mt-6">
-                <div className="mb-5 lg:mb-8">
-                  <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
-                    Stage 2: Play ideas
-                  </p>
-                  <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium">
-                    <span className="inline-flex items-center gap-2">
-                      <Image
-                        src={EMBER_LOGO_SRC}
-                        alt=""
-                        width={64}
-                        height={64}
-                        className="h-[36px] w-[36px] sm:h-[44px] sm:w-[44px] lg:h-[52px] lg:w-[52px] object-contain"
-                      />
-                      Try these ideas to support {selectedWrapperLabel.toLowerCase()}
-                    </span>
-                  </h2>
-                </div>
+              <section ref={nextStepsSectionRef} id="discover-figma-ideas" className="scroll-mt-24 md:scroll-mt-6">
                 {playIdeaItems.length > 0 ? (
                   <DiscoverFigmaPlayCarousel
                     items={playIdeaItems}
+                    sectionTitle={ideasSectionTitle}
                     selectedId={selectedCategoryId}
                     onSelect={setSelectedCategoryId}
                     onSeeExamples={handleShowExamples}
@@ -1118,24 +1037,24 @@ export default function DiscoveryPageClient({
               </section>
             ) : null}
 
+            {selectedWrapper ? (
+              <div className="flex flex-col items-center gap-6 mt-6 mb-10 px-4">
+                <button
+                  type="button"
+                  onClick={() => setHowWeChooseOpen(true)}
+                  className="flex items-center gap-2 text-[#66717D] hover:text-[#253044] transition-colors text-[15px] font-medium bg-[#FBFAF7] px-4 py-2 rounded-full border border-[#E7E2DC]"
+                >
+                  <span className="font-bold text-[#FF5C34]">?</span> Why these ideas?
+                </button>
+              </div>
+            ) : null}
+
             {discoverState === 'ShowingExamples' ? (
-              <section id="discover-figma-products" className="mb-10 lg:mb-24 pb-8 scroll-mt-6">
+              <section id="discover-figma-products" className="scroll-mt-6">
                 <div id="examplesProgressBar" className="mb-5 lg:mb-8">
-                  <p className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)] mb-2 uppercase tracking-wide">
-                    Stage 3: Product examples
-                  </p>
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h2 className="text-xl lg:text-2xl text-[var(--ember-text-high)] font-medium m-0">
-                      <span className="inline-flex items-center gap-2">
-                        <Image
-                          src={EMBER_LOGO_SRC}
-                          alt=""
-                          width={64}
-                          height={64}
-                          className="h-[36px] w-[36px] sm:h-[44px] sm:w-[44px] lg:h-[52px] lg:w-[52px] object-contain"
-                        />
-                        Examples you might like
-                      </span>
+                    <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
+                      Examples you might like
                     </h2>
                     {displayIdeas.length > 0 ? (
                       <button
@@ -1200,7 +1119,7 @@ export default function DiscoveryPageClient({
 
       {startOverVisible ? (
         <div className="fixed bottom-20 lg:bottom-6 left-0 right-0 z-30 pointer-events-none">
-          <div className="max-w-[90rem] mx-auto px-6 lg:px-12 flex justify-center">
+          <div className={`${EMBER_FIGMA_APP_CONTAINER} flex justify-center`}>
             <button
               type="button"
               onClick={handleDiscoverStartOver}
