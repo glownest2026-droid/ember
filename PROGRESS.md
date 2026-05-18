@@ -1,3 +1,11 @@
+## fix(snag-pack): discover + desktop nav (18 May 2026)
+
+- **Branch:** `fix/snag-pack-discover-nav-may18`
+- **PR:** https://github.com/glownest2026-droid/ember/pull/202
+- **Preview:** https://ember-git-fix-snag-pack-discover-037e81-tims-projects-cd69a894.vercel.app
+- **Snags:** Discover `/discover/0` copy/tiles/science/cards/save modal; desktop nav child name only, no counters/reminders
+- **Build:** `pnpm -C web build` — pass (18 May 2026)
+
 ## feat(discover): Figma Make overhaul + preserved wiring (May 2026)
 
 - **Branch:** `feat/discover-figma-make-overhaul-may-UI-update`
