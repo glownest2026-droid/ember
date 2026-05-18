@@ -24,6 +24,7 @@ import {
   personalizationFromChildrenRow,
   type DiscoverChildPersonalization,
 } from '@/lib/discover/personalization';
+import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
 import {
@@ -909,15 +910,8 @@ export default function DiscoveryPageClient({
       data-discover-version="figma-may-2026"
     >
       {actionToast && (
-        <div className="max-w-[90rem] mx-auto px-6 lg:px-12 pt-4">
-          <div
-            className="rounded-lg border py-2 px-3 text-sm"
-            style={{
-              borderColor: 'var(--ember-border-subtle)',
-              backgroundColor: 'var(--ember-surface-primary)',
-              color: 'var(--ember-text-high)',
-            }}
-          >
+        <div className={`${EMBER_FIGMA_APP_CONTAINER} pt-4`}>
+          <div className="rounded-lg border border-[#E7E2DC] bg-white py-2 px-3 text-sm text-[#253044]">
             {actionToast.message}
           </div>
         </div>
@@ -933,8 +927,8 @@ export default function DiscoveryPageClient({
       />
       <HowWeChooseSheet open={howWeChooseOpen} onClose={() => setHowWeChooseOpen(false)} />
 
-      <main className="max-w-[90rem] mx-auto px-4 md:px-6 lg:px-12 py-6 lg:py-10 pb-24 md:pb-12">
-        <div id="discover-figma-stage1" className="scroll-mt-6 mb-8"><DiscoverFigmaChildHero
+      <main className={`${EMBER_FIGMA_APP_CONTAINER} py-6 lg:py-10 pb-28 md:pb-12 flex flex-col gap-10 md:gap-14`}>
+        <section id="discover-figma-stage1" className="scroll-mt-6"><DiscoverFigmaChildHero
           childDisplayLabel={childProfile.displayLabel}
           childGender={childProfile.gender}
           monthAge={
@@ -949,20 +943,21 @@ export default function DiscoveryPageClient({
           sliderProgress={sliderProgress}
           onBandIndexChange={setSelectedBandIndex}
         />
-        </div>
+        </section>
 
         {debugText ? (
-          <p className="mb-6 text-[11px] px-2 py-1 rounded bg-amber-50 text-[#66717D]">{debugText}</p>
+          <p className="text-[11px] px-2 py-1 rounded bg-amber-50 text-[#66717D]">{debugText}</p>
         ) : null}
 
         {selectedBandHasStage12Data ? (
           <>
-            <section className="mb-6 lg:mb-10">
-              <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">Choose a focus</h2>
-              {!user ? (
-                <p className="text-sm text-[var(--ember-text-low)] mt-2">Pick a focus for this age. Sign in to personalize with your child.</p>
-              ) : null}
-            </section>
+            <section className="flex flex-col gap-5">
+              <div>
+                <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">Choose a focus</h2>
+                {!user ? (
+                  <p className="text-sm text-[#66717D] mt-2">Pick a focus for this age. Sign in to personalize with your child.</p>
+                ) : null}
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
                 {visibleTiles.map((tile) => {
                   const isSelected = selectedWrapper === tile.slug;
@@ -982,15 +977,16 @@ export default function DiscoveryPageClient({
               {!showMore && allTiles.length > 6 ? (
                 <button
                   type="button"
-                  className="mt-4 text-sm font-medium text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)]"
+                  className="text-sm font-medium text-[#66717D] hover:text-[#253044] self-start"
                   onClick={() => setShowMore(true)}
                 >
                   See all
                 </button>
               ) : null}
+            </section>
 
             {selectedWrapper ? (
-              <section ref={whyMattersSectionRef} className="mb-10 lg:mb-20 scroll-mt-24">
+              <section ref={whyMattersSectionRef} className="scroll-mt-24">
                 {scienceBody ? (
                   <DiscoverFigmaScienceSection
                     title={scienceTitle}
@@ -1006,7 +1002,7 @@ export default function DiscoveryPageClient({
             ) : null}
 
             {selectedWrapper ? (
-              <section ref={nextStepsSectionRef} id="discover-figma-ideas" className="mb-10 lg:mb-16 scroll-mt-6">
+              <section ref={nextStepsSectionRef} id="discover-figma-ideas" className="scroll-mt-6">
                 {playIdeaItems.length > 0 ? (
                   <DiscoverFigmaPlayCarousel
                     items={playIdeaItems}
@@ -1047,7 +1043,7 @@ export default function DiscoveryPageClient({
             ) : null}
 
             {discoverState === 'ShowingExamples' ? (
-              <section id="discover-figma-products" className="mb-10 lg:mb-24 pb-8 scroll-mt-6">
+              <section id="discover-figma-products" className="scroll-mt-6">
                 <div id="examplesProgressBar" className="mb-5 lg:mb-8">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
@@ -1116,7 +1112,7 @@ export default function DiscoveryPageClient({
 
       {startOverVisible ? (
         <div className="fixed bottom-20 lg:bottom-6 left-0 right-0 z-30 pointer-events-none">
-          <div className="max-w-[90rem] mx-auto px-6 lg:px-12 flex justify-center">
+          <div className={`${EMBER_FIGMA_APP_CONTAINER} flex justify-center`}>
             <button
               type="button"
               onClick={handleDiscoverStartOver}

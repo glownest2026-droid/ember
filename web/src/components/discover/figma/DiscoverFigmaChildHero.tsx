@@ -50,7 +50,7 @@ export function DiscoverFigmaChildHero({
   );
 
   return (
-    <section className="flex flex-col md:flex-row gap-8 md:gap-12 md:items-center pt-2 md:pt-6 mb-8 lg:mb-10">
+    <section className="flex flex-col md:flex-row gap-8 md:gap-12 md:items-center pt-2 md:pt-6 w-full">
       <div className="md:hidden w-full rounded-[24px] overflow-hidden aspect-[4/3] border border-[#E7E2DC] shadow-sm">
         {heroImg}
       </div>

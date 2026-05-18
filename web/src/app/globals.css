@@ -244,6 +244,11 @@ h3, h4, h5, h6 {
   padding: 0.35rem 0.85rem;
 }
 
+/* Figma May 2026 app shell (discover / my-ideas / marketplace / family) */
+html.ember-figma-app body {
+  font-family: var(--font-discover-manrope), 'Manrope', system-ui, sans-serif;
+}
+
 /* Discovery page age slider (Ember 2026 spec) */
 .discovery-slider-wrap {
   --slider-progress: 0%;
@@ -254,19 +259,19 @@ h3, h4, h5, h6 {
   width: 100%;
   height: 8px;
   border-radius: 999px;
-  background: linear-gradient(to right, var(--ember-accent-base) 0%, var(--ember-accent-base) var(--slider-progress), var(--ember-border-subtle) var(--slider-progress));
+  background: linear-gradient(to right, #ff5c34 0%, #ff5c34 var(--slider-progress), #e7e2dc var(--slider-progress));
   outline: none;
   margin: 4px 0 8px;
 }
 .discovery-age-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 999px;
-  background: var(--ember-accent-base);
-  border: none;
-  box-shadow: 0 0 0 2px var(--ember-focus-ring);
+  background: #ffffff;
+  border: 2px solid #e7e2dc;
+  box-shadow: 0 1px 2px rgba(37, 48, 68, 0.08);
   cursor: pointer;
   transition: transform var(--ember-motion-duration) var(--ember-motion-ease);
 }
@@ -274,7 +279,8 @@ h3, h4, h5, h6 {
   width: 20px;
   height: 20px;
   border-radius: 999px;
-  background: var(--ember-accent-base);
+  background: #ffffff;
+  border: 2px solid #e7e2dc;
   border: none;
   box-shadow: 0 0 0 2px var(--ember-focus-ring);
   cursor: pointer;

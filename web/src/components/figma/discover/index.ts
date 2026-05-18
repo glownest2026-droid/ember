@@ -1,4 +1,5 @@
 /** May 2026 Figma Make discover UI — re-exports wired components used by /discover/[months]. */
+export { EmberFigmaAppNav } from './EmberFigmaAppNav';
 export { DiscoverFigmaChildHero } from '@/components/discover/figma/DiscoverFigmaChildHero';
 export { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigmaNeedCard';
 export { DiscoverFigmaScienceSection } from '@/components/discover/figma/DiscoverFigmaScienceSection';
