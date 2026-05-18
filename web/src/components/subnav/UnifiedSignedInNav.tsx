@@ -361,12 +361,12 @@ export function UnifiedSignedInNav({
       data-unified-signed-in-nav
     >
       <div
-        className={`mx-auto w-full min-w-0 ${figmaShell ? EMBER_FIGMA_APP_CONTAINER : 'max-w-[90rem] px-4 md:px-6 lg:px-12'}`}
+        className={`min-w-0 ${figmaShell ? EMBER_FIGMA_APP_CONTAINER : 'mx-auto w-full max-w-[90rem] px-4 md:px-6 lg:px-12'}`}
       >
         {/* Main row */}
         <div className="relative flex h-16 items-center justify-between gap-4 lg:gap-6">
           {/* Left: Logo (desktop nav + child are centred in the bar) */}
-          <div className="flex items-center gap-4 min-w-0 lg:flex-1">
+          <div className="relative z-[2] flex items-center gap-4 min-w-0">
             <Link
               href="/"
               className="flex items-center gap-2.5 shrink-0"
@@ -389,7 +389,7 @@ export function UnifiedSignedInNav({
             </Link>
 
             {/* Desktop nav tabs + child switcher (centred) */}
-            <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[2] items-center gap-8 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
+            <div className="hidden lg:flex absolute inset-0 z-[1] items-center justify-center gap-8 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
             <nav className={`flex items-center ${figmaShell ? 'gap-8' : 'gap-1'}`}>
               <Link
                 href={buildUrlWithChild('/discover', selectedChildId || null)}
@@ -719,7 +719,7 @@ export function UnifiedSignedInNav({
           </div>
 
           {/* Right: profile + mobile menu */}
-          <div className="flex items-center gap-2 md:gap-3 shrink-0 lg:flex-1 lg:justify-end">
+          <div className="relative z-[2] flex items-center gap-2 md:gap-3 shrink-0 lg:justify-end">
             {/* Profile dropdown - desktop */}
             <div className="hidden lg:block relative" ref={profileDropdownRef}>
               <button
