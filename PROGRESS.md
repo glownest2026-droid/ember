@@ -31,6 +31,15 @@
   - Figma pack had no bundled PNG assets in-repo; hero uses live category/product image or fallback.
   - Desktop/mobile screenshots for PR proof-of-done pending founder QA on Vercel preview.
 
+### follow-up: Figma parity pass — fonts, nav, layout, CTA (May 2026)
+
+- **Branch:** `feat/discover-figma-make-overhaul-may-UI-update`
+- **FONT:** Manrope 400/500/600/700 via `next/font` (`web/src/lib/discover/manrope.ts`); applied on app-shell routes via `EmberFigmaAppNav` + `html.ember-figma-app` + `/discover` layout.
+- **NAV:** New `EmberFigmaAppNav` from Figma `Root.tsx` — desktop sticky header (`max-w-5xl`), mobile child pill header, fixed bottom tabs (What's next / My ideas / Marketplace / Family). Wired in `ConditionalHeader` for `/discover`, `/my-ideas`, `/marketplace`, `/family`.
+- **CTA:** Idea cards → **See Ember Picks** with `BadgeCheck` icon (`DiscoverFigmaPlayIdeaCard.tsx`).
+- **LAYOUT:** Content width `max-w-5xl` (`figmaTokens.ts`); main column `gap-10 md:gap-14` rhythm.
+- **Build:** `pnpm -C web build` pass.
+
 ## feat(data): import ABI 31-33m v8 child-voice csv (Apr 2026)
 
 - **Branch:** `feat/abi-import-31-33m-v8`
