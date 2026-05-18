@@ -1,6 +1,6 @@
 'use client';
 
-import { BadgeCheck, Bookmark, CheckCircle } from 'lucide-react';
+import { Bookmark, CheckCircle, ChevronRight } from 'lucide-react';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 
 export function DiscoverFigmaPlayIdeaCard({
@@ -52,11 +52,11 @@ export function DiscoverFigmaPlayIdeaCard({
               e.stopPropagation();
               onSeeExamples();
             }}
-            className="flex-1 inline-flex items-center justify-center gap-2 bg-[#FF5C34] hover:bg-[#E04B28] text-white py-3.5 px-4 rounded-full font-bold text-[15px] transition-colors shadow-sm"
-            aria-label={`See Ember Picks for ${title}`}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 bg-[#FF5C34] hover:bg-[#E04B28] text-white py-3.5 px-4 rounded-full font-bold text-[15px] transition-colors shadow-sm whitespace-nowrap"
+            aria-label={`Ember Picks for ${title}`}
           >
-            <BadgeCheck size={18} strokeWidth={2.25} aria-hidden />
-            See Ember Picks
+            Ember Picks
+            <ChevronRight size={18} strokeWidth={2.5} aria-hidden />
           </button>
           <button
             type="button"

@@ -1,12 +1,10 @@
 'use client';
 
-import Image from 'next/image';
+import { EmberRobinMark } from '@/components/figma/discover/EmberRobinMark';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 
 const HERO_FALLBACK =
   'https://images.unsplash.com/photo-1509781827353-fb95c262fc40?w=1080&q=80';
-const ROBIN_LOGO_SRC =
-  'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
 function possessiveName(displayLabel: string | null): string {
   const name = displayLabel?.trim();
@@ -58,7 +56,7 @@ export function DiscoverFigmaChildHero({
       <div className="flex-1 flex flex-col gap-6">
         <div>
           <div className="inline-flex items-center gap-2 bg-[#FBFAF7] border border-[#E7E2DC] px-2.5 py-1.5 rounded-full mb-4 shadow-sm">
-            <Image src={ROBIN_LOGO_SRC} alt="" width={20} height={20} className="w-5 h-5 rounded-full" />
+            <EmberRobinMark size="md" />
             <span className="text-[13px] font-bold text-[#253044]">{chipLabel}</span>
           </div>
 

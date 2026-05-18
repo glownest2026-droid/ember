@@ -589,11 +589,11 @@ export default function DiscoveryPageClient({
     p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
 
   const doorwayMetaBySlug = useMemo(() => {
-    const map = new Map<string, { key: string; helper: string }>();
+    const map = new Map<string, { key: string; helper: string; icon: (typeof ALL_DOORWAYS)[number]['icon'] }>();
     for (const doorway of ALL_DOORWAYS) {
       const candidates = [doorway.wrapperSlug, ...(doorway.alternateSlugs ?? [])];
       for (const slug of candidates) {
-        map.set(normaliseSlug(slug), { key: doorway.key, helper: doorway.helper });
+        map.set(normaliseSlug(slug), { key: doorway.key, helper: doorway.helper, icon: doorway.icon });
       }
     }
     return map;
@@ -622,7 +622,7 @@ export default function DiscoveryPageClient({
           slug: wrapper.ux_slug,
           label,
           helper: meta?.helper ?? 'Tap to explore this focus area.',
-          icon: getWrapperIcon(wrapper.ux_slug, label),
+          icon: meta?.icon ?? getWrapperIcon(wrapper.ux_slug, label),
           showSuggested: is25to27 && suggestedDoorwaySlugSet.has(slugNorm),
         };
       }),
@@ -1031,13 +1031,6 @@ export default function DiscoveryPageClient({
                   className="flex items-center gap-2 text-[#66717D] hover:text-[#253044] transition-colors text-[15px] font-medium bg-[#FBFAF7] px-4 py-2 rounded-full border border-[#E7E2DC]"
                 >
                   <span className="font-bold text-[#FF5C34]">?</span> Why these ideas?
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDiscoverStartOver()}
-                  className="text-[#66717D] hover:text-[#253044] transition-colors text-[15px] underline underline-offset-4"
-                >
-                  Change focus
                 </button>
               </div>
             ) : null}

@@ -31,6 +31,15 @@
   - Figma pack had no bundled PNG assets in-repo; hero uses live category/product image or fallback.
   - Desktop/mobile screenshots for PR proof-of-done pending founder QA on Vercel preview.
 
+### follow-up: founder nav + discover UI fixes (May 2026)
+
+- **Desktop nav:** Restored `UnifiedSignedInNav` (Discover / Saves / Marketplace, full child dropdown) with Figma shell styling — `#FBFAF7` background, orange underline active tab, Manrope.
+- **Mobile nav:** Fixed bottom bar — Discover / Saves / Marketplace / **Menu** (hamburger → same Account / Family / Membership / Sign out list as desktop profile menu). Legacy in-header tabs hidden on app-shell routes.
+- **Robin logo:** `EmberRobinMark` component — larger readable sizes in age chip + “Why this matters now” panel.
+- **Focus cards:** Doorway Lucide icons + explicit `#FF5C34` / `#66717D` icon colours.
+- **CTA:** **Ember Picks ›** (removed “See”; `whitespace-nowrap` + chevron).
+- **Removed:** “Change focus” link on discover detail view.
+
 ### follow-up: Figma parity pass — fonts, nav, layout, CTA (May 2026)
 
 - **Branch:** `feat/discover-figma-make-overhaul-may-UI-update`

@@ -2,9 +2,11 @@
 
 import { usePathname } from 'next/navigation';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
+import { useFigmaAppShellTypography } from '@/lib/discover/useFigmaAppShellTypography';
 import DiscoverStickyHeader from './discover/DiscoverStickyHeader';
 import { UnifiedSignedInNav } from './subnav/UnifiedSignedInNav';
-import { EmberFigmaAppNav } from './figma/discover/EmberFigmaAppNav';
+import { AppShellNavProvider } from './figma/discover/AppShellNavContext';
+import { EmberFigmaMobileNav } from './figma/discover/EmberFigmaMobileNav';
 
 const FIGMA_APP_SHELL_PREFIXES = ['/discover', '/my-ideas', '/marketplace', '/family'] as const;
 
@@ -13,15 +15,29 @@ function isFigmaAppShellPath(pathname: string | null): boolean {
   return FIGMA_APP_SHELL_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
+function FigmaAppShellHeader({ signedIn }: { signedIn: boolean }) {
+  useFigmaAppShellTypography();
+  return (
+    <AppShellNavProvider>
+      {signedIn ? (
+        <UnifiedSignedInNav figmaShell hideLegacyMobileTabs hideHeaderMobileMenu />
+      ) : (
+        <DiscoverStickyHeader />
+      )}
+      {signedIn ? <EmberFigmaMobileNav /> : null}
+    </AppShellNavProvider>
+  );
+}
+
 /**
- * Global navbar: Figma May app shell on core app routes; legacy headers elsewhere.
+ * Global navbar: unified signed-in nav + Figma styling on core app routes; legacy headers elsewhere.
  */
 export default function ConditionalHeader() {
   const pathname = usePathname();
   const { user } = useSubnavStats();
 
   if (isFigmaAppShellPath(pathname)) {
-    return <EmberFigmaAppNav />;
+    return <FigmaAppShellHeader signedIn={!!user} />;
   }
 
   if (user) {

@@ -21,6 +21,15 @@ import {
 } from 'lucide-react';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { createClient } from '@/utils/supabase/client';
+import { useAppShellNav } from '@/components/figma/discover/AppShellNavContext';
+
+function figmaDesktopNavClass(active: boolean): string {
+  return `text-base font-medium transition-colors py-1 ${
+    active
+      ? 'text-[#253044] border-b-2 border-[#FF5C34]'
+      : 'text-[#66717D] hover:text-[#253044]'
+  }`;
+}
 
 const EMBER_LOGO_SRC =
   'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
@@ -83,15 +92,37 @@ function childColor(index: number): string {
  * child switcher, stats (ideas/products/gifts), reminders link, and profile dropdown.
  * Replaces the previous separate header + subnav for signed-in users.
  */
-export function UnifiedSignedInNav() {
+export function UnifiedSignedInNav({
+  figmaShell = false,
+  hideLegacyMobileTabs = false,
+  hideHeaderMobileMenu = false,
+}: {
+  figmaShell?: boolean;
+  hideLegacyMobileTabs?: boolean;
+  hideHeaderMobileMenu?: boolean;
+} = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user, stats, refetch } = useSubnavStats();
+  const appShellNav = useAppShellNav();
   const [children, setChildren] = useState<SubnavChild[]>([]);
   const [isChildDropdownOpen, setIsChildDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [localMobileMenuOpen, setLocalMobileMenuOpen] = useState(false);
+  const isMobileMenuOpen =
+    figmaShell && appShellNav ? appShellNav.mobileMenuOpen : localMobileMenuOpen;
+  const setIsMobileMenuOpen = useCallback(
+    (open: boolean) => {
+      if (figmaShell && appShellNav) appShellNav.setMobileMenuOpen(open);
+      else setLocalMobileMenuOpen(open);
+    },
+    [appShellNav, figmaShell]
+  );
+  const toggleMobileMenu = useCallback(() => {
+    if (figmaShell && appShellNav) appShellNav.toggleMobileMenu();
+    else setLocalMobileMenuOpen((o) => !o);
+  }, [appShellNav, figmaShell]);
   /** Must be separate: one ref on both desktop+mobile would point to only the last node, so click-outside closed the desktop menu before child buttons received clicks. */
   const childDropdownDesktopRef = useRef<HTMLDivElement>(null);
   const childDropdownMobileRef = useRef<HTMLDivElement>(null);
@@ -317,7 +348,11 @@ export function UnifiedSignedInNav() {
 
   return (
     <header
-      className="top-0 left-0 right-0 z-[100] w-full min-w-0 bg-[var(--ember-surface-primary)] border-b border-[var(--ember-border-subtle)] lg:sticky"
+      className={`top-0 left-0 right-0 z-[100] w-full min-w-0 border-b lg:sticky ${
+        figmaShell
+          ? 'bg-[#FBFAF7] border-[#E7E2DC]'
+          : 'bg-[var(--ember-surface-primary)] border-[var(--ember-border-subtle)]'
+      }`}
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         minHeight: 'var(--header-height)',
@@ -351,22 +386,34 @@ export function UnifiedSignedInNav() {
             </Link>
 
             {/* Desktop nav tabs */}
-            <nav className="hidden lg:flex items-center gap-1">
+            <nav className={`hidden lg:flex items-center ${figmaShell ? 'gap-8' : 'gap-1'}`}>
               <Link
                 href={buildUrlWithChild('/discover', selectedChildId || null)}
-                className={`${navLinkClass} ${isDiscover ? navLinkActive : navLinkInactive}`}
+                className={
+                  figmaShell
+                    ? figmaDesktopNavClass(isDiscover)
+                    : `${navLinkClass} ${isDiscover ? navLinkActive : navLinkInactive}`
+                }
               >
                 Discover
               </Link>
               <Link
                 href={buildUrlWithChild('/my-ideas', selectedChildId || null)}
-                className={`${navLinkClass} ${isMyIdeas ? navLinkActive : navLinkInactive}`}
+                className={
+                  figmaShell
+                    ? figmaDesktopNavClass(isMyIdeas)
+                    : `${navLinkClass} ${isMyIdeas ? navLinkActive : navLinkInactive}`
+                }
               >
                 Saves
               </Link>
               <Link
                 href={buildUrlWithChild('/marketplace', selectedChildId || null)}
-                className={`${navLinkClass} ${isMarketplace ? navLinkActive : navLinkInactive}`}
+                className={
+                  figmaShell
+                    ? figmaDesktopNavClass(isMarketplace)
+                    : `${navLinkClass} ${isMarketplace ? navLinkActive : navLinkInactive}`
+                }
               >
                 Marketplace
               </Link>
@@ -850,28 +897,32 @@ export function UnifiedSignedInNav() {
               )}
             </div>
 
-            {/* Mobile menu toggle */}
-            <button
-              type="button"
-              onClick={() => setIsMobileMenuOpen((o) => !o)}
-              className="lg:hidden p-2 rounded-lg text-[var(--ember-text-low)] hover:bg-[var(--ember-surface-soft)] transition-colors"
-              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={isMobileMenuOpen}
-            >
-              {isMobileMenuOpen ? (
-                <X className="w-5 h-5" strokeWidth={2} />
-              ) : (
-                <Menu className="w-5 h-5" strokeWidth={2} />
-              )}
-            </button>
+            {/* Mobile menu toggle (hidden when bottom tab bar owns Menu) */}
+            {!hideHeaderMobileMenu ? (
+              <button
+                type="button"
+                onClick={toggleMobileMenu}
+                className="lg:hidden p-2 rounded-lg text-[var(--ember-text-low)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isMobileMenuOpen}
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-5 h-5" strokeWidth={2} />
+                ) : (
+                  <Menu className="w-5 h-5" strokeWidth={2} />
+                )}
+              </button>
+            ) : null}
           </div>
         </div>
 
         {/* Mobile menu panel */}
         {isMobileMenuOpen && (
           <div
-            className="lg:hidden border-t border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)]"
-            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+            className={`lg:hidden border-t border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)] ${
+              hideLegacyMobileTabs ? 'pb-20' : ''
+            }`}
+            style={{ paddingBottom: hideLegacyMobileTabs ? undefined : 'env(safe-area-inset-bottom, 0px)' }}
           >
             <nav className="flex flex-col p-4 gap-1">
               <Link
@@ -910,6 +961,8 @@ export function UnifiedSignedInNav() {
           </div>
         )}
 
+        {!hideLegacyMobileTabs ? (
+        <>
         {/* Mobile: sentinel marks where tab row starts; scroll past → dock row as fixed (CSS sticky fails inside tall header) */}
         <div
           ref={mobileTabsSentinelRef}
@@ -1019,6 +1072,8 @@ export function UnifiedSignedInNav() {
             </Link>
           </div>
         </div>
+        </>
+        ) : null}
       </div>
     </header>
   );

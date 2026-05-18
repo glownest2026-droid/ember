@@ -42,10 +42,14 @@ export function DiscoverFigmaNeedCard({
       ) : null}
       <div
         className={`w-12 h-12 rounded-[14px] flex items-center justify-center mb-4 transition-colors ${
-          isSelected && !disabled ? 'bg-white text-[#FF5C34] shadow-sm' : 'bg-[#FBFAF7] border border-[#E7E2DC] text-[#66717D]'
+          isSelected && !disabled ? 'bg-white shadow-sm' : 'bg-[#FBFAF7] border border-[#E7E2DC]'
         }`}
       >
-        <Icon size={24} strokeWidth={isSelected ? 2.5 : 2} />
+        <Icon
+          size={24}
+          strokeWidth={isSelected ? 2.5 : 2}
+          className={isSelected && !disabled ? 'text-[#FF5C34]' : 'text-[#66717D]'}
+        />
       </div>
       <h3 className="font-bold text-[17px] mb-1.5 text-[#253044] leading-tight">{title}</h3>
       <p className="text-[14px] text-[#66717D] leading-relaxed line-clamp-2 md:line-clamp-none">{description}</p>
