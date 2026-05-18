@@ -23,6 +23,7 @@ import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { createClient } from '@/utils/supabase/client';
 import { useAppShellNav } from '@/components/figma/discover/AppShellNavContext';
 import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
+import { discoverManrope } from '@/lib/discover/manrope';
 
 function figmaDesktopNavClass(active: boolean): string {
   return `text-base font-medium transition-colors py-1 ${
@@ -351,7 +352,7 @@ export function UnifiedSignedInNav({
     <header
       className={`top-0 left-0 right-0 z-[100] w-full min-w-0 border-b lg:sticky ${
         figmaShell
-          ? 'bg-[#FBFAF7] border-[#E7E2DC]'
+          ? `bg-[#FBFAF7] border-[#E7E2DC] ${discoverManrope.className}`
           : 'bg-[var(--ember-surface-primary)] border-[var(--ember-border-subtle)]'
       }`}
       style={{
@@ -363,10 +364,10 @@ export function UnifiedSignedInNav({
       <div
         className={`min-w-0 ${figmaShell ? EMBER_FIGMA_APP_CONTAINER : 'mx-auto w-full max-w-[90rem] px-4 md:px-6 lg:px-12'}`}
       >
-        {/* Main row */}
-        <div className="relative flex h-16 items-center justify-between gap-4 lg:gap-6">
-          {/* Left: Logo (desktop nav + child are centred in the bar) */}
-          <div className="relative z-[2] flex items-center gap-4 min-w-0">
+        {/* Main row: logo | centred nav + child | profile */}
+        <div className="relative flex h-16 items-center justify-between gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center lg:gap-6">
+          {/* Left: logo + mobile child */}
+          <div className="relative flex items-center gap-4 min-w-0 lg:col-start-1">
             <Link
               href="/"
               className="flex items-center gap-2.5 shrink-0"
@@ -381,166 +382,12 @@ export function UnifiedSignedInNav({
                 priority
               />
               <span
-                className="hidden sm:block text-xl truncate"
-                style={{ fontWeight: 600, color: 'var(--ember-text-high)' }}
+                className={`hidden sm:block text-xl truncate ${figmaShell ? 'font-bold text-[#253044]' : ''}`}
+                style={figmaShell ? undefined : { fontWeight: 600, color: 'var(--ember-text-high)' }}
               >
                 Ember
               </span>
             </Link>
-
-            {/* Desktop nav tabs + child switcher (centred) */}
-            <div className="hidden lg:flex absolute inset-0 z-[1] items-center justify-center gap-8 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
-            <nav className={`flex items-center ${figmaShell ? 'gap-8' : 'gap-1'}`}>
-              <Link
-                href={buildUrlWithChild('/discover', selectedChildId || null)}
-                className={
-                  figmaShell
-                    ? figmaDesktopNavClass(isDiscover)
-                    : `${navLinkClass} ${isDiscover ? navLinkActive : navLinkInactive}`
-                }
-              >
-                Discover
-              </Link>
-              <Link
-                href={buildUrlWithChild('/my-ideas', selectedChildId || null)}
-                className={
-                  figmaShell
-                    ? figmaDesktopNavClass(isMyIdeas)
-                    : `${navLinkClass} ${isMyIdeas ? navLinkActive : navLinkInactive}`
-                }
-              >
-                Saves
-              </Link>
-              <Link
-                href={buildUrlWithChild('/marketplace', selectedChildId || null)}
-                className={
-                  figmaShell
-                    ? figmaDesktopNavClass(isMarketplace)
-                    : `${navLinkClass} ${isMarketplace ? navLinkActive : navLinkInactive}`
-                }
-              >
-                Marketplace
-              </Link>
-            </nav>
-
-            {/* Child profile switcher */}
-            <div className="relative" ref={childDropdownDesktopRef}>
-              <button
-                type="button"
-                onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[var(--ember-text-high)] transition-all duration-300 ${
-                  childToggleAffirm
-                    ? 'border-[var(--ember-accent-base)] bg-[rgba(255,99,71,0.12)] ring-2 ring-[var(--ember-accent-base)] ring-offset-2'
-                    : 'border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)] hover:bg-[var(--ember-surface-soft)]'
-                }`}
-                aria-expanded={isChildDropdownOpen}
-                aria-haspopup="listbox"
-                aria-label="Select child"
-              >
-                <span className="text-sm font-medium truncate max-w-[12rem]">{selectedChildName}</span>
-                <ChevronDown
-                  className={`w-4 h-4 flex-shrink-0 transition-transform text-[var(--ember-text-low)] ${isChildDropdownOpen ? 'rotate-180' : ''}`}
-                  strokeWidth={2}
-                />
-              </button>
-
-              {isChildDropdownOpen && (
-                <div
-                  className="absolute left-0 top-full mt-2 w-80 rounded-2xl overflow-hidden z-[110] bg-[var(--ember-surface-primary)] border border-[var(--ember-border-subtle)] shadow-lg"
-                  role="listbox"
-                >
-                  <div className="p-3">
-                    <div className="px-4 py-2 mb-2">
-                      <div className="text-xs font-medium text-[var(--ember-text-low)] uppercase tracking-wide">
-                        Select child
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleChildSelect(null)}
-                      className="w-full text-left px-4 py-3.5 rounded-xl transition-colors mb-1.5 hover:bg-[var(--ember-surface-soft)]"
-                      style={{
-                        backgroundColor:
-                          selectedChildId === '' ? 'var(--ember-surface-soft)' : 'transparent',
-                      }}
-                    >
-                      <div className="flex items-center justify-between gap-3 min-w-0">
-                        <span className="text-sm font-medium text-[var(--ember-text-high)] truncate">
-                          All children
-                        </span>
-                        {selectedChildId === '' && (
-                          <div
-                            className="w-2 h-2 rounded-full flex-shrink-0 bg-[var(--ember-accent-base)]"
-                            aria-hidden
-                          />
-                        )}
-                      </div>
-                    </button>
-                    {children.map((c, i) => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => handleChildSelect(c.id)}
-                        className="w-full text-left px-4 py-3.5 rounded-xl transition-colors mb-1.5 hover:bg-[var(--ember-surface-soft)]"
-                        style={{
-                          backgroundColor:
-                            selectedChildId === c.id ? 'var(--ember-surface-soft)' : 'transparent',
-                        }}
-                      >
-                        <div className="flex items-center justify-between gap-3 min-w-0 w-full">
-                          <span className="text-sm font-medium text-[var(--ember-text-high)] truncate">
-                            {childDisplayName(c, i)}
-                          </span>
-                          {selectedChildId === c.id && (
-                            <div
-                              className="w-2 h-2 rounded-full flex-shrink-0 bg-[var(--ember-accent-base)]"
-                              aria-hidden
-                            />
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                    <div className="h-px my-3 bg-[var(--ember-border-subtle)]" aria-hidden />
-                    <Link
-                      href="/add-children"
-                      onClick={() => setIsChildDropdownOpen(false)}
-                      className="flex w-full items-center gap-3.5 px-4 py-3.5 rounded-xl transition-colors mb-1.5 hover:bg-[var(--ember-surface-soft)] text-left"
-                    >
-                      <div
-                        className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-dashed border-[var(--ember-200,#FFDCD2)]"
-                        style={{ backgroundColor: 'var(--ember-50,#FFF8F5)' }}
-                      >
-                        <Plus className="w-5 h-5 text-[var(--ember-accent-base)]" strokeWidth={2} />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-[var(--ember-text-high)]">
-                          Add a child
-                        </div>
-                        <div className="text-xs text-[var(--ember-text-low)]">Create new profile</div>
-                      </div>
-                    </Link>
-                    <Link
-                      href="/family"
-                      onClick={() => setIsChildDropdownOpen(false)}
-                      className="flex w-full items-center gap-3.5 px-4 py-3.5 rounded-xl transition-colors hover:bg-[var(--ember-surface-soft)] text-left"
-                    >
-                      <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-[var(--ember-surface-soft)]">
-                        <Users className="w-5 h-5 text-[var(--ember-text-low)]" strokeWidth={2} />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-[var(--ember-text-high)]">
-                          Manage my family
-                        </div>
-                        <div className="text-xs text-[var(--ember-text-low)]">
-                          Edit profiles & settings
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-            </div>
 
             {/* Mobile child selector */}
             <div
@@ -718,8 +565,163 @@ export function UnifiedSignedInNav({
             </div>
           </div>
 
+          {/* Centre: desktop nav + child */}
+          <div className="hidden lg:flex items-center justify-center gap-8 lg:col-start-2 justify-self-center min-w-0">
+            <nav className={`flex items-center shrink-0 ${figmaShell ? 'gap-8' : 'gap-1'}`}>
+              <Link
+                href={buildUrlWithChild('/discover', selectedChildId || null)}
+                className={
+                  figmaShell
+                    ? figmaDesktopNavClass(isDiscover)
+                    : `${navLinkClass} ${isDiscover ? navLinkActive : navLinkInactive}`
+                }
+              >
+                Discover
+              </Link>
+              <Link
+                href={buildUrlWithChild('/my-ideas', selectedChildId || null)}
+                className={
+                  figmaShell
+                    ? figmaDesktopNavClass(isMyIdeas)
+                    : `${navLinkClass} ${isMyIdeas ? navLinkActive : navLinkInactive}`
+                }
+              >
+                Saves
+              </Link>
+              <Link
+                href={buildUrlWithChild('/marketplace', selectedChildId || null)}
+                className={
+                  figmaShell
+                    ? figmaDesktopNavClass(isMarketplace)
+                    : `${navLinkClass} ${isMarketplace ? navLinkActive : navLinkInactive}`
+                }
+              >
+                Marketplace
+              </Link>
+            </nav>
+
+            {/* Child profile switcher */}
+            <div className="relative" ref={childDropdownDesktopRef}>
+              <button
+                type="button"
+                onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[var(--ember-text-high)] transition-all duration-300 ${
+                  childToggleAffirm
+                    ? 'border-[var(--ember-accent-base)] bg-[rgba(255,99,71,0.12)] ring-2 ring-[var(--ember-accent-base)] ring-offset-2'
+                    : 'border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)] hover:bg-[var(--ember-surface-soft)]'
+                }`}
+                aria-expanded={isChildDropdownOpen}
+                aria-haspopup="listbox"
+                aria-label="Select child"
+              >
+                <span className="text-sm font-medium truncate max-w-[12rem]">{selectedChildName}</span>
+                <ChevronDown
+                  className={`w-4 h-4 flex-shrink-0 transition-transform text-[var(--ember-text-low)] ${isChildDropdownOpen ? 'rotate-180' : ''}`}
+                  strokeWidth={2}
+                />
+              </button>
+
+              {isChildDropdownOpen && (
+                <div
+                  className="absolute left-0 top-full mt-2 w-80 rounded-2xl overflow-hidden z-[110] bg-[var(--ember-surface-primary)] border border-[var(--ember-border-subtle)] shadow-lg"
+                  role="listbox"
+                >
+                  <div className="p-3">
+                    <div className="px-4 py-2 mb-2">
+                      <div className="text-xs font-medium text-[var(--ember-text-low)] uppercase tracking-wide">
+                        Select child
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleChildSelect(null)}
+                      className="w-full text-left px-4 py-3.5 rounded-xl transition-colors mb-1.5 hover:bg-[var(--ember-surface-soft)]"
+                      style={{
+                        backgroundColor:
+                          selectedChildId === '' ? 'var(--ember-surface-soft)' : 'transparent',
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-3 min-w-0">
+                        <span className="text-sm font-medium text-[var(--ember-text-high)] truncate">
+                          All children
+                        </span>
+                        {selectedChildId === '' && (
+                          <div
+                            className="w-2 h-2 rounded-full flex-shrink-0 bg-[var(--ember-accent-base)]"
+                            aria-hidden
+                          />
+                        )}
+                      </div>
+                    </button>
+                    {children.map((c, i) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => handleChildSelect(c.id)}
+                        className="w-full text-left px-4 py-3.5 rounded-xl transition-colors mb-1.5 hover:bg-[var(--ember-surface-soft)]"
+                        style={{
+                          backgroundColor:
+                            selectedChildId === c.id ? 'var(--ember-surface-soft)' : 'transparent',
+                        }}
+                      >
+                        <div className="flex items-center justify-between gap-3 min-w-0 w-full">
+                          <span className="text-sm font-medium text-[var(--ember-text-high)] truncate">
+                            {childDisplayName(c, i)}
+                          </span>
+                          {selectedChildId === c.id && (
+                            <div
+                              className="w-2 h-2 rounded-full flex-shrink-0 bg-[var(--ember-accent-base)]"
+                              aria-hidden
+                            />
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                    <div className="h-px my-3 bg-[var(--ember-border-subtle)]" aria-hidden />
+                    <Link
+                      href="/add-children"
+                      onClick={() => setIsChildDropdownOpen(false)}
+                      className="flex w-full items-center gap-3.5 px-4 py-3.5 rounded-xl transition-colors mb-1.5 hover:bg-[var(--ember-surface-soft)] text-left"
+                    >
+                      <div
+                        className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-dashed border-[var(--ember-200,#FFDCD2)]"
+                        style={{ backgroundColor: 'var(--ember-50,#FFF8F5)' }}
+                      >
+                        <Plus className="w-5 h-5 text-[var(--ember-accent-base)]" strokeWidth={2} />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-[var(--ember-text-high)]">
+                          Add a child
+                        </div>
+                        <div className="text-xs text-[var(--ember-text-low)]">Create new profile</div>
+                      </div>
+                    </Link>
+                    <Link
+                      href="/family"
+                      onClick={() => setIsChildDropdownOpen(false)}
+                      className="flex w-full items-center gap-3.5 px-4 py-3.5 rounded-xl transition-colors hover:bg-[var(--ember-surface-soft)] text-left"
+                    >
+                      <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-[var(--ember-surface-soft)]">
+                        <Users className="w-5 h-5 text-[var(--ember-text-low)]" strokeWidth={2} />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-[var(--ember-text-high)]">
+                          Manage my family
+                        </div>
+                        <div className="text-xs text-[var(--ember-text-low)]">
+                          Edit profiles & settings
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+
+          </div>
+
           {/* Right: profile + mobile menu */}
-          <div className="relative z-[2] flex items-center gap-2 md:gap-3 shrink-0 lg:justify-end">
+          <div className="flex items-center gap-2 md:gap-3 shrink-0 lg:col-start-3 lg:justify-self-end">
             {/* Profile dropdown - desktop */}
             <div className="hidden lg:block relative" ref={profileDropdownRef}>
               <button
