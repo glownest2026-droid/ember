@@ -1,13 +1,11 @@
 'use client';
 
 import { Bookmark, CheckCircle, ChevronRight } from 'lucide-react';
-import { EmberRobinMark } from '@/components/figma/discover/EmberRobinMark';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 
 export function DiscoverFigmaPlayIdeaCard({
   title,
   description,
-  ageRangeLabel,
   imageUrl,
   onSeeExamples,
   onSaveIdea,
@@ -17,7 +15,6 @@ export function DiscoverFigmaPlayIdeaCard({
   title: string;
   description: string;
   scienceConnection?: string;
-  ageRangeLabel: string;
   imageUrl: string;
   isSelected?: boolean;
   onClick?: () => void;
@@ -33,10 +30,6 @@ export function DiscoverFigmaPlayIdeaCard({
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-full shadow-sm flex items-center gap-2">
-          <EmberRobinMark size="sm" />
-          <span className="text-[12px] font-bold text-[#253044] tracking-wide">{ageRangeLabel}</span>
-        </div>
       </div>
 
       <div className="p-5 md:p-6 flex flex-col flex-1 gap-3">

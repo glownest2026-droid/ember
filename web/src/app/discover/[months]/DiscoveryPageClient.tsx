@@ -1021,7 +1021,6 @@ export default function DiscoveryPageClient({
                 {playIdeaItems.length > 0 ? (
                   <DiscoverFigmaPlayCarousel
                     items={playIdeaItems}
-                    ageRangeLabel={bandLabel}
                     sectionTitle={ideasSectionTitle}
                     selectedId={selectedCategoryId}
                     onSelect={setSelectedCategoryId}

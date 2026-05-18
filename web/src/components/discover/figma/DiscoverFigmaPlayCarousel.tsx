@@ -15,7 +15,6 @@ export type PlayIdeaItem = {
 
 export function DiscoverFigmaPlayCarousel({
   items,
-  ageRangeLabel,
   selectedId,
   onSelect,
   onSeeExamples,
@@ -25,7 +24,6 @@ export function DiscoverFigmaPlayCarousel({
   sectionTitle,
 }: {
   items: PlayIdeaItem[];
-  ageRangeLabel: string;
   selectedId: string | null;
   onSelect: (id: string) => void;
   onSeeExamples: (id: string) => void;
@@ -110,7 +108,6 @@ export function DiscoverFigmaPlayCarousel({
                 id={idea.id}
                 title={idea.title}
                 description={idea.description}
-                ageRangeLabel={ageRangeLabel}
                 imageUrl={idea.imageUrl}
                 isSelected={selectedId === idea.id}
                 onClick={() => onSelect(idea.id)}
