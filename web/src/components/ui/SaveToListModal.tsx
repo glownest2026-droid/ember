@@ -6,6 +6,7 @@ import { createClient } from '@/utils/supabase/client';
 import { buildAuthCallbackUrl } from '@/lib/auth-callback-url';
 import { AUTH_ENABLE_GOOGLE, AUTH_ENABLE_APPLE, AUTH_ENABLE_EMAIL_OTP } from '@/lib/auth-flags';
 import { GoogleMark } from '@/components/icons/GoogleMark';
+import { discoverManrope } from '@/lib/discover/manrope';
 
 const RETURN_URL_KEY = 'ember_auth_return_url';
 const PENDING_INTENT_KEY = 'ember_auth_pending_intent';
@@ -29,6 +30,8 @@ interface SaveToListModalProps {
   savedToLabel?: string;
   /** Link for "View my toy ideas" CTA when signed in. Defaults to /my-ideas; use e.g. /my-ideas?tab=ideas or /my-ideas?tab=products&child=xxx for deeplink. */
   viewMyListHref?: string;
+  /** Match discover page typography and palette when opened from /discover. */
+  appearance?: 'default' | 'discover';
 }
 
 function isValidEmail(value: string): boolean {
@@ -94,7 +97,16 @@ export function SaveToListModal({
   onAuthSuccess,
   savedToLabel: savedToLabelProp,
   viewMyListHref = '/my-ideas',
+  appearance = 'default',
 }: SaveToListModalProps) {
+  const isDiscover = appearance === 'discover';
+  const textHigh = isDiscover ? '#253044' : 'var(--ember-text-high)';
+  const textLow = isDiscover ? '#66717D' : 'var(--ember-text-low)';
+  const surface = isDiscover ? '#FFFFFF' : 'var(--ember-surface-primary)';
+  const border = isDiscover ? '#E7E2DC' : 'var(--ember-border-subtle)';
+  const accent = isDiscover ? '#FF5C34' : 'var(--ember-accent-base)';
+  const titleFont = isDiscover ? discoverManrope.style.fontFamily : 'var(--font-serif)';
+  const bodyFont = isDiscover ? discoverManrope.style.fontFamily : 'var(--font-sans)';
   const [step, setStep] = useState<AuthStep>('choose');
   const [email, setEmail] = useState('');
   const [codeDigits, setCodeDigits] = useState<string[]>(Array(6).fill(''));
@@ -344,7 +356,7 @@ export function SaveToListModal({
     document.querySelector<HTMLInputElement>(`[data-code-input="${focusIndex}"]`)?.focus();
   };
 
-  const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
+  const baseStyle = { fontFamily: bodyFont } as const;
 
   if (!open) return null;
 
@@ -357,10 +369,10 @@ export function SaveToListModal({
       }}
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
-      className="fixed inset-0 w-full max-w-lg mx-auto max-h-[90vh] my-auto p-0 rounded-xl border shadow-lg backdrop:bg-black/40"
+      className={`fixed inset-0 w-full max-w-lg mx-auto max-h-[90vh] my-auto p-0 rounded-xl border shadow-lg backdrop:bg-black/40 ${isDiscover ? discoverManrope.className : ''}`}
       style={{
-        borderColor: 'var(--ember-border-subtle)',
-        backgroundColor: 'var(--ember-surface-primary)',
+        borderColor: border,
+        backgroundColor: surface,
       }}
       aria-labelledby="save-modal-title"
       aria-describedby="save-modal-desc"
@@ -368,17 +380,17 @@ export function SaveToListModal({
       <div className="p-6">
         {signedIn ? (
           <>
-            <h2 id="save-modal-title" className="text-lg font-semibold mb-2" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
+            <h2 id="save-modal-title" className="text-lg font-semibold mb-2" style={{ fontFamily: titleFont, color: textHigh }}>
               {savedToLabelProp ?? savedToLabelFetched}
             </h2>
-            <p id="save-modal-desc" className="text-sm mb-4" style={{ ...baseStyle, color: 'var(--ember-text-low)' }}>
+            <p id="save-modal-desc" className="text-sm mb-4" style={{ ...baseStyle, color: textLow }}>
               You can find this in your recommendations.
             </p>
             <div className="flex flex-col gap-2">
-              <Link href={viewMyListHref} onClick={handleClose} className="min-h-[40px] rounded-lg border font-medium text-sm flex items-center justify-center w-full" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-accent-base)', color: 'white', ...baseStyle }}>
+              <Link href={viewMyListHref} onClick={handleClose} className="min-h-[40px] rounded-lg border font-medium text-sm flex items-center justify-center w-full" style={{ borderColor: border, backgroundColor: accent, color: 'white', ...baseStyle }}>
                 View my toy ideas
               </Link>
-              <button type="button" onClick={handleClose} className="min-h-[40px] rounded-lg font-medium text-sm w-full opacity-70 hover:opacity-100" style={{ border: 'none', backgroundColor: 'transparent', color: 'var(--ember-text-low)', ...baseStyle }}>
+              <button type="button" onClick={handleClose} className="min-h-[40px] rounded-lg font-medium text-sm w-full opacity-70 hover:opacity-100" style={{ border: 'none', backgroundColor: 'transparent', color: textLow, ...baseStyle }}>
                 Close
               </button>
             </div>

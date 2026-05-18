@@ -45,14 +45,12 @@ export function DiscoverFigmaNeedCard({
           isSelected && !disabled ? 'bg-white shadow-sm' : 'bg-[#FBFAF7] border border-[#E7E2DC]'
         }`}
       >
-        <Icon
-          size={24}
-          strokeWidth={isSelected ? 2.5 : 2}
-          className={isSelected && !disabled ? 'text-[#FF5C34]' : 'text-[#66717D]'}
-        />
+        <Icon size={24} strokeWidth={isSelected ? 2.5 : 2} className="text-[#FF5C34]" />
       </div>
-      <h3 className="font-bold text-[17px] mb-1.5 text-[#253044] leading-tight">{title}</h3>
-      <p className="text-[14px] text-[#66717D] leading-relaxed line-clamp-2 md:line-clamp-none">{description}</p>
+      <h3 className="font-bold text-[17px] text-[#253044] leading-tight">{title}</h3>
+      {description.trim() ? (
+        <p className="text-[14px] text-[#66717D] leading-relaxed mt-1.5 line-clamp-2 md:line-clamp-none">{description}</p>
+      ) : null}
     </button>
   );
 }

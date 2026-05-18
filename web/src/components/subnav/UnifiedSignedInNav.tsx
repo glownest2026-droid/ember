@@ -436,39 +436,7 @@ export function UnifiedSignedInNav({
                 aria-haspopup="listbox"
                 aria-label="Select child"
               >
-                <span className="text-xs font-medium text-[var(--ember-text-low)]">Child:</span>
-                {selectedChild ? (
-                  <div
-                    className="h-6 w-6 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{
-                      backgroundColor: childColor(
-                        children.findIndex((c) => c.id === selectedChild.id)
-                      ),
-                    }}
-                  >
-                    <span className="text-white text-xs font-semibold">
-                      {childInitial(selectedChild, children.findIndex((c) => c.id === selectedChild.id))}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1">
-                    {children.slice(0, 2).map((c, idx) => (
-                      <div
-                        key={c.id}
-                        className="h-5 w-5 rounded-full flex items-center justify-center"
-                        style={{
-                          backgroundColor: childColor(children.indexOf(c)),
-                          marginLeft: idx > 0 ? '-6px' : 0,
-                        }}
-                      >
-                        <span className="text-white text-[10px] font-semibold">
-                          {childInitial(c, children.indexOf(c))}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <span className="text-sm font-medium truncate max-w-[8rem]">{selectedChildName}</span>
+                <span className="text-sm font-medium truncate max-w-[12rem]">{selectedChildName}</span>
                 <ChevronDown
                   className={`w-4 h-4 flex-shrink-0 transition-transform text-[var(--ember-text-low)] ${isChildDropdownOpen ? 'rotate-180' : ''}`}
                   strokeWidth={2}
@@ -495,32 +463,10 @@ export function UnifiedSignedInNav({
                           selectedChildId === '' ? 'var(--ember-surface-soft)' : 'transparent',
                       }}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3.5">
-                          <div className="flex items-center">
-                            {children.slice(0, 2).map((c, idx) => (
-                              <div
-                                key={c.id}
-                                className="w-11 h-11 rounded-full flex items-center justify-center border-2 border-white"
-                                style={{
-                                  backgroundColor: childColor(children.indexOf(c)),
-                                  marginLeft: idx > 0 ? '-12px' : 0,
-                                  zIndex: children.length - idx,
-                                }}
-                              >
-                                <span className="text-white text-base font-semibold">
-                                  {childInitial(c, children.indexOf(c))}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                          <div>
-                            <div className="text-sm font-medium text-[var(--ember-text-high)]">
-                              All children
-                            </div>
-                            <div className="text-xs text-[var(--ember-text-low)]">All children</div>
-                          </div>
-                        </div>
+                      <div className="flex items-center justify-between gap-3 min-w-0">
+                        <span className="text-sm font-medium text-[var(--ember-text-high)] truncate">
+                          All children
+                        </span>
                         {selectedChildId === '' && (
                           <div
                             className="w-2 h-2 rounded-full flex-shrink-0 bg-[var(--ember-accent-base)]"
@@ -540,25 +486,10 @@ export function UnifiedSignedInNav({
                             selectedChildId === c.id ? 'var(--ember-surface-soft)' : 'transparent',
                         }}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3.5 min-w-0">
-                            <div
-                              className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
-                              style={{ backgroundColor: childColor(i) }}
-                            >
-                              <span className="text-white text-base font-semibold">
-                                {childInitial(c, i)}
-                              </span>
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="text-sm font-medium text-[var(--ember-text-high)] truncate">
-                                {childDisplayName(c, i)}
-                              </div>
-                              <div className="text-xs text-[var(--ember-text-low)] truncate">
-                                {c.age_band ?? ''}
-                              </div>
-                            </div>
-                          </div>
+                        <div className="flex items-center justify-between gap-3 min-w-0 w-full">
+                          <span className="text-sm font-medium text-[var(--ember-text-high)] truncate">
+                            {childDisplayName(c, i)}
+                          </span>
                           {selectedChildId === c.id && (
                             <div
                               className="w-2 h-2 rounded-full flex-shrink-0 bg-[var(--ember-accent-base)]"
@@ -787,53 +718,6 @@ export function UnifiedSignedInNav({
 
           {/* Right: Stats + reminders (desktop) + profile + mobile menu */}
           <div className="flex items-center gap-2 md:gap-3 shrink-0">
-            {/* Stats - desktop xl */}
-            <div className="hidden xl:flex items-center gap-2 mr-2">
-              <Link
-                href={myIdeasUrl('ideas')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors bg-[var(--ember-surface-soft)] hover:opacity-90"
-              >
-                <Lightbulb
-                  className="w-3.5 h-3.5 text-[var(--ember-accent-base)]"
-                  strokeWidth={2}
-                />
-                <span className="text-sm font-semibold text-[var(--ember-accent-base)]">
-                  {stats.categoryIdeasSaved}
-                </span>
-              </Link>
-              <Link
-                href={myIdeasUrl('products')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors bg-[var(--ember-surface-soft)] hover:opacity-90"
-              >
-                <ShoppingCart className="w-3.5 h-3.5 text-[var(--ember-text-high)]" strokeWidth={2} />
-                <span className="text-sm font-semibold text-[var(--ember-text-high)]">
-                  {stats.toysSaved}
-                </span>
-              </Link>
-              <Link
-                href={myIdeasUrl('gifts')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors bg-[var(--ember-surface-soft)] hover:opacity-90"
-              >
-                <Gift
-                  className="w-3.5 h-3.5 text-[var(--ember-accent-base)]"
-                  strokeWidth={2}
-                />
-                <span className="text-sm font-semibold text-[var(--ember-accent-base)]">
-                  {typeof stats.giftsSaved === 'number' ? stats.giftsSaved : 0}
-                </span>
-              </Link>
-            </div>
-
-            {/* Reminders - desktop xl: link to family reminder settings (not a push toggle) */}
-            <div className="hidden xl:flex items-center mr-2">
-              <Link
-                href="/family#reminders"
-                className={`${navLinkClass} ${isFamilyReminders ? navLinkActive : navLinkInactive}`}
-              >
-                Reminders
-              </Link>
-            </div>
-
             {/* Profile dropdown - desktop */}
             <div className="hidden lg:block relative" ref={profileDropdownRef}>
               <button
