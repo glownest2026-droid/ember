@@ -365,8 +365,8 @@ export function UnifiedSignedInNav({
       >
         {/* Main row */}
         <div className="relative flex h-16 items-center justify-between gap-4 lg:gap-6">
-          {/* Left: Logo + desktop nav + child selector */}
-          <div className="flex flex-1 items-center gap-4 lg:gap-6 min-w-0">
+          {/* Left: Logo (desktop nav + child are centred in the bar) */}
+          <div className="flex items-center gap-4 min-w-0 lg:flex-1">
             <Link
               href="/"
               className="flex items-center gap-2.5 shrink-0"
@@ -388,8 +388,9 @@ export function UnifiedSignedInNav({
               </span>
             </Link>
 
-            {/* Desktop nav tabs */}
-            <nav className={`hidden lg:flex items-center ${figmaShell ? 'gap-8' : 'gap-1'}`}>
+            {/* Desktop nav tabs + child switcher (centred) */}
+            <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[2] items-center gap-8 pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
+            <nav className={`flex items-center ${figmaShell ? 'gap-8' : 'gap-1'}`}>
               <Link
                 href={buildUrlWithChild('/discover', selectedChildId || null)}
                 className={
@@ -423,7 +424,7 @@ export function UnifiedSignedInNav({
             </nav>
 
             {/* Child profile switcher */}
-            <div className="relative hidden lg:block" ref={childDropdownDesktopRef}>
+            <div className="relative" ref={childDropdownDesktopRef}>
               <button
                 type="button"
                 onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
@@ -538,6 +539,7 @@ export function UnifiedSignedInNav({
                   </div>
                 </div>
               )}
+            </div>
             </div>
 
             {/* Mobile child selector */}
@@ -716,8 +718,8 @@ export function UnifiedSignedInNav({
             </div>
           </div>
 
-          {/* Right: Stats + reminders (desktop) + profile + mobile menu */}
-          <div className="flex items-center gap-2 md:gap-3 shrink-0">
+          {/* Right: profile + mobile menu */}
+          <div className="flex items-center gap-2 md:gap-3 shrink-0 lg:flex-1 lg:justify-end">
             {/* Profile dropdown - desktop */}
             <div className="hidden lg:block relative" ref={profileDropdownRef}>
               <button

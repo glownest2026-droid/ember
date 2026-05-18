@@ -112,6 +112,7 @@ export default function DiscoveryPageClient({
   const whyMattersSectionRef = useRef<HTMLElement | null>(null);
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
+  const [showStartOverFab, setShowStartOverFab] = useState(false);
   const replayAttemptedRef = useRef(false);
   const basePath = '/discover';
   const { user, refetch: refetchSubnavStats } = useSubnavStats();
@@ -912,6 +913,32 @@ export default function DiscoveryPageClient({
     ? `Ideas for ${selectedWrapperLabel.toLowerCase()}`
     : 'Ideas to try';
   const startOverVisible = Boolean(selectedWrapper || (showPicks && displayIdeas.length > 0));
+
+  useEffect(() => {
+    if (!startOverVisible) {
+      setShowStartOverFab(false);
+      return;
+    }
+    const bottomThresholdPx = 120;
+    const update = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (maxScroll <= bottomThresholdPx) {
+        setShowStartOverFab(true);
+        return;
+      }
+      setShowStartOverFab(window.scrollY >= maxScroll - bottomThresholdPx);
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    const ro = new ResizeObserver(update);
+    ro.observe(document.documentElement);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+      ro.disconnect();
+    };
+  }, [startOverVisible, selectedWrapper, discoverState, displayIdeas.length, categoryTypes.length]);
   const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
   const bandLabel = formatBandLabel(selectedBand);
 
@@ -1105,7 +1132,7 @@ export default function DiscoveryPageClient({
         )}
       </main>
 
-      {startOverVisible ? (
+      {startOverVisible && showStartOverFab ? (
         <div className="fixed bottom-20 lg:bottom-6 left-0 right-0 z-30 pointer-events-none">
           <div className={`${EMBER_FIGMA_APP_CONTAINER} flex justify-center`}>
             <button
