@@ -1,3 +1,36 @@
+## feat(discover): Figma Make overhaul + preserved wiring (May 2026)
+
+- **Branch:** `feat/discover-figma-make-overhaul-may-UI-update`
+- **Goal:** Implement May 2026 Figma Make `/discover` UI (Hero, focus grid, why panel, Embla ideas carousel) while preserving gateway data, save/have/auth, and age routing.
+- **Routes touched:** `web/src/app/discover/[months]/page.tsx`, `web/src/app/discover/[months]/DiscoveryPageClient.tsx`
+- **Figma UI folder:** `web/src/components/discover/figma/*` (+ barrel `web/src/components/figma/discover/index.ts`)
+- **Data wiring preserved (reads):** `getGatewayAgeBandsPublic`, `getGatewayWrappersForAgeBand`, `getGatewayCategoryTypesForAgeBandAndWrapper`, `getGatewayTopPicksForAgeBandAndWrapperSlug`, `getGatewayTopPicksForAgeBandAndCategoryType`, `getGatewayTopProductsForAgeBand`, `getDiscoverServerPersonalization` — views `v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_wrapper_detail_public`, `v_gateway_category_types_public`, `v_gateway_products_public`, `v_gateway_category_type_images`
+- **Data wiring preserved (writes):** `upsert_user_list_item` RPC (category/product save + have), legacy fallbacks `user_saved_ideas` / `user_saved_products`, `/api/click` outbound tracking
+- **Image override:** `web/src/lib/discover/categoryImageOverrides.ts` — server-side HEAD probe of `category_images` `*-v2.png*` files; high-confidence slug/name match only; fallback to existing `image_url`
+- **V2 image mapping (public storage, May 2026):**
+
+  | Filename | Matched category | Confidence | URL source |
+  | --- | --- | --- | --- |
+  | `ember_visual_countdown_timer_category-v2.png.png` | Visual Countdown Timer (`visual_timer`) | high | Supabase public `category_images` |
+  | `ember_emotion_matching_tiles_category-v2.png.png` | Emotion Faces Matching Tiles | high | Supabase public `category_images` |
+  | `ember_social_scripts_books_category-v2.png.png` | Social Script Board Books (Sharing/Turns) | high | Supabase public `category_images` |
+
+  **Note:** Only **3** `-v2` objects are currently reachable in `category_images`; a 4th filename was not found via exhaustive slug/label probes. Override helper will pick up additional files automatically when uploaded.
+
+- **Build:** `pnpm -C web build` — pass (May 2026)
+- **Preview URL:** _(fill from Vercel after `git push` + PR)_
+- **Verification steps:**
+  1. Open `/discover/32` (or your child’s month band).
+  2. Confirm hero: robin chip, mobile image, integrated age slider.
+  3. Choose a focus → warm “Why this matters now” panel.
+  4. Ideas carousel: Embla swipe, See examples / Save / Already have.
+  5. Examples section when picks exist; “Examples coming soon” when Stage 3 empty.
+  6. Confirm v2 images only on the three mapped categories; others unchanged.
+- **Known debt / follow-up:**
+  - Upload/confirm 4th `-v2.png` category image in `category_images` if founder has a specific mapping.
+  - Figma pack had no bundled PNG assets in-repo; hero uses live category/product image or fallback.
+  - Desktop/mobile screenshots for PR proof-of-done pending founder QA on Vercel preview.
+
 ## feat(data): import ABI 31-33m v8 child-voice csv (Apr 2026)
 
 - **Branch:** `feat/abi-import-31-33m-v8`

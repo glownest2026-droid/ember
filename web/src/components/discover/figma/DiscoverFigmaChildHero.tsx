@@ -1,83 +1,103 @@
 'use client';
 
-import { HelpCircle } from 'lucide-react';
-import { motion } from 'motion/react';
-import Link from 'next/link';
+import Image from 'next/image';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 
 const HERO_FALLBACK =
   'https://images.unsplash.com/photo-1509781827353-fb95c262fc40?w=1080&q=80';
+const ROBIN_LOGO_SRC =
+  'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
-function curatedLabel(displayLabel: string | null, gender: string | null): string {
-  const name = displayLabel?.trim() || null;
-  if (name) return `Curated for ${name}`;
-  const g = (gender || '').trim().toLowerCase();
-  if (g === 'male' || g === 'boy' || g === 'm') return 'Curated for your son';
-  if (g === 'female' || g === 'girl' || g === 'f') return 'Curated for your daughter';
-  return 'Curated for your family';
-}
-
-function supportTail(gender: string | null | undefined): string {
-  const g = (gender || '').trim().toLowerCase();
-  if (g === 'male' || g === 'boy' || g === 'm') return 'him';
-  if (g === 'female' || g === 'girl' || g === 'f') return 'her';
-  return 'them';
+function possessiveName(displayLabel: string | null): string {
+  const name = displayLabel?.trim();
+  if (!name) return "your child's";
+  return name.endsWith('s') ? `${name}'` : `${name}'s`;
 }
 
 export function DiscoverFigmaChildHero({
   childDisplayLabel,
-  childGender,
   monthAge,
+  bandLabel,
   heroImageUrl,
+  selectedBandIndex,
+  bandCount,
+  sliderProgress,
+  onBandIndexChange,
 }: {
   childDisplayLabel: string | null;
   childGender?: string | null;
   monthAge: number;
+  bandLabel: string;
   heroImageUrl?: string | null;
+  selectedBandIndex: number;
+  bandCount: number;
+  sliderProgress: number;
+  onBandIndexChange: (index: number) => void;
 }) {
   const name = childDisplayLabel?.trim() || null;
-  const curated = curatedLabel(childDisplayLabel, childGender ?? null);
-  const tail = supportTail(childGender ?? null);
-  const headline = name ? `What ${name} is learning right now` : 'What your child is learning right now';
-  const sub =
-    name ?
-      `At ${monthAge} months, ${name} is building skills that match this stage. Here's what matters most—and how to support ${tail}.`
-    : `At ${monthAge} months, your child is building skills that match this stage. Here's what matters most—and how to support ${tail}.`;
+  const chipLabel = name ? `For ${name} · ${bandLabel}` : bandLabel;
+  const headline = name ? `What ${possessiveName(name)} practising now` : "What your child's practising now";
+  const sub = name
+    ? `At ${monthAge} months, ${name} may be getting more independent, more physical and more expressive. Choose a focus and we'll show useful ideas for this stage.`
+    : `At ${monthAge} months, your child may be getting more independent, more physical and more expressive. Choose a focus and we'll show useful ideas for this stage.`;
+
+  const heroImg = (
+    <DiscoverFigmaImage
+      src={heroImageUrl || HERO_FALLBACK}
+      alt=""
+      className="w-full h-full object-cover"
+    />
+  );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="mb-8 lg:mb-16"
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4 lg:gap-12 items-center">
+    <section className="flex flex-col md:flex-row gap-8 md:gap-12 md:items-center pt-2 md:pt-6 mb-8 lg:mb-10">
+      <div className="md:hidden w-full rounded-[24px] overflow-hidden aspect-[4/3] border border-[#E7E2DC] shadow-sm">
+        {heroImg}
+      </div>
+
+      <div className="flex-1 flex flex-col gap-6">
         <div>
-          <div
-            className="inline-block px-3 py-1 rounded-full mb-3 lg:mb-4"
-            style={{ backgroundColor: 'rgba(255, 99, 71, 0.12)' }}
-          >
-            <span className="text-xs lg:text-sm font-semibold text-[var(--ember-accent-base)]">{curated}</span>
+          <div className="inline-flex items-center gap-2 bg-[#FBFAF7] border border-[#E7E2DC] px-2.5 py-1.5 rounded-full mb-4 shadow-sm">
+            <Image src={ROBIN_LOGO_SRC} alt="" width={20} height={20} className="w-5 h-5 rounded-full" />
+            <span className="text-[13px] font-bold text-[#253044]">{chipLabel}</span>
           </div>
-          <h1 className="text-3xl lg:text-5xl font-medium text-[var(--ember-text-high)] mb-2 lg:mb-4 leading-tight">{headline}</h1>
-          <p className="text-[var(--ember-text-low)] text-base lg:text-lg mb-3 lg:mb-4 leading-relaxed">{sub}</p>
-          <Link
-            href="/marketplace"
-            className="inline-flex items-center gap-2 text-sm lg:text-base text-[var(--ember-accent-base)] hover:text-[var(--ember-accent-hover)] transition-colors font-medium"
-          >
-            <HelpCircle className="w-4 h-4 lg:w-5 lg:h-5" aria-hidden />
-            How Ember works
-          </Link>
+
+          <h1 className="text-[32px] leading-[1.1] md:text-[44px] md:leading-[1.05] font-bold text-[#253044] mb-4">
+            {headline}
+          </h1>
+          <p className="text-[16px] md:text-[17px] text-[#66717D] leading-relaxed max-w-lg">{sub}</p>
         </div>
-        <div className="relative h-40 lg:h-72 rounded-3xl overflow-hidden shadow-xl order-first lg:order-last ring-1 ring-black/5">
-          <DiscoverFigmaImage
-            src={heroImageUrl || HERO_FALLBACK}
-            alt=""
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--ember-accent-base)]/10 to-transparent pointer-events-none" />
+
+        <div className="bg-white border border-[#E7E2DC] rounded-[20px] p-5 shadow-sm">
+          <div className="mb-4">
+            <span className="font-bold text-[#253044] text-[17px]">
+              {name ? `${name} · ${bandLabel}` : bandLabel}
+            </span>
+          </div>
+          <div
+            className="discovery-slider-wrap relative w-full h-5 mb-3"
+            style={{ '--slider-progress': `${sliderProgress}%` } as React.CSSProperties}
+          >
+            <input
+              type="range"
+              min={0}
+              max={Math.max(0, bandCount - 1)}
+              step={1}
+              value={selectedBandIndex}
+              onChange={(e) => onBandIndexChange(Number(e.target.value))}
+              className="discovery-age-slider w-full"
+              aria-label="Age range"
+            />
+          </div>
+          <p className="text-[13px] text-[#66717D] m-0">
+            Slide to a different age if you want to explore another stage.
+          </p>
         </div>
       </div>
-    </motion.div>
+
+      <div className="flex-1 hidden md:block">
+        <div className="rounded-[20px] overflow-hidden aspect-[4/3] border border-[#E7E2DC] shadow-sm">{heroImg}</div>
+      </div>
+    </section>
   );
 }
