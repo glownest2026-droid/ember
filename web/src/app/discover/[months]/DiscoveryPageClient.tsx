@@ -297,14 +297,29 @@ export default function DiscoveryPageClient({
   const layerBReady = selectedWrapper && categoryTypes.length > 0;
   useEffect(() => {
     if (!layerBReady || !pendingScrollToNextSteps) return;
-    const el = whyMattersSectionRef.current;
-    if (!el) return;
     const behavior = shouldReduceMotion ? ('auto' as const) : ('smooth' as const);
     requestAnimationFrame(() => {
-      const top = el.getBoundingClientRect().top + window.scrollY;
-      // Land slightly lower than section start so Why + Stage 2 CTAs are visible together.
-      const targetTop = Math.max(0, top + 64);
-      if (window.scrollY < targetTop - 20) {
+      const isMobile = window.matchMedia('(max-width: 767px)').matches;
+      const el = isMobile ? nextStepsSectionRef.current : whyMattersSectionRef.current;
+      if (!el) {
+        setPendingScrollToNextSteps(false);
+        return;
+      }
+      const headerOffset = 72;
+      const bottomNavOffset = isMobile ? 88 : 0;
+      const rect = el.getBoundingClientRect();
+      let targetTop = rect.top + window.scrollY - headerOffset;
+      if (isMobile) {
+        // Nudge into ideas carousel so the first card CTA row stays above the bottom tab bar.
+        targetTop = Math.max(0, targetTop + 48);
+        const viewport = window.innerHeight - headerOffset - bottomNavOffset;
+        const ideasEnd = targetTop + el.offsetHeight;
+        const maxScroll = Math.max(0, ideasEnd - viewport + 24);
+        targetTop = Math.min(targetTop, maxScroll);
+      } else {
+        targetTop = Math.max(0, targetTop + 64);
+      }
+      if (window.scrollY < targetTop - 20 || window.scrollY > targetTop + 20) {
         window.scrollTo({ top: targetTop, behavior });
       }
       setPendingScrollToNextSteps(false);
@@ -1002,7 +1017,7 @@ export default function DiscoveryPageClient({
             ) : null}
 
             {selectedWrapper ? (
-              <section ref={nextStepsSectionRef} id="discover-figma-ideas" className="scroll-mt-6">
+              <section ref={nextStepsSectionRef} id="discover-figma-ideas" className="scroll-mt-24 md:scroll-mt-6">
                 {playIdeaItems.length > 0 ? (
                   <DiscoverFigmaPlayCarousel
                     items={playIdeaItems}

@@ -7,6 +7,7 @@ import DiscoverStickyHeader from './discover/DiscoverStickyHeader';
 import { UnifiedSignedInNav } from './subnav/UnifiedSignedInNav';
 import { AppShellNavProvider } from './figma/discover/AppShellNavContext';
 import { EmberFigmaMobileNav } from './figma/discover/EmberFigmaMobileNav';
+import { AppShellMobileMenuSheet } from './figma/discover/AppShellMobileMenuSheet';
 
 const FIGMA_APP_SHELL_PREFIXES = ['/discover', '/my-ideas', '/marketplace', '/family'] as const;
 
@@ -24,7 +25,12 @@ function FigmaAppShellHeader({ signedIn }: { signedIn: boolean }) {
       ) : (
         <DiscoverStickyHeader />
       )}
-      {signedIn ? <EmberFigmaMobileNav /> : null}
+      {signedIn ? (
+        <>
+          <EmberFigmaMobileNav />
+          <AppShellMobileMenuSheet />
+        </>
+      ) : null}
     </AppShellNavProvider>
   );
 }

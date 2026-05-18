@@ -56,7 +56,7 @@ export function DiscoverFigmaChildHero({
       <div className="flex-1 flex flex-col gap-6">
         <div>
           <div className="inline-flex items-center gap-2 bg-[#FBFAF7] border border-[#E7E2DC] px-2.5 py-1.5 rounded-full mb-4 shadow-sm">
-            <EmberRobinMark size="md" />
+            <EmberRobinMark size="lg" />
             <span className="text-[13px] font-bold text-[#253044]">{chipLabel}</span>
           </div>
 

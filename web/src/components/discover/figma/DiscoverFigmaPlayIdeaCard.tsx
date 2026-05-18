@@ -1,6 +1,7 @@
 'use client';
 
 import { Bookmark, CheckCircle, ChevronRight } from 'lucide-react';
+import { EmberRobinMark } from '@/components/figma/discover/EmberRobinMark';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 
 export function DiscoverFigmaPlayIdeaCard({
@@ -26,13 +27,14 @@ export function DiscoverFigmaPlayIdeaCard({
 }) {
   return (
     <article className="bg-white border border-[#E7E2DC] rounded-[24px] overflow-hidden shadow-sm flex flex-col h-full group">
-      <div className="relative aspect-[4/3] overflow-hidden bg-[#FBFAF7]">
+      <div className="relative aspect-[16/10] max-h-[200px] md:max-h-none md:aspect-[4/3] overflow-hidden bg-[#FBFAF7]">
         <DiscoverFigmaImage
           src={imageUrl}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+        <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-full shadow-sm flex items-center gap-2">
+          <EmberRobinMark size="sm" />
           <span className="text-[12px] font-bold text-[#253044] tracking-wide">{ageRangeLabel}</span>
         </div>
       </div>

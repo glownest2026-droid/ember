@@ -22,6 +22,7 @@ import {
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { createClient } from '@/utils/supabase/client';
 import { useAppShellNav } from '@/components/figma/discover/AppShellNavContext';
+import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
 
 function figmaDesktopNavClass(active: boolean): string {
   return `text-base font-medium transition-colors py-1 ${
@@ -359,7 +360,9 @@ export function UnifiedSignedInNav({
       }}
       data-unified-signed-in-nav
     >
-      <div className="mx-auto w-full min-w-0 max-w-[90rem] px-4 md:px-6 lg:px-12">
+      <div
+        className={`mx-auto w-full min-w-0 ${figmaShell ? EMBER_FIGMA_APP_CONTAINER : 'max-w-[90rem] px-4 md:px-6 lg:px-12'}`}
+      >
         {/* Main row */}
         <div className="relative flex h-16 items-center justify-between gap-4 lg:gap-6">
           {/* Left: Logo + desktop nav + child selector */}
@@ -916,8 +919,8 @@ export function UnifiedSignedInNav({
           </div>
         </div>
 
-        {/* Mobile menu panel */}
-        {isMobileMenuOpen && (
+        {/* Mobile menu panel (top header; bottom sheet used on Figma app shell) */}
+        {isMobileMenuOpen && !hideHeaderMobileMenu && (
           <div
             className={`lg:hidden border-t border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)] ${
               hideLegacyMobileTabs ? 'pb-20' : ''

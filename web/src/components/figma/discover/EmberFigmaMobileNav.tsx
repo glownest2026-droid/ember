@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Bookmark, Compass, Menu, Store } from 'lucide-react';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
+import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
 import { useAppShellNav } from './AppShellNavContext';
 
 function mobileTabClass(active: boolean): string {
@@ -34,10 +35,11 @@ export function EmberFigmaMobileNav() {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E7E2DC] flex justify-between px-6 py-3 z-50"
+      className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E7E2DC] z-50"
       style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
       aria-label="App navigation"
     >
+      <div className={`${EMBER_FIGMA_APP_CONTAINER} flex justify-between py-3`}>
       <Link href={buildUrlWithChild('/discover')} className={mobileTabClass(isDiscover)}>
         <Compass size={24} strokeWidth={isDiscover ? 2.5 : 2} />
         <span className="text-[11px] font-medium">Discover</span>
@@ -60,6 +62,7 @@ export function EmberFigmaMobileNav() {
         <Menu size={24} strokeWidth={appShellNav?.mobileMenuOpen ? 2.5 : 2} />
         <span className="text-[11px] font-medium">Menu</span>
       </button>
+      </div>
     </nav>
   );
 }
