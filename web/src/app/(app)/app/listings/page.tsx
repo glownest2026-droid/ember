@@ -63,6 +63,18 @@ export default function AppListingsPhotoDraftPage() {
   const [savingSelection, setSavingSelection] = useState(false);
   const [selectionMessage, setSelectionMessage] = useState<string | null>(null);
 
+  const parseApiPayload = async <T,>(
+    response: Response
+  ): Promise<{ payload: T | null; rawText: string }> => {
+    const rawText = await response.text();
+    if (!rawText) return { payload: null, rawText };
+    try {
+      return { payload: JSON.parse(rawText) as T, rawText };
+    } catch {
+      return { payload: null, rawText };
+    }
+  };
+
   const refreshSignedPreview = useCallback(async (path: string) => {
     const supabase = createClient();
     const { data, error: signedError } = await supabase.storage
@@ -226,9 +238,16 @@ export default function AppListingsPhotoDraftPage() {
         `/api/marketplace/listing-drafts/${draftId}/analyse-image`,
         { method: "POST" }
       );
-      const payload = (await response.json()) as AnalysisResponse & { error?: string };
+      const { payload } = await parseApiPayload<AnalysisResponse & { error?: string }>(
+        response
+      );
       if (!response.ok) {
-        throw new Error(payload.error ?? "Unable to analyse this image.");
+        throw new Error(
+          payload?.error ?? "Unable to analyse this image right now. Please try again."
+        );
+      }
+      if (!payload) {
+        throw new Error("We received an unexpected response. Please try again.");
       }
       setAnalysisResult(payload);
     } catch (analysisRequestError) {
@@ -260,11 +279,13 @@ export default function AppListingsPhotoDraftPage() {
           ),
         }
       );
-      const payload = (await response.json()) as { error?: string; message?: string };
+      const { payload } = await parseApiPayload<{ error?: string; message?: string }>(
+        response
+      );
       if (!response.ok) {
-        throw new Error(payload.error ?? "Could not save your selection.");
+        throw new Error(payload?.error ?? "Could not save your selection.");
       }
-      setSelectionMessage(payload.message ?? "Saved to your draft.");
+      setSelectionMessage(payload?.message ?? "Saved to your draft.");
     } catch (selectionError) {
       setAnalysisError(
         selectionError instanceof Error

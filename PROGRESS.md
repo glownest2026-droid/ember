@@ -2674,3 +2674,10 @@ Category-only cards remain publishable.
   - `web/src/components/figma/marketplace-prelist/steps/StartListingChoiceStep.tsx`
   - `web/src/components/figma/marketplace-prelist/ListingModal.tsx`
 - Verification: `pnpm -C web build` passes after entry-screen integration.
+
+### Follow-up — robust API error handling on suggest-item call
+- Fixed client handling for non-JSON / empty API responses on `/app/listings` suggest-item and candidate-selection actions.
+- Prevents raw `Unexpected end of JSON input` from surfacing to parents; now shows a friendly fallback error message.
+- File updated:
+  - `web/src/app/(app)/app/listings/page.tsx`
+- Verification: `pnpm -C web build` passes after response-parsing hardening.
