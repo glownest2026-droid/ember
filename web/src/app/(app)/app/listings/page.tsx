@@ -212,13 +212,30 @@ export default function AppListingsPhotoDraftPage() {
           Private storage only
         </div>
         <div>
-          <label
-            className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white"
-            htmlFor="draft-photo-upload"
-          >
-            <Camera className="w-4 h-4" />
-            {uploading ? "Uploading..." : "Take or upload photo"}
-          </label>
+          <div className="flex flex-wrap items-center gap-2">
+            <label
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white"
+              htmlFor="draft-photo-take"
+            >
+              <Camera className="w-4 h-4" />
+              {uploading ? "Uploading..." : "Take photo"}
+            </label>
+            <label
+              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#E5E7EB] px-4 py-2 text-sm font-medium text-[#1A1E23]"
+              htmlFor="draft-photo-upload"
+            >
+              Choose from gallery
+            </label>
+          </div>
+          <input
+            id="draft-photo-take"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            capture="environment"
+            className="hidden"
+            onChange={handleFileSelected}
+            disabled={uploading}
+          />
           <input
             id="draft-photo-upload"
             type="file"

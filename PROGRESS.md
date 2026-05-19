@@ -2507,3 +2507,13 @@ Category-only cards remain publishable.
 ### Known debt / risks
 - Requires PR1 schema objects to exist in Supabase (draft table + private raw-photo bucket/policies).
 - Signed preview links are temporary by design and should be refreshed on revisit.
+
+### Follow-up — mobile camera capture option
+- Added explicit camera capture actions so users can take a fresh device photo instead of only choosing from existing gallery.
+- Updated:
+  - `web/src/components/figma/marketplace-prelist/steps/ConditionDetailsStep.tsx`
+  - `web/src/app/(app)/app/listings/page.tsx`
+- Flow now offers both:
+  - **Take photo** (camera, `capture=\"environment\"`)
+  - **Choose from gallery**
+- Verification: `pnpm -C web build` passes after camera-option follow-up.
