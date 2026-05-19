@@ -352,10 +352,10 @@ export function UnifiedSignedInNav({
       <div
         className={`min-w-0 ${EMBER_FIGMA_APP_CONTAINER}`}
       >
-        {/* Main row: flex sides + absolutely centred desktop nav (overlay spans full row) */}
-        <div className="relative flex h-16 items-center w-full">
+        {/* Main row: 3-column grid (flex-1 side columns previously blocked centre clicks) */}
+        <div className="relative grid h-16 w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4">
           {/* Left: logo */}
-          <div className="relative z-[2] flex flex-1 min-w-0 items-center">
+          <div className="flex min-w-0 items-center">
             <Link
               href="/"
               className="flex items-center gap-2.5 shrink-0"
@@ -373,9 +373,9 @@ export function UnifiedSignedInNav({
             </Link>
           </div>
 
-          {/* Mobile child selector — centred in full header row */}
+          {/* Mobile child selector — centred in header */}
           <div
-            className="lg:hidden absolute left-1/2 top-1/2 z-[1] w-[190px] max-w-[52vw] -translate-x-1/2 -translate-y-1/2"
+            className="absolute left-1/2 top-1/2 z-20 w-[190px] max-w-[52vw] -translate-x-1/2 -translate-y-1/2 lg:hidden"
             ref={childDropdownMobileRef}
           >
               <button
@@ -548,8 +548,8 @@ export function UnifiedSignedInNav({
               )}
           </div>
 
-          {/* Centre: desktop nav + child (overlay on full row) */}
-          <div className="pointer-events-none absolute inset-0 z-[1] hidden items-center justify-center gap-8 lg:flex [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
+          {/* Centre: desktop nav + child */}
+          <div className="col-start-2 hidden min-w-0 items-center justify-center gap-8 justify-self-center md:flex">
             <nav className="flex shrink-0 items-center gap-8">
               <Link
                 href={buildUrlWithChild('/discover', selectedChildId || null)}
@@ -592,7 +592,7 @@ export function UnifiedSignedInNav({
 
               {isChildDropdownOpen && (
                 <div
-                  className={`absolute left-0 top-full z-[110] mt-2 w-80 ${FIGMA_DROPDOWN_PANEL_CLASS}`}
+                  className={`absolute left-1/2 top-full z-[120] mt-2 w-80 -translate-x-1/2 ${FIGMA_DROPDOWN_PANEL_CLASS}`}
                   role="listbox"
                 >
                   <div className="p-3">
@@ -686,9 +686,9 @@ export function UnifiedSignedInNav({
           </div>
 
           {/* Right: profile + mobile menu */}
-          <div className="relative z-[2] flex flex-1 min-w-0 items-center justify-end gap-2 md:gap-3">
+          <div className="col-start-3 flex min-w-0 items-center justify-end justify-self-end gap-2 md:gap-3">
             {/* Profile dropdown - desktop */}
-            <div className="hidden lg:block relative" ref={profileDropdownRef}>
+            <div className="relative hidden md:block" ref={profileDropdownRef}>
               <button
                 type="button"
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
@@ -703,7 +703,7 @@ export function UnifiedSignedInNav({
               </button>
               {isProfileDropdownOpen && (
                 <div
-                  className={`absolute right-0 top-full z-[110] mt-2 w-56 ${FIGMA_DROPDOWN_PANEL_CLASS}`}
+                  className={`absolute right-0 top-full z-[120] mt-2 w-56 ${FIGMA_DROPDOWN_PANEL_CLASS}`}
                   role="menu"
                 >
                   <div className="p-3">
@@ -719,34 +719,34 @@ export function UnifiedSignedInNav({
                     <Link
                       href="/account"
                       onClick={() => setIsProfileDropdownOpen(false)}
-                      className="flex w-full items-center gap-3 px-4 py-3 rounded-xl mt-1 text-left text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                      className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center gap-3`}
                     >
-                      <Settings className="w-4 h-4 text-[var(--ember-text-low)]" strokeWidth={2} />
-                      <span className="text-sm font-medium">Account</span>
+                      <Settings className="h-4 w-4 text-[#66717D]" strokeWidth={2} />
+                      Account
                     </Link>
                     <Link
                       href="/family"
                       onClick={() => setIsProfileDropdownOpen(false)}
-                      className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-left text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                      className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center gap-3`}
                     >
-                      <Users className="w-4 h-4 text-[var(--ember-text-low)]" strokeWidth={2} />
-                      <span className="text-sm font-medium">Family</span>
+                      <Users className="h-4 w-4 text-[#66717D]" strokeWidth={2} />
+                      Family
                     </Link>
                     <Link
                       href="/pricing"
                       onClick={() => setIsProfileDropdownOpen(false)}
-                      className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-left text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                      className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center gap-3`}
                     >
-                      <Gem className="w-4 h-4 text-[var(--ember-text-low)]" strokeWidth={2} />
-                      <span className="text-sm font-medium">Membership</span>
+                      <Gem className="h-4 w-4 text-[#66717D]" strokeWidth={2} />
+                      Membership
                     </Link>
                     <Link
                       href="/signout"
                       onClick={() => setIsProfileDropdownOpen(false)}
-                      className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-left text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
+                      className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center gap-3`}
                     >
-                      <LogOut className="w-4 h-4 text-[var(--ember-text-low)]" strokeWidth={2} />
-                      <span className="text-sm font-medium">Sign out</span>
+                      <LogOut className="h-4 w-4 text-[#66717D]" strokeWidth={2} />
+                      Sign out
                     </Link>
                   </div>
                 </div>
