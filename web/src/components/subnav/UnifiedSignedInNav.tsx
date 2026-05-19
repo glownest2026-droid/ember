@@ -362,12 +362,12 @@ export function UnifiedSignedInNav({
       data-unified-signed-in-nav
     >
       <div
-        className={`min-w-0 ${figmaShell ? EMBER_FIGMA_APP_CONTAINER : 'mx-auto w-full max-w-[90rem] px-4 md:px-6 lg:px-12'}`}
+        className={`min-w-0 ${EMBER_FIGMA_APP_CONTAINER}`}
       >
-        {/* Main row: logo | centred nav + child | profile */}
-        <div className="relative flex h-16 items-center justify-between gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center lg:gap-6">
-          {/* Left: logo + mobile child */}
-          <div className="relative flex items-center gap-4 min-w-0 lg:col-start-1">
+        {/* Main row: flex sides + absolutely centred desktop nav (overlay spans full row) */}
+        <div className="relative flex h-16 items-center w-full">
+          {/* Left: logo */}
+          <div className="relative z-[2] flex flex-1 min-w-0 items-center">
             <Link
               href="/"
               className="flex items-center gap-2.5 shrink-0"
@@ -388,12 +388,13 @@ export function UnifiedSignedInNav({
                 Ember
               </span>
             </Link>
+          </div>
 
-            {/* Mobile child selector */}
-            <div
-              className="lg:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[1] w-[190px] max-w-[52vw]"
-              ref={childDropdownMobileRef}
-            >
+          {/* Mobile child selector — centred in full header row */}
+          <div
+            className="lg:hidden absolute left-1/2 top-1/2 z-[1] w-[190px] max-w-[52vw] -translate-x-1/2 -translate-y-1/2"
+            ref={childDropdownMobileRef}
+          >
               <button
                 type="button"
                 onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
@@ -562,11 +563,10 @@ export function UnifiedSignedInNav({
                   </div>
                 </div>
               )}
-            </div>
           </div>
 
-          {/* Centre: desktop nav + child */}
-          <div className="hidden lg:flex items-center justify-center gap-8 lg:col-start-2 justify-self-center min-w-0">
+          {/* Centre: desktop nav + child (overlay on full row) */}
+          <div className="pointer-events-none absolute inset-0 z-[1] hidden items-center justify-center gap-8 lg:flex [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
             <nav className={`flex items-center shrink-0 ${figmaShell ? 'gap-8' : 'gap-1'}`}>
               <Link
                 href={buildUrlWithChild('/discover', selectedChildId || null)}
@@ -721,7 +721,7 @@ export function UnifiedSignedInNav({
           </div>
 
           {/* Right: profile + mobile menu */}
-          <div className="flex items-center gap-2 md:gap-3 shrink-0 lg:col-start-3 lg:justify-self-end">
+          <div className="relative z-[2] flex flex-1 min-w-0 items-center justify-end gap-2 md:gap-3">
             {/* Profile dropdown - desktop */}
             <div className="hidden lg:block relative" ref={profileDropdownRef}>
               <button

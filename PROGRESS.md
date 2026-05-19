@@ -4,7 +4,7 @@
 - **PR:** https://github.com/glownest2026-droid/ember/pull/202
 - **Preview:** https://ember-git-fix-snag-pack-discover-037e81-tims-projects-cd69a894.vercel.app
 - **Snags:** Discover `/discover/0` copy/tiles/science/cards/save modal; desktop nav child name only, no counters/reminders; centred desktop nav links + child dropdown; Start over FAB only at page bottom; nav bar uses same `max-w-5xl` container as page content
-- **Nav layout fix:** `UnifiedSignedInNav` desktop header uses 3-column grid (logo | centred nav+child | profile) so links no longer overlap the logo; Manrope on figma-shell routes
+- **Nav layout fix:** `UnifiedSignedInNav` desktop header uses flex sides + full-row absolute centre overlay (logo | centred nav+child | profile); all signed-in routes use `max-w-5xl` container; Manrope on figma-shell routes
 - **Build:** `pnpm -C web build` — pass (18 May 2026)
 
 ## feat(discover): Figma Make overhaul + preserved wiring (May 2026)

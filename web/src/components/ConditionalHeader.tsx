@@ -47,7 +47,7 @@ export default function ConditionalHeader() {
   }
 
   if (user) {
-    return <UnifiedSignedInNav />;
+    return <UnifiedSignedInNav hideLegacyMobileTabs />;
   }
   return <DiscoverStickyHeader />;
 }
