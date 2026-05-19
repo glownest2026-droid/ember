@@ -30,6 +30,7 @@ import {
   FIGMA_DROPDOWN_PANEL_CLASS,
   FIGMA_LOGO_WORDMARK_CLASS,
   FIGMA_NAV_HEADER_CLASS,
+  FIGMA_PROFILE_BUTTON_CLASS,
   figmaDesktopNavLinkClass,
 } from '@/lib/discover/navStyles';
 
@@ -352,13 +353,13 @@ export function UnifiedSignedInNav({
       <div
         className={`min-w-0 ${EMBER_FIGMA_APP_CONTAINER}`}
       >
-        {/* Main row: 3-column grid (flex-1 side columns previously blocked centre clicks) */}
-        <div className="relative grid h-16 w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4">
-          {/* Left: logo */}
-          <div className="flex min-w-0 items-center">
+        {/* Main row: equal flex-1 sides + viewport-centred nav cluster (live discover layout) */}
+        <div className="relative flex h-16 w-full items-center">
+          {/* Left: logo — flex-1 is pointer-transparent except the link */}
+          <div className="flex min-w-0 flex-1 items-center pointer-events-none [&_a]:pointer-events-auto">
             <Link
               href="/"
-              className="flex items-center gap-2.5 shrink-0"
+              className="flex shrink-0 cursor-pointer items-center gap-2.5"
               aria-label="Ember home"
             >
               <Image
@@ -381,10 +382,10 @@ export function UnifiedSignedInNav({
               <button
                 type="button"
                 onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl w-full border text-[var(--ember-text-high)] transition-all duration-300 ${
+                className={`${FIGMA_CHILD_PILL_CLASS} w-full ${
                   childToggleAffirm
-                    ? 'border-[var(--ember-accent-base)] bg-[rgba(255,99,71,0.12)] ring-2 ring-[var(--ember-accent-base)]'
-                    : 'border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)]'
+                    ? 'border-[#FF5C34] bg-[rgba(255,92,52,0.12)] ring-2 ring-[#FF5C34]'
+                    : ''
                 }`}
                 aria-expanded={isChildDropdownOpen}
                 aria-label="Select child"
@@ -548,9 +549,9 @@ export function UnifiedSignedInNav({
               )}
           </div>
 
-          {/* Centre: desktop nav + child */}
-          <div className="col-start-2 hidden min-w-0 items-center justify-center gap-8 justify-self-center md:flex">
-            <nav className="flex shrink-0 items-center gap-8">
+          {/* Centre: desktop nav + child — viewport-centred cluster */}
+          <div className="absolute left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-8 md:flex">
+            <nav className="flex shrink-0 items-center gap-8" aria-label="Main">
               <Link
                 href={buildUrlWithChild('/discover', selectedChildId || null)}
                 className={figmaDesktopNavLinkClass(isDiscover)}
@@ -685,14 +686,14 @@ export function UnifiedSignedInNav({
 
           </div>
 
-          {/* Right: profile + mobile menu */}
-          <div className="col-start-3 flex min-w-0 items-center justify-end justify-self-end gap-2 md:gap-3">
+          {/* Right: profile — flex-1 is pointer-transparent except controls */}
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-2 pointer-events-none md:gap-3 [&_button]:pointer-events-auto [&_a]:pointer-events-auto">
             {/* Profile dropdown - desktop */}
             <div className="relative hidden md:block" ref={profileDropdownRef}>
               <button
                 type="button"
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E7E2DC] bg-white text-sm font-semibold text-[#253044] transition-colors hover:bg-[#FBFAF7]"
+                className={FIGMA_PROFILE_BUTTON_CLASS}
                 aria-expanded={isProfileDropdownOpen}
                 aria-haspopup="menu"
                 aria-label="Account menu"
