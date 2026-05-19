@@ -251,10 +251,12 @@ export default function AppListingsPhotoDraftPage() {
       }
       setAnalysisResult(payload);
     } catch (analysisRequestError) {
+      const message =
+        analysisRequestError instanceof Error ? analysisRequestError.message : "Unable to analyse this image.";
       setAnalysisError(
-        analysisRequestError instanceof Error
-          ? analysisRequestError.message
-          : "Unable to analyse this image."
+        message === "Failed to fetch"
+          ? "Could not reach image suggestion service. Please check connection and try again."
+          : message
       );
     } finally {
       setAnalysisLoading(false);
@@ -287,10 +289,12 @@ export default function AppListingsPhotoDraftPage() {
       }
       setSelectionMessage(payload?.message ?? "Saved to your draft.");
     } catch (selectionError) {
+      const message =
+        selectionError instanceof Error ? selectionError.message : "Could not save your selection.";
       setAnalysisError(
-        selectionError instanceof Error
-          ? selectionError.message
-          : "Could not save your selection."
+        message === "Failed to fetch"
+          ? "Could not reach save service. Please try again."
+          : message
       );
     } finally {
       setSavingSelection(false);

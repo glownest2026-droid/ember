@@ -2681,3 +2681,12 @@ Category-only cards remain publishable.
 - File updated:
   - `web/src/app/(app)/app/listings/page.tsx`
 - Verification: `pnpm -C web build` passes after response-parsing hardening.
+
+### Follow-up — network resilience for suggest-item endpoint
+- Added Gemini request timeout (`20s`) and a route-level safety catch in analysis API to guarantee JSON error responses instead of dropped network responses.
+- Mapped low-level client `Failed to fetch` network errors to friendly retry guidance.
+- Files updated:
+  - `web/src/lib/marketplace/ai-listing-analysis.ts`
+  - `web/src/app/api/marketplace/listing-drafts/[draftId]/analyse-image/route.ts`
+  - `web/src/app/(app)/app/listings/page.tsx`
+- Verification: `pnpm -C web build` passes after timeout + route hardening.
