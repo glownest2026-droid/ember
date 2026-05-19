@@ -2478,3 +2478,50 @@ Category-only cards remain publishable.
 - **Goal:** Further reduce signed-out mobile top-bar crowding.
 - **What changed:** Removed `Pricing` and `Sign in` from the signed-out **mobile top bar** in `web/src/components/discover/DiscoverStickyHeader.tsx`; `Get started` remains in the top bar. Desktop nav and mobile menu panel links remain unchanged.
 - **Proof:** `pnpm -C web build` passes after this tweak.
+
+## 2026-05-19 — AI Marketplace Listing PR1: Draft Listing Data Spine
+
+### Summary
+- Audited existing marketplace/inventory/product/storage/RLS patterns.
+- Added the draft-listing data spine for AI-assisted marketplace listings.
+- Added private raw-photo storage foundation for listing draft images.
+- Added AI listing analysis audit logging spine table.
+- No AI calls, upload UI, pricing, maps, or publishing added.
+
+### DB & RLS
+- Tables:
+  - marketplace_listing_drafts: added
+  - ai_listing_analysis_events: added
+- RLS:
+  - user-owned draft access only (select/insert/update/delete)
+  - user-owned AI event access only (select/insert)
+- Deferred:
+  - none for PR1; `household_item_id` FK mapped to existing `public.garage_items(id)` and `product_type_id` FK mapped to existing `public.product_types(id)`
+
+### Storage
+- Bucket:
+  - marketplace-raw-listing-photos: private, added in migration SQL
+- Raw listing photos are not public by default.
+
+### Verification
+- Baseline build: pass (`pnpm -C web build`)
+- Final build: pass (`pnpm -C web build`)
+- Migration path:
+  - `supabase/sql/202605190620_marketplace_listing_draft_spine.sql`
+- Manual SQL/Supabase checks:
+  - Supabase CLI is not installed in this runner; run the migration in Supabase SQL Editor and verify tables/policies there.
+
+### Known debt / risks
+- No AI provider selected yet.
+- PR2 will add private photo upload UI.
+- PR3 will add Gemini-only image analysis unless quality requires Google Vision later.
+- No publish flow exists yet.
+
+### Next module handoff
+- Branch to create after merge:
+  - feat/ai-listing-photo-upload
+- Start with:
+  - private upload flow
+  - signed-in-only checks
+  - mobile camera/photo UX
+  - private preview for owner only
