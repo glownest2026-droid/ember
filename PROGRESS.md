@@ -2718,3 +2718,19 @@ Category-only cards remain publishable.
   - `web/src/app/(app)/app/listings/page.tsx`
   - `web/.env.example`
 - Verification: `pnpm -C web build` passes after diagnostics instrumentation.
+
+### Follow-up — PR3 blocker diagnostics pass
+- Confirmed debug reference format (`Ref: <uuid>`) is generated as per-request `debug_id`, not `ai_listing_analysis_events.id`.
+- Added provider status/code extraction from Gemini errors and returned them in protected API error payloads.
+- Added logging of effective model in server logs:
+  - `[analyse-image:<debug_id>] model_effective=<...> daily_limit=<...> timeout_ms=<...>`
+- Added protected diagnostics route for admin/founder troubleshooting:
+  - `GET /api/marketplace/diagnostics/ai-config`
+  - returns: `configured`, `effectiveModel`, `dailyLimit`, `timeoutMs`, `provider`
+  - never returns API key/secret.
+- Updated limit/error code mapping:
+  - internal limit -> `ember_daily_limit_reached`
+  - not configured -> `gemini_not_configured`
+  - provider 429 -> `gemini_quota_limited`
+  - provider 503/unavailable -> `gemini_temporarily_unavailable`
+- Added click guards on client handlers to prevent duplicate in-flight requests.

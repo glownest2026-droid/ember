@@ -46,6 +46,8 @@ type ApiErrorShape = {
   error_code?: string;
   debug_id?: string;
   retryable?: boolean;
+  provider_status?: number | null;
+  provider_code?: string | null;
 };
 
 function getFileExtension(file: File): string {
@@ -233,6 +235,7 @@ export default function AppListingsPhotoDraftPage() {
   };
 
   const handleSuggestItem = async () => {
+    if (analysisLoading) return;
     setAnalysisError(null);
     setSelectionMessage(null);
 
@@ -253,8 +256,12 @@ export default function AppListingsPhotoDraftPage() {
         const base =
           payload?.error ?? "Unable to analyse this image right now. Please try again.";
         const code = payload?.error_code ? ` (${payload.error_code})` : "";
+        const provider =
+          payload?.provider_status || payload?.provider_code
+            ? ` Provider: ${payload.provider_status ?? "n/a"}${payload?.provider_code ? `/${payload.provider_code}` : ""}`
+            : "";
         const debug = payload?.debug_id ? ` Ref: ${payload.debug_id}` : "";
-        throw new Error(`${base}${code}${debug}`);
+        throw new Error(`${base}${code}${provider}${debug}`);
       }
       if (!payload) {
         throw new Error("We received an unexpected response. Please try again.");
@@ -274,6 +281,7 @@ export default function AppListingsPhotoDraftPage() {
   };
 
   const handleSelectCandidate = async (productTypeId: string | null) => {
+    if (savingSelection) return;
     if (!draftId) return;
     setSavingSelection(true);
     setAnalysisError(null);
@@ -299,8 +307,12 @@ export default function AppListingsPhotoDraftPage() {
       if (!response.ok) {
         const base = payload?.error ?? "Could not save your selection.";
         const code = payload?.error_code ? ` (${payload.error_code})` : "";
+        const provider =
+          payload?.provider_status || payload?.provider_code
+            ? ` Provider: ${payload.provider_status ?? "n/a"}${payload?.provider_code ? `/${payload.provider_code}` : ""}`
+            : "";
         const debug = payload?.debug_id ? ` Ref: ${payload.debug_id}` : "";
-        throw new Error(`${base}${code}${debug}`);
+        throw new Error(`${base}${code}${provider}${debug}`);
       }
       setSelectionMessage(payload?.message ?? "Saved to your draft.");
     } catch (selectionError) {

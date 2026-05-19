@@ -27,6 +27,8 @@ type ApiErrorPayload = {
   error_code: string;
   debug_id: string;
   retryable: boolean;
+  provider_status?: number | null;
+  provider_code?: string | null;
 };
 
 type CanonicalCandidateCard = {
@@ -189,6 +191,9 @@ async function logAnalysisEvent(
     success: boolean;
     errorMessage: string | null;
     candidateCount: number;
+    debugId: string;
+    providerStatus: number | null;
+    providerCode: string | null;
   }
 ) {
   await supabase.from("ai_listing_analysis_events").insert({
@@ -200,6 +205,9 @@ async function logAnalysisEvent(
     vision_features_used: {
       mode: "single-image-classification",
       candidate_count: args.candidateCount,
+      debug_id: args.debugId,
+      provider_status: args.providerStatus,
+      provider_code: args.providerCode,
     },
     cost_estimate: null,
     success: args.success,
@@ -211,13 +219,30 @@ function buildErrorPayload(
   message: string,
   code: string,
   debugId: string,
-  retryable: boolean
+  retryable: boolean,
+  providerStatus?: number | null,
+  providerCode?: string | null
 ): ApiErrorPayload {
   return {
     error: message,
     error_code: code,
     debug_id: debugId,
     retryable,
+    provider_status: providerStatus ?? null,
+    provider_code: providerCode ?? null,
+  };
+}
+
+function extractProviderStatus(rawMessage: string): { status: number | null; code: string | null } {
+  const statusMatch = rawMessage.match(/\b([45]\d{2})\b/);
+  const status = statusMatch ? Number(statusMatch[1]) : null;
+  const upper = rawMessage.toUpperCase();
+  const codeMatch = upper.match(
+    /\b(RESOURCE_EXHAUSTED|UNAVAILABLE|PERMISSION_DENIED|UNAUTHENTICATED|INVALID_ARGUMENT|DEADLINE_EXCEEDED)\b/
+  );
+  return {
+    status: Number.isFinite(status ?? NaN) ? status : null,
+    code: codeMatch ? codeMatch[1] : null,
   };
 }
 
@@ -318,8 +343,8 @@ export async function POST(
     if ((count ?? 0) >= dailyLimit) {
       return NextResponse.json(
         buildErrorPayload(
-          "Daily image analysis limit reached. Please try again later.",
-          "daily_limit_reached",
+          "You’ve reached today’s Ember test limit for image checks.",
+          "ember_daily_limit_reached",
           debugId,
           true
         ),
@@ -331,8 +356,8 @@ export async function POST(
     if (!geminiApiKey) {
       return NextResponse.json(
         buildErrorPayload(
-          "Image suggestions are not configured yet. Please ask Ember support to enable Gemini in Preview.",
-          "gemini_missing_config",
+          "Image checking is not configured for this preview.",
+          "gemini_not_configured",
           debugId,
           false
         ),
@@ -341,6 +366,9 @@ export async function POST(
     }
     const modelUsed = process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
     const timeoutMs = Number(process.env.GEMINI_TIMEOUT_MS ?? "8000");
+    console.info(
+      `[analyse-image:${debugId}] model_effective=${modelUsed} daily_limit=${dailyLimit} timeout_ms=${timeoutMs}`
+    );
 
     const { data: imageBlob, error: downloadError } = await supabase.storage
       .from(RAW_LISTING_BUCKET)
@@ -421,6 +449,9 @@ export async function POST(
         success: true,
         errorMessage: null,
         candidateCount: canonicalCandidates.length,
+        debugId,
+        providerStatus: null,
+        providerCode: null,
       });
 
       return NextResponse.json(
@@ -445,6 +476,9 @@ export async function POST(
         { status: 200, headers: response.headers }
       );
     } catch (error) {
+      const { status: providerStatus, code: providerCode } = extractProviderStatus(
+        error instanceof Error ? error.message : ""
+      );
       await logAnalysisEvent(supabase, {
         userId: user.id,
         draftId,
@@ -454,6 +488,9 @@ export async function POST(
         success: false,
         errorMessage: error instanceof Error ? error.message.slice(0, 500) : "Unknown analysis error",
         candidateCount: 0,
+        debugId,
+        providerStatus,
+        providerCode,
       });
 
       if (error instanceof GeminiParseError) {
@@ -469,13 +506,18 @@ export async function POST(
       }
       if (error instanceof GeminiProviderError) {
         const lower = (error.message || "").toLowerCase();
+        const { status: providerStatusInError, code: providerCodeInError } = extractProviderStatus(
+          error.message || ""
+        );
         if (lower.includes("api key") || lower.includes("permission denied") || lower.includes("unauthorized")) {
           return NextResponse.json(
             buildErrorPayload(
               "Gemini credentials are invalid or not authorized for this project.",
               "gemini_auth_failed",
               debugId,
-              false
+              false,
+              providerStatusInError,
+              providerCodeInError
             ),
             { status: 500 }
           );
@@ -483,10 +525,12 @@ export async function POST(
         if (lower.includes("model") && (lower.includes("not found") || lower.includes("unsupported"))) {
           return NextResponse.json(
             buildErrorPayload(
-              "Configured Gemini model is unavailable. Set GEMINI_MODEL to gemini-1.5-flash in Preview.",
+              "Configured Gemini model is unavailable for this project.",
               "gemini_model_unavailable",
               debugId,
-              false
+              false,
+              providerStatusInError,
+              providerCodeInError
             ),
             { status: 500 }
           );
@@ -494,12 +538,27 @@ export async function POST(
         if (lower.includes("quota") || lower.includes("rate")) {
           return NextResponse.json(
             buildErrorPayload(
-              "Gemini quota/rate limit reached. Please retry shortly.",
+              "Gemini is rate-limiting this test project. Please wait and try again.",
               "gemini_quota_limited",
               debugId,
-              true
+              true,
+              providerStatusInError,
+              providerCodeInError
             ),
             { status: 429 }
+          );
+        }
+        if (providerStatusInError === 503 || lower.includes("service unavailable") || lower.includes("unavailable")) {
+          return NextResponse.json(
+            buildErrorPayload(
+              "Gemini is temporarily unavailable. Please try again in a minute.",
+              "gemini_temporarily_unavailable",
+              debugId,
+              true,
+              providerStatusInError,
+              providerCodeInError
+            ),
+            { status: 503 }
           );
         }
         if (lower.includes("aborted") || lower.includes("timeout")) {
@@ -508,19 +567,23 @@ export async function POST(
               "Gemini request timed out. Please retry.",
               "gemini_timeout",
               debugId,
-              true
+              true,
+              providerStatusInError,
+              providerCodeInError
             ),
             { status: 504 }
           );
         }
         return NextResponse.json(
           buildErrorPayload(
-            "Image suggestion is temporarily unavailable. Please try again shortly.",
-            "gemini_provider_unavailable",
+            "Gemini is temporarily unavailable. Please try again in a minute.",
+            "gemini_temporarily_unavailable",
             debugId,
-            true
+            true,
+            providerStatusInError,
+            providerCodeInError
           ),
-          { status: 502 }
+          { status: 503 }
         );
       }
 
