@@ -2702,3 +2702,19 @@ Category-only cards remain publishable.
   - `web/src/lib/marketplace/ai-listing-analysis.ts`
   - `web/src/app/api/marketplace/listing-drafts/[draftId]/analyse-image/route.ts`
 - Verification: `pnpm -C web build` passes after compatibility patch.
+
+### Follow-up — root-cause visibility instrumentation
+- Added structured analysis API error payloads with:
+  - `error_code`
+  - `debug_id`
+  - `retryable`
+- Added server-side `debug_id` logging for unexpected route failures.
+- Added explicit route-level JSON responses for all guarded failure paths so client never receives opaque fetch/parser errors.
+- Added configurable `GEMINI_TIMEOUT_MS` (default 8000ms) to fail fast with explicit diagnostics before platform-level timeouts.
+- Client now surfaces provider error code + debug reference in UI error text to support precise troubleshooting.
+- Files updated:
+  - `web/src/app/api/marketplace/listing-drafts/[draftId]/analyse-image/route.ts`
+  - `web/src/lib/marketplace/ai-listing-analysis.ts`
+  - `web/src/app/(app)/app/listings/page.tsx`
+  - `web/.env.example`
+- Verification: `pnpm -C web build` passes after diagnostics instrumentation.

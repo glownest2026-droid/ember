@@ -12,6 +12,7 @@ import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const RAW_LISTING_BUCKET = "marketplace-raw-listing-photos";
 const ALLOWED_DRAFT_STATUSES = new Set(["draft", "confirmed"]);
@@ -20,6 +21,13 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const DEFAULT_DAILY_LIMIT = 5;
 
 type ConfidenceBucket = "high" | "medium" | "low";
+
+type ApiErrorPayload = {
+  error: string;
+  error_code: string;
+  debug_id: string;
+  retryable: boolean;
+};
 
 type CanonicalCandidateCard = {
   id: string | null;
@@ -199,12 +207,28 @@ async function logAnalysisEvent(
   });
 }
 
+function buildErrorPayload(
+  message: string,
+  code: string,
+  debugId: string,
+  retryable: boolean
+): ApiErrorPayload {
+  return {
+    error: message,
+    error_code: code,
+    debug_id: debugId,
+    retryable,
+  };
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ draftId: string }> }
 ) {
   const response = NextResponse.next();
   const supabase = createClient(request, response);
+  const debugId = crypto.randomUUID();
+  const startedAt = Date.now();
 
   try {
     const {
@@ -213,12 +237,18 @@ export async function POST(
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: "Please sign in to analyse this draft photo." }, { status: 401 });
+      return NextResponse.json(
+        buildErrorPayload("Please sign in to analyse this draft photo.", "unauthorized", debugId, false),
+        { status: 401 }
+      );
     }
 
     const { draftId } = await params;
     if (!draftId) {
-      return NextResponse.json({ error: "Draft id is required." }, { status: 400 });
+      return NextResponse.json(
+        buildErrorPayload("Draft id is required.", "invalid_draft_id", debugId, false),
+        { status: 400 }
+      );
     }
 
     const { data: draft, error: draftError } = await supabase
@@ -229,24 +259,46 @@ export async function POST(
       .maybeSingle();
 
     if (draftError) {
-      return NextResponse.json({ error: draftError.message }, { status: 500 });
+      return NextResponse.json(
+        buildErrorPayload(draftError.message, "draft_lookup_failed", debugId, true),
+        { status: 500 }
+      );
     }
     if (!draft) {
-      return NextResponse.json({ error: "Draft not found." }, { status: 404 });
+      return NextResponse.json(
+        buildErrorPayload("Draft not found.", "draft_not_found", debugId, false),
+        { status: 404 }
+      );
     }
     if (!ALLOWED_DRAFT_STATUSES.has(String(draft.status ?? ""))) {
       return NextResponse.json(
-        { error: "This draft cannot be analysed in its current status." },
+        buildErrorPayload(
+          "This draft cannot be analysed in its current status.",
+          "draft_status_blocked",
+          debugId,
+          false
+        ),
         { status: 400 }
       );
     }
 
     const imagePath = String(draft.image_storage_path ?? "").trim();
     if (!imagePath) {
-      return NextResponse.json({ error: "Please upload a photo before requesting suggestions." }, { status: 400 });
+      return NextResponse.json(
+        buildErrorPayload(
+          "Please upload a photo before requesting suggestions.",
+          "draft_missing_image",
+          debugId,
+          false
+        ),
+        { status: 400 }
+      );
     }
     if (!imagePath.startsWith(`${user.id}/`)) {
-      return NextResponse.json({ error: "Draft photo path is invalid for this user." }, { status: 403 });
+      return NextResponse.json(
+        buildErrorPayload("Draft photo path is invalid for this user.", "draft_path_forbidden", debugId, false),
+        { status: 403 }
+      );
     }
 
     const dailyLimit = await resolveDailyLimit(supabase, { id: user.id, email: user.email });
@@ -258,11 +310,19 @@ export async function POST(
       .gte("created_at", cutoffIso);
 
     if (countError) {
-      return NextResponse.json({ error: countError.message }, { status: 500 });
+      return NextResponse.json(
+        buildErrorPayload(countError.message, "rate_count_failed", debugId, true),
+        { status: 500 }
+      );
     }
     if ((count ?? 0) >= dailyLimit) {
       return NextResponse.json(
-        { error: "Daily image analysis limit reached. Please try again later." },
+        buildErrorPayload(
+          "Daily image analysis limit reached. Please try again later.",
+          "daily_limit_reached",
+          debugId,
+          true
+        ),
         { status: 429 }
       );
     }
@@ -270,30 +330,48 @@ export async function POST(
     const geminiApiKey = process.env.GEMINI_API_KEY?.trim();
     if (!geminiApiKey) {
       return NextResponse.json(
-        { error: "Image suggestions are not configured yet. Please ask Ember support to enable Gemini in Preview." },
+        buildErrorPayload(
+          "Image suggestions are not configured yet. Please ask Ember support to enable Gemini in Preview.",
+          "gemini_missing_config",
+          debugId,
+          false
+        ),
         { status: 500 }
       );
     }
     const modelUsed = process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
+    const timeoutMs = Number(process.env.GEMINI_TIMEOUT_MS ?? "8000");
 
     const { data: imageBlob, error: downloadError } = await supabase.storage
       .from(RAW_LISTING_BUCKET)
       .download(imagePath);
     if (downloadError || !imageBlob) {
-      return NextResponse.json({ error: "Unable to read the draft photo." }, { status: 500 });
+      return NextResponse.json(
+        buildErrorPayload("Unable to read the draft photo.", "storage_download_failed", debugId, true),
+        { status: 500 }
+      );
     }
 
     const mimeType = inferMimeType(imagePath, imageBlob.type);
     if (!ALLOWED_IMAGE_MIME_TYPES.has(mimeType)) {
-      return NextResponse.json({ error: "Unsupported image format." }, { status: 400 });
+      return NextResponse.json(
+        buildErrorPayload("Unsupported image format.", "image_type_unsupported", debugId, false),
+        { status: 400 }
+      );
     }
 
     const imageBytes = Buffer.from(await imageBlob.arrayBuffer());
     if (!imageBytes.length) {
-      return NextResponse.json({ error: "Draft photo is empty." }, { status: 400 });
+      return NextResponse.json(
+        buildErrorPayload("Draft photo is empty.", "image_empty", debugId, false),
+        { status: 400 }
+      );
     }
     if (imageBytes.length > MAX_IMAGE_BYTES) {
-      return NextResponse.json({ error: "Draft photo exceeds the 10MB limit." }, { status: 400 });
+      return NextResponse.json(
+        buildErrorPayload("Draft photo exceeds the 10MB limit.", "image_too_large", debugId, false),
+        { status: 400 }
+      );
     }
 
     let tokenUsage: GeminiTokenUsage | null = null;
@@ -303,6 +381,7 @@ export async function POST(
         model: modelUsed,
         imageBase64: imageBytes.toString("base64"),
         mimeType,
+        timeoutMs,
       });
 
       tokenUsage = aiResult.tokenUsage;
@@ -327,7 +406,10 @@ export async function POST(
         .eq("user_id", user.id);
 
       if (draftUpdateError) {
-        return NextResponse.json({ error: draftUpdateError.message }, { status: 500 });
+        return NextResponse.json(
+          buildErrorPayload(draftUpdateError.message, "draft_update_failed", debugId, true),
+          { status: 500 }
+        );
       }
 
       await logAnalysisEvent(supabase, {
@@ -357,6 +439,8 @@ export async function POST(
             used_last_24h: (count ?? 0) + 1,
             limit: dailyLimit,
           },
+          debug_id: debugId,
+          elapsed_ms: Date.now() - startedAt,
         },
         { status: 200, headers: response.headers }
       );
@@ -374,7 +458,12 @@ export async function POST(
 
       if (error instanceof GeminiParseError) {
         return NextResponse.json(
-          { error: "We couldn’t read a reliable suggestion from this photo. Please try again." },
+          buildErrorPayload(
+            "We couldn’t read a reliable suggestion from this photo. Please try again.",
+            "gemini_parse_failed",
+            debugId,
+            true
+          ),
           { status: 502 }
         );
       }
@@ -382,36 +471,73 @@ export async function POST(
         const lower = (error.message || "").toLowerCase();
         if (lower.includes("api key") || lower.includes("permission denied") || lower.includes("unauthorized")) {
           return NextResponse.json(
-            { error: "Gemini credentials are invalid or not authorized for this project." },
+            buildErrorPayload(
+              "Gemini credentials are invalid or not authorized for this project.",
+              "gemini_auth_failed",
+              debugId,
+              false
+            ),
             { status: 500 }
           );
         }
         if (lower.includes("model") && (lower.includes("not found") || lower.includes("unsupported"))) {
           return NextResponse.json(
-            { error: "Configured Gemini model is unavailable. Set GEMINI_MODEL to gemini-1.5-flash in Preview." },
+            buildErrorPayload(
+              "Configured Gemini model is unavailable. Set GEMINI_MODEL to gemini-1.5-flash in Preview.",
+              "gemini_model_unavailable",
+              debugId,
+              false
+            ),
             { status: 500 }
           );
         }
         if (lower.includes("quota") || lower.includes("rate")) {
           return NextResponse.json(
-            { error: "Gemini quota/rate limit reached. Please retry shortly." },
+            buildErrorPayload(
+              "Gemini quota/rate limit reached. Please retry shortly.",
+              "gemini_quota_limited",
+              debugId,
+              true
+            ),
             { status: 429 }
           );
         }
+        if (lower.includes("aborted") || lower.includes("timeout")) {
+          return NextResponse.json(
+            buildErrorPayload(
+              "Gemini request timed out. Please retry.",
+              "gemini_timeout",
+              debugId,
+              true
+            ),
+            { status: 504 }
+          );
+        }
         return NextResponse.json(
-          { error: "Image suggestion is temporarily unavailable. Please try again shortly." },
+          buildErrorPayload(
+            "Image suggestion is temporarily unavailable. Please try again shortly.",
+            "gemini_provider_unavailable",
+            debugId,
+            true
+          ),
           { status: 502 }
         );
       }
 
       return NextResponse.json(
-        { error: "Image suggestion failed. Please try again." },
+        buildErrorPayload("Image suggestion failed. Please try again.", "analysis_failed", debugId, true),
         { status: 500 }
       );
     }
   } catch (error) {
+    console.error(`[analyse-image:${debugId}] unexpected_route_error`, error);
     return NextResponse.json(
-      { error: "Image suggestion request failed before completion. Please try again." },
+      buildErrorPayload(
+        "Image suggestion request failed before completion. Please try again.",
+        "route_unexpected_failure",
+        debugId,
+        true
+      ),
       { status: 500 }
     );
   }
