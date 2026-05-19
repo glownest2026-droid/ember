@@ -2664,3 +2664,13 @@ Category-only cards remain publishable.
   - suggested price range
   - safety/resale eligibility checks
   - editable draft listing form
+
+### Follow-up — listing flow entry decision screen
+- Added a new first screen in the existing `/marketplace` “List an item” modal flow with two explicit options:
+  - **Smart Listing - with Camera**
+  - **Manual Listing - Enter Details**
+- Smart Listing now routes parents into the camera-assisted path (`/app/listings`), while Manual Listing continues the existing multi-step details flow.
+- Files updated:
+  - `web/src/components/figma/marketplace-prelist/steps/StartListingChoiceStep.tsx`
+  - `web/src/components/figma/marketplace-prelist/ListingModal.tsx`
+- Verification: `pnpm -C web build` passes after entry-screen integration.
