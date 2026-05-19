@@ -7,13 +7,22 @@ import { useReducedMotion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import type { User as AuthUser } from '@supabase/supabase-js';
-import { Compass, Bookmark, ShoppingBag, Users, User, LogOut, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
+import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
+import {
+  FIGMA_CTA_PRIMARY_CLASS,
+  FIGMA_CTA_TEXT_CLASS,
+  FIGMA_LOGO_WORDMARK_CLASS,
+  FIGMA_NAV_HEADER_CLASS,
+  figmaDesktopNavLinkClass,
+  figmaMutedNavLinkClass,
+} from '@/lib/discover/navStyles';
 
-const EMBER_LOGO_SRC = 'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
+const EMBER_LOGO_SRC =
+  'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
 /**
- * Figma-style sticky navbar: logo + wordmark; signed-in: Manage Family, Account, Sign out; signed-out: Get started.
- * No "How it works" or "About". Subnav (SubnavGate) remains in layout for signed-in users.
+ * Signed-out global header — Figma May 2026 discover styling (matches live /discover).
  */
 export default function DiscoverStickyHeader() {
   const pathname = usePathname();
@@ -23,11 +32,13 @@ export default function DiscoverStickyHeader() {
     ? `${pathname}${queryString ? `?${queryString}` : ''}`
     : '/discover';
   const signinHref = `/signin?next=${encodeURIComponent(currentPathWithQuery)}`;
-  const childParam = searchParams?.get('child') ?? '';
-  const withChild = (path: string) => (childParam ? `${path}${path.includes('?') ? '&' : '?'}child=${encodeURIComponent(childParam)}` : path);
   const shouldReduceMotion = useReducedMotion() ?? false;
   const [user, setUser] = useState<AuthUser | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const isDiscover = pathname?.startsWith('/discover') ?? false;
+  const isPricing = pathname === '/pricing';
+  const isHome = pathname === '/';
 
   useEffect(() => {
     const supabase = createClient();
@@ -50,259 +61,115 @@ export default function DiscoverStickyHeader() {
       ? `${pathname}${pathname.includes('?') ? '&' : '?'}openAuth=1`
       : `/signin?next=${encodeURIComponent(signinNext)}`;
 
+  if (user) return null;
+
   return (
     <header
-      className="sticky top-0 left-0 right-0 z-50 bg-[var(--ember-surface-primary)] border-b border-[var(--ember-border-subtle)] w-full min-w-0 overflow-hidden"
+      className={`sticky top-0 left-0 right-0 z-50 w-full min-w-0 overflow-hidden border-b ${FIGMA_NAV_HEADER_CLASS}`}
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
-        minHeight: 'var(--header-height)',
       }}
     >
-      <div className={`h-full w-full min-w-0 mx-auto px-4 sm:px-6 lg:px-12 py-5 ${pathname?.startsWith('/gift') ? 'max-w-3xl' : 'max-w-[90rem]'}`}>
-        <div className="flex items-center justify-between gap-2 sm:gap-6 min-w-0">
-          {/* Mobile: hamburger first (top-left), then logo, then nav */}
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen((o) => !o)}
-            className="md:hidden p-2 rounded-lg text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors shrink-0 order-first"
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" strokeWidth={2} /> : <Menu className="w-6 h-6" strokeWidth={2} />}
-          </button>
-          <Link
-            href="/"
-            onClick={(e) => {
-              if (pathname === '/') {
-                e.preventDefault();
-                scrollToTop();
-              }
-            }}
-            className="flex items-center gap-2 sm:gap-3 min-w-0 shrink leading-none overflow-hidden"
-            aria-label="Ember home"
-          >
-            <Image
-              src={EMBER_LOGO_SRC}
-              alt=""
-              className="h-10 w-auto min-w-0 shrink-0 object-contain sm:h-12"
-              width={96}
-              height={96}
-              priority
-            />
-            <span
-              className="text-xl sm:text-2xl text-[var(--ember-text-high)] truncate whitespace-nowrap"
-              style={{ fontWeight: 500 }}
-            >
-              Ember
-            </span>
+      <div className={`${EMBER_FIGMA_APP_CONTAINER} flex h-16 items-center justify-between gap-4 md:h-20`}>
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen((o) => !o)}
+          className="shrink-0 rounded-lg p-2 text-[#253044] transition-colors hover:bg-white/80 md:hidden"
+          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileMenuOpen}
+        >
+          {mobileMenuOpen ? <X className="h-6 w-6" strokeWidth={2} /> : <Menu className="h-6 w-6" strokeWidth={2} />}
+        </button>
+
+        <Link
+          href="/"
+          onClick={(e) => {
+            if (pathname === '/') {
+              e.preventDefault();
+              scrollToTop();
+            }
+          }}
+          className="flex min-w-0 shrink-0 items-center gap-2.5"
+          aria-label="Ember home"
+        >
+          <Image
+            src={EMBER_LOGO_SRC}
+            alt=""
+            className="h-10 w-10 object-contain md:h-11 md:w-11"
+            width={44}
+            height={44}
+            priority
+          />
+          <span className={`hidden truncate sm:block ${FIGMA_LOGO_WORDMARK_CLASS}`}>Ember</span>
+        </Link>
+
+        <nav className="hidden items-center gap-8 md:flex">
+          <Link href="/discover" className={figmaDesktopNavLinkClass(isDiscover)}>
+            Discover
           </Link>
+          <Link href="/pricing" className={figmaMutedNavLinkClass(isPricing)}>
+            Pricing
+          </Link>
+          <Link href={signinHref} className={figmaMutedNavLinkClass()}>
+            Sign in
+          </Link>
+          <Link href={getStartedHref} className={FIGMA_CTA_PRIMARY_CLASS}>
+            Get started
+          </Link>
+        </nav>
 
-          {/* Mobile: signed out = Sign in + Get started in bar; signed in = 4 nav icons in bar (one less click) */}
-          <nav className="md:hidden flex items-center gap-1 sm:gap-2 shrink-0 min-w-0">
-            {user ? (
-              <>
-                <Link
-                  href={withChild('/discover')}
-                  className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
-                  aria-label="Discover"
-                >
-                  <Compass className="w-5 h-5" strokeWidth={2} />
-                </Link>
-                <Link
-                  href={withChild('/my-ideas')}
-                  className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
-                  aria-label="My Saves"
-                >
-                  <Bookmark className="w-5 h-5" strokeWidth={2} />
-                </Link>
-                <Link
-                  href={withChild('/marketplace')}
-                  className="p-2 rounded-lg text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors"
-                  aria-label="Marketplace"
-                >
-                  <ShoppingBag className="w-5 h-5" strokeWidth={2} />
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href={getStartedHref}
-                  className="px-3 py-1.5 text-sm font-medium bg-[var(--ember-accent-base)] text-white rounded-lg hover:bg-[var(--ember-accent-hover)] transition-colors whitespace-nowrap"
-                >
-                  Get started
-                </Link>
-              </>
-            )}
-          </nav>
-
-          {/* Desktop nav: 4 main links (icon + text) + 2 footer links */}
-          <nav className="hidden md:flex items-center gap-6 shrink-0">
-            {user ? (
-              <>
-                <Link
-                  href={withChild('/discover')}
-                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
-                  aria-label="Discover"
-                >
-                  <Compass className="w-5 h-5 shrink-0" strokeWidth={2} />
-                  Discover
-                </Link>
-                <Link
-                  href={withChild('/my-ideas')}
-                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
-                  aria-label="My Saves"
-                >
-                  <Bookmark className="w-5 h-5 shrink-0" strokeWidth={2} />
-                  My Saves
-                </Link>
-                <Link
-                  href={withChild('/marketplace')}
-                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] hover:bg-[var(--ember-surface-soft)] transition-colors text-base font-medium whitespace-nowrap"
-                  aria-label="Marketplace"
-                >
-                  <ShoppingBag className="w-5 h-5 shrink-0" strokeWidth={2} />
-                  Marketplace
-                </Link>
-                <span className="text-[var(--ember-border-subtle)]" aria-hidden>|</span>
-                <Link
-                  href="/account"
-                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
-                  aria-label="Account"
-                >
-                  <User className="w-5 h-5 shrink-0" strokeWidth={2} />
-                  Account
-                </Link>
-                <Link
-                  href="/signout"
-                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap opacity-80 hover:opacity-100"
-                  aria-label="Sign out"
-                >
-                  <LogOut className="w-5 h-5 shrink-0" strokeWidth={2} />
-                  Sign out
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/"
-                  className="text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/pricing"
-                  className="text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
-                >
-                  Pricing
-                </Link>
-                <Link
-                  href={signinHref}
-                  className="text-[var(--ember-text-low)] hover:text-[var(--ember-text-high)] transition-colors text-base font-medium whitespace-nowrap"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href={getStartedHref}
-                  className="px-6 py-2.5 bg-[var(--ember-accent-base)] text-white rounded-xl hover:bg-[var(--ember-accent-hover)] transition-all font-medium text-base whitespace-nowrap"
-                >
-                  Get started
-                </Link>
-              </>
-            )}
-          </nav>
+        <div className="flex shrink-0 items-center gap-3 md:hidden">
+          <Link href={signinHref} className={FIGMA_CTA_TEXT_CLASS}>
+            Sign in
+          </Link>
+          <Link
+            href={getStartedHref}
+            className="rounded-xl bg-[#FF5C34] px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#E54A2E]"
+          >
+            Get started
+          </Link>
         </div>
       </div>
 
-      {/* Mobile menu panel */}
       {mobileMenuOpen && (
-        <div
-          className="md:hidden border-t border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)]"
-          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-        >
-          <div className="max-w-[90rem] mx-auto px-6 py-4 flex flex-col gap-1">
-            {user ? (
-              <>
-                <Link
-                  href={withChild('/discover')}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
-                >
-                  <Compass className="w-5 h-5 shrink-0" strokeWidth={2} />
-                  Discover
-                </Link>
-                <Link
-                  href={withChild('/my-ideas')}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
-                >
-                  <Bookmark className="w-5 h-5 shrink-0" strokeWidth={2} />
-                  My Saves
-                </Link>
-                <Link
-                  href={withChild('/marketplace')}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
-                >
-                  <ShoppingBag className="w-5 h-5 shrink-0" strokeWidth={2} />
-                  Marketplace
-                </Link>
-                <Link
-                  href={withChild('/family')}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 inline-flex items-center gap-2 text-[var(--ember-text-high)] font-medium"
-                >
-                  <Users className="w-5 h-5 shrink-0" strokeWidth={2} />
-                  Family
-                </Link>
-                <div className="h-px bg-[var(--ember-border-subtle)] my-2" aria-hidden />
-                <Link
-                  href="/account"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 text-[var(--ember-text-high)] font-medium"
-                >
-                  Account
-                </Link>
-                <Link
-                  href="/signout"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 text-[var(--ember-text-low)] font-medium opacity-80"
-                >
-                  Sign out
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 text-[var(--ember-text-high)] font-medium"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/pricing"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 text-[var(--ember-text-high)] font-medium"
-                >
-                  Pricing
-                </Link>
-                <Link
-                  href={signinHref}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 text-[var(--ember-text-high)] font-medium"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href={getStartedHref}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-3 font-medium text-[var(--ember-accent-base)]"
-                >
-                  Get started
-                </Link>
-              </>
-            )}
-          </div>
+        <div className={`border-t border-[#E7E2DC] md:hidden ${FIGMA_NAV_HEADER_CLASS}`}>
+          <nav className={`${EMBER_FIGMA_APP_CONTAINER} flex flex-col gap-1 py-4`}>
+            <Link
+              href="/discover"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`rounded-xl px-3 py-3 ${figmaDesktopNavLinkClass(isDiscover)}`}
+            >
+              Discover
+            </Link>
+            <Link
+              href="/"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`rounded-xl px-3 py-3 ${figmaMutedNavLinkClass(isHome)}`}
+            >
+              About
+            </Link>
+            <Link
+              href="/pricing"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`rounded-xl px-3 py-3 ${figmaMutedNavLinkClass(isPricing)}`}
+            >
+              Pricing
+            </Link>
+            <Link
+              href={signinHref}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`rounded-xl px-3 py-3 ${figmaMutedNavLinkClass()}`}
+            >
+              Sign in
+            </Link>
+            <Link
+              href={getStartedHref}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`mt-2 inline-flex justify-center ${FIGMA_CTA_PRIMARY_CLASS}`}
+            >
+              Get started
+            </Link>
+          </nav>
         </div>
       )}
     </header>

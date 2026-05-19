@@ -58,7 +58,7 @@
 }
 @media (max-width: 1023px) {
   :root {
-    --unified-nav-height: 176px; /* main row + mobile tabs + stats row */
+    --unified-nav-height: 64px; /* header row only; bottom tab bar is fixed separately */
   }
 }
 

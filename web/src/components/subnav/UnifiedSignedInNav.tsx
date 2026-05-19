@@ -23,15 +23,15 @@ import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { createClient } from '@/utils/supabase/client';
 import { useAppShellNav } from '@/components/figma/discover/AppShellNavContext';
 import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
-import { discoverManrope } from '@/lib/discover/manrope';
-
-function figmaDesktopNavClass(active: boolean): string {
-  return `text-base font-medium transition-colors py-1 ${
-    active
-      ? 'text-[#253044] border-b-2 border-[#FF5C34]'
-      : 'text-[#66717D] hover:text-[#253044]'
-  }`;
-}
+import {
+  FIGMA_CHILD_PILL_CLASS,
+  FIGMA_CHILD_PILL_LABEL_CLASS,
+  FIGMA_DROPDOWN_ITEM_CLASS,
+  FIGMA_DROPDOWN_PANEL_CLASS,
+  FIGMA_LOGO_WORDMARK_CLASS,
+  FIGMA_NAV_HEADER_CLASS,
+  figmaDesktopNavLinkClass,
+} from '@/lib/discover/navStyles';
 
 const EMBER_LOGO_SRC =
   'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
@@ -95,11 +95,9 @@ function childColor(index: number): string {
  * Replaces the previous separate header + subnav for signed-in users.
  */
 export function UnifiedSignedInNav({
-  figmaShell = false,
   hideLegacyMobileTabs = false,
   hideHeaderMobileMenu = false,
 }: {
-  figmaShell?: boolean;
   hideLegacyMobileTabs?: boolean;
   hideHeaderMobileMenu?: boolean;
 } = {}) {
@@ -112,19 +110,18 @@ export function UnifiedSignedInNav({
   const [isChildDropdownOpen, setIsChildDropdownOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [localMobileMenuOpen, setLocalMobileMenuOpen] = useState(false);
-  const isMobileMenuOpen =
-    figmaShell && appShellNav ? appShellNav.mobileMenuOpen : localMobileMenuOpen;
+  const isMobileMenuOpen = appShellNav ? appShellNav.mobileMenuOpen : localMobileMenuOpen;
   const setIsMobileMenuOpen = useCallback(
     (open: boolean) => {
-      if (figmaShell && appShellNav) appShellNav.setMobileMenuOpen(open);
+      if (appShellNav) appShellNav.setMobileMenuOpen(open);
       else setLocalMobileMenuOpen(open);
     },
-    [appShellNav, figmaShell]
+    [appShellNav]
   );
   const toggleMobileMenu = useCallback(() => {
-    if (figmaShell && appShellNav) appShellNav.toggleMobileMenu();
+    if (appShellNav) appShellNav.toggleMobileMenu();
     else setLocalMobileMenuOpen((o) => !o);
-  }, [appShellNav, figmaShell]);
+  }, [appShellNav]);
   /** Must be separate: one ref on both desktop+mobile would point to only the last node, so click-outside closed the desktop menu before child buttons received clicks. */
   const childDropdownDesktopRef = useRef<HTMLDivElement>(null);
   const childDropdownMobileRef = useRef<HTMLDivElement>(null);
@@ -343,18 +340,9 @@ export function UnifiedSignedInNav({
 
   if (!user || !stats) return null;
 
-  const navLinkClass =
-    'px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium';
-  const navLinkActive = 'text-[var(--ember-text-high)] bg-[var(--ember-surface-soft)]';
-  const navLinkInactive = 'text-[var(--ember-text-low)] hover:bg-[var(--ember-surface-soft)]';
-
   return (
     <header
-      className={`top-0 left-0 right-0 z-[100] w-full min-w-0 border-b lg:sticky ${
-        figmaShell
-          ? `bg-[#FBFAF7] border-[#E7E2DC] ${discoverManrope.className}`
-          : 'bg-[var(--ember-surface-primary)] border-[var(--ember-border-subtle)]'
-      }`}
+      className={`top-0 left-0 right-0 z-[100] w-full min-w-0 border-b lg:sticky ${FIGMA_NAV_HEADER_CLASS}`}
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         minHeight: 'var(--header-height)',
@@ -381,12 +369,7 @@ export function UnifiedSignedInNav({
                 height={48}
                 priority
               />
-              <span
-                className={`hidden sm:block text-xl truncate ${figmaShell ? 'font-bold text-[#253044]' : ''}`}
-                style={figmaShell ? undefined : { fontWeight: 600, color: 'var(--ember-text-high)' }}
-              >
-                Ember
-              </span>
+              <span className={`hidden sm:block truncate ${FIGMA_LOGO_WORDMARK_CLASS}`}>Ember</span>
             </Link>
           </div>
 
@@ -567,34 +550,22 @@ export function UnifiedSignedInNav({
 
           {/* Centre: desktop nav + child (overlay on full row) */}
           <div className="pointer-events-none absolute inset-0 z-[1] hidden items-center justify-center gap-8 lg:flex [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
-            <nav className={`flex items-center shrink-0 ${figmaShell ? 'gap-8' : 'gap-1'}`}>
+            <nav className="flex shrink-0 items-center gap-8">
               <Link
                 href={buildUrlWithChild('/discover', selectedChildId || null)}
-                className={
-                  figmaShell
-                    ? figmaDesktopNavClass(isDiscover)
-                    : `${navLinkClass} ${isDiscover ? navLinkActive : navLinkInactive}`
-                }
+                className={figmaDesktopNavLinkClass(isDiscover)}
               >
                 Discover
               </Link>
               <Link
                 href={buildUrlWithChild('/my-ideas', selectedChildId || null)}
-                className={
-                  figmaShell
-                    ? figmaDesktopNavClass(isMyIdeas)
-                    : `${navLinkClass} ${isMyIdeas ? navLinkActive : navLinkInactive}`
-                }
+                className={figmaDesktopNavLinkClass(isMyIdeas)}
               >
                 Saves
               </Link>
               <Link
                 href={buildUrlWithChild('/marketplace', selectedChildId || null)}
-                className={
-                  figmaShell
-                    ? figmaDesktopNavClass(isMarketplace)
-                    : `${navLinkClass} ${isMarketplace ? navLinkActive : navLinkInactive}`
-                }
+                className={figmaDesktopNavLinkClass(isMarketplace)}
               >
                 Marketplace
               </Link>
@@ -605,25 +576,23 @@ export function UnifiedSignedInNav({
               <button
                 type="button"
                 onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[var(--ember-text-high)] transition-all duration-300 ${
-                  childToggleAffirm
-                    ? 'border-[var(--ember-accent-base)] bg-[rgba(255,99,71,0.12)] ring-2 ring-[var(--ember-accent-base)] ring-offset-2'
-                    : 'border-[var(--ember-border-subtle)] bg-[var(--ember-surface-primary)] hover:bg-[var(--ember-surface-soft)]'
+                className={`${FIGMA_CHILD_PILL_CLASS} ${
+                  childToggleAffirm ? 'border-[#FF5C34] ring-2 ring-[#FF5C34] ring-offset-2' : ''
                 }`}
                 aria-expanded={isChildDropdownOpen}
                 aria-haspopup="listbox"
                 aria-label="Select child"
               >
-                <span className="text-sm font-medium truncate max-w-[12rem]">{selectedChildName}</span>
+                <span className={FIGMA_CHILD_PILL_LABEL_CLASS}>{selectedChildName}</span>
                 <ChevronDown
-                  className={`w-4 h-4 flex-shrink-0 transition-transform text-[var(--ember-text-low)] ${isChildDropdownOpen ? 'rotate-180' : ''}`}
+                  className={`h-3.5 w-3.5 shrink-0 text-[#66717D] transition-transform ${isChildDropdownOpen ? 'rotate-180' : ''}`}
                   strokeWidth={2}
                 />
               </button>
 
               {isChildDropdownOpen && (
                 <div
-                  className="absolute left-0 top-full mt-2 w-80 rounded-2xl overflow-hidden z-[110] bg-[var(--ember-surface-primary)] border border-[var(--ember-border-subtle)] shadow-lg"
+                  className={`absolute left-0 top-full z-[110] mt-2 w-80 ${FIGMA_DROPDOWN_PANEL_CLASS}`}
                   role="listbox"
                 >
                   <div className="p-3">
@@ -635,19 +604,15 @@ export function UnifiedSignedInNav({
                     <button
                       type="button"
                       onClick={() => handleChildSelect(null)}
-                      className="w-full text-left px-4 py-3.5 rounded-xl transition-colors mb-1.5 hover:bg-[var(--ember-surface-soft)]"
-                      style={{
-                        backgroundColor:
-                          selectedChildId === '' ? 'var(--ember-surface-soft)' : 'transparent',
-                      }}
+                      className={`${FIGMA_DROPDOWN_ITEM_CLASS} mb-1 ${
+                        selectedChildId === '' ? 'bg-[#FBFAF7]' : ''
+                      }`}
                     >
-                      <div className="flex items-center justify-between gap-3 min-w-0">
-                        <span className="text-sm font-medium text-[var(--ember-text-high)] truncate">
-                          All children
-                        </span>
+                      <div className="flex min-w-0 items-center justify-between gap-3">
+                        <span className="truncate text-sm font-medium text-[#253044]">All children</span>
                         {selectedChildId === '' && (
                           <div
-                            className="w-2 h-2 rounded-full flex-shrink-0 bg-[var(--ember-accent-base)]"
+                            className="h-2 w-2 shrink-0 rounded-full bg-[#FF5C34]"
                             aria-hidden
                           />
                         )}
@@ -727,7 +692,7 @@ export function UnifiedSignedInNav({
               <button
                 type="button"
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                className="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--ember-surface-soft)] hover:bg-[var(--ember-border-subtle)] transition-colors text-[var(--ember-text-low)] font-semibold text-sm"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E7E2DC] bg-white text-sm font-semibold text-[#253044] transition-colors hover:bg-[#FBFAF7]"
                 aria-expanded={isProfileDropdownOpen}
                 aria-haspopup="menu"
                 aria-label="Account menu"
@@ -738,7 +703,7 @@ export function UnifiedSignedInNav({
               </button>
               {isProfileDropdownOpen && (
                 <div
-                  className="absolute right-0 top-full mt-2 w-56 rounded-2xl overflow-hidden z-[110] bg-[var(--ember-surface-primary)] border border-[var(--ember-border-subtle)] shadow-lg"
+                  className={`absolute right-0 top-full z-[110] mt-2 w-56 ${FIGMA_DROPDOWN_PANEL_CLASS}`}
                   role="menu"
                 >
                   <div className="p-3">
