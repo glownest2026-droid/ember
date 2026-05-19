@@ -53,11 +53,22 @@ export function ConditionDetailsStep({
   uploadDisabled,
 }: ConditionDetailsStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSelectedFile = async (file: File | undefined) => {
+    if (!file || !onUploadPhoto) return;
+    await onUploadPhoto(file);
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !onUploadPhoto) return;
-    await onUploadPhoto(file);
+    await handleSelectedFile(file);
+    e.target.value = "";
+  };
+
+  const handleCameraChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    await handleSelectedFile(file);
     e.target.value = "";
   };
 
@@ -205,39 +216,53 @@ export function ConditionDetailsStep({
             className="hidden"
             onChange={handleFileChange}
           />
-          <button
-            type="button"
-            disabled={uploadDisabled}
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full p-8 rounded-xl border-2 border-dashed transition-all duration-300 hover:border-[var(--ember-primary)] hover:bg-[var(--ember-primary-5)] disabled:opacity-50"
-            style={{ borderColor: "var(--ember-gray-300)" }}
-          >
-            <div className="flex flex-col items-center gap-3">
-              <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                style={{ backgroundColor: "var(--ember-primary-10)" }}
-              >
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            capture="environment"
+            className="hidden"
+            onChange={handleCameraChange}
+          />
+          <div className="grid sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              disabled={uploadDisabled}
+              onClick={() => cameraInputRef.current?.click()}
+              className="p-5 rounded-xl border-2 border-dashed transition-all duration-300 hover:border-[var(--ember-primary)] hover:bg-[var(--ember-primary-5)] disabled:opacity-50"
+              style={{ borderColor: "var(--ember-gray-300)" }}
+            >
+              <div className="flex flex-col items-center gap-2">
                 <Camera
-                  className="w-8 h-8"
+                  className="w-7 h-7"
                   style={{ color: "var(--ember-primary)" }}
                 />
-              </div>
-              <div className="text-center">
-                <p
-                  className="font-medium mb-1"
-                  style={{ color: "var(--ember-gray-900)" }}
-                >
-                  Add photos
-                </p>
-                <p
-                  className="text-sm"
-                  style={{ color: "var(--ember-gray-600)" }}
-                >
-                  You can add these now or later
+                <p className="font-medium" style={{ color: "var(--ember-gray-900)" }}>
+                  Take photo
                 </p>
               </div>
-            </div>
-          </button>
+            </button>
+            <button
+              type="button"
+              disabled={uploadDisabled}
+              onClick={() => fileInputRef.current?.click()}
+              className="p-5 rounded-xl border-2 border-dashed transition-all duration-300 hover:border-[var(--ember-primary)] hover:bg-[var(--ember-primary-5)] disabled:opacity-50"
+              style={{ borderColor: "var(--ember-gray-300)" }}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <Camera
+                  className="w-7 h-7"
+                  style={{ color: "var(--ember-primary)" }}
+                />
+                <p className="font-medium" style={{ color: "var(--ember-gray-900)" }}>
+                  Choose from gallery
+                </p>
+              </div>
+            </button>
+          </div>
+          <p className="text-xs mt-2" style={{ color: "var(--ember-gray-600)" }}>
+            You can add these now or later.
+          </p>
         </div>
 
         <div className="mb-6">
