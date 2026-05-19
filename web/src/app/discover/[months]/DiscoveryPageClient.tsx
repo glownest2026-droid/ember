@@ -99,7 +99,6 @@ export default function DiscoveryPageClient({
     monthsOld: serverPersonalization?.monthsOld ?? null,
   });
   const [howWeChooseOpen, setHowWeChooseOpen] = useState(false);
-  const [showMore, setShowMore] = useState(false);
   const [actionToast, setActionToast] = useState<{ productId: string; message: string } | null>(null);
   const [showingExamples, setShowingExamples] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -113,6 +112,7 @@ export default function DiscoveryPageClient({
   const whyMattersSectionRef = useRef<HTMLElement | null>(null);
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
+  const [showStartOverFab, setShowStartOverFab] = useState(false);
   const replayAttemptedRef = useRef(false);
   const basePath = '/discover';
   const { user, refetch: refetchSubnavStats } = useSubnavStats();
@@ -316,8 +316,6 @@ export default function DiscoveryPageClient({
         const ideasEnd = targetTop + el.offsetHeight;
         const maxScroll = Math.max(0, ideasEnd - viewport + 24);
         targetTop = Math.min(targetTop, maxScroll);
-      } else {
-        targetTop = Math.max(0, targetTop + 64);
       }
       if (window.scrollY < targetTop - 20 || window.scrollY > targetTop + 20) {
         window.scrollTo({ top: targetTop, behavior });
@@ -636,14 +634,13 @@ export default function DiscoveryPageClient({
           key: wrapper.ux_slug,
           slug: wrapper.ux_slug,
           label,
-          helper: meta?.helper ?? 'Tap to explore this focus area.',
+          helper: '',
           icon: meta?.icon ?? getWrapperIcon(wrapper.ux_slug, label),
           showSuggested: is25to27 && suggestedDoorwaySlugSet.has(slugNorm),
         };
       }),
     [wrappers, doorwayMetaBySlug, is25to27, suggestedDoorwaySlugSet]
   );
-  const visibleTiles = showMore ? allTiles : allTiles.slice(0, 6);
   const selectedWrapperLabel =
     wrappers.find((w) => w.ux_slug === selectedWrapper)?.ux_label ??
     allTiles.find((tile) => tile.slug === selectedWrapper)?.label ??
@@ -916,6 +913,32 @@ export default function DiscoveryPageClient({
     ? `Ideas for ${selectedWrapperLabel.toLowerCase()}`
     : 'Ideas to try';
   const startOverVisible = Boolean(selectedWrapper || (showPicks && displayIdeas.length > 0));
+
+  useEffect(() => {
+    if (!startOverVisible) {
+      setShowStartOverFab(false);
+      return;
+    }
+    const bottomThresholdPx = 120;
+    const update = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (maxScroll <= bottomThresholdPx) {
+        setShowStartOverFab(true);
+        return;
+      }
+      setShowStartOverFab(window.scrollY >= maxScroll - bottomThresholdPx);
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    const ro = new ResizeObserver(update);
+    ro.observe(document.documentElement);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+      ro.disconnect();
+    };
+  }, [startOverVisible, selectedWrapper, discoverState, displayIdeas.length, categoryTypes.length]);
   const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
   const bandLabel = formatBandLabel(selectedBand);
 
@@ -939,6 +962,7 @@ export default function DiscoveryPageClient({
         viewMyListHref={saveModal.viewMyListHref}
         onCloseFocusRef={saveModalFocusRef}
         onAuthSuccess={handleAuthSuccess}
+        appearance="discover"
       />
       <HowWeChooseSheet open={howWeChooseOpen} onClose={() => setHowWeChooseOpen(false)} />
 
@@ -968,13 +992,13 @@ export default function DiscoveryPageClient({
           <>
             <section className="flex flex-col gap-5">
               <div>
-                <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">Choose a focus</h2>
+                <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">Choose a development</h2>
                 {!user ? (
                   <p className="text-sm text-[#66717D] mt-2">Pick a focus for this age. Sign in to personalize with your child.</p>
                 ) : null}
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
-                {visibleTiles.map((tile) => {
+                {allTiles.map((tile) => {
                   const isSelected = selectedWrapper === tile.slug;
                   return (
                     <DiscoverFigmaNeedCard
@@ -989,15 +1013,6 @@ export default function DiscoveryPageClient({
                   );
                 })}
               </div>
-              {!showMore && allTiles.length > 6 ? (
-                <button
-                  type="button"
-                  className="text-sm font-medium text-[#66717D] hover:text-[#253044] self-start"
-                  onClick={() => setShowMore(true)}
-                >
-                  See all
-                </button>
-              ) : null}
             </section>
 
             {selectedWrapper ? (
@@ -1117,7 +1132,7 @@ export default function DiscoveryPageClient({
         )}
       </main>
 
-      {startOverVisible ? (
+      {startOverVisible && showStartOverFab ? (
         <div className="fixed bottom-20 lg:bottom-6 left-0 right-0 z-30 pointer-events-none">
           <div className={`${EMBER_FIGMA_APP_CONTAINER} flex justify-center`}>
             <button

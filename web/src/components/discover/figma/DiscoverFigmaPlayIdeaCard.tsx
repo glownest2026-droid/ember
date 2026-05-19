@@ -36,7 +36,7 @@ export function DiscoverFigmaPlayIdeaCard({
         <div>
           <h3 className="font-bold text-[18px] md:text-[20px] text-[#253044] mb-1.5 leading-tight">{title}</h3>
           {description ? (
-            <p className="text-[15px] text-[#66717D] leading-relaxed line-clamp-3">{description}</p>
+            <p className="text-[15px] text-[#66717D] leading-relaxed">{description}</p>
           ) : null}
         </div>
 

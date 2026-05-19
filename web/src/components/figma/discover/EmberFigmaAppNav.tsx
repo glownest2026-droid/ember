@@ -9,6 +9,7 @@ import { createClient } from '@/utils/supabase/client';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { discoverManrope } from '@/lib/discover/manrope';
 import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
+import { figmaDesktopNavLinkClass } from '@/lib/discover/navStyles';
 
 const EMBER_LOGO_SRC =
   'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
@@ -38,14 +39,6 @@ function childInitial(c: SubnavChild, index: number): string {
   const name = (c.child_name || c.display_name)?.trim();
   if (name) return name.charAt(0).toUpperCase();
   return String(index + 1);
-}
-
-function desktopNavClass(active: boolean): string {
-  return `text-base font-medium transition-colors py-1 ${
-    active
-      ? 'text-[#253044] border-b-2 border-[#FF5C34]'
-      : 'text-[#66717D] hover:text-[#253044]'
-  }`;
 }
 
 function mobileTabClass(active: boolean): string {
@@ -203,19 +196,19 @@ export function EmberFigmaAppNav() {
             <span className="font-bold text-xl text-[#253044]">Ember</span>
           </Link>
           <nav className="flex gap-8 items-center">
-            <Link href={buildUrlWithChild('/discover', selectedChildId || null)} className={desktopNavClass(isDiscover)}>
+            <Link href={buildUrlWithChild('/discover', selectedChildId || null)} className={figmaDesktopNavLinkClass(isDiscover)}>
               What&apos;s next
             </Link>
-            <Link href={buildUrlWithChild('/my-ideas', selectedChildId || null)} className={desktopNavClass(isMyIdeas)}>
+            <Link href={buildUrlWithChild('/my-ideas', selectedChildId || null)} className={figmaDesktopNavLinkClass(isMyIdeas)}>
               My ideas
             </Link>
             <Link
               href={buildUrlWithChild('/marketplace', selectedChildId || null)}
-              className={desktopNavClass(isMarketplace)}
+              className={figmaDesktopNavLinkClass(isMarketplace)}
             >
               Marketplace
             </Link>
-            <Link href={buildUrlWithChild('/family', selectedChildId || null)} className={desktopNavClass(isFamily)}>
+            <Link href={buildUrlWithChild('/family', selectedChildId || null)} className={figmaDesktopNavLinkClass(isFamily)}>
               Family
             </Link>
           </nav>

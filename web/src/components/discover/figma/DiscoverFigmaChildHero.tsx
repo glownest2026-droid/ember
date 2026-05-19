@@ -36,8 +36,8 @@ export function DiscoverFigmaChildHero({
   const chipLabel = name ? `For ${name} · ${bandLabel}` : bandLabel;
   const headline = name ? `What ${possessiveName(name)} practising now` : "What your child's practising now";
   const sub = name
-    ? `At ${monthAge} months, ${name} may be getting more independent, more physical and more expressive. Choose a focus and we'll show useful ideas for this stage.`
-    : `At ${monthAge} months, your child may be getting more independent, more physical and more expressive. Choose a focus and we'll show useful ideas for this stage.`;
+    ? `At ${monthAge} months, ${name} may be getting more independent, more physical and more expressive. Choose a development and we'll show useful ideas for this stage.`
+    : `At ${monthAge} months, your child may be getting more independent, more physical and more expressive. Choose a development and we'll show useful ideas for this stage.`;
 
   const heroImg = (
     <DiscoverFigmaImage

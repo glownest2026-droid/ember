@@ -28,9 +28,12 @@ export function DiscoverFigmaScienceSection({
             </button>
           ) : null}
         </div>
-        <p className="text-[15px] md:text-[16px] text-[#253044] leading-relaxed max-w-3xl whitespace-pre-wrap m-0">
-          {description}
-        </p>
+        <blockquote
+          className="text-[17px] md:text-[18px] text-[#253044] leading-relaxed max-w-3xl whitespace-pre-wrap m-0 border-0 p-0 not-italic"
+          style={{ fontFamily: 'var(--font-discover-playful), cursive' }}
+        >
+          &ldquo;{description}&rdquo;
+        </blockquote>
         {onExplain ? (
           <button
             type="button"
