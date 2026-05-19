@@ -2566,3 +2566,101 @@ Category-only cards remain publishable.
   - **Take photo** (camera, `capture=\"environment\"`)
   - **Choose from gallery**
 - Verification: `pnpm -C web build` passes after camera-option follow-up.
+
+---
+
+## 2026-05-19 — AI Marketplace Listing PR3: Image Analysis + Candidate Matching
+
+### Summary
+- Added server-only image analysis for private marketplace listing draft photos.
+- Integrated Gemini-only V1 analysis behind a protected route.
+- Added structured AI output parsing and confidence handling.
+- Matched AI suggestions to Ember canonical product/item types where available.
+- Added parent confirmation UI for candidate selection.
+- Logged AI usage in the AI listing analysis events table.
+- Added basic per-user analysis rate limiting.
+- No listing generation, pricing, local demand, maps, or publish flow added.
+
+### Routes touched/added
+- `/api/marketplace/listing-drafts/[draftId]/analyse-image` — protected API route
+- `/api/marketplace/listing-drafts/[draftId]/select-candidate` — protected candidate selection
+- `/app/listings` — extended PR2 UI
+
+### Env & Secrets
+- Local `.env.local` requires:
+  - GEMINI_API_KEY
+  - GEMINI_MODEL
+  - AI_LISTING_DAILY_LIMIT (optional)
+- `.env.example` updated with names only:
+  - yes
+- Vercel Preview requires:
+  - GEMINI_API_KEY
+  - GEMINI_MODEL
+- Production:
+  - not enabled unless founder explicitly approves
+
+### DB & RLS
+- Uses draft table:
+  - `public.marketplace_listing_drafts`
+- Uses AI logging table:
+  - `public.ai_listing_analysis_events`
+- Updates:
+  - `ai_detected_label`
+  - `ai_confidence`
+  - `ai_raw_response_json`
+  - `product_type_id` after parent confirmation
+- RLS:
+  - ownership checks preserved server-side
+  - no cross-user draft access
+
+### Storage
+- Bucket:
+  - `marketplace-raw-listing-photos`
+- Raw photo handling:
+  - private server-side download
+  - no public raw-photo URL
+  - no long-lived signed URL passed to AI
+
+### Canonical matching
+- Matcher used:
+  - `inventory_match_product_types` RPC from `product_types` catalog
+- Candidate behaviour:
+  - high/medium/low confidence
+  - parent must confirm
+  - “Not sure” path available
+- Missing canonical data/debt:
+  - when no canonical ID is found, UI surfaces AI suggestion text and requires “Not sure / choose manually” path without inventing IDs
+
+### Verification
+- Baseline build:
+  - pass
+- Final build:
+  - pass
+- Manual checks:
+  - logged-out blocked (route-level 401 implemented; pending founder preview check)
+  - owner-only draft analysis (route-level ownership checks implemented; pending founder preview check)
+  - valid image analysed (pending GEMINI env in Preview)
+  - AI result stored (route update implemented; pending GEMINI env in Preview)
+  - AI event logged (insert implemented for success/failure after provider call; pending GEMINI env in Preview)
+  - candidate selection saved (`product_type_id` + `status=confirmed`)
+  - rate limit checked (per-user last 24h count gate implemented)
+  - no public raw photo URL (no `getPublicUrl`, private download + signed preview only)
+  - no live listing created
+
+### Known debt / risks
+- Gemini quality needs founder testing across 10–20 real household toy photos.
+- Google Vision/Product Recognizer remains deferred unless exact recognition quality is poor.
+- PR4 will generate editable listing details and suggested price after parent confirmation.
+- No recall/status validation is final yet; PR4 should add safety/resale eligibility prompts.
+- `pnpm lint` currently fails in this repo due `next lint` invocation behavior on Next 16 (`Invalid project directory .../lint`).
+
+### Next module handoff
+- Branch to create after merge:
+  - feat/ai-listing-draft-generation
+- Start with:
+  - title/description/category draft generation
+  - parent-confirmed condition
+  - RRP/product data grounding
+  - suggested price range
+  - safety/resale eligibility checks
+  - editable draft listing form
