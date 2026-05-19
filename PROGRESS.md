@@ -2478,3 +2478,32 @@ Category-only cards remain publishable.
 - **Goal:** Further reduce signed-out mobile top-bar crowding.
 - **What changed:** Removed `Pricing` and `Sign in` from the signed-out **mobile top bar** in `web/src/components/discover/DiscoverStickyHeader.tsx`; `Get started` remains in the top bar. Desktop nav and mobile menu panel links remain unchanged.
 - **Proof:** `pnpm -C web build` passes after this tweak.
+
+---
+
+## 2026-05-19 — AI Marketplace Listing PR2: AI Listing Photo Upload Flow
+
+### Summary
+- Added signed-in-only photo upload flow at `/app/listings` for AI marketplace listing drafts.
+- Flow creates or updates `marketplace_listing_drafts.image_storage_path` with owner-scoped path.
+- Raw photos upload to private bucket `marketplace-raw-listing-photos` only.
+- Owner preview uses `createSignedUrl` (no public URL exposure).
+- Added strict file validation: JPEG/PNG/WebP only, max 10MB.
+- No AI analysis calls, no publish logic, no maps, no pricing logic.
+
+### Foundation verification
+- PR2 wiring targets:
+  - table: `public.marketplace_listing_drafts`
+  - bucket: `marketplace-raw-listing-photos`
+- Existing app code on `main` still primarily referenced legacy marketplace listing/photo tables; PR2 now wires the new upload flow to PR1 draft spine objects.
+
+### Files changed
+- `web/src/app/(app)/app/listings/page.tsx`
+
+### Verification
+- Baseline build: pass (`pnpm -C web build`)
+- Final build: pass (`pnpm -C web build`)
+
+### Known debt / risks
+- Requires PR1 schema objects to exist in Supabase (draft table + private raw-photo bucket/policies).
+- Signed preview links are temporary by design and should be refreshed on revisit.
