@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { buildMarketplaceImageAnalysisPrompt } from "./ai-listing-prompt";
 
 export const DEFAULT_GEMINI_MODEL = "gemini-1.5-flash";
-const GEMINI_REQUEST_TIMEOUT_MS = 20000;
+const GEMINI_REQUEST_TIMEOUT_MS = 60000;
 
 type ConfidenceBucket = "high" | "medium" | "low";
 
@@ -191,7 +191,6 @@ export async function analyseListingImageWithGemini(args: {
     model: modelUsed,
     generationConfig: {
       temperature: 0.1,
-      responseMimeType: "application/json",
     },
   });
 

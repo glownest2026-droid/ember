@@ -379,6 +379,25 @@ export async function POST(
         );
       }
       if (error instanceof GeminiProviderError) {
+        const lower = (error.message || "").toLowerCase();
+        if (lower.includes("api key") || lower.includes("permission denied") || lower.includes("unauthorized")) {
+          return NextResponse.json(
+            { error: "Gemini credentials are invalid or not authorized for this project." },
+            { status: 500 }
+          );
+        }
+        if (lower.includes("model") && (lower.includes("not found") || lower.includes("unsupported"))) {
+          return NextResponse.json(
+            { error: "Configured Gemini model is unavailable. Set GEMINI_MODEL to gemini-1.5-flash in Preview." },
+            { status: 500 }
+          );
+        }
+        if (lower.includes("quota") || lower.includes("rate")) {
+          return NextResponse.json(
+            { error: "Gemini quota/rate limit reached. Please retry shortly." },
+            { status: 429 }
+          );
+        }
         return NextResponse.json(
           { error: "Image suggestion is temporarily unavailable. Please try again shortly." },
           { status: 502 }

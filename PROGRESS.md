@@ -2690,3 +2690,15 @@ Category-only cards remain publishable.
   - `web/src/app/api/marketplace/listing-drafts/[draftId]/analyse-image/route.ts`
   - `web/src/app/(app)/app/listings/page.tsx`
 - Verification: `pnpm -C web build` passes after timeout + route hardening.
+
+### Follow-up — Gemini compatibility + clearer provider diagnostics
+- Relaxed Gemini generation config by removing strict JSON MIME hint to improve model compatibility across Preview configs.
+- Increased Gemini request timeout to `60s` for slow upstream responses.
+- Added safer user-facing provider error messages for common misconfig cases:
+  - invalid/unauthorized API key
+  - unavailable/unsupported model
+  - provider quota/rate limit
+- Files updated:
+  - `web/src/lib/marketplace/ai-listing-analysis.ts`
+  - `web/src/app/api/marketplace/listing-drafts/[draftId]/analyse-image/route.ts`
+- Verification: `pnpm -C web build` passes after compatibility patch.
