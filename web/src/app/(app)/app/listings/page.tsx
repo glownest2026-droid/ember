@@ -253,14 +253,15 @@ export default function AppListingsPhotoDraftPage() {
         response
       );
       if (!response.ok) {
-        const base =
-          payload?.error ?? "Unable to analyse this image right now. Please try again.";
-        const code = payload?.error_code ? ` (${payload.error_code})` : "";
+        const base = payload?.error ?? "Unable to analyse this image right now. Please try again.";
+        const showDiagnostics =
+          process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
+        const code = showDiagnostics && payload?.error_code ? ` (${payload.error_code})` : "";
         const provider =
-          payload?.provider_status || payload?.provider_code
+          showDiagnostics && (payload?.provider_status || payload?.provider_code)
             ? ` Provider: ${payload.provider_status ?? "n/a"}${payload?.provider_code ? `/${payload.provider_code}` : ""}`
             : "";
-        const debug = payload?.debug_id ? ` Ref: ${payload.debug_id}` : "";
+        const debug = showDiagnostics && payload?.debug_id ? ` Ref: ${payload.debug_id}` : "";
         throw new Error(`${base}${code}${provider}${debug}`);
       }
       if (!payload) {

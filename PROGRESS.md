@@ -2734,3 +2734,37 @@ Category-only cards remain publishable.
   - provider 429 -> `gemini_quota_limited`
   - provider 503/unavailable -> `gemini_temporarily_unavailable`
 - Added click guards on client handlers to prevent duplicate in-flight requests.
+
+## 2026-05-19 — PR205 Diagnostic Pass: AI Image Analysis
+
+### Summary
+- Added protected step-by-step diagnostic route for PR3 AI analysis (`/api/marketplace/diagnostics/ai-analysis`).
+- Added `mode=no-provider` dry run to isolate pre-Gemini failures (auth, draft lookup, storage download, payload prep).
+- Extended `/api/marketplace/diagnostics/ai-config` with `?testProvider=1` text-only Gemini probe (no Supabase image).
+- Improved error classification (503/UNAVAILABLE no longer mapped to quota; added `gemini_provider_error` for 500/INTERNAL).
+- Default/fallback model is now `gemini-2.5-flash-lite` (removed `gemini-1.5-flash` fallback).
+- Preview UI shows `error_code`, provider status/code, and `debug_id` ref when available.
+
+### Routes touched/added
+- `/api/marketplace/diagnostics/ai-config` (extended `testProvider=1`)
+- `/api/marketplace/diagnostics/ai-analysis` (new)
+- `/api/marketplace/listing-drafts/[draftId]/analyse-image`
+- `/app/listings` (preview debug copy)
+
+### Current configuration
+- `GEMINI_MODEL` expected: `gemini-2.5-flash-lite` (env override supported)
+- `AI_LISTING_DAILY_LIMIT`: from env, default `5`
+- `GEMINI_API_KEY`: server-only, never exposed in diagnostics responses
+
+### Diagnostic findings (local dev)
+- `ai-config` (no key in `.env.local`): not run against live Gemini locally
+- `ai-config?testProvider=1`: not run locally (no `GEMINI_API_KEY` in workspace env)
+- `ai-analysis?draftId=…&mode=no-provider`: run on Vercel Preview after deploy (signed-in + draft owner)
+- `ai-analysis?draftId=…` full pipeline: run on Vercel Preview after deploy
+- `failureStage` / `providerStatus` / `providerCode`: populate from Preview diagnostic JSON + Vercel function logs (`[ai-analysis-diagnostic:<debugId>]`)
+
+### Known risks / next actions
+- Google AI Studio billing tier may still show **Unknown Tier** until propagation completes.
+- Founder must verify Vercel `GEMINI_API_KEY` belongs to Google AI Studio project **Ember** (API cannot safely prove project identity).
+- Redeploy Vercel Preview after merging/pushing this branch so new routes and env vars apply.
+- PR3 should not merge until Preview diagnostics show whether failure is pre-Gemini or at `gemini_request`.

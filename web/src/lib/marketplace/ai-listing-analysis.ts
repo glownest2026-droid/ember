@@ -2,9 +2,14 @@ import "server-only";
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { buildMarketplaceImageAnalysisPrompt } from "./ai-listing-prompt";
+import {
+  DEFAULT_GEMINI_MODEL,
+  extractProviderDetails,
+  getEffectiveGeminiModel,
+  parsePositiveInt,
+} from "./ai-listing-gemini-config";
 
-export const DEFAULT_GEMINI_MODEL = "gemini-1.5-flash";
-const DEFAULT_GEMINI_REQUEST_TIMEOUT_MS = 8000;
+export { DEFAULT_GEMINI_MODEL };
 
 type ConfidenceBucket = "high" | "medium" | "low";
 
@@ -39,7 +44,17 @@ export type GeminiTokenUsage = {
 };
 
 export class GeminiConfigError extends Error {}
-export class GeminiProviderError extends Error {}
+export class GeminiProviderError extends Error {
+  providerStatus: number | null;
+  providerCode: string | null;
+
+  constructor(message: string, providerStatus: number | null = null, providerCode: string | null = null) {
+    super(message);
+    this.name = "GeminiProviderError";
+    this.providerStatus = providerStatus;
+    this.providerCode = providerCode;
+  }
+}
 export class GeminiParseError extends Error {}
 
 function clampConfidence(value: unknown): number {
@@ -64,7 +79,7 @@ function stringList(value: unknown, maxItems = 8): string[] {
     .slice(0, maxItems);
 }
 
-function extractJsonText(rawText: string): string {
+export function extractJsonText(rawText: string): string {
   const trimmed = rawText.trim();
   if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
     return trimmed;
@@ -152,7 +167,7 @@ function normalizeAnalysisOutput(value: unknown): GeminiListingAnalysisOutput {
   };
 }
 
-function parseGeminiAnalysisOutput(rawText: string): GeminiListingAnalysisOutput {
+export function parseGeminiListingAnalysisOutput(rawText: string): GeminiListingAnalysisOutput {
   const jsonText = extractJsonText(rawText);
   if (!jsonText) {
     throw new GeminiParseError("Gemini did not return JSON.");
@@ -167,44 +182,25 @@ function parseGeminiAnalysisOutput(rawText: string): GeminiListingAnalysisOutput
   return normalizeAnalysisOutput(parsed);
 }
 
-export async function analyseListingImageWithGemini(args: {
-  apiKey: string | undefined;
-  model: string | undefined;
+export async function generateGeminiListingImageContent(args: {
+  apiKey: string;
+  model: string;
   imageBase64: string;
   mimeType: string;
-  timeoutMs?: number;
+  timeoutMs: number;
 }): Promise<{
   modelUsed: string;
-  analysis: GeminiListingAnalysisOutput;
-  tokenUsage: GeminiTokenUsage;
   rawText: string;
+  tokenUsage: GeminiTokenUsage;
 }> {
-  const apiKey = args.apiKey?.trim();
-  if (!apiKey) {
-    throw new GeminiConfigError("Missing GEMINI_API_KEY.");
-  }
-
-  const modelUsed = args.model?.trim() || DEFAULT_GEMINI_MODEL;
-  const timeoutMs =
-    typeof args.timeoutMs === "number" && Number.isFinite(args.timeoutMs)
-      ? Math.max(1000, Math.floor(args.timeoutMs))
-      : DEFAULT_GEMINI_REQUEST_TIMEOUT_MS;
   const prompt = buildMarketplaceImageAnalysisPrompt();
-
-  const client = new GoogleGenerativeAI(apiKey);
+  const client = new GoogleGenerativeAI(args.apiKey);
   const model = client.getGenerativeModel({
-    model: modelUsed,
+    model: args.model,
     generationConfig: {
       temperature: 0.1,
     },
   });
-
-  let resultText = "";
-  let usage: GeminiTokenUsage = {
-    prompt_tokens: null,
-    completion_tokens: null,
-    total_tokens: null,
-  };
 
   try {
     const result = await model.generateContent(
@@ -224,34 +220,75 @@ export async function analyseListingImageWithGemini(args: {
           },
         ],
       },
-      { timeout: timeoutMs }
+      { timeout: args.timeoutMs }
     );
 
     const response = result.response;
-    resultText = response.text();
-    usage = {
-      prompt_tokens:
-        typeof response.usageMetadata?.promptTokenCount === "number"
-          ? response.usageMetadata.promptTokenCount
-          : null,
-      completion_tokens:
-        typeof response.usageMetadata?.candidatesTokenCount === "number"
-          ? response.usageMetadata.candidatesTokenCount
-          : null,
-      total_tokens:
-        typeof response.usageMetadata?.totalTokenCount === "number"
-          ? response.usageMetadata.totalTokenCount
-          : null,
+    const rawText = response.text();
+    return {
+      modelUsed: args.model,
+      rawText,
+      tokenUsage: {
+        prompt_tokens:
+          typeof response.usageMetadata?.promptTokenCount === "number"
+            ? response.usageMetadata.promptTokenCount
+            : null,
+        completion_tokens:
+          typeof response.usageMetadata?.candidatesTokenCount === "number"
+            ? response.usageMetadata.candidatesTokenCount
+            : null,
+        total_tokens:
+          typeof response.usageMetadata?.totalTokenCount === "number"
+            ? response.usageMetadata.totalTokenCount
+            : null,
+      },
     };
   } catch (error) {
-    throw new GeminiProviderError(error instanceof Error ? error.message : "Gemini request failed.");
+    const details = extractProviderDetails(error);
+    throw new GeminiProviderError(
+      error instanceof Error ? error.message : "Gemini request failed.",
+      details.providerStatus,
+      details.providerCode
+    );
+  }
+}
+
+export async function analyseListingImageWithGemini(args: {
+  apiKey: string | undefined;
+  model: string | undefined;
+  imageBase64: string;
+  mimeType: string;
+  timeoutMs?: number;
+}): Promise<{
+  modelUsed: string;
+  analysis: GeminiListingAnalysisOutput;
+  tokenUsage: GeminiTokenUsage;
+  rawText: string;
+}> {
+  const apiKey = args.apiKey?.trim();
+  if (!apiKey) {
+    throw new GeminiConfigError("Missing GEMINI_API_KEY.");
   }
 
-  const analysis = parseGeminiAnalysisOutput(resultText);
+  const modelUsed = args.model?.trim() || getEffectiveGeminiModel();
+  const timeoutMs = parsePositiveInt(
+    typeof args.timeoutMs === "number" ? String(args.timeoutMs) : process.env.GEMINI_TIMEOUT_MS,
+    8000
+  );
+
+  const generated = await generateGeminiListingImageContent({
+    apiKey,
+    model: modelUsed,
+    imageBase64: args.imageBase64,
+    mimeType: args.mimeType,
+    timeoutMs,
+  });
+
+  const analysis = parseGeminiListingAnalysisOutput(generated.rawText);
   return {
-    modelUsed,
+    modelUsed: generated.modelUsed,
     analysis,
-    tokenUsage: usage,
-    rawText: resultText,
+    tokenUsage: generated.tokenUsage,
+    rawText: generated.rawText,
   };
 }
