@@ -3,12 +3,9 @@ import { discoverManrope } from '@/lib/discover/manrope';
 /** Figma May 2026 discover app shell — header surface (matches live /discover). */
 export const FIGMA_NAV_HEADER_CLASS = `bg-[#FBFAF7] border-[#E7E2DC] ${discoverManrope.className}`;
 
+/** Matches Figma May UI Update Root.tsx NavLink active/inactive classes. */
 export function figmaDesktopNavLinkClass(active: boolean): string {
-  return `inline-block cursor-pointer border-b-2 pb-0.5 text-base font-medium transition-colors ${
-    active
-      ? 'border-[#FF5C34] text-[#253044]'
-      : 'border-transparent text-[#66717D] hover:border-transparent hover:text-[#253044]'
-  }`;
+  return `figma-desktop-nav-link${active ? ' figma-desktop-nav-link--active' : ''}`;
 }
 
 export function figmaMutedNavLinkClass(active = false): string {

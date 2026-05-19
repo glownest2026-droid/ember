@@ -6,6 +6,8 @@
 - **Snags:** Discover `/discover/0` copy/tiles/science/cards/save modal; desktop nav child name only, no counters/reminders; centred desktop nav links + child dropdown; Start over FAB only at page bottom; nav bar uses same `max-w-5xl` container as page content
 - **Nav layout fix:** `UnifiedSignedInNav` desktop header uses flex sides + full-row absolute centre overlay (logo | centred nav+child | profile); all signed-in routes use `max-w-5xl` container
 - **Global Figma nav branding:** `navStyles.ts` + `ConditionalHeader` applies discover Manrope/warm header/orange accents on all routes; signed-out `DiscoverStickyHeader` restyled; signed-in always uses figma nav + bottom mobile tabs
+- **Active nav underline:** `globals.css` `.figma-desktop-nav-link--active` matches Figma `Root.tsx` (`border-bottom: 2px solid #ff5c34`, `py-1`); desktop header row `md:h-20`
+- **Nav alignment + child dropdown (19 May):** Figma 3-column layout (logo | flex-1 centred nav | child pill + profile); `FigmaChildAvatar` on pill + list items; dropdown uses `FIGMA_DROPDOWN_ITEM_CLASS` (pointer + hover)
 - **Build:** `pnpm -C web build` — pass (18 May 2026)
 
 ## feat(discover): Figma Make overhaul + preserved wiring (May 2026)

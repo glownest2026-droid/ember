@@ -39,6 +39,9 @@ const EMBER_LOGO_SRC =
 
 const CHILD_AVATAR_COLORS = ['#FF8870', '#B8432B', '#FFB347', '#E67A9E', '#7B68B6', '#4ECDC4'];
 
+/** Figma EmberFigmaAppNav / Root.tsx child pill avatar colours */
+const FIGMA_CHILD_AVATAR_COLORS = ['#D9EEF4', '#FF8870', '#B8432B', '#FFB347', '#7B68B6'];
+
 const CHILD_TOGGLE_AFFIRM_KEY = 'ember_child_toggle_affirm';
 
 type SubnavChild = {
@@ -150,6 +153,9 @@ export function UnifiedSignedInNav({
       : selectedChild
         ? childDisplayName(selectedChild, children.findIndex((c) => c.id === selectedChild.id))
         : 'All children';
+  const selectedChildIndex = selectedChild
+    ? children.findIndex((c) => c.id === selectedChild.id)
+    : 0;
 
   const buildUrlWithChild = useCallback(
     (path: string, childId: string | null) => {
@@ -353,10 +359,10 @@ export function UnifiedSignedInNav({
       <div
         className={`min-w-0 ${EMBER_FIGMA_APP_CONTAINER}`}
       >
-        {/* Main row: equal flex-1 sides + viewport-centred nav cluster (live discover layout) */}
-        <div className="relative flex h-16 w-full items-center">
-          {/* Left: logo — flex-1 is pointer-transparent except the link */}
-          <div className="flex min-w-0 flex-1 items-center pointer-events-none [&_a]:pointer-events-auto">
+        {/* Main row: Figma Root.tsx — logo | centred nav | child pill + profile */}
+        <div className="relative flex h-16 w-full items-center md:h-20">
+          {/* Left: logo */}
+          <div className="z-10 flex shrink-0 items-center">
             <Link
               href="/"
               className="flex shrink-0 cursor-pointer items-center gap-2.5"
@@ -549,31 +555,34 @@ export function UnifiedSignedInNav({
               )}
           </div>
 
-          {/* Centre: desktop nav + child — viewport-centred cluster */}
-          <div className="absolute left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-8 md:flex">
-            <nav className="flex shrink-0 items-center gap-8" aria-label="Main">
-              <Link
-                href={buildUrlWithChild('/discover', selectedChildId || null)}
-                className={figmaDesktopNavLinkClass(isDiscover)}
-              >
-                Discover
-              </Link>
-              <Link
-                href={buildUrlWithChild('/my-ideas', selectedChildId || null)}
-                className={figmaDesktopNavLinkClass(isMyIdeas)}
-              >
-                Saves
-              </Link>
-              <Link
-                href={buildUrlWithChild('/marketplace', selectedChildId || null)}
-                className={figmaDesktopNavLinkClass(isMarketplace)}
-              >
-                Marketplace
-              </Link>
-            </nav>
+          {/* Centre: nav only — centred in space between logo and right cluster */}
+          <nav
+            className="pointer-events-none absolute left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-8 md:pointer-events-auto md:static md:flex md:flex-1 md:translate-x-0 md:translate-y-0 md:justify-center [&_a]:pointer-events-auto"
+            aria-label="Main"
+          >
+            <Link
+              href={buildUrlWithChild('/discover', selectedChildId || null)}
+              className={figmaDesktopNavLinkClass(isDiscover)}
+            >
+              Discover
+            </Link>
+            <Link
+              href={buildUrlWithChild('/my-ideas', selectedChildId || null)}
+              className={figmaDesktopNavLinkClass(isMyIdeas)}
+            >
+              Saves
+            </Link>
+            <Link
+              href={buildUrlWithChild('/marketplace', selectedChildId || null)}
+              className={figmaDesktopNavLinkClass(isMarketplace)}
+            >
+              Marketplace
+            </Link>
+          </nav>
 
-            {/* Child profile switcher */}
-            <div className="relative" ref={childDropdownDesktopRef}>
+          {/* Right: child pill + profile */}
+          <div className="z-10 ml-auto flex shrink-0 items-center gap-2 md:gap-3">
+            <div className="relative hidden md:block" ref={childDropdownDesktopRef}>
               <button
                 type="button"
                 onClick={() => setIsChildDropdownOpen(!isChildDropdownOpen)}
@@ -584,6 +593,10 @@ export function UnifiedSignedInNav({
                 aria-haspopup="listbox"
                 aria-label="Select child"
               >
+                <FigmaChildAvatar
+                  initial={selectedChild ? childInitial(selectedChild, selectedChildIndex) : '·'}
+                  colorIndex={selectedChildIndex >= 0 ? selectedChildIndex : 0}
+                />
                 <span className={FIGMA_CHILD_PILL_LABEL_CLASS}>{selectedChildName}</span>
                 <ChevronDown
                   className={`h-3.5 w-3.5 shrink-0 text-[#66717D] transition-transform ${isChildDropdownOpen ? 'rotate-180' : ''}`}
@@ -593,61 +606,46 @@ export function UnifiedSignedInNav({
 
               {isChildDropdownOpen && (
                 <div
-                  className={`absolute left-1/2 top-full z-[120] mt-2 w-80 -translate-x-1/2 ${FIGMA_DROPDOWN_PANEL_CLASS}`}
+                  className={`absolute right-0 top-full z-[120] mt-2 w-72 ${FIGMA_DROPDOWN_PANEL_CLASS}`}
                   role="listbox"
                 >
-                  <div className="p-3">
-                    <div className="px-4 py-2 mb-2">
-                      <div className="text-xs font-medium text-[var(--ember-text-low)] uppercase tracking-wide">
-                        Select child
-                      </div>
-                    </div>
+                  <div className="p-2">
+                    <p className="px-3 py-2 text-xs font-medium uppercase tracking-wide text-[#66717D]">
+                      Select child
+                    </p>
                     <button
                       type="button"
                       onClick={() => handleChildSelect(null)}
-                      className={`${FIGMA_DROPDOWN_ITEM_CLASS} mb-1 ${
+                      className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center justify-between gap-2 ${
                         selectedChildId === '' ? 'bg-[#FBFAF7]' : ''
                       }`}
                     >
-                      <div className="flex min-w-0 items-center justify-between gap-3">
-                        <span className="truncate text-sm font-medium text-[#253044]">All children</span>
+                        <span className="truncate">All children</span>
                         {selectedChildId === '' && (
-                          <div
-                            className="h-2 w-2 shrink-0 rounded-full bg-[#FF5C34]"
-                            aria-hidden
-                          />
+                          <span className="h-2 w-2 shrink-0 rounded-full bg-[#FF5C34]" aria-hidden />
                         )}
-                      </div>
                     </button>
                     {children.map((c, i) => (
                       <button
                         key={c.id}
                         type="button"
                         onClick={() => handleChildSelect(c.id)}
-                        className="w-full text-left px-4 py-3.5 rounded-xl transition-colors mb-1.5 hover:bg-[var(--ember-surface-soft)]"
-                        style={{
-                          backgroundColor:
-                            selectedChildId === c.id ? 'var(--ember-surface-soft)' : 'transparent',
-                        }}
+                        className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center gap-2 ${
+                          selectedChildId === c.id ? 'bg-[#FBFAF7]' : ''
+                        }`}
                       >
-                        <div className="flex items-center justify-between gap-3 min-w-0 w-full">
-                          <span className="text-sm font-medium text-[var(--ember-text-high)] truncate">
-                            {childDisplayName(c, i)}
-                          </span>
-                          {selectedChildId === c.id && (
-                            <div
-                              className="w-2 h-2 rounded-full flex-shrink-0 bg-[var(--ember-accent-base)]"
-                              aria-hidden
-                            />
-                          )}
-                        </div>
+                        <FigmaChildAvatar initial={childInitial(c, i)} colorIndex={i} />
+                        <span className="min-w-0 flex-1 truncate">{childDisplayName(c, i)}</span>
+                        {selectedChildId === c.id && (
+                          <span className="h-2 w-2 shrink-0 rounded-full bg-[#FF5C34]" aria-hidden />
+                        )}
                       </button>
                     ))}
                     <div className="h-px my-3 bg-[var(--ember-border-subtle)]" aria-hidden />
                     <Link
                       href="/add-children"
                       onClick={() => setIsChildDropdownOpen(false)}
-                      className="flex w-full items-center gap-3.5 px-4 py-3.5 rounded-xl transition-colors mb-1.5 hover:bg-[var(--ember-surface-soft)] text-left"
+                      className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center gap-3`}
                     >
                       <div
                         className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-dashed border-[var(--ember-200,#FFDCD2)]"
@@ -665,7 +663,7 @@ export function UnifiedSignedInNav({
                     <Link
                       href="/family"
                       onClick={() => setIsChildDropdownOpen(false)}
-                      className="flex w-full items-center gap-3.5 px-4 py-3.5 rounded-xl transition-colors hover:bg-[var(--ember-surface-soft)] text-left"
+                      className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center gap-3`}
                     >
                       <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-[var(--ember-surface-soft)]">
                         <Users className="w-5 h-5 text-[var(--ember-text-low)]" strokeWidth={2} />
@@ -684,10 +682,6 @@ export function UnifiedSignedInNav({
               )}
             </div>
 
-          </div>
-
-          {/* Right: profile — flex-1 is pointer-transparent except controls */}
-          <div className="flex min-w-0 flex-1 items-center justify-end gap-2 pointer-events-none md:gap-3 [&_button]:pointer-events-auto [&_a]:pointer-events-auto">
             {/* Profile dropdown - desktop */}
             <div className="relative hidden md:block" ref={profileDropdownRef}>
               <button
@@ -933,5 +927,19 @@ export function UnifiedSignedInNav({
         ) : null}
       </div>
     </header>
+  );
+}
+
+function FigmaChildAvatar({ initial, colorIndex }: { initial: string; colorIndex: number }) {
+  const bg = FIGMA_CHILD_AVATAR_COLORS[colorIndex % FIGMA_CHILD_AVATAR_COLORS.length];
+  const fg = bg === '#D9EEF4' ? '#2F5F7C' : '#fff';
+  return (
+    <span
+      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+      style={{ backgroundColor: bg, color: fg }}
+      aria-hidden
+    >
+      {initial}
+    </span>
   );
 }
