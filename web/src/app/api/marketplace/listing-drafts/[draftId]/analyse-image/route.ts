@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { isAdminEmail } from "@/lib/admin";
 import {
   analyseListingImageWithGemini,
@@ -37,7 +37,7 @@ type ApiErrorPayload = {
 };
 
 async function resolveDailyLimit(
-  supabase: ReturnType<typeof createClient>,
+  supabase: ReturnType<typeof createClient>["supabase"],
   user: { id: string; email?: string | null }
 ): Promise<number> {
   const configuredLimit = parsePositiveInt(process.env.AI_LISTING_DAILY_LIMIT, DEFAULT_DAILY_LIMIT);
@@ -79,8 +79,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ draftId: string }> }
 ) {
-  const response = NextResponse.next();
-  const supabase = createClient(request, response);
+  const { supabase, json } = createClient(request);
   const debugId = crypto.randomUUID();
   const startedAt = Date.now();
   const environment = getAiListingEnvironment();
@@ -94,7 +93,7 @@ export async function POST(
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
+      return json(
         buildErrorPayload("Please sign in to analyse this draft photo.", "unauthorized", debugId, false),
         { status: 401 }
       );
@@ -102,7 +101,7 @@ export async function POST(
 
     const { draftId } = await params;
     if (!draftId) {
-      return NextResponse.json(
+      return json(
         buildErrorPayload("Draft id is required.", "invalid_draft_id", debugId, false),
         { status: 400 }
       );
@@ -116,19 +115,19 @@ export async function POST(
       .maybeSingle();
 
     if (draftError) {
-      return NextResponse.json(
+      return json(
         buildErrorPayload(draftError.message, "draft_lookup_failed", debugId, true),
         { status: 500 }
       );
     }
     if (!draft) {
-      return NextResponse.json(
+      return json(
         buildErrorPayload("Draft not found.", "draft_not_found", debugId, false),
         { status: 404 }
       );
     }
     if (!ALLOWED_DRAFT_STATUSES.has(String(draft.status ?? ""))) {
-      return NextResponse.json(
+      return json(
         buildErrorPayload(
           "This draft cannot be analysed in its current status.",
           "draft_status_blocked",
@@ -141,7 +140,7 @@ export async function POST(
 
     const imagePath = String(draft.image_storage_path ?? "").trim();
     if (!imagePath) {
-      return NextResponse.json(
+      return json(
         buildErrorPayload(
           "Please upload a photo before requesting suggestions.",
           "draft_missing_image",
@@ -161,13 +160,13 @@ export async function POST(
       .gte("created_at", cutoffIso);
 
     if (countError) {
-      return NextResponse.json(
+      return json(
         buildErrorPayload(countError.message, "rate_count_failed", debugId, true),
         { status: 500 }
       );
     }
     if ((count ?? 0) >= dailyLimit) {
-      return NextResponse.json(
+      return json(
         buildErrorPayload(
           "You’ve reached today’s Ember test limit for image checks.",
           "ember_daily_limit_reached",
@@ -180,7 +179,7 @@ export async function POST(
 
     const geminiApiKey = process.env.GEMINI_API_KEY?.trim();
     if (!geminiApiKey) {
-      return NextResponse.json(
+      return json(
         buildErrorPayload(
           "Image checking is not configured for this preview.",
           "gemini_not_configured",
@@ -201,7 +200,7 @@ export async function POST(
       imagePath,
     });
     if (!downloadResult.ok) {
-      return NextResponse.json(
+      return json(
         buildErrorPayload(downloadResult.message, downloadResult.code, debugId, true),
         { status: downloadResult.code === "draft_path_forbidden" ? 403 : 500 }
       );
@@ -245,7 +244,7 @@ export async function POST(
         .eq("user_id", user.id);
 
       if (draftUpdateError) {
-        return NextResponse.json(
+        return json(
           buildErrorPayload(draftUpdateError.message, "draft_update_failed", debugId, true),
           { status: 500 }
         );
@@ -265,7 +264,7 @@ export async function POST(
         providerCode: null,
       });
 
-      return NextResponse.json(
+      return json(
         {
           draft_id: draftId,
           detected_item_label: aiResult.analysis.detected_item_label,
@@ -284,7 +283,7 @@ export async function POST(
           debug_id: debugId,
           elapsed_ms: Date.now() - startedAt,
         },
-        { status: 200, headers: response.headers }
+        { status: 200 }
       );
     } catch (error) {
       const providerMessage = error instanceof Error ? error.message : "Unknown analysis error";
@@ -317,7 +316,7 @@ export async function POST(
       });
 
       if (error instanceof GeminiParseError) {
-        return NextResponse.json(
+        return json(
           buildErrorPayload(
             "Ember received a response but could not read it cleanly.",
             "gemini_parse_failed",
@@ -337,7 +336,7 @@ export async function POST(
           },
           providerMessage
         );
-        return NextResponse.json(
+        return json(
           buildErrorPayload(
             classified.message,
             classified.errorCode,
@@ -350,14 +349,14 @@ export async function POST(
         );
       }
 
-      return NextResponse.json(
+      return json(
         buildErrorPayload("Image suggestion failed. Please try again.", "analysis_failed", debugId, true),
         { status: 500 }
       );
     }
   } catch (error) {
     console.error(`[analyse-image:${debugId}] unexpected_route_error`, error);
-    return NextResponse.json(
+    return json(
       buildErrorPayload(
         "Image suggestion request failed before completion. Please try again.",
         "route_unexpected_failure",

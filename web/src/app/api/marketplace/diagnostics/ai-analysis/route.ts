@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { isAdminEmail } from "@/lib/admin";
 import {
   generateGeminiListingImageContent,
@@ -37,7 +37,7 @@ function notReached(name: string): DiagnosticStep {
 }
 
 async function resolveIsAdmin(
-  supabase: ReturnType<typeof createClient>,
+  supabase: ReturnType<typeof createClient>["supabase"],
   user: { id: string; email?: string | null }
 ): Promise<boolean> {
   if (isAdminEmail(user.email)) return true;
@@ -51,8 +51,7 @@ async function resolveIsAdmin(
 }
 
 export async function GET(request: NextRequest) {
-  const response = NextResponse.next();
-  const supabase = createClient(request, response);
+  const { supabase, json } = createClient(request);
   const debugId = crypto.randomUUID();
   const environment = getAiListingEnvironment();
   const steps: DiagnosticStep[] = [];
@@ -75,9 +74,9 @@ export async function GET(request: NextRequest) {
     if (authError || !user) {
       steps.push(step("auth", false, "not signed in"));
       markFailure("auth", "Authentication required.");
-      return NextResponse.json(
+      return json(
         { ok: false, debugId, environment, steps, failureStage, safeSummary },
-        { status: 401, headers: response.headers }
+        { status: 401 }
       );
     }
     steps.push(step("auth", true, "signed_in"));
@@ -85,9 +84,9 @@ export async function GET(request: NextRequest) {
     if (!draftId) {
       steps.push(step("draft_lookup", false, "draftId query parameter is required"));
       markFailure("draft_lookup", "Draft id is required.");
-      return NextResponse.json(
+      return json(
         { ok: false, debugId, environment, steps, failureStage, safeSummary },
-        { status: 400, headers: response.headers }
+        { status: 400 }
       );
     }
 
@@ -101,33 +100,33 @@ export async function GET(request: NextRequest) {
     if (draftError) {
       steps.push(step("draft_lookup", false, draftError.message));
       markFailure("draft_lookup", "Draft lookup failed.");
-      return NextResponse.json(
+      return json(
         { ok: false, debugId, environment, steps, failureStage, safeSummary },
-        { status: 500, headers: response.headers }
+        { status: 500 }
       );
     }
     if (!draft) {
       steps.push(step("draft_lookup", false, "draft not found"));
       markFailure("draft_lookup", "Draft not found.");
-      return NextResponse.json(
+      return json(
         { ok: false, debugId, environment, steps, failureStage, safeSummary },
-        { status: 404, headers: response.headers }
+        { status: 404 }
       );
     }
     if (!isAdminUser && draft.user_id !== user.id) {
       steps.push(step("draft_lookup", false, "draft not owned by current user"));
       markFailure("draft_lookup", "Draft is not owned by the current user.");
-      return NextResponse.json(
+      return json(
         { ok: false, debugId, environment, steps, failureStage, safeSummary },
-        { status: 403, headers: response.headers }
+        { status: 403 }
       );
     }
     if (!ALLOWED_DRAFT_STATUSES.has(String(draft.status ?? ""))) {
       steps.push(step("draft_lookup", false, `draft status blocked: ${String(draft.status ?? "unknown")}`));
       markFailure("draft_lookup", "Draft status blocks analysis.");
-      return NextResponse.json(
+      return json(
         { ok: false, debugId, environment, steps, failureStage, safeSummary },
-        { status: 400, headers: response.headers }
+        { status: 400 }
       );
     }
     steps.push(
@@ -163,9 +162,9 @@ export async function GET(request: NextRequest) {
         notReached("draft_update"),
         step("ai_event_log", null, "not reached")
       );
-      return NextResponse.json(
+      return json(
         { ok: false, debugId, environment, steps, failureStage, safeSummary },
-        { status: 500, headers: response.headers }
+        { status: 500 }
       );
     }
 
@@ -200,9 +199,9 @@ export async function GET(request: NextRequest) {
         notReached("draft_update"),
         step("ai_event_log", null, "skipped in no-provider mode")
       );
-      return NextResponse.json(
+      return json(
         { ok: true, debugId, environment, steps, failureStage: null, safeSummary },
-        { status: 200, headers: response.headers }
+        { status: 200 }
       );
     }
 
@@ -217,9 +216,9 @@ export async function GET(request: NextRequest) {
         notReached("draft_update"),
         step("ai_event_log", null, "not reached")
       );
-      return NextResponse.json(
+      return json(
         { ok: false, debugId, environment, steps, failureStage, safeSummary },
-        { status: 500, headers: response.headers }
+        { status: 500 }
       );
     }
 
@@ -273,9 +272,9 @@ export async function GET(request: NextRequest) {
           providerCode: null,
         });
         steps.push(step("ai_event_log", true, "failure event logged"));
-        return NextResponse.json(
+        return json(
           { ok: false, debugId, environment, steps, failureStage, safeSummary },
-          { status: 502, headers: response.headers }
+          { status: 502 }
         );
       }
 
@@ -326,7 +325,7 @@ export async function GET(request: NextRequest) {
         ? "Gemini analysis succeeded but draft update failed."
         : "Full analysis pipeline succeeded.";
 
-      return NextResponse.json(
+      return json(
         {
           ok: !draftUpdateError,
           debugId,
@@ -335,7 +334,7 @@ export async function GET(request: NextRequest) {
           failureStage,
           safeSummary,
         },
-        { status: draftUpdateError ? 500 : 200, headers: response.headers }
+        { status: draftUpdateError ? 500 : 200 }
       );
     } catch (error) {
       const providerMessage = error instanceof Error ? error.message : "Gemini request failed.";
@@ -394,7 +393,7 @@ export async function GET(request: NextRequest) {
       });
       steps.push(step("ai_event_log", true, "failure event logged"));
 
-      return NextResponse.json(
+      return json(
         {
           ok: false,
           debugId,
@@ -404,12 +403,12 @@ export async function GET(request: NextRequest) {
           safeSummary,
           errorCode: classified.errorCode,
         },
-        { status: classified.httpStatus, headers: response.headers }
+        { status: classified.httpStatus }
       );
     }
   } catch (error) {
     console.error(`[ai-analysis-diagnostic:${debugId}] unexpected_route_error`, error);
-    return NextResponse.json(
+    return json(
       {
         ok: false,
         debugId,
@@ -418,7 +417,7 @@ export async function GET(request: NextRequest) {
         failureStage: failureStage ?? "route_unexpected_failure",
         safeSummary: "Diagnostic route failed unexpectedly.",
       },
-      { status: 500, headers: response.headers }
+      { status: 500 }
     );
   }
 }

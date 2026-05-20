@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { isAdminEmail } from "@/lib/admin";
 import { getAiListingEnvironment } from "@/lib/marketplace/ai-listing-gemini-config";
 import {
@@ -8,9 +8,10 @@ import {
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 async function resolveIsAdmin(
-  supabase: ReturnType<typeof createClient>,
+  supabase: ReturnType<typeof createClient>["supabase"],
   user: { id: string; email?: string | null }
 ): Promise<boolean> {
   if (isAdminEmail(user.email)) return true;
@@ -24,27 +25,28 @@ async function resolveIsAdmin(
 }
 
 export async function GET(request: NextRequest) {
-  const response = NextResponse.next();
-  const supabase = createClient(request, response);
+  const { supabase, json } = createClient(request);
+
+  try {
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const isAdminUser = await resolveIsAdmin(supabase, user);
   if (!isAdminUser) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return json({ error: "Forbidden" }, { status: 403 });
   }
 
   const environment = getAiListingEnvironment();
   const testProvider = request.nextUrl.searchParams.get("testProvider") === "1";
 
   if (!testProvider) {
-    return NextResponse.json(
+    return json(
       {
         provider: environment.provider,
         configured: environment.configured,
@@ -53,13 +55,13 @@ export async function GET(request: NextRequest) {
         timeoutMs: environment.timeoutMs,
         hasApiKey: environment.hasApiKey,
       },
-      { status: 200, headers: response.headers }
+      { status: 200 }
     );
   }
 
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
-    return NextResponse.json(
+    return json(
       {
         ...environment,
         providerTest: {
@@ -75,7 +77,7 @@ export async function GET(request: NextRequest) {
         },
         safeSummary: "Gemini API key is not configured.",
       },
-      { status: 200, headers: response.headers }
+      { status: 200 }
     );
   }
 
@@ -85,12 +87,22 @@ export async function GET(request: NextRequest) {
     model: environment.effectiveModel,
   });
 
-  return NextResponse.json(
+  return json(
     {
       ...environment,
       providerTest,
       safeSummary: buildProviderTestFailureSummary(providerTest),
     },
-    { status: 200, headers: response.headers }
+    { status: 200 }
   );
+  } catch (error) {
+    console.error("[ai-config-diagnostic] unexpected_route_error", error);
+    return json(
+      {
+        error: "Diagnostic route failed unexpectedly.",
+        error_code: "diagnostic_route_failed",
+      },
+      { status: 500 }
+    );
+  }
 }

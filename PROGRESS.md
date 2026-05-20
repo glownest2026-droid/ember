@@ -2768,3 +2768,8 @@ Category-only cards remain publishable.
 - Founder must verify Vercel `GEMINI_API_KEY` belongs to Google AI Studio project **Ember** (API cannot safely prove project identity).
 - Redeploy Vercel Preview after merging/pushing this branch so new routes and env vars apply.
 - PR3 should not merge until Preview diagnostics show whether failure is pre-Gemini or at `gemini_request`.
+
+### Follow-up — fix diagnostic route HTTP 500 on Next.js 16
+- Root cause: `NextResponse.next()` is not allowed in App Router route handlers (Next.js 16); diagnostic routes returned `headers: response.headers` from that object and crashed with empty HTTP 500.
+- Fix: updated `createClient()` in `route-handler.ts` to buffer session cookies and apply them via a `json()` helper; redirect auth routes use new `bindSupabaseToResponse()`.
+- Files updated: diagnostics routes, analyse-image, select-candidate, inventory/match, auth/callback, auth/confirm.
