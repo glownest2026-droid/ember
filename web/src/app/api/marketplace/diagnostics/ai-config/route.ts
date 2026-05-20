@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
         effectiveModel: environment.effectiveModel,
         dailyLimit: environment.dailyLimit,
         timeoutMs: environment.timeoutMs,
+        timeoutSource: environment.timeoutSource,
         hasApiKey: environment.hasApiKey,
       },
       { status: 200 }

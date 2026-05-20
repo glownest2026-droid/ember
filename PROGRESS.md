@@ -2773,3 +2773,9 @@ Category-only cards remain publishable.
 - Root cause: `NextResponse.next()` is not allowed in App Router route handlers (Next.js 16); diagnostic routes returned `headers: response.headers` from that object and crashed with empty HTTP 500.
 - Fix: updated `createClient()` in `route-handler.ts` to buffer session cookies and apply them via a `json()` helper; redirect auth routes use new `bindSupabaseToResponse()`.
 - Files updated: diagnostics routes, analyse-image, select-candidate, inventory/match, auth/callback, auth/confirm.
+
+### Follow-up — fix Gemini timeoutMs=1 abort
+- Root cause: `GEMINI_TIMEOUT_MS=1` on Vercel Preview (via `parsePositiveInt` allowing any value ≥1).
+- Fix: `resolveGeminiTimeoutMs()` defaults to **30000ms**, clamps `<5000` to 30000, clamps `>60000` to 60000.
+- Diagnostics expose `timeoutSource`: `default` | `env` | `clamped`.
+- Recommended Preview env: `GEMINI_TIMEOUT_MS=30000` (optional; code safe without it).

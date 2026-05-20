@@ -6,7 +6,7 @@ import {
   DEFAULT_GEMINI_MODEL,
   extractProviderDetails,
   getEffectiveGeminiModel,
-  parsePositiveInt,
+  resolveGeminiTimeoutMs,
 } from "./ai-listing-gemini-config";
 
 export { DEFAULT_GEMINI_MODEL };
@@ -271,10 +271,10 @@ export async function analyseListingImageWithGemini(args: {
   }
 
   const modelUsed = args.model?.trim() || getEffectiveGeminiModel();
-  const timeoutMs = parsePositiveInt(
-    typeof args.timeoutMs === "number" ? String(args.timeoutMs) : process.env.GEMINI_TIMEOUT_MS,
-    8000
-  );
+  const { timeoutMs } =
+    typeof args.timeoutMs === "number"
+      ? resolveGeminiTimeoutMs(String(args.timeoutMs))
+      : resolveGeminiTimeoutMs();
 
   const generated = await generateGeminiListingImageContent({
     apiKey,

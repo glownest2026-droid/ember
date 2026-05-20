@@ -2,7 +2,16 @@ import "server-only";
 
 export const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash-lite";
 const DEFAULT_DAILY_LIMIT = 5;
-const DEFAULT_GEMINI_TIMEOUT_MS = 8000;
+export const DEFAULT_GEMINI_TIMEOUT_MS = 30000;
+const MIN_GEMINI_TIMEOUT_MS = 5000;
+const MAX_GEMINI_TIMEOUT_MS = 60000;
+
+export type GeminiTimeoutSource = "default" | "env" | "clamped";
+
+export type ResolvedGeminiTimeout = {
+  timeoutMs: number;
+  timeoutSource: GeminiTimeoutSource;
+};
 
 export type AiListingEnvironment = {
   configured: boolean;
@@ -11,6 +20,7 @@ export type AiListingEnvironment = {
   provider: "gemini";
   hasApiKey: boolean;
   timeoutMs: number;
+  timeoutSource: GeminiTimeoutSource;
 };
 
 export type ProviderDetails = {
@@ -38,15 +48,39 @@ export function parsePositiveInt(value: string | undefined, fallback: number): n
   return Math.max(1, Math.floor(parsed));
 }
 
+export function resolveGeminiTimeoutMs(rawEnv?: string | null): ResolvedGeminiTimeout {
+  const trimmed = (rawEnv ?? process.env.GEMINI_TIMEOUT_MS ?? "").trim();
+  if (!trimmed) {
+    return { timeoutMs: DEFAULT_GEMINI_TIMEOUT_MS, timeoutSource: "default" };
+  }
+
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed)) {
+    return { timeoutMs: DEFAULT_GEMINI_TIMEOUT_MS, timeoutSource: "default" };
+  }
+
+  const floored = Math.floor(parsed);
+  if (floored < MIN_GEMINI_TIMEOUT_MS) {
+    return { timeoutMs: DEFAULT_GEMINI_TIMEOUT_MS, timeoutSource: "clamped" };
+  }
+  if (floored > MAX_GEMINI_TIMEOUT_MS) {
+    return { timeoutMs: MAX_GEMINI_TIMEOUT_MS, timeoutSource: "clamped" };
+  }
+
+  return { timeoutMs: floored, timeoutSource: "env" };
+}
+
 export function getAiListingEnvironment(): AiListingEnvironment {
   const hasApiKey = Boolean(process.env.GEMINI_API_KEY?.trim());
+  const { timeoutMs, timeoutSource } = resolveGeminiTimeoutMs();
   return {
     configured: hasApiKey,
     effectiveModel: getEffectiveGeminiModel(),
     dailyLimit: parsePositiveInt(process.env.AI_LISTING_DAILY_LIMIT, DEFAULT_DAILY_LIMIT),
     provider: "gemini",
     hasApiKey,
-    timeoutMs: parsePositiveInt(process.env.GEMINI_TIMEOUT_MS, DEFAULT_GEMINI_TIMEOUT_MS),
+    timeoutMs,
+    timeoutSource,
   };
 }
 
@@ -142,7 +176,7 @@ export function classifyGeminiProviderError(details: ProviderDetails, rawMessage
   if (code === "DEADLINE_EXCEEDED" || lower.includes("aborted") || lower.includes("timeout")) {
     return {
       errorCode: "gemini_timeout",
-      message: "Gemini request timed out. Please retry.",
+      message: "Gemini took too long to respond. Please try again.",
       retryable: true,
       httpStatus: 504,
       providerStatus: status,
