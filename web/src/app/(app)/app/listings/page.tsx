@@ -20,6 +20,8 @@ type DraftRow = {
   condition_confirmed_by_user: string | null;
   listing_draft_details_json: ListingDraftDetailsJson | null;
   listing_details_generated_at: string | null;
+  ai_detected_label: string | null;
+  ai_raw_response_json: { parent_confirmed_display_label?: string; analysis?: { detected_item_label?: string } } | null;
 };
 
 type AuthUser = {
@@ -29,6 +31,7 @@ type AuthUser = {
 type CandidateCard = {
   id: string | null;
   label: string;
+  catalog_match_label: string | null;
   subtitle: string | null;
   reason: string;
   confidence_bucket: "high" | "medium" | "low";
@@ -62,6 +65,7 @@ type SelectCandidateResponse = {
   selected_product_type?: {
     id: string;
     label: string;
+    display_label?: string | null;
     subtitle: string | null;
   };
   draft?: {
@@ -75,6 +79,7 @@ type ConfirmedDraftState = {
   status: string;
   productTypeId: string | null;
   label: string | null;
+  displayLabel: string | null;
 };
 
 function getFileExtension(file: File): string {
@@ -168,7 +173,7 @@ export default function AppListingsPhotoDraftPage() {
       const { data: drafts, error: draftsError } = await supabase
         .from("marketplace_listing_drafts")
         .select(
-          "id, image_storage_path, product_type_id, status, title_draft, description_draft, condition_confirmed_by_user, listing_draft_details_json, listing_details_generated_at"
+          "id, image_storage_path, product_type_id, status, title_draft, description_draft, condition_confirmed_by_user, listing_draft_details_json, listing_details_generated_at, ai_detected_label, ai_raw_response_json"
         )
         .eq("user_id", authUser.id)
         .order("created_at", { ascending: false })
@@ -199,10 +204,16 @@ export default function AppListingsPhotoDraftPage() {
             .select("label")
             .eq("id", latest.product_type_id)
             .maybeSingle();
+          const visualLabel =
+            latest.ai_raw_response_json?.parent_confirmed_display_label?.trim() ||
+            latest.ai_raw_response_json?.analysis?.detected_item_label?.trim() ||
+            latest.ai_detected_label?.trim() ||
+            null;
           setConfirmedDraft({
             status: latest.status,
             productTypeId: latest.product_type_id,
             label: productType?.label ?? null,
+            displayLabel: visualLabel,
           });
           setSelectionMessage("Confirmed item type saved on this draft.");
         } else if (latest.status === "draft" && !latest.product_type_id) {
@@ -210,6 +221,7 @@ export default function AppListingsPhotoDraftPage() {
             status: latest.status,
             productTypeId: null,
             label: null,
+            displayLabel: null,
           });
         }
         if (latest.image_storage_path) {
@@ -291,7 +303,19 @@ export default function AppListingsPhotoDraftPage() {
 
       const { error: updateDraftError } = await supabase
         .from("marketplace_listing_drafts")
-        .update({ image_storage_path: path })
+        .update({
+          image_storage_path: path,
+          product_type_id: null,
+          status: "draft",
+          title_draft: null,
+          description_draft: null,
+          condition_confirmed_by_user: null,
+          listing_draft_details_json: null,
+          listing_details_generated_at: null,
+          ai_detected_label: null,
+          ai_confidence: null,
+          ai_raw_response_json: null,
+        })
         .eq("id", activeDraftId)
         .eq("user_id", user.id);
 
@@ -301,6 +325,8 @@ export default function AppListingsPhotoDraftPage() {
       await refreshSignedPreview(path);
       setSuccess("Photo uploaded privately to your draft.");
       setAnalysisResult(null);
+      setConfirmedDraft(null);
+      setSelectionMessage(null);
     } catch (uploadFlowError) {
       setError(uploadFlowError instanceof Error ? uploadFlowError.message : "Upload failed.");
     } finally {
@@ -318,6 +344,15 @@ export default function AppListingsPhotoDraftPage() {
       return;
     }
     setAnalysisLoading(true);
+    setConfirmedDraft(null);
+    setSelectionMessage(null);
+    setDraftDetails({
+      title: null,
+      description: null,
+      condition: null,
+      detailsJson: null,
+      generatedAt: null,
+    });
     try {
       const response = await fetch(
         `/api/marketplace/listing-drafts/${draftId}/analyse-image`,
@@ -355,7 +390,10 @@ export default function AppListingsPhotoDraftPage() {
     }
   };
 
-  const handleSelectCandidate = async (productTypeId: string | null) => {
+  const handleSelectCandidate = async (
+    productTypeId: string | null,
+    displayLabel?: string | null
+  ) => {
     if (savingSelection) return;
     if (!draftId) return;
     setSavingSelection(true);
@@ -369,7 +407,11 @@ export default function AppListingsPhotoDraftPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(
             productTypeId
-              ? { selection: "canonical", product_type_id: productTypeId }
+              ? {
+                  selection: "canonical",
+                  product_type_id: productTypeId,
+                  display_label: displayLabel?.trim() || null,
+                }
               : { selection: "not_sure" }
           ),
         }
@@ -391,12 +433,25 @@ export default function AppListingsPhotoDraftPage() {
           status: draft.status,
           productTypeId: draft.product_type_id,
           label: payload?.selected_product_type?.label ?? null,
+          displayLabel:
+            payload?.selected_product_type?.display_label?.trim() ||
+            displayLabel?.trim() ||
+            analysisResult?.detected_item_label?.trim() ||
+            null,
+        });
+        setDraftDetails({
+          title: null,
+          description: null,
+          condition: null,
+          detailsJson: null,
+          generatedAt: null,
         });
       } else {
         setConfirmedDraft({
           status: draft?.status ?? "draft",
           productTypeId: null,
           label: null,
+          displayLabel: null,
         });
       }
       setSelectionMessage(payload?.message ?? "Saved to your draft.");
@@ -525,7 +580,13 @@ export default function AppListingsPhotoDraftPage() {
           <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-1">
             <p className="text-sm font-medium text-emerald-900">Confirmed on your draft</p>
             <p className="text-sm text-emerald-800">
-              {confirmedDraft.label ?? "Canonical item type saved."} Ember will only use this match after your confirmation.
+              {confirmedDraft.displayLabel ?? confirmedDraft.label ?? "Item type saved."}
+              {confirmedDraft.displayLabel &&
+                confirmedDraft.label &&
+                confirmedDraft.displayLabel.toLowerCase() !== confirmedDraft.label.toLowerCase() && (
+                  <> (catalog: {confirmedDraft.label})</>
+                )}
+              . Ember will only use this match after your confirmation.
             </p>
           </div>
         )}
@@ -545,7 +606,14 @@ export default function AppListingsPhotoDraftPage() {
               {analysisResult.candidate_cards.map((candidate) => (
                 <li key={`${candidate.id ?? candidate.label}-${candidate.source}`} className="rounded-xl border border-[#E5E7EB] p-4 bg-[#FAFAFA] space-y-2">
                   <p className="font-medium text-[#1A1E23]">{candidate.label}</p>
-                  {candidate.subtitle && (
+                  {candidate.catalog_match_label &&
+                    candidate.catalog_match_label.toLowerCase() !== candidate.label.toLowerCase() && (
+                      <p className="text-xs text-[#5C646D]">
+                        Catalog match: {candidate.catalog_match_label}
+                        {candidate.subtitle ? ` · ${candidate.subtitle}` : ""}
+                      </p>
+                    )}
+                  {candidate.subtitle && !candidate.catalog_match_label && (
                     <p className="text-xs text-[#5C646D]">{candidate.subtitle}</p>
                   )}
                   <p className="text-sm text-[#5C646D]">{candidate.reason}</p>
@@ -554,7 +622,7 @@ export default function AppListingsPhotoDraftPage() {
                     <button
                       type="button"
                       disabled={savingSelection}
-                      onClick={() => handleSelectCandidate(candidate.id)}
+                      onClick={() => handleSelectCandidate(candidate.id, candidate.label)}
                       className="inline-flex items-center rounded-lg border border-[#E5E7EB] bg-white px-3 py-1.5 text-sm text-[#1A1E23] disabled:opacity-60"
                     >
                       Choose this

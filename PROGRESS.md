@@ -2880,3 +2880,18 @@ Category-only cards remain publishable.
 ### Next module handoff
 - Branch to create after merge: `feat/ai-listing-price-guidance`
 - Start with grounded product/RRP lookup, cautious price range only, no publish flow
+
+### Follow-up — PR4 title quality patch (visual label first)
+- User-facing `title_draft` now biases toward Gemini visual identification before canonical category labels.
+- Canonical product type remains internal taxonomy support and no longer dominates the listing title.
+- Added deterministic guardrails for known contradictions:
+  - xylophone title is replaced when visual context indicates saxophone-style toy
+  - unsupported material words (e.g. `wooden`) are removed unless visual context supports them
+- Added `canonical_review_note` capture in `listing_draft_details_json` when visual label and broad canonical match diverge.
+- Known taxonomy expansion need: add specific toy instruments (e.g. `toy_saxophone`, `toy_trumpet`, `toy_keyboard`, `toy_drum`).
+
+### Follow-up — PR4 display label + stale draft reset (binoculars / Toy Box)
+- Candidate cards now show Gemini/visual label first; weak catalog matches (e.g. Toy Box) appear as `Catalog match:` subtitle via `ai-listing-display-label.ts`.
+- Re-analyse or new photo upload clears confirmation, generated listing details, and PR3/PR4 draft fields so stale xylophone data cannot persist.
+- Parent confirmation stores `parent_confirmed_display_label` in `ai_raw_response_json`; green banner uses visual label with optional catalog parenthetical.
+- `generate-details` title reconciliation uses shared display-label helpers (binoculars vs toy box / xylophone guards).

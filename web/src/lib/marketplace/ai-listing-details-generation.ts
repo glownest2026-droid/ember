@@ -8,6 +8,7 @@ import {
   getEffectiveGeminiModel,
   resolveGeminiTimeoutMs,
 } from "./ai-listing-gemini-config";
+import { pickTitleFromContext } from "./ai-listing-display-label";
 import {
   LISTING_ARRAY_MAX_ITEMS,
   LISTING_DESCRIPTION_MAX,
@@ -31,6 +32,9 @@ export class GeminiDetailsParseError extends Error {}
 
 const FORBIDDEN_PRICE_PATTERN =
   /\b(rrp|£|\$|€|price|priced|costs?|worth|valued at|msrp|retail)\b/i;
+const MATERIAL_WORD_PATTERN = /\b(wooden|plastic|metal)\b/gi;
+const GENERIC_TITLE_PATTERN =
+  /\b(item|toy item|product|confirmed item|second-hand item|unknown)\b/i;
 
 function stringList(value: unknown, maxItems = LISTING_ARRAY_MAX_ITEMS): string[] {
   if (!Array.isArray(value)) return [];
@@ -46,13 +50,96 @@ function clampText(value: unknown, maxLength: number, fallback: string): string 
   return trimmed.length > maxLength ? `${trimmed.slice(0, maxLength - 1)}…` : trimmed;
 }
 
+function cleanTitle(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function removeUnsupportedMaterialWords(title: string, visualSupportText: string): string {
+  const supportsWood = /\bwood|wooden\b/i.test(visualSupportText);
+  if (supportsWood) return title;
+  return cleanTitle(title.replace(/\bwooden\b/gi, ""));
+}
+
+function isSpecificLabel(label: string): boolean {
+  const trimmed = cleanTitle(label).toLowerCase();
+  if (!trimmed || GENERIC_TITLE_PATTERN.test(trimmed)) return false;
+  return trimmed.length >= 5;
+}
+
+function pickFallbackTitle(args: {
+  visualLabel: string;
+  confirmedLabel: string;
+  categoryLabel: string;
+}): string {
+  if (isSpecificLabel(args.visualLabel)) return cleanTitle(args.visualLabel);
+  if (isSpecificLabel(args.confirmedLabel)) return cleanTitle(args.confirmedLabel);
+  if (/music|musical/i.test(args.categoryLabel)) return "Musical toy";
+  return cleanTitle(args.categoryLabel) || "Toy item";
+}
+
+function reconcileSuggestedTitle(args: {
+  suggestedTitle: string;
+  visualLabel: string;
+  confirmedLabel: string;
+  categoryLabel: string;
+  visualSupportText: string;
+}): string {
+  let title = cleanTitle(args.suggestedTitle);
+  const fallback = pickFallbackTitle({
+    visualLabel: args.visualLabel,
+    confirmedLabel: args.confirmedLabel,
+    categoryLabel: args.categoryLabel,
+  });
+
+  if (!title) title = fallback;
+  title = removeUnsupportedMaterialWords(title, args.visualSupportText);
+
+  const titleLower = title.toLowerCase();
+  const visual = cleanTitle(args.visualLabel).toLowerCase();
+  if (titleLower.includes("xylophone") && visual.includes("saxophone")) {
+    return "Saxophone-style musical toy";
+  }
+  if (titleLower.includes("xylophone") && /saxophone/.test(args.visualSupportText.toLowerCase())) {
+    return "Saxophone-style musical toy";
+  }
+
+  title = pickTitleFromContext({
+    suggestedTitle: title,
+    visualLabel: args.visualLabel,
+    canonicalLabel: args.confirmedLabel,
+    categoryLabel: args.categoryLabel,
+    visualSupportText: args.visualSupportText,
+  });
+
+  if (GENERIC_TITLE_PATTERN.test(title.toLowerCase())) {
+    return fallback;
+  }
+
+  return cleanTitle(title);
+}
+
 export function normalizeListingDraftDetails(
   value: unknown,
-  modelUsed: string
+  modelUsed: string,
+  titleContext: {
+    visualLabel: string;
+    confirmedLabel: string;
+    categoryLabel: string;
+    visualSupportText: string;
+  }
 ): ListingDraftDetailsJson {
   const source = (value && typeof value === "object" ? value : {}) as Record<string, unknown>;
+  const suggestedTitleRaw = clampText(source.suggested_title, LISTING_TITLE_MAX, "");
+  const reconciledTitle = reconcileSuggestedTitle({
+    suggestedTitle: suggestedTitleRaw,
+    visualLabel: titleContext.visualLabel,
+    confirmedLabel: titleContext.confirmedLabel,
+    categoryLabel: titleContext.categoryLabel,
+    visualSupportText: titleContext.visualSupportText,
+  });
+
   return {
-    suggested_title: clampText(source.suggested_title, LISTING_TITLE_MAX, "Second-hand item"),
+    suggested_title: clampText(reconciledTitle, LISTING_TITLE_MAX, "Toy item"),
     suggested_description: clampText(
       source.suggested_description,
       LISTING_DESCRIPTION_MAX,
@@ -80,7 +167,16 @@ export function normalizeListingDraftDetails(
   };
 }
 
-export function parseListingDraftDetails(rawText: string, modelUsed: string): ListingDraftDetailsJson {
+export function parseListingDraftDetails(
+  rawText: string,
+  modelUsed: string,
+  titleContext: {
+    visualLabel: string;
+    confirmedLabel: string;
+    categoryLabel: string;
+    visualSupportText: string;
+  }
+): ListingDraftDetailsJson {
   const jsonText = extractJsonText(rawText);
   if (!jsonText) {
     throw new GeminiDetailsParseError("Gemini did not return JSON.");
@@ -91,7 +187,7 @@ export function parseListingDraftDetails(rawText: string, modelUsed: string): Li
   } catch {
     throw new GeminiDetailsParseError("Gemini JSON could not be parsed.");
   }
-  return normalizeListingDraftDetails(parsed, modelUsed);
+  return normalizeListingDraftDetails(parsed, modelUsed, titleContext);
 }
 
 export async function generateListingDetailsWithGemini(args: {
@@ -99,6 +195,12 @@ export async function generateListingDetailsWithGemini(args: {
   model?: string;
   timeoutMs?: number;
   prompt: string;
+  titleContext: {
+    visualLabel: string;
+    confirmedLabel: string;
+    categoryLabel: string;
+    visualSupportText: string;
+  };
 }): Promise<{
   details: ListingDraftDetailsJson;
   rawText: string;
@@ -147,7 +249,17 @@ export async function generateListingDetailsWithGemini(args: {
           : null,
     };
 
-    const details = parseListingDraftDetails(rawText, modelUsed);
+    const jsonText = extractJsonText(rawText);
+    if (!jsonText) {
+      throw new GeminiDetailsParseError("Gemini did not return JSON.");
+    }
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(jsonText);
+    } catch {
+      throw new GeminiDetailsParseError("Gemini JSON could not be parsed.");
+    }
+    const details = normalizeListingDraftDetails(parsed, modelUsed, args.titleContext);
     return { details, rawText, tokenUsage, modelUsed };
   } catch (error) {
     if (error instanceof GeminiDetailsParseError) throw error;

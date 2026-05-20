@@ -14,6 +14,11 @@ import {
   getAiListingEnvironment,
   parsePositiveInt,
 } from "@/lib/marketplace/ai-listing-gemini-config";
+import {
+  canonicalLabelMatchesVisual,
+  isBroadCanonicalLabel,
+  pickUserFacingDisplayLabel,
+} from "@/lib/marketplace/ai-listing-display-label";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +26,6 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const DEFAULT_DETAILS_DAILY_LIMIT = 10;
-
 type ApiErrorPayload = {
   error: string;
   error_code: string;
@@ -76,6 +80,49 @@ function hasConfirmedItemType(draft: {
   status: string;
 }): boolean {
   return Boolean(draft.product_type_id) && draft.status === "confirmed";
+}
+
+function chooseUserFacingTitleLabels(args: {
+  visualLabel: string;
+  confirmedLabel: string;
+  categoryLabel: string;
+  parentDisplayLabel?: string;
+}) {
+  const visual = args.visualLabel.trim();
+  const confirmed = args.confirmedLabel.trim();
+  const category = args.categoryLabel.trim();
+  const parentDisplay = args.parentDisplayLabel?.trim() || "";
+
+  const preferred = pickUserFacingDisplayLabel({
+    visualLabel: parentDisplay || visual,
+    canonicalCatalogLabel: confirmed,
+    categoryLabel: category,
+  });
+
+  return {
+    preferredTitleLabel: preferred,
+    canonicalLabel: confirmed || "Confirmed item",
+  };
+}
+
+function buildCanonicalReviewNote(args: {
+  visualLabel: string;
+  canonicalLabel: string;
+  categoryLabel: string;
+}): string | null {
+  const visual = args.visualLabel.trim();
+  const canonical = args.canonicalLabel.trim();
+  if (!visual || !canonical) return null;
+  const isBroadCanonical = isBroadCanonicalLabel(canonical);
+  const overlaps = canonicalLabelMatchesVisual({
+    canonicalLabel: canonical,
+    visualLabel: visual,
+  });
+  if (!isBroadCanonical && overlaps) return null;
+  if (!isBroadCanonical && !overlaps) {
+    return `Gemini suggested '${visual}', but the confirmed catalog label was '${canonical}'.`;
+  }
+  return `Gemini suggested '${visual}', but nearest canonical match was '${canonical}'. Consider adding canonical marketplace item type: ${visual.toLowerCase().replace(/[^a-z0-9]+/g, "_")}.`;
 }
 
 export async function POST(
@@ -188,18 +235,33 @@ export async function POST(
       .maybeSingle();
 
     const pr3Raw = (draft.ai_raw_response_json ?? null) as Pr3AiRawResponse | null;
-    const confirmedItemLabel =
-      productType?.label?.trim() ||
-      pr3Raw?.analysis?.detected_item_label?.trim() ||
-      draft.ai_detected_label?.trim() ||
-      "Confirmed item";
+    const parentDisplayLabel =
+      typeof pr3Raw?.parent_confirmed_display_label === "string"
+        ? pr3Raw.parent_confirmed_display_label.trim()
+        : "";
+    const visualDetectedLabel =
+      pr3Raw?.analysis?.detected_item_label?.trim() || draft.ai_detected_label?.trim() || "";
+    const confirmedCanonicalLabel = productType?.label?.trim() || "Confirmed item";
     const categoryLabel =
       productType?.subtitle?.trim() ||
       pr3Raw?.analysis?.broad_category?.trim() ||
       "General";
+    const titleChoice = chooseUserFacingTitleLabels({
+      visualLabel: visualDetectedLabel,
+      confirmedLabel: confirmedCanonicalLabel,
+      categoryLabel,
+      parentDisplayLabel,
+    });
+    const visualSupportText = [
+      visualDetectedLabel,
+      ...(pr3Raw?.analysis?.visible_text ?? []),
+      ...(pr3Raw?.analysis?.condition_observations ?? []),
+    ]
+      .join(" ")
+      .trim();
 
     const prompt = buildListingDetailsGenerationPrompt({
-      confirmedItemLabel,
+      confirmedItemLabel: titleChoice.preferredTitleLabel,
       categoryLabel,
       productTypeSubtitle: productType?.subtitle ?? null,
       pr3Analysis: pr3Raw,
@@ -215,7 +277,21 @@ export async function POST(
         model: environment.effectiveModel,
         timeoutMs: environment.timeoutMs,
         prompt,
+        titleContext: {
+          visualLabel: parentDisplayLabel || visualDetectedLabel,
+          confirmedLabel: confirmedCanonicalLabel,
+          categoryLabel,
+          visualSupportText,
+        },
       });
+      const canonicalReviewNote = buildCanonicalReviewNote({
+        visualLabel: visualDetectedLabel,
+        canonicalLabel: confirmedCanonicalLabel,
+        categoryLabel,
+      });
+      if (canonicalReviewNote) {
+        generated.details.canonical_review_note = canonicalReviewNote;
+      }
 
       const generatedAt = new Date().toISOString();
       const { error: updateError } = await supabase

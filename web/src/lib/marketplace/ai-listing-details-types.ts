@@ -28,6 +28,7 @@ export type ListingDraftDetailsJson = {
   photo_improvement_suggestions: string[];
   restricted_or_blocked: boolean;
   parent_editing_note: string;
+  canonical_review_note?: string;
   generation_model?: string;
   generated_at?: string;
 };
@@ -45,4 +46,5 @@ export type Pr3StoredAnalysis = {
 export type Pr3AiRawResponse = {
   analysis?: Pr3StoredAnalysis;
   canonical_candidates?: { label?: string; subtitle?: string }[];
+  parent_confirmed_display_label?: string;
 };

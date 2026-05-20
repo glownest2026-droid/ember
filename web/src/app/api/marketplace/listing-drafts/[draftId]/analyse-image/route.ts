@@ -229,6 +229,13 @@ export async function POST(
       const { error: draftUpdateError } = await supabase
         .from("marketplace_listing_drafts")
         .update({
+          product_type_id: null,
+          status: "draft",
+          title_draft: null,
+          description_draft: null,
+          condition_confirmed_by_user: null,
+          listing_draft_details_json: null,
+          listing_details_generated_at: null,
           ai_detected_label: aiResult.analysis.detected_item_label,
           ai_confidence: topConfidence,
           ai_raw_response_json: {

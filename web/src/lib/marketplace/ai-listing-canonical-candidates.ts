@@ -1,12 +1,14 @@
 import "server-only";
 
 import type { GeminiListingAnalysisOutput } from "./ai-listing-analysis";
+import { pickUserFacingDisplayLabel } from "./ai-listing-display-label";
 
 type ConfidenceBucket = "high" | "medium" | "low";
 
 export type CanonicalCandidateCard = {
   id: string | null;
   label: string;
+  catalog_match_label: string | null;
   subtitle: string | null;
   reason: string;
   confidence_bucket: ConfidenceBucket;
@@ -39,6 +41,7 @@ export async function buildCanonicalCandidates(
   const seenCanonicalIds = new Set<string>();
   const seenLabels = new Set<string>();
 
+  const detectedVisualLabel = analysis.detected_item_label.trim();
   const aiCandidates = analysis.product_type_candidates.slice(0, 4);
   for (const aiCandidate of aiCandidates) {
     const normalizedLabel = aiCandidate.label.trim().toLowerCase();
@@ -83,9 +86,17 @@ export async function buildCanonicalCandidates(
       seenCanonicalIds.add(bestCanonical.id);
       const aiBucket = confidenceFromNumber(aiCandidate.confidence);
       const mergedBucket = pickLowerConfidenceBucket(bestCanonical.confidence_bucket, aiBucket);
+      const displayLabel = pickUserFacingDisplayLabel({
+        visualLabel: detectedVisualLabel,
+        aiCandidateLabel: aiCandidate.label,
+        canonicalCatalogLabel: bestCanonical.label,
+        categoryLabel: analysis.broad_category || bestCanonical.subtitle || "",
+        reason: aiCandidate.why,
+      });
       cards.push({
         id: bestCanonical.id,
-        label: bestCanonical.label,
+        label: displayLabel,
+        catalog_match_label: bestCanonical.label,
         subtitle: bestCanonical.subtitle,
         reason: aiCandidate.why || "Matched against Ember canonical product types.",
         confidence_bucket: mergedBucket,
@@ -95,9 +106,16 @@ export async function buildCanonicalCandidates(
       continue;
     }
 
+    const displayLabel = pickUserFacingDisplayLabel({
+      visualLabel: detectedVisualLabel,
+      aiCandidateLabel: aiCandidate.label,
+      categoryLabel: analysis.broad_category || "",
+      reason: aiCandidate.why,
+    });
     cards.push({
       id: null,
-      label: aiCandidate.label,
+      label: displayLabel,
+      catalog_match_label: null,
       subtitle: analysis.broad_category || null,
       reason: aiCandidate.why || "Possible match from photo analysis.",
       confidence_bucket: confidenceFromNumber(aiCandidate.confidence),
@@ -109,7 +127,11 @@ export async function buildCanonicalCandidates(
   if (cards.length === 0 && analysis.detected_item_label.trim()) {
     cards.push({
       id: null,
-      label: analysis.detected_item_label.trim(),
+      label: pickUserFacingDisplayLabel({
+        visualLabel: analysis.detected_item_label.trim(),
+        categoryLabel: analysis.broad_category || "",
+      }),
+      catalog_match_label: null,
       subtitle: analysis.broad_category || null,
       reason: "We are not yet confident about the exact catalog match.",
       confidence_bucket: analysis.confidence_bucket,

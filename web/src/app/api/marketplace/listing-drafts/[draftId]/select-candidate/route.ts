@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/route-handler";
 export const dynamic = "force-dynamic";
 
 type SelectionPayload =
-  | { selection: "canonical"; product_type_id: string }
+  | { selection: "canonical"; product_type_id: string; display_label?: string | null }
   | { selection: "not_sure" };
 
 function isSelectionPayload(value: unknown): value is SelectionPayload {
@@ -57,7 +57,7 @@ export async function POST(
 
   const { data: draft, error: draftError } = await supabase
     .from("marketplace_listing_drafts")
-    .select("id, user_id, status")
+    .select("id, user_id, status, ai_raw_response_json")
     .eq("id", draftId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -75,6 +75,11 @@ export async function POST(
       .update({
         product_type_id: null,
         status: "draft",
+        title_draft: null,
+        description_draft: null,
+        condition_confirmed_by_user: null,
+        listing_draft_details_json: null,
+        listing_details_generated_at: null,
       })
       .eq("id", draftId)
       .eq("user_id", user.id)
@@ -108,11 +113,30 @@ export async function POST(
     return json({ error: "Selected candidate is not in Ember’s canonical catalog." }, { status: 400 });
   }
 
+  const displayLabel =
+    typeof body.display_label === "string" && body.display_label.trim().length > 0
+      ? body.display_label.trim()
+      : null;
+  const existingRaw =
+    draft.ai_raw_response_json && typeof draft.ai_raw_response_json === "object"
+      ? (draft.ai_raw_response_json as Record<string, unknown>)
+      : {};
+  const mergedRaw = {
+    ...existingRaw,
+    parent_confirmed_display_label: displayLabel,
+  };
+
   const { data: updatedDraft, error: updateError } = await supabase
     .from("marketplace_listing_drafts")
     .update({
       product_type_id: productType.id,
       status: "confirmed",
+      title_draft: null,
+      description_draft: null,
+      condition_confirmed_by_user: null,
+      listing_draft_details_json: null,
+      listing_details_generated_at: null,
+      ai_raw_response_json: mergedRaw,
     })
     .eq("id", draftId)
     .eq("user_id", user.id)
@@ -130,6 +154,7 @@ export async function POST(
       selected_product_type: {
         id: productType.id,
         label: productType.label,
+        display_label: displayLabel,
         subtitle: productType.subtitle ?? null,
       },
       draft: updatedDraft,
