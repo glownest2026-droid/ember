@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Camera, Lock } from "lucide-react";
 import { ListingDraftDetailsSection, type ListingDraftDetailsJson } from "@/components/marketplace/ListingDraftDetailsSection";
+import {
+  ListingDraftReviewSection,
+  type ListingDraftReviewJson,
+} from "@/components/marketplace/ListingDraftReviewSection";
 import { createClient } from "@/utils/supabase/client";
 
 const RAW_LISTING_BUCKET = "marketplace-raw-listing-photos";
@@ -21,8 +25,19 @@ type DraftRow = {
   listing_draft_details_json: ListingDraftDetailsJson | null;
   listing_details_generated_at: string | null;
   ai_detected_label: string | null;
-  ai_raw_response_json: { parent_confirmed_display_label?: string; analysis?: { detected_item_label?: string } } | null;
+  ai_raw_response_json: {
+    parent_confirmed_display_label?: string;
+    analysis?: { detected_item_label?: string; possible_brand?: string };
+  } | null;
 };
+
+function getReviewFromDetailsJson(
+  details: ListingDraftDetailsJson | null
+): ListingDraftReviewJson | null {
+  if (!details) return null;
+  const review = (details as ListingDraftDetailsJson & { review?: ListingDraftReviewJson }).review;
+  return review ?? null;
+}
 
 type AuthUser = {
   id: string;
@@ -121,6 +136,17 @@ export default function AppListingsPhotoDraftPage() {
     detailsJson: null,
     generatedAt: null,
   });
+  const [draftReview, setDraftReview] = useState<ListingDraftReviewJson | null>(null);
+  const [detailsSavedOnce, setDetailsSavedOnce] = useState(false);
+  const [possibleBrand, setPossibleBrand] = useState<string | null>(null);
+
+  const brandCharacterHint = useMemo(() => {
+    const brand = possibleBrand?.trim();
+    if (!brand || brand.toLowerCase() === "unknown") return null;
+    const label = confirmedDraft?.displayLabel?.trim();
+    if (label) return `${brand} ${label}`;
+    return brand;
+  }, [possibleBrand, confirmedDraft?.displayLabel]);
 
   const parseApiPayload = async <T,>(
     response: Response
@@ -201,6 +227,9 @@ export default function AppListingsPhotoDraftPage() {
           detailsJson: latest.listing_draft_details_json,
           generatedAt: latest.listing_details_generated_at,
         });
+        setDraftReview(getReviewFromDetailsJson(latest.listing_draft_details_json));
+        setDetailsSavedOnce(Boolean(latest.condition_confirmed_by_user?.trim()));
+        setPossibleBrand(latest.ai_raw_response_json?.analysis?.possible_brand?.trim() ?? null);
         if (latest.status === "confirmed" && latest.product_type_id) {
           const { data: productType } = await supabase
             .from("product_types")
@@ -256,6 +285,9 @@ export default function AppListingsPhotoDraftPage() {
       detailsJson: null,
       generatedAt: null,
     });
+    setDraftReview(null);
+    setDetailsSavedOnce(false);
+    setPossibleBrand(null);
 
     if (!file) return;
     if (!user) {
@@ -356,6 +388,8 @@ export default function AppListingsPhotoDraftPage() {
       detailsJson: null,
       generatedAt: null,
     });
+    setDraftReview(null);
+    setDetailsSavedOnce(false);
     try {
       const response = await fetch(
         `/api/marketplace/listing-drafts/${draftId}/analyse-image`,
@@ -449,6 +483,8 @@ export default function AppListingsPhotoDraftPage() {
           detailsJson: null,
           generatedAt: null,
         });
+        setDraftReview(null);
+        setDetailsSavedOnce(false);
       } else {
         setConfirmedDraft({
           status: draft?.status ?? "draft",
@@ -672,6 +708,7 @@ export default function AppListingsPhotoDraftPage() {
       {draftId && (
         <ListingDraftDetailsSection
           draftId={draftId}
+          sectionId="listing-draft-details"
           initialTitle={draftDetails.title}
           initialDescription={draftDetails.description}
           initialCondition={draftDetails.condition}
@@ -680,8 +717,44 @@ export default function AppListingsPhotoDraftPage() {
           hasConfirmedItem={Boolean(
             confirmedDraft?.status === "confirmed" && confirmedDraft.productTypeId
           )}
+          onSaved={(saved) => {
+            setDraftDetails((prev) => ({
+              ...prev,
+              title: saved.title,
+              description: saved.description,
+              condition: saved.condition,
+              detailsJson: saved.detailsJson,
+            }));
+            setDraftReview(getReviewFromDetailsJson(saved.detailsJson));
+            setDetailsSavedOnce(true);
+          }}
         />
       )}
+
+      {draftId &&
+        detailsSavedOnce &&
+        draftDetails.generatedAt &&
+        draftDetails.title?.trim() &&
+        draftDetails.description?.trim() &&
+        confirmedDraft?.status === "confirmed" &&
+        confirmedDraft.productTypeId &&
+        imageStoragePath && (
+          <ListingDraftReviewSection
+            draftId={draftId}
+            previewUrl={previewUrl}
+            confirmedDisplayLabel={confirmedDraft.displayLabel}
+            possibleBrandHint={brandCharacterHint}
+            titleDraft={draftDetails.title ?? ""}
+            descriptionDraft={draftDetails.description ?? ""}
+            condition={draftDetails.condition ?? ""}
+            detailsJson={draftDetails.detailsJson}
+            initialReview={draftReview}
+            onReviewUpdated={setDraftReview}
+            onEditDetailsClick={() => {
+              document.getElementById("listing-draft-details")?.scrollIntoView({ behavior: "smooth" });
+            }}
+          />
+        )}
 
       <p className="text-xs text-[#5C646D]">
         Raw photos stay private. AI is a suggestion, and parent confirmation is required before Ember uses a match.

@@ -2922,3 +2922,58 @@ Category-only cards remain publishable.
 - Generic “Toy item” fallback tightened when `visual_description` / `why` mentions ice cream, microphone, doctor kit, etc.
 - Gemini prompt now requires `user_facing_item_label`, `visual_description`, `canonical_search_terms`.
 - Canonical DB debt: `toy_microphone`, `toy_saxophone`, `ice_cream_cart_toy`, `ice_cream_shop_playset`.
+
+## 2026-05-20 — AI Marketplace Listing PR5: Listing Draft Review & Readiness Gate
+
+### Summary
+- Added a private review step after editable listing draft generation on `/app/listings`.
+- Parents can review photo, item label, title, description, condition, included parts, safety notes, and photo guidance.
+- Added readiness checklist before future price/local-interest steps.
+- Persisted review/readiness state in draft JSON.
+- No publish flow, pricing, local demand, maps, payments, or live listing creation added.
+
+### Routes touched/added
+- `/app/listings` — review card UI
+- `PATCH /api/marketplace/listing-drafts/[draftId]/review` — save checklist + ready state
+- `PATCH /api/marketplace/listing-drafts/[draftId]/details` — clears review on title/description/condition edit
+
+### DB & RLS
+- Uses draft table: `marketplace_listing_drafts`
+- Review state stored in: `listing_draft_details_json.review` (no migration required)
+- RLS: user-owned draft access preserved
+- No live listing table writes.
+
+### Review gates
+- Required: private photo, parent-confirmed item, title, description, confirmed condition (not `not_sure`), all checklist booleans true
+- Button label: **Mark ready for next step**
+- No publish wording.
+
+### Privacy / safety
+- Raw photos remain private (signed owner preview only).
+- Review save does not call Gemini.
+- No public raw-photo URL.
+- No child/household/private user data exposed.
+- Brand/character suggestions remain parent-confirmed caution copy.
+- Condition remains parent-confirmed.
+
+### Verification
+- Baseline build: pass (`main` after PR4 merge)
+- Final build: pass (`pnpm build` on `feat/ai-listing-review-gate`)
+- Manual checks (founder/preview): pending on Preview deploy
+  - review card appears after saved draft details
+  - checklist blocks readiness until complete
+  - ready state persists after reload
+  - edit-after-review resets via `stale_after_edit` + cleared `ready_for_next_step`
+  - no publish flow / pricing / demand / map / live listing
+
+### Known debt / risks
+- UI is beta-functional, not final marketplace polish.
+- Multi-photo upload still deferred.
+- Pricing guidance still deferred.
+- Local demand/map still deferred.
+- Public marketplace listing creation still deferred.
+- Safety/restricted item policy needs strengthening before public launch.
+
+### Next module handoff
+- Recommended next branch: `feat/ai-listing-price-guidance`
+- Start with cautious price guidance, no invented RRP, condition-adjusted price range, source/evidence capture, no publish flow unless separately approved

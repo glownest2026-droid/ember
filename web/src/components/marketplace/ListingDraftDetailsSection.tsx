@@ -46,6 +46,13 @@ type GenerateDetailsResponse = {
   debug_id?: string;
 };
 
+type SavedDraftPayload = {
+  title: string;
+  description: string;
+  condition: string | null;
+  detailsJson: ListingDraftDetailsJson | null;
+};
+
 type Props = {
   draftId: string;
   initialTitle: string | null;
@@ -54,6 +61,8 @@ type Props = {
   initialDetails: ListingDraftDetailsJson | null;
   initialGeneratedAt: string | null;
   hasConfirmedItem: boolean;
+  sectionId?: string;
+  onSaved?: (payload: SavedDraftPayload) => void;
 };
 
 async function parseApiPayload<T>(response: Response): Promise<{ payload: T | null }> {
@@ -74,6 +83,8 @@ export function ListingDraftDetailsSection({
   initialDetails,
   initialGeneratedAt,
   hasConfirmedItem,
+  sectionId,
+  onSaved,
 }: Props) {
   const [titleDraft, setTitleDraft] = useState(initialTitle ?? "");
   const [descriptionDraft, setDescriptionDraft] = useState(initialDescription ?? "");
@@ -181,7 +192,10 @@ export function ListingDraftDetailsSection({
   }
 
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-4">
+    <div
+      id={sectionId}
+      className="rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-4 scroll-mt-4"
+    >
       <div className="space-y-1">
         <h2 className="text-base font-medium text-[#1A1E23]">Draft listing details</h2>
         <p className="text-sm text-[#5C646D]">
