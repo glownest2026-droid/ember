@@ -17,8 +17,7 @@ import {
 import {
   buildCanonicalReviewNote,
   buildVisualSupportText,
-  pickCandidateCardTitle,
-  pickUserFacingDisplayLabel,
+  resolveUserFacingItemLabel,
 } from "@/lib/marketplace/ai-listing-display-label";
 import { createClient } from "@/utils/supabase/route-handler";
 
@@ -97,23 +96,17 @@ function chooseUserFacingTitleLabels(args: {
   const parentDisplay = args.parentDisplayLabel?.trim() || "";
   const support = args.visualSupportText?.trim() || "";
 
-  const titlePick = pickCandidateCardTitle({
-    detectedItemLabel: parentDisplay || visual,
+  const titlePick = resolveUserFacingItemLabel({
+    userFacingItemLabel: parentDisplay || undefined,
+    detectedItemLabel: visual,
     aiCandidateLabel: args.aiCandidateLabel ?? "",
+    visualDescription: support,
     reason: support,
     broadCategory: category,
   });
 
-  const preferred = pickUserFacingDisplayLabel({
-    visualLabel: parentDisplay || visual,
-    aiCandidateLabel: args.aiCandidateLabel,
-    canonicalCatalogLabel: confirmed,
-    categoryLabel: category,
-    reason: support,
-  });
-
   return {
-    preferredTitleLabel: preferred || titlePick.title,
+    preferredTitleLabel: titlePick.title,
     canonicalLabel: confirmed || "Confirmed item",
     suggestedAiLabel: titlePick.suggestedAiLabel,
   };
@@ -233,8 +226,13 @@ export async function POST(
       typeof pr3Raw?.parent_confirmed_display_label === "string"
         ? pr3Raw.parent_confirmed_display_label.trim()
         : "";
+    const userFacingFromAnalysis =
+      pr3Raw?.analysis?.user_facing_item_label?.trim() || "";
     const visualDetectedLabel =
-      pr3Raw?.analysis?.detected_item_label?.trim() || draft.ai_detected_label?.trim() || "";
+      userFacingFromAnalysis ||
+      pr3Raw?.analysis?.detected_item_label?.trim() ||
+      draft.ai_detected_label?.trim() ||
+      "";
     const confirmedCanonicalLabel = productType?.label?.trim() || "Confirmed item";
     const categoryLabel =
       productType?.subtitle?.trim() ||
@@ -243,8 +241,10 @@ export async function POST(
     const topAiCandidate = pr3Raw?.analysis?.product_type_candidates?.[0];
     const visualSupportText = [
       buildVisualSupportText({
-        detectedItemLabel: visualDetectedLabel,
+        userFacingItemLabel: userFacingFromAnalysis || parentDisplayLabel,
+        detectedItemLabel: pr3Raw?.analysis?.detected_item_label,
         aiCandidateLabel: topAiCandidate?.label,
+        visualDescription: pr3Raw?.analysis?.visual_description,
         reason: topAiCandidate?.why,
         broadCategory: pr3Raw?.analysis?.broad_category,
       }),
@@ -254,10 +254,10 @@ export async function POST(
       .join(" ")
       .trim();
     const titleChoice = chooseUserFacingTitleLabels({
-      visualLabel: visualDetectedLabel,
+      visualLabel: userFacingFromAnalysis || visualDetectedLabel,
       confirmedLabel: confirmedCanonicalLabel,
       categoryLabel,
-      parentDisplayLabel,
+      parentDisplayLabel: parentDisplayLabel || userFacingFromAnalysis,
       visualSupportText,
       aiCandidateLabel: topAiCandidate?.label,
     });

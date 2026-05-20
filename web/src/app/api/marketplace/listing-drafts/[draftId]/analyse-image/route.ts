@@ -227,10 +227,12 @@ export async function POST(
             analysed_at: new Date().toISOString(),
             analysis: aiResult.analysis,
             canonical_candidates: canonicalCandidates,
+            user_facing_item_label: aiResult.analysis.user_facing_item_label,
             canonical_review_summary: canonicalCandidates[0]
               ? {
                   suggested_ai_label: canonicalCandidates[0].suggested_ai_label,
-                  nearest_canonical_match: canonicalCandidates[0].catalog_match_label,
+                  user_facing_item_label: canonicalCandidates[0].user_facing_item_label,
+                  nearest_canonical_match: canonicalCandidates[0].internal_nearest_canonical,
                   match_confidence: canonicalCandidates[0].confidence_bucket,
                   canonical_review_note: canonicalCandidates[0].canonical_review_note,
                   catalog_match_weak: canonicalCandidates[0].catalog_match_weak,

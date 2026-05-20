@@ -34,7 +34,10 @@ export type ListingDraftDetailsJson = {
 };
 
 export type Pr3StoredAnalysis = {
+  user_facing_item_label?: string;
   detected_item_label?: string;
+  visual_description?: string;
+  canonical_search_terms?: string[];
   possible_brand?: string;
   visible_text?: string[];
   broad_category?: string;

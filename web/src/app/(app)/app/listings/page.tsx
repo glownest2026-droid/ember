@@ -31,11 +31,10 @@ type AuthUser = {
 type CandidateCard = {
   id: string | null;
   label: string;
+  user_facing_item_label?: string;
   suggested_ai_label?: string;
-  catalog_match_label: string | null;
   catalog_match_weak?: boolean;
   internal_category_label?: string | null;
-  canonical_review_note?: string | null;
   subtitle: string | null;
   reason: string;
   confidence_bucket: "high" | "medium" | "low";
@@ -609,37 +608,29 @@ export default function AppListingsPhotoDraftPage() {
             <ul className="space-y-3">
               {analysisResult.candidate_cards.map((candidate) => (
                 <li key={`${candidate.id ?? candidate.label}-${candidate.source}`} className="rounded-xl border border-[#E5E7EB] p-4 bg-[#FAFAFA] space-y-2">
-                  <p className="font-medium text-[#1A1E23]">{candidate.label}</p>
-                  {candidate.catalog_match_weak ? (
-                    <>
-                      {candidate.internal_category_label && (
-                        <p className="text-xs text-[#5C646D]">
-                          Category: {candidate.internal_category_label}
-                        </p>
-                      )}
-                      <p className="text-xs text-[#5C646D]">Internal match needs review</p>
-                    </>
-                  ) : (
-                    candidate.catalog_match_label &&
-                    candidate.catalog_match_label.toLowerCase() !== candidate.label.toLowerCase() && (
-                      <p className="text-xs text-[#5C646D]">
-                        Catalog match: {candidate.catalog_match_label}
-                        {candidate.subtitle ? ` · ${candidate.subtitle}` : ""}
-                      </p>
-                    )
+                  <p className="font-medium text-[#1A1E23]">
+                    {candidate.user_facing_item_label ?? candidate.label}
+                  </p>
+                  {candidate.internal_category_label && (
+                    <p className="text-xs text-[#5C646D]">
+                      Category: {candidate.internal_category_label}
+                    </p>
                   )}
-                  {candidate.subtitle &&
-                    !candidate.catalog_match_label &&
-                    !candidate.catalog_match_weak && (
-                      <p className="text-xs text-[#5C646D]">{candidate.subtitle}</p>
-                    )}
+                  {candidate.catalog_match_weak && (
+                    <p className="text-xs text-[#5C646D]">Internal match needs review</p>
+                  )}
                   <p className="text-sm text-[#5C646D]">{candidate.reason}</p>
                   <p className="text-xs text-[#5C646D]">{candidate.confidence_label}</p>
                   {candidate.id ? (
                     <button
                       type="button"
                       disabled={savingSelection}
-                      onClick={() => handleSelectCandidate(candidate.id, candidate.label)}
+                      onClick={() =>
+                        handleSelectCandidate(
+                          candidate.id,
+                          candidate.user_facing_item_label ?? candidate.label
+                        )
+                      }
                       className="inline-flex items-center rounded-lg border border-[#E5E7EB] bg-white px-3 py-1.5 text-sm text-[#1A1E23] disabled:opacity-60"
                     >
                       Choose this

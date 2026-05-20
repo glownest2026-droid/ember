@@ -2915,3 +2915,10 @@ Category-only cards remain publishable.
 - Candidate card title hierarchy: specific Gemini candidate → detected_item_label → inferred object from description → safe category (“Musical toy”), never broad_category alone.
 - Weak/contradictory canonical matches hidden from user-facing “Catalog match”; show `Category: Musical toy` + “Internal match needs review” instead.
 - `canonical_review_summary` stored in `ai_raw_response_json`; PR4 title generation seeds from visual label, not weak canonical.
+
+### Follow-up — `user_facing_item_label` + parent UI (PR4 quality)
+- PR4 separates user-facing AI visual labels from internal canonical matches.
+- Weak/contradictory canonical matches no longer appear as “Catalog match: …” on parent cards.
+- Generic “Toy item” fallback tightened when `visual_description` / `why` mentions ice cream, microphone, doctor kit, etc.
+- Gemini prompt now requires `user_facing_item_label`, `visual_description`, `canonical_search_terms`.
+- Canonical DB debt: `toy_microphone`, `toy_saxophone`, `ice_cream_cart_toy`, `ice_cream_shop_playset`.
