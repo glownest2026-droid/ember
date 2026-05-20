@@ -2824,3 +2824,59 @@ Category-only cards remain publishable.
 - Need more real-photo tests across 10–20 household items.
 - PR4 will generate editable listing draft details only after parent-confirmed match.
 - Diagnostic routes must remain admin/preview/debug-only.
+
+## 2026-05-20 — AI Marketplace Listing PR4: Editable Listing Draft Generation
+
+### Summary
+- Added editable listing draft generation after parent-confirmed item type.
+- Reused server-only Gemini setup from PR3 (text-only; no image re-analysis in PR4).
+- Generated title, description, condition prompts, missing-parts checklist, safety/resale notes, and photo improvement suggestions.
+- Added editable save flow for draft listing details.
+- No publish flow, pricing, local demand, maps, payments, or public listing creation added.
+
+### Routes touched/added
+- `POST /api/marketplace/listing-drafts/[draftId]/generate-details` — protected
+- `PATCH /api/marketplace/listing-drafts/[draftId]/details` — protected
+- `/app/listings` — protected UI (`ListingDraftDetailsSection`)
+
+### Env & Secrets
+- `GEMINI_API_KEY`: server-only
+- `GEMINI_MODEL`: `gemini-2.5-flash-lite` (default)
+- `GEMINI_TIMEOUT_MS`: 30000 default
+- `AI_LISTING_DETAILS_DAILY_LIMIT`: 10 default
+- No secrets exposed client-side
+
+### DB & RLS
+- Uses draft table: `marketplace_listing_drafts`
+- Existing fields used: `title_draft`, `description_draft`, `condition_suggestion`, `condition_confirmed_by_user`, `ai_raw_response_json`, `product_type_id`, `status`
+- New fields added: `listing_draft_details_json`, `listing_details_generated_at` (`supabase/sql/202605201200_listing_draft_details_fields.sql`)
+- RLS: user-owned draft access preserved
+- No live listing table writes
+
+### AI generation
+- Input: parent-confirmed `product_type_id` + PR3 structured analysis + canonical product type label
+- Not sent to AI: child names, household details, location, user email, raw image bytes/URLs
+- Output: editable draft details only
+- Audit: `ai_listing_analysis_events` with `vision_features_used.mode = listing_details_generation`
+
+### Verification
+- Baseline build: pass (on `main` after PR3 merge)
+- Final build: pass
+- Manual checks (founder/preview): pending on new Preview deploy
+  - confirmed item required before generation
+  - draft generation route registered
+  - edit/save route registered
+  - reload persistence via draft columns
+
+### Known debt / risks
+- UI is beta-functional, not final marketplace polish
+- Condition remains parent-confirmed, not AI-confirmed
+- Brand/model/RRP enrichment deferred
+- Pricing deferred
+- Local demand/map deferred
+- Multi-photo upload deferred
+- No `safety_policy` table yet — restricted flag comes from Gemini + parent review only
+
+### Next module handoff
+- Branch to create after merge: `feat/ai-listing-price-guidance`
+- Start with grounded product/RRP lookup, cautious price range only, no publish flow
