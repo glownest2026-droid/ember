@@ -1,6 +1,6 @@
 // Auth confirm: verify OTP/token and SET cookies on the response (route handler only).
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '../../../utils/supabase/route-handler';
+import { bindSupabaseToResponse } from '../../../utils/supabase/route-handler';
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.redirect(redirectUrl);
 
   try {
-    const supabase = createClient(request, response);
+    const supabase = bindSupabaseToResponse(request, response);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await supabase.auth.verifyOtp({ type: type as any, token_hash: tokenHash });
 

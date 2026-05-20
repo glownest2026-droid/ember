@@ -2566,3 +2566,261 @@ Category-only cards remain publishable.
   - **Take photo** (camera, `capture=\"environment\"`)
   - **Choose from gallery**
 - Verification: `pnpm -C web build` passes after camera-option follow-up.
+
+---
+
+## 2026-05-19 — AI Marketplace Listing PR3: Image Analysis + Candidate Matching
+
+### Summary
+- Added server-only image analysis for private marketplace listing draft photos.
+- Integrated Gemini-only V1 analysis behind a protected route.
+- Added structured AI output parsing and confidence handling.
+- Matched AI suggestions to Ember canonical product/item types where available.
+- Added parent confirmation UI for candidate selection.
+- Logged AI usage in the AI listing analysis events table.
+- Added basic per-user analysis rate limiting.
+- No listing generation, pricing, local demand, maps, or publish flow added.
+
+### Routes touched/added
+- `/api/marketplace/listing-drafts/[draftId]/analyse-image` — protected API route
+- `/api/marketplace/listing-drafts/[draftId]/select-candidate` — protected candidate selection
+- `/app/listings` — extended PR2 UI
+
+### Env & Secrets
+- Local `.env.local` requires:
+  - GEMINI_API_KEY
+  - GEMINI_MODEL
+  - AI_LISTING_DAILY_LIMIT (optional)
+- `.env.example` updated with names only:
+  - yes
+- Vercel Preview requires:
+  - GEMINI_API_KEY
+  - GEMINI_MODEL
+- Production:
+  - not enabled unless founder explicitly approves
+
+### DB & RLS
+- Uses draft table:
+  - `public.marketplace_listing_drafts`
+- Uses AI logging table:
+  - `public.ai_listing_analysis_events`
+- Updates:
+  - `ai_detected_label`
+  - `ai_confidence`
+  - `ai_raw_response_json`
+  - `product_type_id` after parent confirmation
+- RLS:
+  - ownership checks preserved server-side
+  - no cross-user draft access
+
+### Storage
+- Bucket:
+  - `marketplace-raw-listing-photos`
+- Raw photo handling:
+  - private server-side download
+  - no public raw-photo URL
+  - no long-lived signed URL passed to AI
+
+### Canonical matching
+- Matcher used:
+  - `inventory_match_product_types` RPC from `product_types` catalog
+- Candidate behaviour:
+  - high/medium/low confidence
+  - parent must confirm
+  - “Not sure” path available
+- Missing canonical data/debt:
+  - when no canonical ID is found, UI surfaces AI suggestion text and requires “Not sure / choose manually” path without inventing IDs
+
+### Verification
+- Baseline build:
+  - pass
+- Final build:
+  - pass
+- Manual checks:
+  - logged-out blocked (route-level 401 implemented; pending founder preview check)
+  - owner-only draft analysis (route-level ownership checks implemented; pending founder preview check)
+  - valid image analysed (pending GEMINI env in Preview)
+  - AI result stored (route update implemented; pending GEMINI env in Preview)
+  - AI event logged (insert implemented for success/failure after provider call; pending GEMINI env in Preview)
+  - candidate selection saved (`product_type_id` + `status=confirmed`)
+  - rate limit checked (per-user last 24h count gate implemented)
+  - no public raw photo URL (no `getPublicUrl`, private download + signed preview only)
+  - no live listing created
+
+### Known debt / risks
+- Gemini quality needs founder testing across 10–20 real household toy photos.
+- Google Vision/Product Recognizer remains deferred unless exact recognition quality is poor.
+- PR4 will generate editable listing details and suggested price after parent confirmation.
+- No recall/status validation is final yet; PR4 should add safety/resale eligibility prompts.
+- `pnpm lint` currently fails in this repo due `next lint` invocation behavior on Next 16 (`Invalid project directory .../lint`).
+
+### Next module handoff
+- Branch to create after merge:
+  - feat/ai-listing-draft-generation
+- Start with:
+  - title/description/category draft generation
+  - parent-confirmed condition
+  - RRP/product data grounding
+  - suggested price range
+  - safety/resale eligibility checks
+  - editable draft listing form
+
+### Follow-up — listing flow entry decision screen
+- Added a new first screen in the existing `/marketplace` “List an item” modal flow with two explicit options:
+  - **Smart Listing - with Camera**
+  - **Manual Listing - Enter Details**
+- Smart Listing now routes parents into the camera-assisted path (`/app/listings`), while Manual Listing continues the existing multi-step details flow.
+- Files updated:
+  - `web/src/components/figma/marketplace-prelist/steps/StartListingChoiceStep.tsx`
+  - `web/src/components/figma/marketplace-prelist/ListingModal.tsx`
+- Verification: `pnpm -C web build` passes after entry-screen integration.
+
+### Follow-up — robust API error handling on suggest-item call
+- Fixed client handling for non-JSON / empty API responses on `/app/listings` suggest-item and candidate-selection actions.
+- Prevents raw `Unexpected end of JSON input` from surfacing to parents; now shows a friendly fallback error message.
+- File updated:
+  - `web/src/app/(app)/app/listings/page.tsx`
+- Verification: `pnpm -C web build` passes after response-parsing hardening.
+
+### Follow-up — network resilience for suggest-item endpoint
+- Added Gemini request timeout (`20s`) and a route-level safety catch in analysis API to guarantee JSON error responses instead of dropped network responses.
+- Mapped low-level client `Failed to fetch` network errors to friendly retry guidance.
+- Files updated:
+  - `web/src/lib/marketplace/ai-listing-analysis.ts`
+  - `web/src/app/api/marketplace/listing-drafts/[draftId]/analyse-image/route.ts`
+  - `web/src/app/(app)/app/listings/page.tsx`
+- Verification: `pnpm -C web build` passes after timeout + route hardening.
+
+### Follow-up — Gemini compatibility + clearer provider diagnostics
+- Relaxed Gemini generation config by removing strict JSON MIME hint to improve model compatibility across Preview configs.
+- Increased Gemini request timeout to `60s` for slow upstream responses.
+- Added safer user-facing provider error messages for common misconfig cases:
+  - invalid/unauthorized API key
+  - unavailable/unsupported model
+  - provider quota/rate limit
+- Files updated:
+  - `web/src/lib/marketplace/ai-listing-analysis.ts`
+  - `web/src/app/api/marketplace/listing-drafts/[draftId]/analyse-image/route.ts`
+- Verification: `pnpm -C web build` passes after compatibility patch.
+
+### Follow-up — root-cause visibility instrumentation
+- Added structured analysis API error payloads with:
+  - `error_code`
+  - `debug_id`
+  - `retryable`
+- Added server-side `debug_id` logging for unexpected route failures.
+- Added explicit route-level JSON responses for all guarded failure paths so client never receives opaque fetch/parser errors.
+- Added configurable `GEMINI_TIMEOUT_MS` (default 8000ms) to fail fast with explicit diagnostics before platform-level timeouts.
+- Client now surfaces provider error code + debug reference in UI error text to support precise troubleshooting.
+- Files updated:
+  - `web/src/app/api/marketplace/listing-drafts/[draftId]/analyse-image/route.ts`
+  - `web/src/lib/marketplace/ai-listing-analysis.ts`
+  - `web/src/app/(app)/app/listings/page.tsx`
+  - `web/.env.example`
+- Verification: `pnpm -C web build` passes after diagnostics instrumentation.
+
+### Follow-up — PR3 blocker diagnostics pass
+- Confirmed debug reference format (`Ref: <uuid>`) is generated as per-request `debug_id`, not `ai_listing_analysis_events.id`.
+- Added provider status/code extraction from Gemini errors and returned them in protected API error payloads.
+- Added logging of effective model in server logs:
+  - `[analyse-image:<debug_id>] model_effective=<...> daily_limit=<...> timeout_ms=<...>`
+- Added protected diagnostics route for admin/founder troubleshooting:
+  - `GET /api/marketplace/diagnostics/ai-config`
+  - returns: `configured`, `effectiveModel`, `dailyLimit`, `timeoutMs`, `provider`
+  - never returns API key/secret.
+- Updated limit/error code mapping:
+  - internal limit -> `ember_daily_limit_reached`
+  - not configured -> `gemini_not_configured`
+  - provider 429 -> `gemini_quota_limited`
+  - provider 503/unavailable -> `gemini_temporarily_unavailable`
+- Added click guards on client handlers to prevent duplicate in-flight requests.
+
+## 2026-05-19 — PR205 Diagnostic Pass: AI Image Analysis
+
+### Summary
+- Added protected step-by-step diagnostic route for PR3 AI analysis (`/api/marketplace/diagnostics/ai-analysis`).
+- Added `mode=no-provider` dry run to isolate pre-Gemini failures (auth, draft lookup, storage download, payload prep).
+- Extended `/api/marketplace/diagnostics/ai-config` with `?testProvider=1` text-only Gemini probe (no Supabase image).
+- Improved error classification (503/UNAVAILABLE no longer mapped to quota; added `gemini_provider_error` for 500/INTERNAL).
+- Default/fallback model is now `gemini-2.5-flash-lite` (removed `gemini-1.5-flash` fallback).
+- Preview UI shows `error_code`, provider status/code, and `debug_id` ref when available.
+
+### Routes touched/added
+- `/api/marketplace/diagnostics/ai-config` (extended `testProvider=1`)
+- `/api/marketplace/diagnostics/ai-analysis` (new)
+- `/api/marketplace/listing-drafts/[draftId]/analyse-image`
+- `/app/listings` (preview debug copy)
+
+### Current configuration
+- `GEMINI_MODEL` expected: `gemini-2.5-flash-lite` (env override supported)
+- `AI_LISTING_DAILY_LIMIT`: from env, default `5`
+- `GEMINI_API_KEY`: server-only, never exposed in diagnostics responses
+
+### Diagnostic findings (local dev)
+- `ai-config` (no key in `.env.local`): not run against live Gemini locally
+- `ai-config?testProvider=1`: not run locally (no `GEMINI_API_KEY` in workspace env)
+- `ai-analysis?draftId=…&mode=no-provider`: run on Vercel Preview after deploy (signed-in + draft owner)
+- `ai-analysis?draftId=…` full pipeline: run on Vercel Preview after deploy
+- `failureStage` / `providerStatus` / `providerCode`: populate from Preview diagnostic JSON + Vercel function logs (`[ai-analysis-diagnostic:<debugId>]`)
+
+### Known risks / next actions
+- Google AI Studio billing tier may still show **Unknown Tier** until propagation completes.
+- Founder must verify Vercel `GEMINI_API_KEY` belongs to Google AI Studio project **Ember** (API cannot safely prove project identity).
+- Redeploy Vercel Preview after merging/pushing this branch so new routes and env vars apply.
+- PR3 should not merge until Preview diagnostics show whether failure is pre-Gemini or at `gemini_request`.
+
+### Follow-up — fix diagnostic route HTTP 500 on Next.js 16
+- Root cause: `NextResponse.next()` is not allowed in App Router route handlers (Next.js 16); diagnostic routes returned `headers: response.headers` from that object and crashed with empty HTTP 500.
+- Fix: updated `createClient()` in `route-handler.ts` to buffer session cookies and apply them via a `json()` helper; redirect auth routes use new `bindSupabaseToResponse()`.
+- Files updated: diagnostics routes, analyse-image, select-candidate, inventory/match, auth/callback, auth/confirm.
+
+### Follow-up — fix Gemini timeoutMs=1 abort
+- Root cause: `GEMINI_TIMEOUT_MS=1` on Vercel Preview (via `parsePositiveInt` allowing any value ≥1).
+- Fix: `resolveGeminiTimeoutMs()` defaults to **30000ms**, clamps `<5000` to 30000, clamps `>60000` to 60000.
+- Diagnostics expose `timeoutSource`: `default` | `env` | `clamped`.
+- Recommended Preview env: `GEMINI_TIMEOUT_MS=30000` (optional; code safe without it).
+
+## 2026-05-20 — PR205 Acceptance: AI Image Analysis Breakthrough
+
+### Summary
+- Confirmed end-to-end AI image analysis works in Vercel Preview.
+- Test photo of toy doctor kit correctly returned Doctor Set / Pretend Play suggestion.
+- Parent confirmation UI rendered.
+- Gemini timeout issue resolved (`GEMINI_TIMEOUT_MS=1` clamped to 30000ms).
+- Diagnostics isolated root cause and verified provider path.
+
+### Verification
+- Config diagnostic: configured true, effectiveModel `gemini-2.5-flash-lite`, timeoutMs 30000
+- Provider-only test: pass (after timeout fix)
+- No-provider image pipeline: pass
+- Full image analysis: pass (founder toy doctor kit photo)
+- UI candidate rendering: pass
+- Parent confirmation: pass — `Choose this` sets `product_type_id` + `status=confirmed`; `Not sure` sets `product_type_id=null` + `status=draft` (no fake canonical ID)
+- Build: pass
+
+### DB / audit (expected after successful analysis + Choose this)
+- Draft fields written on analysis: `ai_detected_label`, `ai_confidence`, `ai_raw_response_json` (provider, model, analysis, canonical_candidates)
+- Draft fields written on confirm: `product_type_id`, `status=confirmed`
+- `ai_listing_analysis_events`: `success=true`, `model_used`, `token_usage`, `error_message=null` on success
+- Founder example draft id from diagnostics: `d62a64a1-97fd-465f-ad77-0a49bd3f828b`
+
+### Safety
+- Raw photos private (`marketplace-raw-listing-photos` bucket `public: false`)
+- Owner preview uses `createSignedUrl` only (no `getPublicUrl` on raw listing photos)
+- No public listing created (`status` stays `draft` or `confirmed`, not `published`)
+- No pricing generated in PR3 routes/UI
+- No local demand/map in PR3
+- `GEMINI_API_KEY` server-only (route handlers / lib with `server-only`)
+- No service-role key in listing flow client code
+- Parent confirmation required before `product_type_id` is set (`select-candidate` POST)
+
+### Diagnostic route security (pre-merge hardening)
+- Admin-only + Preview/development (or `AI_LISTING_DIAGNOSTICS_ENABLED=true`)
+- Production returns 404 when disabled
+- No secrets, raw bytes, signed URLs, email, or child/household data exposed
+
+### Known debt
+- UI is functional/beta, not final marketplace polish.
+- Need more real-photo tests across 10–20 household items.
+- PR4 will generate editable listing draft details only after parent-confirmed match.
+- Diagnostic routes must remain admin/preview/debug-only.

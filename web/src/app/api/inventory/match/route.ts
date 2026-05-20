@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -11,15 +11,14 @@ function parseLimit(value: string | null): number {
 
 /** GET /api/inventory/match?q=...&limit=5 */
 export async function GET(request: NextRequest) {
-  const response = NextResponse.next();
-  const supabase = createClient(request, response);
+  const { supabase, json } = createClient(request);
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
@@ -27,7 +26,7 @@ export async function GET(request: NextRequest) {
   const limit = parseLimit(searchParams.get("limit"));
 
   if (!query) {
-    return NextResponse.json({ candidates: [] }, { status: 200 });
+    return json({ candidates: [] }, { status: 200 });
   }
 
   const { data, error } = await supabase.rpc("inventory_match_product_types", {
@@ -36,7 +35,7 @@ export async function GET(request: NextRequest) {
   });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return json({ error: error.message }, { status: 500 });
   }
 
   const candidates = (data ?? []).map((row: {
@@ -61,5 +60,5 @@ export async function GET(request: NextRequest) {
     was_confirmed: false,
   });
 
-  return NextResponse.json({ candidates }, { status: 200, headers: response.headers });
+  return json({ candidates }, { status: 200 });
 }

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
+import { StartListingChoiceStep } from "./steps/StartListingChoiceStep";
 import { ItemNameStep } from "./steps/ItemNameStep";
 import { ConditionDetailsStep } from "./steps/ConditionDetailsStep";
 import { PickupAreaStep } from "./steps/PickupAreaStep";
@@ -58,7 +60,7 @@ export function ListingModal({
   initialFormData,
   initialPhotos,
 }: ListingModalProps) {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<Partial<ListingData>>(
     initialFormData ?? defaultFormData
   );
@@ -74,8 +76,10 @@ export function ListingModal({
   const [emailWhenLaunch, setEmailWhenLaunch] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const router = useRouter();
 
   const steps = [
+    { number: 0, label: "Start" },
     { number: 1, label: "What item" },
     { number: 2, label: "Condition" },
     { number: 3, label: "Pickup area" },
@@ -96,7 +100,7 @@ export function ListingModal({
       setListingId(null);
       setFormData(defaultFormData);
       setPhotos([]);
-      setCurrentStep(1);
+      setCurrentStep(0);
     }
   }, [isOpen, initialListingId, initialFormData, initialPhotos]);
 
@@ -185,7 +189,17 @@ export function ListingModal({
   };
 
   const handleBack = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+    setErrors({});
+  };
+
+  const handleChooseSmartListing = () => {
+    onClose();
+    router.push("/app/listings");
+  };
+
+  const handleChooseManualListing = () => {
+    setCurrentStep(1);
     setErrors({});
   };
 
@@ -355,7 +369,7 @@ export function ListingModal({
                           : "var(--ember-gray-600)",
                     }}
                   >
-                    {step.number}
+                    {step.number + 1}
                   </div>
                   <span
                     className="hidden lg:inline text-sm"
@@ -388,6 +402,13 @@ export function ListingModal({
         <div
           className={`flex-1 min-h-0 overflow-y-auto ${currentStep === 5 ? "px-6 py-4 lg:px-8 lg:py-5" : "p-6 lg:p-8"}`}
         >
+          {currentStep === 0 && (
+            <StartListingChoiceStep
+              selectedChildName={selectedChildName}
+              onChooseSmart={handleChooseSmartListing}
+              onChooseManual={handleChooseManualListing}
+            />
+          )}
           {currentStep === 1 && (
             <ItemNameStep
               data={formData}
@@ -439,54 +460,56 @@ export function ListingModal({
           </p>
         )}
 
-        <div
-          className="flex-shrink-0 p-6 lg:p-8 border-t"
-          style={{ borderColor: "var(--ember-gray-300)" }}
-        >
-          <div className="flex justify-between gap-4">
-            <button
-              type="button"
-              onClick={handleBack}
-              disabled={currentStep === 1}
-              className="px-6 py-3 rounded-xl font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                color:
-                  currentStep === 1
-                    ? "var(--ember-gray-600)"
-                    : "var(--ember-gray-900)",
-              }}
-            >
-              Back
-            </button>
+        {currentStep > 0 && (
+          <div
+            className="flex-shrink-0 p-6 lg:p-8 border-t"
+            style={{ borderColor: "var(--ember-gray-300)" }}
+          >
+            <div className="flex justify-between gap-4">
+              <button
+                type="button"
+                onClick={handleBack}
+                disabled={currentStep === 0}
+                className="px-6 py-3 rounded-xl font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  color:
+                    currentStep === 0
+                      ? "var(--ember-gray-600)"
+                      : "var(--ember-gray-900)",
+                }}
+              >
+                Back
+              </button>
 
-            {currentStep < 5 ? (
-              <button
-                type="button"
-                onClick={handleNext}
-                className="px-8 py-3 rounded-xl font-medium text-white transition-all duration-300 hover:scale-105"
-                style={{
-                  backgroundColor: "var(--ember-primary)",
-                  boxShadow: "var(--shadow-md)",
-                }}
-              >
-                Next step
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="px-8 py-3 rounded-xl font-medium text-white transition-all duration-300 hover:scale-105 disabled:opacity-50"
-                style={{
-                  backgroundColor: "var(--ember-primary)",
-                  boxShadow: "var(--shadow-md)",
-                }}
-              >
-                {submitting ? "Saving…" : "Save pre-launch listing"}
-              </button>
-            )}
+              {currentStep < 5 ? (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="px-8 py-3 rounded-xl font-medium text-white transition-all duration-300 hover:scale-105"
+                  style={{
+                    backgroundColor: "var(--ember-primary)",
+                    boxShadow: "var(--shadow-md)",
+                  }}
+                >
+                  Next step
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  className="px-8 py-3 rounded-xl font-medium text-white transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                  style={{
+                    backgroundColor: "var(--ember-primary)",
+                    boxShadow: "var(--shadow-md)",
+                  }}
+                >
+                  {submitting ? "Saving…" : "Save pre-launch listing"}
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

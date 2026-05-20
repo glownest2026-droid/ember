@@ -12,10 +12,63 @@ const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 type DraftRow = {
   id: string;
   image_storage_path: string | null;
+  product_type_id: string | null;
+  status: string;
 };
 
 type AuthUser = {
   id: string;
+};
+
+type CandidateCard = {
+  id: string | null;
+  label: string;
+  subtitle: string | null;
+  reason: string;
+  confidence_bucket: "high" | "medium" | "low";
+  confidence_label: "Looks likely" | "Possible match" | "Not sure yet";
+  source: "canonical_match" | "ai_suggestion";
+};
+
+type AnalysisResponse = {
+  draft_id: string;
+  detected_item_label: string;
+  confidence_bucket: "high" | "medium" | "low";
+  candidate_cards: CandidateCard[];
+  missing_parts_questions: string[];
+  safety_warnings: string[];
+  low_confidence_message: string | null;
+  debug_id?: string;
+};
+
+type ApiErrorShape = {
+  error?: string;
+  error_code?: string;
+  debug_id?: string;
+  retryable?: boolean;
+  provider_status?: number | null;
+  provider_code?: string | null;
+};
+
+type SelectCandidateResponse = {
+  ok?: boolean;
+  message?: string;
+  selected_product_type?: {
+    id: string;
+    label: string;
+    subtitle: string | null;
+  };
+  draft?: {
+    id: string;
+    product_type_id: string | null;
+    status: string;
+  };
+};
+
+type ConfirmedDraftState = {
+  status: string;
+  productTypeId: string | null;
+  label: string | null;
 };
 
 function getFileExtension(file: File): string {
@@ -35,6 +88,24 @@ export default function AppListingsPhotoDraftPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResponse | null>(null);
+  const [savingSelection, setSavingSelection] = useState(false);
+  const [selectionMessage, setSelectionMessage] = useState<string | null>(null);
+  const [confirmedDraft, setConfirmedDraft] = useState<ConfirmedDraftState | null>(null);
+
+  const parseApiPayload = async <T,>(
+    response: Response
+  ): Promise<{ payload: T | null; rawText: string }> => {
+    const rawText = await response.text();
+    if (!rawText) return { payload: null, rawText };
+    try {
+      return { payload: JSON.parse(rawText) as T, rawText };
+    } catch {
+      return { payload: null, rawText };
+    }
+  };
 
   const refreshSignedPreview = useCallback(async (path: string) => {
     const supabase = createClient();
@@ -77,7 +148,7 @@ export default function AppListingsPhotoDraftPage() {
 
       const { data: drafts, error: draftsError } = await supabase
         .from("marketplace_listing_drafts")
-        .select("id, image_storage_path")
+        .select("id, image_storage_path, product_type_id, status")
         .eq("user_id", authUser.id)
         .order("created_at", { ascending: false })
         .limit(1);
@@ -94,6 +165,20 @@ export default function AppListingsPhotoDraftPage() {
       if (latest) {
         setDraftId(latest.id);
         setImageStoragePath(latest.image_storage_path);
+        if (latest.status === "confirmed" && latest.product_type_id) {
+          setConfirmedDraft({
+            status: latest.status,
+            productTypeId: latest.product_type_id,
+            label: null,
+          });
+          setSelectionMessage("Confirmed item type saved on this draft.");
+        } else if (latest.status === "draft" && !latest.product_type_id) {
+          setConfirmedDraft({
+            status: latest.status,
+            productTypeId: null,
+            label: null,
+          });
+        }
         if (latest.image_storage_path) {
           await refreshSignedPreview(latest.image_storage_path);
         }
@@ -113,6 +198,9 @@ export default function AppListingsPhotoDraftPage() {
     event.target.value = "";
     setError(null);
     setSuccess(null);
+    setAnalysisError(null);
+    setSelectionMessage(null);
+    setConfirmedDraft(null);
 
     if (!file) return;
     if (!user) {
@@ -172,10 +260,116 @@ export default function AppListingsPhotoDraftPage() {
       setImageStoragePath(path);
       await refreshSignedPreview(path);
       setSuccess("Photo uploaded privately to your draft.");
+      setAnalysisResult(null);
     } catch (uploadFlowError) {
       setError(uploadFlowError instanceof Error ? uploadFlowError.message : "Upload failed.");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleSuggestItem = async () => {
+    if (analysisLoading) return;
+    setAnalysisError(null);
+    setSelectionMessage(null);
+
+    if (!draftId) {
+      setAnalysisError("Please upload a photo first.");
+      return;
+    }
+    setAnalysisLoading(true);
+    try {
+      const response = await fetch(
+        `/api/marketplace/listing-drafts/${draftId}/analyse-image`,
+        { method: "POST" }
+      );
+      const { payload } = await parseApiPayload<AnalysisResponse & ApiErrorShape>(
+        response
+      );
+      if (!response.ok) {
+        const base = payload?.error ?? "Unable to analyse this image right now. Please try again.";
+        const showDiagnostics =
+          process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
+        const code = showDiagnostics && payload?.error_code ? ` (${payload.error_code})` : "";
+        const provider =
+          showDiagnostics && (payload?.provider_status || payload?.provider_code)
+            ? ` Provider: ${payload.provider_status ?? "n/a"}${payload?.provider_code ? `/${payload.provider_code}` : ""}`
+            : "";
+        const debug = showDiagnostics && payload?.debug_id ? ` Ref: ${payload.debug_id}` : "";
+        throw new Error(`${base}${code}${provider}${debug}`);
+      }
+      if (!payload) {
+        throw new Error("We received an unexpected response. Please try again.");
+      }
+      setAnalysisResult(payload);
+    } catch (analysisRequestError) {
+      const message =
+        analysisRequestError instanceof Error ? analysisRequestError.message : "Unable to analyse this image.";
+      setAnalysisError(
+        message === "Failed to fetch"
+          ? "Could not reach image suggestion service. Please check connection and try again."
+          : message
+      );
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
+
+  const handleSelectCandidate = async (productTypeId: string | null) => {
+    if (savingSelection) return;
+    if (!draftId) return;
+    setSavingSelection(true);
+    setAnalysisError(null);
+    setSelectionMessage(null);
+    try {
+      const response = await fetch(
+        `/api/marketplace/listing-drafts/${draftId}/select-candidate`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(
+            productTypeId
+              ? { selection: "canonical", product_type_id: productTypeId }
+              : { selection: "not_sure" }
+          ),
+        }
+      );
+      const { payload } = await parseApiPayload<SelectCandidateResponse & ApiErrorShape>(response);
+      if (!response.ok) {
+        const base = payload?.error ?? "Could not save your selection.";
+        const code = payload?.error_code ? ` (${payload.error_code})` : "";
+        const provider =
+          payload?.provider_status || payload?.provider_code
+            ? ` Provider: ${payload.provider_status ?? "n/a"}${payload?.provider_code ? `/${payload.provider_code}` : ""}`
+            : "";
+        const debug = payload?.debug_id ? ` Ref: ${payload.debug_id}` : "";
+        throw new Error(`${base}${code}${provider}${debug}`);
+      }
+      const draft = payload?.draft;
+      if (draft?.status === "confirmed" && draft.product_type_id) {
+        setConfirmedDraft({
+          status: draft.status,
+          productTypeId: draft.product_type_id,
+          label: payload?.selected_product_type?.label ?? null,
+        });
+      } else {
+        setConfirmedDraft({
+          status: draft?.status ?? "draft",
+          productTypeId: null,
+          label: null,
+        });
+      }
+      setSelectionMessage(payload?.message ?? "Saved to your draft.");
+    } catch (selectionError) {
+      const message =
+        selectionError instanceof Error ? selectionError.message : "Could not save your selection.";
+      setAnalysisError(
+        message === "Failed to fetch"
+          ? "Could not reach save service. Please try again."
+          : message
+      );
+    } finally {
+      setSavingSelection(false);
     }
   };
 
@@ -270,8 +464,97 @@ export default function AppListingsPhotoDraftPage() {
         )}
       </div>
 
+      <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-4">
+        <h2 className="text-base font-medium text-[#1A1E23]">Item suggestion</h2>
+        <p className="text-sm text-[#5C646D]">
+          Ember will look at the photo and suggest likely matches. You’ll confirm before anything is used.
+        </p>
+        <button
+          type="button"
+          disabled={!imageStoragePath || analysisLoading || uploading}
+          onClick={handleSuggestItem}
+          className="inline-flex items-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+        >
+          {analysisLoading ? "Checking the photo…" : "Suggest item"}
+        </button>
+
+        {analysisError && <p className="text-sm text-red-600">{analysisError}</p>}
+        {selectionMessage && <p className="text-sm text-emerald-700">{selectionMessage}</p>}
+
+        {confirmedDraft?.status === "confirmed" && confirmedDraft.productTypeId && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-1">
+            <p className="text-sm font-medium text-emerald-900">Confirmed on your draft</p>
+            <p className="text-sm text-emerald-800">
+              {confirmedDraft.label ?? "Canonical item type saved."} Ember will only use this match after your confirmation.
+            </p>
+          </div>
+        )}
+        {confirmedDraft?.status === "draft" && !confirmedDraft.productTypeId && selectionMessage && (
+          <p className="text-sm text-[#5C646D]">
+            No canonical item type saved yet. You can choose manually in a later step.
+          </p>
+        )}
+
+        {analysisResult && (
+          <div className="space-y-4 pt-2">
+            <h3 className="text-lg font-medium text-[#1A1E23]">Is it one of these?</h3>
+            {analysisResult.low_confidence_message && (
+              <p className="text-sm text-[#5C646D]">{analysisResult.low_confidence_message}</p>
+            )}
+            <ul className="space-y-3">
+              {analysisResult.candidate_cards.map((candidate) => (
+                <li key={`${candidate.id ?? candidate.label}-${candidate.source}`} className="rounded-xl border border-[#E5E7EB] p-4 bg-[#FAFAFA] space-y-2">
+                  <p className="font-medium text-[#1A1E23]">{candidate.label}</p>
+                  {candidate.subtitle && (
+                    <p className="text-xs text-[#5C646D]">{candidate.subtitle}</p>
+                  )}
+                  <p className="text-sm text-[#5C646D]">{candidate.reason}</p>
+                  <p className="text-xs text-[#5C646D]">{candidate.confidence_label}</p>
+                  {candidate.id ? (
+                    <button
+                      type="button"
+                      disabled={savingSelection}
+                      onClick={() => handleSelectCandidate(candidate.id)}
+                      className="inline-flex items-center rounded-lg border border-[#E5E7EB] bg-white px-3 py-1.5 text-sm text-[#1A1E23] disabled:opacity-60"
+                    >
+                      Choose this
+                    </button>
+                  ) : (
+                    <p className="text-xs text-[#5C646D]">No exact Ember catalog ID yet.</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              disabled={savingSelection}
+              onClick={() => handleSelectCandidate(null)}
+              className="inline-flex items-center rounded-lg border border-[#E5E7EB] px-3 py-1.5 text-sm text-[#1A1E23] disabled:opacity-60"
+            >
+              Not sure / choose manually
+            </button>
+            {(selectionMessage || savingSelection) && (
+              <p className="text-sm text-[#5C646D]">
+                Next: Ember will draft the listing details.
+              </p>
+            )}
+
+            {analysisResult.missing_parts_questions.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-[#1A1E23]">Parent checks</p>
+                <ul className="list-disc ml-5 text-xs text-[#5C646D] space-y-1">
+                  {analysisResult.missing_parts_questions.map((question) => (
+                    <li key={question}>{question}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       <p className="text-xs text-[#5C646D]">
-        This flow does not run AI analysis, does not publish listings, and does not expose public photo URLs.
+        Raw photos stay private. AI is a suggestion, and parent confirmation is required before Ember uses a match.
       </p>
     </div>
   );
