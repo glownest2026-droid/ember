@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
-import { isAdminEmail } from "@/lib/admin";
+import { resolveIsAdminUser } from "@/lib/marketplace/ai-listing-admin";
+import { getDiagnosticsAccessDeniedReason } from "@/lib/marketplace/ai-listing-diagnostics-access";
 import {
   generateGeminiListingImageContent,
   parseGeminiListingAnalysisOutput,
@@ -36,20 +37,6 @@ function notReached(name: string): DiagnosticStep {
   return step(name, null, "not reached");
 }
 
-async function resolveIsAdmin(
-  supabase: ReturnType<typeof createClient>["supabase"],
-  user: { id: string; email?: string | null }
-): Promise<boolean> {
-  if (isAdminEmail(user.email)) return true;
-  const { data: adminRole } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", user.id)
-    .eq("role", "admin")
-    .maybeSingle();
-  return Boolean(adminRole?.role === "admin");
-}
-
 export async function GET(request: NextRequest) {
   const { supabase, json } = createClient(request);
   const debugId = crypto.randomUUID();
@@ -81,6 +68,23 @@ export async function GET(request: NextRequest) {
     }
     steps.push(step("auth", true, "signed_in"));
 
+    const accessDenied = getDiagnosticsAccessDeniedReason({
+      isAuthenticated: true,
+      isAdmin: await resolveIsAdminUser(supabase, user),
+    });
+    if (accessDenied === "disabled") {
+      markFailure("auth", "Diagnostics are not enabled in this environment.");
+      return json({ error: "Not found" }, { status: 404 });
+    }
+    if (accessDenied === "forbidden") {
+      steps.push(step("draft_lookup", false, "admin access required"));
+      markFailure("draft_lookup", "Admin access required for diagnostics.");
+      return json(
+        { ok: false, debugId, environment, steps, failureStage, safeSummary },
+        { status: 403 }
+      );
+    }
+
     if (!draftId) {
       steps.push(step("draft_lookup", false, "draftId query parameter is required"));
       markFailure("draft_lookup", "Draft id is required.");
@@ -90,11 +94,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const isAdminUser = await resolveIsAdmin(supabase, user);
     const { data: draft, error: draftError } = await supabase
       .from("marketplace_listing_drafts")
       .select("id, user_id, status, image_storage_path")
       .eq("id", draftId)
+      .eq("user_id", user.id)
       .maybeSingle();
 
     if (draftError) {
@@ -113,14 +117,6 @@ export async function GET(request: NextRequest) {
         { status: 404 }
       );
     }
-    if (!isAdminUser && draft.user_id !== user.id) {
-      steps.push(step("draft_lookup", false, "draft not owned by current user"));
-      markFailure("draft_lookup", "Draft is not owned by the current user.");
-      return json(
-        { ok: false, debugId, environment, steps, failureStage, safeSummary },
-        { status: 403 }
-      );
-    }
     if (!ALLOWED_DRAFT_STATUSES.has(String(draft.status ?? ""))) {
       steps.push(step("draft_lookup", false, `draft status blocked: ${String(draft.status ?? "unknown")}`));
       markFailure("draft_lookup", "Draft status blocks analysis.");
@@ -129,13 +125,7 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
-    steps.push(
-      step(
-        "draft_lookup",
-        true,
-        isAdminUser ? "draft found (admin access)" : "draft found and owned by current user"
-      )
-    );
+    steps.push(step("draft_lookup", true, "draft found (admin, owner-scoped via RLS)"));
 
     const imagePath = String(draft.image_storage_path ?? "").trim();
     const downloadResult = await downloadOwnedDraftImage({

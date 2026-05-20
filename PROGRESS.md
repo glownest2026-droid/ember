@@ -2779,3 +2779,48 @@ Category-only cards remain publishable.
 - Fix: `resolveGeminiTimeoutMs()` defaults to **30000ms**, clamps `<5000` to 30000, clamps `>60000` to 60000.
 - Diagnostics expose `timeoutSource`: `default` | `env` | `clamped`.
 - Recommended Preview env: `GEMINI_TIMEOUT_MS=30000` (optional; code safe without it).
+
+## 2026-05-20 — PR205 Acceptance: AI Image Analysis Breakthrough
+
+### Summary
+- Confirmed end-to-end AI image analysis works in Vercel Preview.
+- Test photo of toy doctor kit correctly returned Doctor Set / Pretend Play suggestion.
+- Parent confirmation UI rendered.
+- Gemini timeout issue resolved (`GEMINI_TIMEOUT_MS=1` clamped to 30000ms).
+- Diagnostics isolated root cause and verified provider path.
+
+### Verification
+- Config diagnostic: configured true, effectiveModel `gemini-2.5-flash-lite`, timeoutMs 30000
+- Provider-only test: pass (after timeout fix)
+- No-provider image pipeline: pass
+- Full image analysis: pass (founder toy doctor kit photo)
+- UI candidate rendering: pass
+- Parent confirmation: pass — `Choose this` sets `product_type_id` + `status=confirmed`; `Not sure` sets `product_type_id=null` + `status=draft` (no fake canonical ID)
+- Build: pass
+
+### DB / audit (expected after successful analysis + Choose this)
+- Draft fields written on analysis: `ai_detected_label`, `ai_confidence`, `ai_raw_response_json` (provider, model, analysis, canonical_candidates)
+- Draft fields written on confirm: `product_type_id`, `status=confirmed`
+- `ai_listing_analysis_events`: `success=true`, `model_used`, `token_usage`, `error_message=null` on success
+- Founder example draft id from diagnostics: `d62a64a1-97fd-465f-ad77-0a49bd3f828b`
+
+### Safety
+- Raw photos private (`marketplace-raw-listing-photos` bucket `public: false`)
+- Owner preview uses `createSignedUrl` only (no `getPublicUrl` on raw listing photos)
+- No public listing created (`status` stays `draft` or `confirmed`, not `published`)
+- No pricing generated in PR3 routes/UI
+- No local demand/map in PR3
+- `GEMINI_API_KEY` server-only (route handlers / lib with `server-only`)
+- No service-role key in listing flow client code
+- Parent confirmation required before `product_type_id` is set (`select-candidate` POST)
+
+### Diagnostic route security (pre-merge hardening)
+- Admin-only + Preview/development (or `AI_LISTING_DIAGNOSTICS_ENABLED=true`)
+- Production returns 404 when disabled
+- No secrets, raw bytes, signed URLs, email, or child/household data exposed
+
+### Known debt
+- UI is functional/beta, not final marketplace polish.
+- Need more real-photo tests across 10–20 household items.
+- PR4 will generate editable listing draft details only after parent-confirmed match.
+- Diagnostic routes must remain admin/preview/debug-only.

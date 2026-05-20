@@ -50,6 +50,27 @@ type ApiErrorShape = {
   provider_code?: string | null;
 };
 
+type SelectCandidateResponse = {
+  ok?: boolean;
+  message?: string;
+  selected_product_type?: {
+    id: string;
+    label: string;
+    subtitle: string | null;
+  };
+  draft?: {
+    id: string;
+    product_type_id: string | null;
+    status: string;
+  };
+};
+
+type ConfirmedDraftState = {
+  status: string;
+  productTypeId: string | null;
+  label: string | null;
+};
+
 function getFileExtension(file: File): string {
   const fromName = file.name.split(".").pop()?.toLowerCase();
   if (fromName) return fromName;
@@ -72,6 +93,7 @@ export default function AppListingsPhotoDraftPage() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResponse | null>(null);
   const [savingSelection, setSavingSelection] = useState(false);
   const [selectionMessage, setSelectionMessage] = useState<string | null>(null);
+  const [confirmedDraft, setConfirmedDraft] = useState<ConfirmedDraftState | null>(null);
 
   const parseApiPayload = async <T,>(
     response: Response
@@ -143,8 +165,19 @@ export default function AppListingsPhotoDraftPage() {
       if (latest) {
         setDraftId(latest.id);
         setImageStoragePath(latest.image_storage_path);
-        if (latest.product_type_id && latest.status === "confirmed") {
-          setSelectionMessage("A confirmed item type is already saved on this draft.");
+        if (latest.status === "confirmed" && latest.product_type_id) {
+          setConfirmedDraft({
+            status: latest.status,
+            productTypeId: latest.product_type_id,
+            label: null,
+          });
+          setSelectionMessage("Confirmed item type saved on this draft.");
+        } else if (latest.status === "draft" && !latest.product_type_id) {
+          setConfirmedDraft({
+            status: latest.status,
+            productTypeId: null,
+            label: null,
+          });
         }
         if (latest.image_storage_path) {
           await refreshSignedPreview(latest.image_storage_path);
@@ -167,6 +200,7 @@ export default function AppListingsPhotoDraftPage() {
     setSuccess(null);
     setAnalysisError(null);
     setSelectionMessage(null);
+    setConfirmedDraft(null);
 
     if (!file) return;
     if (!user) {
@@ -300,11 +334,7 @@ export default function AppListingsPhotoDraftPage() {
           ),
         }
       );
-      const { payload } = await parseApiPayload<
-        { message?: string } & ApiErrorShape
-      >(
-        response
-      );
+      const { payload } = await parseApiPayload<SelectCandidateResponse & ApiErrorShape>(response);
       if (!response.ok) {
         const base = payload?.error ?? "Could not save your selection.";
         const code = payload?.error_code ? ` (${payload.error_code})` : "";
@@ -314,6 +344,20 @@ export default function AppListingsPhotoDraftPage() {
             : "";
         const debug = payload?.debug_id ? ` Ref: ${payload.debug_id}` : "";
         throw new Error(`${base}${code}${provider}${debug}`);
+      }
+      const draft = payload?.draft;
+      if (draft?.status === "confirmed" && draft.product_type_id) {
+        setConfirmedDraft({
+          status: draft.status,
+          productTypeId: draft.product_type_id,
+          label: payload?.selected_product_type?.label ?? null,
+        });
+      } else {
+        setConfirmedDraft({
+          status: draft?.status ?? "draft",
+          productTypeId: null,
+          label: null,
+        });
       }
       setSelectionMessage(payload?.message ?? "Saved to your draft.");
     } catch (selectionError) {
@@ -436,6 +480,20 @@ export default function AppListingsPhotoDraftPage() {
 
         {analysisError && <p className="text-sm text-red-600">{analysisError}</p>}
         {selectionMessage && <p className="text-sm text-emerald-700">{selectionMessage}</p>}
+
+        {confirmedDraft?.status === "confirmed" && confirmedDraft.productTypeId && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-1">
+            <p className="text-sm font-medium text-emerald-900">Confirmed on your draft</p>
+            <p className="text-sm text-emerald-800">
+              {confirmedDraft.label ?? "Canonical item type saved."} Ember will only use this match after your confirmation.
+            </p>
+          </div>
+        )}
+        {confirmedDraft?.status === "draft" && !confirmedDraft.productTypeId && selectionMessage && (
+          <p className="text-sm text-[#5C646D]">
+            No canonical item type saved yet. You can choose manually in a later step.
+          </p>
+        )}
 
         {analysisResult && (
           <div className="space-y-4 pt-2">
