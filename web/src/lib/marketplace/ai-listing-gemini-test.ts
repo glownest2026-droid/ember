@@ -3,12 +3,15 @@ import "server-only";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import {
   extractProviderDetails,
+  getEffectiveGeminiFallbackModel,
   getEffectiveGeminiModel,
   sanitizeProviderMessage,
 } from "./ai-listing-gemini-config";
+import { shouldAttemptGeminiFallback } from "./ai-listing-gemini-fallback";
 
 export type GeminiProviderTestResult = {
   attempted: boolean;
+  model: string;
   providerStatus: number | null;
   providerCode: string | null;
   responseReceived: boolean;
@@ -16,6 +19,14 @@ export type GeminiProviderTestResult = {
   parsedOk: boolean;
   safeMessage: string | null;
   projectIdentityNote: string;
+};
+
+export type GeminiProviderTestWithFallbackResult = {
+  primary: GeminiProviderTestResult;
+  fallback: GeminiProviderTestResult | null;
+  finalSuccess: boolean;
+  finalModelUsed: string | null;
+  fallbackUsed: boolean;
 };
 
 export async function runGeminiProviderTextTest(args: {
@@ -49,6 +60,7 @@ export async function runGeminiProviderTextTest(args: {
 
     return {
       attempted: true,
+      model: modelUsed,
       providerStatus: 200,
       providerCode: null,
       responseReceived: true,
@@ -61,6 +73,7 @@ export async function runGeminiProviderTextTest(args: {
     const details = extractProviderDetails(error);
     return {
       attempted: true,
+      model: modelUsed,
       providerStatus: details.providerStatus,
       providerCode: details.providerCode,
       responseReceived: false,
@@ -72,6 +85,63 @@ export async function runGeminiProviderTextTest(args: {
   }
 }
 
+export async function runGeminiProviderTextTestWithFallback(args: {
+  apiKey: string;
+  timeoutMs: number;
+  primaryModel?: string;
+  fallbackModel?: string;
+}): Promise<GeminiProviderTestWithFallbackResult> {
+  const primaryModel = args.primaryModel?.trim() || getEffectiveGeminiModel();
+  const fallbackModel = args.fallbackModel?.trim() || getEffectiveGeminiFallbackModel();
+
+  const primary = await runGeminiProviderTextTest({
+    apiKey: args.apiKey,
+    timeoutMs: args.timeoutMs,
+    model: primaryModel,
+  });
+
+  if (primary.parsedOk) {
+    return {
+      primary,
+      fallback: null,
+      finalSuccess: true,
+      finalModelUsed: primaryModel,
+      fallbackUsed: false,
+    };
+  }
+
+  const shouldFallback =
+    primaryModel !== fallbackModel &&
+    shouldAttemptGeminiFallback({
+      providerStatus: primary.providerStatus,
+      providerCode: primary.providerCode,
+    });
+
+  if (!shouldFallback) {
+    return {
+      primary,
+      fallback: null,
+      finalSuccess: false,
+      finalModelUsed: null,
+      fallbackUsed: false,
+    };
+  }
+
+  const fallback = await runGeminiProviderTextTest({
+    apiKey: args.apiKey,
+    timeoutMs: args.timeoutMs,
+    model: fallbackModel,
+  });
+
+  return {
+    primary,
+    fallback,
+    finalSuccess: fallback.parsedOk,
+    finalModelUsed: fallback.parsedOk ? fallbackModel : null,
+    fallbackUsed: true,
+  };
+}
+
 export function buildProviderTestFailureSummary(result: GeminiProviderTestResult): string {
   if (result.parsedOk) return "Gemini text-only provider test succeeded.";
   if (!result.attempted) return "Gemini provider test was not attempted.";
@@ -79,4 +149,18 @@ export function buildProviderTestFailureSummary(result: GeminiProviderTestResult
     result.safeMessage ?? "Gemini text-only provider test failed.",
     180
   );
+}
+
+export function buildProviderTestWithFallbackSummary(
+  result: GeminiProviderTestWithFallbackResult
+): string {
+  if (result.finalSuccess) {
+    return result.fallbackUsed
+      ? `Primary model unavailable; fallback ${result.finalModelUsed} succeeded.`
+      : `Gemini text-only provider test succeeded on ${result.finalModelUsed}.`;
+  }
+  if (result.fallbackUsed) {
+    return "Primary and fallback Gemini models failed (503/UNAVAILABLE or invalid response).";
+  }
+  return buildProviderTestFailureSummary(result.primary);
 }

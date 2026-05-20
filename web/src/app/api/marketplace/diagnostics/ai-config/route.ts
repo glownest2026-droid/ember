@@ -3,8 +3,8 @@ import { getAiListingEnvironment } from "@/lib/marketplace/ai-listing-gemini-con
 import { resolveIsAdminUser } from "@/lib/marketplace/ai-listing-admin";
 import { getDiagnosticsAccessDeniedReason } from "@/lib/marketplace/ai-listing-diagnostics-access";
 import {
-  buildProviderTestFailureSummary,
-  runGeminiProviderTextTest,
+  buildProviderTestWithFallbackSummary,
+  runGeminiProviderTextTestWithFallback,
 } from "@/lib/marketplace/ai-listing-gemini-test";
 import { createClient } from "@/utils/supabase/route-handler";
 
@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
           provider: environment.provider,
           configured: environment.configured,
           effectiveModel: environment.effectiveModel,
+          fallbackModel: environment.fallbackModel,
           dailyLimit: environment.dailyLimit,
           timeoutMs: environment.timeoutMs,
           timeoutSource: environment.timeoutSource,
@@ -59,15 +60,22 @@ export async function GET(request: NextRequest) {
         {
           ...environment,
           providerTest: {
-            attempted: false,
-            providerStatus: null,
-            providerCode: null,
-            responseReceived: false,
-            textPreview: null,
-            parsedOk: false,
-            safeMessage: "Image checking is not configured for this preview.",
-            projectIdentityNote:
-              "Could not verify project identity from API response. Founder must verify manually in Google AI Studio → API Keys.",
+            primary: {
+              attempted: false,
+              model: environment.effectiveModel,
+              providerStatus: null,
+              providerCode: null,
+              responseReceived: false,
+              textPreview: null,
+              parsedOk: false,
+              safeMessage: "Image checking is not configured for this preview.",
+              projectIdentityNote:
+                "Could not verify project identity from API response. Founder must verify manually in Google AI Studio → API Keys.",
+            },
+            fallback: null,
+            finalSuccess: false,
+            finalModelUsed: null,
+            fallbackUsed: false,
           },
           safeSummary: "Gemini API key is not configured.",
         },
@@ -75,17 +83,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const providerTest = await runGeminiProviderTextTest({
+    const providerTest = await runGeminiProviderTextTestWithFallback({
       apiKey,
       timeoutMs: environment.timeoutMs,
-      model: environment.effectiveModel,
+      primaryModel: environment.effectiveModel,
+      fallbackModel: environment.fallbackModel,
     });
 
     return json(
       {
         ...environment,
         providerTest,
-        safeSummary: buildProviderTestFailureSummary(providerTest),
+        safeSummary: buildProviderTestWithFallbackSummary(providerTest),
       },
       { status: 200 }
     );

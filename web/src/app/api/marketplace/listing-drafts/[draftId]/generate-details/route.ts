@@ -323,6 +323,7 @@ export async function POST(
         debugId,
         providerStatus: null,
         providerCode: null,
+        geminiAttempt: generated.geminiAttempt,
       });
 
       return json(
@@ -348,16 +349,19 @@ export async function POST(
         error instanceof GeminiDetailsProviderError ? error.providerStatus : null;
       const providerCode = error instanceof GeminiDetailsProviderError ? error.providerCode : null;
 
+      const geminiAttempt =
+        error instanceof GeminiDetailsProviderError ? error.geminiAttempt : null;
       await logListingDetailsGenerationEvent(supabase, {
         userId: user.id,
         draftId,
-        modelUsed: environment.effectiveModel,
+        modelUsed: geminiAttempt?.modelUsed ?? environment.effectiveModel,
         tokenUsage: null,
         success: false,
         errorMessage: providerMessage.slice(0, 500),
         debugId,
         providerStatus,
         providerCode,
+        geminiAttempt,
       });
 
       if (error instanceof GeminiDetailsParseError) {

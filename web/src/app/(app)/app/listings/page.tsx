@@ -370,7 +370,7 @@ export default function AppListingsPhotoDraftPage() {
           showDiagnostics && (payload?.provider_status || payload?.provider_code)
             ? ` Provider: ${payload.provider_status ?? "n/a"}${payload?.provider_code ? `/${payload.provider_code}` : ""}`
             : "";
-        const debug = showDiagnostics && payload?.debug_id ? ` Ref: ${payload.debug_id}` : "";
+        const debug = showDiagnostics && payload?.debug_id ? ` Debug ref: ${payload.debug_id}` : "";
         throw new Error(`${base}${code}${provider}${debug}`);
       }
       if (!payload) {
@@ -424,7 +424,7 @@ export default function AppListingsPhotoDraftPage() {
           payload?.provider_status || payload?.provider_code
             ? ` Provider: ${payload.provider_status ?? "n/a"}${payload?.provider_code ? `/${payload.provider_code}` : ""}`
             : "";
-        const debug = payload?.debug_id ? ` Ref: ${payload.debug_id}` : "";
+        const debug = payload?.debug_id ? ` Debug ref: ${payload.debug_id}` : "";
         throw new Error(`${base}${code}${provider}${debug}`);
       }
       const draft = payload?.draft;

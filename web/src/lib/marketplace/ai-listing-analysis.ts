@@ -8,6 +8,7 @@ import {
   getEffectiveGeminiModel,
   resolveGeminiTimeoutMs,
 } from "./ai-listing-gemini-config";
+import { runWithGeminiModelFallback, type GeminiModelAttemptMeta } from "./ai-listing-gemini-fallback";
 
 export { DEFAULT_GEMINI_MODEL };
 
@@ -47,12 +48,14 @@ export class GeminiConfigError extends Error {}
 export class GeminiProviderError extends Error {
   providerStatus: number | null;
   providerCode: string | null;
+  geminiAttempt: GeminiModelAttemptMeta | null;
 
   constructor(message: string, providerStatus: number | null = null, providerCode: string | null = null) {
     super(message);
     this.name = "GeminiProviderError";
     this.providerStatus = providerStatus;
     this.providerCode = providerCode;
+    this.geminiAttempt = null;
   }
 }
 export class GeminiParseError extends Error {}
@@ -261,6 +264,7 @@ export async function analyseListingImageWithGemini(args: {
   timeoutMs?: number;
 }): Promise<{
   modelUsed: string;
+  geminiAttempt: GeminiModelAttemptMeta;
   analysis: GeminiListingAnalysisOutput;
   tokenUsage: GeminiTokenUsage;
   rawText: string;
@@ -276,17 +280,22 @@ export async function analyseListingImageWithGemini(args: {
       ? resolveGeminiTimeoutMs(String(args.timeoutMs))
       : resolveGeminiTimeoutMs();
 
-  const generated = await generateGeminiListingImageContent({
-    apiKey,
-    model: modelUsed,
-    imageBase64: args.imageBase64,
-    mimeType: args.mimeType,
-    timeoutMs,
+  const { result: generated, meta } = await runWithGeminiModelFallback({
+    primaryModel: modelUsed,
+    attempt: (model) =>
+      generateGeminiListingImageContent({
+        apiKey,
+        model,
+        imageBase64: args.imageBase64,
+        mimeType: args.mimeType,
+        timeoutMs,
+      }),
   });
 
   const analysis = parseGeminiListingAnalysisOutput(generated.rawText);
   return {
-    modelUsed: generated.modelUsed,
+    modelUsed: meta.modelUsed,
+    geminiAttempt: meta,
     analysis,
     tokenUsage: generated.tokenUsage,
     rawText: generated.rawText,

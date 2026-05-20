@@ -269,6 +269,7 @@ export async function POST(
         debugId,
         providerStatus: null,
         providerCode: null,
+        geminiAttempt: aiResult.geminiAttempt,
       });
 
       return json(
@@ -308,11 +309,13 @@ export async function POST(
         } provider_status=${providerDetails.providerStatus} provider_code=${providerDetails.providerCode}`
       );
 
+      const geminiAttempt =
+        error instanceof GeminiProviderError ? error.geminiAttempt : null;
       await logListingAnalysisEvent(supabase, {
         userId: user.id,
         draftId,
         imagePath,
-        modelUsed,
+        modelUsed: geminiAttempt?.modelUsed ?? modelUsed,
         tokenUsage,
         success: false,
         errorMessage: providerMessage.slice(0, 500),
@@ -320,6 +323,7 @@ export async function POST(
         debugId,
         providerStatus: providerDetails.providerStatus,
         providerCode: providerDetails.providerCode,
+        geminiAttempt,
       });
 
       if (error instanceof GeminiParseError) {

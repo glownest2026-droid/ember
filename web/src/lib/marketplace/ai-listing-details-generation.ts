@@ -9,6 +9,7 @@ import {
   resolveGeminiTimeoutMs,
 } from "./ai-listing-gemini-config";
 import { pickTitleFromContext } from "./ai-listing-display-label";
+import { runWithGeminiModelFallback, type GeminiModelAttemptMeta } from "./ai-listing-gemini-fallback";
 import {
   LISTING_ARRAY_MAX_ITEMS,
   LISTING_DESCRIPTION_MAX,
@@ -20,12 +21,14 @@ export class GeminiDetailsConfigError extends Error {}
 export class GeminiDetailsProviderError extends Error {
   providerStatus: number | null;
   providerCode: string | null;
+  geminiAttempt: GeminiModelAttemptMeta | null;
 
   constructor(message: string, providerStatus: number | null = null, providerCode: string | null = null) {
     super(message);
     this.name = "GeminiDetailsProviderError";
     this.providerStatus = providerStatus;
     this.providerCode = providerCode;
+    this.geminiAttempt = null;
   }
 }
 export class GeminiDetailsParseError extends Error {}
@@ -206,25 +209,26 @@ export async function generateListingDetailsWithGemini(args: {
   rawText: string;
   tokenUsage: GeminiTokenUsage;
   modelUsed: string;
+  geminiAttempt: GeminiModelAttemptMeta;
 }> {
   const apiKey = args.apiKey?.trim();
   if (!apiKey) {
     throw new GeminiDetailsConfigError("Missing GEMINI_API_KEY.");
   }
 
-  const modelUsed = args.model?.trim() || getEffectiveGeminiModel();
+  const primaryModel = args.model?.trim() || getEffectiveGeminiModel();
   const { timeoutMs } =
     typeof args.timeoutMs === "number"
       ? resolveGeminiTimeoutMs(String(args.timeoutMs))
       : resolveGeminiTimeoutMs();
 
-  const client = new GoogleGenerativeAI(apiKey);
-  const model = client.getGenerativeModel({
-    model: modelUsed,
-    generationConfig: { temperature: 0.2 },
-  });
+  const generateForModel = async (modelName: string) => {
+    const client = new GoogleGenerativeAI(apiKey);
+    const model = client.getGenerativeModel({
+      model: modelName,
+      generationConfig: { temperature: 0.2 },
+    });
 
-  try {
     const result = await model.generateContent(
       {
         contents: [{ role: "user", parts: [{ text: args.prompt }] }],
@@ -259,10 +263,32 @@ export async function generateListingDetailsWithGemini(args: {
     } catch {
       throw new GeminiDetailsParseError("Gemini JSON could not be parsed.");
     }
-    const details = normalizeListingDraftDetails(parsed, modelUsed, args.titleContext);
-    return { details, rawText, tokenUsage, modelUsed };
+    const details = normalizeListingDraftDetails(parsed, modelName, args.titleContext);
+    return { details, rawText, tokenUsage, modelUsed: modelName };
+  };
+
+  try {
+    const { result, meta } = await runWithGeminiModelFallback({
+      primaryModel,
+      attempt: async (modelName) => {
+        try {
+          return await generateForModel(modelName);
+        } catch (error) {
+          if (error instanceof GeminiDetailsParseError) throw error;
+          const details = extractProviderDetails(error);
+          const providerError = new GeminiDetailsProviderError(
+            error instanceof Error ? error.message : "Gemini request failed.",
+            details.providerStatus,
+            details.providerCode
+          );
+          throw providerError;
+        }
+      },
+    });
+    return { ...result, geminiAttempt: meta };
   } catch (error) {
     if (error instanceof GeminiDetailsParseError) throw error;
+    if (error instanceof GeminiDetailsProviderError) throw error;
     const details = extractProviderDetails(error);
     throw new GeminiDetailsProviderError(
       error instanceof Error ? error.message : "Gemini request failed.",
@@ -302,10 +328,11 @@ export function classifyDetailsProviderError(error: unknown): {
     };
   }
 
-  if (
-    classified.errorCode === "gemini_temporarily_unavailable" ||
-    classified.errorCode === "gemini_provider_error"
-  ) {
+  if (classified.errorCode === "gemini_temporarily_unavailable") {
+    return classified;
+  }
+
+  if (classified.errorCode === "gemini_provider_error") {
     return {
       ...classified,
       message: "Ember couldn’t draft the listing right now. Please try again in a minute.",

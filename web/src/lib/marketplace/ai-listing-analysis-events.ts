@@ -2,6 +2,8 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { GeminiTokenUsage } from "./ai-listing-analysis";
+import type { GeminiModelAttemptMeta } from "./ai-listing-gemini-fallback";
+import { geminiAttemptMetaForVisionFeatures } from "./ai-listing-gemini-fallback";
 
 export async function logListingAnalysisEvent(
   supabase: SupabaseClient,
@@ -17,6 +19,7 @@ export async function logListingAnalysisEvent(
     debugId: string;
     providerStatus: number | null;
     providerCode: string | null;
+    geminiAttempt?: GeminiModelAttemptMeta | null;
   }
 ) {
   await supabase.from("ai_listing_analysis_events").insert({
@@ -31,6 +34,7 @@ export async function logListingAnalysisEvent(
       debug_id: args.debugId,
       provider_status: args.providerStatus,
       provider_code: args.providerCode,
+      ...(args.geminiAttempt ? geminiAttemptMetaForVisionFeatures(args.geminiAttempt) : {}),
     },
     cost_estimate: null,
     success: args.success,

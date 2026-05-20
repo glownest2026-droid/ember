@@ -2895,3 +2895,10 @@ Category-only cards remain publishable.
 - Re-analyse or new photo upload clears confirmation, generated listing details, and PR3/PR4 draft fields so stale xylophone data cannot persist.
 - Parent confirmation stores `parent_confirmed_display_label` in `ai_raw_response_json`; green banner uses visual label with optional catalog parenthetical.
 - `generate-details` title reconciliation uses shared display-label helpers (binoculars vs toy box / xylophone guards).
+
+### Follow-up — Gemini model fallback (503 / UNAVAILABLE)
+- Provider-only diagnostic (`ai-config?testProvider=1`) proved `gemini-2.5-flash-lite` can return HTTP 503 / `UNAVAILABLE` (“high demand”) while Ember config (API key, timeout, storage) is correct.
+- Added single controlled fallback path to `gemini-2.5-flash` via `GEMINI_FALLBACK_MODEL` (default `gemini-2.5-flash`): primary once, fallback once — no loops, no auto-fallback on 401/403/429/parse/storage errors.
+- `ai-config` diagnostics return `fallbackModel`; `testProvider=1` returns `providerTest.primary`, `providerTest.fallback`, `finalSuccess`, `finalModelUsed`.
+- AI events log `primary_model`, `fallback_model`, `fallback_used`, and primary failure codes when fallback runs.
+- UI labels debug IDs as **Debug ref** (not draft ID). Temporary-unavailable copy includes “not caused by your photo.”
