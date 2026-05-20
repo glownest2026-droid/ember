@@ -31,7 +31,11 @@ type AuthUser = {
 type CandidateCard = {
   id: string | null;
   label: string;
+  suggested_ai_label?: string;
   catalog_match_label: string | null;
+  catalog_match_weak?: boolean;
+  internal_category_label?: string | null;
+  canonical_review_note?: string | null;
   subtitle: string | null;
   reason: string;
   confidence_bucket: "high" | "medium" | "low";
@@ -606,16 +610,29 @@ export default function AppListingsPhotoDraftPage() {
               {analysisResult.candidate_cards.map((candidate) => (
                 <li key={`${candidate.id ?? candidate.label}-${candidate.source}`} className="rounded-xl border border-[#E5E7EB] p-4 bg-[#FAFAFA] space-y-2">
                   <p className="font-medium text-[#1A1E23]">{candidate.label}</p>
-                  {candidate.catalog_match_label &&
+                  {candidate.catalog_match_weak ? (
+                    <>
+                      {candidate.internal_category_label && (
+                        <p className="text-xs text-[#5C646D]">
+                          Category: {candidate.internal_category_label}
+                        </p>
+                      )}
+                      <p className="text-xs text-[#5C646D]">Internal match needs review</p>
+                    </>
+                  ) : (
+                    candidate.catalog_match_label &&
                     candidate.catalog_match_label.toLowerCase() !== candidate.label.toLowerCase() && (
                       <p className="text-xs text-[#5C646D]">
                         Catalog match: {candidate.catalog_match_label}
                         {candidate.subtitle ? ` · ${candidate.subtitle}` : ""}
                       </p>
-                    )}
-                  {candidate.subtitle && !candidate.catalog_match_label && (
-                    <p className="text-xs text-[#5C646D]">{candidate.subtitle}</p>
+                    )
                   )}
+                  {candidate.subtitle &&
+                    !candidate.catalog_match_label &&
+                    !candidate.catalog_match_weak && (
+                      <p className="text-xs text-[#5C646D]">{candidate.subtitle}</p>
+                    )}
                   <p className="text-sm text-[#5C646D]">{candidate.reason}</p>
                   <p className="text-xs text-[#5C646D]">{candidate.confidence_label}</p>
                   {candidate.id ? (

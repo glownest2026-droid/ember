@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import { isAdminEmail } from "@/lib/admin";
 import {
   analyseListingImageWithGemini,
   type GeminiTokenUsage,
@@ -16,8 +15,12 @@ import {
   classifyGeminiProviderError,
   extractProviderDetails,
   getAiListingEnvironment,
-  parsePositiveInt,
 } from "@/lib/marketplace/ai-listing-gemini-config";
+import {
+  countImageAnalysisEventsLast24h,
+  imageAnalysisLimitReachedMessage,
+  resolveImageAnalysisDailyLimit,
+} from "@/lib/marketplace/ai-listing-rate-limit";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -35,27 +38,6 @@ type ApiErrorPayload = {
   provider_status?: number | null;
   provider_code?: string | null;
 };
-
-async function resolveDailyLimit(
-  supabase: ReturnType<typeof createClient>["supabase"],
-  user: { id: string; email?: string | null }
-): Promise<number> {
-  const configuredLimit = parsePositiveInt(process.env.AI_LISTING_DAILY_LIMIT, DEFAULT_DAILY_LIMIT);
-  let isAdminUser = isAdminEmail(user.email);
-
-  if (!isAdminUser) {
-    const { data: adminRole } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-    isAdminUser = Boolean(adminRole?.role === "admin");
-  }
-
-  if (!isAdminUser) return configuredLimit;
-  return Math.max(configuredLimit, configuredLimit * 5);
-}
 
 function buildErrorPayload(
   message: string,
@@ -151,24 +133,25 @@ export async function POST(
       );
     }
 
-    const dailyLimit = await resolveDailyLimit(supabase, { id: user.id, email: user.email });
-    const cutoffIso = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { count, error: countError } = await supabase
-      .from("ai_listing_analysis_events")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .gte("created_at", cutoffIso);
+    const dailyLimit = await resolveImageAnalysisDailyLimit(supabase, {
+      id: user.id,
+      email: user.email,
+    });
+    const {
+      count: usedLast24h,
+      error: countError,
+    } = await countImageAnalysisEventsLast24h(supabase, user.id);
 
     if (countError) {
       return json(
-        buildErrorPayload(countError.message, "rate_count_failed", debugId, true),
+        buildErrorPayload(countError, "rate_count_failed", debugId, true),
         { status: 500 }
       );
     }
-    if ((count ?? 0) >= dailyLimit) {
+    if (usedLast24h >= dailyLimit) {
       return json(
         buildErrorPayload(
-          "You’ve reached today’s Ember test limit for image checks.",
+          imageAnalysisLimitReachedMessage(),
           "ember_daily_limit_reached",
           debugId,
           true
@@ -244,6 +227,15 @@ export async function POST(
             analysed_at: new Date().toISOString(),
             analysis: aiResult.analysis,
             canonical_candidates: canonicalCandidates,
+            canonical_review_summary: canonicalCandidates[0]
+              ? {
+                  suggested_ai_label: canonicalCandidates[0].suggested_ai_label,
+                  nearest_canonical_match: canonicalCandidates[0].catalog_match_label,
+                  match_confidence: canonicalCandidates[0].confidence_bucket,
+                  canonical_review_note: canonicalCandidates[0].canonical_review_note,
+                  catalog_match_weak: canonicalCandidates[0].catalog_match_weak,
+                }
+              : null,
             raw_json_text: aiResult.rawText,
           },
         })
@@ -270,6 +262,8 @@ export async function POST(
         providerStatus: null,
         providerCode: null,
         geminiAttempt: aiResult.geminiAttempt,
+        eventSource: "user_analyse_image",
+        countsTowardImageDailyLimit: true,
       });
 
       return json(
@@ -285,7 +279,7 @@ export async function POST(
               ? "We’re not sure from this photo. Try another angle or choose a category manually."
               : null,
           rate_limit: {
-            used_last_24h: (count ?? 0) + 1,
+            used_last_24h: usedLast24h + 1,
             limit: dailyLimit,
           },
           debug_id: debugId,
@@ -324,6 +318,8 @@ export async function POST(
         providerStatus: providerDetails.providerStatus,
         providerCode: providerDetails.providerCode,
         geminiAttempt,
+        eventSource: "user_analyse_image",
+        countsTowardImageDailyLimit: true,
       });
 
       if (error instanceof GeminiParseError) {

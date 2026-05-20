@@ -15,8 +15,9 @@ import {
   parsePositiveInt,
 } from "@/lib/marketplace/ai-listing-gemini-config";
 import {
-  canonicalLabelMatchesVisual,
-  isBroadCanonicalLabel,
+  buildCanonicalReviewNote,
+  buildVisualSupportText,
+  pickCandidateCardTitle,
   pickUserFacingDisplayLabel,
 } from "@/lib/marketplace/ai-listing-display-label";
 import { createClient } from "@/utils/supabase/route-handler";
@@ -87,42 +88,35 @@ function chooseUserFacingTitleLabels(args: {
   confirmedLabel: string;
   categoryLabel: string;
   parentDisplayLabel?: string;
+  visualSupportText?: string;
+  aiCandidateLabel?: string;
 }) {
   const visual = args.visualLabel.trim();
   const confirmed = args.confirmedLabel.trim();
   const category = args.categoryLabel.trim();
   const parentDisplay = args.parentDisplayLabel?.trim() || "";
+  const support = args.visualSupportText?.trim() || "";
+
+  const titlePick = pickCandidateCardTitle({
+    detectedItemLabel: parentDisplay || visual,
+    aiCandidateLabel: args.aiCandidateLabel ?? "",
+    reason: support,
+    broadCategory: category,
+  });
 
   const preferred = pickUserFacingDisplayLabel({
     visualLabel: parentDisplay || visual,
+    aiCandidateLabel: args.aiCandidateLabel,
     canonicalCatalogLabel: confirmed,
     categoryLabel: category,
+    reason: support,
   });
 
   return {
-    preferredTitleLabel: preferred,
+    preferredTitleLabel: preferred || titlePick.title,
     canonicalLabel: confirmed || "Confirmed item",
+    suggestedAiLabel: titlePick.suggestedAiLabel,
   };
-}
-
-function buildCanonicalReviewNote(args: {
-  visualLabel: string;
-  canonicalLabel: string;
-  categoryLabel: string;
-}): string | null {
-  const visual = args.visualLabel.trim();
-  const canonical = args.canonicalLabel.trim();
-  if (!visual || !canonical) return null;
-  const isBroadCanonical = isBroadCanonicalLabel(canonical);
-  const overlaps = canonicalLabelMatchesVisual({
-    canonicalLabel: canonical,
-    visualLabel: visual,
-  });
-  if (!isBroadCanonical && overlaps) return null;
-  if (!isBroadCanonical && !overlaps) {
-    return `Gemini suggested '${visual}', but the confirmed catalog label was '${canonical}'.`;
-  }
-  return `Gemini suggested '${visual}', but nearest canonical match was '${canonical}'. Consider adding canonical marketplace item type: ${visual.toLowerCase().replace(/[^a-z0-9]+/g, "_")}.`;
 }
 
 export async function POST(
@@ -246,19 +240,27 @@ export async function POST(
       productType?.subtitle?.trim() ||
       pr3Raw?.analysis?.broad_category?.trim() ||
       "General";
-    const titleChoice = chooseUserFacingTitleLabels({
-      visualLabel: visualDetectedLabel,
-      confirmedLabel: confirmedCanonicalLabel,
-      categoryLabel,
-      parentDisplayLabel,
-    });
+    const topAiCandidate = pr3Raw?.analysis?.product_type_candidates?.[0];
     const visualSupportText = [
-      visualDetectedLabel,
+      buildVisualSupportText({
+        detectedItemLabel: visualDetectedLabel,
+        aiCandidateLabel: topAiCandidate?.label,
+        reason: topAiCandidate?.why,
+        broadCategory: pr3Raw?.analysis?.broad_category,
+      }),
       ...(pr3Raw?.analysis?.visible_text ?? []),
       ...(pr3Raw?.analysis?.condition_observations ?? []),
     ]
       .join(" ")
       .trim();
+    const titleChoice = chooseUserFacingTitleLabels({
+      visualLabel: visualDetectedLabel,
+      confirmedLabel: confirmedCanonicalLabel,
+      categoryLabel,
+      parentDisplayLabel,
+      visualSupportText,
+      aiCandidateLabel: topAiCandidate?.label,
+    });
 
     const prompt = buildListingDetailsGenerationPrompt({
       confirmedItemLabel: titleChoice.preferredTitleLabel,
@@ -278,16 +280,17 @@ export async function POST(
         timeoutMs: environment.timeoutMs,
         prompt,
         titleContext: {
-          visualLabel: parentDisplayLabel || visualDetectedLabel,
+          visualLabel: titleChoice.preferredTitleLabel,
           confirmedLabel: confirmedCanonicalLabel,
           categoryLabel,
           visualSupportText,
         },
       });
       const canonicalReviewNote = buildCanonicalReviewNote({
-        visualLabel: visualDetectedLabel,
-        canonicalLabel: confirmedCanonicalLabel,
-        categoryLabel,
+        suggestedAiLabel: titleChoice.suggestedAiLabel,
+        nearestCanonicalMatch: confirmedCanonicalLabel,
+        reason: visualSupportText,
+        broadCategory: categoryLabel,
       });
       if (canonicalReviewNote) {
         generated.details.canonical_review_note = canonicalReviewNote;

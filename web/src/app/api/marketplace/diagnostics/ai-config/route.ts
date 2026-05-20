@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { getAiListingEnvironment } from "@/lib/marketplace/ai-listing-gemini-config";
 import { resolveIsAdminUser } from "@/lib/marketplace/ai-listing-admin";
+import { getImageAnalysisUsageSnapshot } from "@/lib/marketplace/ai-listing-rate-limit";
 import { getDiagnosticsAccessDeniedReason } from "@/lib/marketplace/ai-listing-diagnostics-access";
 import {
   buildProviderTestWithFallbackSummary,
@@ -38,6 +39,11 @@ export async function GET(request: NextRequest) {
     const environment = getAiListingEnvironment();
     const testProvider = request.nextUrl.searchParams.get("testProvider") === "1";
 
+    const usage =
+      user && !authError
+        ? await getImageAnalysisUsageSnapshot(supabase, { id: user.id, email: user.email })
+        : null;
+
     if (!testProvider) {
       return json(
         {
@@ -49,6 +55,11 @@ export async function GET(request: NextRequest) {
           timeoutMs: environment.timeoutMs,
           timeoutSource: environment.timeoutSource,
           hasApiKey: environment.hasApiKey,
+          imageAnalysisLimit: usage?.imageAnalysisLimit ?? null,
+          imageAnalysisUsedLast24h: usage?.imageAnalysisUsedLast24h ?? null,
+          imageAnalysisRemaining: usage?.imageAnalysisRemaining ?? null,
+          limitWindowStart: usage?.limitWindowStart ?? null,
+          imageAnalysisCountError: usage?.countError ?? null,
         },
         { status: 200 }
       );
@@ -93,6 +104,11 @@ export async function GET(request: NextRequest) {
     return json(
       {
         ...environment,
+        imageAnalysisLimit: usage?.imageAnalysisLimit ?? null,
+        imageAnalysisUsedLast24h: usage?.imageAnalysisUsedLast24h ?? null,
+        imageAnalysisRemaining: usage?.imageAnalysisRemaining ?? null,
+        limitWindowStart: usage?.limitWindowStart ?? null,
+        imageAnalysisCountError: usage?.countError ?? null,
         providerTest,
         safeSummary: buildProviderTestWithFallbackSummary(providerTest),
       },

@@ -28,6 +28,8 @@ export async function logListingDetailsGenerationEvent(
     token_usage: args.tokenUsage,
     vision_features_used: {
       mode: "listing_details_generation",
+      event_source: "user_generate_details",
+      counts_toward_image_daily_limit: false,
       debug_id: args.debugId,
       provider_status: args.providerStatus,
       provider_code: args.providerCode,

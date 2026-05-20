@@ -1,14 +1,22 @@
 import "server-only";
 
 import type { GeminiListingAnalysisOutput } from "./ai-listing-analysis";
-import { pickUserFacingDisplayLabel } from "./ai-listing-display-label";
+import {
+  assessCanonicalMatch,
+  pickCandidateCardTitle,
+  pickInternalCategoryLabel,
+} from "./ai-listing-display-label";
 
 type ConfidenceBucket = "high" | "medium" | "low";
 
 export type CanonicalCandidateCard = {
   id: string | null;
   label: string;
+  suggested_ai_label: string;
   catalog_match_label: string | null;
+  catalog_match_weak: boolean;
+  internal_category_label: string | null;
+  canonical_review_note: string | null;
   subtitle: string | null;
   reason: string;
   confidence_bucket: ConfidenceBucket;
@@ -42,15 +50,23 @@ export async function buildCanonicalCandidates(
   const seenLabels = new Set<string>();
 
   const detectedVisualLabel = analysis.detected_item_label.trim();
+  const broadCategory = analysis.broad_category.trim();
   const aiCandidates = analysis.product_type_candidates.slice(0, 4);
+
   for (const aiCandidate of aiCandidates) {
-    const normalizedLabel = aiCandidate.label.trim().toLowerCase();
+    const titlePick = pickCandidateCardTitle({
+      detectedItemLabel: detectedVisualLabel,
+      aiCandidateLabel: aiCandidate.label,
+      reason: aiCandidate.why,
+      broadCategory,
+    });
+    const normalizedLabel = titlePick.title.trim().toLowerCase();
     if (!normalizedLabel || seenLabels.has(normalizedLabel)) continue;
     seenLabels.add(normalizedLabel);
 
     const searchTerms = Array.from(
       new Set(
-        [aiCandidate.label, aiCandidate.slug_hint.replace(/_/g, " ").trim()]
+        [aiCandidate.label, aiCandidate.slug_hint.replace(/_/g, " ").trim(), titlePick.suggestedAiLabel]
           .map((entry) => entry.trim())
           .filter((entry) => entry.length > 0)
       )
@@ -86,17 +102,29 @@ export async function buildCanonicalCandidates(
       seenCanonicalIds.add(bestCanonical.id);
       const aiBucket = confidenceFromNumber(aiCandidate.confidence);
       const mergedBucket = pickLowerConfidenceBucket(bestCanonical.confidence_bucket, aiBucket);
-      const displayLabel = pickUserFacingDisplayLabel({
-        visualLabel: detectedVisualLabel,
+      const match = assessCanonicalMatch({
+        canonicalLabel: bestCanonical.label,
+        detectedItemLabel: detectedVisualLabel,
         aiCandidateLabel: aiCandidate.label,
-        canonicalCatalogLabel: bestCanonical.label,
-        categoryLabel: analysis.broad_category || bestCanonical.subtitle || "",
         reason: aiCandidate.why,
+        broadCategory,
+        confidenceBucket: mergedBucket,
       });
+
       cards.push({
         id: bestCanonical.id,
-        label: displayLabel,
-        catalog_match_label: bestCanonical.label,
+        label: titlePick.title,
+        suggested_ai_label: match.suggestedAiLabel,
+        catalog_match_label: match.isWeak ? null : bestCanonical.label,
+        catalog_match_weak: match.isWeak,
+        internal_category_label:
+          match.internalCategoryLabel ??
+          pickInternalCategoryLabel({
+            broadCategory,
+            supportText: aiCandidate.why,
+            canonicalSubtitle: bestCanonical.subtitle,
+          }),
+        canonical_review_note: match.canonicalReviewNote,
         subtitle: bestCanonical.subtitle,
         reason: aiCandidate.why || "Matched against Ember canonical product types.",
         confidence_bucket: mergedBucket,
@@ -106,17 +134,20 @@ export async function buildCanonicalCandidates(
       continue;
     }
 
-    const displayLabel = pickUserFacingDisplayLabel({
-      visualLabel: detectedVisualLabel,
-      aiCandidateLabel: aiCandidate.label,
-      categoryLabel: analysis.broad_category || "",
-      reason: aiCandidate.why,
+    const internalCategory = pickInternalCategoryLabel({
+      broadCategory,
+      supportText: aiCandidate.why,
     });
+
     cards.push({
       id: null,
-      label: displayLabel,
+      label: titlePick.title,
+      suggested_ai_label: titlePick.suggestedAiLabel,
       catalog_match_label: null,
-      subtitle: analysis.broad_category || null,
+      catalog_match_weak: true,
+      internal_category_label: internalCategory,
+      canonical_review_note: null,
+      subtitle: internalCategory,
       reason: aiCandidate.why || "Possible match from photo analysis.",
       confidence_bucket: confidenceFromNumber(aiCandidate.confidence),
       confidence_label: confidenceLabel(confidenceFromNumber(aiCandidate.confidence)),
@@ -124,15 +155,22 @@ export async function buildCanonicalCandidates(
     });
   }
 
-  if (cards.length === 0 && analysis.detected_item_label.trim()) {
+  if (cards.length === 0 && detectedVisualLabel) {
+    const titlePick = pickCandidateCardTitle({
+      detectedItemLabel: detectedVisualLabel,
+      aiCandidateLabel: "",
+      reason: "",
+      broadCategory,
+    });
     cards.push({
       id: null,
-      label: pickUserFacingDisplayLabel({
-        visualLabel: analysis.detected_item_label.trim(),
-        categoryLabel: analysis.broad_category || "",
-      }),
+      label: titlePick.title,
+      suggested_ai_label: titlePick.suggestedAiLabel,
       catalog_match_label: null,
-      subtitle: analysis.broad_category || null,
+      catalog_match_weak: true,
+      internal_category_label: pickInternalCategoryLabel({ broadCategory, supportText: detectedVisualLabel }),
+      canonical_review_note: null,
+      subtitle: broadCategory || null,
       reason: "We are not yet confident about the exact catalog match.",
       confidence_bucket: analysis.confidence_bucket,
       confidence_label: confidenceLabel(analysis.confidence_bucket),

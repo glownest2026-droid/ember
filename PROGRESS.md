@@ -2902,3 +2902,16 @@ Category-only cards remain publishable.
 - `ai-config` diagnostics return `fallbackModel`; `testProvider=1` returns `providerTest.primary`, `providerTest.fallback`, `finalSuccess`, `finalModelUsed`.
 - AI events log `primary_model`, `fallback_model`, `fallback_used`, and primary failure codes when fallback runs.
 - UI labels debug IDs as **Debug ref** (not draft ID). Temporary-unavailable copy includes “not caused by your photo.”
+
+### Follow-up — rate limit + draft diagnostic (founder testing)
+- Provider-only `ai-config?testProvider=1` proved Gemini reachable; UI blocker was **`ember_daily_limit_reached`** (Ember internal limiter, not Google).
+- **Limiter:** counts rows in `ai_listing_analysis_events` for `user_id` in rolling 24h, excluding `listing_details_generation` and `diagnostic_ai_analysis` event sources. Failures from user analyse-image still count. `ai-config?testProvider=1` does **not** write quota events. Admin users get `AI_LISTING_DAILY_LIMIT × 5`.
+- **`ai-config`** now returns `imageAnalysisLimit`, `imageAnalysisUsedLast24h`, `imageAnalysisRemaining`, `limitWindowStart` for signed-in admin.
+- **`ai-analysis` diagnostic** returns `draftLookup` (row_missing / owner_mismatch / rls_hidden / invalid_uuid). Debug refs are not draft IDs.
+- Preview: set `AI_LISTING_DAILY_LIMIT=100` on Vercel and redeploy for heavy testing.
+
+### Follow-up — visual-first candidate titles (microphone / xylophone)
+- Root cause: `pickUserFacingDisplayLabel` fell back to `broad_category` (“pretend play”) when Gemini labels were broad; RPC canonical label (“Xylophone”) was shown as authoritative catalog match despite microphone reasoning.
+- Candidate card title hierarchy: specific Gemini candidate → detected_item_label → inferred object from description → safe category (“Musical toy”), never broad_category alone.
+- Weak/contradictory canonical matches hidden from user-facing “Catalog match”; show `Category: Musical toy` + “Internal match needs review” instead.
+- `canonical_review_summary` stored in `ai_raw_response_json`; PR4 title generation seeds from visual label, not weak canonical.

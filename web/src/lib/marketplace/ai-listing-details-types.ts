@@ -38,6 +38,7 @@ export type Pr3StoredAnalysis = {
   possible_brand?: string;
   visible_text?: string[];
   broad_category?: string;
+  product_type_candidates?: { label?: string; why?: string }[];
   condition_observations?: string[];
   missing_parts_questions?: string[];
   safety_warnings?: string[];

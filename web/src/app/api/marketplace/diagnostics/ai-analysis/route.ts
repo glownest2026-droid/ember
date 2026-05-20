@@ -8,6 +8,7 @@ import {
   GeminiProviderError,
 } from "@/lib/marketplace/ai-listing-analysis";
 import { logListingAnalysisEvent } from "@/lib/marketplace/ai-listing-analysis-events";
+import { resolveDraftLookupDiagnostic } from "@/lib/marketplace/ai-listing-draft-diagnostic";
 import { buildCanonicalCandidates } from "@/lib/marketplace/ai-listing-canonical-candidates";
 import { downloadOwnedDraftImage } from "@/lib/marketplace/ai-listing-draft-image";
 import {
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
       steps.push(step("auth", false, "not signed in"));
       markFailure("auth", "Authentication required.");
       return json(
-        { ok: false, debugId, environment, steps, failureStage, safeSummary },
+        { ok: false, debugId, environment, draftLookup: null, steps, failureStage, safeSummary },
         { status: 401 }
       );
     }
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest) {
       steps.push(step("draft_lookup", false, "admin access required"));
       markFailure("draft_lookup", "Admin access required for diagnostics.");
       return json(
-        { ok: false, debugId, environment, steps, failureStage, safeSummary },
+        { ok: false, debugId, environment, draftLookup: null, steps, failureStage, safeSummary },
         { status: 403 }
       );
     }
@@ -89,10 +90,17 @@ export async function GET(request: NextRequest) {
       steps.push(step("draft_lookup", false, "draftId query parameter is required"));
       markFailure("draft_lookup", "Draft id is required.");
       return json(
-        { ok: false, debugId, environment, steps, failureStage, safeSummary },
+        { ok: false, debugId, environment, draftLookup: null, steps, failureStage, safeSummary },
         { status: 400 }
       );
     }
+
+    const draftLookup = await resolveDraftLookupDiagnostic({
+      supabase,
+      draftId,
+      currentUserId: user.id,
+      allowServiceRoleProbe: true,
+    });
 
     const { data: draft, error: draftError } = await supabase
       .from("marketplace_listing_drafts")
@@ -105,15 +113,30 @@ export async function GET(request: NextRequest) {
       steps.push(step("draft_lookup", false, draftError.message));
       markFailure("draft_lookup", "Draft lookup failed.");
       return json(
-        { ok: false, debugId, environment, steps, failureStage, safeSummary },
+        { ok: false, debugId, environment, draftLookup, steps, failureStage, safeSummary },
         { status: 500 }
       );
     }
     if (!draft) {
-      steps.push(step("draft_lookup", false, "draft not found"));
-      markFailure("draft_lookup", "Draft not found.");
+      const reason = draftLookup.notFoundReason ?? "row_missing";
+      steps.push(
+        step("draft_lookup", false, {
+          message: "draft not found for signed-in owner",
+          notFoundReason: reason,
+        })
+      );
+      markFailure(
+        "draft_lookup",
+        reason === "owner_mismatch"
+          ? "Draft exists but belongs to a different user than the signed-in session."
+          : reason === "rls_hidden"
+            ? "Draft row exists for this user but owner-scoped lookup failed (check RLS/session)."
+            : reason === "invalid_uuid"
+              ? "Draft id is not a valid UUID."
+              : "Draft not found in marketplace_listing_drafts."
+      );
       return json(
-        { ok: false, debugId, environment, steps, failureStage, safeSummary },
+        { ok: false, debugId, environment, draftLookup, steps, failureStage, safeSummary },
         { status: 404 }
       );
     }
@@ -125,7 +148,12 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
-    steps.push(step("draft_lookup", true, "draft found (admin, owner-scoped via RLS)"));
+    steps.push(
+      step("draft_lookup", true, {
+        message: "draft found for signed-in owner",
+        draftLookup,
+      })
+    );
 
     const imagePath = String(draft.image_storage_path ?? "").trim();
     const downloadResult = await downloadOwnedDraftImage({
@@ -260,6 +288,8 @@ export async function GET(request: NextRequest) {
           debugId,
           providerStatus: null,
           providerCode: null,
+          eventSource: "diagnostic_ai_analysis",
+          countsTowardImageDailyLimit: false,
         });
         steps.push(step("ai_event_log", true, "failure event logged"));
         return json(
@@ -308,6 +338,8 @@ export async function GET(request: NextRequest) {
         debugId,
         providerStatus: null,
         providerCode: null,
+        eventSource: "diagnostic_ai_analysis",
+        countsTowardImageDailyLimit: false,
       });
       steps.push(step("ai_event_log", true, draftUpdateError ? "failure event logged" : "success event logged"));
 
@@ -380,6 +412,8 @@ export async function GET(request: NextRequest) {
         debugId,
         providerStatus: details.providerStatus,
         providerCode: details.providerCode,
+        eventSource: "diagnostic_ai_analysis",
+        countsTowardImageDailyLimit: false,
       });
       steps.push(step("ai_event_log", true, "failure event logged"));
 

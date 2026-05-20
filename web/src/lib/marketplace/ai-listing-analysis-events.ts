@@ -5,6 +5,8 @@ import type { GeminiTokenUsage } from "./ai-listing-analysis";
 import type { GeminiModelAttemptMeta } from "./ai-listing-gemini-fallback";
 import { geminiAttemptMetaForVisionFeatures } from "./ai-listing-gemini-fallback";
 
+export type ListingAnalysisEventSource = "user_analyse_image" | "diagnostic_ai_analysis";
+
 export async function logListingAnalysisEvent(
   supabase: SupabaseClient,
   args: {
@@ -20,8 +22,14 @@ export async function logListingAnalysisEvent(
     providerStatus: number | null;
     providerCode: string | null;
     geminiAttempt?: GeminiModelAttemptMeta | null;
+    eventSource?: ListingAnalysisEventSource;
+    countsTowardImageDailyLimit?: boolean;
   }
 ) {
+  const eventSource = args.eventSource ?? "user_analyse_image";
+  const countsTowardImageDailyLimit =
+    args.countsTowardImageDailyLimit ?? eventSource === "user_analyse_image";
+
   await supabase.from("ai_listing_analysis_events").insert({
     user_id: args.userId,
     draft_id: args.draftId,
@@ -30,6 +38,8 @@ export async function logListingAnalysisEvent(
     token_usage: args.tokenUsage,
     vision_features_used: {
       mode: "single-image-classification",
+      event_source: eventSource,
+      counts_toward_image_daily_limit: countsTowardImageDailyLimit,
       candidate_count: args.candidateCount,
       debug_id: args.debugId,
       provider_status: args.providerStatus,
