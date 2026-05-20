@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { Camera, Lock } from "lucide-react";
+import { ListingDraftDetailsSection, type ListingDraftDetailsJson } from "@/components/marketplace/ListingDraftDetailsSection";
 import { createClient } from "@/utils/supabase/client";
 
 const RAW_LISTING_BUCKET = "marketplace-raw-listing-photos";
@@ -14,6 +15,13 @@ type DraftRow = {
   image_storage_path: string | null;
   product_type_id: string | null;
   status: string;
+  title_draft: string | null;
+  description_draft: string | null;
+  condition_confirmed_by_user: string | null;
+  listing_draft_details_json: ListingDraftDetailsJson | null;
+  listing_details_generated_at: string | null;
+  ai_detected_label: string | null;
+  ai_raw_response_json: { parent_confirmed_display_label?: string; analysis?: { detected_item_label?: string } } | null;
 };
 
 type AuthUser = {
@@ -23,6 +31,10 @@ type AuthUser = {
 type CandidateCard = {
   id: string | null;
   label: string;
+  user_facing_item_label?: string;
+  suggested_ai_label?: string;
+  catalog_match_weak?: boolean;
+  internal_category_label?: string | null;
   subtitle: string | null;
   reason: string;
   confidence_bucket: "high" | "medium" | "low";
@@ -56,6 +68,7 @@ type SelectCandidateResponse = {
   selected_product_type?: {
     id: string;
     label: string;
+    display_label?: string | null;
     subtitle: string | null;
   };
   draft?: {
@@ -69,6 +82,7 @@ type ConfirmedDraftState = {
   status: string;
   productTypeId: string | null;
   label: string | null;
+  displayLabel: string | null;
 };
 
 function getFileExtension(file: File): string {
@@ -94,6 +108,19 @@ export default function AppListingsPhotoDraftPage() {
   const [savingSelection, setSavingSelection] = useState(false);
   const [selectionMessage, setSelectionMessage] = useState<string | null>(null);
   const [confirmedDraft, setConfirmedDraft] = useState<ConfirmedDraftState | null>(null);
+  const [draftDetails, setDraftDetails] = useState<{
+    title: string | null;
+    description: string | null;
+    condition: string | null;
+    detailsJson: ListingDraftDetailsJson | null;
+    generatedAt: string | null;
+  }>({
+    title: null,
+    description: null,
+    condition: null,
+    detailsJson: null,
+    generatedAt: null,
+  });
 
   const parseApiPayload = async <T,>(
     response: Response
@@ -148,7 +175,9 @@ export default function AppListingsPhotoDraftPage() {
 
       const { data: drafts, error: draftsError } = await supabase
         .from("marketplace_listing_drafts")
-        .select("id, image_storage_path, product_type_id, status")
+        .select(
+          "id, image_storage_path, product_type_id, status, title_draft, description_draft, condition_confirmed_by_user, listing_draft_details_json, listing_details_generated_at, ai_detected_label, ai_raw_response_json"
+        )
         .eq("user_id", authUser.id)
         .order("created_at", { ascending: false })
         .limit(1);
@@ -165,11 +194,29 @@ export default function AppListingsPhotoDraftPage() {
       if (latest) {
         setDraftId(latest.id);
         setImageStoragePath(latest.image_storage_path);
+        setDraftDetails({
+          title: latest.title_draft,
+          description: latest.description_draft,
+          condition: latest.condition_confirmed_by_user,
+          detailsJson: latest.listing_draft_details_json,
+          generatedAt: latest.listing_details_generated_at,
+        });
         if (latest.status === "confirmed" && latest.product_type_id) {
+          const { data: productType } = await supabase
+            .from("product_types")
+            .select("label")
+            .eq("id", latest.product_type_id)
+            .maybeSingle();
+          const visualLabel =
+            latest.ai_raw_response_json?.parent_confirmed_display_label?.trim() ||
+            latest.ai_raw_response_json?.analysis?.detected_item_label?.trim() ||
+            latest.ai_detected_label?.trim() ||
+            null;
           setConfirmedDraft({
             status: latest.status,
             productTypeId: latest.product_type_id,
-            label: null,
+            label: productType?.label ?? null,
+            displayLabel: visualLabel,
           });
           setSelectionMessage("Confirmed item type saved on this draft.");
         } else if (latest.status === "draft" && !latest.product_type_id) {
@@ -177,6 +224,7 @@ export default function AppListingsPhotoDraftPage() {
             status: latest.status,
             productTypeId: null,
             label: null,
+            displayLabel: null,
           });
         }
         if (latest.image_storage_path) {
@@ -201,6 +249,13 @@ export default function AppListingsPhotoDraftPage() {
     setAnalysisError(null);
     setSelectionMessage(null);
     setConfirmedDraft(null);
+    setDraftDetails({
+      title: null,
+      description: null,
+      condition: null,
+      detailsJson: null,
+      generatedAt: null,
+    });
 
     if (!file) return;
     if (!user) {
@@ -251,7 +306,19 @@ export default function AppListingsPhotoDraftPage() {
 
       const { error: updateDraftError } = await supabase
         .from("marketplace_listing_drafts")
-        .update({ image_storage_path: path })
+        .update({
+          image_storage_path: path,
+          product_type_id: null,
+          status: "draft",
+          title_draft: null,
+          description_draft: null,
+          condition_confirmed_by_user: null,
+          listing_draft_details_json: null,
+          listing_details_generated_at: null,
+          ai_detected_label: null,
+          ai_confidence: null,
+          ai_raw_response_json: null,
+        })
         .eq("id", activeDraftId)
         .eq("user_id", user.id);
 
@@ -261,6 +328,8 @@ export default function AppListingsPhotoDraftPage() {
       await refreshSignedPreview(path);
       setSuccess("Photo uploaded privately to your draft.");
       setAnalysisResult(null);
+      setConfirmedDraft(null);
+      setSelectionMessage(null);
     } catch (uploadFlowError) {
       setError(uploadFlowError instanceof Error ? uploadFlowError.message : "Upload failed.");
     } finally {
@@ -278,6 +347,15 @@ export default function AppListingsPhotoDraftPage() {
       return;
     }
     setAnalysisLoading(true);
+    setConfirmedDraft(null);
+    setSelectionMessage(null);
+    setDraftDetails({
+      title: null,
+      description: null,
+      condition: null,
+      detailsJson: null,
+      generatedAt: null,
+    });
     try {
       const response = await fetch(
         `/api/marketplace/listing-drafts/${draftId}/analyse-image`,
@@ -295,7 +373,7 @@ export default function AppListingsPhotoDraftPage() {
           showDiagnostics && (payload?.provider_status || payload?.provider_code)
             ? ` Provider: ${payload.provider_status ?? "n/a"}${payload?.provider_code ? `/${payload.provider_code}` : ""}`
             : "";
-        const debug = showDiagnostics && payload?.debug_id ? ` Ref: ${payload.debug_id}` : "";
+        const debug = showDiagnostics && payload?.debug_id ? ` Debug ref: ${payload.debug_id}` : "";
         throw new Error(`${base}${code}${provider}${debug}`);
       }
       if (!payload) {
@@ -315,7 +393,10 @@ export default function AppListingsPhotoDraftPage() {
     }
   };
 
-  const handleSelectCandidate = async (productTypeId: string | null) => {
+  const handleSelectCandidate = async (
+    productTypeId: string | null,
+    displayLabel?: string | null
+  ) => {
     if (savingSelection) return;
     if (!draftId) return;
     setSavingSelection(true);
@@ -329,7 +410,11 @@ export default function AppListingsPhotoDraftPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(
             productTypeId
-              ? { selection: "canonical", product_type_id: productTypeId }
+              ? {
+                  selection: "canonical",
+                  product_type_id: productTypeId,
+                  display_label: displayLabel?.trim() || null,
+                }
               : { selection: "not_sure" }
           ),
         }
@@ -342,7 +427,7 @@ export default function AppListingsPhotoDraftPage() {
           payload?.provider_status || payload?.provider_code
             ? ` Provider: ${payload.provider_status ?? "n/a"}${payload?.provider_code ? `/${payload.provider_code}` : ""}`
             : "";
-        const debug = payload?.debug_id ? ` Ref: ${payload.debug_id}` : "";
+        const debug = payload?.debug_id ? ` Debug ref: ${payload.debug_id}` : "";
         throw new Error(`${base}${code}${provider}${debug}`);
       }
       const draft = payload?.draft;
@@ -351,12 +436,25 @@ export default function AppListingsPhotoDraftPage() {
           status: draft.status,
           productTypeId: draft.product_type_id,
           label: payload?.selected_product_type?.label ?? null,
+          displayLabel:
+            payload?.selected_product_type?.display_label?.trim() ||
+            displayLabel?.trim() ||
+            analysisResult?.detected_item_label?.trim() ||
+            null,
+        });
+        setDraftDetails({
+          title: null,
+          description: null,
+          condition: null,
+          detailsJson: null,
+          generatedAt: null,
         });
       } else {
         setConfirmedDraft({
           status: draft?.status ?? "draft",
           productTypeId: null,
           label: null,
+          displayLabel: null,
         });
       }
       setSelectionMessage(payload?.message ?? "Saved to your draft.");
@@ -485,7 +583,13 @@ export default function AppListingsPhotoDraftPage() {
           <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-1">
             <p className="text-sm font-medium text-emerald-900">Confirmed on your draft</p>
             <p className="text-sm text-emerald-800">
-              {confirmedDraft.label ?? "Canonical item type saved."} Ember will only use this match after your confirmation.
+              {confirmedDraft.displayLabel ?? confirmedDraft.label ?? "Item type saved."}
+              {confirmedDraft.displayLabel &&
+                confirmedDraft.label &&
+                confirmedDraft.displayLabel.toLowerCase() !== confirmedDraft.label.toLowerCase() && (
+                  <> (catalog: {confirmedDraft.label})</>
+                )}
+              . Ember will only use this match after your confirmation.
             </p>
           </div>
         )}
@@ -504,9 +608,16 @@ export default function AppListingsPhotoDraftPage() {
             <ul className="space-y-3">
               {analysisResult.candidate_cards.map((candidate) => (
                 <li key={`${candidate.id ?? candidate.label}-${candidate.source}`} className="rounded-xl border border-[#E5E7EB] p-4 bg-[#FAFAFA] space-y-2">
-                  <p className="font-medium text-[#1A1E23]">{candidate.label}</p>
-                  {candidate.subtitle && (
-                    <p className="text-xs text-[#5C646D]">{candidate.subtitle}</p>
+                  <p className="font-medium text-[#1A1E23]">
+                    {candidate.user_facing_item_label ?? candidate.label}
+                  </p>
+                  {candidate.internal_category_label && (
+                    <p className="text-xs text-[#5C646D]">
+                      Category: {candidate.internal_category_label}
+                    </p>
+                  )}
+                  {candidate.catalog_match_weak && (
+                    <p className="text-xs text-[#5C646D]">Internal match needs review</p>
                   )}
                   <p className="text-sm text-[#5C646D]">{candidate.reason}</p>
                   <p className="text-xs text-[#5C646D]">{candidate.confidence_label}</p>
@@ -514,7 +625,12 @@ export default function AppListingsPhotoDraftPage() {
                     <button
                       type="button"
                       disabled={savingSelection}
-                      onClick={() => handleSelectCandidate(candidate.id)}
+                      onClick={() =>
+                        handleSelectCandidate(
+                          candidate.id,
+                          candidate.user_facing_item_label ?? candidate.label
+                        )
+                      }
                       className="inline-flex items-center rounded-lg border border-[#E5E7EB] bg-white px-3 py-1.5 text-sm text-[#1A1E23] disabled:opacity-60"
                     >
                       Choose this
@@ -552,6 +668,20 @@ export default function AppListingsPhotoDraftPage() {
           </div>
         )}
       </div>
+
+      {draftId && (
+        <ListingDraftDetailsSection
+          draftId={draftId}
+          initialTitle={draftDetails.title}
+          initialDescription={draftDetails.description}
+          initialCondition={draftDetails.condition}
+          initialDetails={draftDetails.detailsJson}
+          initialGeneratedAt={draftDetails.generatedAt}
+          hasConfirmedItem={Boolean(
+            confirmedDraft?.status === "confirmed" && confirmedDraft.productTypeId
+          )}
+        />
+      )}
 
       <p className="text-xs text-[#5C646D]">
         Raw photos stay private. AI is a suggestion, and parent confirmation is required before Ember uses a match.

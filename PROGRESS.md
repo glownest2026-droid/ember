@@ -2824,3 +2824,101 @@ Category-only cards remain publishable.
 - Need more real-photo tests across 10–20 household items.
 - PR4 will generate editable listing draft details only after parent-confirmed match.
 - Diagnostic routes must remain admin/preview/debug-only.
+
+## 2026-05-20 — AI Marketplace Listing PR4: Editable Listing Draft Generation
+
+### Summary
+- Added editable listing draft generation after parent-confirmed item type.
+- Reused server-only Gemini setup from PR3 (text-only; no image re-analysis in PR4).
+- Generated title, description, condition prompts, missing-parts checklist, safety/resale notes, and photo improvement suggestions.
+- Added editable save flow for draft listing details.
+- No publish flow, pricing, local demand, maps, payments, or public listing creation added.
+
+### Routes touched/added
+- `POST /api/marketplace/listing-drafts/[draftId]/generate-details` — protected
+- `PATCH /api/marketplace/listing-drafts/[draftId]/details` — protected
+- `/app/listings` — protected UI (`ListingDraftDetailsSection`)
+
+### Env & Secrets
+- `GEMINI_API_KEY`: server-only
+- `GEMINI_MODEL`: `gemini-2.5-flash-lite` (default)
+- `GEMINI_TIMEOUT_MS`: 30000 default
+- `AI_LISTING_DETAILS_DAILY_LIMIT`: 10 default
+- No secrets exposed client-side
+
+### DB & RLS
+- Uses draft table: `marketplace_listing_drafts`
+- Existing fields used: `title_draft`, `description_draft`, `condition_suggestion`, `condition_confirmed_by_user`, `ai_raw_response_json`, `product_type_id`, `status`
+- New fields added: `listing_draft_details_json`, `listing_details_generated_at` (`supabase/sql/202605201200_listing_draft_details_fields.sql`)
+- RLS: user-owned draft access preserved
+- No live listing table writes
+
+### AI generation
+- Input: parent-confirmed `product_type_id` + PR3 structured analysis + canonical product type label
+- Not sent to AI: child names, household details, location, user email, raw image bytes/URLs
+- Output: editable draft details only
+- Audit: `ai_listing_analysis_events` with `vision_features_used.mode = listing_details_generation`
+
+### Verification
+- Baseline build: pass (on `main` after PR3 merge)
+- Final build: pass
+- Manual checks (founder/preview): pending on new Preview deploy
+  - confirmed item required before generation
+  - draft generation route registered
+  - edit/save route registered
+  - reload persistence via draft columns
+
+### Known debt / risks
+- UI is beta-functional, not final marketplace polish
+- Condition remains parent-confirmed, not AI-confirmed
+- Brand/model/RRP enrichment deferred
+- Pricing deferred
+- Local demand/map deferred
+- Multi-photo upload deferred
+- No `safety_policy` table yet — restricted flag comes from Gemini + parent review only
+
+### Next module handoff
+- Branch to create after merge: `feat/ai-listing-price-guidance`
+- Start with grounded product/RRP lookup, cautious price range only, no publish flow
+
+### Follow-up — PR4 title quality patch (visual label first)
+- User-facing `title_draft` now biases toward Gemini visual identification before canonical category labels.
+- Canonical product type remains internal taxonomy support and no longer dominates the listing title.
+- Added deterministic guardrails for known contradictions:
+  - xylophone title is replaced when visual context indicates saxophone-style toy
+  - unsupported material words (e.g. `wooden`) are removed unless visual context supports them
+- Added `canonical_review_note` capture in `listing_draft_details_json` when visual label and broad canonical match diverge.
+- Known taxonomy expansion need: add specific toy instruments (e.g. `toy_saxophone`, `toy_trumpet`, `toy_keyboard`, `toy_drum`).
+
+### Follow-up — PR4 display label + stale draft reset (binoculars / Toy Box)
+- Candidate cards now show Gemini/visual label first; weak catalog matches (e.g. Toy Box) appear as `Catalog match:` subtitle via `ai-listing-display-label.ts`.
+- Re-analyse or new photo upload clears confirmation, generated listing details, and PR3/PR4 draft fields so stale xylophone data cannot persist.
+- Parent confirmation stores `parent_confirmed_display_label` in `ai_raw_response_json`; green banner uses visual label with optional catalog parenthetical.
+- `generate-details` title reconciliation uses shared display-label helpers (binoculars vs toy box / xylophone guards).
+
+### Follow-up — Gemini model fallback (503 / UNAVAILABLE)
+- Provider-only diagnostic (`ai-config?testProvider=1`) proved `gemini-2.5-flash-lite` can return HTTP 503 / `UNAVAILABLE` (“high demand”) while Ember config (API key, timeout, storage) is correct.
+- Added single controlled fallback path to `gemini-2.5-flash` via `GEMINI_FALLBACK_MODEL` (default `gemini-2.5-flash`): primary once, fallback once — no loops, no auto-fallback on 401/403/429/parse/storage errors.
+- `ai-config` diagnostics return `fallbackModel`; `testProvider=1` returns `providerTest.primary`, `providerTest.fallback`, `finalSuccess`, `finalModelUsed`.
+- AI events log `primary_model`, `fallback_model`, `fallback_used`, and primary failure codes when fallback runs.
+- UI labels debug IDs as **Debug ref** (not draft ID). Temporary-unavailable copy includes “not caused by your photo.”
+
+### Follow-up — rate limit + draft diagnostic (founder testing)
+- Provider-only `ai-config?testProvider=1` proved Gemini reachable; UI blocker was **`ember_daily_limit_reached`** (Ember internal limiter, not Google).
+- **Limiter:** counts rows in `ai_listing_analysis_events` for `user_id` in rolling 24h, excluding `listing_details_generation` and `diagnostic_ai_analysis` event sources. Failures from user analyse-image still count. `ai-config?testProvider=1` does **not** write quota events. Admin users get `AI_LISTING_DAILY_LIMIT × 5`.
+- **`ai-config`** now returns `imageAnalysisLimit`, `imageAnalysisUsedLast24h`, `imageAnalysisRemaining`, `limitWindowStart` for signed-in admin.
+- **`ai-analysis` diagnostic** returns `draftLookup` (row_missing / owner_mismatch / rls_hidden / invalid_uuid). Debug refs are not draft IDs.
+- Preview: set `AI_LISTING_DAILY_LIMIT=100` on Vercel and redeploy for heavy testing.
+
+### Follow-up — visual-first candidate titles (microphone / xylophone)
+- Root cause: `pickUserFacingDisplayLabel` fell back to `broad_category` (“pretend play”) when Gemini labels were broad; RPC canonical label (“Xylophone”) was shown as authoritative catalog match despite microphone reasoning.
+- Candidate card title hierarchy: specific Gemini candidate → detected_item_label → inferred object from description → safe category (“Musical toy”), never broad_category alone.
+- Weak/contradictory canonical matches hidden from user-facing “Catalog match”; show `Category: Musical toy` + “Internal match needs review” instead.
+- `canonical_review_summary` stored in `ai_raw_response_json`; PR4 title generation seeds from visual label, not weak canonical.
+
+### Follow-up — `user_facing_item_label` + parent UI (PR4 quality)
+- PR4 separates user-facing AI visual labels from internal canonical matches.
+- Weak/contradictory canonical matches no longer appear as “Catalog match: …” on parent cards.
+- Generic “Toy item” fallback tightened when `visual_description` / `why` mentions ice cream, microphone, doctor kit, etc.
+- Gemini prompt now requires `user_facing_item_label`, `visual_description`, `canonical_search_terms`.
+- Canonical DB debt: `toy_microphone`, `toy_saxophone`, `ice_cream_cart_toy`, `ice_cream_shop_playset`.

@@ -1,12 +1,26 @@
 import "server-only";
 
 import type { GeminiListingAnalysisOutput } from "./ai-listing-analysis";
+import {
+  assessCanonicalMatch,
+  resolveUserFacingLabelFromAnalysis,
+  pickInternalCategoryLabel,
+  buildVisualSupportText,
+} from "./ai-listing-display-label";
 
 type ConfidenceBucket = "high" | "medium" | "low";
 
 export type CanonicalCandidateCard = {
   id: string | null;
   label: string;
+  user_facing_item_label: string;
+  suggested_ai_label: string;
+  /** Never shown to parents — internal taxonomy only. */
+  catalog_match_label: null;
+  internal_nearest_canonical: string | null;
+  catalog_match_weak: boolean;
+  internal_category_label: string | null;
+  canonical_review_note: string | null;
   subtitle: string | null;
   reason: string;
   confidence_bucket: ConfidenceBucket;
@@ -39,15 +53,23 @@ export async function buildCanonicalCandidates(
   const seenCanonicalIds = new Set<string>();
   const seenLabels = new Set<string>();
 
+  const broadCategory = analysis.broad_category.trim();
   const aiCandidates = analysis.product_type_candidates.slice(0, 4);
+
   for (const aiCandidate of aiCandidates) {
-    const normalizedLabel = aiCandidate.label.trim().toLowerCase();
+    const userFacing = resolveUserFacingLabelFromAnalysis(analysis, aiCandidate);
+    const normalizedLabel = userFacing.title.trim().toLowerCase();
     if (!normalizedLabel || seenLabels.has(normalizedLabel)) continue;
     seenLabels.add(normalizedLabel);
 
     const searchTerms = Array.from(
       new Set(
-        [aiCandidate.label, aiCandidate.slug_hint.replace(/_/g, " ").trim()]
+        [
+          ...analysis.canonical_search_terms,
+          userFacing.suggestedAiLabel,
+          aiCandidate.label,
+          aiCandidate.slug_hint.replace(/_/g, " ").trim(),
+        ]
           .map((entry) => entry.trim())
           .filter((entry) => entry.length > 0)
       )
@@ -79,15 +101,45 @@ export async function buildCanonicalCandidates(
       break;
     }
 
+    const reason =
+      aiCandidate.why ||
+      analysis.visual_description ||
+      "Matched from photo analysis.";
+
     if (bestCanonical && !seenCanonicalIds.has(bestCanonical.id)) {
       seenCanonicalIds.add(bestCanonical.id);
       const aiBucket = confidenceFromNumber(aiCandidate.confidence);
       const mergedBucket = pickLowerConfidenceBucket(bestCanonical.confidence_bucket, aiBucket);
+      const match = assessCanonicalMatch({
+        canonicalLabel: bestCanonical.label,
+        analysis,
+        aiCandidateLabel: aiCandidate.label,
+        reason,
+        confidenceBucket: mergedBucket,
+      });
+
       cards.push({
         id: bestCanonical.id,
-        label: bestCanonical.label,
-        subtitle: bestCanonical.subtitle,
-        reason: aiCandidate.why || "Matched against Ember canonical product types.",
+        label: userFacing.title,
+        user_facing_item_label: userFacing.title,
+        suggested_ai_label: match.suggestedAiLabel,
+        catalog_match_label: null,
+        internal_nearest_canonical: match.isWeak ? bestCanonical.label : null,
+        catalog_match_weak: match.isWeak,
+        internal_category_label:
+          match.internalCategoryLabel ??
+          pickInternalCategoryLabel({
+            broadCategory,
+            supportText: buildVisualSupportText({
+              userFacingItemLabel: userFacing.title,
+              visualDescription: analysis.visual_description,
+              reason,
+            }),
+            canonicalSubtitle: bestCanonical.subtitle,
+          }),
+        canonical_review_note: match.canonicalReviewNote,
+        subtitle: match.internalCategoryLabel ?? bestCanonical.subtitle,
+        reason,
         confidence_bucket: mergedBucket,
         confidence_label: confidenceLabel(mergedBucket),
         source: "canonical_match",
@@ -95,23 +147,52 @@ export async function buildCanonicalCandidates(
       continue;
     }
 
+    const internalCategory = pickInternalCategoryLabel({
+      broadCategory,
+      supportText: buildVisualSupportText({
+        userFacingItemLabel: userFacing.title,
+        visualDescription: analysis.visual_description,
+        reason,
+      }),
+    });
+
+    const noMatchNote = `Gemini suggested '${userFacing.suggestedAiLabel}'. No exact canonical match found. Consider adding canonical marketplace item type: ${userFacing.suggestedAiLabel.toLowerCase().replace(/[^a-z0-9]+/g, "_")}.`;
+
     cards.push({
       id: null,
-      label: aiCandidate.label,
-      subtitle: analysis.broad_category || null,
-      reason: aiCandidate.why || "Possible match from photo analysis.",
+      label: userFacing.title,
+      user_facing_item_label: userFacing.title,
+      suggested_ai_label: userFacing.suggestedAiLabel,
+      catalog_match_label: null,
+      internal_nearest_canonical: null,
+      catalog_match_weak: true,
+      internal_category_label: internalCategory,
+      canonical_review_note: noMatchNote,
+      subtitle: internalCategory,
+      reason,
       confidence_bucket: confidenceFromNumber(aiCandidate.confidence),
       confidence_label: confidenceLabel(confidenceFromNumber(aiCandidate.confidence)),
       source: "ai_suggestion",
     });
   }
 
-  if (cards.length === 0 && analysis.detected_item_label.trim()) {
+  if (cards.length === 0) {
+    const userFacing = resolveUserFacingLabelFromAnalysis(analysis);
     cards.push({
       id: null,
-      label: analysis.detected_item_label.trim(),
-      subtitle: analysis.broad_category || null,
-      reason: "We are not yet confident about the exact catalog match.",
+      label: userFacing.title,
+      user_facing_item_label: userFacing.title,
+      suggested_ai_label: userFacing.suggestedAiLabel,
+      catalog_match_label: null,
+      internal_nearest_canonical: null,
+      catalog_match_weak: true,
+      internal_category_label: pickInternalCategoryLabel({
+        broadCategory,
+        supportText: analysis.visual_description || analysis.detected_item_label,
+      }),
+      canonical_review_note: null,
+      subtitle: broadCategory || null,
+      reason: analysis.visual_description || "We are not yet confident about the exact catalog match.",
       confidence_bucket: analysis.confidence_bucket,
       confidence_label: confidenceLabel(analysis.confidence_bucket),
       source: "ai_suggestion",

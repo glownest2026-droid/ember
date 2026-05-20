@@ -8,6 +8,8 @@ import {
   getEffectiveGeminiModel,
   resolveGeminiTimeoutMs,
 } from "./ai-listing-gemini-config";
+import { resolveUserFacingItemLabel } from "./ai-listing-display-label";
+import { runWithGeminiModelFallback, type GeminiModelAttemptMeta } from "./ai-listing-gemini-fallback";
 
 export { DEFAULT_GEMINI_MODEL };
 
@@ -21,7 +23,10 @@ export type GeminiListingCandidate = {
 };
 
 export type GeminiListingAnalysisOutput = {
+  user_facing_item_label: string;
   detected_item_label: string;
+  visual_description: string;
+  canonical_search_terms: string[];
   possible_brand: string;
   visible_text: string[];
   broad_category: string;
@@ -47,12 +52,14 @@ export class GeminiConfigError extends Error {}
 export class GeminiProviderError extends Error {
   providerStatus: number | null;
   providerCode: string | null;
+  geminiAttempt: GeminiModelAttemptMeta | null;
 
   constructor(message: string, providerStatus: number | null = null, providerCode: string | null = null) {
     super(message);
     this.name = "GeminiProviderError";
     this.providerStatus = providerStatus;
     this.providerCode = providerCode;
+    this.geminiAttempt = null;
   }
 }
 export class GeminiParseError extends Error {}
@@ -152,14 +159,40 @@ function normalizeCandidates(value: unknown, fallbackLabel: string): GeminiListi
 function normalizeAnalysisOutput(value: unknown): GeminiListingAnalysisOutput {
   const source = (value && typeof value === "object" ? value : {}) as Record<string, unknown>;
   const detectedLabel = String(source.detected_item_label ?? "").trim() || "unknown item";
+  const userFacingRaw = String(source.user_facing_item_label ?? "").trim();
+  const candidatesRaw = source.product_type_candidates;
+  const firstCandidateWhy =
+    Array.isArray(candidatesRaw) &&
+    candidatesRaw[0] &&
+    typeof candidatesRaw[0] === "object"
+      ? String((candidatesRaw[0] as Record<string, unknown>).why ?? "").trim()
+      : "";
+  const visualDescription =
+    String(source.visual_description ?? "").trim() || firstCandidateWhy;
+
+  const candidates = normalizeCandidates(source.product_type_candidates, detectedLabel);
+  const topCandidate = candidates[0];
+  const broadCategory = String(source.broad_category ?? "").trim() || "unknown";
+
+  const userFacingResolved = resolveUserFacingItemLabel({
+    userFacingItemLabel: userFacingRaw,
+    detectedItemLabel: detectedLabel,
+    aiCandidateLabel: topCandidate?.label,
+    visualDescription,
+    reason: topCandidate?.why ?? visualDescription,
+    broadCategory,
+  });
 
   return {
+    user_facing_item_label: userFacingResolved.title,
     detected_item_label: detectedLabel,
+    visual_description: visualDescription || topCandidate?.why || "",
+    canonical_search_terms: stringList(source.canonical_search_terms, 6),
     possible_brand: String(source.possible_brand ?? "").trim() || "unknown",
     visible_text: stringList(source.visible_text),
-    broad_category: String(source.broad_category ?? "").trim() || "unknown",
+    broad_category: broadCategory,
     likely_age_range_months: normalizeAgeRange(source.likely_age_range_months),
-    product_type_candidates: normalizeCandidates(source.product_type_candidates, detectedLabel),
+    product_type_candidates: candidates,
     condition_observations: stringList(source.condition_observations),
     missing_parts_questions: stringList(source.missing_parts_questions),
     safety_warnings: stringList(source.safety_warnings),
@@ -261,6 +294,7 @@ export async function analyseListingImageWithGemini(args: {
   timeoutMs?: number;
 }): Promise<{
   modelUsed: string;
+  geminiAttempt: GeminiModelAttemptMeta;
   analysis: GeminiListingAnalysisOutput;
   tokenUsage: GeminiTokenUsage;
   rawText: string;
@@ -276,17 +310,22 @@ export async function analyseListingImageWithGemini(args: {
       ? resolveGeminiTimeoutMs(String(args.timeoutMs))
       : resolveGeminiTimeoutMs();
 
-  const generated = await generateGeminiListingImageContent({
-    apiKey,
-    model: modelUsed,
-    imageBase64: args.imageBase64,
-    mimeType: args.mimeType,
-    timeoutMs,
+  const { result: generated, meta } = await runWithGeminiModelFallback({
+    primaryModel: modelUsed,
+    attempt: (model) =>
+      generateGeminiListingImageContent({
+        apiKey,
+        model,
+        imageBase64: args.imageBase64,
+        mimeType: args.mimeType,
+        timeoutMs,
+      }),
   });
 
   const analysis = parseGeminiListingAnalysisOutput(generated.rawText);
   return {
-    modelUsed: generated.modelUsed,
+    modelUsed: meta.modelUsed,
+    geminiAttempt: meta,
     analysis,
     tokenUsage: generated.tokenUsage,
     rawText: generated.rawText,

@@ -1,6 +1,7 @@
 import "server-only";
 
 export const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash-lite";
+export const DEFAULT_GEMINI_FALLBACK_MODEL = "gemini-2.5-flash";
 const DEFAULT_DAILY_LIMIT = 5;
 export const DEFAULT_GEMINI_TIMEOUT_MS = 30000;
 const MIN_GEMINI_TIMEOUT_MS = 5000;
@@ -16,6 +17,7 @@ export type ResolvedGeminiTimeout = {
 export type AiListingEnvironment = {
   configured: boolean;
   effectiveModel: string;
+  fallbackModel: string;
   dailyLimit: number;
   provider: "gemini";
   hasApiKey: boolean;
@@ -40,6 +42,10 @@ export type ClassifiedGeminiError = {
 
 export function getEffectiveGeminiModel(): string {
   return process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_MODEL;
+}
+
+export function getEffectiveGeminiFallbackModel(): string {
+  return process.env.GEMINI_FALLBACK_MODEL?.trim() || DEFAULT_GEMINI_FALLBACK_MODEL;
 }
 
 export function parsePositiveInt(value: string | undefined, fallback: number): number {
@@ -76,6 +82,7 @@ export function getAiListingEnvironment(): AiListingEnvironment {
   return {
     configured: hasApiKey,
     effectiveModel: getEffectiveGeminiModel(),
+    fallbackModel: getEffectiveGeminiFallbackModel(),
     dailyLimit: parsePositiveInt(process.env.AI_LISTING_DAILY_LIMIT, DEFAULT_DAILY_LIMIT),
     provider: "gemini",
     hasApiKey,
@@ -154,7 +161,8 @@ export function classifyGeminiProviderError(details: ProviderDetails, rawMessage
   if (status === 503 || code === "UNAVAILABLE" || lower.includes("service unavailable")) {
     return {
       errorCode: "gemini_temporarily_unavailable",
-      message: "Gemini is temporarily unavailable. Please try again in a minute.",
+      message:
+        "Gemini is temporarily unavailable. Please try again in a minute. This is usually temporary and not caused by your photo.",
       retryable: true,
       httpStatus: 503,
       providerStatus: status,

@@ -1,10 +1,11 @@
 import { NextRequest } from "next/server";
 import { getAiListingEnvironment } from "@/lib/marketplace/ai-listing-gemini-config";
 import { resolveIsAdminUser } from "@/lib/marketplace/ai-listing-admin";
+import { getImageAnalysisUsageSnapshot } from "@/lib/marketplace/ai-listing-rate-limit";
 import { getDiagnosticsAccessDeniedReason } from "@/lib/marketplace/ai-listing-diagnostics-access";
 import {
-  buildProviderTestFailureSummary,
-  runGeminiProviderTextTest,
+  buildProviderTestWithFallbackSummary,
+  runGeminiProviderTextTestWithFallback,
 } from "@/lib/marketplace/ai-listing-gemini-test";
 import { createClient } from "@/utils/supabase/route-handler";
 
@@ -38,16 +39,27 @@ export async function GET(request: NextRequest) {
     const environment = getAiListingEnvironment();
     const testProvider = request.nextUrl.searchParams.get("testProvider") === "1";
 
+    const usage =
+      user && !authError
+        ? await getImageAnalysisUsageSnapshot(supabase, { id: user.id, email: user.email })
+        : null;
+
     if (!testProvider) {
       return json(
         {
           provider: environment.provider,
           configured: environment.configured,
           effectiveModel: environment.effectiveModel,
+          fallbackModel: environment.fallbackModel,
           dailyLimit: environment.dailyLimit,
           timeoutMs: environment.timeoutMs,
           timeoutSource: environment.timeoutSource,
           hasApiKey: environment.hasApiKey,
+          imageAnalysisLimit: usage?.imageAnalysisLimit ?? null,
+          imageAnalysisUsedLast24h: usage?.imageAnalysisUsedLast24h ?? null,
+          imageAnalysisRemaining: usage?.imageAnalysisRemaining ?? null,
+          limitWindowStart: usage?.limitWindowStart ?? null,
+          imageAnalysisCountError: usage?.countError ?? null,
         },
         { status: 200 }
       );
@@ -59,15 +71,22 @@ export async function GET(request: NextRequest) {
         {
           ...environment,
           providerTest: {
-            attempted: false,
-            providerStatus: null,
-            providerCode: null,
-            responseReceived: false,
-            textPreview: null,
-            parsedOk: false,
-            safeMessage: "Image checking is not configured for this preview.",
-            projectIdentityNote:
-              "Could not verify project identity from API response. Founder must verify manually in Google AI Studio → API Keys.",
+            primary: {
+              attempted: false,
+              model: environment.effectiveModel,
+              providerStatus: null,
+              providerCode: null,
+              responseReceived: false,
+              textPreview: null,
+              parsedOk: false,
+              safeMessage: "Image checking is not configured for this preview.",
+              projectIdentityNote:
+                "Could not verify project identity from API response. Founder must verify manually in Google AI Studio → API Keys.",
+            },
+            fallback: null,
+            finalSuccess: false,
+            finalModelUsed: null,
+            fallbackUsed: false,
           },
           safeSummary: "Gemini API key is not configured.",
         },
@@ -75,17 +94,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const providerTest = await runGeminiProviderTextTest({
+    const providerTest = await runGeminiProviderTextTestWithFallback({
       apiKey,
       timeoutMs: environment.timeoutMs,
-      model: environment.effectiveModel,
+      primaryModel: environment.effectiveModel,
+      fallbackModel: environment.fallbackModel,
     });
 
     return json(
       {
         ...environment,
+        imageAnalysisLimit: usage?.imageAnalysisLimit ?? null,
+        imageAnalysisUsedLast24h: usage?.imageAnalysisUsedLast24h ?? null,
+        imageAnalysisRemaining: usage?.imageAnalysisRemaining ?? null,
+        limitWindowStart: usage?.limitWindowStart ?? null,
+        imageAnalysisCountError: usage?.countError ?? null,
         providerTest,
-        safeSummary: buildProviderTestFailureSummary(providerTest),
+        safeSummary: buildProviderTestWithFallbackSummary(providerTest),
       },
       { status: 200 }
     );
