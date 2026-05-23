@@ -120,7 +120,7 @@ export default function AppMarketplacePage() {
         <p className="text-sm text-[#5C646D]">
           Nearby listings from signed-in Ember families. Exact addresses are not shown.
         </p>
-        <Link href="/app/listings" className="text-sm text-primary underline">
+        <Link href="/app/listings?new=1" className="text-sm text-primary underline">
           Create a listing
         </Link>
       </header>
@@ -190,7 +190,7 @@ export default function AppMarketplacePage() {
         ) : (
           <ul className="space-y-3">
             {mine.map((listing) => (
-              <li key={listing.id} className="rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-4 space-y-1">
+              <li key={listing.id} className="rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-4 space-y-2">
                 <p className="font-medium text-[#1A1E23]">{listing.title ?? listing.item_label}</p>
                 <p className="text-sm text-[#5C646D]">Live to nearby families</p>
                 <p className="text-sm text-[#1A1E23]">
@@ -200,6 +200,12 @@ export default function AppMarketplacePage() {
                       ? "1 parent is interested"
                       : `${listing.interest_count} parents are interested`}
                 </p>
+                <Link
+                  href={`/app/listings?edit=${listing.id}`}
+                  className="inline-flex text-sm font-medium text-primary underline"
+                >
+                  Edit listing
+                </Link>
               </li>
             ))}
           </ul>

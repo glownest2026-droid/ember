@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ChangeEvent, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { type ListingDraftDetailsJson } from "@/components/marketplace/ListingDraftDetailsSection";
 import { type ListingDraftReviewJson } from "@/components/marketplace/ListingDraftReviewSection";
 import {
@@ -110,8 +111,24 @@ function getFileExtension(file: File): string {
   return "jpg";
 }
 
-export default function AppListingsPhotoDraftPage() {
+async function draftHasPublishedListing(
+  supabase: ReturnType<typeof createClient>,
+  draftId: string
+): Promise<{ id: string } | null> {
+  const { data } = await supabase
+    .from("marketplace_listings")
+    .select("id")
+    .eq("source_draft_id", draftId)
+    .eq("status", "published_beta")
+    .maybeSingle();
+  return data?.id ? { id: data.id } : null;
+}
+
+function AppListingsPhotoDraftPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [flowMode, setFlowMode] = useState<"create" | "edit-published">("create");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [draftId, setDraftId] = useState<string | null>(null);
@@ -237,6 +254,109 @@ export default function AppListingsPhotoDraftPage() {
     setPreviewUrl(data?.signedUrl ?? null);
   }, []);
 
+  const loadMarketplacePrefs = useCallback(async (userId: string) => {
+    const supabase = createClient();
+    const { data: prefs } = await supabase
+      .from("marketplace_preferences")
+      .select("postcode")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (prefs?.postcode) {
+      setDefaultPostcode(prefs.postcode);
+      const outward = prefs.postcode.trim().split(" ")[0];
+      if (outward) setDefaultAreaLabel(`${outward.toUpperCase()} area`);
+    }
+  }, []);
+
+  const resetToNewListingState = useCallback(() => {
+    setFlowMode("create");
+    setDraftId(null);
+    setImageStoragePath(null);
+    setPreviewUrl(null);
+    setError(null);
+    setSuccess(null);
+    setAnalysisError(null);
+    setAnalysisResult(null);
+    setSavingSelection(false);
+    setSelectionMessage(null);
+    setConfirmedDraft(null);
+    setDraftDetails({
+      title: null,
+      description: null,
+      condition: null,
+      detailsJson: null,
+      generatedAt: null,
+    });
+    setDraftReview(null);
+    setDetailsSavedOnce(false);
+    setPossibleBrand(null);
+    setEditStep(null);
+    setOpportunityLoaded(false);
+    setPublishedBeta(false);
+    setPublishedListingId(null);
+  }, []);
+
+  const hydrateDraftRow = useCallback(
+    async (supabase: ReturnType<typeof createClient>, latest: DraftRow, publishedListingId: string | null) => {
+      setDraftId(latest.id);
+      setImageStoragePath(latest.image_storage_path);
+      setDraftDetails({
+        title: latest.title_draft,
+        description: latest.description_draft,
+        condition: latest.condition_confirmed_by_user,
+        detailsJson: latest.listing_draft_details_json,
+        generatedAt: latest.listing_details_generated_at,
+      });
+      setDraftReview(getReviewFromDetailsJson(latest.listing_draft_details_json));
+      setDetailsSavedOnce(Boolean(latest.condition_confirmed_by_user?.trim()));
+      setPossibleBrand(latest.ai_raw_response_json?.analysis?.possible_brand?.trim() ?? null);
+
+      if (latest.status === "confirmed" && latest.product_type_id) {
+        const { data: productType } = await supabase
+          .from("product_types")
+          .select("label")
+          .eq("id", latest.product_type_id)
+          .maybeSingle();
+        const visualLabel =
+          latest.ai_raw_response_json?.parent_confirmed_display_label?.trim() ||
+          latest.ai_raw_response_json?.analysis?.detected_item_label?.trim() ||
+          latest.ai_detected_label?.trim() ||
+          null;
+        setConfirmedDraft({
+          status: latest.status,
+          productTypeId: latest.product_type_id,
+          label: productType?.label ?? null,
+          displayLabel: visualLabel,
+        });
+        setSelectionMessage("Confirmed item type saved on this draft.");
+      } else if (latest.status === "draft" && !latest.product_type_id) {
+        setConfirmedDraft({
+          status: latest.status,
+          productTypeId: null,
+          label: null,
+          displayLabel: null,
+        });
+      }
+
+      if (latest.image_storage_path) {
+        await refreshSignedPreview(latest.image_storage_path);
+      }
+
+      if (publishedListingId) {
+        setPublishedBeta(true);
+        setPublishedListingId(publishedListingId);
+        setOpportunityLoaded(true);
+      }
+    },
+    [refreshSignedPreview]
+  );
+
+  const handleStartNewListing = useCallback(() => {
+    resetToNewListingState();
+    router.replace("/app/listings?new=1");
+    setSuccess("Add a photo to start your next listing.");
+  }, [resetToNewListingState, router]);
+
   useEffect(() => {
     let active = true;
     const boot = async () => {
@@ -262,6 +382,58 @@ export default function AppListingsPhotoDraftPage() {
       }
 
       setUser({ id: authUser.id });
+      await loadMarketplacePrefs(authUser.id);
+
+      const forceNew = searchParams.get("new") === "1";
+      const editListingId = searchParams.get("edit")?.trim() || null;
+
+      if (forceNew) {
+        resetToNewListingState();
+        if (active) setLoading(false);
+        return;
+      }
+
+      if (editListingId) {
+        const { data: listing, error: listingError } = await supabase
+          .from("marketplace_listings")
+          .select("id, source_draft_id, status")
+          .eq("id", editListingId)
+          .eq("user_id", authUser.id)
+          .eq("status", "published_beta")
+          .maybeSingle();
+
+        if (!active) return;
+
+        if (listingError || !listing?.source_draft_id) {
+          setError("That listing could not be loaded for editing.");
+          resetToNewListingState();
+          setLoading(false);
+          return;
+        }
+
+        const { data: draft, error: draftError } = await supabase
+          .from("marketplace_listing_drafts")
+          .select(
+            "id, image_storage_path, product_type_id, status, title_draft, description_draft, condition_confirmed_by_user, listing_draft_details_json, listing_details_generated_at, ai_detected_label, ai_raw_response_json"
+          )
+          .eq("id", listing.source_draft_id)
+          .eq("user_id", authUser.id)
+          .maybeSingle();
+
+        if (!active) return;
+
+        if (draftError || !draft) {
+          setError("Draft for this listing was not found.");
+          resetToNewListingState();
+          setLoading(false);
+          return;
+        }
+
+        setFlowMode("edit-published");
+        await hydrateDraftRow(supabase, draft as DraftRow, listing.id);
+        if (active) setLoading(false);
+        return;
+      }
 
       const { data: drafts, error: draftsError } = await supabase
         .from("marketplace_listing_drafts")
@@ -281,73 +453,18 @@ export default function AppListingsPhotoDraftPage() {
       }
 
       const latest = (drafts?.[0] ?? null) as DraftRow | null;
-      if (latest) {
-        setDraftId(latest.id);
-        setImageStoragePath(latest.image_storage_path);
-        setDraftDetails({
-          title: latest.title_draft,
-          description: latest.description_draft,
-          condition: latest.condition_confirmed_by_user,
-          detailsJson: latest.listing_draft_details_json,
-          generatedAt: latest.listing_details_generated_at,
-        });
-        setDraftReview(getReviewFromDetailsJson(latest.listing_draft_details_json));
-        setDetailsSavedOnce(Boolean(latest.condition_confirmed_by_user?.trim()));
-        setPossibleBrand(latest.ai_raw_response_json?.analysis?.possible_brand?.trim() ?? null);
-        if (latest.status === "confirmed" && latest.product_type_id) {
-          const { data: productType } = await supabase
-            .from("product_types")
-            .select("label")
-            .eq("id", latest.product_type_id)
-            .maybeSingle();
-          const visualLabel =
-            latest.ai_raw_response_json?.parent_confirmed_display_label?.trim() ||
-            latest.ai_raw_response_json?.analysis?.detected_item_label?.trim() ||
-            latest.ai_detected_label?.trim() ||
-            null;
-          setConfirmedDraft({
-            status: latest.status,
-            productTypeId: latest.product_type_id,
-            label: productType?.label ?? null,
-            displayLabel: visualLabel,
-          });
-          setSelectionMessage("Confirmed item type saved on this draft.");
-        } else if (latest.status === "draft" && !latest.product_type_id) {
-          setConfirmedDraft({
-            status: latest.status,
-            productTypeId: null,
-            label: null,
-            displayLabel: null,
-          });
-        }
-        if (latest.image_storage_path) {
-          await refreshSignedPreview(latest.image_storage_path);
-        }
+      if (latest?.id) {
+        const published = await draftHasPublishedListing(supabase, latest.id);
+        if (!active) return;
 
-        const { data: prefs } = await supabase
-          .from("marketplace_preferences")
-          .select("postcode")
-          .eq("user_id", authUser.id)
-          .maybeSingle();
-        if (prefs?.postcode) {
-          setDefaultPostcode(prefs.postcode);
-          const outward = prefs.postcode.trim().split(" ")[0];
-          if (outward) setDefaultAreaLabel(`${outward.toUpperCase()} area`);
+        if (published) {
+          resetToNewListingState();
+        } else {
+          setFlowMode("create");
+          await hydrateDraftRow(supabase, latest, null);
         }
-
-        if (latest?.id) {
-          const { data: published } = await supabase
-            .from("marketplace_listings")
-            .select("id, status")
-            .eq("source_draft_id", latest.id)
-            .eq("status", "published_beta")
-            .maybeSingle();
-          if (published?.id) {
-            setPublishedBeta(true);
-            setPublishedListingId(published.id);
-            setOpportunityLoaded(true);
-          }
-        }
+      } else {
+        resetToNewListingState();
       }
 
       if (active) setLoading(false);
@@ -357,7 +474,13 @@ export default function AppListingsPhotoDraftPage() {
     return () => {
       active = false;
     };
-  }, [refreshSignedPreview]);
+  }, [
+    searchParams,
+    refreshSignedPreview,
+    resetToNewListingState,
+    hydrateDraftRow,
+    loadMarketplacePrefs,
+  ]);
 
   const handleFileSelected = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -659,18 +782,22 @@ export default function AppListingsPhotoDraftPage() {
       opportunityLoaded={opportunityLoaded}
       publishedBeta={publishedBeta}
       publishedListingId={publishedListingId}
+      flowMode={flowMode}
+      onStartNewListing={handleStartNewListing}
       onOpportunityLoaded={() => setOpportunityLoaded(true)}
-      onPublished={(listingId) => {
-        setPublishedBeta(true);
-        setPublishedListingId(listingId);
-        setEditStep(null);
-        requestAnimationFrame(() => {
-          document.getElementById("listing-flow-complete")?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        });
+      onPublished={() => {
+        resetToNewListingState();
+        router.replace("/app/listings?new=1");
+        setSuccess("Your listing is live. Add another item below, or open the marketplace to see it.");
       }}
     />
+  );
+}
+
+export default function AppListingsPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-[#5C646D]">Loading your listing draft…</div>}>
+      <AppListingsPhotoDraftPage />
+    </Suspense>
   );
 }

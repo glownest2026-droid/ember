@@ -80,6 +80,8 @@ export type CreateListingFlowViewProps = {
   opportunityLoaded: boolean;
   publishedBeta: boolean;
   publishedListingId: string | null;
+  flowMode: "create" | "edit-published";
+  onStartNewListing?: () => void;
   onOpportunityLoaded: () => void;
   onPublished: (listingId: string) => void;
 };
@@ -116,9 +118,12 @@ export function CreateListingFlowView({
   opportunityLoaded,
   publishedBeta,
   publishedListingId,
+  flowMode,
+  onStartNewListing,
   onOpportunityLoaded,
   onPublished,
 }: CreateListingFlowViewProps) {
+  const editingPublished = flowMode === "edit-published";
   const conditionLabel =
     CONDITION_LABELS[draftDetails.condition ?? ""] ?? draftDetails.condition ?? "";
 
@@ -147,13 +152,17 @@ export function CreateListingFlowView({
           }`}
         >
           <Lock className="h-3.5 w-3.5" aria-hidden />
-          {publishedBeta ? "Listed to nearby families" : "Private draft"}
+          {editingPublished || publishedBeta ? "Listed to nearby families" : "Private draft"}
         </div>
-        <h1 className="text-2xl font-normal text-[#1A1E23]">Create a listing</h1>
+        <h1 className="text-2xl font-normal text-[#1A1E23]">
+          {editingPublished ? "Edit listing" : "Create a listing"}
+        </h1>
         <p className="text-sm text-[#5C646D]">
-          {publishedBeta
-            ? "Your listing is live on the Ember marketplace for nearby families. Check back for interest and price guidance."
-            : "Add a photo, confirm the item, then review the draft. Nothing is public until you list locally."}
+          {editingPublished
+            ? "Update your live listing. Changes to title, description, and condition appear on the marketplace when you save."
+            : publishedBeta
+              ? "Your listing is live on the Ember marketplace for nearby families. Check back for interest and price guidance."
+              : "Add a photo, confirm the item, then review the draft. Nothing is public until you list locally."}
         </p>
       </header>
 
@@ -414,7 +423,7 @@ export function CreateListingFlowView({
         </div>
       )}
 
-      {publishedBeta && (
+      {publishedBeta && !editingPublished && (
         <section
           id="listing-flow-complete"
           className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 space-y-3"
@@ -424,15 +433,38 @@ export function CreateListingFlowView({
             Your listing is visible to signed-in Ember families near you. Messaging comes later — for
             now, watch the marketplace for interest and price guidance.
           </p>
-          <Link
-            href="/app/marketplace"
-            className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white"
-          >
-            Go to marketplace
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/app/marketplace"
+              className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white"
+            >
+              Go to marketplace
+            </Link>
+            {onStartNewListing && (
+              <button
+                type="button"
+                onClick={onStartNewListing}
+                className="inline-flex min-h-[44px] items-center rounded-xl border border-emerald-300 bg-white px-4 py-2.5 text-sm font-medium text-emerald-950"
+              >
+                List another item
+              </button>
+            )}
+          </div>
           {publishedListingId && debugMode && (
             <p className="text-xs text-emerald-800">Listing id: {publishedListingId}</p>
           )}
+        </section>
+      )}
+
+      {editingPublished && (
+        <section className="rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA] p-4 space-y-2">
+          <p className="text-sm text-[#5C646D]">
+            Save each section you change. When you&apos;re done, return to the marketplace to see your
+            listing.
+          </p>
+          <Link href="/app/marketplace" className="inline-flex text-sm font-medium text-primary underline">
+            Back to marketplace
+          </Link>
         </section>
       )}
 
@@ -441,9 +473,11 @@ export function CreateListingFlowView({
       )}
 
       <p className="text-xs text-[#5C646D]">
-        {publishedBeta
-          ? "You can return here anytime to edit earlier steps. Your listing stays on the marketplace until you remove it."
-          : "Steps stay private until you list to nearby families in step 5."}
+        {editingPublished
+          ? "Your listing stays live while you edit. Only saved changes update what families see."
+          : publishedBeta
+            ? "You can return here anytime to edit earlier steps. Your listing stays on the marketplace until you remove it."
+            : "Steps stay private until you list to nearby families in step 5."}
       </p>
     </div>
   );

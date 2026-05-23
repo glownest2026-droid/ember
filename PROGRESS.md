@@ -3071,3 +3071,14 @@ Category-only cards remain publishable.
 ### Verification
 - Build: pass; `pnpm -C web test:marketplace-pr6` pass
 - Manual: set postcode on marketplace → nearby uses 5mi radius; listing flow step 5 uses same prefs
+
+## 2026-05-23 — Marketplace listing flow: fresh create, edit, postcode on /marketplace
+
+### Summary
+- **Postcode widget** on `/marketplace` (logged-in) below List an item widget — same as `/app/marketplace`.
+- **Fresh listing after publish:** boot skips drafts already linked to `published_beta`; `?new=1` clears UI; publish resets to empty create flow.
+- **Edit from marketplace:** “Edit listing” → `/app/listings?edit={id}` loads source draft; saves sync to live `marketplace_listings` via `sync-beta-listing.ts`.
+
+### Verification
+- Build: pass
+- Manual: publish → page clears; Create listing → empty flow; Edit saxophone → populated steps; save title → marketplace updates

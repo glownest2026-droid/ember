@@ -28,6 +28,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/figma/marketplace/ui/accordion";
+import { MarketplaceYourPostcode } from "@/components/marketplace/MarketplaceYourPostcode";
 import { ListingWidget } from "@/components/figma/marketplace-prelist/ListingWidget";
 import { ListingModal } from "@/components/figma/marketplace-prelist/ListingModal";
 import { SuccessModal } from "@/components/figma/marketplace-prelist/SuccessModal";
@@ -273,6 +274,9 @@ export default function MarketplacePage() {
               ageBandLabel={ageBandLabel}
               onListItem={() => setListingModalOpen(true)}
             />
+            <div className="mt-4 max-w-xl">
+              <MarketplaceYourPostcode />
+            </div>
           </div>
         </section>
       )}
