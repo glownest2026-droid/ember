@@ -27,7 +27,7 @@ function normalizeUkPostcode(postcode) {
 
 assert.ok(haversineMiles(51.5, -0.1, 51.51, -0.11) < 2, "nearby coords within 2 miles");
 assert.ok(haversineMiles(51.5, -0.1, 52.5, -1.5) > 50, "far coords beyond 50 miles");
-assert.equal(normalizeUkPostcode("sl4 2abc"), "SL4 2ABC");
+assert.equal(normalizeUkPostcode("sl4 2ab"), "SL4 2AB");
 assert.equal(normalizeUkPostcode("SW1A1AA"), "SW1A 1AA");
 assert.equal(normalizeUkPostcode("SL4"), null);
 
