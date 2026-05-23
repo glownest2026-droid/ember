@@ -46,6 +46,13 @@ type GenerateDetailsResponse = {
   debug_id?: string;
 };
 
+type SavedDraftPayload = {
+  title: string;
+  description: string;
+  condition: string | null;
+  detailsJson: ListingDraftDetailsJson | null;
+};
+
 type Props = {
   draftId: string;
   initialTitle: string | null;
@@ -54,6 +61,9 @@ type Props = {
   initialDetails: ListingDraftDetailsJson | null;
   initialGeneratedAt: string | null;
   hasConfirmedItem: boolean;
+  sectionId?: string;
+  embedded?: boolean;
+  onSaved?: (payload: SavedDraftPayload) => void;
 };
 
 async function parseApiPayload<T>(response: Response): Promise<{ payload: T | null }> {
@@ -74,6 +84,9 @@ export function ListingDraftDetailsSection({
   initialDetails,
   initialGeneratedAt,
   hasConfirmedItem,
+  sectionId,
+  embedded = false,
+  onSaved,
 }: Props) {
   const [titleDraft, setTitleDraft] = useState(initialTitle ?? "");
   const [descriptionDraft, setDescriptionDraft] = useState(initialDescription ?? "");
@@ -93,18 +106,8 @@ export function ListingDraftDetailsSection({
     setGeneratedAt(initialGeneratedAt);
   }, [initialTitle, initialDescription, initialCondition, initialDetails, initialGeneratedAt]);
 
-  const showDiagnostics =
-    process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
-
   const formatApiError = (payload: ApiErrorShape | null, fallback: string) => {
-    const base = payload?.error ?? fallback;
-    const code = showDiagnostics && payload?.error_code ? ` (${payload.error_code})` : "";
-    const provider =
-      showDiagnostics && (payload?.provider_status || payload?.provider_code)
-        ? ` Provider: ${payload.provider_status ?? "n/a"}${payload.provider_code ? `/${payload.provider_code}` : ""}`
-        : "";
-    const debug = showDiagnostics && payload?.debug_id ? ` Debug ref: ${payload.debug_id}` : "";
-    return `${base}${code}${provider}${debug}`;
+    return payload?.error ?? fallback;
   };
 
   const hasGeneratedContent = Boolean(
@@ -160,12 +163,39 @@ export function ListingDraftDetailsSection({
           listing_draft_details_json: detailsJson ?? undefined,
         }),
       });
-      const { payload } = await parseApiPayload<{ message?: string; error?: string } & ApiErrorShape>(
-        response
-      );
+      const { payload } = await parseApiPayload<
+        {
+          message?: string;
+          error?: string;
+          draft?: {
+            title_draft: string | null;
+            description_draft: string | null;
+            condition_confirmed_by_user: string | null;
+            listing_draft_details_json: ListingDraftDetailsJson | null;
+          };
+        } & ApiErrorShape
+      >(response);
       if (!response.ok) {
         throw new Error(formatApiError(payload, "Your edits couldn’t be saved. Please try again."));
       }
+      const savedTitle = payload?.draft?.title_draft ?? titleDraft;
+      const savedDescription = payload?.draft?.description_draft ?? descriptionDraft;
+      const savedCondition = payload?.draft?.condition_confirmed_by_user ?? condition;
+      const savedDetails = payload?.draft?.listing_draft_details_json ?? detailsJson;
+      if (payload?.draft?.title_draft) setTitleDraft(payload.draft.title_draft);
+      if (payload?.draft?.description_draft) setDescriptionDraft(payload.draft.description_draft);
+      if (payload?.draft?.condition_confirmed_by_user) {
+        setCondition(payload.draft.condition_confirmed_by_user);
+      }
+      if (payload?.draft?.listing_draft_details_json) {
+        setDetailsJson(payload.draft.listing_draft_details_json);
+      }
+      onSaved?.({
+        title: savedTitle,
+        description: savedDescription,
+        condition: savedCondition || null,
+        detailsJson: savedDetails,
+      });
       setSuccess(payload?.message ?? "Draft details saved.");
     } catch (saveError) {
       setError(
@@ -180,14 +210,25 @@ export function ListingDraftDetailsSection({
     return null;
   }
 
+  const wrapperClass = embedded
+    ? "space-y-4 scroll-mt-4"
+    : "rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-4 scroll-mt-4";
+
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-4">
-      <div className="space-y-1">
-        <h2 className="text-base font-medium text-[#1A1E23]">Draft listing details</h2>
+    <div id={sectionId} className={wrapperClass}>
+      {!embedded && (
+        <div className="space-y-1">
+          <h2 className="text-base font-medium text-[#1A1E23]">Draft listing details</h2>
+          <p className="text-sm text-[#5C646D]">
+            Ember can draft the basics, but you’ll review and edit everything before anything is used.
+          </p>
+        </div>
+      )}
+      {embedded && (
         <p className="text-sm text-[#5C646D]">
-          Ember can draft the basics, but you’ll review and edit everything before anything is used.
+          Ember can draft the basics. Edit anything that isn’t right, then save.
         </p>
-      </div>
+      )}
 
       {!hasGeneratedContent && (
         <button
@@ -340,7 +381,9 @@ export function ListingDraftDetailsSection({
           {success && (
             <div className="space-y-1">
               <p className="text-sm text-emerald-700">{success}</p>
-              <p className="text-xs text-[#5C646D]">Next: review price and local interest. (Not available yet.)</p>
+              <p className="text-xs text-[#5C646D]">
+                Next: review your draft below, then price guidance when available.
+              </p>
             </div>
           )}
         </>

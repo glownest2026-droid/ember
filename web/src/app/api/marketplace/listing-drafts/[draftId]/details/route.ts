@@ -6,6 +6,7 @@ import {
   type ListingConditionValue,
   type ListingDraftDetailsJson,
 } from "@/lib/marketplace/ai-listing-details-types";
+import { clearReviewInDetailsJson } from "@/lib/marketplace/ai-listing-review";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -74,7 +75,7 @@ export async function PATCH(
 
   const { data: draft, error: draftError } = await supabase
     .from("marketplace_listing_drafts")
-    .select("id, user_id, status")
+    .select("id, user_id, status, listing_draft_details_json")
     .eq("id", draftId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -113,8 +114,20 @@ export async function PATCH(
   if (body.condition_confirmed_by_user !== undefined) {
     updatePayload.condition_confirmed_by_user = body.condition_confirmed_by_user.trim();
   }
+  const contentFieldsChanging =
+    body.title_draft !== undefined ||
+    body.description_draft !== undefined ||
+    body.condition_confirmed_by_user !== undefined;
+
   if (body.listing_draft_details_json !== undefined) {
-    updatePayload.listing_draft_details_json = body.listing_draft_details_json;
+    updatePayload.listing_draft_details_json = contentFieldsChanging
+      ? clearReviewInDetailsJson(body.listing_draft_details_json, { staleAfterEdit: true })
+      : body.listing_draft_details_json;
+  } else if (contentFieldsChanging) {
+    const existingDetails = (draft.listing_draft_details_json ?? null) as ListingDraftDetailsJson | null;
+    updatePayload.listing_draft_details_json = clearReviewInDetailsJson(existingDetails, {
+      staleAfterEdit: true,
+    });
   }
 
   if (Object.keys(updatePayload).length === 0) {
