@@ -171,12 +171,39 @@ export function ListingDraftDetailsSection({
           listing_draft_details_json: detailsJson ?? undefined,
         }),
       });
-      const { payload } = await parseApiPayload<{ message?: string; error?: string } & ApiErrorShape>(
-        response
-      );
+      const { payload } = await parseApiPayload<
+        {
+          message?: string;
+          error?: string;
+          draft?: {
+            title_draft: string | null;
+            description_draft: string | null;
+            condition_confirmed_by_user: string | null;
+            listing_draft_details_json: ListingDraftDetailsJson | null;
+          };
+        } & ApiErrorShape
+      >(response);
       if (!response.ok) {
         throw new Error(formatApiError(payload, "Your edits couldn’t be saved. Please try again."));
       }
+      const savedTitle = payload?.draft?.title_draft ?? titleDraft;
+      const savedDescription = payload?.draft?.description_draft ?? descriptionDraft;
+      const savedCondition = payload?.draft?.condition_confirmed_by_user ?? condition;
+      const savedDetails = payload?.draft?.listing_draft_details_json ?? detailsJson;
+      if (payload?.draft?.title_draft) setTitleDraft(payload.draft.title_draft);
+      if (payload?.draft?.description_draft) setDescriptionDraft(payload.draft.description_draft);
+      if (payload?.draft?.condition_confirmed_by_user) {
+        setCondition(payload.draft.condition_confirmed_by_user);
+      }
+      if (payload?.draft?.listing_draft_details_json) {
+        setDetailsJson(payload.draft.listing_draft_details_json);
+      }
+      onSaved?.({
+        title: savedTitle,
+        description: savedDescription,
+        condition: savedCondition || null,
+        detailsJson: savedDetails,
+      });
       setSuccess(payload?.message ?? "Draft details saved.");
     } catch (saveError) {
       setError(
@@ -354,7 +381,9 @@ export function ListingDraftDetailsSection({
           {success && (
             <div className="space-y-1">
               <p className="text-sm text-emerald-700">{success}</p>
-              <p className="text-xs text-[#5C646D]">Next: review price and local interest. (Not available yet.)</p>
+              <p className="text-xs text-[#5C646D]">
+                Next: review your draft below, then price guidance when available.
+              </p>
             </div>
           )}
         </>
