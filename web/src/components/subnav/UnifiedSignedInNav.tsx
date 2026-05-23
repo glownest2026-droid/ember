@@ -142,7 +142,8 @@ export function UnifiedSignedInNav({
   const basePath = pathname || '/discover';
   const isDiscover = basePath.startsWith('/discover');
   const isMyIdeas = basePath.startsWith('/my-ideas');
-  const isMarketplace = basePath.startsWith('/marketplace');
+  const isMarketplace = basePath.startsWith('/marketplace') || basePath.startsWith('/app/marketplace');
+  const isAppMessages = basePath.startsWith('/app/messages');
   const isFamilyReminders = basePath.startsWith('/family');
   const childToggleApplies = isDiscover || isMyIdeas || basePath.startsWith('/family') || isMarketplace;
 
@@ -577,6 +578,9 @@ export function UnifiedSignedInNav({
               className={figmaDesktopNavLinkClass(isMarketplace)}
             >
               Marketplace
+            </Link>
+            <Link href="/app/messages" className={figmaDesktopNavLinkClass(isAppMessages)}>
+              Messages
             </Link>
           </nav>
 

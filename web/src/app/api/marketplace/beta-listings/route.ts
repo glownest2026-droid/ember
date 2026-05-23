@@ -72,11 +72,21 @@ export async function GET(request: NextRequest) {
 
   const nearby = visibility.filter((v) => v.visible).map((v) => v.row);
 
+  const { data: myConversations } = await supabase
+    .from("marketplace_conversations")
+    .select("id, listing_id")
+    .eq("buyer_user_id", user.id);
+
+  const conversationByListing = new Map(
+    (myConversations ?? []).map((row) => [row.listing_id, row.id])
+  );
+
   return json(
     {
       listings: nearby.map((listing) => ({
         ...listing,
         buyer_interested: interestedIds.has(listing.id),
+        conversation_id: conversationByListing.get(listing.id) ?? null,
       })),
       buyer_has_postcode: Boolean(buyerLocation.postcode && buyerLocation.lat != null),
     },
