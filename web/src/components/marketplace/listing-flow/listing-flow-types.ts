@@ -1,12 +1,14 @@
 import type { ListingDraftReviewJson } from "@/components/marketplace/ListingDraftReviewSection";
 
-export type ListingFlowStepId = "photo" | "item" | "details" | "review";
+export type ListingFlowStepId = "photo" | "item" | "details" | "review" | "opportunity";
 
 export type ListingFlowStepState = {
   photoComplete: boolean;
   itemComplete: boolean;
   detailsComplete: boolean;
   reviewComplete: boolean;
+  opportunityComplete: boolean;
+  publishedBeta: boolean;
   activeStep: ListingFlowStepId | "complete";
 };
 
@@ -18,6 +20,8 @@ export function deriveListingFlowSteps(input: {
   description: string | null;
   condition: string | null;
   review: ListingDraftReviewJson | null;
+  opportunityLoaded: boolean;
+  publishedBeta: boolean;
 }): ListingFlowStepState {
   const photoComplete = Boolean(input.imageStoragePath?.trim());
   const itemComplete = input.itemConfirmed;
@@ -35,9 +39,21 @@ export function deriveListingFlowSteps(input: {
   else if (!itemComplete) activeStep = "item";
   else if (!detailsComplete) activeStep = "details";
   else if (!reviewComplete) activeStep = "review";
+  else if (!input.opportunityLoaded) activeStep = "opportunity";
+  else if (!input.publishedBeta) activeStep = "opportunity";
   else activeStep = "complete";
 
-  return { photoComplete, itemComplete, detailsComplete, reviewComplete, activeStep };
+  const opportunityComplete = input.opportunityLoaded;
+
+  return {
+    photoComplete,
+    itemComplete,
+    detailsComplete,
+    reviewComplete,
+    opportunityComplete,
+    publishedBeta: input.publishedBeta,
+    activeStep,
+  };
 }
 
 export const CONDITION_LABELS: Record<string, string> = {

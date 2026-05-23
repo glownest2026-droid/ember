@@ -3000,3 +3000,45 @@ Category-only cards remain publishable.
 - Stepper flow: implemented (`CreateListingFlowView` + `ListingFlowStepShell`)
 - Review readiness persists: unchanged server routes
 - No publish/pricing/map: unchanged scope
+
+## 2026-05-23 — PR6: Marketplace Opportunity & Beta Publish
+
+### Summary
+- Added marketplace opportunity layer after reviewed AI listing draft (step 5: Local opportunity).
+- Added cautious price range guidance (manual category band + optional Gemini early estimate).
+- Added first-party Ember demand signal within 5 miles (garage_items + children counts + explicit interest).
+- Added provider-light approximate opportunity map card (no exact pins).
+- Added beta publish flow from ready draft to `marketplace_listings` (`published_beta`).
+- Added `/app/marketplace` for nearby signed-in buyers and seller interest counts.
+- Added buyer “I'm interested” action.
+- No full chat, payments, exact address, public SEO listing, or public raw-photo URL.
+
+### Data model
+- Migration: `supabase/sql/202605231200_marketplace_beta_publish.sql`
+- Extended: `marketplace_listings` (beta columns + `published_beta` status)
+- Added: `marketplace_listing_interests`, `marketplace_opportunity_snapshots`
+- Review state remains in `listing_draft_details_json.review` (PR5)
+
+### Routes
+- `POST /api/marketplace/listing-drafts/[draftId]/opportunity`
+- `POST /api/marketplace/listing-drafts/[draftId]/publish-beta`
+- `GET /api/marketplace/beta-listings?view=nearby|mine`
+- `POST /api/marketplace/beta-listings/[listingId]/interest`
+- `GET /api/marketplace/beta-listings/[listingId]/photo` (short-lived signed URL, auth-checked)
+- `/app/listings` (step 5 opportunity UI)
+- `/app/marketplace`
+
+### Verification
+- Build: pass
+- Smoke: `pnpm -C web test:marketplace-pr6` pass (distance/postcode helpers)
+- Manual preview: pending founder (requires Supabase migration applied)
+
+### Known debt
+- Masked chat deferred to PR7
+- Mapbox optional; provider-light card only
+- Demand improves as more families set preferences and use Ember lists
+- Geocoding lat/lng from postcode not implemented in PR6 (area-label + outward postcode matching)
+- Run migration on Supabase before preview E2E
+
+### Next module handoff
+- Branch: `feat/marketplace-masked-chat`

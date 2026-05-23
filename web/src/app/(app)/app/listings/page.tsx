@@ -142,6 +142,11 @@ export default function AppListingsPhotoDraftPage() {
   const [detailsSavedOnce, setDetailsSavedOnce] = useState(false);
   const [possibleBrand, setPossibleBrand] = useState<string | null>(null);
   const [editStep, setEditStep] = useState<ListingFlowStepId | null>(null);
+  const [opportunityLoaded, setOpportunityLoaded] = useState(false);
+  const [publishedBeta, setPublishedBeta] = useState(false);
+  const [publishedListingId, setPublishedListingId] = useState<string | null>(null);
+  const [defaultAreaLabel, setDefaultAreaLabel] = useState<string | null>(null);
+  const [defaultPostcode, setDefaultPostcode] = useState<string | null>(null);
   const debugMode = useListingDebugMode();
 
   const brandCharacterHint = useMemo(() => {
@@ -166,6 +171,8 @@ export default function AppListingsPhotoDraftPage() {
         description: draftDetails.description,
         condition: draftDetails.condition,
         review: draftReview,
+        opportunityLoaded,
+        publishedBeta,
       }),
     [
       imageStoragePath,
@@ -175,6 +182,8 @@ export default function AppListingsPhotoDraftPage() {
       draftDetails.description,
       draftDetails.condition,
       draftReview,
+      opportunityLoaded,
+      publishedBeta,
     ]
   );
 
@@ -313,6 +322,31 @@ export default function AppListingsPhotoDraftPage() {
         }
         if (latest.image_storage_path) {
           await refreshSignedPreview(latest.image_storage_path);
+        }
+
+        const { data: prefs } = await supabase
+          .from("marketplace_preferences")
+          .select("postcode")
+          .eq("user_id", authUser.id)
+          .maybeSingle();
+        if (prefs?.postcode) {
+          setDefaultPostcode(prefs.postcode);
+          const outward = prefs.postcode.trim().split(" ")[0];
+          if (outward) setDefaultAreaLabel(`${outward.toUpperCase()} area`);
+        }
+
+        if (latest?.id) {
+          const { data: published } = await supabase
+            .from("marketplace_listings")
+            .select("id, status")
+            .eq("source_draft_id", latest.id)
+            .eq("status", "published_beta")
+            .maybeSingle();
+          if (published?.id) {
+            setPublishedBeta(true);
+            setPublishedListingId(published.id);
+            setOpportunityLoaded(true);
+          }
         }
       }
 
@@ -611,6 +645,16 @@ export default function AppListingsPhotoDraftPage() {
         }
       }}
       brandCharacterHint={brandCharacterHint}
+      defaultAreaLabel={defaultAreaLabel}
+      defaultPostcode={defaultPostcode}
+      opportunityLoaded={opportunityLoaded}
+      publishedBeta={publishedBeta}
+      onOpportunityLoaded={() => setOpportunityLoaded(true)}
+      onPublished={(listingId) => {
+        setPublishedBeta(true);
+        setPublishedListingId(listingId);
+        setEditStep(null);
+      }}
     />
   );
 }

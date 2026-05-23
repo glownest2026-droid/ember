@@ -3,6 +3,7 @@
 import { Camera, Lock } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { ListingDraftDetailsSection } from "@/components/marketplace/ListingDraftDetailsSection";
+import { ListingOpportunitySection } from "@/components/marketplace/ListingOpportunitySection";
 import { ListingDraftReviewSection } from "@/components/marketplace/ListingDraftReviewSection";
 import { ListingDeveloperDiagnostics } from "@/components/marketplace/listing-flow/ListingDeveloperDiagnostics";
 import { ListingFlowStepShell } from "@/components/marketplace/listing-flow/ListingFlowStepShell";
@@ -72,6 +73,12 @@ export type CreateListingFlowViewProps = {
   draftReview: ListingDraftReviewJson | null;
   onReviewUpdated: (review: ListingDraftReviewJson | null) => void;
   brandCharacterHint: string | null;
+  defaultAreaLabel?: string | null;
+  defaultPostcode?: string | null;
+  opportunityLoaded: boolean;
+  publishedBeta: boolean;
+  onOpportunityLoaded: () => void;
+  onPublished: (listingId: string) => void;
 };
 
 export function CreateListingFlowView({
@@ -100,6 +107,12 @@ export function CreateListingFlowView({
   draftReview,
   onReviewUpdated,
   brandCharacterHint,
+  defaultAreaLabel,
+  defaultPostcode,
+  opportunityLoaded,
+  publishedBeta,
+  onOpportunityLoaded,
+  onPublished,
 }: CreateListingFlowViewProps) {
   const conditionLabel =
     CONDITION_LABELS[draftDetails.condition ?? ""] ?? draftDetails.condition ?? "";
@@ -108,8 +121,10 @@ export function CreateListingFlowView({
   const itemActive = displayActiveStep === "item";
   const detailsActive = displayActiveStep === "details";
   const reviewActive = displayActiveStep === "review";
+  const opportunityActive = displayActiveStep === "opportunity";
 
   const showReviewStep = flow.detailsComplete || flow.reviewComplete;
+  const showOpportunityStep = flow.reviewComplete || flow.opportunityComplete || publishedBeta;
 
   return (
     <div className="mx-auto max-w-xl space-y-4 p-4 pb-10 sm:p-6">
@@ -327,7 +342,7 @@ export function CreateListingFlowView({
             completedSummary={
               <div className="space-y-1">
                 <p className="font-medium text-emerald-900">Draft marked ready for the next step</p>
-                <p className="text-xs">Next: price guidance and local interest. Not available yet.</p>
+                <p className="text-xs">Ready to see your local opportunity.</p>
               </div>
             }
           >
@@ -345,6 +360,31 @@ export function CreateListingFlowView({
               onEditDetailsClick={() => onScrollToStep("details")}
               embedded
               compactPhoto
+            />
+          </ListingFlowStepShell>
+        </div>
+      )}
+
+      {showOpportunityStep && draftId && flow.reviewComplete && (
+        <div id="listing-step-opportunity">
+          <ListingFlowStepShell
+            stepNumber={5}
+            title="Local opportunity"
+            isComplete={publishedBeta}
+            isActive={opportunityActive}
+            completedSummary={
+              <div className="space-y-1">
+                <p className="font-medium text-emerald-900">Listed to nearby Ember families</p>
+                <p className="text-xs">Next: price guidance and local interest updates as families respond.</p>
+              </div>
+            }
+          >
+            <ListingOpportunitySection
+              draftId={draftId}
+              defaultAreaLabel={defaultAreaLabel}
+              defaultPostcode={defaultPostcode}
+              onOpportunityLoaded={onOpportunityLoaded}
+              onPublished={onPublished}
             />
           </ListingFlowStepShell>
         </div>
