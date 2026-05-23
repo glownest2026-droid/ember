@@ -62,6 +62,7 @@ type Props = {
   initialGeneratedAt: string | null;
   hasConfirmedItem: boolean;
   sectionId?: string;
+  embedded?: boolean;
   onSaved?: (payload: SavedDraftPayload) => void;
 };
 
@@ -84,6 +85,7 @@ export function ListingDraftDetailsSection({
   initialGeneratedAt,
   hasConfirmedItem,
   sectionId,
+  embedded = false,
   onSaved,
 }: Props) {
   const [titleDraft, setTitleDraft] = useState(initialTitle ?? "");
@@ -104,18 +106,8 @@ export function ListingDraftDetailsSection({
     setGeneratedAt(initialGeneratedAt);
   }, [initialTitle, initialDescription, initialCondition, initialDetails, initialGeneratedAt]);
 
-  const showDiagnostics =
-    process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
-
   const formatApiError = (payload: ApiErrorShape | null, fallback: string) => {
-    const base = payload?.error ?? fallback;
-    const code = showDiagnostics && payload?.error_code ? ` (${payload.error_code})` : "";
-    const provider =
-      showDiagnostics && (payload?.provider_status || payload?.provider_code)
-        ? ` Provider: ${payload.provider_status ?? "n/a"}${payload.provider_code ? `/${payload.provider_code}` : ""}`
-        : "";
-    const debug = showDiagnostics && payload?.debug_id ? ` Debug ref: ${payload.debug_id}` : "";
-    return `${base}${code}${provider}${debug}`;
+    return payload?.error ?? fallback;
   };
 
   const hasGeneratedContent = Boolean(
@@ -218,17 +210,25 @@ export function ListingDraftDetailsSection({
     return null;
   }
 
+  const wrapperClass = embedded
+    ? "space-y-4 scroll-mt-4"
+    : "rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-4 scroll-mt-4";
+
   return (
-    <div
-      id={sectionId}
-      className="rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-4 scroll-mt-4"
-    >
-      <div className="space-y-1">
-        <h2 className="text-base font-medium text-[#1A1E23]">Draft listing details</h2>
+    <div id={sectionId} className={wrapperClass}>
+      {!embedded && (
+        <div className="space-y-1">
+          <h2 className="text-base font-medium text-[#1A1E23]">Draft listing details</h2>
+          <p className="text-sm text-[#5C646D]">
+            Ember can draft the basics, but you’ll review and edit everything before anything is used.
+          </p>
+        </div>
+      )}
+      {embedded && (
         <p className="text-sm text-[#5C646D]">
-          Ember can draft the basics, but you’ll review and edit everything before anything is used.
+          Ember can draft the basics. Edit anything that isn’t right, then save.
         </p>
-      </div>
+      )}
 
       {!hasGeneratedContent && (
         <button

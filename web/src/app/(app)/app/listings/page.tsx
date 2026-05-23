@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { Camera, Lock } from "lucide-react";
-import { ListingDraftDetailsSection, type ListingDraftDetailsJson } from "@/components/marketplace/ListingDraftDetailsSection";
+import { type ListingDraftDetailsJson } from "@/components/marketplace/ListingDraftDetailsSection";
+import { type ListingDraftReviewJson } from "@/components/marketplace/ListingDraftReviewSection";
 import {
-  ListingDraftReviewSection,
-  type ListingDraftReviewJson,
-} from "@/components/marketplace/ListingDraftReviewSection";
+  deriveListingFlowSteps,
+  type ListingFlowStepId,
+} from "@/components/marketplace/listing-flow/listing-flow-types";
+import { useListingDebugMode } from "@/components/marketplace/listing-flow/useListingDebugMode";
 import { createClient } from "@/utils/supabase/client";
+import { CreateListingFlowView } from "@/components/marketplace/listing-flow/CreateListingFlowView";
 
 const RAW_LISTING_BUCKET = "marketplace-raw-listing-photos";
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -139,6 +141,8 @@ export default function AppListingsPhotoDraftPage() {
   const [draftReview, setDraftReview] = useState<ListingDraftReviewJson | null>(null);
   const [detailsSavedOnce, setDetailsSavedOnce] = useState(false);
   const [possibleBrand, setPossibleBrand] = useState<string | null>(null);
+  const [editStep, setEditStep] = useState<ListingFlowStepId | null>(null);
+  const debugMode = useListingDebugMode();
 
   const brandCharacterHint = useMemo(() => {
     const brand = possibleBrand?.trim();
@@ -147,6 +151,57 @@ export default function AppListingsPhotoDraftPage() {
     if (label) return `${brand} ${label}`;
     return brand;
   }, [possibleBrand, confirmedDraft?.displayLabel]);
+
+  const itemConfirmed = Boolean(
+    confirmedDraft?.status === "confirmed" && confirmedDraft.productTypeId
+  );
+
+  const flow = useMemo(
+    () =>
+      deriveListingFlowSteps({
+        imageStoragePath,
+        itemConfirmed,
+        detailsSavedOnce,
+        title: draftDetails.title,
+        description: draftDetails.description,
+        condition: draftDetails.condition,
+        review: draftReview,
+      }),
+    [
+      imageStoragePath,
+      itemConfirmed,
+      detailsSavedOnce,
+      draftDetails.title,
+      draftDetails.description,
+      draftDetails.condition,
+      draftReview,
+    ]
+  );
+
+  const displayActiveStep: ListingFlowStepId | null =
+    editStep ?? (flow.activeStep === "complete" ? null : flow.activeStep);
+
+  const scrollToStep = (stepId: ListingFlowStepId) => {
+    setEditStep(stepId);
+    requestAnimationFrame(() => {
+      document.getElementById(`listing-step-${stepId}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  };
+
+  const formatApiError = (payload: ApiErrorShape | null, fallback: string) => {
+    const base = payload?.error ?? fallback;
+    if (!debugMode) return base;
+    const code = payload?.error_code ? ` (${payload.error_code})` : "";
+    const provider =
+      payload?.provider_status || payload?.provider_code
+        ? ` Provider: ${payload.provider_status ?? "n/a"}${payload.provider_code ? `/${payload.provider_code}` : ""}`
+        : "";
+    const debug = payload?.debug_id ? ` Debug ref: ${payload.debug_id}` : "";
+    return `${base}${code}${provider}${debug}`;
+  };
 
   const parseApiPayload = async <T,>(
     response: Response
@@ -358,10 +413,11 @@ export default function AppListingsPhotoDraftPage() {
 
       setImageStoragePath(path);
       await refreshSignedPreview(path);
-      setSuccess("Photo uploaded privately to your draft.");
+      setSuccess("Photo uploaded privately.");
       setAnalysisResult(null);
       setConfirmedDraft(null);
       setSelectionMessage(null);
+      setEditStep(null);
     } catch (uploadFlowError) {
       setError(uploadFlowError instanceof Error ? uploadFlowError.message : "Upload failed.");
     } finally {
@@ -399,16 +455,9 @@ export default function AppListingsPhotoDraftPage() {
         response
       );
       if (!response.ok) {
-        const base = payload?.error ?? "Unable to analyse this image right now. Please try again.";
-        const showDiagnostics =
-          process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
-        const code = showDiagnostics && payload?.error_code ? ` (${payload.error_code})` : "";
-        const provider =
-          showDiagnostics && (payload?.provider_status || payload?.provider_code)
-            ? ` Provider: ${payload.provider_status ?? "n/a"}${payload?.provider_code ? `/${payload.provider_code}` : ""}`
-            : "";
-        const debug = showDiagnostics && payload?.debug_id ? ` Debug ref: ${payload.debug_id}` : "";
-        throw new Error(`${base}${code}${provider}${debug}`);
+        throw new Error(
+          formatApiError(payload, "Unable to analyse this image right now. Please try again.")
+        );
       }
       if (!payload) {
         throw new Error("We received an unexpected response. Please try again.");
@@ -455,14 +504,7 @@ export default function AppListingsPhotoDraftPage() {
       );
       const { payload } = await parseApiPayload<SelectCandidateResponse & ApiErrorShape>(response);
       if (!response.ok) {
-        const base = payload?.error ?? "Could not save your selection.";
-        const code = payload?.error_code ? ` (${payload.error_code})` : "";
-        const provider =
-          payload?.provider_status || payload?.provider_code
-            ? ` Provider: ${payload.provider_status ?? "n/a"}${payload?.provider_code ? `/${payload.provider_code}` : ""}`
-            : "";
-        const debug = payload?.debug_id ? ` Debug ref: ${payload.debug_id}` : "";
-        throw new Error(`${base}${code}${provider}${debug}`);
+        throw new Error(formatApiError(payload, "Could not save your selection."));
       }
       const draft = payload?.draft;
       if (draft?.status === "confirmed" && draft.product_type_id) {
@@ -493,7 +535,8 @@ export default function AppListingsPhotoDraftPage() {
           displayLabel: null,
         });
       }
-      setSelectionMessage(payload?.message ?? "Saved to your draft.");
+      setSelectionMessage(payload?.message ?? "Item confirmed.");
+      setEditStep(null);
     } catch (selectionError) {
       const message =
         selectionError instanceof Error ? selectionError.message : "Could not save your selection.";
@@ -526,239 +569,48 @@ export default function AppListingsPhotoDraftPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-5">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-normal text-[#1A1E23]">Start a listing with a photo</h1>
-        <p className="text-sm text-[#5C646D]">
-          Upload one item photo to your private draft. Nothing is public and nothing is published.
-        </p>
-      </header>
-
-      <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-4">
-        <div className="inline-flex items-center gap-2 text-xs font-medium text-[#1A1E23] bg-[#FAFAFA] border border-[#E5E7EB] rounded-full px-3 py-1.5">
-          <Lock className="w-3.5 h-3.5" />
-          Private storage only
-        </div>
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <label
-              className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white"
-              htmlFor="draft-photo-take"
-            >
-              <Camera className="w-4 h-4" />
-              {uploading ? "Uploading..." : "Take photo"}
-            </label>
-            <label
-              className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#E5E7EB] px-4 py-2 text-sm font-medium text-[#1A1E23]"
-              htmlFor="draft-photo-upload"
-            >
-              Choose from gallery
-            </label>
-          </div>
-          <input
-            id="draft-photo-take"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            capture="environment"
-            className="hidden"
-            onChange={handleFileSelected}
-            disabled={uploading}
-          />
-          <input
-            id="draft-photo-upload"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={handleFileSelected}
-            disabled={uploading}
-          />
-          <p className="mt-2 text-xs text-[#5C646D]">Allowed: JPG, PNG, WebP. Max size: 10MB.</p>
-        </div>
-
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {success && <p className="text-sm text-emerald-700">{success}</p>}
-
-        <div className="rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-3">
-          <p className="text-xs text-[#5C646D] mb-2">
-            Draft ID: <span className="font-mono">{draftId ?? "will be created on first upload"}</span>
-          </p>
-          <p className="text-xs text-[#5C646D] break-all">
-            Image path: <span className="font-mono">{imageStoragePath ?? "none yet"}</span>
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
-        <h2 className="text-base font-medium text-[#1A1E23] mb-3">Owner preview</h2>
-        {previewUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={previewUrl} alt="Your uploaded listing draft photo" className="w-full max-h-[420px] object-contain rounded-xl border border-[#E5E7EB]" />
-        ) : (
-          <p className="text-sm text-[#5C646D]">Upload a photo to preview it here.</p>
-        )}
-      </div>
-
-      <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-4">
-        <h2 className="text-base font-medium text-[#1A1E23]">Item suggestion</h2>
-        <p className="text-sm text-[#5C646D]">
-          Ember will look at the photo and suggest likely matches. You’ll confirm before anything is used.
-        </p>
-        <button
-          type="button"
-          disabled={!imageStoragePath || analysisLoading || uploading}
-          onClick={handleSuggestItem}
-          className="inline-flex items-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-        >
-          {analysisLoading ? "Checking the photo…" : "Suggest item"}
-        </button>
-
-        {analysisError && <p className="text-sm text-red-600">{analysisError}</p>}
-        {selectionMessage && <p className="text-sm text-emerald-700">{selectionMessage}</p>}
-
-        {confirmedDraft?.status === "confirmed" && confirmedDraft.productTypeId && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-1">
-            <p className="text-sm font-medium text-emerald-900">Confirmed on your draft</p>
-            <p className="text-sm text-emerald-800">
-              {confirmedDraft.displayLabel ?? confirmedDraft.label ?? "Item type saved."}
-              {confirmedDraft.displayLabel &&
-                confirmedDraft.label &&
-                confirmedDraft.displayLabel.toLowerCase() !== confirmedDraft.label.toLowerCase() && (
-                  <> (catalog: {confirmedDraft.label})</>
-                )}
-              . Ember will only use this match after your confirmation.
-            </p>
-          </div>
-        )}
-        {confirmedDraft?.status === "draft" && !confirmedDraft.productTypeId && selectionMessage && (
-          <p className="text-sm text-[#5C646D]">
-            No canonical item type saved yet. You can choose manually in a later step.
-          </p>
-        )}
-
-        {analysisResult && (
-          <div className="space-y-4 pt-2">
-            <h3 className="text-lg font-medium text-[#1A1E23]">Is it one of these?</h3>
-            {analysisResult.low_confidence_message && (
-              <p className="text-sm text-[#5C646D]">{analysisResult.low_confidence_message}</p>
-            )}
-            <ul className="space-y-3">
-              {analysisResult.candidate_cards.map((candidate) => (
-                <li key={`${candidate.id ?? candidate.label}-${candidate.source}`} className="rounded-xl border border-[#E5E7EB] p-4 bg-[#FAFAFA] space-y-2">
-                  <p className="font-medium text-[#1A1E23]">
-                    {candidate.user_facing_item_label ?? candidate.label}
-                  </p>
-                  {candidate.internal_category_label && (
-                    <p className="text-xs text-[#5C646D]">
-                      Category: {candidate.internal_category_label}
-                    </p>
-                  )}
-                  {candidate.catalog_match_weak && (
-                    <p className="text-xs text-[#5C646D]">Internal match needs review</p>
-                  )}
-                  <p className="text-sm text-[#5C646D]">{candidate.reason}</p>
-                  <p className="text-xs text-[#5C646D]">{candidate.confidence_label}</p>
-                  {candidate.id ? (
-                    <button
-                      type="button"
-                      disabled={savingSelection}
-                      onClick={() =>
-                        handleSelectCandidate(
-                          candidate.id,
-                          candidate.user_facing_item_label ?? candidate.label
-                        )
-                      }
-                      className="inline-flex items-center rounded-lg border border-[#E5E7EB] bg-white px-3 py-1.5 text-sm text-[#1A1E23] disabled:opacity-60"
-                    >
-                      Choose this
-                    </button>
-                  ) : (
-                    <p className="text-xs text-[#5C646D]">No exact Ember catalog ID yet.</p>
-                  )}
-                </li>
-              ))}
-            </ul>
-            <button
-              type="button"
-              disabled={savingSelection}
-              onClick={() => handleSelectCandidate(null)}
-              className="inline-flex items-center rounded-lg border border-[#E5E7EB] px-3 py-1.5 text-sm text-[#1A1E23] disabled:opacity-60"
-            >
-              Not sure / choose manually
-            </button>
-            {(selectionMessage || savingSelection) && (
-              <p className="text-sm text-[#5C646D]">
-                Next: Ember will draft the listing details.
-              </p>
-            )}
-
-            {analysisResult.missing_parts_questions.length > 0 && (
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-[#1A1E23]">Parent checks</p>
-                <ul className="list-disc ml-5 text-xs text-[#5C646D] space-y-1">
-                  {analysisResult.missing_parts_questions.map((question) => (
-                    <li key={question}>{question}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {draftId && (
-        <ListingDraftDetailsSection
-          draftId={draftId}
-          sectionId="listing-draft-details"
-          initialTitle={draftDetails.title}
-          initialDescription={draftDetails.description}
-          initialCondition={draftDetails.condition}
-          initialDetails={draftDetails.detailsJson}
-          initialGeneratedAt={draftDetails.generatedAt}
-          hasConfirmedItem={Boolean(
-            confirmedDraft?.status === "confirmed" && confirmedDraft.productTypeId
-          )}
-          onSaved={(saved) => {
-            setDraftDetails((prev) => ({
-              ...prev,
-              title: saved.title,
-              description: saved.description,
-              condition: saved.condition,
-              detailsJson: saved.detailsJson,
-            }));
-            setDraftReview(getReviewFromDetailsJson(saved.detailsJson));
-            setDetailsSavedOnce(true);
-          }}
-        />
-      )}
-
-      {draftId &&
-        detailsSavedOnce &&
-        draftDetails.generatedAt &&
-        draftDetails.title?.trim() &&
-        draftDetails.description?.trim() &&
-        confirmedDraft?.status === "confirmed" &&
-        confirmedDraft.productTypeId &&
-        imageStoragePath && (
-          <ListingDraftReviewSection
-            draftId={draftId}
-            previewUrl={previewUrl}
-            confirmedDisplayLabel={confirmedDraft.displayLabel}
-            possibleBrandHint={brandCharacterHint}
-            titleDraft={draftDetails.title ?? ""}
-            descriptionDraft={draftDetails.description ?? ""}
-            condition={draftDetails.condition ?? ""}
-            detailsJson={draftDetails.detailsJson}
-            initialReview={draftReview}
-            onReviewUpdated={setDraftReview}
-            onEditDetailsClick={() => {
-              document.getElementById("listing-draft-details")?.scrollIntoView({ behavior: "smooth" });
-            }}
-          />
-        )}
-
-      <p className="text-xs text-[#5C646D]">
-        Raw photos stay private. AI is a suggestion, and parent confirmation is required before Ember uses a match.
-      </p>
-    </div>
+    <CreateListingFlowView
+      debugMode={debugMode}
+      draftId={draftId}
+      imageStoragePath={imageStoragePath}
+      previewUrl={previewUrl}
+      uploading={uploading}
+      error={error}
+      success={success}
+      flow={flow}
+      displayActiveStep={displayActiveStep}
+      onScrollToStep={scrollToStep}
+      onFileSelected={handleFileSelected}
+      analysisLoading={analysisLoading}
+      analysisError={analysisError}
+      analysisResult={analysisResult}
+      onSuggestItem={handleSuggestItem}
+      savingSelection={savingSelection}
+      selectionMessage={selectionMessage}
+      confirmedDraft={confirmedDraft}
+      onSelectCandidate={handleSelectCandidate}
+      draftDetails={draftDetails}
+      itemConfirmed={itemConfirmed}
+      onDetailsSaved={(saved) => {
+        setDraftDetails((prev) => ({
+          ...prev,
+          title: saved.title,
+          description: saved.description,
+          condition: saved.condition,
+          detailsJson: saved.detailsJson,
+        }));
+        setDraftReview(getReviewFromDetailsJson(saved.detailsJson));
+        setDetailsSavedOnce(true);
+        setEditStep(null);
+      }}
+      draftReview={draftReview}
+      onReviewUpdated={(review) => {
+        setDraftReview(review);
+        if (review?.ready_for_next_step && !review?.stale_after_edit) {
+          setEditStep(null);
+        }
+      }}
+      brandCharacterHint={brandCharacterHint}
+    />
   );
 }

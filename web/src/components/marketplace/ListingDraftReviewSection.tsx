@@ -45,6 +45,8 @@ type Props = {
   initialReview: ListingDraftReviewJson | null;
   onReviewUpdated: (review: ListingDraftReviewJson | null) => void;
   onEditDetailsClick: () => void;
+  embedded?: boolean;
+  compactPhoto?: boolean;
 };
 
 async function parseApiPayload<T>(response: Response): Promise<{ payload: T | null }> {
@@ -69,6 +71,8 @@ export function ListingDraftReviewSection({
   initialReview,
   onReviewUpdated,
   onEditDetailsClick,
+  embedded = false,
+  compactPhoto = false,
 }: Props) {
   const [checklist, setChecklist] = useState({
     accuracy_confirmed: initialReview?.accuracy_confirmed ?? false,
@@ -159,15 +163,24 @@ export function ListingDraftReviewSection({
 
   const details = detailsJson as DetailsWithReview | null;
 
+  const wrapperClass = embedded ? "space-y-5" : "rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-5";
+
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-5">
-      <div className="space-y-1">
-        <h2 className="text-base font-medium text-[#1A1E23]">Review your draft</h2>
+    <div className={wrapperClass}>
+      {!embedded && (
+        <div className="space-y-1">
+          <h2 className="text-base font-medium text-[#1A1E23]">Review your draft</h2>
+          <p className="text-sm text-[#5C646D]">
+            Check the details before Ember helps with price and local interest. Nothing is public yet.
+          </p>
+          <p className="text-xs text-[#5C646D]">Nothing is public. This is still your private draft.</p>
+        </div>
+      )}
+      {embedded && (
         <p className="text-sm text-[#5C646D]">
-          Check the details before Ember helps with price and local interest. Nothing is public yet.
+          Check everything looks right. Nothing is public yet.
         </p>
-        <p className="text-xs text-[#5C646D]">Nothing is public. This is still your private draft.</p>
-      </div>
+      )}
 
       {staleAfterEdit && (
         <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3">
@@ -192,7 +205,11 @@ export function ListingDraftReviewSection({
             <img
               src={previewUrl}
               alt="Your private listing draft photo"
-              className="w-full max-h-[280px] object-contain rounded-xl border border-[#E5E7EB]"
+              className={
+                compactPhoto
+                  ? "h-20 w-20 object-cover rounded-lg border border-[#E5E7EB]"
+                  : "w-full max-h-[280px] object-contain rounded-xl border border-[#E5E7EB]"
+              }
             />
           ) : (
             <p className="text-sm text-[#5C646D]">Photo preview unavailable.</p>

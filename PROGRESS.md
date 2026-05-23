@@ -2977,3 +2977,26 @@ Category-only cards remain publishable.
 ### Next module handoff
 - Recommended next branch: `feat/ai-listing-price-guidance`
 - Start with cautious price guidance, no invented RRP, condition-adjusted price range, source/evidence capture, no publish flow unless separately approved
+
+## 2026-05-20 — PR5 UX Hardening: Guided Listing Flow
+
+### Summary
+- Converted the long prototype listing page into a guided step-based flow.
+- Removed Draft ID, image path, and storage-path debug debris from normal parent-facing UI.
+- Kept diagnostics behind `?debug=1` or local development only.
+- Preserved PR5 review/readiness functionality.
+- No pricing, maps, local demand, publishing, payments, or live listing creation added.
+
+### UX stages
+- Photo
+- Confirm item
+- Draft listing
+- Review draft
+- Ready for next step
+
+### Verification
+- Build: pass
+- Normal UI hides debug IDs/paths: implemented (`useListingDebugMode` + collapsed diagnostics)
+- Stepper flow: implemented (`CreateListingFlowView` + `ListingFlowStepShell`)
+- Review readiness persists: unchanged server routes
+- No publish/pricing/map: unchanged scope
