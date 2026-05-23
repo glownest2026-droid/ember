@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { buyerCanViewBetaListing, type BetaListingRow } from "@/lib/marketplace/beta-listing-visibility";
-import { mergeSellerLocation } from "@/lib/marketplace/location";
+import { resolveUserMarketplaceLocation } from "@/lib/marketplace/marketplace-preferences-service";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -44,23 +44,7 @@ export async function GET(request: NextRequest) {
     return json({ listings: withCounts }, { status: 200 });
   }
 
-  const { data: prefs } = await supabase
-    .from("marketplace_preferences")
-    .select("postcode, lat, lng, radius_miles")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  const buyerLocation = mergeSellerLocation(
-    prefs
-      ? {
-          postcode: prefs.postcode,
-          lat: prefs.lat != null ? Number(prefs.lat) : null,
-          lng: prefs.lng != null ? Number(prefs.lng) : null,
-          radius_miles: prefs.radius_miles != null ? Number(prefs.radius_miles) : null,
-        }
-      : null,
-    null
-  );
+  const buyerLocation = await resolveUserMarketplaceLocation(supabase, user.id);
 
   const { data: listings, error } = await supabase
     .from("marketplace_listings")
@@ -79,9 +63,14 @@ export async function GET(request: NextRequest) {
 
   const interestedIds = new Set((myInterests ?? []).map((row) => row.listing_id));
 
-  const nearby = (listings ?? []).filter((row) =>
-    buyerCanViewBetaListing(row as BetaListingRow, user.id, buyerLocation)
+  const visibility = await Promise.all(
+    (listings ?? []).map(async (row) => ({
+      row,
+      visible: await buyerCanViewBetaListing(row as BetaListingRow, user.id, buyerLocation),
+    }))
   );
+
+  const nearby = visibility.filter((v) => v.visible).map((v) => v.row);
 
   return json(
     {
@@ -89,6 +78,7 @@ export async function GET(request: NextRequest) {
         ...listing,
         buyer_interested: interestedIds.has(listing.id),
       })),
+      buyer_has_postcode: Boolean(buyerLocation.postcode && buyerLocation.lat != null),
     },
     { status: 200 }
   );

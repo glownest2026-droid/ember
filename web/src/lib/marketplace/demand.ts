@@ -1,10 +1,11 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { haversineMiles, samePostcodeOutward } from "./distance";
+import { geocodeUkPostcode } from "./geocode-uk-postcode";
+import { haversineMiles } from "./distance";
 import type { DemandConfidence, DemandSignal } from "./beta-listing-types";
 import type { ResolvedSellerLocation } from "./location";
-import { normalizeUkPostcodeOutward } from "./location";
+import { normalizeUkPostcode } from "./postcode";
 
 type DemandInput = {
   sellerUserId: string;
@@ -18,7 +19,33 @@ type PrefsRow = {
   postcode: string | null;
   lat: number | null;
   lng: number | null;
+  radius_miles?: number | null;
 };
+
+const buyerCoordsCache = new Map<string, { lat: number; lng: number } | null>();
+
+async function buyerCoords(row: PrefsRow): Promise<{ lat: number; lng: number } | null> {
+  const lat = row.lat != null ? Number(row.lat) : null;
+  const lng = row.lng != null ? Number(row.lng) : null;
+  if (lat != null && lng != null && Number.isFinite(lat) && Number.isFinite(lng)) {
+    return { lat, lng };
+  }
+
+  if (buyerCoordsCache.has(row.user_id)) {
+    return buyerCoordsCache.get(row.user_id) ?? null;
+  }
+
+  const postcode = row.postcode ? normalizeUkPostcode(row.postcode) : null;
+  if (!postcode) {
+    buyerCoordsCache.set(row.user_id, null);
+    return null;
+  }
+
+  const geocoded = await geocodeUkPostcode(postcode);
+  const coords = geocoded ? { lat: geocoded.lat, lng: geocoded.lng } : null;
+  buyerCoordsCache.set(row.user_id, coords);
+  return coords;
+}
 
 function demandDisplayCopy(total: number): string {
   if (total <= 0) return "No clear local Ember signal yet.";
@@ -36,24 +63,14 @@ function supportingCopy(confidence: DemandConfidence, hasCoords: boolean): strin
   return "Based on approximate area and recent Ember activity on Ember.";
 }
 
-function isNearby(
+async function isNearby(
   seller: ResolvedSellerLocation,
   buyer: PrefsRow
-): boolean {
-  const buyerLat = buyer.lat != null ? Number(buyer.lat) : null;
-  const buyerLng = buyer.lng != null ? Number(buyer.lng) : null;
-  if (
-    seller.lat != null &&
-    seller.lng != null &&
-    buyerLat != null &&
-    buyerLng != null
-  ) {
-    return haversineMiles(seller.lat, seller.lng, buyerLat, buyerLng) <= seller.radius_miles;
-  }
-  return samePostcodeOutward(
-    seller.postcode_outward,
-    normalizeUkPostcodeOutward(buyer.postcode)
-  );
+): Promise<boolean> {
+  if (seller.lat == null || seller.lng == null) return false;
+  const coords = await buyerCoords(buyer);
+  if (!coords) return false;
+  return haversineMiles(seller.lat, seller.lng, coords.lat, coords.lng) <= seller.radius_miles;
 }
 
 export async function buildDemandSignal(
@@ -62,12 +79,12 @@ export async function buildDemandSignal(
 ): Promise<DemandSignal> {
   const { data: prefsRows } = await supabase
     .from("marketplace_preferences")
-    .select("user_id, postcode, lat, lng");
+    .select("user_id, postcode, lat, lng, radius_miles");
 
   const nearbyUserIds = new Set<string>();
   for (const row of (prefsRows ?? []) as PrefsRow[]) {
     if (row.user_id === input.sellerUserId) continue;
-    if (isNearby(input.location, row)) nearbyUserIds.add(row.user_id);
+    if (await isNearby(input.location, row)) nearbyUserIds.add(row.user_id);
   }
 
   let behavioural_interest_count = 0;

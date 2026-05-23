@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { buildOpportunityForDraft } from "@/lib/marketplace/opportunity-service";
+import { saveMarketplacePreferencesForUser } from "@/lib/marketplace/marketplace-preferences-service";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +41,15 @@ export async function POST(
 
   if (draftError) return json({ error: draftError.message }, { status: 500 });
   if (!draft) return json({ error: "Draft not found." }, { status: 404 });
+
+  if (body.postcode?.trim()) {
+    const saved = await saveMarketplacePreferencesForUser(supabase, user.id, {
+      postcode: body.postcode,
+    });
+    if ("error" in saved) {
+      return json({ error: saved.error }, { status: 400 });
+    }
+  }
 
   const result = await buildOpportunityForDraft(supabase, draft, {
     approximate_area_label: body.approximate_area_label,

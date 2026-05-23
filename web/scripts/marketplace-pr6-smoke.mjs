@@ -15,21 +15,20 @@ function haversineMiles(lat1, lng1, lat2, lng2) {
   return 2 * EARTH_RADIUS_MILES * Math.asin(Math.sqrt(a));
 }
 
-function normalizeUkPostcodeOutward(postcode) {
-  const raw = String(postcode ?? "")
+function normalizeUkPostcode(postcode) {
+  const compact = String(postcode ?? "")
     .trim()
     .toUpperCase()
-    .replace(/\s+/g, " ");
-  if (!raw) return null;
-  const parts = raw.split(" ");
-  if (parts.length >= 2) return parts[0] ?? null;
-  if (raw.length >= 3) return raw.slice(0, Math.min(4, raw.length));
-  return raw;
+    .replace(/\s+/g, "");
+  const match = compact.match(/^([A-Z]{1,2}\d[A-Z\d]?)(\d[A-Z]{2})$/i);
+  if (!match?.[1] || !match[2]) return null;
+  return `${match[1]} ${match[2]}`;
 }
 
 assert.ok(haversineMiles(51.5, -0.1, 51.51, -0.11) < 2, "nearby coords within 2 miles");
 assert.ok(haversineMiles(51.5, -0.1, 52.5, -1.5) > 50, "far coords beyond 50 miles");
-assert.equal(normalizeUkPostcodeOutward("sl4 2abc"), "SL4");
-assert.equal(normalizeUkPostcodeOutward("SW1A 1AA"), "SW1A");
+assert.equal(normalizeUkPostcode("sl4 2abc"), "SL4 2ABC");
+assert.equal(normalizeUkPostcode("SW1A1AA"), "SW1A 1AA");
+assert.equal(normalizeUkPostcode("SL4"), null);
 
 console.log("PR6 smoke checks passed.");

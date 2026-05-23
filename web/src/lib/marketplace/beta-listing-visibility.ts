@@ -1,8 +1,9 @@
 import "server-only";
 
-import { haversineMiles, samePostcodeOutward } from "./distance";
-import { normalizeUkPostcodeOutward } from "./location";
+import { geocodeUkPostcode } from "./geocode-uk-postcode";
+import { haversineMiles } from "./distance";
 import type { ResolvedSellerLocation } from "./location";
+import { normalizeUkPostcode } from "./postcode";
 
 export type BetaListingRow = {
   id: string;
@@ -24,31 +25,49 @@ export type BetaListingRow = {
   image_storage_path: string | null;
 };
 
-export function buyerCanViewBetaListing(
+const listingCoordsCache = new Map<string, { lat: number; lng: number } | null>();
+
+async function listingCoords(
+  listing: BetaListingRow
+): Promise<{ lat: number; lng: number } | null> {
+  const lat = listing.approximate_lat != null ? Number(listing.approximate_lat) : null;
+  const lng = listing.approximate_lng != null ? Number(listing.approximate_lng) : null;
+  if (lat != null && lng != null && Number.isFinite(lat) && Number.isFinite(lng)) {
+    return { lat, lng };
+  }
+
+  const cacheKey = listing.id;
+  if (listingCoordsCache.has(cacheKey)) {
+    return listingCoordsCache.get(cacheKey) ?? null;
+  }
+
+  const postcode = listing.postcode ? normalizeUkPostcode(listing.postcode) : null;
+  if (!postcode) {
+    listingCoordsCache.set(cacheKey, null);
+    return null;
+  }
+
+  const geocoded = await geocodeUkPostcode(postcode);
+  const coords = geocoded ? { lat: geocoded.lat, lng: geocoded.lng } : null;
+  listingCoordsCache.set(cacheKey, coords);
+  return coords;
+}
+
+export async function buyerCanViewBetaListing(
   listing: BetaListingRow,
   buyerUserId: string,
   buyerLocation: ResolvedSellerLocation
-): boolean {
+): Promise<boolean> {
   if (listing.user_id === buyerUserId) return false;
   if (listing.status !== "published_beta") return false;
 
-  const listingLat =
-    listing.approximate_lat != null ? Number(listing.approximate_lat) : null;
-  const listingLng =
-    listing.approximate_lng != null ? Number(listing.approximate_lng) : null;
+  const buyerLat = buyerLocation.lat;
+  const buyerLng = buyerLocation.lng;
+  if (buyerLat == null || buyerLng == null) return false;
 
-  if (
-    buyerLocation.lat != null &&
-    buyerLocation.lng != null &&
-    listingLat != null &&
-    listingLng != null
-  ) {
-    const radius = Number(listing.radius_miles ?? buyerLocation.radius_miles);
-    return haversineMiles(buyerLocation.lat, buyerLocation.lng, listingLat, listingLng) <= radius;
-  }
+  const coords = await listingCoords(listing);
+  if (!coords) return false;
 
-  return samePostcodeOutward(
-    buyerLocation.postcode_outward,
-    normalizeUkPostcodeOutward(listing.postcode)
-  );
+  const radius = buyerLocation.radius_miles;
+  return haversineMiles(buyerLat, buyerLng, coords.lat, coords.lng) <= radius;
 }

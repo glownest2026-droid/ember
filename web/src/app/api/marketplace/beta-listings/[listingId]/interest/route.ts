@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { buyerCanViewBetaListing, type BetaListingRow } from "@/lib/marketplace/beta-listing-visibility";
-import { mergeSellerLocation } from "@/lib/marketplace/location";
+import { resolveUserMarketplaceLocation } from "@/lib/marketplace/marketplace-preferences-service";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -39,25 +39,9 @@ export async function POST(
     return json({ error: "You cannot express interest in your own listing." }, { status: 400 });
   }
 
-  const { data: prefs } = await supabase
-    .from("marketplace_preferences")
-    .select("postcode, lat, lng, radius_miles")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const buyerLocation = await resolveUserMarketplaceLocation(supabase, user.id);
 
-  const buyerLocation = mergeSellerLocation(
-    prefs
-      ? {
-          postcode: prefs.postcode,
-          lat: prefs.lat != null ? Number(prefs.lat) : null,
-          lng: prefs.lng != null ? Number(prefs.lng) : null,
-          radius_miles: prefs.radius_miles != null ? Number(prefs.radius_miles) : null,
-        }
-      : null,
-    null
-  );
-
-  if (!buyerCanViewBetaListing(listing as BetaListingRow, user.id, buyerLocation)) {
+  if (!(await buyerCanViewBetaListing(listing as BetaListingRow, user.id, buyerLocation))) {
     return json({ error: "This listing is not available in your area." }, { status: 403 });
   }
 

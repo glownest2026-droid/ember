@@ -45,6 +45,11 @@ export function ListingOpportunitySection({
     if (initialPublishedListingId) setPublishedId(initialPublishedListingId);
   }, [initialPublishedListingId]);
 
+  useEffect(() => {
+    if (defaultAreaLabel) setAreaLabel(defaultAreaLabel);
+    if (defaultPostcode) setPostcode(defaultPostcode);
+  }, [defaultAreaLabel, defaultPostcode]);
+
   const loadOpportunity = async () => {
     setLoading(true);
     setError(null);
@@ -134,16 +139,20 @@ export function ListingOpportunitySection({
           </div>
           <div className="space-y-1">
             <label className="text-sm font-medium text-[#1A1E23]" htmlFor="area-postcode">
-              Outward postcode (optional)
+              Your postcode
             </label>
             <input
               id="area-postcode"
               value={postcode}
               onChange={(e) => setPostcode(e.target.value)}
-              placeholder="e.g. SL4"
+              placeholder="e.g. SL4 2ABC"
+              autoComplete="postal-code"
               className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2 text-sm"
             />
-            <p className="text-xs text-[#5C646D]">We only show an approximate area, not your full address.</p>
+            <p className="text-xs text-[#5C646D]">
+              Same as your marketplace postcode. Used for matching within 5 miles. Only your approximate
+              area is shown on listings.
+            </p>
           </div>
           <button
             type="button"

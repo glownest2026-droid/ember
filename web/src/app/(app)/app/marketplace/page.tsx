@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { MarketplaceYourPostcode } from "@/components/marketplace/MarketplaceYourPostcode";
 import { formatPriceRange } from "@/lib/marketplace/beta-listing-display";
 import type { PriceGuidance } from "@/lib/marketplace/beta-listing-types";
 type ListingCard = {
@@ -60,6 +61,7 @@ export default function AppMarketplacePage() {
   const [mine, setMine] = useState<ListingCard[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [buyerHasPostcode, setBuyerHasPostcode] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -69,11 +71,16 @@ export default function AppMarketplacePage() {
         fetch("/api/marketplace/beta-listings?view=nearby"),
         fetch("/api/marketplace/beta-listings?view=mine"),
       ]);
-      const nearbyPayload = await parseJson<{ listings?: ListingCard[]; error?: string }>(nearbyRes);
+      const nearbyPayload = await parseJson<{
+        listings?: ListingCard[];
+        buyer_has_postcode?: boolean;
+        error?: string;
+      }>(nearbyRes);
       const minePayload = await parseJson<{ listings?: ListingCard[]; error?: string }>(mineRes);
       if (!nearbyRes.ok) throw new Error(nearbyPayload?.error ?? "Could not load nearby listings.");
       if (!mineRes.ok) throw new Error(minePayload?.error ?? "Could not load your listings.");
       setNearby(nearbyPayload?.listings ?? []);
+      setBuyerHasPostcode(nearbyPayload?.buyer_has_postcode !== false);
       setMine(minePayload?.listings ?? []);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Could not load marketplace.");
@@ -118,12 +125,18 @@ export default function AppMarketplacePage() {
         </Link>
       </header>
 
+      <MarketplaceYourPostcode onPreferencesSaved={() => void load()} />
+
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <section className="space-y-3">
         <h2 className="text-lg font-medium text-[#1A1E23]">Nearby listings</h2>
         {nearby.length === 0 ? (
-          <p className="text-sm text-[#5C646D]">No nearby beta listings yet.</p>
+          <p className="text-sm text-[#5C646D]">
+            {!buyerHasPostcode
+              ? "Add your postcode above to see listings within 5 miles."
+              : "No nearby beta listings yet."}
+          </p>
         ) : (
           <ul className="space-y-3">
             {nearby.map((listing) => {

@@ -3,7 +3,7 @@ import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buyerCanViewBetaListing, type BetaListingRow } from "./beta-listing-visibility";
-import { mergeSellerLocation } from "./location";
+import { resolveUserMarketplaceLocation } from "./marketplace-preferences-service";
 
 const RAW_BUCKET = "marketplace-raw-listing-photos";
 
@@ -26,25 +26,9 @@ export async function createBetaListingPhotoSignedUrl(
 
   const isSeller = listing.user_id === viewerUserId;
   if (!isSeller) {
-    const { data: prefs } = await userClient
-      .from("marketplace_preferences")
-      .select("postcode, lat, lng, radius_miles")
-      .eq("user_id", viewerUserId)
-      .maybeSingle();
+    const buyerLocation = await resolveUserMarketplaceLocation(userClient, viewerUserId);
 
-    const buyerLocation = mergeSellerLocation(
-      prefs
-        ? {
-            postcode: prefs.postcode,
-            lat: prefs.lat != null ? Number(prefs.lat) : null,
-            lng: prefs.lng != null ? Number(prefs.lng) : null,
-            radius_miles: prefs.radius_miles != null ? Number(prefs.radius_miles) : null,
-          }
-        : null,
-      null
-    );
-
-    if (!buyerCanViewBetaListing(listing, viewerUserId, buyerLocation)) {
+    if (!(await buyerCanViewBetaListing(listing, viewerUserId, buyerLocation))) {
       return { error: "Not allowed to view this listing photo.", status: 403 };
     }
   }

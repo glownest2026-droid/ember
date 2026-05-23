@@ -2,9 +2,13 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { SellerLocationInput } from "./beta-listing-types";
-import { mergeSellerLocation, normalizeUkPostcodeOutward } from "./location";
 import { isDraftReadyForOpportunity } from "./draft-readiness";
 import { buildOpportunityForDraft } from "./opportunity-service";
+import {
+  resolveUserMarketplaceLocation,
+  saveMarketplacePreferencesForUser,
+} from "./marketplace-preferences-service";
+import { normalizeUkPostcode } from "./postcode";
 
 type DraftRow = {
   id: string;
@@ -46,32 +50,32 @@ export async function publishBetaListingFromDraft(
     return { listing: { id: existing.id, status: existing.status }, created: false };
   }
 
-  if (!locationOverride?.approximate_area_label?.trim()) {
-    const { data: prefs } = await supabase
-      .from("marketplace_preferences")
-      .select("postcode")
-      .eq("user_id", draft.user_id)
-      .maybeSingle();
-    if (!prefs?.postcode?.trim() && !locationOverride?.postcode?.trim()) {
-      return {
-        error: "Add an approximate area before publishing.",
-        status: 400,
-      };
-    }
+  const location = await resolveUserMarketplaceLocation(supabase, draft.user_id, {
+    approximate_area_label: locationOverride?.approximate_area_label,
+    postcode: locationOverride?.postcode,
+    lat: locationOverride?.lat,
+    lng: locationOverride?.lng,
+  });
+
+  if (!location.postcode?.trim() || location.lat == null || location.lng == null) {
+    return {
+      error:
+        "Add your UK postcode on the marketplace page (or in step 5) before publishing.",
+      status: 400,
+    };
   }
 
-  const opportunityResult = await buildOpportunityForDraft(supabase, draft, locationOverride);
+  const opportunityResult = await buildOpportunityForDraft(supabase, draft, {
+    approximate_area_label: location.approximate_area_label,
+    postcode: location.postcode,
+    lat: location.lat,
+    lng: location.lng,
+  });
   if ("error" in opportunityResult) {
     return { error: opportunityResult.error, status: opportunityResult.status };
   }
 
   const { opportunity } = opportunityResult;
-  const location = mergeSellerLocation(
-    null,
-    locationOverride ?? {
-      approximate_area_label: opportunity.approximate_area_label,
-    }
-  );
 
   const details = draft.listing_draft_details_json as { category_label?: string } | null;
   const item_label =
@@ -79,7 +83,7 @@ export async function publishBetaListingFromDraft(
     draft.title_draft?.trim() ||
     null;
 
-  const outward = normalizeUkPostcodeOutward(locationOverride?.postcode ?? null);
+  const storedPostcode = normalizeUkPostcode(location.postcode) ?? location.postcode;
 
   const { data: listing, error: insertError } = await supabase
     .from("marketplace_listings")
@@ -102,7 +106,7 @@ export async function publishBetaListingFromDraft(
       approximate_lng: location.lng,
       radius_miles: location.radius_miles,
       image_storage_path: draft.image_storage_path,
-      postcode: outward,
+      postcode: storedPostcode,
       status: "published_beta",
       published_at: new Date().toISOString(),
     })
@@ -124,19 +128,12 @@ export async function publishBetaListingFromDraft(
     .update({ listing_id: listing.id })
     .eq("id", opportunity.snapshot_id);
 
-  if (locationOverride?.postcode?.trim()) {
-    await supabase.from("marketplace_preferences").upsert(
-      {
-        user_id: draft.user_id,
-        postcode: locationOverride.postcode.trim(),
-        lat: location.lat,
-        lng: location.lng,
-        radius_miles: location.radius_miles,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id" }
-    );
-  }
+  await saveMarketplacePreferencesForUser(supabase, draft.user_id, {
+    postcode: storedPostcode,
+    lat: location.lat,
+    lng: location.lng,
+    radius_miles: location.radius_miles,
+  });
 
   return { listing: { id: listing.id, status: listing.status }, created: true };
 }

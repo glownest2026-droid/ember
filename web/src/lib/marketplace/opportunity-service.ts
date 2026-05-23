@@ -3,9 +3,9 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildDemandSignal } from "./demand";
 import type { OpportunityPayload, SellerLocationInput } from "./beta-listing-types";
-import { mergeSellerLocation } from "./location";
-import { buildPriceGuidance } from "./price-guidance";
 import { isDraftReadyForOpportunity } from "./draft-readiness";
+import { resolveUserMarketplaceLocation } from "./marketplace-preferences-service";
+import { buildPriceGuidance } from "./price-guidance";
 
 type DraftRow = {
   id: string;
@@ -33,23 +33,12 @@ export async function buildOpportunityForDraft(
     };
   }
 
-  const { data: prefs } = await supabase
-    .from("marketplace_preferences")
-    .select("postcode, lat, lng, radius_miles")
-    .eq("user_id", draft.user_id)
-    .maybeSingle();
-
-  const location = mergeSellerLocation(
-    prefs
-      ? {
-          postcode: prefs.postcode,
-          lat: prefs.lat != null ? Number(prefs.lat) : null,
-          lng: prefs.lng != null ? Number(prefs.lng) : null,
-          radius_miles: prefs.radius_miles != null ? Number(prefs.radius_miles) : null,
-        }
-      : null,
-    locationOverride
-  );
+  const location = await resolveUserMarketplaceLocation(supabase, draft.user_id, {
+    approximate_area_label: locationOverride?.approximate_area_label,
+    postcode: locationOverride?.postcode,
+    lat: locationOverride?.lat,
+    lng: locationOverride?.lng,
+  });
 
   const details = draft.listing_draft_details_json as { category_label?: string } | null;
   const item_label =

@@ -3056,3 +3056,18 @@ Category-only cards remain publishable.
 ### Verification
 - Build: pass
 - Manual: save without condition → error + highlight; pick condition + save → step 4 appears; after publish → green completion card + marketplace button visible without expanding step 5
+
+## 2026-05-23 — Marketplace postcode: single source of truth
+
+### Summary
+- **Outward postcode removed** for matching; full UK postcode in `marketplace_preferences.postcode`, geocoded to lat/lng via postcodes.io; distance matching uses haversine within `radius_miles` (default 5).
+- **`GET/PATCH /api/marketplace/preferences`** — account-wide postcode; PATCH accepts postcode or lat/lng (reverse geocode for “Use my location”).
+- **`MarketplaceYourPostcode`** on `/app/marketplace` below “Create a listing” — display, edit, use my location.
+- Publish/opportunity/nearby/interest/demand all use `resolveUserMarketplaceLocation` / saved preferences.
+
+### Files
+- `postcode.ts`, `geocode-uk-postcode.ts`, `marketplace-preferences-service.ts`, `api/marketplace/preferences/route.ts`, `MarketplaceYourPostcode.tsx`, visibility/demand/publish updates
+
+### Verification
+- Build: pass; `pnpm -C web test:marketplace-pr6` pass
+- Manual: set postcode on marketplace → nearby uses 5mi radius; listing flow step 5 uses same prefs
