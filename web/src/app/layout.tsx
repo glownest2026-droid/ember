@@ -7,6 +7,8 @@ import { SubnavStatsProvider } from "../lib/subnav/SubnavStatsContext";
 import { SubnavGate } from "../components/subnav/SubnavGate";
 import { PostHogProvider } from "../lib/analytics/PostHogProvider";
 import { OneSignalProvider } from "../lib/onesignal/OneSignalProvider";
+import { discoverManrope } from "../lib/discover/manrope";
+import { discoverPlayful } from "../lib/discover/playful";
 
 export const metadata: Metadata = {
   title: "Ember — Simple, trusted guidance from bump to big steps.",
@@ -33,8 +35,11 @@ export const dynamic = 'force-dynamic';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="overflow-x-clip">
-      <body className="antialiased min-w-0 max-w-[100vw] bg-white">
+    <html
+      lang="en"
+      className={`${discoverManrope.variable} ${discoverPlayful.variable} overflow-x-clip`}
+    >
+      <body className={`${discoverManrope.className} antialiased min-w-0 max-w-[100vw] bg-white`}>
         <ThemeProvider>
           <PostHogProvider>
             <OneSignalProvider>

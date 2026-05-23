@@ -3082,3 +3082,20 @@ Category-only cards remain publishable.
 ### Verification
 - Build: pass
 - Manual: publish → page clears; Create listing → empty flow; Edit saxophone → populated steps; save title → marketplace updates
+
+## 2026-05-23 — Snag pack: listings images + discover polish
+
+### Summary
+- **Live listing images:** Added photo thumbnails to the signed-in live listing cards so published items show their image.
+- **Discover fonts sitewide:** Applied discover Manrope variables from the root layout and made ThemeProvider prefer Manrope across global brand font variables.
+- **Discover polish:** Kept all focus tiles visible, anchored repeated tile clicks to the Why it matters section, used branded orange for focus icons, widened category cards, and aligned the save popup's discover typography/colors across states.
+
+### Files
+- `web/src/app/(app)/app/marketplace/page.tsx`
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx`
+- `web/src/app/layout.tsx`, `web/src/app/globals.css`, `web/src/components/ThemeProvider.tsx`
+- `web/src/components/discover/figma/*`, `web/src/components/ui/SaveToListModal.tsx`
+
+### Verification
+- Baseline build before edits: pass (`pnpm build` in `web/`)
+- Post-change build: pass (`pnpm build` in `web/`)

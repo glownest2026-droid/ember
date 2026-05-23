@@ -326,10 +326,7 @@ export default function DiscoveryPageClient({
 
   const handleWrapperSelect = (wrapperSlug: string) => {
     if (selectedWrapper === wrapperSlug) {
-      setSelectedWrapper(null);
-      setSelectedCategoryId(null);
-      setShowingExamples(false);
-      router.push(withChildParam(`${basePath}/${currentMonth}`), { scroll: false });
+      setPendingScrollToNextSteps(true);
       return;
     }
     setSelectedWrapper(wrapperSlug);

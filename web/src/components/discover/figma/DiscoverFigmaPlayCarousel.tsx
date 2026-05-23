@@ -103,7 +103,7 @@ export function DiscoverFigmaPlayCarousel({
       <div className="overflow-hidden -mx-1 px-1" ref={emblaRef}>
         <div className="flex gap-4 md:gap-6">
           {items.map((idea) => (
-            <div key={idea.id} className="flex-[0_0_88%] md:flex-[0_0_52%] lg:flex-[0_0_38%] min-w-0">
+            <div key={idea.id} className="flex-[0_0_94%] md:flex-[0_0_62%] lg:flex-[0_0_46%] min-w-0">
               <DiscoverFigmaPlayIdeaCard
                 id={idea.id}
                 title={idea.title}

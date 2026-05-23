@@ -94,6 +94,9 @@ export async function ThemeProvider({ children }: { children: React.ReactNode })
   const bodyFont = fontPairMap[theme.typography.fontBody] || fontPairMap.inter_inter;
   const headingFont = fontPairMap[theme.typography.fontHeading] || fontPairMap.sourceserif4_inter;
   const subheadingFont = fontPairMap[theme.typography.fontSubheading] || fontPairMap.sourceserif4_inter;
+  const sitewideBodyFont = `var(--font-discover-manrope), ${bodyFont.body}, ui-sans-serif, system-ui, sans-serif`;
+  const sitewideHeadingFont = `var(--font-discover-manrope), ${headingFont.head}, ui-sans-serif, system-ui, sans-serif`;
+  const sitewideSubheadingFont = `var(--font-discover-manrope), ${subheadingFont.head}, ui-sans-serif, system-ui, sans-serif`;
 
   // Escape CSS values safely
   const escapeCss = (value: string | number) => String(value).replace(/[<>"']/g, '');
@@ -118,9 +121,9 @@ export async function ThemeProvider({ children }: { children: React.ReactNode })
             --brand-primary-foreground: ${escapeCss(theme.colors.primaryForeground)};
             --brand-accent-foreground: ${escapeCss(theme.colors.accentForeground)};
             --brand-scrollbar-thumb: ${escapeCss(theme.colors.scrollbarThumb)};
-            --brand-font-heading: ${headingFont.head};
-            --brand-font-subheading: ${subheadingFont.head};
-            --brand-font-body: ${bodyFont.body};
+            --brand-font-heading: ${sitewideHeadingFont};
+            --brand-font-subheading: ${sitewideSubheadingFont};
+            --brand-font-body: ${sitewideBodyFont};
             --brand-font-size-base: ${escapeCss(theme.typography.baseFontSize)}px;
             --brand-radius: ${escapeCss(theme.components.radius)}px;
           }
