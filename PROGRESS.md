@@ -3000,3 +3000,85 @@ Category-only cards remain publishable.
 - Stepper flow: implemented (`CreateListingFlowView` + `ListingFlowStepShell`)
 - Review readiness persists: unchanged server routes
 - No publish/pricing/map: unchanged scope
+
+## 2026-05-23 — PR6: Marketplace Opportunity & Beta Publish
+
+### Summary
+- Added marketplace opportunity layer after reviewed AI listing draft (step 5: Local opportunity).
+- Added cautious price range guidance (manual category band + optional Gemini early estimate).
+- Added first-party Ember demand signal within 5 miles (garage_items + children counts + explicit interest).
+- Added provider-light approximate opportunity map card (no exact pins).
+- Added beta publish flow from ready draft to `marketplace_listings` (`published_beta`).
+- Added `/app/marketplace` for nearby signed-in buyers and seller interest counts.
+- Added buyer “I'm interested” action.
+- No full chat, payments, exact address, public SEO listing, or public raw-photo URL.
+
+### Data model
+- Migration: `supabase/sql/202605231200_marketplace_beta_publish.sql`
+- Extended: `marketplace_listings` (beta columns + `published_beta` status)
+- Added: `marketplace_listing_interests`, `marketplace_opportunity_snapshots`
+- Review state remains in `listing_draft_details_json.review` (PR5)
+
+### Routes
+- `POST /api/marketplace/listing-drafts/[draftId]/opportunity`
+- `POST /api/marketplace/listing-drafts/[draftId]/publish-beta`
+- `GET /api/marketplace/beta-listings?view=nearby|mine`
+- `POST /api/marketplace/beta-listings/[listingId]/interest`
+- `GET /api/marketplace/beta-listings/[listingId]/photo` (short-lived signed URL, auth-checked)
+- `/app/listings` (step 5 opportunity UI)
+- `/app/marketplace`
+
+### Verification
+- Build: pass
+- Smoke: `pnpm -C web test:marketplace-pr6` pass (distance/postcode helpers)
+- Manual preview: pending founder (requires Supabase migration applied)
+
+### Known debt
+- Masked chat deferred to PR7
+- Mapbox optional; provider-light card only
+- Demand improves as more families set preferences and use Ember lists
+- Geocoding lat/lng from postcode not implemented in PR6 (area-label + outward postcode matching)
+- Run migration on Supabase before preview E2E
+
+### Next module handoff
+- Branch: `feat/marketplace-masked-chat`
+
+## 2026-05-23 — Listing flow UX: condition + post-publish CTA
+
+### Summary
+- **Condition (step 3):** Labelled required; inline hint that review unlocks only after save with condition; amber highlight + clearer error if save attempted without selection; Ember suggestion labelled as not saved until a pill is chosen.
+- **Post-publish dead-end:** When all steps collapse after beta publish, show “You’re all set” card with **Go to marketplace** (`#listing-flow-complete`); step 5 collapsed summary also links to marketplace; header/footer copy updates when listed (no misleading “private until you continue”).
+- **Save without condition:** Blocked client-side with explicit message (review step hidden until condition saved).
+
+### Files
+- `ListingDraftDetailsSection.tsx`, `CreateListingFlowView.tsx`, `ListingOpportunitySection.tsx`, `app/listings/page.tsx`
+
+### Verification
+- Build: pass
+- Manual: save without condition → error + highlight; pick condition + save → step 4 appears; after publish → green completion card + marketplace button visible without expanding step 5
+
+## 2026-05-23 — Marketplace postcode: single source of truth
+
+### Summary
+- **Outward postcode removed** for matching; full UK postcode in `marketplace_preferences.postcode`, geocoded to lat/lng via postcodes.io; distance matching uses haversine within `radius_miles` (default 5).
+- **`GET/PATCH /api/marketplace/preferences`** — account-wide postcode; PATCH accepts postcode or lat/lng (reverse geocode for “Use my location”).
+- **`MarketplaceYourPostcode`** on `/app/marketplace` below “Create a listing” — display, edit, use my location.
+- Publish/opportunity/nearby/interest/demand all use `resolveUserMarketplaceLocation` / saved preferences.
+
+### Files
+- `postcode.ts`, `geocode-uk-postcode.ts`, `marketplace-preferences-service.ts`, `api/marketplace/preferences/route.ts`, `MarketplaceYourPostcode.tsx`, visibility/demand/publish updates
+
+### Verification
+- Build: pass; `pnpm -C web test:marketplace-pr6` pass
+- Manual: set postcode on marketplace → nearby uses 5mi radius; listing flow step 5 uses same prefs
+
+## 2026-05-23 — Marketplace listing flow: fresh create, edit, postcode on /marketplace
+
+### Summary
+- **Postcode widget** on `/marketplace` (logged-in) below List an item widget — same as `/app/marketplace`.
+- **Fresh listing after publish:** boot skips drafts already linked to `published_beta`; `?new=1` clears UI; publish resets to empty create flow.
+- **Edit from marketplace:** “Edit listing” → `/app/listings?edit={id}` loads source draft; saves sync to live `marketplace_listings` via `sync-beta-listing.ts`.
+
+### Verification
+- Build: pass
+- Manual: publish → page clears; Create listing → empty flow; Edit saxophone → populated steps; save title → marketplace updates

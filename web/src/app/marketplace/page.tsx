@@ -28,6 +28,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/figma/marketplace/ui/accordion";
+import { MarketplaceYourPostcode } from "@/components/marketplace/MarketplaceYourPostcode";
 import { ListingWidget } from "@/components/figma/marketplace-prelist/ListingWidget";
 import { ListingModal } from "@/components/figma/marketplace-prelist/ListingModal";
 import { SuccessModal } from "@/components/figma/marketplace-prelist/SuccessModal";
@@ -272,7 +273,11 @@ export default function MarketplacePage() {
               selectedChildName={selectedChildName}
               ageBandLabel={ageBandLabel}
               onListItem={() => setListingModalOpen(true)}
+              viewMarketplaceHref="/app/marketplace"
             />
+            <div className="mt-4 w-full">
+              <MarketplaceYourPostcode />
+            </div>
           </div>
         </section>
       )}

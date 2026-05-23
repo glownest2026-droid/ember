@@ -7,6 +7,7 @@ import {
   type ListingDraftDetailsJson,
 } from "@/lib/marketplace/ai-listing-details-types";
 import { clearReviewInDetailsJson } from "@/lib/marketplace/ai-listing-review";
+import { syncPublishedBetaListingFromDraft } from "@/lib/marketplace/sync-beta-listing";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -147,6 +148,12 @@ export async function PATCH(
   if (updateError) {
     return json({ error: updateError.message }, { status: 500 });
   }
+
+  await syncPublishedBetaListingFromDraft(supabase, draftId, user.id, {
+    title: updated.title_draft,
+    description: updated.description_draft,
+    condition: updated.condition_confirmed_by_user,
+  });
 
   return json(
     {

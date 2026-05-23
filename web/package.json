@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "check:conflicts": "node scripts/check-no-conflict-markers.js"
+    "check:conflicts": "node scripts/check-no-conflict-markers.js",
+    "test:marketplace-pr6": "node scripts/marketplace-pr6-smoke.mjs"
   },
   "dependencies": {
     "@builder.io/react": "^9.0.0",

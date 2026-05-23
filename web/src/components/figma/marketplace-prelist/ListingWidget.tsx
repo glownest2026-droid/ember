@@ -1,17 +1,20 @@
 "use client";
 
+import Link from "next/link";
 import { Package, Sparkles, ArrowRight } from "lucide-react";
 
 interface ListingWidgetProps {
   selectedChildName: string;
   ageBandLabel?: string;
   onListItem: () => void;
+  viewMarketplaceHref?: string;
 }
 
 export function ListingWidget({
   selectedChildName,
   ageBandLabel,
   onListItem,
+  viewMarketplaceHref,
 }: ListingWidgetProps) {
   return (
     <div
@@ -102,6 +105,18 @@ export function ListingWidget({
             List an item
             <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
+          {viewMarketplaceHref && (
+            <Link
+              href={viewMarketplaceHref}
+              className="px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl font-medium transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 border-2 bg-white"
+              style={{
+                color: "var(--ember-primary)",
+                borderColor: "var(--ember-primary)",
+              }}
+            >
+              View marketplace
+            </Link>
+          )}
         </div>
       </div>
     </div>

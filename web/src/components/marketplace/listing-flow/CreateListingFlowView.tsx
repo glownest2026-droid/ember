@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { Camera, Lock } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { ListingDraftDetailsSection } from "@/components/marketplace/ListingDraftDetailsSection";
+import { ListingOpportunitySection } from "@/components/marketplace/ListingOpportunitySection";
 import { ListingDraftReviewSection } from "@/components/marketplace/ListingDraftReviewSection";
 import { ListingDeveloperDiagnostics } from "@/components/marketplace/listing-flow/ListingDeveloperDiagnostics";
 import { ListingFlowStepShell } from "@/components/marketplace/listing-flow/ListingFlowStepShell";
@@ -63,6 +65,7 @@ export type CreateListingFlowViewProps = {
     generatedAt: string | null;
   };
   itemConfirmed: boolean;
+  detailsSavedOnce: boolean;
   onDetailsSaved: (saved: {
     title: string;
     description: string;
@@ -72,6 +75,15 @@ export type CreateListingFlowViewProps = {
   draftReview: ListingDraftReviewJson | null;
   onReviewUpdated: (review: ListingDraftReviewJson | null) => void;
   brandCharacterHint: string | null;
+  defaultAreaLabel?: string | null;
+  defaultPostcode?: string | null;
+  opportunityLoaded: boolean;
+  publishedBeta: boolean;
+  publishedListingId: string | null;
+  flowMode: "create" | "edit-published";
+  onStartNewListing?: () => void;
+  onOpportunityLoaded: () => void;
+  onPublished: (listingId: string) => void;
 };
 
 export function CreateListingFlowView({
@@ -96,11 +108,22 @@ export function CreateListingFlowView({
   onSelectCandidate,
   draftDetails,
   itemConfirmed,
+  detailsSavedOnce,
   onDetailsSaved,
   draftReview,
   onReviewUpdated,
   brandCharacterHint,
+  defaultAreaLabel,
+  defaultPostcode,
+  opportunityLoaded,
+  publishedBeta,
+  publishedListingId,
+  flowMode,
+  onStartNewListing,
+  onOpportunityLoaded,
+  onPublished,
 }: CreateListingFlowViewProps) {
+  const editingPublished = flowMode === "edit-published";
   const conditionLabel =
     CONDITION_LABELS[draftDetails.condition ?? ""] ?? draftDetails.condition ?? "";
 
@@ -108,19 +131,38 @@ export function CreateListingFlowView({
   const itemActive = displayActiveStep === "item";
   const detailsActive = displayActiveStep === "details";
   const reviewActive = displayActiveStep === "review";
+  const opportunityActive = displayActiveStep === "opportunity";
 
-  const showReviewStep = flow.detailsComplete || flow.reviewComplete;
+  const showReviewStep =
+    (detailsSavedOnce &&
+      Boolean(draftDetails.title?.trim()) &&
+      Boolean(draftDetails.description?.trim()) &&
+      Boolean(draftDetails.condition?.trim())) ||
+    flow.reviewComplete;
+  const showOpportunityStep = flow.reviewComplete || flow.opportunityComplete || publishedBeta;
 
   return (
     <div className="mx-auto max-w-xl space-y-4 p-4 pb-10 sm:p-6">
       <header className="space-y-2">
-        <div className="inline-flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-[#FAFAFA] px-3 py-1 text-xs font-medium text-[#1A1E23]">
+        <div
+          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${
+            publishedBeta
+              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+              : "border-[#E5E7EB] bg-[#FAFAFA] text-[#1A1E23]"
+          }`}
+        >
           <Lock className="h-3.5 w-3.5" aria-hidden />
-          Private draft
+          {editingPublished || publishedBeta ? "Listed to nearby families" : "Private draft"}
         </div>
-        <h1 className="text-2xl font-normal text-[#1A1E23]">Create a listing</h1>
+        <h1 className="text-2xl font-normal text-[#1A1E23]">
+          {editingPublished ? "Edit listing" : "Create a listing"}
+        </h1>
         <p className="text-sm text-[#5C646D]">
-          Add a photo, confirm the item, then review the draft. Nothing is public yet.
+          {editingPublished
+            ? "Update your live listing. Changes to title, description, and condition appear on the marketplace when you save."
+            : publishedBeta
+              ? "Your listing is live on the Ember marketplace for nearby families. Check back for interest and price guidance."
+              : "Add a photo, confirm the item, then review the draft. Nothing is public until you list locally."}
         </p>
       </header>
 
@@ -327,7 +369,7 @@ export function CreateListingFlowView({
             completedSummary={
               <div className="space-y-1">
                 <p className="font-medium text-emerald-900">Draft marked ready for the next step</p>
-                <p className="text-xs">Next: price guidance and local interest. Not available yet.</p>
+                <p className="text-xs">Ready to see your local opportunity.</p>
               </div>
             }
           >
@@ -350,12 +392,92 @@ export function CreateListingFlowView({
         </div>
       )}
 
+      {showOpportunityStep && draftId && flow.reviewComplete && (
+        <div id="listing-step-opportunity">
+          <ListingFlowStepShell
+            stepNumber={5}
+            title="Local opportunity"
+            isComplete={publishedBeta}
+            isActive={opportunityActive}
+            completedSummary={
+              <div className="space-y-2">
+                <p className="font-medium text-emerald-900">Listed to nearby Ember families</p>
+                <p className="text-xs">
+                  Price guidance and interest updates appear on the marketplace as families respond.
+                </p>
+                <Link href="/app/marketplace" className="inline-flex text-sm font-medium text-primary underline">
+                  Open marketplace
+                </Link>
+              </div>
+            }
+          >
+            <ListingOpportunitySection
+              draftId={draftId}
+              defaultAreaLabel={defaultAreaLabel}
+              defaultPostcode={defaultPostcode}
+              initialPublishedListingId={publishedListingId}
+              onOpportunityLoaded={onOpportunityLoaded}
+              onPublished={onPublished}
+            />
+          </ListingFlowStepShell>
+        </div>
+      )}
+
+      {publishedBeta && !editingPublished && (
+        <section
+          id="listing-flow-complete"
+          className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 space-y-3"
+        >
+          <h2 className="text-lg font-medium text-emerald-950">You&apos;re all set</h2>
+          <p className="text-sm text-emerald-900">
+            Your listing is visible to signed-in Ember families near you. Messaging comes later — for
+            now, watch the marketplace for interest and price guidance.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/app/marketplace"
+              className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white"
+            >
+              Go to marketplace
+            </Link>
+            {onStartNewListing && (
+              <button
+                type="button"
+                onClick={onStartNewListing}
+                className="inline-flex min-h-[44px] items-center rounded-xl border border-emerald-300 bg-white px-4 py-2.5 text-sm font-medium text-emerald-950"
+              >
+                List another item
+              </button>
+            )}
+          </div>
+          {publishedListingId && debugMode && (
+            <p className="text-xs text-emerald-800">Listing id: {publishedListingId}</p>
+          )}
+        </section>
+      )}
+
+      {editingPublished && (
+        <section className="rounded-2xl border border-[#E5E7EB] bg-[#FAFAFA] p-4 space-y-2">
+          <p className="text-sm text-[#5C646D]">
+            Save each section you change. When you&apos;re done, return to the marketplace to see your
+            listing.
+          </p>
+          <Link href="/app/marketplace" className="inline-flex text-sm font-medium text-primary underline">
+            Back to marketplace
+          </Link>
+        </section>
+      )}
+
       {debugMode && (
         <ListingDeveloperDiagnostics draftId={draftId} imageStoragePath={imageStoragePath} />
       )}
 
       <p className="text-xs text-[#5C646D]">
-        Your photo and draft stay private until you choose to continue.
+        {editingPublished
+          ? "Your listing stays live while you edit. Only saved changes update what families see."
+          : publishedBeta
+            ? "You can return here anytime to edit earlier steps. Your listing stays on the marketplace until you remove it."
+            : "Steps stay private until you list to nearby families in step 5."}
       </p>
     </div>
   );

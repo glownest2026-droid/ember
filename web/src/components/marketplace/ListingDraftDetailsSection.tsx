@@ -97,6 +97,7 @@ export function ListingDraftDetailsSection({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [conditionHighlight, setConditionHighlight] = useState(false);
 
   useEffect(() => {
     setTitleDraft(initialTitle ?? "");
@@ -149,6 +150,13 @@ export function ListingDraftDetailsSection({
 
   const handleSave = async () => {
     if (saving) return;
+    if (!condition.trim()) {
+      setConditionHighlight(true);
+      setError("Choose a condition above, then save again. The review step only appears after condition is saved.");
+      setSuccess(null);
+      return;
+    }
+    setConditionHighlight(false);
     setSaving(true);
     setError(null);
     setSuccess(null);
@@ -196,7 +204,7 @@ export function ListingDraftDetailsSection({
         condition: savedCondition || null,
         detailsJson: savedDetails,
       });
-      setSuccess(payload?.message ?? "Draft details saved.");
+      setSuccess("Draft details saved. The review step is ready below.");
     } catch (saveError) {
       setError(
         saveError instanceof Error ? saveError.message : "Your edits couldn’t be saved. Please try again."
@@ -278,12 +286,21 @@ export function ListingDraftDetailsSection({
               />
             </div>
 
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-[#1A1E23]">Condition</p>
-              <p className="text-xs text-[#5C646D]">
-                Condition is your judgement — Ember can’t confirm this from a photo.
+            <div
+              className={`space-y-2 rounded-xl p-3 -mx-1 ${
+                conditionHighlight && !condition.trim()
+                  ? "border border-amber-300 bg-amber-50/80"
+                  : "border border-transparent"
+              }`}
+            >
+              <p className="text-sm font-medium text-[#1A1E23]">
+                Condition <span className="font-normal text-[#5C646D]">(required)</span>
               </p>
-              <div className="flex flex-wrap gap-2">
+              <p className="text-xs text-[#5C646D]">
+                Pick the option that best matches the item. Ember can suggest one, but only you can
+                confirm it — the review step unlocks after you save with a condition chosen.
+              </p>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Item condition">
                 {CONDITION_OPTIONS.map((option) => (
                   <label
                     key={option.value}
@@ -298,15 +315,27 @@ export function ListingDraftDetailsSection({
                       name="listing-condition"
                       value={option.value}
                       checked={condition === option.value}
-                      onChange={() => setCondition(option.value)}
+                      onChange={() => {
+                        setCondition(option.value);
+                        setConditionHighlight(false);
+                        setError(null);
+                      }}
                       className="sr-only"
                     />
                     {option.label}
                   </label>
                 ))}
               </div>
+              {!condition.trim() && (
+                <p className="text-xs text-amber-900">
+                  No condition selected yet — choose one before tapping &ldquo;Save draft details&rdquo;.
+                </p>
+              )}
               {detailsJson?.condition_suggestion && (
-                <p className="text-xs text-[#5C646D]">Suggestion: {detailsJson.condition_suggestion}</p>
+                <p className="text-xs text-[#5C646D]">
+                  Ember&apos;s suggestion (not saved until you pick an option):{" "}
+                  {detailsJson.condition_suggestion}
+                </p>
               )}
             </div>
 
@@ -378,14 +407,7 @@ export function ListingDraftDetailsSection({
             </button>
           </div>
 
-          {success && (
-            <div className="space-y-1">
-              <p className="text-sm text-emerald-700">{success}</p>
-              <p className="text-xs text-[#5C646D]">
-                Next: review your draft below, then price guidance when available.
-              </p>
-            </div>
-          )}
+          {success && <p className="text-sm text-emerald-700">{success}</p>}
         </>
       )}
 
