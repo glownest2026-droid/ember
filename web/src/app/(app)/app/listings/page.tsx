@@ -625,6 +625,7 @@ export default function AppListingsPhotoDraftPage() {
       onSelectCandidate={handleSelectCandidate}
       draftDetails={draftDetails}
       itemConfirmed={itemConfirmed}
+      detailsSavedOnce={detailsSavedOnce}
       onDetailsSaved={(saved) => {
         setDraftDetails((prev) => ({
           ...prev,
@@ -636,6 +637,14 @@ export default function AppListingsPhotoDraftPage() {
         setDraftReview(getReviewFromDetailsJson(saved.detailsJson));
         setDetailsSavedOnce(true);
         setEditStep(null);
+        if (saved.condition?.trim()) {
+          requestAnimationFrame(() => {
+            document.getElementById("listing-step-review")?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          });
+        }
       }}
       draftReview={draftReview}
       onReviewUpdated={(review) => {
@@ -649,11 +658,18 @@ export default function AppListingsPhotoDraftPage() {
       defaultPostcode={defaultPostcode}
       opportunityLoaded={opportunityLoaded}
       publishedBeta={publishedBeta}
+      publishedListingId={publishedListingId}
       onOpportunityLoaded={() => setOpportunityLoaded(true)}
       onPublished={(listingId) => {
         setPublishedBeta(true);
         setPublishedListingId(listingId);
         setEditStep(null);
+        requestAnimationFrame(() => {
+          document.getElementById("listing-flow-complete")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
       }}
     />
   );

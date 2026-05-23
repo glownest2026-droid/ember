@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { LocalOpportunityMapCard } from "@/components/marketplace/LocalOpportunityMapCard";
 import type { OpportunityPayload } from "@/lib/marketplace/beta-listing-types";
 import { formatPriceRange, priceConfidenceLabel } from "@/lib/marketplace/beta-listing-display";
@@ -9,6 +10,7 @@ type Props = {
   draftId: string;
   defaultAreaLabel?: string | null;
   defaultPostcode?: string | null;
+  initialPublishedListingId?: string | null;
   onPublished: (listingId: string) => void;
   onOpportunityLoaded?: () => void;
 };
@@ -27,6 +29,7 @@ export function ListingOpportunitySection({
   draftId,
   defaultAreaLabel,
   defaultPostcode,
+  initialPublishedListingId = null,
   onPublished,
   onOpportunityLoaded,
 }: Props) {
@@ -36,7 +39,11 @@ export function ListingOpportunitySection({
   const [opportunity, setOpportunity] = useState<OpportunityPayload | null>(null);
   const [areaLabel, setAreaLabel] = useState(defaultAreaLabel ?? "");
   const [postcode, setPostcode] = useState(defaultPostcode ?? "");
-  const [publishedId, setPublishedId] = useState<string | null>(null);
+  const [publishedId, setPublishedId] = useState<string | null>(initialPublishedListingId);
+
+  useEffect(() => {
+    if (initialPublishedListingId) setPublishedId(initialPublishedListingId);
+  }, [initialPublishedListingId]);
 
   const loadOpportunity = async () => {
     setLoading(true);
@@ -98,9 +105,9 @@ export function ListingOpportunitySection({
         <p className="text-sm text-emerald-800">
           Messaging is coming later. For now, we&apos;ll let you know when a parent is interested.
         </p>
-        <a href="/app/marketplace" className="inline-flex text-sm text-primary underline">
-          View marketplace
-        </a>
+        <Link href="/app/marketplace" className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white">
+          Go to marketplace
+        </Link>
       </div>
     );
   }

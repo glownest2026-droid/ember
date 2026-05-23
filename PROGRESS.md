@@ -3042,3 +3042,17 @@ Category-only cards remain publishable.
 
 ### Next module handoff
 - Branch: `feat/marketplace-masked-chat`
+
+## 2026-05-23 — Listing flow UX: condition + post-publish CTA
+
+### Summary
+- **Condition (step 3):** Labelled required; inline hint that review unlocks only after save with condition; amber highlight + clearer error if save attempted without selection; Ember suggestion labelled as not saved until a pill is chosen.
+- **Post-publish dead-end:** When all steps collapse after beta publish, show “You’re all set” card with **Go to marketplace** (`#listing-flow-complete`); step 5 collapsed summary also links to marketplace; header/footer copy updates when listed (no misleading “private until you continue”).
+- **Save without condition:** Blocked client-side with explicit message (review step hidden until condition saved).
+
+### Files
+- `ListingDraftDetailsSection.tsx`, `CreateListingFlowView.tsx`, `ListingOpportunitySection.tsx`, `app/listings/page.tsx`
+
+### Verification
+- Build: pass
+- Manual: save without condition → error + highlight; pick condition + save → step 4 appears; after publish → green completion card + marketplace button visible without expanding step 5
