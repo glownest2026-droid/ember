@@ -273,8 +273,9 @@ export default function MarketplacePage() {
               selectedChildName={selectedChildName}
               ageBandLabel={ageBandLabel}
               onListItem={() => setListingModalOpen(true)}
+              viewMarketplaceHref="/app/marketplace"
             />
-            <div className="mt-4 max-w-xl">
+            <div className="mt-4 w-full">
               <MarketplaceYourPostcode />
             </div>
           </div>

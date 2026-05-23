@@ -103,6 +103,16 @@ type ConfirmedDraftState = {
   displayLabel: string | null;
 };
 
+type PublishedListingRow = {
+  id: string;
+  source_draft_id: string | null;
+  title: string | null;
+  description: string | null;
+  condition: string | null;
+  item_label: string | null;
+  image_storage_path: string | null;
+};
+
 function getFileExtension(file: File): string {
   const fromName = file.name.split(".").pop()?.toLowerCase();
   if (fromName) return fromName;
@@ -175,7 +185,9 @@ function AppListingsPhotoDraftPage() {
   }, [possibleBrand, confirmedDraft?.displayLabel]);
 
   const itemConfirmed = Boolean(
-    confirmedDraft?.status === "confirmed" && confirmedDraft.productTypeId
+    flowMode === "edit-published"
+      ? confirmedDraft?.displayLabel?.trim()
+      : confirmedDraft?.status === "confirmed" && confirmedDraft.productTypeId
   );
 
   const flow = useMemo(
@@ -296,6 +308,91 @@ function AppListingsPhotoDraftPage() {
     setPublishedListingId(null);
   }, []);
 
+  const hydratePublishedListingForEdit = useCallback(
+    async (
+      supabase: ReturnType<typeof createClient>,
+      userId: string,
+      listing: PublishedListingRow,
+      draft: DraftRow
+    ) => {
+      const imagePath = listing.image_storage_path?.trim() || draft.image_storage_path;
+      const title = listing.title?.trim() || draft.title_draft;
+      const description = listing.description?.trim() || draft.description_draft;
+      const condition = listing.condition?.trim() || draft.condition_confirmed_by_user;
+
+      const draftNeedsSync =
+        (title && draft.title_draft !== title) ||
+        (description && draft.description_draft !== description) ||
+        (condition && draft.condition_confirmed_by_user !== condition) ||
+        (imagePath && draft.image_storage_path !== imagePath);
+
+      if (draftNeedsSync) {
+        await supabase
+          .from("marketplace_listing_drafts")
+          .update({
+            title_draft: title ?? draft.title_draft,
+            description_draft: description ?? draft.description_draft,
+            condition_confirmed_by_user: condition ?? draft.condition_confirmed_by_user,
+            ...(imagePath ? { image_storage_path: imagePath } : {}),
+          })
+          .eq("id", draft.id)
+          .eq("user_id", userId);
+      }
+
+      setDraftId(draft.id);
+      setImageStoragePath(imagePath);
+      setDraftDetails({
+        title: title ?? null,
+        description: description ?? null,
+        condition: condition ?? null,
+        detailsJson: draft.listing_draft_details_json,
+        generatedAt: draft.listing_details_generated_at,
+      });
+      setDraftReview(getReviewFromDetailsJson(draft.listing_draft_details_json));
+      setDetailsSavedOnce(Boolean(condition?.trim()));
+      setPossibleBrand(draft.ai_raw_response_json?.analysis?.possible_brand?.trim() ?? null);
+
+      const displayLabel =
+        listing.item_label?.trim() ||
+        draft.ai_raw_response_json?.parent_confirmed_display_label?.trim() ||
+        draft.ai_raw_response_json?.analysis?.detected_item_label?.trim() ||
+        draft.ai_detected_label?.trim() ||
+        null;
+
+      if (draft.product_type_id) {
+        const { data: productType } = await supabase
+          .from("product_types")
+          .select("label")
+          .eq("id", draft.product_type_id)
+          .maybeSingle();
+        setConfirmedDraft({
+          status: "confirmed",
+          productTypeId: draft.product_type_id,
+          label: productType?.label ?? null,
+          displayLabel,
+        });
+      } else {
+        setConfirmedDraft({
+          status: "confirmed",
+          productTypeId: null,
+          label: null,
+          displayLabel,
+        });
+      }
+
+      setSelectionMessage("Editing your live listing.");
+
+      if (imagePath) {
+        await refreshSignedPreview(imagePath);
+      }
+
+      setPublishedBeta(true);
+      setPublishedListingId(listing.id);
+      setOpportunityLoaded(true);
+    },
+    [refreshSignedPreview]
+  );
+
   const hydrateDraftRow = useCallback(
     async (supabase: ReturnType<typeof createClient>, latest: DraftRow, publishedListingId: string | null) => {
       setDraftId(latest.id);
@@ -396,7 +493,9 @@ function AppListingsPhotoDraftPage() {
       if (editListingId) {
         const { data: listing, error: listingError } = await supabase
           .from("marketplace_listings")
-          .select("id, source_draft_id, status")
+          .select(
+            "id, source_draft_id, title, description, condition, item_label, image_storage_path, status"
+          )
           .eq("id", editListingId)
           .eq("user_id", authUser.id)
           .eq("status", "published_beta")
@@ -404,21 +503,32 @@ function AppListingsPhotoDraftPage() {
 
         if (!active) return;
 
-        if (listingError || !listing?.source_draft_id) {
+        if (listingError || !listing) {
           setError("That listing could not be loaded for editing.");
           resetToNewListingState();
           setLoading(false);
           return;
         }
 
-        const { data: draft, error: draftError } = await supabase
+        let draftQuery = supabase
           .from("marketplace_listing_drafts")
           .select(
             "id, image_storage_path, product_type_id, status, title_draft, description_draft, condition_confirmed_by_user, listing_draft_details_json, listing_details_generated_at, ai_detected_label, ai_raw_response_json"
           )
-          .eq("id", listing.source_draft_id)
-          .eq("user_id", authUser.id)
-          .maybeSingle();
+          .eq("user_id", authUser.id);
+
+        if (listing.source_draft_id) {
+          draftQuery = draftQuery.eq("id", listing.source_draft_id);
+        } else if (listing.image_storage_path) {
+          draftQuery = draftQuery.eq("image_storage_path", listing.image_storage_path);
+        } else {
+          setError("This listing is missing its draft link. Contact support.");
+          resetToNewListingState();
+          setLoading(false);
+          return;
+        }
+
+        const { data: draft, error: draftError } = await draftQuery.maybeSingle();
 
         if (!active) return;
 
@@ -430,7 +540,12 @@ function AppListingsPhotoDraftPage() {
         }
 
         setFlowMode("edit-published");
-        await hydrateDraftRow(supabase, draft as DraftRow, listing.id);
+        await hydratePublishedListingForEdit(
+          supabase,
+          authUser.id,
+          listing as PublishedListingRow,
+          draft as DraftRow
+        );
         if (active) setLoading(false);
         return;
       }
@@ -479,6 +594,7 @@ function AppListingsPhotoDraftPage() {
     refreshSignedPreview,
     resetToNewListingState,
     hydrateDraftRow,
+    hydratePublishedListingForEdit,
     loadMarketplacePrefs,
   ]);
 
