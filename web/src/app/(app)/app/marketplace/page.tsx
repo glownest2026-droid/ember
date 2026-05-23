@@ -191,15 +191,20 @@ export default function AppMarketplacePage() {
           <ul className="space-y-3">
             {mine.map((listing) => (
               <li key={listing.id} className="rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-4 space-y-2">
-                <p className="font-medium text-[#1A1E23]">{listing.title ?? listing.item_label}</p>
-                <p className="text-sm text-[#5C646D]">Live to nearby families</p>
-                <p className="text-sm text-[#1A1E23]">
-                  {(listing.interest_count ?? 0) === 0
-                    ? "No interest yet"
-                    : listing.interest_count === 1
-                      ? "1 parent is interested"
-                      : `${listing.interest_count} parents are interested`}
-                </p>
+                <div className="flex gap-3">
+                  <ListingPhoto listingId={listing.id} />
+                  <div className="min-w-0 space-y-1">
+                    <p className="font-medium text-[#1A1E23]">{listing.title ?? listing.item_label}</p>
+                    <p className="text-sm text-[#5C646D]">Live to nearby families</p>
+                    <p className="text-sm text-[#1A1E23]">
+                      {(listing.interest_count ?? 0) === 0
+                        ? "No interest yet"
+                        : listing.interest_count === 1
+                          ? "1 parent is interested"
+                          : `${listing.interest_count} parents are interested`}
+                    </p>
+                  </div>
+                </div>
                 <Link
                   href={`/app/listings?edit=${listing.id}`}
                   className="inline-flex text-sm font-medium text-primary underline"

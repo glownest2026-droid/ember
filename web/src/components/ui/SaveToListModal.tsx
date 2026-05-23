@@ -397,20 +397,20 @@ export function SaveToListModal({
           </>
         ) : step === 'choose' ? (
           <>
-            <h2 id="save-modal-title" className="text-lg font-semibold mb-1" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
+            <h2 id="save-modal-title" className="text-lg font-semibold mb-1" style={{ fontFamily: titleFont, color: textHigh }}>
               Save to your list
             </h2>
-            <p id="save-modal-desc" className="text-sm mb-4" style={{ ...baseStyle, color: 'var(--ember-text-low)' }}>
+            <p id="save-modal-desc" className="text-sm mb-4" style={{ ...baseStyle, color: textLow }}>
               Sign in to save ideas and build your list.
             </p>
             <div className="flex flex-col gap-3">
               {AUTH_ENABLE_APPLE && (
-                <button type="button" onClick={() => handleOAuth('apple')} data-auth-modal-focus className="min-h-[44px] rounded-lg border font-medium text-sm w-full flex items-center justify-center gap-2" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', ...baseStyle }}>
+                <button type="button" onClick={() => handleOAuth('apple')} data-auth-modal-focus className="min-h-[44px] rounded-lg border font-medium text-sm w-full flex items-center justify-center gap-2" style={{ borderColor: border, backgroundColor: surface, color: textHigh, ...baseStyle }}>
                   Continue with Apple
                 </button>
               )}
               {AUTH_ENABLE_GOOGLE && (
-                <button type="button" onClick={() => handleOAuth('google')} className="min-h-[44px] rounded-lg border font-medium text-sm w-full flex items-center justify-center gap-2" style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', ...baseStyle }}>
+                <button type="button" onClick={() => handleOAuth('google')} className="min-h-[44px] rounded-lg border font-medium text-sm w-full flex items-center justify-center gap-2" style={{ borderColor: border, backgroundColor: surface, color: textHigh, ...baseStyle }}>
                   <GoogleMark />
                   Continue with Google
                 </button>
@@ -425,31 +425,31 @@ export function SaveToListModal({
                     setStep('email');
                   }}
                   className="min-h-[44px] rounded-lg border font-medium text-sm w-full"
-                  style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', ...baseStyle }}
+                  style={{ borderColor: border, backgroundColor: surface, color: textHigh, ...baseStyle }}
                 >
                   Continue with Email
                 </button>
               )}
             </div>
-            <div className="mt-4 pt-3 border-t" style={{ borderColor: 'var(--ember-border-subtle)' }}>
-              <Link href={signinUrl} onClick={handleClose} className="text-sm opacity-70 hover:opacity-100 underline" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+            <div className="mt-4 pt-3 border-t" style={{ borderColor: border }}>
+              <Link href={signinUrl} onClick={handleClose} className="text-sm opacity-70 hover:opacity-100 underline" style={{ color: textLow, ...baseStyle }}>
                 I already have an account
               </Link>
             </div>
-            <button type="button" onClick={handleClose} className="mt-2 block text-sm opacity-70 hover:opacity-100 w-full text-left" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+            <button type="button" onClick={handleClose} className="mt-2 block text-sm opacity-70 hover:opacity-100 w-full text-left" style={{ color: textLow, ...baseStyle }}>
               Not now
             </button>
           </>
         ) : step === 'email' ? (
           <>
-            <h2 id="save-modal-title" className="text-lg font-semibold mb-1" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
+            <h2 id="save-modal-title" className="text-lg font-semibold mb-1" style={{ fontFamily: titleFont, color: textHigh }}>
               Save to your list
             </h2>
-            <p id="save-modal-desc" className="text-sm mb-4" style={{ ...baseStyle, color: 'var(--ember-text-low)' }}>
+            <p id="save-modal-desc" className="text-sm mb-4" style={{ ...baseStyle, color: textLow }}>
               Sign in to save ideas and build your list.
             </p>
             <form onSubmit={handleSendCode} className="flex flex-col gap-3">
-              <label htmlFor="save-modal-email" className="block text-sm font-medium" style={{ color: 'var(--ember-text-high)', ...baseStyle }}>
+              <label htmlFor="save-modal-email" className="block text-sm font-medium" style={{ color: textHigh, ...baseStyle }}>
                 Email address
               </label>
               <input
@@ -462,14 +462,14 @@ export function SaveToListModal({
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 className="w-full min-h-[44px] rounded-lg border px-3 text-sm"
-                style={{ borderColor: error ? '#dc2626' : 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', ...baseStyle }}
+                style={{ borderColor: error ? '#dc2626' : border, backgroundColor: surface, color: textHigh, ...baseStyle }}
                 disabled={loading}
               />
               {error && (
                 <div className="space-y-1">
                   <p className="text-sm" style={{ color: '#dc2626', ...baseStyle }}>{error}</p>
                   {errorHint && (
-                    <p className="text-sm" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>{errorHint}</p>
+                    <p className="text-sm" style={{ color: textLow, ...baseStyle }}>{errorHint}</p>
                   )}
                 </div>
               )}
@@ -477,30 +477,30 @@ export function SaveToListModal({
                 type="submit"
                 disabled={!emailValid || loading || sendErrorCooldown > 0}
                 className="min-h-[44px] rounded-lg font-medium text-sm w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ border: 'none', backgroundColor: 'var(--ember-accent-base)', color: 'white', ...baseStyle }}
+                style={{ border: 'none', backgroundColor: accent, color: 'white', ...baseStyle }}
               >
                 {loading ? 'Sending…' : sendErrorCooldown > 0 ? `Try again in ${sendErrorCooldown}s` : 'Send code'}
               </button>
             </form>
-            <button type="button" onClick={() => setStep('choose')} className="mt-3 text-sm opacity-70 hover:opacity-100" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+            <button type="button" onClick={() => setStep('choose')} className="mt-3 text-sm opacity-70 hover:opacity-100" style={{ color: textLow, ...baseStyle }}>
               Back
             </button>
           </>
         ) : step === 'success' ? (
           <>
-            <h2 id="save-modal-title" className="text-lg font-semibold mb-2" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
+            <h2 id="save-modal-title" className="text-lg font-semibold mb-2" style={{ fontFamily: titleFont, color: textHigh }}>
               You&apos;re signed in
             </h2>
-            <p id="save-modal-desc" className="text-sm" style={{ ...baseStyle, color: 'var(--ember-text-low)' }}>
+            <p id="save-modal-desc" className="text-sm" style={{ ...baseStyle, color: textLow }}>
               Nice — you can save ideas now.
             </p>
           </>
         ) : step === 'code' ? (
           <>
-            <h2 id="save-modal-title" className="text-lg font-semibold mb-1" style={{ fontFamily: 'var(--font-serif)', color: 'var(--ember-text-high)' }}>
+            <h2 id="save-modal-title" className="text-lg font-semibold mb-1" style={{ fontFamily: titleFont, color: textHigh }}>
               Enter your code
             </h2>
-            <p id="save-modal-desc" className="text-sm mb-4" style={{ ...baseStyle, color: 'var(--ember-text-low)' }}>
+            <p id="save-modal-desc" className="text-sm mb-4" style={{ ...baseStyle, color: textLow }}>
               Check your email for a 6-digit code. We sent it to {email}.
             </p>
             <form onSubmit={handleVerifyCode} className="flex flex-col gap-3">
@@ -516,21 +516,21 @@ export function SaveToListModal({
                     value={codeDigits[i]}
                     onChange={(e) => setCodeDigit(i, e.target.value)}
                     className="w-10 h-12 rounded-lg border text-center text-lg"
-                    style={{ borderColor: 'var(--ember-border-subtle)', backgroundColor: 'var(--ember-surface-primary)', color: 'var(--ember-text-high)', ...baseStyle }}
+                    style={{ borderColor: border, backgroundColor: surface, color: textHigh, ...baseStyle }}
                     disabled={loading}
                     aria-label={`Digit ${i + 1}`}
                   />
                 ))}
               </div>
               {error && <p className="text-sm" style={{ color: '#dc2626', ...baseStyle }}>{error}</p>}
-              <button type="submit" disabled={!codeValid || loading} className="min-h-[44px] rounded-lg font-medium text-sm w-full disabled:opacity-50 disabled:cursor-not-allowed" style={{ border: 'none', backgroundColor: 'var(--ember-accent-base)', color: 'white', ...baseStyle }}>
+              <button type="submit" disabled={!codeValid || loading} className="min-h-[44px] rounded-lg font-medium text-sm w-full disabled:opacity-50 disabled:cursor-not-allowed" style={{ border: 'none', backgroundColor: accent, color: 'white', ...baseStyle }}>
                 {loading ? 'Verifying…' : 'Verify code'}
               </button>
               <div className="flex flex-wrap gap-2 justify-center text-sm">
-                <button type="button" onClick={() => { setStep('email'); setError(null); setCodeDigits(Array(6).fill('')); }} className="opacity-70 hover:opacity-100 underline" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+                <button type="button" onClick={() => { setStep('email'); setError(null); setCodeDigits(Array(6).fill('')); }} className="opacity-70 hover:opacity-100 underline" style={{ color: textLow, ...baseStyle }}>
                   Change email
                 </button>
-                <button type="button" onClick={handleResend} disabled={resendCooldown > 0 || loading} className="opacity-70 hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed" style={{ color: 'var(--ember-text-low)', ...baseStyle }}>
+                <button type="button" onClick={handleResend} disabled={resendCooldown > 0 || loading} className="opacity-70 hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed" style={{ color: textLow, ...baseStyle }}>
                   {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
                 </button>
               </div>

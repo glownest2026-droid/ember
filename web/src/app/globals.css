@@ -88,9 +88,9 @@
   --ember-radius-card: 12px;
   --ember-shadow-ambient: 0px 4px 24px rgba(0, 0, 0, 0.04);
   --ember-glow-active: 0px 0px 16px rgba(255, 99, 71, 0.4);
-  /* Typography (ThemeProvider loads Source Serif 4 + IBM Plex Mono) */
+  /* Typography (Discover Manrope is the sitewide font; ThemeProvider loads legacy fallbacks too) */
   --font-serif: var(--font-sourceserif4), "Source Serif 4", ui-serif, Georgia, serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-ibmplexmono), ui-monospace, monospace;
   /* Motion (spec: 250ms, cubic-bezier(0.4, 0, 0.2, 1)) */
   --ember-motion-duration: 250ms;

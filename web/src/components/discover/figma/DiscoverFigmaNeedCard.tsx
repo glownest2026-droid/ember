@@ -45,7 +45,7 @@ export function DiscoverFigmaNeedCard({
           isSelected && !disabled ? 'bg-white shadow-sm' : 'bg-[#FBFAF7] border border-[#E7E2DC]'
         }`}
       >
-        <Icon size={24} strokeWidth={isSelected ? 2.5 : 2} className="text-[#FF5C34]" />
+        <Icon size={24} strokeWidth={isSelected ? 2.5 : 2} className="text-[var(--ember-accent-base)]" />
       </div>
       <h3 className="font-bold text-[17px] text-[#253044] leading-tight">{title}</h3>
       {description.trim() ? (
