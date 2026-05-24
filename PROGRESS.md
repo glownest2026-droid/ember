@@ -3154,6 +3154,36 @@ Category-only cards remain publishable.
 - Geospatial modelling can be strengthened later with PostGIS/H3/geohash.
 - Map card is currently provider-light and illustrative.
 
+## 2026-05-24 — PR8 Patch: Real Mapbox Marketplace Map
+
+### Summary
+- Upgraded PR8 from illustrative map card to real Mapbox-backed marketplace map.
+- `/app/marketplace` now shows a real local map when `NEXT_PUBLIC_MAPBOX_TOKEN` is configured.
+- Added approximate listing markers and 5-mile viewer radius.
+- Added marker/listing selection interaction.
+- Existing `OpportunityMapCard` remains as fallback when token or coordinates are unavailable.
+- No exact addresses, full postcodes, household pins, buyer identities or child/family data exposed.
+
+### Founder setup
+- Required env var: `NEXT_PUBLIC_MAPBOX_TOKEN`
+- Vercel: Project → Settings → Environment Variables → Preview and Production → redeploy after adding
+- Missing token: fallback visual renders
+
+### Location model
+- Map uses approximate listing coordinates with deterministic jitter.
+- Area centroids for known beta areas (e.g. SL4 / Windsor) when coords missing.
+- Full postcode used only for matching/editing, not buyer-facing map display.
+- Known debt: centroid coverage / geospatial modelling to expand as marketplace grows.
+
+### Verification
+- Build: pass
+- PR8 smoke: pass
+- PR7 chat regression: pass
+- Real map with token: depends on Vercel env (founder must add token + redeploy)
+- Fallback without token: pass
+- Marker/listing interaction: pass (code)
+- Privacy checks: pass
+
 ## 2026-05-23 — Snag pack: listings images + discover polish
 
 ### Summary

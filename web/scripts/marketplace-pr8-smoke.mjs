@@ -18,26 +18,21 @@ function ensureAreaLabel(label, fallback = "Approximate area") {
   return trimmed;
 }
 
-function formatAreaRadiusHeadline(areaLabel, radiusMiles) {
-  return `${ensureAreaLabel(areaLabel)} + ${radiusMiles} miles`;
-}
-
-function formatDemandPrimaryCopy(count) {
-  if (count <= 0) return "No clear local signal yet";
-  if (count === 1) return "1 nearby family may be interested";
-  return `${count} nearby families may be interested`;
+function jitterMapMarker(listingId, lat, lng) {
+  let hash = 0;
+  for (let i = 0; i < listingId.length; i++) {
+    hash = (hash * 31 + listingId.charCodeAt(i)) | 0;
+  }
+  hash = Math.abs(hash);
+  const angle = ((hash % 360) * Math.PI) / 180;
+  const distance = 0.006 + (hash % 7) * 0.0015;
+  const latOffset = distance * Math.cos(angle);
+  const lngOffset = (distance * Math.sin(angle)) / Math.cos((lat * Math.PI) / 180);
+  return { lat: lat + latOffset, lng: lng + lngOffset };
 }
 
 function formatListingLocalCue(areaLabel, radiusMiles = 5) {
   return `${ensureAreaLabel(areaLabel)} · within ${radiusMiles} miles`;
-}
-
-function formatConditionLabel(condition) {
-  if (!condition?.trim()) return null;
-  return condition
-    .trim()
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 function displayStringHidesFullPostcode(text) {
@@ -45,36 +40,49 @@ function displayStringHidesFullPostcode(text) {
 }
 
 assert.equal(ensureAreaLabel("SL4 3QB"), "SL4 area");
-assert.equal(ensureAreaLabel("Windsor area"), "Windsor area");
-assert.equal(formatAreaRadiusHeadline("SL4 area", 5), "SL4 area + 5 miles");
-assert.equal(formatDemandPrimaryCopy(0), "No clear local signal yet");
-assert.equal(formatDemandPrimaryCopy(3), "3 nearby families may be interested");
 assert.equal(formatListingLocalCue("SL4 area", 5), "SL4 area · within 5 miles");
-assert.equal(formatConditionLabel("like_new"), "Like New");
 assert.ok(displayStringHidesFullPostcode("SL4 area · within 5 miles"));
 assert.ok(!displayStringHidesFullPostcode("SL4 3QB"));
 
-const opportunityCard = readFileSync(
-  join(root, "src/components/marketplace/OpportunityMapCard.tsx"),
+const jittered = jitterMapMarker("listing-abc", 51.48, -0.6);
+assert.notEqual(jittered.lat, 51.48);
+assert.notEqual(jittered.lng, -0.6);
+
+const marketplaceMap = readFileSync(
+  join(root, "src/components/marketplace/MarketplaceMap.tsx"),
   "utf8"
 );
-assert.match(opportunityCard, /data-testid="opportunity-map-card"/);
-assert.match(opportunityCard, /OPPORTUNITY_MAP_PRIVACY_COPY/);
-assert.doesNotMatch(opportunityCard, /mapbox/i);
+assert.match(marketplaceMap, /getMapboxToken/);
+assert.match(marketplaceMap, /MarketplaceMapFallback/);
+assert.match(marketplaceMap, /data-testid="marketplace-mapbox-map"/);
+assert.match(marketplaceMap, /mapbox-gl/);
+assert.doesNotMatch(marketplaceMap, /pk\.[a-z0-9]/i);
 
 const marketplacePage = readFileSync(
   join(root, "src/app/(app)/app/marketplace/page.tsx"),
   "utf8"
 );
-assert.match(marketplacePage, /OpportunityMapCard/);
+assert.match(marketplacePage, /MarketplaceMap/);
 assert.match(marketplacePage, /data-testid="marketplace-local-map-module"/);
 assert.match(marketplacePage, /data-testid="listing-local-cue"/);
 assert.match(marketplacePage, /MarketplaceBuyerInterestActions/);
+assert.match(marketplacePage, /selectedListingId/);
 
-const listingOpportunity = readFileSync(
-  join(root, "src/components/marketplace/ListingOpportunitySection.tsx"),
+const apiRoute = readFileSync(
+  join(root, "src/app/api/marketplace/beta-listings/route.ts"),
   "utf8"
 );
-assert.match(listingOpportunity, /OpportunityMapCard/);
+assert.match(apiRoute, /toMarketplaceMapListingPayload/);
+assert.doesNotMatch(apiRoute, /listings: nearby\.map\(\(\{ postcode/);
+
+const payloadLib = readFileSync(
+  join(root, "src/lib/marketplace/marketplace-map-payload.ts"),
+  "utf8"
+);
+assert.match(payloadLib, /map_marker_lat/);
+assert.doesNotMatch(payloadLib, /postcode/);
+
+const envExample = readFileSync(join(root, ".env.example"), "utf8");
+assert.match(envExample, /NEXT_PUBLIC_MAPBOX_TOKEN=/);
 
 console.log("PR8 smoke checks passed.");

@@ -1,5 +1,6 @@
 /* web/src/app/globals.css */
 @import "tailwindcss";
+@import "mapbox-gl/dist/mapbox-gl.css";
 
 
 /* Brand tokens */
