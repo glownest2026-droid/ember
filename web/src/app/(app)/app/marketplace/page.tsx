@@ -2,10 +2,15 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { OpportunityMapCard } from "@/components/marketplace/OpportunityMapCard";
 import { MarketplaceBuyerInterestActions } from "@/components/marketplace/MarketplaceBuyerInterestActions";
 import { MarketplaceYourPostcode } from "@/components/marketplace/MarketplaceYourPostcode";
 import { SellerListingInterests } from "@/components/marketplace/SellerListingInterests";
-import { formatPriceRange } from "@/lib/marketplace/beta-listing-display";
+import {
+  formatConditionLabel,
+  formatPriceRange,
+} from "@/lib/marketplace/beta-listing-display";
+import { formatListingLocalCue } from "@/lib/marketplace/opportunity-map-display";
 import type { PriceGuidance } from "@/lib/marketplace/beta-listing-types";
 type ListingCard = {
   id: string;
@@ -17,6 +22,7 @@ type ListingCard = {
   price_high: number | null;
   price_currency: string | null;
   approximate_area_label: string | null;
+  radius_miles?: number | null;
   status: string;
   interest_count?: number;
   buyer_interested?: boolean;
@@ -64,6 +70,8 @@ export default function AppMarketplacePage() {
   const [mine, setMine] = useState<ListingCard[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [buyerHasPostcode, setBuyerHasPostcode] = useState(true);
+  const [buyerAreaLabel, setBuyerAreaLabel] = useState<string>("Approximate area");
+  const [buyerRadiusMiles, setBuyerRadiusMiles] = useState(5);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -76,6 +84,8 @@ export default function AppMarketplacePage() {
       const nearbyPayload = await parseJson<{
         listings?: ListingCard[];
         buyer_has_postcode?: boolean;
+        buyer_area_label?: string | null;
+        buyer_radius_miles?: number;
         error?: string;
       }>(nearbyRes);
       const minePayload = await parseJson<{ listings?: ListingCard[]; error?: string }>(mineRes);
@@ -83,6 +93,8 @@ export default function AppMarketplacePage() {
       if (!mineRes.ok) throw new Error(minePayload?.error ?? "Could not load your listings.");
       setNearby(nearbyPayload?.listings ?? []);
       setBuyerHasPostcode(nearbyPayload?.buyer_has_postcode !== false);
+      setBuyerAreaLabel(nearbyPayload?.buyer_area_label?.trim() || "Approximate area");
+      setBuyerRadiusMiles(nearbyPayload?.buyer_radius_miles ?? 5);
       setMine(minePayload?.listings ?? []);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Could not load marketplace.");
@@ -118,6 +130,22 @@ export default function AppMarketplacePage() {
 
       <MarketplaceYourPostcode onPreferencesSaved={() => void load()} />
 
+      <section className="space-y-3" data-testid="marketplace-local-map-module">
+        <h2 className="text-lg font-medium text-[#1A1E23]">Your local marketplace</h2>
+        <p className="text-sm text-[#5C646D]">
+          Showing listings around {buyerAreaLabel} within {buyerRadiusMiles} miles.
+        </p>
+        <OpportunityMapCard
+          mode="marketplace"
+          title="Nearby marketplace"
+          approximateAreaLabel={buyerAreaLabel}
+          radiusMiles={buyerRadiusMiles}
+          totalMayBeInterestedCount={0}
+          nearbyListingCount={nearby.length}
+          compact={false}
+        />
+      </section>
+
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <section className="space-y-3">
@@ -140,6 +168,11 @@ export default function AppMarketplacePage() {
                 explanation: "",
                 caveats: [],
               };
+              const conditionLabel = formatConditionLabel(listing.condition);
+              const localCue = formatListingLocalCue(
+                listing.approximate_area_label,
+                listing.radius_miles
+              );
               return (
                 <li key={listing.id} className="rounded-xl border border-[#E5E7EB] bg-white p-4">
                   <div className="flex gap-3">
@@ -147,9 +180,14 @@ export default function AppMarketplacePage() {
                     <div className="min-w-0 space-y-1">
                       <p className="font-medium text-[#1A1E23]">{listing.title ?? listing.item_label}</p>
                       <p className="text-sm text-[#5C646D]">
-                        {formatPriceRange(price) ?? "Price on request"} · {listing.approximate_area_label}
+                        {formatPriceRange(price) ?? "Price on request"}
                       </p>
-                      <p className="text-xs text-[#5C646D]">Condition: {listing.condition}</p>
+                      <p className="text-xs text-[#5C646D]" data-testid="listing-local-cue">
+                        {localCue}
+                      </p>
+                      {conditionLabel ? (
+                        <p className="text-xs text-[#5C646D]">Condition: {conditionLabel}</p>
+                      ) : null}
                     </div>
                   </div>
                   <MarketplaceBuyerInterestActions

@@ -3120,6 +3120,40 @@ Category-only cards remain publishable.
 ### Next module handoff
 - Branch: `feat/marketplace-safety-moderation`
 
+## 2026-05-24 — PR8: Marketplace Map & Demand Visual Layer
+
+### Summary
+- Added provider-light Ember Opportunity Map card.
+- Seller opportunity flow now shows local area, radius, demand signal and privacy-safe map visual.
+- Marketplace page now includes a local marketplace/map module above Nearby listings.
+- Published listing cards now show compact approximate area/radius cue.
+- Normal marketplace UI avoids exact postcode/address display.
+- No exact pins, addresses, buyer identities or child/family data shown.
+- Mapbox remains optional/deferred unless already configured.
+
+### Product decision
+- First map version is an approximate opportunity visual, not a literal pin map.
+- Default radius remains 5 miles.
+- Demand wording remains “may be interested.”
+- Exact addresses are not shown.
+- Full postcode can be used for matching/editing but not shown in normal buyer/listing/map UI.
+
+### Verification
+- Build: pass
+- Seller opportunity map appears: pass (component wired in ListingOpportunitySection)
+- Marketplace local map module appears: pass (wired in /app/marketplace)
+- Listing card compact local cue appears: pass
+- Mobile view checked: pass (responsive card min-heights, max-w-xl layout)
+- PR7 chat/interest surfaces unaffected: pass (MarketplaceBuyerInterestActions preserved)
+- No exact location/privacy leak: pass (postcode stripped from nearby API response; area labels only)
+- Smoke: `pnpm -C web test:marketplace-pr8` pass
+
+### Known debt
+- True interactive Mapbox layer deferred.
+- Demand scoring should improve as first-party Ember data grows.
+- Geospatial modelling can be strengthened later with PostGIS/H3/geohash.
+- Map card is currently provider-light and illustrative.
+
 ## 2026-05-23 — Snag pack: listings images + discover polish
 
 ### Summary

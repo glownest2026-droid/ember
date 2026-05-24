@@ -83,12 +83,14 @@ export async function GET(request: NextRequest) {
 
   return json(
     {
-      listings: nearby.map((listing) => ({
+      listings: nearby.map(({ postcode: _postcode, ...listing }) => ({
         ...listing,
         buyer_interested: interestedIds.has(listing.id),
         conversation_id: conversationByListing.get(listing.id) ?? null,
       })),
       buyer_has_postcode: Boolean(buyerLocation.postcode && buyerLocation.lat != null),
+      buyer_area_label: buyerLocation.approximate_area_label,
+      buyer_radius_miles: buyerLocation.radius_miles,
     },
     { status: 200 }
   );

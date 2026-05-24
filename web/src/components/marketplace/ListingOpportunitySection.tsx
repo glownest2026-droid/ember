@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { LocalOpportunityMapCard } from "@/components/marketplace/LocalOpportunityMapCard";
+import { OpportunityMapCard } from "@/components/marketplace/OpportunityMapCard";
 import type { OpportunityPayload } from "@/lib/marketplace/beta-listing-types";
 import { formatPriceRange, priceConfidenceLabel } from "@/lib/marketplace/beta-listing-display";
 
@@ -180,10 +180,15 @@ export function ListingOpportunitySection({
             <p className="text-xs text-[#5C646D]">{opportunity.demand.supporting_copy}</p>
           </div>
 
-          <LocalOpportunityMapCard
-            areaLabel={opportunity.map_summary.area_label}
+          <OpportunityMapCard
+            title="Local opportunity"
+            approximateAreaLabel={
+              opportunity.map_summary.area_label || opportunity.approximate_area_label
+            }
             radiusMiles={opportunity.map_summary.radius_miles}
-            hotspotCount={opportunity.map_summary.hotspot_count}
+            totalMayBeInterestedCount={opportunity.demand.total_may_be_interested_count}
+            demandConfidence={opportunity.demand.confidence}
+            breakdown={opportunity.demand.breakdown}
           />
 
           <p className="text-xs text-[#5C646D]">
