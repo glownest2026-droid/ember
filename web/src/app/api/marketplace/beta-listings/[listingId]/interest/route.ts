@@ -57,6 +57,13 @@ export async function POST(
 
   if (upsertError) return json({ error: upsertError.message }, { status: 500 });
 
+  const { data: conversation } = await supabase
+    .from("marketplace_conversations")
+    .select("id")
+    .eq("listing_id", listingId)
+    .eq("buyer_user_id", user.id)
+    .maybeSingle();
+
   const { count } = await supabase
     .from("marketplace_listing_interests")
     .select("id", { count: "exact", head: true })
@@ -68,6 +75,7 @@ export async function POST(
       ok: true,
       message: "Interest sent",
       interest_count: count ?? 1,
+      conversation_id: conversation?.id ?? null,
     },
     { status: 200 }
   );

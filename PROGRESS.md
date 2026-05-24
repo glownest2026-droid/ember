@@ -3083,6 +3083,43 @@ Category-only cards remain publishable.
 - Build: pass
 - Manual: publish → page clears; Create listing → empty flow; Edit saxophone → populated steps; save title → marketplace updates
 
+## 2026-05-24 — PR7: Masked Chat, Notifications & Handover Safety
+
+### Summary
+- Added Supabase-native `marketplace_conversations` and `marketplace_messages` linked to beta listings and PR6 interests.
+- Buyers can tap **I'm interested** then **Message seller** / **Open chat**; sellers see **Interested parents** with **Open chat**.
+- Conversation list at `/app/messages` and thread at `/app/messages/[conversationId]`.
+- Unread state via `last_message_at` vs participant `last_read_at`.
+- Report and block controls; handover safety copy in thread.
+- No payments, exact addresses, email/phone exposure, attachments, or external chat vendor.
+
+### Data model
+- Migration: `supabase/sql/202605241200_marketplace_masked_chat.sql`
+- Tables: `marketplace_conversations`, `marketplace_messages`, `marketplace_conversation_reports`, `marketplace_user_blocks`
+- RLS: participants only; sender must match participant; buyer creates conversations
+
+### Routes
+- `POST /api/marketplace/listings/[listingId]/conversation`
+- `GET /api/marketplace/listings/[listingId]/interests` (seller)
+- `GET /api/marketplace/conversations`
+- `GET /api/marketplace/conversations/[conversationId]`
+- `POST /api/marketplace/conversations/[conversationId]/messages`
+- `POST .../report`, `POST .../block`
+
+### Verification
+- Build: pass
+- Smoke: `pnpm -C web test:marketplace-pr7` pass
+- Manual E2E (two users): requires founder — apply migration on Supabase first
+
+### Known debt
+- Push/email notifications deferred
+- Attachments/image messages deferred
+- Full moderation admin deferred
+- Supabase Realtime subscription not added (poll on send/load)
+
+### Next module handoff
+- Branch: `feat/marketplace-safety-moderation`
+
 ## 2026-05-23 — Snag pack: listings images + discover polish
 
 ### Summary

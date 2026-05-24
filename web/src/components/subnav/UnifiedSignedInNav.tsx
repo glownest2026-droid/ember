@@ -16,6 +16,7 @@ import {
   LogOut,
   Users,
   Gem,
+  MessageCircle,
   Package,
   ShoppingCart,
 } from 'lucide-react';
@@ -142,7 +143,8 @@ export function UnifiedSignedInNav({
   const basePath = pathname || '/discover';
   const isDiscover = basePath.startsWith('/discover');
   const isMyIdeas = basePath.startsWith('/my-ideas');
-  const isMarketplace = basePath.startsWith('/marketplace');
+  const isMarketplace = basePath.startsWith('/marketplace') || basePath.startsWith('/app/marketplace');
+  const isAppMessages = basePath.startsWith('/app/messages');
   const isFamilyReminders = basePath.startsWith('/family');
   const childToggleApplies = isDiscover || isMyIdeas || basePath.startsWith('/family') || isMarketplace;
 
@@ -720,6 +722,16 @@ export function UnifiedSignedInNav({
                       Account
                     </Link>
                     <Link
+                      href="/app/messages"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center gap-3${
+                        isAppMessages ? ' font-medium text-[#1A1E23]' : ''
+                      }`}
+                    >
+                      <MessageCircle className="h-4 w-4 text-[#66717D]" strokeWidth={2} />
+                      Messages
+                    </Link>
+                    <Link
                       href="/family"
                       onClick={() => setIsProfileDropdownOpen(false)}
                       className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center gap-3`}
@@ -783,6 +795,18 @@ export function UnifiedSignedInNav({
               >
                 <Settings className="w-4 h-4" strokeWidth={2} />
                 Account
+              </Link>
+              <Link
+                href="/app/messages"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium hover:bg-[var(--ember-surface-soft)] ${
+                  isAppMessages
+                    ? 'text-[#1A1E23] bg-[var(--ember-surface-soft)]'
+                    : 'text-[var(--ember-text-low)]'
+                }`}
+              >
+                <MessageCircle className="w-4 h-4" strokeWidth={2} />
+                Messages
               </Link>
               <Link
                 href="/family"

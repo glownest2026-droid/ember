@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { MarketplaceBuyerInterestActions } from "@/components/marketplace/MarketplaceBuyerInterestActions";
 import { MarketplaceYourPostcode } from "@/components/marketplace/MarketplaceYourPostcode";
+import { SellerListingInterests } from "@/components/marketplace/SellerListingInterests";
 import { formatPriceRange } from "@/lib/marketplace/beta-listing-display";
 import type { PriceGuidance } from "@/lib/marketplace/beta-listing-types";
 type ListingCard = {
@@ -18,6 +20,7 @@ type ListingCard = {
   status: string;
   interest_count?: number;
   buyer_interested?: boolean;
+  conversation_id?: string | null;
 };
 
 async function parseJson<T>(response: Response): Promise<T | null> {
@@ -60,7 +63,6 @@ export default function AppMarketplacePage() {
   const [nearby, setNearby] = useState<ListingCard[]>([]);
   const [mine, setMine] = useState<ListingCard[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [busyId, setBusyId] = useState<string | null>(null);
   const [buyerHasPostcode, setBuyerHasPostcode] = useState(true);
 
   const load = useCallback(async () => {
@@ -93,22 +95,6 @@ export default function AppMarketplacePage() {
     void load();
   }, [load]);
 
-  const expressInterest = async (listingId: string) => {
-    setBusyId(listingId);
-    try {
-      const response = await fetch(`/api/marketplace/beta-listings/${listingId}/interest`, {
-        method: "POST",
-      });
-      const payload = await parseJson<{ error?: string }>(response);
-      if (!response.ok) throw new Error(payload?.error ?? "Could not send interest.");
-      await load();
-    } catch (interestError) {
-      setError(interestError instanceof Error ? interestError.message : "Could not send interest.");
-    } finally {
-      setBusyId(null);
-    }
-  };
-
   if (loading) {
     return <div className="p-6 text-[#5C646D]">Loading marketplace…</div>;
   }
@@ -120,9 +106,14 @@ export default function AppMarketplacePage() {
         <p className="text-sm text-[#5C646D]">
           Nearby listings from signed-in Ember families. Exact addresses are not shown.
         </p>
-        <Link href="/app/listings?new=1" className="text-sm text-primary underline">
-          Create a listing
-        </Link>
+        <div className="flex flex-wrap gap-4 text-sm">
+          <Link href="/app/listings?new=1" className="text-primary underline">
+            Create a listing
+          </Link>
+          <Link href="/app/messages" className="text-primary underline">
+            Messages
+          </Link>
+        </div>
       </header>
 
       <MarketplaceYourPostcode onPreferencesSaved={() => void load()} />
@@ -161,21 +152,12 @@ export default function AppMarketplacePage() {
                       <p className="text-xs text-[#5C646D]">Condition: {listing.condition}</p>
                     </div>
                   </div>
-                  {listing.buyer_interested ? (
-                    <p className="mt-3 text-sm text-emerald-700">Interest sent</p>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={busyId === listing.id}
-                      onClick={() => expressInterest(listing.id)}
-                      className="mt-3 inline-flex min-h-[40px] items-center rounded-xl border border-[#E5E7EB] px-3 py-2 text-sm disabled:opacity-60"
-                    >
-                      {busyId === listing.id ? "Sending…" : "I'm interested"}
-                    </button>
-                  )}
-                  <p className="mt-2 text-xs text-[#5C646D]">
-                    Messaging is coming later. For now, we&apos;ll let the seller know you&apos;re interested.
-                  </p>
+                  <MarketplaceBuyerInterestActions
+                    listingId={listing.id}
+                    buyerInterested={Boolean(listing.buyer_interested)}
+                    initialConversationId={listing.conversation_id}
+                    onInterestSent={() => void load()}
+                  />
                 </li>
               );
             })}
@@ -205,12 +187,18 @@ export default function AppMarketplacePage() {
                     </p>
                   </div>
                 </div>
-                <Link
-                  href={`/app/listings?edit=${listing.id}`}
-                  className="inline-flex text-sm font-medium text-primary underline"
-                >
-                  Edit listing
-                </Link>
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    href={`/app/listings?edit=${listing.id}`}
+                    className="inline-flex text-sm font-medium text-primary underline"
+                  >
+                    Edit listing
+                  </Link>
+                </div>
+                <SellerListingInterests
+                  listingId={listing.id}
+                  interestCount={listing.interest_count ?? 0}
+                />
               </li>
             ))}
           </ul>
