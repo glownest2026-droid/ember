@@ -1,12 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { Gem, LogOut, Settings, Users } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Gem, LogOut, MessageCircle, Settings, Users } from 'lucide-react';
 import { useAppShellNav } from './AppShellNavContext';
 
 /** Account menu anchored above the fixed bottom tab bar (Figma app shell). */
 export function AppShellMobileMenuSheet() {
   const appShellNav = useAppShellNav();
+  const pathname = usePathname() ?? '';
+  const isAppMessages = pathname.startsWith('/app/messages');
   if (!appShellNav?.mobileMenuOpen) return null;
 
   const close = () => appShellNav.setMobileMenuOpen(false);
@@ -32,6 +35,16 @@ export function AppShellMobileMenuSheet() {
           >
             <Settings className="w-4 h-4 text-[#66717D]" strokeWidth={2} />
             Account
+          </Link>
+          <Link
+            href="/app/messages"
+            onClick={close}
+            className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium hover:bg-[#FBFAF7] ${
+              isAppMessages ? 'bg-[#FBFAF7] text-[#1A1E23]' : 'text-[#253044]'
+            }`}
+          >
+            <MessageCircle className="w-4 h-4 text-[#66717D]" strokeWidth={2} />
+            Messages
           </Link>
           <Link
             href="/family"
