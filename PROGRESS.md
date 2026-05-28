@@ -1,3 +1,11 @@
+## fix(vercel): stop forcing public app routes dynamic (28 May 2026)
+
+- **Branch:** `fix/vercel-cost-shield-public-static`
+- **Goal:** Remove global `force-dynamic` from root layout so public pages can be statically generated / cached.
+- **Changes:** Dropped `export const dynamic` from `web/src/app/layout.tsx` and `web/src/components/ThemeProvider.tsx`; `loadTheme()` only calls `noStore()` when reading DB theme (`BRANDBOOK_WINS` uses static `DEFAULT_THEME`); added `web/src/app/(app)/app/layout.tsx` with `force-dynamic` for `/app/*` only; `Suspense` around `ConditionalHeader` + pages using `useSearchParams` (`/marketplace`, `/signin`, `/auth/error`) so static prerender succeeds.
+- **Discover tradeoff:** `/discover/[months]` keeps page-level `force-dynamic` for gateway freshness; `/discover` index may still be dynamic when `?child=` triggers auth lookup.
+- **Build:** `pnpm -C web build` — pass; 27 static pages prerendered (was ~10 dynamic-only before). Public `○`: `/`, `/marketplace`, `/pricing`, `/signin`, etc. Private `ƒ`: `/app/*`, `/discover/*`, `/family`, etc.
+
 ## fix(vercel): narrow middleware scope to protected routes (28 May 2026)
 
 - **Branch:** `fix/vercel-cost-shield-middleware`

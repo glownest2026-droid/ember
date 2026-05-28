@@ -1,9 +1,10 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function AuthErrorPage() {
+function AuthErrorPageContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error') || 'An authentication error occurred';
 
@@ -23,6 +24,14 @@ export default function AuthErrorPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense fallback={<div className="container-wrap py-8 min-h-[40vh]" aria-busy="true" />}>
+      <AuthErrorPageContent />
+    </Suspense>
   );
 }
 

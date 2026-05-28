@@ -15,8 +15,6 @@ const lexend = Lexend({ subsets: ['latin'], weight: ['400', '500', '600', '700']
 const outfit = Outfit({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-outfit' });
 const fraunces = Fraunces({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-fraunces' });
 
-export const dynamic = 'force-dynamic';
-
 export async function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Always load theme, fallback to DEFAULT_THEME if database query fails
   // This ensures branding works for logged-out users (RLS may block anonymous access)

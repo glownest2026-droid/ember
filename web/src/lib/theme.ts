@@ -187,10 +187,10 @@ export function mergeTheme(partial?: ThemeSettings | null): RequiredThemeSetting
 const BRANDBOOK_WINS = true;
 
 export async function loadTheme(): Promise<RequiredThemeSettings> {
-  noStore(); // Prevent caching to ensure fresh theme data
   if (BRANDBOOK_WINS) {
     return DEFAULT_THEME;
   }
+  noStore(); // Only opt out of cache when loading theme from DB (admin preview)
   try {
     const supabase = createClient();
     const { data, error } = await supabase

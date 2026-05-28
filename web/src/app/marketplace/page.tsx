@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import Link from "next/link";
@@ -53,7 +53,7 @@ function childDisplayName(c: ChildRow, index: number): string {
   return `Child ${index + 1}`;
 }
 
-export default function MarketplacePage() {
+function MarketplacePageContent() {
   const [user, setUser] = useState<{ id: string } | null>(null);
   const [children, setChildren] = useState<ChildRow[]>([]);
   const [childrenLoaded, setChildrenLoaded] = useState(false);
@@ -660,5 +660,13 @@ export default function MarketplacePage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function MarketplacePage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-white" aria-busy="true" />}>
+      <MarketplacePageContent />
+    </Suspense>
   );
 }
