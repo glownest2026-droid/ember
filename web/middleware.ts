@@ -6,8 +6,7 @@ export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const pathname = url.pathname;
 
-  // Refresh session for ALL routes (allows cookie mutation in middleware)
-  // This prevents server components from trying to mutate cookies
+  // Refresh session on protected/CMS routes only (matcher is explicit; see config below)
   const { supabase, response } = await updateSession(req);
   
   // Add pathname to headers so server components can read it
@@ -53,19 +52,18 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Return response with refreshed session cookies for all routes
   return response;
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (public folder)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Auth-gated app surfaces (redirect to /signin when unauthenticated)
+    "/app/:path*",
+    "/add-children/:path*",
+    "/account",
+    // Builder CMS preview + CSP (exclude public diagnostics)
+    "/api/preview",
+    "/cms",
+    "/cms/((?!diag|_diag).*)",
   ],
 };
