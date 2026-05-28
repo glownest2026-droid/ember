@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireCronSecret } from "@/lib/runtime-guards";
 
 export const runtime = "nodejs";
 
@@ -45,14 +46,8 @@ async function setFlag(product_id: string, status: "healthy" | "unhealthy") {
 }
 
 export async function GET(req: Request) {
-  // Optional auth: require Authorization if CRON_SECRET is set
-  const NEED = process.env.CRON_SECRET;
-  if (NEED) {
-    const got = req.headers.get("authorization") || "";
-    if (got !== `Bearer ${NEED}`) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-  }
+  const denied = requireCronSecret(req);
+  if (denied) return denied;
 
   const batch = await fetchBatch(100);
   for (const p of batch) {

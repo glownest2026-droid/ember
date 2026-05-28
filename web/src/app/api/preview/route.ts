@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { draftMode } from "next/headers";
+import { requireBuilderPreviewSecret } from "@/lib/runtime-guards";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const secret = url.searchParams.get("secret") || "";
   const path = url.searchParams.get("path") || "/";
 
-  if (process.env.BUILDER_PREVIEW_SECRET && secret !== process.env.BUILDER_PREVIEW_SECRET) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
+  const denied = requireBuilderPreviewSecret(secret);
+  if (denied) return denied;
 
   const dm = await draftMode();
   dm.enable();

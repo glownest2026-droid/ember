@@ -1,9 +1,15 @@
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { isProduction } from "@/lib/runtime-guards";
 import {
   HeroBlock,
   ValuePropsBlock,
   StatsBarBlock,
 } from "../blocks/BrandedBlocks";
+
+export const metadata = {
+  robots: { index: false, follow: false, nocache: true },
+};
 
 function SampleBlocks() {
   return (
@@ -38,6 +44,8 @@ function SampleBlocks() {
 }
 
 export default function Page() {
+  if (isProduction()) notFound();
+
   return (
     <main className="bg-slate-50 min-h-screen">
       <Suspense fallback={<p className="p-4 text-sm text-slate-500">Loading…</p>}>
