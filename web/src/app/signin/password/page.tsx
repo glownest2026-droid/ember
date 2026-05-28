@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '../../../utils/supabase/client';
 import { EVENTS } from '@/lib/analytics/eventNames';
 import { trackEvent } from '@/lib/analytics/trackEvent';
 
-export default function PasswordSignInPage() {
+function PasswordSignInPageContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -80,6 +80,14 @@ export default function PasswordSignInPage() {
         <a href="/signin" className="underline">Back to magic link sign-in</a>
       </p>
     </div>
+  );
+}
+
+export default function PasswordSignInPage() {
+  return (
+    <Suspense fallback={<div className="container-wrap py-8 min-h-[40vh]" aria-busy="true" />}>
+      <PasswordSignInPageContent />
+    </Suspense>
   );
 }
 

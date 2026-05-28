@@ -1,4 +1,5 @@
 // web/src/app/layout.tsx
+import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ConditionalHeader from "../components/ConditionalHeader";
@@ -31,8 +32,6 @@ export const viewport: Viewport = {
   themeColor: "#FF6347",
 };
 
-export const dynamic = 'force-dynamic';
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -44,7 +43,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <PostHogProvider>
             <OneSignalProvider>
               <SubnavStatsProvider>
-                <ConditionalHeader />
+                <Suspense fallback={<div className="h-16 md:h-20 shrink-0" aria-hidden />}>
+                  <ConditionalHeader />
+                </Suspense>
                 <SubnavGate />
                 {children}
               </SubnavStatsProvider>

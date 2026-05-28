@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '../../utils/supabase/client';
 import { AUTH_ENABLE_GOOGLE } from '@/lib/auth-flags';
 import { buildAuthCallbackUrl } from '@/lib/auth-callback-url';
 import { GoogleMark } from '@/components/icons/GoogleMark';
 
-export default function SignInPage() {
+function SignInPageContent() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -118,5 +118,13 @@ export default function SignInPage() {
         </a>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="container-wrap py-8 min-h-[40vh]" aria-busy="true" />}>
+      <SignInPageContent />
+    </Suspense>
   );
 }
