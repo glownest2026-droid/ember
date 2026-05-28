@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { draftMode } from "next/headers";
 import { fetchOneEntry } from "@builder.io/sdk-react";
+import { requireBuilderPreviewSecret } from "@/lib/runtime-guards";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const path = url.searchParams.get("path") || "/cms/hello2";
   const secret = url.searchParams.get("secret") || "";
-  if (process.env.BUILDER_PREVIEW_SECRET && secret === process.env.BUILDER_PREVIEW_SECRET) {
-    const dm = await draftMode(); dm.enable();
-  }
+
+  const denied = requireBuilderPreviewSecret(secret);
+  if (denied) return denied;
+
+  const dm = await draftMode();
+  dm.enable();
   const { isEnabled } = await draftMode();
   const entry = await fetchOneEntry({
     model: "page",

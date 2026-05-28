@@ -1,9 +1,17 @@
+import { notFound } from "next/navigation";
+import { isProduction } from "@/lib/runtime-guards";
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-import { headers } from "next/headers";
+export const metadata = {
+  robots: { index: false, follow: false, nocache: true },
+};
 
 export default async function WhoAmIPage() {
+  if (isProduction()) notFound();
+
+  const { headers } = await import("next/headers");
   const headerList = await headers();
   const userAgent = headerList.get("user-agent") ?? "unknown";
 

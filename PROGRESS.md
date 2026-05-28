@@ -1,3 +1,11 @@
+## fix(vercel): lock down cron and diagnostic routes (28 May 2026)
+
+- **Branch:** `fix/vercel-cost-shield-runtime-lockdown`
+- **Goal:** Fail-closed cron/preview/diagnostic routes so resumed Vercel usage stays safe without new env vars.
+- **Changes:** `web/src/lib/runtime-guards.ts`; cron requires `CRON_SECRET` (404 if unset); preview/probe require `BUILDER_PREVIEW_SECRET`; `/whoami`, `/cms/diag`, `/cms/_diag` → `notFound()` in production; `robots.ts` disallows `/api/`, `/go/`, diagnostics; static `/ping` + `/__ping`.
+- **`/go/[id]`:** Audited only — Supabase fetch + click log per hit; follow-up PR for rate limiting recommended.
+- **Build:** `pnpm -C web build` — pass (28 May 2026); `/robots.txt` static
+
 ## fix(vercel): stop forcing public app routes dynamic (28 May 2026)
 
 - **Branch:** `fix/vercel-cost-shield-public-static`
