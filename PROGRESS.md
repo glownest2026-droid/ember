@@ -1,3 +1,11 @@
+## fix(vercel): narrow middleware scope to protected routes (28 May 2026)
+
+- **Branch:** `fix/vercel-cost-shield-middleware`
+- **Goal:** Stop running `updateSession` + `getUser()` on every public/bot request (Vercel Hobby overage).
+- **Change:** `web/middleware.ts` matcher — from catch-all minus static assets → explicit `/app`, `/add-children`, `/account`, `/api/preview`, `/cms` (excl. `/cms/diag`, `/cms/_diag`).
+- **Unchanged:** Auth redirect rules for `/app/*`, `/add-children/*`, `/account`; CMS preview secret redirect + CSP; no Supabase helper edits.
+- **Build:** `pnpm -C web build` — pass (28 May 2026)
+
 ## fix(snag-pack): discover + desktop nav (18 May 2026)
 
 - **Branch:** `fix/snag-pack-discover-nav-may18`
