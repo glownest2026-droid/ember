@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAgeBandForAge } from '@/lib/pl/public';
 import {
-  getAgeBandForAgeCached,
   getGatewayTopPicksForAgeBandAndCategoryTypeCached,
   getGatewayTopPicksForAgeBandAndWrapperSlugCached,
 } from '@/lib/pl/gateway-cache';
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     const wrapperSlug = searchParams.get('wrapperSlug');
     let ageBandId = searchParams.get('ageBandId');
     if (!ageBandId) {
-      const defaultBand = await getAgeBandForAgeCached(26);
+      const defaultBand = await getAgeBandForAge(26);
       ageBandId = defaultBand?.id ?? null;
     }
     if (!ageBandId) {

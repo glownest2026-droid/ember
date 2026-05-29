@@ -1,3 +1,13 @@
+## fix(discover): stop redirect loop after performance cleanup (29 May 2026)
+
+- **Branch:** `fix/discover-redirect-loop-after-performance-cleanup`
+- **Incident:** After PR #216, `/discover` ↔ `/discover/26` redirect loop (ERR_TOO_MANY_REDIRECTS).
+- **Root cause:** `revalidate = 1800` on `/discover/[months]` could bake a build-time `redirect('/discover')` when age-band lookup failed; plus `getAgeBandForAgeCached` could cache `null` for 30m. `/discover` always redirects to `/discover/26`.
+- **Fix:** Restore `force-dynamic` on `[months]`; uncached gateway reads on Discover pages (cached `Set` + `cookies()` in `unstable_cache` broke `.has()` and SSR); never redirect `[months]` → `/discover`; `gateway-cache` kept for `/api/discover/picks` only.
+- **Preserved from #216:** WebP images, nav `prefetch={false}`, `/go` bot guard, picks API cache headers.
+- **Build:** `pnpm -C web build` — pass (29 May 2026)
+- **Verify (local prod):** `/discover` → single 307 → `/discover/26` 200; `/discover/26` and `/discover/32` 200 stable; Playwright desktop + iPhone 13 viewport PASS; `/api/discover/picks` 200. Signed-in `?child=` not automated (no test session in CI/local).
+
 ## fix(vercel): reduce residual function and transfer usage (29 May 2026)
 
 - **Branch:** `fix/vercel-cost-shield-performance-cleanup`

@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import {
-  getAgeBandForAgeCached,
-  getGatewayAgeBandIdsWithPicksCached,
-  getGatewayAgeBandsPublicCached,
-} from '../../lib/pl/gateway-cache';
+  getAgeBandForAge,
+  getGatewayAgeBandIdsWithPicks,
+  getGatewayAgeBandsPublic,
+} from '../../lib/pl/public';
 
 function parseAgeBandIdRange(id: string): { min: number; max: number } | null {
   const match = id.match(/^(\d+)-(\d+)m$/);
@@ -42,8 +42,8 @@ export default async function DiscoverPage({
   const params = await searchParams;
   const q = params.child ? `?child=${encodeURIComponent(params.child)}` : '';
 
-  const ageBands = await getGatewayAgeBandsPublicCached();
-  const bandsWithPicks = await getGatewayAgeBandIdsWithPicksCached();
+  const ageBands = await getGatewayAgeBandsPublic();
+  const bandsWithPicks = await getGatewayAgeBandIdsWithPicks();
 
   if (!ageBands || ageBands.length === 0) {
     redirect(`/discover/26${q}`);
@@ -63,7 +63,7 @@ export default async function DiscoverPage({
       if (childRow?.birthdate) {
         const months = ageInMonthsFromBirthdate(childRow.birthdate);
         if (months >= 0) {
-          const band = await getAgeBandForAgeCached(months);
+          const band = await getAgeBandForAge(months);
           if (band) {
             const rep = getRepresentativeMonthForBand(band);
             if (rep != null) representativeMonth = rep;
