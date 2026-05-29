@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 
-const HERO_IMAGE = '/home/hero.png';
+const HERO_IMAGE = '/home/hero.webp';
 
 export function HomeHero() {
   return (

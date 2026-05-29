@@ -40,15 +40,15 @@ export function EmberFigmaMobileNav() {
       aria-label="App navigation"
     >
       <div className={`${EMBER_FIGMA_APP_CONTAINER} flex justify-between py-3`}>
-      <Link href={buildUrlWithChild('/discover')} className={mobileTabClass(isDiscover)}>
+      <Link href={buildUrlWithChild('/discover')} prefetch={false} className={mobileTabClass(isDiscover)}>
         <Compass size={24} strokeWidth={isDiscover ? 2.5 : 2} />
         <span className="text-[11px] font-medium">Discover</span>
       </Link>
-      <Link href={buildUrlWithChild('/my-ideas')} className={mobileTabClass(isMyIdeas)}>
+      <Link href={buildUrlWithChild('/my-ideas')} prefetch={false} className={mobileTabClass(isMyIdeas)}>
         <Bookmark size={24} strokeWidth={isMyIdeas ? 2.5 : 2} />
         <span className="text-[11px] font-medium">Saves</span>
       </Link>
-      <Link href={buildUrlWithChild('/marketplace')} className={mobileTabClass(isMarketplace)}>
+      <Link href={buildUrlWithChild('/marketplace')} prefetch={false} className={mobileTabClass(isMarketplace)}>
         <Store size={24} strokeWidth={isMarketplace ? 2.5 : 2} />
         <span className="text-[11px] font-medium">Marketplace</span>
       </Link>

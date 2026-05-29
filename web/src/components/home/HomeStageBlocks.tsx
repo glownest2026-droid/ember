@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 
-const STAGES_IMAGE = '/home/stages.png';
+const STAGES_IMAGE = '/home/stages.webp';
 const UNSPLASH_PARENT =
   'https://images.unsplash.com/photo-1758513359249-95d9f54f280b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080';
 const UNSPLASH_BLOCKS =

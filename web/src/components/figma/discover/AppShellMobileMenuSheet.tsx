@@ -38,6 +38,7 @@ export function AppShellMobileMenuSheet() {
           </Link>
           <Link
             href="/app/messages"
+            prefetch={false}
             onClick={close}
             className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium hover:bg-[#FBFAF7] ${
               isAppMessages ? 'bg-[#FBFAF7] text-[#1A1E23]' : 'text-[#253044]'
@@ -48,6 +49,7 @@ export function AppShellMobileMenuSheet() {
           </Link>
           <Link
             href="/family"
+            prefetch={false}
             onClick={close}
             className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[#253044] hover:bg-[#FBFAF7] text-sm font-medium"
           >

@@ -1,4 +1,6 @@
+import { unstable_cache } from 'next/cache';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
+import { GATEWAY_PUBLIC_REVALIDATE_SECONDS } from '@/lib/pl/gateway-cache';
 
 /** Known v2 filenames in bucket `category_images` (discovered via public HEAD probes). */
 export const DISCOVER_V2_IMAGE_FILENAMES = [
@@ -134,6 +136,19 @@ export async function fetchDiscoverV2ImageMappings(
     });
   }
   return mappings;
+}
+
+/** Cached v2 HEAD probes + mapping (public catalogue only). */
+export function fetchDiscoverV2ImageMappingsCached(categories: GatewayCategoryTypePublic[]) {
+  const idsKey = categories
+    .map((c) => c.id)
+    .sort()
+    .join(',');
+  return unstable_cache(
+    () => fetchDiscoverV2ImageMappings(categories),
+    ['discover-v2-image-mappings', idsKey],
+    { revalidate: GATEWAY_PUBLIC_REVALIDATE_SECONDS, tags: ['gateway-public'] }
+  )();
 }
 
 export function applyCategoryImageOverrides(

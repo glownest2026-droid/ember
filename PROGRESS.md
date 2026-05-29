@@ -1,3 +1,13 @@
+## fix(vercel): reduce residual function and transfer usage (29 May 2026)
+
+- **Branch:** `fix/vercel-cost-shield-performance-cleanup`
+- **Goal:** Lower Discover SSR cost, nav prefetch noise, homepage transfer, and /go bot logging after cost-shield PRs #213–#215.
+- **Discover:** `gateway-cache.ts` — `unstable_cache` 30m on public gateway reads; `/discover/[months]` removed `force-dynamic`, added `revalidate=1800`; `/api/discover/picks` CDN cache headers + cached fetches.
+- **Nav:** `prefetch={false}` on signed-in links to `/discover`, `/my-ideas`, `/family`, `/marketplace`, `/app/messages`.
+- **Images:** `hero.webp` (~59 KB), `stages.webp` (~58 KB) from ~733/768 KB PNGs.
+- **`/go/[id]`:** UUID guard; skip `click_events` insert for known bot UAs; redirects unchanged.
+- **Build:** `pnpm -C web build` — pass (29 May 2026)
+
 ## fix(vercel): lock down cron and diagnostic routes (28 May 2026)
 
 - **Branch:** `fix/vercel-cost-shield-runtime-lockdown`
