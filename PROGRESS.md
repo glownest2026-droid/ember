@@ -3180,3 +3180,47 @@ Category-only cards remain publishable.
 ### Verification
 - Baseline build before edits: pass (`pnpm build` in `web/`)
 - Post-change build: pass (`pnpm build` in `web/`)
+
+## 2026-05-29 — Awin Review Readiness: Discover + Affiliate Compliance
+
+### Summary
+- Added public affiliate/commercial trust pages for Awin review readiness.
+- Added compact public footer/legal navigation for mobile and desktop public routes.
+- Added point-of-decision affiliate disclosure around Discover recommendation/retailer surfaces.
+- Added Discover deep links (`wrapper`, `focus` alias, `review=1`) and internal Awin URL doc.
+
+### Routes touched/added
+- `/`
+- `/discover`
+- `/discover/[months]`
+- `/affiliate-disclosure`
+- `/how-ember-makes-money`
+- `/how-we-choose`
+- `/safety-rules`
+- `/pricing` (shared public footer via root layout)
+
+### Env & Secrets
+- No new env vars.
+- No Awin credentials added.
+- No tracking script added.
+
+### DB & RLS
+- No schema changes.
+- No RLS changes.
+- No anonymous access widened.
+
+### Verification
+- Build: pass (`pnpm build` in `web/`)
+- Lint: `next lint` reports invalid project directory on Next 16 (pre-existing CLI quirk)
+- Preview: see PR / Vercel
+- Manual QA: founder checklist in PR description
+
+### Known debt / risks
+- Dedicated `/privacy`, `/terms`, and `/contact` pages not in repo; follow-on PR if legal docs are ready.
+- Signed-in app shell uses account/settings for trust links later if needed.
+
+### Next module handoff
+- Branch: `feat/awin-review-ready-discover`
+- PR: (see GitHub after push)
+- Latest Preview URL: (Vercel preview on PR)
+- Start here: `web/src/components/compliance/`, `web/src/app/discover/[months]/`, `web/docs/awin-reapplication.md`

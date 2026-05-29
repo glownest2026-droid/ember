@@ -15,11 +15,20 @@ import {
   applyCategoryImageOverrides,
   fetchDiscoverV2ImageMappings,
 } from '../../../lib/discover/categoryImageOverrides';
+import { resolveWrapperSlugFromFocusParam } from '../../../lib/compliance/resolveWrapperFromFocusParam';
 import DiscoveryPageClient from './DiscoveryPageClient';
 
 interface DiscoverMonthsPageProps {
   params: Promise<{ months: string }>;
-  searchParams: Promise<{ wrapper?: string; show?: string; category?: string; debug?: string; child?: string }>;
+  searchParams: Promise<{
+    wrapper?: string;
+    focus?: string;
+    show?: string;
+    review?: string;
+    category?: string;
+    debug?: string;
+    child?: string;
+  }>;
 }
 
 /** Must stay dynamic: searchParams, redirects, and optional ?child= personalization. */
@@ -59,8 +68,17 @@ async function resolveAgeBandForMonth(
 
 export default async function DiscoverMonthsPage({ params, searchParams }: DiscoverMonthsPageProps) {
   const { months } = await params;
-  const { wrapper: wrapperSlugParam, show: showParam, category: categoryParam, debug: debugParam, child: childParam } = await searchParams;
+  const {
+    wrapper: wrapperSlugParam,
+    focus: focusParam,
+    show: showParam,
+    review: reviewParam,
+    category: categoryParam,
+    debug: debugParam,
+    child: childParam,
+  } = await searchParams;
   const showDebug = debugParam === '1';
+  const reviewMode = reviewParam === '1';
 
   const monthsNum = parseInt(months, 10);
   if (isNaN(monthsNum)) {
@@ -76,6 +94,29 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
     redirect('/discover/26');
   }
   const wrappers = await getGatewayWrappersForAgeBand(ageBand.id);
+
+  if (reviewMode && !showParam) {
+    const focusWrapper = resolveWrapperSlugFromFocusParam(focusParam, wrappers);
+    const reviewWrapper =
+      (wrapperSlugParam && wrappers.some((w) => w.ux_slug === wrapperSlugParam) ? wrapperSlugParam : null) ??
+      focusWrapper ??
+      (monthParam >= 25 && monthParam <= 27 && wrappers.some((w) => w.ux_slug === 'let-me-help')
+        ? 'let-me-help'
+        : wrappers[0]?.ux_slug ?? null);
+    if (reviewWrapper) {
+      const childQ = childParam ? `&child=${encodeURIComponent(childParam)}` : '';
+      const focusQ = focusParam ? `&focus=${encodeURIComponent(focusParam)}` : '';
+      redirect(
+        `/discover/${monthParam}?wrapper=${encodeURIComponent(reviewWrapper)}&show=1&review=1${focusQ}${childQ}`
+      );
+    }
+  }
+
+  const focusResolvedSlug = resolveWrapperSlugFromFocusParam(focusParam, wrappers);
+  const wrapperFromQuery =
+    (wrapperSlugParam && wrappers.some((w) => w.ux_slug === wrapperSlugParam) ? wrapperSlugParam : null) ??
+    focusResolvedSlug;
+
   const selectedBandHasPicks = bandsWithPicks.has(ageBand.id);
   const selectedBandHasProducts = selectedBandHasPicks;
   let selectedBandHasStage12Data = false;
@@ -87,16 +128,15 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
     }
   }
 
-  const selectedWrapperSlug =
-    wrapperSlugParam && wrappers.some(w => w.ux_slug === wrapperSlugParam)
-      ? wrapperSlugParam
-      : null;
-
   const is25to27 = monthParam >= 25 && monthParam <= 27;
   const defaultSlug25to27 =
     is25to27 && wrappers.some(w => w.ux_slug === 'let-me-help') ? 'let-me-help' : null;
 
-  const shouldShowPicks = showParam === '1' && selectedBandHasStage12Data;
+  const selectedWrapperSlug =
+    wrapperFromQuery ??
+    (!wrapperSlugParam && !focusParam && is25to27 ? defaultSlug25to27 : null);
+
+  const shouldShowPicks = (showParam === '1' || reviewMode) && selectedBandHasStage12Data;
   let effectiveWrapperSlug =
     selectedWrapperSlug ?? defaultSlug25to27 ?? wrappers[0]?.ux_slug ?? null;
   let picks: Awaited<ReturnType<typeof getGatewayTopPicksForAgeBandAndWrapperSlug>> = [];

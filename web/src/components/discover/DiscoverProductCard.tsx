@@ -3,6 +3,7 @@
 import { motion, PanInfo } from 'motion/react';
 import { Bookmark, Check, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { GatewayPick } from '@/lib/pl/public';
+import { retailerLinkRel } from '@/lib/compliance/externalRetailerLink';
 import { getProductIconKey, getProductIconComponent } from '@/lib/icons/productIcon';
 import type { ProductIconKey } from '@/lib/icons/productIcon';
 
@@ -204,14 +205,14 @@ export function DiscoverProductCard({
             <motion.a
               href={productUrl}
               target="_blank"
-              rel="noopener noreferrer"
+              rel={retailerLinkRel(productUrl)}
               className="px-3 py-3 bg-white border-2 rounded-2xl font-bold flex flex-col items-center justify-center gap-1 hover:bg-[#FAFAFA] shadow-md hover:shadow-lg col-span-1 group"
               style={{ borderColor: BORDER, color: TEXT_HIGH }}
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
             >
               <ExternalLink className="w-4 h-4 mx-auto" style={{ color: TEXT_LOW }} strokeWidth={2.5} />
-              <span className="text-xs">Visit</span>
+              <span className="text-xs">View at retailer</span>
             </motion.a>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { Bookmark, Check, ExternalLink, ChevronLeft, ChevronRight } from 'lucide
 import { motion, AnimatePresence, type PanInfo } from 'motion/react';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 import type { GatewayPick } from '@/lib/pl/public';
+import { retailerLinkRel } from '@/lib/compliance/externalRetailerLink';
 
 export function DiscoverFigmaProductCarousel({
   picks,
@@ -144,11 +145,11 @@ export function DiscoverFigmaProductCarousel({
                     <a
                       href={url}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel={retailerLinkRel(url)}
                       className="flex items-center justify-center gap-1.5 lg:gap-2 px-4 lg:px-5 py-2.5 lg:py-3 rounded-xl border-2 border-[var(--ember-border-subtle)] text-[var(--ember-text-high)] hover:border-[var(--ember-accent-base)] font-medium text-xs lg:text-sm flex-1 min-w-[100px]"
                     >
                       <ExternalLink className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
-                      Visit
+                      View at retailer
                     </a>
                   ) : (
                     <span className="flex-1 min-w-[100px] text-center text-xs text-[var(--ember-text-low)] py-2">Link soon</span>

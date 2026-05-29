@@ -10,6 +10,7 @@ import { PostHogProvider } from "../lib/analytics/PostHogProvider";
 import { OneSignalProvider } from "../lib/onesignal/OneSignalProvider";
 import { discoverManrope } from "../lib/discover/manrope";
 import { discoverPlayful } from "../lib/discover/playful";
+import { PublicFooterGate } from "../components/compliance/PublicFooterGate";
 
 export const metadata: Metadata = {
   title: "Ember — Simple, trusted guidance from bump to big steps.",
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </Suspense>
                 <SubnavGate />
                 {children}
+                <PublicFooterGate />
               </SubnavStatsProvider>
             </OneSignalProvider>
           </PostHogProvider>
