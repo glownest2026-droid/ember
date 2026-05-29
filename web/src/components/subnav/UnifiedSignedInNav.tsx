@@ -537,6 +537,7 @@ export function UnifiedSignedInNav({
                     </Link>
                     <Link
                       href="/family"
+                      prefetch={false}
                       onClick={() => setIsChildDropdownOpen(false)}
                       className="flex w-full items-center gap-3.5 px-4 py-3.5 rounded-xl hover:bg-[var(--ember-surface-soft)] text-left"
                     >
@@ -564,18 +565,21 @@ export function UnifiedSignedInNav({
           >
             <Link
               href={buildUrlWithChild('/discover', selectedChildId || null)}
+              prefetch={false}
               className={figmaDesktopNavLinkClass(isDiscover)}
             >
               Discover
             </Link>
             <Link
               href={buildUrlWithChild('/my-ideas', selectedChildId || null)}
+              prefetch={false}
               className={figmaDesktopNavLinkClass(isMyIdeas)}
             >
               Saves
             </Link>
             <Link
               href={buildUrlWithChild('/marketplace', selectedChildId || null)}
+              prefetch={false}
               className={figmaDesktopNavLinkClass(isMarketplace)}
             >
               Marketplace
@@ -664,6 +668,7 @@ export function UnifiedSignedInNav({
                     </Link>
                     <Link
                       href="/family"
+                      prefetch={false}
                       onClick={() => setIsChildDropdownOpen(false)}
                       className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center gap-3`}
                     >
@@ -723,6 +728,7 @@ export function UnifiedSignedInNav({
                     </Link>
                     <Link
                       href="/app/messages"
+                      prefetch={false}
                       onClick={() => setIsProfileDropdownOpen(false)}
                       className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center gap-3${
                         isAppMessages ? ' font-medium text-[#1A1E23]' : ''
@@ -733,6 +739,7 @@ export function UnifiedSignedInNav({
                     </Link>
                     <Link
                       href="/family"
+                      prefetch={false}
                       onClick={() => setIsProfileDropdownOpen(false)}
                       className={`${FIGMA_DROPDOWN_ITEM_CLASS} flex items-center gap-3`}
                     >
@@ -798,6 +805,7 @@ export function UnifiedSignedInNav({
               </Link>
               <Link
                 href="/app/messages"
+                prefetch={false}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium hover:bg-[var(--ember-surface-soft)] ${
                   isAppMessages
@@ -810,6 +818,7 @@ export function UnifiedSignedInNav({
               </Link>
               <Link
                 href="/family"
+                prefetch={false}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium text-[var(--ember-text-low)] hover:bg-[var(--ember-surface-soft)]"
               >
@@ -871,6 +880,7 @@ export function UnifiedSignedInNav({
           <div className="grid grid-cols-3 max-w-[90rem] mx-auto px-4 md:px-6">
             <Link
               href={buildUrlWithChild('/discover', selectedChildId || null)}
+              prefetch={false}
               className={`py-3 text-center text-sm font-medium transition-colors ${
                 isDiscover
                   ? 'text-[var(--ember-accent-base)] border-b-2 border-[var(--ember-accent-base)]'
@@ -881,6 +891,7 @@ export function UnifiedSignedInNav({
             </Link>
             <Link
               href={buildUrlWithChild('/my-ideas', selectedChildId || null)}
+              prefetch={false}
               className={`py-3 text-center text-sm font-medium transition-colors ${
                 isMyIdeas
                   ? 'text-[var(--ember-accent-base)] border-b-2 border-[var(--ember-accent-base)]'
@@ -891,6 +902,7 @@ export function UnifiedSignedInNav({
             </Link>
             <Link
               href={buildUrlWithChild('/marketplace', selectedChildId || null)}
+              prefetch={false}
               className={`py-3 text-center text-sm font-medium transition-colors ${
                 isMarketplace
                   ? 'text-[var(--ember-accent-base)] border-b-2 border-[var(--ember-accent-base)]'

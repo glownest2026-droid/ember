@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  getAgeBandForAge,
-  getGatewayTopPicksForAgeBandAndCategoryType,
-  getGatewayTopPicksForAgeBandAndWrapperSlug,
-} from '@/lib/pl/public';
+  getAgeBandForAgeCached,
+  getGatewayTopPicksForAgeBandAndCategoryTypeCached,
+  getGatewayTopPicksForAgeBandAndWrapperSlugCached,
+} from '@/lib/pl/gateway-cache';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 1800;
 
-/** GET /api/discover/picks?ageBandId=...&categoryTypeId=... OR &wrapperSlug=... — returns example picks for My ideas Examples modal. */
+const CACHE_HEADERS = {
+  'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600',
+};
+
+/** GET /api/discover/picks?ageBandId=...&categoryTypeId=... OR &wrapperSlug=... — public catalogue picks (cached). */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -15,23 +19,23 @@ export async function GET(req: NextRequest) {
     const wrapperSlug = searchParams.get('wrapperSlug');
     let ageBandId = searchParams.get('ageBandId');
     if (!ageBandId) {
-      const defaultBand = await getAgeBandForAge(26);
+      const defaultBand = await getAgeBandForAgeCached(26);
       ageBandId = defaultBand?.id ?? null;
     }
     if (!ageBandId) {
-      return NextResponse.json({ picks: [] });
+      return NextResponse.json({ picks: [] }, { headers: CACHE_HEADERS });
     }
     if (wrapperSlug && typeof wrapperSlug === 'string') {
-      const picks = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBandId, wrapperSlug, 12);
-      return NextResponse.json({ picks });
+      const picks = await getGatewayTopPicksForAgeBandAndWrapperSlugCached(ageBandId, wrapperSlug, 12);
+      return NextResponse.json({ picks }, { headers: CACHE_HEADERS });
     }
     if (categoryTypeId && typeof categoryTypeId === 'string') {
-      const picks = await getGatewayTopPicksForAgeBandAndCategoryType(ageBandId, categoryTypeId, 12);
-      return NextResponse.json({ picks });
+      const picks = await getGatewayTopPicksForAgeBandAndCategoryTypeCached(ageBandId, categoryTypeId, 12);
+      return NextResponse.json({ picks }, { headers: CACHE_HEADERS });
     }
     return NextResponse.json({ error: 'categoryTypeId or wrapperSlug required' }, { status: 400 });
   } catch (err) {
     console.error('[api/discover/picks]', err);
-    return NextResponse.json({ picks: [] });
+    return NextResponse.json({ picks: [] }, { headers: CACHE_HEADERS });
   }
 }

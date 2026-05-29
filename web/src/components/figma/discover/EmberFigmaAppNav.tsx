@@ -196,19 +196,20 @@ export function EmberFigmaAppNav() {
             <span className="font-bold text-xl text-[#253044]">Ember</span>
           </Link>
           <nav className="flex gap-8 items-center">
-            <Link href={buildUrlWithChild('/discover', selectedChildId || null)} className={figmaDesktopNavLinkClass(isDiscover)}>
+            <Link href={buildUrlWithChild('/discover', selectedChildId || null)} prefetch={false} className={figmaDesktopNavLinkClass(isDiscover)}>
               What&apos;s next
             </Link>
-            <Link href={buildUrlWithChild('/my-ideas', selectedChildId || null)} className={figmaDesktopNavLinkClass(isMyIdeas)}>
+            <Link href={buildUrlWithChild('/my-ideas', selectedChildId || null)} prefetch={false} className={figmaDesktopNavLinkClass(isMyIdeas)}>
               My ideas
             </Link>
             <Link
               href={buildUrlWithChild('/marketplace', selectedChildId || null)}
+              prefetch={false}
               className={figmaDesktopNavLinkClass(isMarketplace)}
             >
               Marketplace
             </Link>
-            <Link href={buildUrlWithChild('/family', selectedChildId || null)} className={figmaDesktopNavLinkClass(isFamily)}>
+            <Link href={buildUrlWithChild('/family', selectedChildId || null)} prefetch={false} className={figmaDesktopNavLinkClass(isFamily)}>
               Family
             </Link>
           </nav>
@@ -233,22 +234,23 @@ export function EmberFigmaAppNav() {
         style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
         aria-label="App navigation"
       >
-        <Link href={buildUrlWithChild('/discover', selectedChildId || null)} className={mobileTabClass(isDiscover)}>
+        <Link href={buildUrlWithChild('/discover', selectedChildId || null)} prefetch={false} className={mobileTabClass(isDiscover)}>
           <Compass size={24} strokeWidth={isDiscover ? 2.5 : 2} />
           <span className="text-[11px] font-medium">What&apos;s next</span>
         </Link>
-        <Link href={buildUrlWithChild('/my-ideas', selectedChildId || null)} className={mobileTabClass(isMyIdeas)}>
+        <Link href={buildUrlWithChild('/my-ideas', selectedChildId || null)} prefetch={false} className={mobileTabClass(isMyIdeas)}>
           <Bookmark size={24} strokeWidth={isMyIdeas ? 2.5 : 2} />
           <span className="text-[11px] font-medium">My ideas</span>
         </Link>
         <Link
           href={buildUrlWithChild('/marketplace', selectedChildId || null)}
+          prefetch={false}
           className={mobileTabClass(isMarketplace)}
         >
           <Store size={24} strokeWidth={isMarketplace ? 2.5 : 2} />
           <span className="text-[11px] font-medium">Marketplace</span>
         </Link>
-        <Link href={buildUrlWithChild('/family', selectedChildId || null)} className={mobileTabClass(isFamily)}>
+        <Link href={buildUrlWithChild('/family', selectedChildId || null)} prefetch={false} className={mobileTabClass(isFamily)}>
           <Users size={24} strokeWidth={isFamily ? 2.5 : 2} />
           <span className="text-[11px] font-medium">Family</span>
         </Link>

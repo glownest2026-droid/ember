@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isKnownBotUserAgent } from "@/lib/bot-user-agent";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -6,6 +7,8 @@ export const runtime = "nodejs";
 const supabaseUrl = process.env.SUPABASE_URL!;
 const serviceKey  = process.env.SUPABASE_SERVICE_ROLE!;
 const defaultUtm  = process.env.AFFILIATE_DEFAULT_UTM || "utm_source=ember&utm_medium=affiliate&utm_campaign=default";
+
+const PRODUCT_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type Product = { id: string; name: string; deep_link_url: string | null };
 
@@ -60,9 +63,12 @@ async function insertClick(params: {
   }).catch(() => {});
 }
 
-// ✅ Next 16 typed routes expect Promise for params; await it
 export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
+
+  if (!id || !PRODUCT_ID_RE.test(id)) {
+    return NextResponse.json({ error: "Product not found" }, { status: 404 });
+  }
 
   const product = await fetchProduct(id);
   if (!product?.deep_link_url) {
@@ -72,21 +78,23 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
   const utms = mergeUtms(req);
   const finalUrl = decorateUrl(product.deep_link_url, utms);
 
-  const referer = req.headers.get("referer");
   const ua = req.headers.get("user-agent");
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || (req as any).ip || undefined;
+  if (!isKnownBotUserAgent(ua)) {
+    const referer = req.headers.get("referer");
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || (req as { ip?: string }).ip || undefined;
 
-  insertClick({
-    product_id: product.id,
-    decorated_url: finalUrl,
-    referer,
-    user_agent: ua,
-    ip_hash: hashIp(ip),
-    utm_source: utms.get("utm_source"),
-    utm_medium: utms.get("utm_medium"),
-    utm_campaign: utms.get("utm_campaign"),
-    src: utms.get("src"),
-  });
+    void insertClick({
+      product_id: product.id,
+      decorated_url: finalUrl,
+      referer,
+      user_agent: ua,
+      ip_hash: hashIp(ip),
+      utm_source: utms.get("utm_source"),
+      utm_medium: utms.get("utm_medium"),
+      utm_campaign: utms.get("utm_campaign"),
+      src: utms.get("src"),
+    });
+  }
 
   return NextResponse.redirect(finalUrl, { status: 302 });
 }

@@ -22,7 +22,7 @@ type ChildData = {
   gender?: string | null;
 };
 
-const HERO_IMAGE = '/home/hero.png';
+const HERO_IMAGE = '/home/hero.webp';
 
 export function AddChildForm({ initial, backHref = '/family' }: { initial?: ChildData; backHref?: string }) {
   const [showPrivacySheet, setShowPrivacySheet] = useState(false);
