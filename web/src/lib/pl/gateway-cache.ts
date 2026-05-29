@@ -1,7 +1,6 @@
 import { unstable_cache } from 'next/cache';
 import type { GatewayCategoryTypePublic, GatewayPick, GatewayWrapperPublic } from './public';
 import {
-  getAgeBandForAge,
   getGatewayAgeBandIdsWithPicks,
   getGatewayAgeBandsPublic,
   getGatewayCategoryTypesForAgeBandAndWrapper,
@@ -23,19 +22,16 @@ export function getGatewayAgeBandsPublicCached() {
   })();
 }
 
-export function getGatewayAgeBandIdsWithPicksCached() {
-  return unstable_cache(() => getGatewayAgeBandIdsWithPicks(), ['gateway-age-band-ids-with-picks'], {
-    revalidate: GATEWAY_PUBLIC_REVALIDATE_SECONDS,
-    tags: [gatewayTag],
-  })();
+export async function getGatewayAgeBandIdsWithPicksCached(): Promise<Set<string>> {
+  const ids = await unstable_cache(
+    async () => [...(await getGatewayAgeBandIdsWithPicks())],
+    ['gateway-age-band-ids-with-picks'],
+    { revalidate: GATEWAY_PUBLIC_REVALIDATE_SECONDS, tags: [gatewayTag] }
+  )();
+  return new Set(ids);
 }
 
-export function getAgeBandForAgeCached(ageMonths: number) {
-  return unstable_cache(() => getAgeBandForAge(ageMonths), ['gateway-age-band-for-age', String(ageMonths)], {
-    revalidate: GATEWAY_PUBLIC_REVALIDATE_SECONDS,
-    tags: [gatewayTag],
-  })();
-}
+/** Age-band lookup is not cached: null must not be stored (redirect routing) and must stay fresh. */
 
 export function getGatewayWrappersForAgeBandCached(ageBandId: string) {
   return unstable_cache(
