@@ -167,18 +167,6 @@ export default function PricingPageFigmaClient() {
         </div>
       </section>
 
-      <footer className="border-t py-12" style={{ borderColor: 'var(--ember-gray-300)' }}>
-        <div className="mx-auto max-w-[90rem] px-6 lg:px-12">
-          <div className="text-center">
-            <div className="mb-4" style={{ fontSize: '1.5rem', fontFamily: 'var(--font-display)', color: 'var(--ember-gray-900)', fontWeight: 400 }}>
-              Ember
-            </div>
-            <p className="text-sm" style={{ color: 'var(--ember-gray-600)' }}>
-              © 2026 Ember. Built with care for parents.
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

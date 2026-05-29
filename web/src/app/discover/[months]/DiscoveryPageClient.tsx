@@ -13,6 +13,8 @@ import {
   normaliseSlug,
 } from '@/lib/discover/doorways';
 import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
+import { AffiliateDisclosureNotice } from '@/components/compliance/AffiliateDisclosureNotice';
+import { hasOutboundRetailerUrl } from '@/lib/compliance/externalRetailerLink';
 import { DiscoverFigmaChildHero } from '@/components/discover/figma/DiscoverFigmaChildHero';
 import { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigmaNeedCard';
 import { DiscoverFigmaScienceSection } from '@/components/discover/figma/DiscoverFigmaScienceSection';
@@ -938,6 +940,10 @@ export default function DiscoveryPageClient({
   }, [startOverVisible, selectedWrapper, discoverState, displayIdeas.length, categoryTypes.length]);
   const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
   const bandLabel = formatBandLabel(selectedBand);
+  const examplesHaveRetailerLinks = useMemo(
+    () => displayIdeas.some((p) => hasOutboundRetailerUrl(p.product)),
+    [displayIdeas]
+  );
 
   return (
     <div
@@ -1066,7 +1072,7 @@ export default function DiscoveryPageClient({
                 <div id="examplesProgressBar" className="mb-5 lg:mb-8">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
-                      Examples you might like
+                      Product examples for this stage
                     </h2>
                     {displayIdeas.length > 0 ? (
                       <button
@@ -1078,6 +1084,14 @@ export default function DiscoveryPageClient({
                       </button>
                     ) : null}
                   </div>
+                  <p className="text-sm text-[var(--ember-text-low)] mt-2">
+                    These examples are selected for stage-fit and usefulness. Retailer links, where shown, may be
+                    affiliate links.
+                  </p>
+                  <AffiliateDisclosureNotice
+                    hasRetailerLinks={examplesHaveRetailerLinks}
+                    className="mt-2"
+                  />
                   <p className="text-xs text-[var(--ember-text-low)] mt-2">Chosen for {chosenForLabel}</p>
                 </div>
                 {displayIdeas.length === 0 ? (

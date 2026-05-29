@@ -41,7 +41,7 @@ export function HomeHowWeChoose() {
             ))}
           </div>
           <a
-            href="/discover#safety"
+            href="/safety-rules"
             className="text-[var(--ember-text-low)] hover:text-[var(--ember-accent-base)] transition-colors underline"
           >
             See our safety rules
