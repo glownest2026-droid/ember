@@ -52,7 +52,7 @@
   ],
   "proof": {
     "build": "pass",
-    "preview_url": "",
+    "preview_url": "https://ember-git-feat-awin-review-ready-7326ab-tims-projects-cd69a894.vercel.app",
     "manual_qa_notes": "Founder manual QA checklist in PR; deep link /discover/26?wrapper=little-hands&show=1 documented in web/docs/awin-reapplication.md"
   },
   "rollback": [
@@ -63,5 +63,6 @@
     "Add /privacy, /terms, /contact public pages when legal copy exists",
     "Optional signed-in trust links in account/settings"
   ],
-  "timestamp": "2026-05-29T12:00:00.000Z"
+  "pr_url": "https://github.com/glownest2026-droid/ember/pull/218",
+  "timestamp": "2026-05-29T06:51:00.000Z"
 }
