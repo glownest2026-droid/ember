@@ -114,13 +114,16 @@ export function HomeAgeSlider() {
               />
             </div>
 
-            {/* Inset by half the thumb width (12px) so the tick labels line up with the
-                native slider thumb positions across the whole track. */}
-            <div className="relative mx-3 mt-3 h-9">
+            {/* Inset by half the thumb width (12px) so the ticks line up with the
+                native slider thumb positions across the whole track. Every band gets a
+                tick mark; labels thin out on small screens so they stay readable. */}
+            <div className="relative mx-3 mt-3 h-12">
               {ready
                 ? bands.map((band, index) => {
                     const pct = lastIndex > 0 ? (index / lastIndex) * 100 : 0;
                     const active = index === selectedIndex;
+                    const isEdge = index === 0 || index === lastIndex;
+                    const showLabelOnMobile = active || isEdge || index % 2 === 0;
                     return (
                       <button
                         key={band.id}
@@ -131,7 +134,14 @@ export function HomeAgeSlider() {
                         aria-label={longLabel(band)}
                       >
                         <span
-                          className={`text-[11px] leading-tight whitespace-nowrap transition-colors ${
+                          className={`mb-1 block w-[2px] rounded-full transition-all ${
+                            active ? 'h-3 bg-[var(--ember-accent-base)]' : 'h-2 bg-[var(--ember-border-subtle)]'
+                          }`}
+                        />
+                        <span
+                          className={`text-[10px] sm:text-[11px] leading-tight whitespace-nowrap transition-colors ${
+                            showLabelOnMobile ? 'block' : 'hidden sm:block'
+                          } ${
                             active
                               ? 'text-[var(--ember-accent-base)] font-semibold'
                               : 'text-[var(--ember-text-low)]'

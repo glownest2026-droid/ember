@@ -5,6 +5,7 @@
   1. The `/api/discover/age-bands` route wrapped `getGatewayAgeBandsPublic()` (which calls `cookies()`) in `unstable_cache`, which throws — so the route returned `[]` and the slider fell back to hardcoded (wrong) bands. Switched the route to read the function directly (uncached; CDN cached via headers).
   2. The slider only rendered the two end labels. Now renders **all** bands as tick labels, derived from `min_months`/`max_months` exactly like `/discover`'s `formatBandLabel` (the live source uses e.g. `22–24 months`, not the `label` field). Ticks are inset by half the thumb width to align with the native slider thumb.
   - Removed the hardcoded fallback bands entirely so the homepage never shows numbers that disagree with `/discover`; shows a loading state until the real taxonomy loads.
+  - Verified the live endpoint returns the real 13-band taxonomy (`0–0m … 34–36m`) — the homepage now renders all of them (tick mark per band; labels thinned on mobile), matching `/discover` exactly.
   - Files: `web/src/components/home/HomeAgeSlider.tsx`, `web/src/app/api/discover/age-bands/route.ts`.
 
 ## fix(snag-pack): home slider now reuses the /discover slider (30 May 2026)
