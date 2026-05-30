@@ -4,11 +4,13 @@ import { motion } from 'motion/react';
 import type { LucideIcon } from 'lucide-react';
 import { Lightbulb, ShoppingBag, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { useReducedMotion } from 'motion/react';
 
 const EMBER_LOGO = 'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
-const CARDS = [
+const CARDS: { icon: LucideIcon; title: string; body: ReactNode }[] = [
   {
     icon: Lightbulb,
     title: 'Know it',
@@ -22,7 +24,18 @@ const CARDS = [
   {
     icon: RefreshCw,
     title: 'Move it',
-    body: "When it's outgrown, pass it on safely. We help match it with the next family who needs it.",
+    body: (
+      <>
+        When it&apos;s outgrown, pass it on safely through the{' '}
+        <Link
+          href="/marketplace"
+          className="text-[var(--ember-accent-base)] underline underline-offset-2 hover:text-[var(--ember-accent-hover)]"
+        >
+          family marketplace
+        </Link>
+        .
+      </>
+    ),
   },
 ];
 

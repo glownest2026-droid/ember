@@ -1,11 +1,28 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Shield, Lock, Bell, ArrowRight } from 'lucide-react';
+import { createClient } from '@/utils/supabase/client';
 import { FAQItem } from './faq';
 import { InteractiveComparison } from './interactive-comparison';
 import { PricingCard } from './pricing-card';
 
 export default function PricingPageFigmaClient() {
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => setSignedIn(!!user));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session?.user);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Signed-out users start free by signing in; signed-in users go straight to Discover.
+  const startFreeHref = signedIn ? '/discover' : '/signin?next=/discover';
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--ember-gray-100)' }}>
       <section className="pt-16 pb-20 lg:pt-24 lg:pb-28">
@@ -38,6 +55,7 @@ export default function PricingPageFigmaClient() {
                 '1 child profile',
               ]}
               ctaText="Start free"
+              ctaHref={startFreeHref}
             />
             <PricingCard
               name="Ember Plus"
@@ -131,7 +149,8 @@ export default function PricingPageFigmaClient() {
               Start free, upgrade when you want Ember to take more off your plate
             </h2>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-              <button
+              <Link
+                href={startFreeHref}
                 className="rounded-xl px-10 py-5 flex items-center gap-2 transition-all duration-300"
                 style={{ backgroundColor: 'var(--ember-primary)', color: 'white', fontWeight: 600, fontSize: '1.125rem' }}
                 onMouseEnter={(e) => {
@@ -147,7 +166,7 @@ export default function PricingPageFigmaClient() {
               >
                 Start free
                 <ArrowRight size={20} />
-              </button>
+              </Link>
               <button
                 className="rounded-xl px-10 py-5 transition-all duration-300"
                 style={{ backgroundColor: 'transparent', color: 'var(--ember-gray-900)', border: '2px solid var(--ember-gray-300)', fontWeight: 600, fontSize: '1.125rem' }}

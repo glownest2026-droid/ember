@@ -1,3 +1,26 @@
+## fix(snag-pack): home slider true alignment with /discover bands (30 May 2026)
+
+- **Branch:** `fix/snag-pack-discover-home`
+- **Snag #1 (re-fix 2):** Two bugs found after review:
+  1. The `/api/discover/age-bands` route wrapped `getGatewayAgeBandsPublic()` (which calls `cookies()`) in `unstable_cache`, which throws — so the route returned `[]` and the slider fell back to hardcoded (wrong) bands. Switched the route to read the function directly (uncached; CDN cached via headers).
+  2. The slider only rendered the two end labels. Now renders **all** bands as tick labels, derived from `min_months`/`max_months` exactly like `/discover`'s `formatBandLabel` (the live source uses e.g. `22–24 months`, not the `label` field). Ticks are inset by half the thumb width to align with the native slider thumb.
+  - Removed the hardcoded fallback bands entirely so the homepage never shows numbers that disagree with `/discover`; shows a loading state until the real taxonomy loads.
+  - Verified the live endpoint returns the real 13-band taxonomy (`0–0m … 34–36m`) — the homepage now renders all of them (tick mark per band; labels thinned on mobile), matching `/discover` exactly.
+  - Files: `web/src/components/home/HomeAgeSlider.tsx`, `web/src/app/api/discover/age-bands/route.ts`.
+
+## fix(snag-pack): home slider now reuses the /discover slider (30 May 2026)
+
+- **Branch:** `fix/snag-pack-discover-home`
+- **Snag #1 (re-fix):** Replaced the homepage's custom slider with the exact `/discover` native slider (`discovery-age-slider` + `discovery-slider-wrap`, native thumb so no handle/line drift). "Begin your journey" routes to `/discover/<band.min_months>`, matching `/discover`'s own slider navigation. Files: `web/src/components/home/HomeAgeSlider.tsx`, `web/src/app/api/discover/age-bands/route.ts`.
+
+## fix(snag-pack): feedback round — slider, ideas heading, start-over FAB (30 May 2026)
+
+- **Branch:** `fix/snag-pack-discover-home`
+- **Snag #1 (home slider):** Relabelled the homepage age slider to mirror the `/discover` band taxonomy (`23–25m, 25–27m, 28–30m, 31–33m, 34–36m`) and switched to index-based positioning so the drag handle, fill and tick labels all derive from the same fraction — fixes the handle/line misalignment. "Begin your journey" now routes to `/discover/<band midpoint>`. File: `web/src/components/home/HomeAgeSlider.tsx`.
+- **Snag #5 (ideas heading):** Capitalise the first letter of the development name in `Ideas for "…"` (e.g. `i'm` → `I'm`). File: `web/src/app/discover/[months]/DiscoveryPageClient.tsx`.
+- **Snag #6 (start over):** Floating "Start over" FAB now gated on an `IntersectionObserver` over the `Ideas for…` section, so it only shows while that section is in view and hides when scrolled back up. File: `web/src/app/discover/[months]/DiscoveryPageClient.tsx`.
+- **Build:** `pnpm -C web build` — pass (30 May 2026)
+
 ## fix(discover): stop redirect loop after performance cleanup (29 May 2026)
 
 - **Branch:** `fix/discover-redirect-loop-after-performance-cleanup`
@@ -3300,3 +3323,27 @@ Category-only cards remain publishable.
 - PR: (see GitHub after push)
 - Latest Preview URL: (Vercel preview on PR)
 - Start here: `web/src/components/compliance/`, `web/src/app/discover/[months]/`, `web/docs/awin-reapplication.md`
+
+## 2026-05-30 — Snag pack: home/discover/marketplace/nav fixes
+
+### Summary
+- **Home slider sync:** "Begin your journey" now navigates to `/discover/<band midpoint>` so the landing band matches the slider selection (no more 30–33m → 25–27m jump).
+- **Home "Move it" copy:** Now reads "pass it on safely through the family marketplace" with "family marketplace" linked to `/marketplace`.
+- **Discover hero personalisation:** Added cost-effective server helper `getGatewayHeroImageForAgeBand` (one category-type query + one batched image lookup, only when no wrapper is selected) so the hero pulls a category image from the child's age band.
+- **Discover anchoring:** Clicking a development card now anchors to "why it matters" on both mobile and desktop, followed by an animated down-arrow ("See the ideas") that scrolls to the ideas.
+- **Discover copy:** "Ideas for …" now wraps the development in quotes, e.g. Ideas for “i'm doing more by myself”.
+- **Discover Start over:** The Start over control is now always visible while a focus/ideas are shown (was only near the page bottom).
+- **Discover icon:** Development idea card save button uses the lucide `Save` icon (was `Bookmark`).
+- **Saves experience:** `/verify` now honours `next` (and `/signin` passes `next` to the code links) so a signed-out save → sign-in returns to the same `/discover` card; the "Saved to your child's ideas" popup is shown by the existing pending-action replay.
+- **My Ideas auto-listing:** "Move it on" now opens the marketplace manual listing flow pre-filled with the item name, landing on Step 2 ("What item").
+- **Navigation:** Added "Marketplace" after "Pricing" in the signed-out header (desktop + mobile).
+- **Pricing:** Signed-out "Start free" CTAs now link to `/signin` (signed-in → `/discover`).
+- **Marketplace:** Signed-out "Join early access" now links to `/signin` (signed-in → `/success`).
+
+### DB & RLS
+- No schema changes. No RLS changes. No new dependencies. No child name fields added.
+
+### Verification
+- Build: pass (`pnpm build` in `web/`)
+- Lint: clean on edited files
+- Preview: see PR / Vercel

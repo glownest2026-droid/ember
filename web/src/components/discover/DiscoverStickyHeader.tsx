@@ -38,6 +38,7 @@ export default function DiscoverStickyHeader() {
 
   const isDiscover = pathname?.startsWith('/discover') ?? false;
   const isPricing = pathname === '/pricing';
+  const isMarketplace = pathname?.startsWith('/marketplace') ?? false;
   const isHome = pathname === '/';
 
   useEffect(() => {
@@ -110,6 +111,9 @@ export default function DiscoverStickyHeader() {
           <Link href="/pricing" className={figmaMutedNavLinkClass(isPricing)}>
             Pricing
           </Link>
+          <Link href="/marketplace" className={figmaMutedNavLinkClass(isMarketplace)}>
+            Marketplace
+          </Link>
           <Link href={signinHref} className={figmaMutedNavLinkClass()}>
             Sign in
           </Link>
@@ -154,6 +158,13 @@ export default function DiscoverStickyHeader() {
               className={`rounded-xl px-3 py-3 ${figmaMutedNavLinkClass(isPricing)}`}
             >
               Pricing
+            </Link>
+            <Link
+              href="/marketplace"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`rounded-xl px-3 py-3 ${figmaMutedNavLinkClass(isMarketplace)}`}
+            >
+              Marketplace
             </Link>
             <Link
               href={signinHref}

@@ -2,7 +2,8 @@
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useReducedMotion } from 'motion/react';
+import { useReducedMotion, motion } from 'motion/react';
+import { ChevronDown } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { EVENTS } from '@/lib/analytics/eventNames';
 import { trackEvent } from '@/lib/analytics/trackEvent';
@@ -65,6 +66,8 @@ interface DiscoveryPageClientProps {
   picks: PickItem[];
   exampleProducts: PickItem[];
   categoryTypes: GatewayCategoryTypePublic[];
+  /** Representative category image for the age band (hero fallback when no wrapper selected). */
+  bandHeroImageUrl?: string | null;
   showDebug?: boolean;
   initialChildId?: string;
   /** From server (reliable session); fixes hero when client searchParams/user timing is wrong */
@@ -85,6 +88,7 @@ export default function DiscoveryPageClient({
   picks,
   exampleProducts,
   categoryTypes,
+  bandHeroImageUrl = null,
   showDebug = false,
   initialChildId,
   serverPersonalization = null,
@@ -114,7 +118,7 @@ export default function DiscoveryPageClient({
   const whyMattersSectionRef = useRef<HTMLElement | null>(null);
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
-  const [showStartOverFab, setShowStartOverFab] = useState(false);
+  const [ideasSectionInView, setIdeasSectionInView] = useState(false);
   const replayAttemptedRef = useRef(false);
   const basePath = '/discover';
   const { user, refetch: refetchSubnavStats } = useSubnavStats();
@@ -301,30 +305,38 @@ export default function DiscoveryPageClient({
     if (!layerBReady || !pendingScrollToNextSteps) return;
     const behavior = shouldReduceMotion ? ('auto' as const) : ('smooth' as const);
     requestAnimationFrame(() => {
-      const isMobile = window.matchMedia('(max-width: 767px)').matches;
-      const el = isMobile ? nextStepsSectionRef.current : whyMattersSectionRef.current;
+      // Anchor to "why it matters" on both mobile and desktop; the animated arrow
+      // below it then guides the user down to the actual ideas.
+      const el = whyMattersSectionRef.current ?? nextStepsSectionRef.current;
       if (!el) {
         setPendingScrollToNextSteps(false);
         return;
       }
       const headerOffset = 72;
-      const bottomNavOffset = isMobile ? 88 : 0;
       const rect = el.getBoundingClientRect();
-      let targetTop = rect.top + window.scrollY - headerOffset;
-      if (isMobile) {
-        // Nudge into ideas carousel so the first card CTA row stays above the bottom tab bar.
-        targetTop = Math.max(0, targetTop + 48);
-        const viewport = window.innerHeight - headerOffset - bottomNavOffset;
-        const ideasEnd = targetTop + el.offsetHeight;
-        const maxScroll = Math.max(0, ideasEnd - viewport + 24);
-        targetTop = Math.min(targetTop, maxScroll);
-      }
+      const targetTop = Math.max(0, rect.top + window.scrollY - headerOffset);
       if (window.scrollY < targetTop - 20 || window.scrollY > targetTop + 20) {
         window.scrollTo({ top: targetTop, behavior });
       }
       setPendingScrollToNextSteps(false);
     });
   }, [layerBReady, pendingScrollToNextSteps, shouldReduceMotion]);
+
+  // Snag #6: only surface the floating "Start over" while the "Ideas for…" section
+  // is within the viewport. Scrolling back up (out of the ideas section) hides it.
+  useEffect(() => {
+    const el = nextStepsSectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setIdeasSectionInView(false);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setIdeasSectionInView(entry?.isIntersecting ?? false),
+      { rootMargin: '-72px 0px -10% 0px', threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [layerBReady, selectedWrapper]);
 
   const handleWrapperSelect = (wrapperSlug: string) => {
     if (selectedWrapper === wrapperSlug) {
@@ -908,36 +920,17 @@ export default function DiscoveryPageClient({
 
   const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
   const scienceTitle = 'Why this matters now';
+  const ideasDevelopmentName = (() => {
+    const lower = selectedWrapperLabel.trim().toLowerCase();
+    return lower ? lower.charAt(0).toUpperCase() + lower.slice(1) : lower;
+  })();
   const ideasSectionTitle = selectedWrapperLabel
-    ? `Ideas for ${selectedWrapperLabel.toLowerCase()}`
+    ? `Ideas for “${ideasDevelopmentName}”`
     : 'Ideas to try';
+  // Show the Start over control only while ideas are available to reset.
   const startOverVisible = Boolean(selectedWrapper || (showPicks && displayIdeas.length > 0));
-
-  useEffect(() => {
-    if (!startOverVisible) {
-      setShowStartOverFab(false);
-      return;
-    }
-    const bottomThresholdPx = 120;
-    const update = () => {
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      if (maxScroll <= bottomThresholdPx) {
-        setShowStartOverFab(true);
-        return;
-      }
-      setShowStartOverFab(window.scrollY >= maxScroll - bottomThresholdPx);
-    };
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    const ro = new ResizeObserver(update);
-    ro.observe(document.documentElement);
-    return () => {
-      window.removeEventListener('scroll', update);
-      window.removeEventListener('resize', update);
-      ro.disconnect();
-    };
-  }, [startOverVisible, selectedWrapper, discoverState, displayIdeas.length, categoryTypes.length]);
+  // Snag #6: the floating FAB is gated on the "Ideas for…" section being in view.
+  const showStartOverFab = startOverVisible && ideasSectionInView;
   const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
   const bandLabel = formatBandLabel(selectedBand);
   const examplesHaveRetailerLinks = useMemo(
@@ -979,7 +972,7 @@ export default function DiscoveryPageClient({
               : (monthParam ?? 26)
           }
           bandLabel={bandLabel}
-          heroImageUrl={categoryTypes[0]?.image_url ?? exampleProducts[0]?.product?.image_url ?? null}
+          heroImageUrl={categoryTypes[0]?.image_url ?? bandHeroImageUrl ?? exampleProducts[0]?.product?.image_url ?? null}
           selectedBandIndex={selectedBandIndex}
           bandCount={ageBands.length}
           sliderProgress={sliderProgress}
@@ -1031,6 +1024,27 @@ export default function DiscoveryPageClient({
                     We&apos;re adding more detail for this focus soon.
                   </p>
                 )}
+                {playIdeaItems.length > 0 ? (
+                  <div className="flex justify-center mt-6">
+                    <motion.button
+                      type="button"
+                      onClick={() => scrollToSection('discover-figma-ideas')}
+                      aria-label="Scroll down to the ideas"
+                      className="flex flex-col items-center gap-1 text-[#66717D] hover:text-[#FF5C34] transition-colors"
+                      animate={shouldReduceMotion ? undefined : { y: [0, 8, 0] }}
+                      transition={
+                        shouldReduceMotion
+                          ? undefined
+                          : { duration: 1.4, repeat: Infinity, ease: 'easeInOut' }
+                      }
+                    >
+                      <span className="text-[13px] font-medium">See the ideas</span>
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E7E2DC] bg-white shadow-sm">
+                        <ChevronDown size={20} strokeWidth={2.5} aria-hidden />
+                      </span>
+                    </motion.button>
+                  </div>
+                ) : null}
               </section>
             ) : null}
 
@@ -1143,7 +1157,7 @@ export default function DiscoveryPageClient({
         )}
       </main>
 
-      {startOverVisible && showStartOverFab ? (
+      {showStartOverFab ? (
         <div className="fixed bottom-20 lg:bottom-6 left-0 right-0 z-30 pointer-events-none">
           <div className={`${EMBER_FIGMA_APP_CONTAINER} flex justify-center`}>
             <button
