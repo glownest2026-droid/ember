@@ -25,6 +25,9 @@ export function HomeAgeSlider() {
   const [ageRange, setAgeRange] = useState(6);
   const reducedMotion = useReducedMotion() ?? false;
   const currentAgeLabel = AGE_RANGES.find((r) => r.value === ageRange)?.label ?? '6–9 months';
+  // Send the band midpoint month so /discover resolves to the matching age band
+  // (its taxonomy starts at 23m; younger selections fall back to the youngest band).
+  const discoverHref = `/discover/${ageRange + 2}`;
 
   return (
     <section className="bg-[var(--ember-surface-primary)] border-y border-[var(--ember-border-subtle)]">
@@ -111,9 +114,9 @@ export function HomeAgeSlider() {
           </div>
 
           <div className="text-center">
-            <Link href="/discover" passHref legacyBehavior>
+            <Link href={discoverHref} passHref legacyBehavior>
               <motion.a
-                href="/discover"
+                href={discoverHref}
                 whileHover={reducedMotion ? {} : { scale: 1.02 }}
                 whileTap={reducedMotion ? {} : { scale: 0.98 }}
                 className="inline-flex items-center gap-3 px-10 py-5 bg-[var(--ember-accent-base)] text-white text-lg rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_12px_40px_rgba(255,99,71,0.35)]"

@@ -3300,3 +3300,27 @@ Category-only cards remain publishable.
 - PR: (see GitHub after push)
 - Latest Preview URL: (Vercel preview on PR)
 - Start here: `web/src/components/compliance/`, `web/src/app/discover/[months]/`, `web/docs/awin-reapplication.md`
+
+## 2026-05-30 — Snag pack: home/discover/marketplace/nav fixes
+
+### Summary
+- **Home slider sync:** "Begin your journey" now navigates to `/discover/<band midpoint>` so the landing band matches the slider selection (no more 30–33m → 25–27m jump).
+- **Home "Move it" copy:** Now reads "pass it on safely through the family marketplace" with "family marketplace" linked to `/marketplace`.
+- **Discover hero personalisation:** Added cost-effective server helper `getGatewayHeroImageForAgeBand` (one category-type query + one batched image lookup, only when no wrapper is selected) so the hero pulls a category image from the child's age band.
+- **Discover anchoring:** Clicking a development card now anchors to "why it matters" on both mobile and desktop, followed by an animated down-arrow ("See the ideas") that scrolls to the ideas.
+- **Discover copy:** "Ideas for …" now wraps the development in quotes, e.g. Ideas for “i'm doing more by myself”.
+- **Discover Start over:** The Start over control is now always visible while a focus/ideas are shown (was only near the page bottom).
+- **Discover icon:** Development idea card save button uses the lucide `Save` icon (was `Bookmark`).
+- **Saves experience:** `/verify` now honours `next` (and `/signin` passes `next` to the code links) so a signed-out save → sign-in returns to the same `/discover` card; the "Saved to your child's ideas" popup is shown by the existing pending-action replay.
+- **My Ideas auto-listing:** "Move it on" now opens the marketplace manual listing flow pre-filled with the item name, landing on Step 2 ("What item").
+- **Navigation:** Added "Marketplace" after "Pricing" in the signed-out header (desktop + mobile).
+- **Pricing:** Signed-out "Start free" CTAs now link to `/signin` (signed-in → `/discover`).
+- **Marketplace:** Signed-out "Join early access" now links to `/signin` (signed-in → `/success`).
+
+### DB & RLS
+- No schema changes. No RLS changes. No new dependencies. No child name fields added.
+
+### Verification
+- Build: pass (`pnpm build` in `web/`)
+- Lint: clean on edited files
+- Preview: see PR / Vercel

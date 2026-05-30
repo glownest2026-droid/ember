@@ -216,6 +216,19 @@ function MarketplacePageContent() {
     }
   }, [children, childParam, childrenLoaded]);
 
+  // "Move it on" from /my-ideas: open the manual listing flow pre-filled with the item name.
+  const prelistParam = searchParams.get("prelist");
+  const prelistItem = searchParams.get("item");
+  const [prelistFormData, setPrelistFormData] = useState<Partial<ListingData> | null>(null);
+  const [prelistHandled, setPrelistHandled] = useState(false);
+  useEffect(() => {
+    if (prelistHandled) return;
+    if (prelistParam !== "1" || !user) return;
+    setPrelistFormData(prelistItem ? { itemName: prelistItem } : {});
+    setListingModalOpen(true);
+    setPrelistHandled(true);
+  }, [prelistParam, prelistItem, user, prelistHandled]);
+
   const editId = searchParams.get("edit");
   useEffect(() => {
     if (!editId || !user) {
@@ -333,7 +346,7 @@ function MarketplacePageContent() {
                 transition={{ duration: 0.6, delay: 0.25 }}
               >
                 <Button size="lg" asChild>
-                  <Link href="/success">Join early access</Link>
+                  <Link href={user ? "/success" : "/signin"}>Join early access</Link>
                 </Button>
               </motion.div>
 
@@ -578,7 +591,7 @@ function MarketplacePageContent() {
             Coming Soon
           </p>
           <Button size="lg" variant="secondary" asChild className="bg-white text-[#1A1E23] hover:bg-[#F1F3F2]">
-            <Link href="/success">Join early access</Link>
+            <Link href={user ? "/success" : "/signin"}>Join early access</Link>
           </Button>
         </div>
       </section>
@@ -632,6 +645,7 @@ function MarketplacePageContent() {
               setEditListingId(null);
               setEditFormData(null);
               setEditPhotos([]);
+              setPrelistFormData(null);
             }}
             onComplete={(data) => {
               setSubmittedListing(data);
@@ -640,11 +654,12 @@ function MarketplacePageContent() {
               setEditListingId(null);
               setEditFormData(null);
               setEditPhotos([]);
+              setPrelistFormData(null);
             }}
             selectedChildId={selectedChildId}
             selectedChildName={selectedChildName}
             initialListingId={editListingId}
-            initialFormData={editFormData}
+            initialFormData={editFormData ?? prelistFormData}
             initialPhotos={editPhotos}
           />
           <SuccessModal

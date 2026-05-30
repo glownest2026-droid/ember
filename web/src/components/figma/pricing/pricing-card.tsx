@@ -1,6 +1,7 @@
 'use client';
 
 import { Check } from 'lucide-react';
+import Link from 'next/link';
 
 interface PricingCardProps {
   name: string;
@@ -12,6 +13,8 @@ interface PricingCardProps {
   recommended?: boolean;
   badge?: string;
   annualPrice?: string;
+  /** When set, the CTA renders as a link to this destination. */
+  ctaHref?: string;
 }
 
 export function PricingCard({
@@ -24,6 +27,7 @@ export function PricingCard({
   recommended = false,
   badge,
   annualPrice,
+  ctaHref,
 }: PricingCardProps) {
   return (
     <div
@@ -142,36 +146,52 @@ export function PricingCard({
         ))}
       </ul>
 
-      <button
-        className="w-full rounded-xl px-6 py-3 transition-all duration-300"
-        style={{
-          backgroundColor: recommended ? 'var(--ember-primary)' : 'transparent',
-          color: recommended ? 'white' : 'var(--ember-gray-900)',
-          border: recommended ? 'none' : '2px solid var(--ember-gray-300)',
-          fontWeight: 600,
-          fontSize: '0.9375rem',
-        }}
-        onMouseEnter={(e) => {
-          if (recommended) {
-            e.currentTarget.style.backgroundColor = 'var(--ember-primary-dark)';
-            e.currentTarget.style.transform = 'scale(1.02)';
-          } else {
-            e.currentTarget.style.borderColor = 'var(--ember-primary)';
-            e.currentTarget.style.color = 'var(--ember-primary)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (recommended) {
-            e.currentTarget.style.backgroundColor = 'var(--ember-primary)';
-            e.currentTarget.style.transform = 'scale(1)';
-          } else {
-            e.currentTarget.style.borderColor = 'var(--ember-gray-300)';
-            e.currentTarget.style.color = 'var(--ember-gray-900)';
-          }
-        }}
-      >
-        {ctaText}
-      </button>
+      {ctaHref ? (
+        <Link
+          href={ctaHref}
+          className="w-full rounded-xl px-6 py-3 transition-all duration-300 text-center block"
+          style={{
+            backgroundColor: recommended ? 'var(--ember-primary)' : 'transparent',
+            color: recommended ? 'white' : 'var(--ember-gray-900)',
+            border: recommended ? 'none' : '2px solid var(--ember-gray-300)',
+            fontWeight: 600,
+            fontSize: '0.9375rem',
+          }}
+        >
+          {ctaText}
+        </Link>
+      ) : (
+        <button
+          className="w-full rounded-xl px-6 py-3 transition-all duration-300"
+          style={{
+            backgroundColor: recommended ? 'var(--ember-primary)' : 'transparent',
+            color: recommended ? 'white' : 'var(--ember-gray-900)',
+            border: recommended ? 'none' : '2px solid var(--ember-gray-300)',
+            fontWeight: 600,
+            fontSize: '0.9375rem',
+          }}
+          onMouseEnter={(e) => {
+            if (recommended) {
+              e.currentTarget.style.backgroundColor = 'var(--ember-primary-dark)';
+              e.currentTarget.style.transform = 'scale(1.02)';
+            } else {
+              e.currentTarget.style.borderColor = 'var(--ember-primary)';
+              e.currentTarget.style.color = 'var(--ember-primary)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (recommended) {
+              e.currentTarget.style.backgroundColor = 'var(--ember-primary)';
+              e.currentTarget.style.transform = 'scale(1)';
+            } else {
+              e.currentTarget.style.borderColor = 'var(--ember-gray-300)';
+              e.currentTarget.style.color = 'var(--ember-gray-900)';
+            }
+          }}
+        >
+          {ctaText}
+        </button>
+      )}
     </div>
   );
 }

@@ -1,17 +1,19 @@
 // web/src/app/verify/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { createClient } from '../../utils/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { EVENTS } from '@/lib/analytics/eventNames';
 import { trackEvent } from '@/lib/analytics/trackEvent';
 
-export default function VerifyPage() {
+function VerifyPageContent() {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get('next') || '/discover';
 
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
@@ -41,7 +43,7 @@ export default function VerifyPage() {
       // Fail closed: never block login UX.
     }
 
-    router.push('/app');
+    router.push(next);
   }
 
   return (
@@ -76,5 +78,13 @@ export default function VerifyPage() {
         <button className="btn btn-primary" type="submit">Verify & sign in</button>
       </form>
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<div className="container-wrap py-8 min-h-[40vh]" aria-busy="true" />}>
+      <VerifyPageContent />
+    </Suspense>
   );
 }

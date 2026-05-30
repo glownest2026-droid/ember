@@ -168,6 +168,35 @@ export async function getGatewayCategoryTypeImages(
 }
 
 /**
+ * Pick a single representative category image for an age band, for the /discover hero.
+ *
+ * Cost-effective: one query for the band's category types (a small set, ordered by rank)
+ * plus one batched lookup of founder-managed images. Returns the first available image so
+ * the hero reflects the age band's development cards without fetching every wrapper.
+ */
+export async function getGatewayHeroImageForAgeBand(ageBandId: string): Promise<string | null> {
+  const supabase = createClient();
+
+  const { data: categoryRows, error: categoryError } = await supabase
+    .from('v_gateway_category_types_public')
+    .select('id, image_url, rank')
+    .eq('age_band_id', ageBandId)
+    .order('rank', { ascending: true });
+
+  if (categoryError || !categoryRows || categoryRows.length === 0) return null;
+
+  const rows = categoryRows as { id: string; image_url: string | null; rank: number }[];
+  const imageMap = await getGatewayCategoryTypeImages(rows.map((r) => r.id));
+
+  for (const row of rows) {
+    const managed = imageMap.get(row.id)?.image_url;
+    if (managed) return managed;
+    if (row.image_url) return row.image_url;
+  }
+  return null;
+}
+
+/**
  * Fetch category types for an age band + wrapper (Layer B).
  * Uses v_gateway_category_types_public via wrapper → development_need resolution.
  * Joins image_url from v_gateway_category_type_images when available.

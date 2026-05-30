@@ -13,6 +13,7 @@ function SignInPageContent() {
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const next = searchParams.get('next') || '/discover';
+  const verifyHref = `/verify?next=${encodeURIComponent(next)}`;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -53,7 +54,7 @@ function SignInPageContent() {
         </p>
         <p className="text-sm mt-3">
           Email link not working?{' '}
-          <a href="/verify" className="underline">Use a 6-digit code instead</a>.
+          <a href={verifyHref} className="underline">Use a 6-digit code instead</a>.
         </p>
       </div>
     );
@@ -107,7 +108,7 @@ function SignInPageContent() {
       </div>
       <p className="text-sm mt-3">
         Email link not working?{' '}
-        <a href="/verify" className="underline">Use a 6-digit code instead</a>.
+        <a href={verifyHref} className="underline">Use a 6-digit code instead</a>.
       </p>
       <div className="mt-4 pt-4 border-t">
         <a 

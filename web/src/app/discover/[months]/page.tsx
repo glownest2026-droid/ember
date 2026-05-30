@@ -8,6 +8,7 @@ import {
   getGatewayTopPicksForAgeBandAndWrapperSlug,
   getGatewayTopProductsForAgeBand,
   getGatewayWrappersForAgeBand,
+  getGatewayHeroImageForAgeBand,
   type GatewayAgeBandPublic,
 } from '../../../lib/pl/public';
 import { getDiscoverServerPersonalization } from '../../../lib/discover/serverDiscoverChild';
@@ -168,9 +169,16 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
 
   const serverPersonalization = await getDiscoverServerPersonalization(childParam);
 
+  // Personalise the hero with a category image from this age band's development cards.
+  // Only needed when no wrapper is selected (otherwise the selected wrapper's category
+  // image is already available client-side), keeping the extra query cost minimal.
+  const bandHeroImageUrl =
+    categoryTypes.length === 0 ? await getGatewayHeroImageForAgeBand(ageBand.id) : null;
+
   return (
     <main className="min-h-screen">
       <DiscoveryPageClient
+        bandHeroImageUrl={bandHeroImageUrl}
         key={`discover-${monthParam}-${childParam ?? 'none'}`}
         ageBands={ageBands}
         ageBand={ageBand}

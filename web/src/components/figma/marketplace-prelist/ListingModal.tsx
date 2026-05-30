@@ -90,13 +90,15 @@ export function ListingModal({
   const supabase = createClient();
 
   useEffect(() => {
-    if (isOpen && initialListingId && initialFormData) {
-      setListingId(initialListingId);
+    if (!isOpen) return;
+    // Prefilled data (editing an existing listing, or "Move it on" from /my-ideas)
+    // skips the Start choice and lands on the manual "What item" step (Step 2).
+    if (initialFormData) {
+      setListingId(initialListingId ?? null);
       setFormData({ ...defaultFormData, ...initialFormData });
       setPhotos(initialPhotos ?? []);
       setCurrentStep(1);
-    }
-    if (isOpen && !initialListingId) {
+    } else {
       setListingId(null);
       setFormData(defaultFormData);
       setPhotos([]);

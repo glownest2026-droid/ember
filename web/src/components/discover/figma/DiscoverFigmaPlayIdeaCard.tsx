@@ -1,6 +1,6 @@
 'use client';
 
-import { Bookmark, CheckCircle, ChevronRight } from 'lucide-react';
+import { Save, CheckCircle, ChevronRight } from 'lucide-react';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 
 export function DiscoverFigmaPlayIdeaCard({
@@ -63,7 +63,7 @@ export function DiscoverFigmaPlayIdeaCard({
             title="Save"
             aria-label="Save idea"
           >
-            <Bookmark size={20} strokeWidth={2.5} />
+            <Save size={20} strokeWidth={2.5} />
           </button>
           {onHaveThem ? (
             <button
