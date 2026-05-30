@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { Plus, Sparkles, Eye, RefreshCw, ArrowRight, Gift, Search, Camera, Check } from 'lucide-react';
+import { Plus, Sparkles, Eye, RefreshCw, ArrowRight, Gift, Search, Camera, Check, Trash2 } from 'lucide-react';
 import { ShareYourGiftListWidget } from './ShareYourGiftListWidget';
 import type { FamilyChild } from './ChildProfileCard';
 import type { ChildStats } from './ChildProfileCard';
@@ -65,6 +65,9 @@ export function FamilyFigmaClient({
   const [quickAddSavedToGarage, setQuickAddSavedToGarage] = useState(false);
   const [ownedCountTotal, setOwnedCountTotal] = useState(0);
   const [ownedCountByChild, setOwnedCountByChild] = useState<Record<string, number>>({});
+  const [removeChildOpen, setRemoveChildOpen] = useState(false);
+  const [removingChild, setRemovingChild] = useState(false);
+  const [removeChildError, setRemoveChildError] = useState<string | null>(null);
   const QUICK_ADD_MIN_CHARS = 3;
 
   const fetchChildren = useCallback(async () => {
@@ -220,6 +223,10 @@ export function FamilyFigmaClient({
     ? `/my-ideas?tab=products&child=${encodeURIComponent(scopedChildId)}`
     : '/my-ideas?tab=products';
   const marketplaceHref = scopedChildId ? `/marketplace?child=${encodeURIComponent(scopedChildId)}` : '/marketplace';
+  // Snag: "Quick add" opens the marketplace "Add a product" (prelist) flow.
+  const addProductHref = scopedChildId
+    ? `/marketplace?prelist=1&child=${encodeURIComponent(scopedChildId)}`
+    : '/marketplace?prelist=1';
 
   const childLabel = (() => {
     if (!scopedChild) return 'your household';
@@ -228,6 +235,48 @@ export function FamilyFigmaClient({
     const name = (scopedChild.child_name || scopedChild.display_name)?.trim();
     return name || fallback;
   })();
+
+  // Snag: remove a child from /family. Target the selected child, or the only child
+  // when "All" is active. Disabled when "All" is active with multiple children.
+  const removeTargetChild = selectedChild ?? (children.length === 1 ? children[0] : null);
+  const removeTargetLabel = (() => {
+    if (!removeTargetChild) return '';
+    const idx = children.findIndex((c) => c.id === removeTargetChild.id);
+    return (removeTargetChild.child_name || removeTargetChild.display_name)?.trim() || `Child ${Math.max(1, idx + 1)}`;
+  })();
+
+  const handleRemoveChild = useCallback(async () => {
+    if (!removeTargetChild) return;
+    const removedId = removeTargetChild.id;
+    setRemovingChild(true);
+    setRemoveChildError(null);
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setRemoveChildError('Please sign in to remove a child.');
+      setRemovingChild(false);
+      return;
+    }
+    const { error } = await supabase
+      .from('children')
+      .delete()
+      .eq('id', removedId)
+      .eq('user_id', user.id);
+    if (error) {
+      setRemoveChildError(error.message);
+      setRemovingChild(false);
+      return;
+    }
+    // Success: update local state and close the popup (no server redirect → no hang).
+    setChildren((prev) => prev.filter((c) => c.id !== removedId));
+    setSelectedView('all');
+    setRemoveChildOpen(false);
+    setRemovingChild(false);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('child');
+    params.set('deleted', '1');
+    router.replace(`/family?${params.toString()}`, { scroll: false });
+  }, [removeTargetChild, router, searchParams]);
 
   const pulseText = (() => {
     if (selectedChild) return `${childLabel} is in an active learning stage right now.`;
@@ -445,6 +494,21 @@ export function FamilyFigmaClient({
                   <Plus className="w-4 h-4" />
                   Add child
                 </Link>
+                {children.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRemoveChildError(null);
+                      setRemoveChildOpen(true);
+                    }}
+                    disabled={!removeTargetChild}
+                    title={removeTargetChild ? `Remove ${removeTargetLabel}` : 'Select a child to remove'}
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium border border-[#E5E7EB] text-[#5C646D] hover:bg-[#FFF1F0] hover:text-[#B8432B] hover:border-[#FFB4A8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#5C646D] disabled:hover:border-[#E5E7EB]"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Remove child
+                  </button>
+                )}
               </div>
             </div>
 
@@ -520,11 +584,7 @@ export function FamilyFigmaClient({
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Link
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setQuickAddOpen(true);
-                  }}
+                  href={addProductHref}
                   className="group text-left rounded-2xl px-5 py-5 lg:px-6 lg:py-6 min-h-[168px] bg-gradient-to-br from-[#FF6347] to-[#FF8870] text-white shadow-[0_8px_24px_rgba(255,99,71,0.22)] hover:shadow-[0_10px_28px_rgba(255,99,71,0.26)] transition-all block"
                 >
                   <div className="flex items-center gap-3 mb-4">
@@ -532,8 +592,8 @@ export function FamilyFigmaClient({
                       <Plus className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-base sm:text-lg font-medium m-0 leading-tight">Add what&apos;s in your house</h3>
-                      <p className="text-sm text-white/90 mt-1 leading-snug">Type or snap - we&apos;ll match it.</p>
+                      <h3 className="text-base sm:text-lg font-medium m-0 leading-tight">Move on {childLabel}&apos;s items locally</h3>
+                      <p className="text-sm text-white/90 mt-1 leading-snug">List for free in seconds. We&apos;ll matchmake a local family.</p>
                     </div>
                   </div>
                   <div className="inline-flex items-center gap-2 text-sm font-medium mt-1">
@@ -660,6 +720,53 @@ export function FamilyFigmaClient({
           </div>
         </div>
       </main>
+
+      {removeChildOpen && removeTargetChild && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="remove-child-title"
+        >
+          <button
+            type="button"
+            className="absolute inset-0"
+            onClick={() => !removingChild && setRemoveChildOpen(false)}
+            aria-label="Close"
+          />
+          <div className="relative w-full max-w-sm rounded-2xl bg-white border border-[#E5E7EB] shadow-xl p-6">
+            <h2 id="remove-child-title" className="text-lg font-medium text-[#1A1E23] mb-2">
+              Are you sure?
+            </h2>
+            <p className="text-sm text-[#5C646D] mb-4">
+              All of {removeTargetLabel}&apos;s history, saves and information will be deleted permanently.
+            </p>
+            {removeChildError && (
+              <div className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] p-3 text-sm text-[#B91C1C] mb-4">
+                {removeChildError}
+              </div>
+            )}
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setRemoveChildOpen(false)}
+                disabled={removingChild}
+                className="px-4 py-2 rounded-xl font-medium text-sm border border-[#E5E7EB] text-[#1A1E23] hover:bg-[#F7F7F7] disabled:opacity-50"
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                onClick={handleRemoveChild}
+                disabled={removingChild}
+                className="px-4 py-2 rounded-xl font-medium text-sm bg-[#DC2626] text-white hover:bg-[#B91C1C] disabled:opacity-50"
+              >
+                {removingChild ? 'Removing…' : 'Yes - remove'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {quickAddOpen && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">

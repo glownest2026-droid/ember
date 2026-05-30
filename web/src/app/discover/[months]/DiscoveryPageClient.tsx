@@ -230,10 +230,15 @@ export default function DiscoveryPageClient({
     return { min: parseInt(match[1], 10), max: parseInt(match[2], 10) };
   };
 
+  // Snag: the newborn band (0–0 months) represents an unborn baby — show "Expecting".
+  const isExpectingRange = (range: { min: number; max: number } | null): boolean =>
+    !!range && range.min === 0 && range.max === 0;
+
   const formatBandLabel = (band: AgeBand | null): string => {
     if (!band) return 'Age range';
     const range = getBandRange(band);
     if (!range) return band.label || band.id;
+    if (isExpectingRange(range)) return 'Expecting';
     return `${range.min}–${range.max} months`;
   };
 
@@ -933,6 +938,7 @@ export default function DiscoveryPageClient({
   const showStartOverFab = startOverVisible && ideasSectionInView;
   const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
   const bandLabel = formatBandLabel(selectedBand);
+  const isExpecting = isExpectingRange(getBandRange(selectedBand));
   const examplesHaveRetailerLinks = useMemo(
     () => displayIdeas.some((p) => hasOutboundRetailerUrl(p.product)),
     [displayIdeas]
@@ -972,6 +978,7 @@ export default function DiscoveryPageClient({
               : (monthParam ?? 26)
           }
           bandLabel={bandLabel}
+          isExpecting={isExpecting}
           heroImageUrl={categoryTypes[0]?.image_url ?? bandHeroImageUrl ?? exampleProducts[0]?.product?.image_url ?? null}
           selectedBandIndex={selectedBandIndex}
           bandCount={ageBands.length}

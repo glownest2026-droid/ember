@@ -23,14 +23,22 @@ function rangeOf(band: AgeBand | undefined): { min: number; max: number } | null
   return null;
 }
 
+// The newborn band (0–0 months) represents an unborn baby — show "Expecting",
+// mirroring /discover's formatBandLabel.
+function isExpectingRange(r: { min: number; max: number } | null): boolean {
+  return !!r && r.min === 0 && r.max === 0;
+}
+
 // Match /discover's formatBandLabel exactly: derive from min/max, not the label field.
 function longLabel(band: AgeBand | undefined): string {
   const r = rangeOf(band);
+  if (isExpectingRange(r)) return 'Expecting';
   return r ? `${r.min}–${r.max} months` : band?.label ?? '';
 }
 
 function shortLabel(band: AgeBand | undefined): string {
   const r = rangeOf(band);
+  if (isExpectingRange(r)) return 'Expecting';
   return r ? `${r.min}–${r.max}m` : band?.label ?? '';
 }
 
@@ -83,7 +91,7 @@ export function HomeAgeSlider() {
           className="max-w-4xl mx-auto"
         >
           <div className="text-center mb-8">
-            <p className="text-lg text-[var(--ember-text-low)] mb-2">My toddler&apos;s current age</p>
+            <p className="text-lg text-[var(--ember-text-low)] mb-2">My child&apos;s current age</p>
             <motion.p
               key={currentAgeLabel || 'loading'}
               initial={{ opacity: 0, y: -10 }}

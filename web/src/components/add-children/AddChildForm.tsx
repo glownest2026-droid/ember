@@ -171,7 +171,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-8 pb-32">
+      <main className="max-w-2xl mx-auto px-6 py-8 pb-44 md:pb-32">
         <div className="mb-8 rounded-3xl overflow-hidden shadow-lg">
           <img
             src={HERO_IMAGE}
@@ -259,7 +259,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
       </main>
 
       <div
-        className="fixed bottom-0 left-0 right-0 bg-white border-t border-[var(--ember-border-subtle)] shadow-lg px-4 sm:px-6 py-4"
+        className="fixed bottom-20 md:bottom-0 left-0 right-0 z-40 bg-white border-t border-[var(--ember-border-subtle)] shadow-lg px-4 sm:px-6 py-4"
         style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
       >
         <div className="max-w-2xl mx-auto w-full space-y-3">

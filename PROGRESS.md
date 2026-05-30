@@ -1,3 +1,25 @@
+## fix(snag-pack): feedback round — home slider Expecting, remove-child hang, sign-out CTA, sign-in → /discover (30 May 2026)
+
+- **Branch:** `fix/snag-pack-discover-family-may30` (PR #220)
+- **Feedback #1/#2 (homepage slider):** Home slider now mirrors `/discover`: the `0–0 months` band renders as **"Expecting"** (`longLabel`/`shortLabel`), and the caption changed from "My toddler's current age" → **"My child's current age"** — `HomeAgeSlider.tsx`.
+- **Feedback #3 (remove-child hang):** The confirm popup hung on "Removing…" because `deleteChild` is a server action that calls `redirect()`, which soft-navigates without unmounting the client component (modal state stuck). Replaced with a direct client-side delete (same `children` table, RLS-scoped to `user_id`), then close the popup, drop the child from local state, reset to "All", and `router.replace('/family?deleted=1')`. No hang — `FamilyFigmaClient.tsx`.
+- **Feedback #4 (sign-out CTA):** `/signout` button was a black CTA pinned to the far left (outside the page width). Now wrapped in `container-wrap` with a heading and styled as the standard orange CTA — `signout/page.tsx`.
+- **Feedback #5 (post-sign-in destination):** Sign-in still landed on the marketing homepage when `next=/`. `safeNextPath` now treats `/` as a non-destination and defaults to `/discover` — `auth-callback-url.ts`.
+- **Build:** `pnpm -C web build` — pass (30 May 2026).
+
+## fix(snag-pack): discover Expecting, family remove/quick-add, mobile CTA, sign-in redirect (30 May 2026)
+
+- **Branch:** `fix/snag-pack-discover-family-may30`
+- **Snag #1 (discover slider / Have icon):** The newborn band (`0–0 months`) now displays as **"Expecting"** on `/discover` (`formatBandLabel` in `DiscoveryPageClient.tsx`). When that stage is selected the hero headline changes to **"What your baby will need"** with prep-focused subtext (`DiscoverFigmaChildHero.tsx`, new `isExpecting` prop). The product carousel **"Have"** button icon swapped from `Check` → `CircleX` (circle-x) — `DiscoverFigmaProductCarousel.tsx`.
+- **Snag #6 (expecting baby bug):** `/discover?child=` with a **future** birthdate previously fell back to the 25–27 month default. Now future birthdates resolve to the Expecting band (month 0) — `web/src/app/discover/page.tsx`.
+- **Snag #2 (remove child):** Added a **"Remove child"** button next to **"Add child"** on `/family` with a confirm popup ("Are you sure?", explainer "All of {child}'s history, saves and information will be deleted permanently.", **Back** / **Yes - remove**). Targets the selected child (or the only child in "All" view). Reuses the existing `deleteChild` server action — `FamilyFigmaClient.tsx`.
+- **Snag #3 (family copy):** "Add what's in your house" → **"Move on {child}'s items locally"**; "Type or snap - we'll match it." → **"List for free in seconds. We'll matchmake a local family."** — `FamilyFigmaClient.tsx`.
+- **Snag #4 (quick add):** The "Quick add" card now opens the marketplace **Add a product** (prelist) flow via `/marketplace?prelist=1` (with `child` when scoped) instead of the inline modal — `FamilyFigmaClient.tsx`.
+- **Snag #5 (mobile CTA):** On `/add-children` the fixed bottom **"Add a child"** CTA was hidden behind the signed-in mobile bottom nav. Lifted it above the nav on mobile (`bottom-20 md:bottom-0`, `z-40`) and increased page bottom padding — `AddChildForm.tsx`.
+- **Snag #7 (sign-in redirect):** Added `safeNextPath()` so post-sign-in `next` never points back to an auth route (`/signin`, `/signout`, `/auth`) — defaults to `/discover`. Applied in `signin/page.tsx`, `signin/password/page.tsx`, and `auth/callback/route.ts` (`auth-callback-url.ts`).
+- **Privacy:** No new name fields or prompts added; child names are only displayed from existing data.
+- **Build:** `pnpm -C web build` — pass (30 May 2026).
+
 ## fix(snag-pack): home slider true alignment with /discover bands (30 May 2026)
 
 - **Branch:** `fix/snag-pack-discover-home`
