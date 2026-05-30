@@ -1,11 +1,13 @@
 // Auth callback: exchange code for session and SET cookies on the response (route handler only).
 import { NextRequest, NextResponse } from 'next/server';
 import { bindSupabaseToResponse } from '../../../utils/supabase/route-handler';
+import { safeNextPath } from '../../../lib/auth-callback-url';
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
-  const next = url.searchParams.get('next') ?? '/discover';
+  // Guard against post-auth loops (e.g. next=/signin): default to /discover.
+  const next = safeNextPath(url.searchParams.get('next'));
   const origin = url.origin;
 
   // Build redirect response first so we can set cookies on it

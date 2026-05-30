@@ -16,6 +16,7 @@ export function DiscoverFigmaChildHero({
   childDisplayLabel,
   monthAge,
   bandLabel,
+  isExpecting = false,
   heroImageUrl,
   selectedBandIndex,
   bandCount,
@@ -26,6 +27,8 @@ export function DiscoverFigmaChildHero({
   childGender?: string | null;
   monthAge: number;
   bandLabel: string;
+  /** True when the selected band is the newborn/expecting (0–0 months) stage. */
+  isExpecting?: boolean;
   heroImageUrl?: string | null;
   selectedBandIndex: number;
   bandCount: number;
@@ -34,8 +37,12 @@ export function DiscoverFigmaChildHero({
 }) {
   const name = childDisplayLabel?.trim() || null;
   const chipLabel = name ? `For ${name} · ${bandLabel}` : bandLabel;
-  const headline = name ? `What ${possessiveName(name)} practising now` : "What your child's practising now";
-  const sub = name
+  const headline = isExpecting
+    ? (name ? `What ${name} will need` : 'What your baby will need')
+    : (name ? `What ${possessiveName(name)} practising now` : "What your child's practising now");
+  const sub = isExpecting
+    ? `Get ready for the early days. Choose a focus and we'll show useful ideas to prepare for ${name ?? 'your baby'}.`
+    : name
     ? `At ${monthAge} months, ${name} may be getting more independent, more physical and more expressive. Choose a development and we'll show useful ideas for this stage.`
     : `At ${monthAge} months, your child may be getting more independent, more physical and more expressive. Choose a development and we'll show useful ideas for this stage.`;
 

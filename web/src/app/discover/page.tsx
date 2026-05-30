@@ -68,6 +68,13 @@ export default async function DiscoverPage({
             const rep = getRepresentativeMonthForBand(band);
             if (rep != null) representativeMonth = rep;
           }
+        } else {
+          // Birthdate is in the future (expecting). Resolve to the newborn/expecting
+          // band (month 0) instead of falling back to the 25–27 month default.
+          const expectingBand = await getAgeBandForAge(0);
+          representativeMonth = expectingBand
+            ? getRepresentativeMonthForBand(expectingBand) ?? 0
+            : 0;
         }
       }
     }

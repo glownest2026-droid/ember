@@ -33,3 +33,20 @@ export function buildAuthCallbackUrl(nextPath: string): string {
   const base = origin || (typeof window !== 'undefined' ? window.location.origin : '');
   return `${base}/auth/callback?next=${encodeURIComponent(nextPath)}`;
 }
+
+/**
+ * Resolve a safe post-sign-in destination. Prevents the "sign in → land back on
+ * sign-in" loop by rejecting auth routes (and protecting against open redirects).
+ * Defaults to `/discover`.
+ */
+export function safeNextPath(next: string | null | undefined): string {
+  const fallback = '/discover';
+  if (!next) return fallback;
+  const value = next.trim();
+  // Same-origin absolute paths only (block protocol-relative / external URLs).
+  if (!value.startsWith('/') || value.startsWith('//')) return fallback;
+  const pathOnly = value.split(/[?#]/)[0];
+  const blocked = ['/signin', '/signout', '/auth'];
+  if (blocked.some((p) => pathOnly === p || pathOnly.startsWith(`${p}/`))) return fallback;
+  return value;
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bookmark, Check, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Bookmark, CircleX, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence, type PanInfo } from 'motion/react';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 import type { GatewayPick } from '@/lib/pl/public';
@@ -137,7 +137,7 @@ export function DiscoverFigmaProductCarousel({
                       onClick={() => onHave(current.id)}
                       className="flex items-center justify-center gap-1.5 lg:gap-2 px-4 lg:px-5 py-2.5 lg:py-3 rounded-xl border-2 border-[var(--ember-border-subtle)] text-[var(--ember-text-high)] hover:border-[var(--ember-accent-base)] font-medium text-xs lg:text-sm flex-1 min-w-[100px]"
                     >
-                      <Check className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+                      <CircleX className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                       Have
                     </button>
                   ) : null}

@@ -4,7 +4,7 @@ import { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '../../utils/supabase/client';
 import { AUTH_ENABLE_GOOGLE } from '@/lib/auth-flags';
-import { buildAuthCallbackUrl } from '@/lib/auth-callback-url';
+import { buildAuthCallbackUrl, safeNextPath } from '@/lib/auth-callback-url';
 import { GoogleMark } from '@/components/icons/GoogleMark';
 
 function SignInPageContent() {
@@ -12,7 +12,8 @@ function SignInPageContent() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') || '/discover';
+  // Never send the user back to an auth route after sign-in (defaults to /discover).
+  const next = safeNextPath(searchParams.get('next'));
   const verifyHref = `/verify?next=${encodeURIComponent(next)}`;
 
   async function handleSubmit(e: React.FormEvent) {
