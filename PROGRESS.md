@@ -1,3 +1,8 @@
+## fix(snag-pack): home slider now reuses the /discover slider (30 May 2026)
+
+- **Branch:** `fix/snag-pack-discover-home`
+- **Snag #1 (re-fix):** Replaced the homepage's custom slider with the exact `/discover` native slider (`discovery-age-slider` + `discovery-slider-wrap`, native thumb so no handle/line drift). The bands are now fetched live from a new public endpoint `GET /api/discover/age-bands` (cached `getGatewayAgeBandsPublicCached`), the same source `/discover` uses — so the two sliders always stay in sync. "Begin your journey" routes to `/discover/<band.min_months>`, matching `/discover`'s own slider navigation. Files: `web/src/components/home/HomeAgeSlider.tsx`, `web/src/app/api/discover/age-bands/route.ts`.
+
 ## fix(snag-pack): feedback round — slider, ideas heading, start-over FAB (30 May 2026)
 
 - **Branch:** `fix/snag-pack-discover-home`

@@ -1,29 +1,76 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useReducedMotion } from 'motion/react';
 
-// Mirrors the /discover age-band taxonomy so the homepage slider and the core
-// experience stay in sync. `month` is the band midpoint used to resolve /discover.
-const AGE_BANDS = [
-  { month: 24, label: '23–25 months', displayShort: '23–25m' },
-  { month: 26, label: '25–27 months', displayShort: '25–27m' },
-  { month: 29, label: '28–30 months', displayShort: '28–30m' },
-  { month: 32, label: '31–33 months', displayShort: '31–33m' },
-  { month: 35, label: '34–36 months', displayShort: '34–36m' },
+type AgeBand = {
+  id: string;
+  label: string | null;
+  min_months: number | null;
+  max_months: number | null;
+};
+
+// Fallback mirrors the /discover taxonomy so the slider renders instantly and
+// still works if the bands endpoint is unavailable; the live fetch below keeps
+// the homepage and /discover in sync.
+const FALLBACK_BANDS: AgeBand[] = [
+  { id: '23-25m', label: '23–25 months', min_months: 23, max_months: 25 },
+  { id: '25-27m', label: '25–27 months', min_months: 25, max_months: 27 },
+  { id: '28-30m', label: '28–30 months', min_months: 28, max_months: 30 },
+  { id: '31-33m', label: '31–33 months', min_months: 31, max_months: 33 },
+  { id: '34-36m', label: '34–36 months', min_months: 34, max_months: 36 },
 ];
 
+function bandLabelFor(band: AgeBand | undefined): string {
+  if (!band) return '';
+  if (band.label && band.label.trim()) return band.label.trim();
+  if (band.min_months != null && band.max_months != null) {
+    return `${band.min_months}–${band.max_months} months`;
+  }
+  return '';
+}
+
 export function HomeAgeSlider() {
-  const [selectedIndex, setSelectedIndex] = useState(2);
   const reducedMotion = useReducedMotion() ?? false;
-  const lastIndex = AGE_BANDS.length - 1;
-  const selectedBand = AGE_BANDS[selectedIndex] ?? AGE_BANDS[0];
-  const currentAgeLabel = selectedBand.label;
-  const progressPct = (selectedIndex / lastIndex) * 100;
-  const discoverHref = `/discover/${selectedBand.month}`;
+  const [bands, setBands] = useState<AgeBand[]>(FALLBACK_BANDS);
+  const [selectedIndex, setSelectedIndex] = useState(() => Math.floor((FALLBACK_BANDS.length - 1) / 2));
+
+  // Pull the same age-band taxonomy /discover uses so the two sliders stay in sync.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/discover/age-bands');
+        if (!res.ok) return;
+        const data = (await res.json()) as { bands?: AgeBand[] };
+        const next = Array.isArray(data.bands) ? data.bands.filter((b) => b && b.id) : [];
+        if (!cancelled && next.length > 0) {
+          setBands(next);
+          setSelectedIndex(Math.floor((next.length - 1) / 2));
+        }
+      } catch {
+        // Keep fallback bands on failure.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const lastIndex = Math.max(0, bands.length - 1);
+  const selectedBand = bands[selectedIndex] ?? bands[0];
+  const currentAgeLabel = bandLabelFor(selectedBand);
+  const sliderProgress = useMemo(
+    () => (lastIndex > 0 ? (selectedIndex / lastIndex) * 100 : 0),
+    [selectedIndex, lastIndex]
+  );
+  // Navigate using the band's start month, exactly as the /discover slider does,
+  // so the landing page resolves to the same band the user selected here.
+  const repMonth = selectedBand?.min_months ?? 26;
+  const discoverHref = `/discover/${repMonth}`;
 
   return (
     <section className="bg-[var(--ember-surface-primary)] border-y border-[var(--ember-border-subtle)]">
@@ -37,7 +84,7 @@ export function HomeAgeSlider() {
           <div className="text-center mb-8">
             <p className="text-lg text-[var(--ember-text-low)] mb-2">My toddler&apos;s current age</p>
             <motion.p
-              key={selectedIndex}
+              key={currentAgeLabel}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reducedMotion ? 0 : 0.3 }}
@@ -48,16 +95,11 @@ export function HomeAgeSlider() {
             </motion.p>
           </div>
 
-          <div className="mb-10">
-            <div className="relative">
-              <div className="relative h-2 bg-[var(--ember-surface-soft)] rounded-full overflow-hidden">
-                <motion.div
-                  className="absolute left-0 top-0 h-full bg-gradient-to-r from-[var(--ember-accent-base)] to-[#FF8870] rounded-full"
-                  initial={false}
-                  animate={{ width: `${progressPct}%` }}
-                  transition={{ duration: reducedMotion ? 0 : 0.3, ease: 'easeOut' }}
-                />
-              </div>
+          <div className="mb-10 max-w-xl mx-auto">
+            <div
+              className="discovery-slider-wrap relative w-full h-6 mb-3"
+              style={{ ['--slider-progress' as string]: `${sliderProgress}%` }}
+            >
               <input
                 type="range"
                 min={0}
@@ -65,47 +107,13 @@ export function HomeAgeSlider() {
                 step={1}
                 value={selectedIndex}
                 onChange={(e) => setSelectedIndex(Number(e.target.value))}
-                className="absolute top-0 left-0 w-full h-2 opacity-0 cursor-pointer z-10"
-                aria-label="Select age range"
-              />
-              <motion.div
-                className="absolute top-1/2 w-6 h-6 bg-white border-4 border-[var(--ember-accent-base)] rounded-full shadow-[0px_4px_12px_rgba(0,0,0,0.15)] pointer-events-none -translate-x-1/2 -translate-y-1/2"
-                initial={false}
-                animate={{ left: `${progressPct}%` }}
-                transition={{ duration: reducedMotion ? 0 : 0.3, ease: 'easeOut' }}
+                className="discovery-age-slider w-full"
+                aria-label="Select your toddler's age range"
               />
             </div>
-
-            <div className="relative mt-6 h-12">
-              {AGE_BANDS.map((band, index) => {
-                const pct = (index / lastIndex) * 100;
-                const active = index === selectedIndex;
-                return (
-                  <button
-                    key={band.month}
-                    type="button"
-                    onClick={() => setSelectedIndex(index)}
-                    className="absolute top-0 flex flex-col items-center -translate-x-1/2 transition-all duration-200"
-                    style={{ left: `${pct}%` }}
-                    aria-label={band.label}
-                  >
-                    <div
-                      className={`w-1 h-3 rounded-full mb-2 transition-all ${
-                        active ? 'bg-[var(--ember-accent-base)] h-4' : 'bg-[var(--ember-border-subtle)]'
-                      }`}
-                    />
-                    <span
-                      className={`text-xs whitespace-nowrap transition-all ${
-                        active
-                          ? 'text-[var(--ember-accent-base)] font-semibold'
-                          : 'text-[var(--ember-text-low)]'
-                      }`}
-                    >
-                      {band.displayShort}
-                    </span>
-                  </button>
-                );
-              })}
+            <div className="flex justify-between text-xs text-[var(--ember-text-low)]">
+              <span>{bandLabelFor(bands[0]).replace(' months', 'm')}</span>
+              <span>{bandLabelFor(bands[lastIndex]).replace(' months', 'm')}</span>
             </div>
           </div>
 
