@@ -1,7 +1,16 @@
+## fix(snag-pack): home slider true alignment with /discover bands (30 May 2026)
+
+- **Branch:** `fix/snag-pack-discover-home`
+- **Snag #1 (re-fix 2):** Two bugs found after review:
+  1. The `/api/discover/age-bands` route wrapped `getGatewayAgeBandsPublic()` (which calls `cookies()`) in `unstable_cache`, which throws — so the route returned `[]` and the slider fell back to hardcoded (wrong) bands. Switched the route to read the function directly (uncached; CDN cached via headers).
+  2. The slider only rendered the two end labels. Now renders **all** bands as tick labels, derived from `min_months`/`max_months` exactly like `/discover`'s `formatBandLabel` (the live source uses e.g. `22–24 months`, not the `label` field). Ticks are inset by half the thumb width to align with the native slider thumb.
+  - Removed the hardcoded fallback bands entirely so the homepage never shows numbers that disagree with `/discover`; shows a loading state until the real taxonomy loads.
+  - Files: `web/src/components/home/HomeAgeSlider.tsx`, `web/src/app/api/discover/age-bands/route.ts`.
+
 ## fix(snag-pack): home slider now reuses the /discover slider (30 May 2026)
 
 - **Branch:** `fix/snag-pack-discover-home`
-- **Snag #1 (re-fix):** Replaced the homepage's custom slider with the exact `/discover` native slider (`discovery-age-slider` + `discovery-slider-wrap`, native thumb so no handle/line drift). The bands are now fetched live from a new public endpoint `GET /api/discover/age-bands` (cached `getGatewayAgeBandsPublicCached`), the same source `/discover` uses — so the two sliders always stay in sync. "Begin your journey" routes to `/discover/<band.min_months>`, matching `/discover`'s own slider navigation. Files: `web/src/components/home/HomeAgeSlider.tsx`, `web/src/app/api/discover/age-bands/route.ts`.
+- **Snag #1 (re-fix):** Replaced the homepage's custom slider with the exact `/discover` native slider (`discovery-age-slider` + `discovery-slider-wrap`, native thumb so no handle/line drift). "Begin your journey" routes to `/discover/<band.min_months>`, matching `/discover`'s own slider navigation. Files: `web/src/components/home/HomeAgeSlider.tsx`, `web/src/app/api/discover/age-bands/route.ts`.
 
 ## fix(snag-pack): feedback round — slider, ideas heading, start-over FAB (30 May 2026)
 

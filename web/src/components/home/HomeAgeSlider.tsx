@@ -13,32 +13,33 @@ type AgeBand = {
   max_months: number | null;
 };
 
-// Fallback mirrors the /discover taxonomy so the slider renders instantly and
-// still works if the bands endpoint is unavailable; the live fetch below keeps
-// the homepage and /discover in sync.
-const FALLBACK_BANDS: AgeBand[] = [
-  { id: '23-25m', label: '23–25 months', min_months: 23, max_months: 25 },
-  { id: '25-27m', label: '25–27 months', min_months: 25, max_months: 27 },
-  { id: '28-30m', label: '28–30 months', min_months: 28, max_months: 30 },
-  { id: '31-33m', label: '31–33 months', min_months: 31, max_months: 33 },
-  { id: '34-36m', label: '34–36 months', min_months: 34, max_months: 36 },
-];
+function rangeOf(band: AgeBand | undefined): { min: number; max: number } | null {
+  if (!band) return null;
+  const min = typeof band.min_months === 'number' ? band.min_months : NaN;
+  const max = typeof band.max_months === 'number' ? band.max_months : NaN;
+  if (!Number.isNaN(min) && !Number.isNaN(max)) return { min, max };
+  const match = band.id?.match(/(\d+)\D+(\d+)/);
+  if (match) return { min: Number(match[1]), max: Number(match[2]) };
+  return null;
+}
 
-function bandLabelFor(band: AgeBand | undefined): string {
-  if (!band) return '';
-  if (band.label && band.label.trim()) return band.label.trim();
-  if (band.min_months != null && band.max_months != null) {
-    return `${band.min_months}–${band.max_months} months`;
-  }
-  return '';
+// Match /discover's formatBandLabel exactly: derive from min/max, not the label field.
+function longLabel(band: AgeBand | undefined): string {
+  const r = rangeOf(band);
+  return r ? `${r.min}–${r.max} months` : band?.label ?? '';
+}
+
+function shortLabel(band: AgeBand | undefined): string {
+  const r = rangeOf(band);
+  return r ? `${r.min}–${r.max}m` : band?.label ?? '';
 }
 
 export function HomeAgeSlider() {
   const reducedMotion = useReducedMotion() ?? false;
-  const [bands, setBands] = useState<AgeBand[]>(FALLBACK_BANDS);
-  const [selectedIndex, setSelectedIndex] = useState(() => Math.floor((FALLBACK_BANDS.length - 1) / 2));
+  const [bands, setBands] = useState<AgeBand[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // Pull the same age-band taxonomy /discover uses so the two sliders stay in sync.
+  // Pull the exact age-band taxonomy /discover uses so the two sliders stay in sync.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -52,7 +53,7 @@ export function HomeAgeSlider() {
           setSelectedIndex(Math.floor((next.length - 1) / 2));
         }
       } catch {
-        // Keep fallback bands on failure.
+        // Leave the slider in its loading state if the taxonomy can't be fetched.
       }
     })();
     return () => {
@@ -60,16 +61,16 @@ export function HomeAgeSlider() {
     };
   }, []);
 
+  const ready = bands.length > 0;
   const lastIndex = Math.max(0, bands.length - 1);
-  const selectedBand = bands[selectedIndex] ?? bands[0];
-  const currentAgeLabel = bandLabelFor(selectedBand);
+  const selectedBand = bands[selectedIndex];
+  const currentAgeLabel = longLabel(selectedBand);
   const sliderProgress = useMemo(
     () => (lastIndex > 0 ? (selectedIndex / lastIndex) * 100 : 0),
     [selectedIndex, lastIndex]
   );
-  // Navigate using the band's start month, exactly as the /discover slider does,
-  // so the landing page resolves to the same band the user selected here.
-  const repMonth = selectedBand?.min_months ?? 26;
+  // Navigate using the band's start month, exactly as the /discover slider does.
+  const repMonth = rangeOf(selectedBand)?.min ?? 26;
   const discoverHref = `/discover/${repMonth}`;
 
   return (
@@ -84,20 +85,20 @@ export function HomeAgeSlider() {
           <div className="text-center mb-8">
             <p className="text-lg text-[var(--ember-text-low)] mb-2">My toddler&apos;s current age</p>
             <motion.p
-              key={currentAgeLabel}
+              key={currentAgeLabel || 'loading'}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reducedMotion ? 0 : 0.3 }}
               className="text-3xl lg:text-4xl text-[var(--ember-text-high)]"
               style={{ fontWeight: 600 }}
             >
-              {currentAgeLabel}
+              {ready ? currentAgeLabel : '\u00A0'}
             </motion.p>
           </div>
 
-          <div className="mb-10 max-w-xl mx-auto">
+          <div className="mb-10 max-w-2xl mx-auto">
             <div
-              className="discovery-slider-wrap relative w-full h-6 mb-3"
+              className="discovery-slider-wrap relative w-full h-6"
               style={{ ['--slider-progress' as string]: `${sliderProgress}%` }}
             >
               <input
@@ -107,13 +108,41 @@ export function HomeAgeSlider() {
                 step={1}
                 value={selectedIndex}
                 onChange={(e) => setSelectedIndex(Number(e.target.value))}
+                disabled={!ready}
                 className="discovery-age-slider w-full"
                 aria-label="Select your toddler's age range"
               />
             </div>
-            <div className="flex justify-between text-xs text-[var(--ember-text-low)]">
-              <span>{bandLabelFor(bands[0]).replace(' months', 'm')}</span>
-              <span>{bandLabelFor(bands[lastIndex]).replace(' months', 'm')}</span>
+
+            {/* Inset by half the thumb width (12px) so the tick labels line up with the
+                native slider thumb positions across the whole track. */}
+            <div className="relative mx-3 mt-3 h-9">
+              {ready
+                ? bands.map((band, index) => {
+                    const pct = lastIndex > 0 ? (index / lastIndex) * 100 : 0;
+                    const active = index === selectedIndex;
+                    return (
+                      <button
+                        key={band.id}
+                        type="button"
+                        onClick={() => setSelectedIndex(index)}
+                        className="absolute top-0 flex -translate-x-1/2 flex-col items-center"
+                        style={{ left: `${pct}%` }}
+                        aria-label={longLabel(band)}
+                      >
+                        <span
+                          className={`text-[11px] leading-tight whitespace-nowrap transition-colors ${
+                            active
+                              ? 'text-[var(--ember-accent-base)] font-semibold'
+                              : 'text-[var(--ember-text-low)]'
+                          }`}
+                        >
+                          {shortLabel(band)}
+                        </span>
+                      </button>
+                    );
+                  })
+                : null}
             </div>
           </div>
 
