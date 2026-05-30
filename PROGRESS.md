@@ -3184,6 +3184,18 @@ Category-only cards remain publishable.
 - Marker/listing interaction: pass (code)
 - Privacy checks: pass
 
+## 2026-05-30 — PR8 review fixes (PR #212)
+
+### Summary
+- Restored Gemini/AI listing env keys in `web/.env.example` (they were removed by mistake) and kept the new `NEXT_PUBLIC_MAPBOX_TOKEN` line. No runtime change; restores founder/dev setup docs.
+- Hardened map coordinates: listing coordinates are now snapped to a coarse (~1km) grid before deterministic jitter. The jitter is reversible from the public listing id, so the snap ensures a recovered point only resolves to a coarse cell — never the exact full-postcode location.
+- Corrected PR description: `mapbox-gl` is added as a real dependency (always bundled); the live map is still optional via `NEXT_PUBLIC_MAPBOX_TOKEN`.
+
+### Verification
+- PR8 smoke: pass
+- Lint: clean
+- Marker still renders within the viewer radius; only precision reduced
+
 ## 2026-05-23 — Snag pack: listings images + discover polish
 
 ### Summary

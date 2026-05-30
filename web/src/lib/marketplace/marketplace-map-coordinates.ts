@@ -1,6 +1,7 @@
 /**
  * Privacy-safe map coordinates for marketplace markers.
- * Uses broad area centroids and deterministic jitter — never exact home pins.
+ * Coordinates are snapped to a coarse (~1km) grid and then offset with
+ * deterministic jitter — never exact home pins.
  */
 
 /** Broad UK area centroids (town/sector level, not postcode-level). */
@@ -23,6 +24,18 @@ function hashListingId(listingId: string): number {
     hash = (hash * 31 + listingId.charCodeAt(i)) | 0;
   }
   return Math.abs(hash);
+}
+
+/**
+ * ~1km grid. The deterministic jitter below is reversible from the public
+ * listing id, so we first reduce precision to a coarse cell. Even if the jitter
+ * is undone, the recovered point only resolves to this cell — never the exact
+ * full-postcode location.
+ */
+const COARSE_GRID_DEG = 0.01;
+
+export function snapToCoarseGrid(value: number): number {
+  return Math.round(value / COARSE_GRID_DEG) * COARSE_GRID_DEG;
 }
 
 /** ~0.4–1.2 miles offset — clearly non-exact. */
@@ -78,7 +91,7 @@ export function resolveListingMapMarker(input: {
     lng = centroid.lng;
   }
 
-  return jitterMapMarker(input.id, lat, lng);
+  return jitterMapMarker(input.id, snapToCoarseGrid(lat), snapToCoarseGrid(lng));
 }
 
 /** GeoJSON ring for an approximate radius circle (miles). */
