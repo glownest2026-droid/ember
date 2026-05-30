@@ -118,6 +118,7 @@ export default function DiscoveryPageClient({
   const whyMattersSectionRef = useRef<HTMLElement | null>(null);
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
+  const [ideasSectionInView, setIdeasSectionInView] = useState(false);
   const replayAttemptedRef = useRef(false);
   const basePath = '/discover';
   const { user, refetch: refetchSubnavStats } = useSubnavStats();
@@ -320,6 +321,22 @@ export default function DiscoveryPageClient({
       setPendingScrollToNextSteps(false);
     });
   }, [layerBReady, pendingScrollToNextSteps, shouldReduceMotion]);
+
+  // Snag #6: only surface the floating "Start over" while the "Ideas for…" section
+  // is within the viewport. Scrolling back up (out of the ideas section) hides it.
+  useEffect(() => {
+    const el = nextStepsSectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setIdeasSectionInView(false);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setIdeasSectionInView(entry?.isIntersecting ?? false),
+      { rootMargin: '-72px 0px -10% 0px', threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [layerBReady, selectedWrapper]);
 
   const handleWrapperSelect = (wrapperSlug: string) => {
     if (selectedWrapper === wrapperSlug) {
@@ -903,11 +920,17 @@ export default function DiscoveryPageClient({
 
   const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
   const scienceTitle = 'Why this matters now';
+  const ideasDevelopmentName = (() => {
+    const lower = selectedWrapperLabel.trim().toLowerCase();
+    return lower ? lower.charAt(0).toUpperCase() + lower.slice(1) : lower;
+  })();
   const ideasSectionTitle = selectedWrapperLabel
-    ? `Ideas for “${selectedWrapperLabel.toLowerCase()}”`
+    ? `Ideas for “${ideasDevelopmentName}”`
     : 'Ideas to try';
-  // Always show the Start over control while a focus/ideas are visible (minimise bounce).
+  // Show the Start over control only while ideas are available to reset.
   const startOverVisible = Boolean(selectedWrapper || (showPicks && displayIdeas.length > 0));
+  // Snag #6: the floating FAB is gated on the "Ideas for…" section being in view.
+  const showStartOverFab = startOverVisible && ideasSectionInView;
   const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
   const bandLabel = formatBandLabel(selectedBand);
   const examplesHaveRetailerLinks = useMemo(
@@ -1134,7 +1157,7 @@ export default function DiscoveryPageClient({
         )}
       </main>
 
-      {startOverVisible ? (
+      {showStartOverFab ? (
         <div className="fixed bottom-20 lg:bottom-6 left-0 right-0 z-30 pointer-events-none">
           <div className={`${EMBER_FIGMA_APP_CONTAINER} flex justify-center`}>
             <button

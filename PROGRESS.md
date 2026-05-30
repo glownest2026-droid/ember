@@ -1,3 +1,11 @@
+## fix(snag-pack): feedback round — slider, ideas heading, start-over FAB (30 May 2026)
+
+- **Branch:** `fix/snag-pack-discover-home`
+- **Snag #1 (home slider):** Relabelled the homepage age slider to mirror the `/discover` band taxonomy (`23–25m, 25–27m, 28–30m, 31–33m, 34–36m`) and switched to index-based positioning so the drag handle, fill and tick labels all derive from the same fraction — fixes the handle/line misalignment. "Begin your journey" now routes to `/discover/<band midpoint>`. File: `web/src/components/home/HomeAgeSlider.tsx`.
+- **Snag #5 (ideas heading):** Capitalise the first letter of the development name in `Ideas for "…"` (e.g. `i'm` → `I'm`). File: `web/src/app/discover/[months]/DiscoveryPageClient.tsx`.
+- **Snag #6 (start over):** Floating "Start over" FAB now gated on an `IntersectionObserver` over the `Ideas for…` section, so it only shows while that section is in view and hides when scrolled back up. File: `web/src/app/discover/[months]/DiscoveryPageClient.tsx`.
+- **Build:** `pnpm -C web build` — pass (30 May 2026)
+
 ## fix(discover): stop redirect loop after performance cleanup (29 May 2026)
 
 - **Branch:** `fix/discover-redirect-loop-after-performance-cleanup`
