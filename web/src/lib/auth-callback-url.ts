@@ -46,6 +46,8 @@ export function safeNextPath(next: string | null | undefined): string {
   // Same-origin absolute paths only (block protocol-relative / external URLs).
   if (!value.startsWith('/') || value.startsWith('//')) return fallback;
   const pathOnly = value.split(/[?#]/)[0];
+  // Land signed-in users in the app (/discover), not the marketing homepage.
+  if (pathOnly === '/') return fallback;
   const blocked = ['/signin', '/signout', '/auth'];
   if (blocked.some((p) => pathOnly === p || pathOnly.startsWith(`${p}/`))) return fallback;
   return value;

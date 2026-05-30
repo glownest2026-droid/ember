@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { Plus, Sparkles, Eye, RefreshCw, ArrowRight, Gift, Search, Camera, Check, Trash2 } from 'lucide-react';
-import { deleteChild } from '@/lib/children/actions';
 import { ShareYourGiftListWidget } from './ShareYourGiftListWidget';
 import type { FamilyChild } from './ChildProfileCard';
 import type { ChildStats } from './ChildProfileCard';
@@ -248,15 +247,36 @@ export function FamilyFigmaClient({
 
   const handleRemoveChild = useCallback(async () => {
     if (!removeTargetChild) return;
+    const removedId = removeTargetChild.id;
     setRemovingChild(true);
     setRemoveChildError(null);
-    const result = await deleteChild(removeTargetChild.id);
-    // On success deleteChild redirects to /family?deleted=1; only errors return here.
-    if (result?.error) {
-      setRemoveChildError(result.error);
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setRemoveChildError('Please sign in to remove a child.');
       setRemovingChild(false);
+      return;
     }
-  }, [removeTargetChild]);
+    const { error } = await supabase
+      .from('children')
+      .delete()
+      .eq('id', removedId)
+      .eq('user_id', user.id);
+    if (error) {
+      setRemoveChildError(error.message);
+      setRemovingChild(false);
+      return;
+    }
+    // Success: update local state and close the popup (no server redirect → no hang).
+    setChildren((prev) => prev.filter((c) => c.id !== removedId));
+    setSelectedView('all');
+    setRemoveChildOpen(false);
+    setRemovingChild(false);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('child');
+    params.set('deleted', '1');
+    router.replace(`/family?${params.toString()}`, { scroll: false });
+  }, [removeTargetChild, router, searchParams]);
 
   const pulseText = (() => {
     if (selectedChild) return `${childLabel} is in an active learning stage right now.`;
