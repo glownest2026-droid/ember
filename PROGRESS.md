@@ -3164,6 +3164,82 @@ Category-only cards remain publishable.
 ### Next module handoff
 - Branch: `feat/marketplace-safety-moderation`
 
+## 2026-05-24 — PR8: Marketplace Map & Demand Visual Layer
+
+### Summary
+- Added provider-light Ember Opportunity Map card.
+- Seller opportunity flow now shows local area, radius, demand signal and privacy-safe map visual.
+- Marketplace page now includes a local marketplace/map module above Nearby listings.
+- Published listing cards now show compact approximate area/radius cue.
+- Normal marketplace UI avoids exact postcode/address display.
+- No exact pins, addresses, buyer identities or child/family data shown.
+- Mapbox remains optional/deferred unless already configured.
+
+### Product decision
+- First map version is an approximate opportunity visual, not a literal pin map.
+- Default radius remains 5 miles.
+- Demand wording remains “may be interested.”
+- Exact addresses are not shown.
+- Full postcode can be used for matching/editing but not shown in normal buyer/listing/map UI.
+
+### Verification
+- Build: pass
+- Seller opportunity map appears: pass (component wired in ListingOpportunitySection)
+- Marketplace local map module appears: pass (wired in /app/marketplace)
+- Listing card compact local cue appears: pass
+- Mobile view checked: pass (responsive card min-heights, max-w-xl layout)
+- PR7 chat/interest surfaces unaffected: pass (MarketplaceBuyerInterestActions preserved)
+- No exact location/privacy leak: pass (postcode stripped from nearby API response; area labels only)
+- Smoke: `pnpm -C web test:marketplace-pr8` pass
+
+### Known debt
+- True interactive Mapbox layer deferred.
+- Demand scoring should improve as first-party Ember data grows.
+- Geospatial modelling can be strengthened later with PostGIS/H3/geohash.
+- Map card is currently provider-light and illustrative.
+
+## 2026-05-24 — PR8 Patch: Real Mapbox Marketplace Map
+
+### Summary
+- Upgraded PR8 from illustrative map card to real Mapbox-backed marketplace map.
+- `/app/marketplace` now shows a real local map when `NEXT_PUBLIC_MAPBOX_TOKEN` is configured.
+- Added approximate listing markers and 5-mile viewer radius.
+- Added marker/listing selection interaction.
+- Existing `OpportunityMapCard` remains as fallback when token or coordinates are unavailable.
+- No exact addresses, full postcodes, household pins, buyer identities or child/family data exposed.
+
+### Founder setup
+- Required env var: `NEXT_PUBLIC_MAPBOX_TOKEN`
+- Vercel: Project → Settings → Environment Variables → Preview and Production → redeploy after adding
+- Missing token: fallback visual renders
+
+### Location model
+- Map uses approximate listing coordinates with deterministic jitter.
+- Area centroids for known beta areas (e.g. SL4 / Windsor) when coords missing.
+- Full postcode used only for matching/editing, not buyer-facing map display.
+- Known debt: centroid coverage / geospatial modelling to expand as marketplace grows.
+
+### Verification
+- Build: pass
+- PR8 smoke: pass
+- PR7 chat regression: pass
+- Real map with token: depends on Vercel env (founder must add token + redeploy)
+- Fallback without token: pass
+- Marker/listing interaction: pass (code)
+- Privacy checks: pass
+
+## 2026-05-30 — PR8 review fixes (PR #212)
+
+### Summary
+- Restored Gemini/AI listing env keys in `web/.env.example` (they were removed by mistake) and kept the new `NEXT_PUBLIC_MAPBOX_TOKEN` line. No runtime change; restores founder/dev setup docs.
+- Hardened map coordinates: listing coordinates are now snapped to a coarse (~1km) grid before deterministic jitter. The jitter is reversible from the public listing id, so the snap ensures a recovered point only resolves to a coarse cell — never the exact full-postcode location.
+- Corrected PR description: `mapbox-gl` is added as a real dependency (always bundled); the live map is still optional via `NEXT_PUBLIC_MAPBOX_TOKEN`.
+
+### Verification
+- PR8 smoke: pass
+- Lint: clean
+- Marker still renders within the viewer radius; only precision reduced
+
 ## 2026-05-23 — Snag pack: listings images + discover polish
 
 ### Summary

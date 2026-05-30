@@ -200,7 +200,14 @@ export function MarketplaceYourPostcode({ onPreferencesSaved }: Props) {
           </div>
         </div>
       ) : prefs?.postcode ? (
-        <p className="text-sm font-medium text-[#1A1E23]">{prefs.postcode}</p>
+        <div className="space-y-0.5">
+          <p className="text-sm font-medium text-[#1A1E23]">
+            {prefs.approximate_area_label ?? "Your area"}
+          </p>
+          <p className="text-xs text-[#5C646D]">
+            Within {prefs.radius_miles ?? 5} miles · Exact addresses are not shown.
+          </p>
+        </div>
       ) : (
         <p className="text-sm text-[#5C646D]">Add your postcode to see nearby listings.</p>
       )}

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { buyerCanViewBetaListing, type BetaListingRow } from "@/lib/marketplace/beta-listing-visibility";
 import { resolveUserMarketplaceLocation } from "@/lib/marketplace/marketplace-preferences-service";
+import { toMarketplaceMapListingPayload } from "@/lib/marketplace/marketplace-map-payload";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -83,12 +84,17 @@ export async function GET(request: NextRequest) {
 
   return json(
     {
-      listings: nearby.map((listing) => ({
-        ...listing,
-        buyer_interested: interestedIds.has(listing.id),
-        conversation_id: conversationByListing.get(listing.id) ?? null,
-      })),
+      listings: nearby.map((row) =>
+        toMarketplaceMapListingPayload(row, {
+          buyer_interested: interestedIds.has(row.id),
+          conversation_id: conversationByListing.get(row.id) ?? null,
+        })
+      ),
       buyer_has_postcode: Boolean(buyerLocation.postcode && buyerLocation.lat != null),
+      buyer_area_label: buyerLocation.approximate_area_label,
+      buyer_radius_miles: buyerLocation.radius_miles,
+      buyer_lat: buyerLocation.lat,
+      buyer_lng: buyerLocation.lng,
     },
     { status: 200 }
   );

@@ -11,3 +11,11 @@ export function priceConfidenceLabel(source: PriceSourceType, confidence: string
   if (confidence === "high") return "Medium confidence";
   return "Early estimate";
 }
+
+export function formatConditionLabel(condition: string | null | undefined): string | null {
+  if (!condition?.trim()) return null;
+  return condition
+    .trim()
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
