@@ -12,7 +12,6 @@ export type ChildContextPayload = {
 };
 
 type Props = {
-  childContext: ChildContextPayload | null;
   wrappers: DevelopmentWrapperOpportunity[];
   selectedSlug: Stage1WrapperSlug | null;
   loading?: boolean;
@@ -20,32 +19,17 @@ type Props = {
 };
 
 export function MarketplaceDevelopmentSection({
-  childContext,
   wrappers,
   selectedSlug,
   loading,
   onSelectWrapper,
 }: Props) {
-  const mode = childContext?.mode ?? "all_children";
-
   return (
     <section className="space-y-2" data-testid="marketplace-development-section">
-      <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
-        <div className="min-w-0">
-          <h2 className="text-sm font-medium text-[#1A1E23]">
-            Local toys by development area
-          </h2>
-          {mode === "personalised" && childContext?.display_label ? (
-            <p className="text-xs text-[#5C646D] mt-0.5">
-              For <span className="font-medium text-[#1A1E23]">{childContext.display_label}</span>
-              {childContext.age_months != null ? ` · ${childContext.age_months} mo` : ""}
-              {" · "}
-              now or next 6 months
-            </p>
-          ) : (
-            <p className="text-xs text-[#5C646D] mt-0.5">Same areas as Discover — tap to filter</p>
-          )}
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-medium text-[#1A1E23]">
+          Local toys by development area
+        </h2>
         {selectedSlug ? (
           <button
             type="button"
@@ -56,44 +40,34 @@ export function MarketplaceDevelopmentSection({
           </button>
         ) : null}
       </div>
-
-      {mode === "all_children" && (
-        <p className="text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
-          Choose a child above to personalise counts.
-        </p>
-      )}
-
-      {mode === "missing_age" && (
-        <p className="text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
-          Add your child&apos;s age to personalise opportunities.
-        </p>
-      )}
+      <p className="text-xs text-[#5C646D]">Same areas as Discover — tap a card to filter the map</p>
 
       {loading ? (
         <p className="text-xs text-[#5C646D]">Loading areas…</p>
       ) : (
-        <div
-          className="-mx-1 flex gap-2 overflow-x-auto pb-1 px-1 snap-x snap-mandatory scrollbar-thin"
+        <ul
+          className="grid grid-cols-2 lg:grid-cols-4 gap-2"
           role="tablist"
           aria-label="Development areas"
         >
           {wrappers.map((card) => (
-            <MarketplaceDevelopmentCard
-              key={card.stage1_wrapper_ux_slug}
-              card={card}
-              compact
-              selected={selectedSlug === card.stage1_wrapper_ux_slug}
-              disabled={card.cards_disabled}
-              onSelect={() =>
-                onSelectWrapper(
-                  selectedSlug === card.stage1_wrapper_ux_slug
-                    ? null
-                    : card.stage1_wrapper_ux_slug
-                )
-              }
-            />
+            <li key={card.stage1_wrapper_ux_slug}>
+              <MarketplaceDevelopmentCard
+                card={card}
+                grid
+                selected={selectedSlug === card.stage1_wrapper_ux_slug}
+                disabled={card.cards_disabled}
+                onSelect={() =>
+                  onSelectWrapper(
+                    selectedSlug === card.stage1_wrapper_ux_slug
+                      ? null
+                      : card.stage1_wrapper_ux_slug
+                  )
+                }
+              />
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </section>
   );

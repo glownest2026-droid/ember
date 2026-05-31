@@ -90,8 +90,13 @@ assert.ok(!pageClient.includes("router.push"), "development filter must not full
 
 const devSection = read("src/components/marketplace/MarketplaceDevelopmentSection.tsx");
 assert.match(devSection, /Local toys by development area/);
-assert.match(devSection, /overflow-x-auto/);
-assert.match(devSection, /Choose a child/);
+assert.match(devSection, /grid-cols-2/);
+assert.match(devSection, /lg:grid-cols-4/);
+assert.match(pageClient, /MarketplaceActiveChildBanner/);
+assert.match(pageClient, /Move items to nearby families who need them/);
+const childBanner = read("src/components/marketplace/MarketplaceActiveChildBanner.tsx");
+assert.match(childBanner, /Browsing marketplace for/);
+assert.match(childBanner, /Choose a child/);
 
 const devApi = read("src/app/api/marketplace/development-opportunities/route.ts");
 assert.match(devApi, /getMarketplaceDevelopmentOpportunities/);

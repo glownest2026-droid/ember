@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MarketplaceBuyerInterestActions } from "@/components/marketplace/MarketplaceBuyerInterestActions";
+import { MarketplaceActiveChildBanner } from "@/components/marketplace/MarketplaceActiveChildBanner";
 import {
   MarketplaceDevelopmentSection,
   type ChildContextPayload,
@@ -239,6 +240,12 @@ export function MarketplacePageClient() {
     ? selectedWrapper.stage1_wrapper_ux_label
     : "Nearby listings";
 
+  const showWatchEmpty =
+    Boolean(selectedCard?.watch_mode) &&
+    childContext?.mode === "personalised" &&
+    nearby.length === 0 &&
+    buyerHasPostcode;
+
   if (initialLoading) {
     return <div className="p-4 text-sm text-[#5C646D]">Loading marketplace…</div>;
   }
@@ -248,8 +255,8 @@ export function MarketplacePageClient() {
       <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
         <div className="min-w-0">
           <h1 className="text-xl font-normal text-[#1A1E23] sm:text-2xl">Marketplace</h1>
-          <p className="text-xs text-[#5C646D] hidden sm:block">
-            Nearby families · addresses never shown
+          <p className="text-xs text-[#5C646D]">
+            Move items to nearby families who need them
           </p>
         </div>
         <div className="flex shrink-0 gap-3 text-sm">
@@ -261,6 +268,8 @@ export function MarketplacePageClient() {
           </Link>
         </div>
       </header>
+
+      <MarketplaceActiveChildBanner childContext={childContext} />
 
       <div className="relative flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#E5E7EB] bg-[#FAFAFA] px-3 py-2 text-sm">
         <p className="text-[#1A1E23] min-w-0">
@@ -276,7 +285,6 @@ export function MarketplacePageClient() {
       </div>
 
       <MarketplaceDevelopmentSection
-        childContext={childContext}
         wrappers={wrappers}
         selectedSlug={selectedDevelopment}
         onSelectWrapper={handleSelectWrapper}
@@ -308,19 +316,15 @@ export function MarketplacePageClient() {
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          {selectedCard?.watch_mode && childContext?.mode === "personalised" ? (
-            <p className="text-xs text-[#5C646D] rounded-lg border border-[#E5E7EB] bg-[#FAFAFA] p-3">
-              Nothing nearby for this stage yet. We&apos;ll watch for local items that fit.
-            </p>
-          ) : null}
-
           {nearby.length === 0 ? (
-            <p className="text-sm text-[#5C646D]">
+            <p className="text-sm text-[#5C646D] rounded-lg border border-[#E5E7EB] bg-[#FAFAFA] p-3">
               {!buyerHasPostcode
                 ? "Add your postcode to see listings within 5 miles."
-                : selectedDevelopment
+                : showWatchEmpty
                   ? "Nothing nearby for this stage yet. We'll watch for local items that fit."
-                  : "No nearby beta listings yet."}
+                  : selectedDevelopment
+                    ? "No listings match this filter right now."
+                    : "No nearby beta listings yet."}
             </p>
           ) : (
             <ul className="space-y-2 max-h-[min(52vh,520px)] overflow-y-auto pr-0.5">
