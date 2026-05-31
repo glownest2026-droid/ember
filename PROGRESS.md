@@ -1,3 +1,25 @@
+## 2026-05-31 - PR10 UX: Child banner, dev card grid, copy
+
+- **Branch:** `feat/marketplace-development-opportunities` · commit `0f693e5f`
+
+### Summary
+- Subtitle: “Move items to nearby families who need them”.
+- Development cards: `grid-cols-2` mobile, `lg:grid-cols-4` desktop (no horizontal scroll).
+- `MarketplaceActiveChildBanner`: prominent “Browsing marketplace for {name}” widget.
+- Removed duplicate watch-mode empty copy in results panel.
+- Smoke updated; `pnpm -C web test:marketplace-pr10` passes.
+
+## 2026-05-31 - fix(auth): canonical www OAuth callback (apex PKCE break)
+
+- **Branch:** `fix/auth-canonical-www-callback`
+
+### Summary
+- Root cause: Vercel serves `www.emberplay.app` but Supabase OAuth often returned to `emberplay.app`; PKCE verifier and session cookies were host-scoped → `exchangeCodeForSession` failed silently / user stayed signed out.
+- `normalizeAuthOrigin()` + callback/confirm redirect to canonical host before code exchange.
+- `buildAuthCallbackUrl()` always uses canonical www in production; `bindSupabaseToResponse` uses `getAll`/`setAll` for auth cookies.
+- Docs: `FEB_2026_AUTH_SETUP.md` — allowlist both www and apex; `NEXT_PUBLIC_SITE_URL=https://www.emberplay.app`.
+- Smoke: `pnpm -C web test:auth-callback`.
+
 ## 2026-05-31 - PR10 UX: Compact marketplace layout + instant dev filter
 
 - **Branch:** `feat/marketplace-development-opportunities`

@@ -6,6 +6,7 @@ import { createClient } from '../../utils/supabase/client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EVENTS } from '@/lib/analytics/eventNames';
 import { trackEvent } from '@/lib/analytics/trackEvent';
+import { safeNextPath } from '@/lib/auth-callback-url';
 
 function VerifyPageContent() {
   const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ function VerifyPageContent() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') || '/discover';
+  const next = safeNextPath(searchParams.get('next'));
 
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
