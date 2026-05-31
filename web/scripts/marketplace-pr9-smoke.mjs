@@ -98,7 +98,7 @@ function fallbackTitle(confirmed) {
   if (confirmed.label && !/\bpretend play\b|\bdress up\b/i.test(confirmed.label)) {
     return confirmed.label;
   }
-  if (/\bhelmet\b|\bvisor\b/i.test(confirmed.visual)) return "Plastic costume helmet";
+  if (/\bhelmet\b|\bvisor\b/i.test(confirmed.visual)) return "Toy knight helmet";
   if (/\bbinocular/i.test(confirmed.visual)) return "Child binoculars";
   if (/\bsaxophone\b/i.test(confirmed.visual)) return "Saxophone-style musical toy";
   return confirmed.label || "Confirmed item";
@@ -383,14 +383,22 @@ assert.match(generateRoute, /lockedConfirmedItem/);
 
 const confirmedIdentity = read("src/lib/marketplace/confirmed-item-identity.ts");
 assert.match(confirmedIdentity, /resolveConfirmedIdentity/);
-assert.match(confirmedIdentity, /Plastic costume helmet/);
+assert.match(confirmedIdentity, /Toy knight helmet/);
+
+const titleFormat = read("src/lib/marketplace/listing-title-format.ts");
+assert.match(titleFormat, /formatProductTitleCase/);
+
+const detailsSection = read("src/components/marketplace/ListingDraftDetailsSection.tsx");
+assert.match(detailsSection, /LISTING_REVIEW_CHECKLIST_ITEMS/);
+assert.match(detailsSection, /Save draft details/);
+assert.match(detailsSection, /formatProductTitleCase/);
 
 const flowView = read("src/components/marketplace/listing-flow/CreateListingFlowView.tsx");
 assert.match(flowView, /categoryLabel/);
-assert.match(flowView, /EmberEstimateSection/);
+assert.match(flowView, /user_facing_item_label/);
 assert.ok(
-  flowView.includes("listing-step-details") && flowView.indexOf("EmberEstimateSection") < flowView.lastIndexOf("listing-step-review"),
-  "Ember estimate should appear in step 3 before review"
+  flowView.includes("listing-step-details") && flowView.includes("initialReview"),
+  "Step 3 details should pass review checklist state into save flow"
 );
 
 const taxonomy = read("src/lib/marketplace/marketplace-taxonomy.ts");

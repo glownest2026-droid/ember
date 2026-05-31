@@ -918,12 +918,14 @@ function AppListingsPhotoDraftPage() {
           condition: saved.condition,
           detailsJson: saved.detailsJson,
         }));
-        setDraftReview(getReviewFromDetailsJson(saved.detailsJson));
+        setDraftReview(
+          saved.review ?? getReviewFromDetailsJson(saved.detailsJson)
+        );
         setDetailsSavedOnce(true);
         setEditStep(null);
-        if (saved.condition?.trim()) {
+        if (saved.condition?.trim() && saved.review?.ready_for_next_step) {
           requestAnimationFrame(() => {
-            document.getElementById("listing-step-review")?.scrollIntoView({
+            document.getElementById("listing-step-opportunity")?.scrollIntoView({
               behavior: "smooth",
               block: "start",
             });

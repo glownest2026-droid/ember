@@ -9,6 +9,7 @@ import {
   resolveGeminiTimeoutMs,
 } from "./ai-listing-gemini-config";
 import { pickTitleFromContext } from "./ai-listing-display-label";
+import { formatProductTitleCase } from "./listing-title-format";
 import { runWithGeminiModelFallback, type GeminiModelAttemptMeta } from "./ai-listing-gemini-fallback";
 import {
   LISTING_ARRAY_MAX_ITEMS,
@@ -118,7 +119,7 @@ function reconcileSuggestedTitle(args: {
     return fallback;
   }
 
-  return cleanTitle(title);
+  return formatProductTitleCase(cleanTitle(title));
 }
 
 export function normalizeListingDraftDetails(

@@ -25,13 +25,7 @@ const CONDITION_LABELS: Record<string, string> = {
   not_sure: "Not sure yet",
 };
 
-const CHECKLIST_ITEMS: { key: keyof ListingDraftReviewJson; label: string }[] = [
-  { key: "accuracy_confirmed", label: "The title and description look accurate." },
-  { key: "condition_confirmed", label: "I’ve checked the condition." },
-  { key: "parts_checked", label: "I’ve checked what parts/accessories are included." },
-  { key: "safety_checked", label: "I’ve checked the safety notes." },
-  { key: "photo_quality_confirmed", label: "The photo is clear enough for another parent." },
-];
+import { LISTING_REVIEW_CHECKLIST_ITEMS } from "@/components/marketplace/listing-flow/listing-review-checklist";
 
 type Props = {
   draftId: string;
@@ -310,11 +304,18 @@ export function ListingDraftReviewSection({
         )}
       </div>
 
-      {!readyForNextStep || staleAfterEdit ? (
+      {embedded && !readyForNextStep && !staleAfterEdit && (
+        <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl p-3">
+          Go back to &ldquo;Draft the listing&rdquo;, tick the five quick checks, and tap{" "}
+          <strong>Save draft details</strong>.
+        </p>
+      )}
+
+      {!embedded && (!readyForNextStep || staleAfterEdit) ? (
         <div className="space-y-3 border-t border-[#E5E7EB] pt-4">
           <p className="text-sm font-medium text-[#1A1E23]">Review checklist</p>
           <ul className="space-y-3">
-            {CHECKLIST_ITEMS.map((item) => (
+            {LISTING_REVIEW_CHECKLIST_ITEMS.map((item) => (
               <li key={item.key}>
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input

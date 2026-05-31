@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { ListingDraftReviewJson } from "@/components/marketplace/ListingDraftReviewSection";
+import {
+  isReviewChecklistComplete,
+  LISTING_REVIEW_CHECKLIST_ITEMS,
+  type ReviewChecklistState,
+} from "@/components/marketplace/listing-flow/listing-review-checklist";
+import { formatProductTitleCase } from "@/lib/marketplace/listing-title-format";
 
 export type ListingDraftDetailsJson = {
   suggested_title: string;
@@ -51,6 +58,7 @@ type SavedDraftPayload = {
   description: string;
   condition: string | null;
   detailsJson: ListingDraftDetailsJson | null;
+  review: ListingDraftReviewJson | null;
 };
 
 type Props = {
@@ -61,6 +69,7 @@ type Props = {
   initialDetails: ListingDraftDetailsJson | null;
   initialGeneratedAt: string | null;
   hasConfirmedItem: boolean;
+  initialReview?: ListingDraftReviewJson | null;
   sectionId?: string;
   embedded?: boolean;
   onSaved?: (payload: SavedDraftPayload) => void;
@@ -84,11 +93,12 @@ export function ListingDraftDetailsSection({
   initialDetails,
   initialGeneratedAt,
   hasConfirmedItem,
+  initialReview,
   sectionId,
   embedded = false,
   onSaved,
 }: Props) {
-  const [titleDraft, setTitleDraft] = useState(initialTitle ?? "");
+  const [titleDraft, setTitleDraft] = useState(formatProductTitleCase(initialTitle ?? ""));
   const [descriptionDraft, setDescriptionDraft] = useState(initialDescription ?? "");
   const [condition, setCondition] = useState(initialCondition ?? "");
   const [detailsJson, setDetailsJson] = useState<ListingDraftDetailsJson | null>(initialDetails);
@@ -98,14 +108,37 @@ export function ListingDraftDetailsSection({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [conditionHighlight, setConditionHighlight] = useState(false);
+  const [checklist, setChecklist] = useState<ReviewChecklistState>({
+    accuracy_confirmed: initialReview?.accuracy_confirmed ?? false,
+    condition_confirmed: initialReview?.condition_confirmed ?? false,
+    parts_checked: initialReview?.parts_checked ?? false,
+    safety_checked: initialReview?.safety_checked ?? false,
+    photo_quality_confirmed: initialReview?.photo_quality_confirmed ?? false,
+  });
+
+  const allChecklistComplete = useMemo(() => isReviewChecklistComplete(checklist), [checklist]);
 
   useEffect(() => {
-    setTitleDraft(initialTitle ?? "");
+    setTitleDraft(formatProductTitleCase(initialTitle ?? ""));
     setDescriptionDraft(initialDescription ?? "");
     setCondition(initialCondition ?? "");
     setDetailsJson(initialDetails);
     setGeneratedAt(initialGeneratedAt);
-  }, [initialTitle, initialDescription, initialCondition, initialDetails, initialGeneratedAt]);
+    setChecklist({
+      accuracy_confirmed: initialReview?.accuracy_confirmed ?? false,
+      condition_confirmed: initialReview?.condition_confirmed ?? false,
+      parts_checked: initialReview?.parts_checked ?? false,
+      safety_checked: initialReview?.safety_checked ?? false,
+      photo_quality_confirmed: initialReview?.photo_quality_confirmed ?? false,
+    });
+  }, [
+    initialTitle,
+    initialDescription,
+    initialCondition,
+    initialDetails,
+    initialGeneratedAt,
+    initialReview,
+  ]);
 
   const formatApiError = (payload: ApiErrorShape | null, fallback: string) => {
     return payload?.error ?? fallback;
@@ -133,7 +166,9 @@ export function ListingDraftDetailsSection({
         throw new Error("We received an unexpected response. Please try again.");
       }
       setDetailsJson(payload.details);
-      setTitleDraft(payload.title_draft ?? payload.details.suggested_title);
+      setTitleDraft(
+        formatProductTitleCase(payload.title_draft ?? payload.details.suggested_title)
+      );
       setDescriptionDraft(payload.description_draft ?? payload.details.suggested_description);
       setGeneratedAt(payload.listing_details_generated_at ?? new Date().toISOString());
       setSuccess("Draft listing details are ready to review and edit.");
@@ -152,7 +187,12 @@ export function ListingDraftDetailsSection({
     if (saving) return;
     if (!condition.trim()) {
       setConditionHighlight(true);
-      setError("Choose a condition above, then save again. The review step only appears after condition is saved.");
+      setError("Choose a condition above, then save again.");
+      setSuccess(null);
+      return;
+    }
+    if (!allChecklistComplete) {
+      setError("Please tick all five checks below, then save.");
       setSuccess(null);
       return;
     }
@@ -160,12 +200,13 @@ export function ListingDraftDetailsSection({
     setSaving(true);
     setError(null);
     setSuccess(null);
+    const formattedTitle = formatProductTitleCase(titleDraft);
     try {
       const response = await fetch(`/api/marketplace/listing-drafts/${draftId}/details`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title_draft: titleDraft,
+          title_draft: formattedTitle,
           description_draft: descriptionDraft,
           condition_confirmed_by_user: condition || undefined,
           listing_draft_details_json: detailsJson ?? undefined,
@@ -186,11 +227,36 @@ export function ListingDraftDetailsSection({
       if (!response.ok) {
         throw new Error(formatApiError(payload, "Your edits couldn’t be saved. Please try again."));
       }
-      const savedTitle = payload?.draft?.title_draft ?? titleDraft;
+
+      const reviewResponse = await fetch(`/api/marketplace/listing-drafts/${draftId}/review`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(checklist),
+      });
+      const { payload: reviewPayload } = await parseApiPayload<{
+        error?: string;
+        review?: ListingDraftReviewJson;
+      }>(reviewResponse);
+      if (!reviewResponse.ok) {
+        throw new Error(
+          reviewPayload?.error ??
+            "Your draft saved, but we couldn’t mark it ready. Please try saving again."
+        );
+      }
+
+      const savedTitle = formatProductTitleCase(
+        payload?.draft?.title_draft ?? formattedTitle
+      );
       const savedDescription = payload?.draft?.description_draft ?? descriptionDraft;
       const savedCondition = payload?.draft?.condition_confirmed_by_user ?? condition;
       const savedDetails = payload?.draft?.listing_draft_details_json ?? detailsJson;
-      if (payload?.draft?.title_draft) setTitleDraft(payload.draft.title_draft);
+      const savedReview = reviewPayload?.review ?? {
+        ...checklist,
+        ready_for_next_step: true,
+        reviewed_at: new Date().toISOString(),
+        stale_after_edit: false,
+      };
+      if (payload?.draft?.title_draft) setTitleDraft(savedTitle);
       if (payload?.draft?.description_draft) setDescriptionDraft(payload.draft.description_draft);
       if (payload?.draft?.condition_confirmed_by_user) {
         setCondition(payload.draft.condition_confirmed_by_user);
@@ -203,8 +269,9 @@ export function ListingDraftDetailsSection({
         description: savedDescription,
         condition: savedCondition || null,
         detailsJson: savedDetails,
+        review: savedReview,
       });
-      setSuccess("Draft details saved. The review step is ready below.");
+      setSuccess("Draft saved. You can continue to local opportunity below.");
     } catch (saveError) {
       setError(
         saveError instanceof Error ? saveError.message : "Your edits couldn’t be saved. Please try again."
@@ -389,6 +456,30 @@ export function ListingDraftDetailsSection({
             {detailsJson?.parent_editing_note && (
               <p className="text-xs text-[#5C646D]">{detailsJson.parent_editing_note}</p>
             )}
+
+            <div className="space-y-3 border-t border-[#E5E7EB] pt-4">
+              <p className="text-sm font-medium text-[#1A1E23]">Quick review</p>
+              <p className="text-xs text-[#5C646D]">
+                Tick each line, then save once. This replaces a separate &ldquo;mark ready&rdquo; step.
+              </p>
+              <ul className="space-y-3">
+                {LISTING_REVIEW_CHECKLIST_ITEMS.map((item) => (
+                  <li key={item.key}>
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checklist[item.key]}
+                        onChange={() =>
+                          setChecklist((prev) => ({ ...prev, [item.key]: !prev[item.key] }))
+                        }
+                        className="mt-1 h-5 w-5 rounded border-[#E5E7EB]"
+                      />
+                      <span className="text-sm text-[#1A1E23]">{item.label}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-2">

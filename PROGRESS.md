@@ -1,3 +1,16 @@
+## 2026-05-31 - PR9 UX: Product labels, title case, single save CTA
+
+- **Branch:** `feat/marketplace-intelligence-taxonomy-safety` (PR #221)
+
+### Summary
+- Step 2 candidate cards show a concrete product title (e.g. “Toy knight helmet”) with category as subtitle, not the broad play category alone.
+- Listing titles use consistent product title casing (`formatProductTitleCase`) in Step 3 and server reconciliation paths.
+- Step 3 “Draft the listing” now includes the five quick-review checkboxes above **Save draft details**; saving also marks review ready (no separate **Mark ready** when embedded in the flow).
+
+### Verification
+- `pnpm -C web build`
+- `pnpm -C web test:marketplace-pr9`
+
 ## 2026-05-31 - PR9 Patch: Identity Drift and Stale Draft Title Fix
 
 - **Branch:** `feat/marketplace-intelligence-taxonomy-safety` (same PR #221)

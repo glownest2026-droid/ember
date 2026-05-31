@@ -5,6 +5,7 @@
 
 import type { Pr3AiRawResponse } from "./ai-listing-details-types";
 import { normalizeItemIdentityTerms } from "./identity-guard";
+import { formatProductTitleCase } from "./listing-title-format";
 
 export type ResolvedConfirmedIdentity = {
   confirmed_item_label: string;
@@ -44,7 +45,7 @@ function deriveLabelFromVisual(visual: string): string | null {
   const norm = normalizeItemIdentityTerms(visual);
   if (!norm) return null;
   if (/\bhelmet\b|\bvisor\b|\bknight\b|\barmou?r\b/.test(norm)) {
-    return "Plastic costume helmet";
+    return "Toy knight helmet";
   }
   if (/\bbinocular/.test(norm)) {
     return "Child binoculars";
@@ -126,7 +127,7 @@ export function resolveConfirmedIdentity(args: {
     "Confirmed item";
 
   return {
-    confirmed_item_label,
+    confirmed_item_label: formatProductTitleCase(confirmed_item_label),
     confirmed_visual_description: visual,
     confirmed_category_label: category,
   };

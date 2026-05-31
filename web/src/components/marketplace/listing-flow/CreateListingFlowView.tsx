@@ -6,7 +6,6 @@ import type { ChangeEvent } from "react";
 import { ListingDraftDetailsSection } from "@/components/marketplace/ListingDraftDetailsSection";
 import { ListingOpportunitySection } from "@/components/marketplace/ListingOpportunitySection";
 import { ListingDraftReviewSection } from "@/components/marketplace/ListingDraftReviewSection";
-import { EmberEstimateSection } from "@/components/marketplace/EmberEstimateSection";
 import { ListingDeveloperDiagnostics } from "@/components/marketplace/listing-flow/ListingDeveloperDiagnostics";
 import { ListingFlowStepShell } from "@/components/marketplace/listing-flow/ListingFlowStepShell";
 import {
@@ -66,6 +65,7 @@ export type CreateListingFlowViewProps = {
     detailsJson: ListingDraftDetailsJson | null;
     generatedAt: string | null;
   };
+  draftReview: ListingDraftReviewJson | null;
   itemConfirmed: boolean;
   detailsSavedOnce: boolean;
   onDetailsSaved: (saved: {
@@ -73,8 +73,8 @@ export type CreateListingFlowViewProps = {
     description: string;
     condition: string | null;
     detailsJson: ListingDraftDetailsJson | null;
+    review: ListingDraftReviewJson | null;
   }) => void;
-  draftReview: ListingDraftReviewJson | null;
   onReviewUpdated: (review: ListingDraftReviewJson | null) => void;
   brandCharacterHint: string | null;
   defaultAreaLabel?: string | null;
@@ -109,10 +109,10 @@ export function CreateListingFlowView({
   confirmedDraft,
   onSelectCandidate,
   draftDetails,
+  draftReview,
   itemConfirmed,
   detailsSavedOnce,
   onDetailsSaved,
-  draftReview,
   onReviewUpdated,
   brandCharacterHint,
   defaultAreaLabel,
@@ -357,6 +357,7 @@ export function CreateListingFlowView({
               initialDetails={draftDetails.detailsJson}
               initialGeneratedAt={draftDetails.generatedAt}
               hasConfirmedItem={itemConfirmed}
+              initialReview={draftReview}
               onSaved={onDetailsSaved}
             />
           </ListingFlowStepShell>

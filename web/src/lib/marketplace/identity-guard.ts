@@ -6,6 +6,7 @@
  */
 
 import { isBroadCategoryLabel } from "./confirmed-item-identity";
+import { formatProductTitleCase } from "./listing-title-format";
 
 export type LockedConfirmedItem = {
   confirmed_item_label: string;
@@ -161,11 +162,12 @@ export function buildLockedConfirmedItemPayload(args: {
 export function deriveDeterministicFallbackTitle(confirmed: LockedConfirmedItem): string {
   const label = confirmed.confirmed_item_label.trim();
   if (label && !isBroadCategoryLabel(label)) {
-    return label.length > 90 ? `${label.slice(0, 89)}…` : label;
+    const formatted = formatProductTitleCase(label);
+    return formatted.length > 90 ? `${formatted.slice(0, 89)}…` : formatted;
   }
   const visual = confirmed.confirmed_visual_description.trim();
   if (/\bhelmet\b|\bvisor\b|\bknight\b/i.test(visual)) {
-    return "Plastic costume helmet";
+    return formatProductTitleCase("Toy knight helmet");
   }
   if (/\bbinocular/i.test(visual)) {
     return "Child binoculars";
