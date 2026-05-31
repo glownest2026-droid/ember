@@ -48,7 +48,7 @@ export function EmberFigmaMobileNav() {
         <Bookmark size={24} strokeWidth={isMyIdeas ? 2.5 : 2} />
         <span className="text-[11px] font-medium">Saves</span>
       </Link>
-      <Link href={buildUrlWithChild('/marketplace')} prefetch={false} className={mobileTabClass(isMarketplace)}>
+      <Link href={buildUrlWithChild('/app/marketplace')} prefetch={false} className={mobileTabClass(isMarketplace)}>
         <Store size={24} strokeWidth={isMarketplace ? 2.5 : 2} />
         <span className="text-[11px] font-medium">Marketplace</span>
       </Link>
