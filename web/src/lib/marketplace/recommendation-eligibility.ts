@@ -27,6 +27,9 @@ export type RecommendationEligibilityInput = {
   ai_estimated_max_age_months?: number | null;
   parent_confirmed_min_age_months?: number | null;
   parent_confirmed_max_age_months?: number | null;
+  /** Controlled taxonomy defaults (not an AI estimate). */
+  catalog_default_min_age_months?: number | null;
+  catalog_default_max_age_months?: number | null;
   manufacturer_min_age_months?: number | null;
   manufacturer_max_age_months?: number | null;
   risk_level?: RiskLevel | null;
@@ -52,12 +55,14 @@ function num(value: number | null | undefined): number | null {
  */
 function resolveEffectiveMin(input: RecommendationEligibilityInput): {
   min: number | null;
-  source: "manufacturer" | "parent" | "ai" | "none";
+  source: "manufacturer" | "parent" | "catalog" | "ai" | "none";
 } {
   const manufacturer = num(input.manufacturer_min_age_months);
   if (manufacturer !== null) return { min: manufacturer, source: "manufacturer" };
   const parent = num(input.parent_confirmed_min_age_months);
   if (parent !== null) return { min: parent, source: "parent" };
+  const catalog = num(input.catalog_default_min_age_months);
+  if (catalog !== null) return { min: catalog, source: "catalog" };
   const ai = num(input.ai_estimated_min_age_months);
   if (ai !== null) return { min: ai, source: "ai" };
   return { min: null, source: "none" };

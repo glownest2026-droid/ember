@@ -28,7 +28,7 @@ export function MarketplaceDevelopmentSection({
     <section className="space-y-2" data-testid="marketplace-development-section">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-medium text-[#1A1E23]">
-          Local toys by development area
+          Local opportunities by development area
         </h2>
         {selectedSlug ? (
           <button

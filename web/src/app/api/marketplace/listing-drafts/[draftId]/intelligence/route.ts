@@ -11,6 +11,7 @@ import {
   type RecommendationPolicy,
   type RiskLevel,
 } from "@/lib/marketplace/marketplace-taxonomy";
+import { resolveObviousItemTypeSlugFromListingText } from "@/lib/marketplace/marketplace-item-type-resolver";
 import { computeRecommendationEligibility } from "@/lib/marketplace/recommendation-eligibility";
 import { resolveCoverageState } from "@/lib/marketplace/coverage-state";
 import { sanitizeAgeRange } from "@/lib/marketplace/intelligence";
@@ -68,6 +69,11 @@ function matchItemType(
 ): ItemTypeRow | null {
   const norm = ` ${normalizeAliasText(confirmedText)} `;
   if (norm.trim().length === 0) return null;
+  const obviousSlug = resolveObviousItemTypeSlugFromListingText(confirmedText);
+  if (obviousSlug) {
+    const obviousHit = itemTypes.find((it) => it.slug === obviousSlug);
+    if (obviousHit) return obviousHit;
+  }
   for (const it of itemTypes) {
     const candidates = [
       it.label ?? "",
