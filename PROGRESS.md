@@ -1,3 +1,32 @@
+## 2026-05-31 - PR10: Personalised Marketplace by Development Area
+
+- **Branch:** `feat/marketplace-development-opportunities`
+
+### Summary
+- Upgraded `/app/marketplace` into a child-personalised development-led marketplace.
+- Added Discover-aligned development cards (seven Stage 1 wrappers) with real counts or watch-mode copy.
+- Selected child (URL `?child=`) drives opportunity counts, listing filters, and map markers.
+- Listing cards show cautious match reasons from PR9 intelligence + taxonomy (no buyer-side Gemini).
+- Preserved All children fallback, map, interest, and chat flows.
+- Signed-in nav links now point to `/app/marketplace` with child query preserved.
+
+### Product decisions
+- Matching window: current child age + 6 months.
+- Manufacturer age guidance and PR9 recommendation gates override personalised counts.
+- Browse-with-caution items are not counted as normal opportunities.
+- Missing ABI age-band data treated as coverage gap (`marketplace_item_estimate_only`), not “no needs”.
+- No durable match records, push/email, or new migrations.
+
+### Data/API
+- `GET /api/marketplace/development-opportunities?childId=&development=`
+- Extended `GET /api/marketplace/beta-listings` with `childId` + `development` + `buyer_match` payload
+- Server-only intelligence reads for published listings (service role, not client-exposed)
+
+### Verification
+- Build: pass
+- PR10 smoke: pass
+- PR9 smoke: pass
+
 ## 2026-05-31 - PR9 UX: Remove duplicate review CTA, slim estimate, continue after save
 
 - **Branch:** `feat/marketplace-intelligence-taxonomy-safety` (PR #221)

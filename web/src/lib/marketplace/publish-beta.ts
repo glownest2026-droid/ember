@@ -128,6 +128,12 @@ export async function publishBetaListingFromDraft(
     .update({ listing_id: listing.id })
     .eq("id", opportunity.snapshot_id);
 
+  await supabase
+    .from("marketplace_listing_intelligence")
+    .update({ listing_id: listing.id })
+    .eq("draft_id", draft.id)
+    .eq("seller_user_id", draft.user_id);
+
   await saveMarketplacePreferencesForUser(supabase, draft.user_id, {
     postcode: storedPostcode,
     lat: location.lat,

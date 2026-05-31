@@ -1,5 +1,12 @@
 import { NextRequest } from "next/server";
+import {
+  filterListingIdsForDevelopment,
+  loadBuyerMatchByListingId,
+} from "@/lib/marketplace/beta-listing-buyer-match";
 import { buyerCanViewBetaListing, type BetaListingRow } from "@/lib/marketplace/beta-listing-visibility";
+import { resolveChildMarketplaceContext } from "@/lib/marketplace/child-marketplace-context";
+import { isAllowedStage1Slug } from "@/lib/marketplace/marketplace-taxonomy";
+import type { Stage1WrapperSlug } from "@/lib/marketplace/development-wrappers";
 import { resolveUserMarketplaceLocation } from "@/lib/marketplace/marketplace-preferences-service";
 import { toMarketplaceMapListingPayload } from "@/lib/marketplace/marketplace-map-payload";
 import { createClient } from "@/utils/supabase/route-handler";
@@ -71,7 +78,48 @@ export async function GET(request: NextRequest) {
     }))
   );
 
-  const nearby = visibility.filter((v) => v.visible).map((v) => v.row);
+  let nearby = visibility.filter((v) => v.visible).map((v) => v.row);
+
+  const childIdParam = request.nextUrl.searchParams.get("childId");
+  const developmentParam = request.nextUrl.searchParams.get("development");
+  const developmentSlug =
+    developmentParam && isAllowedStage1Slug(developmentParam)
+      ? (developmentParam as Stage1WrapperSlug)
+      : null;
+
+  let childRow: Record<string, unknown> | null = null;
+  if (childIdParam?.trim()) {
+    const { data } = await supabase
+      .from("children")
+      .select("*")
+      .eq("id", childIdParam.trim())
+      .eq("user_id", user.id)
+      .maybeSingle();
+    childRow = (data as Record<string, unknown> | null) ?? null;
+  }
+  const childContext = resolveChildMarketplaceContext({
+    childId: childIdParam,
+    childRow,
+  });
+
+  const matchById = await loadBuyerMatchByListingId({
+    supabase,
+    userId: user.id,
+    childId: childContext.child_id,
+    developmentWrapperSlug: developmentSlug,
+  });
+
+  if (developmentSlug) {
+    const allowedIds = new Set(
+      filterListingIdsForDevelopment(
+        matchById,
+        nearby.map((r) => r.id),
+        developmentSlug,
+        childContext
+      )
+    );
+    nearby = nearby.filter((row) => allowedIds.has(row.id));
+  }
 
   const { data: myConversations } = await supabase
     .from("marketplace_conversations")
@@ -84,12 +132,23 @@ export async function GET(request: NextRequest) {
 
   return json(
     {
-      listings: nearby.map((row) =>
-        toMarketplaceMapListingPayload(row, {
-          buyer_interested: interestedIds.has(row.id),
-          conversation_id: conversationByListing.get(row.id) ?? null,
-        })
-      ),
+      listings: nearby.map((row) => {
+        const match = matchById.get(row.id);
+        return {
+          ...toMarketplaceMapListingPayload(row, {
+            buyer_interested: interestedIds.has(row.id),
+            conversation_id: conversationByListing.get(row.id) ?? null,
+          }),
+          ...(match ? { buyer_match: match } : {}),
+        };
+      }),
+      child_context: {
+        mode: childContext.mode,
+        child_id: childContext.child_id,
+        display_label: childContext.display_label,
+        age_months: childContext.age_months,
+      },
+      development_filter: developmentSlug,
       buyer_has_postcode: Boolean(buyerLocation.postcode && buyerLocation.lat != null),
       buyer_area_label: buyerLocation.approximate_area_label,
       buyer_radius_miles: buyerLocation.radius_miles,

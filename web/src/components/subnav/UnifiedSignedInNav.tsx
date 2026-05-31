@@ -578,7 +578,7 @@ export function UnifiedSignedInNav({
               Saves
             </Link>
             <Link
-              href={buildUrlWithChild('/marketplace', selectedChildId || null)}
+              href={buildUrlWithChild('/app/marketplace', selectedChildId || null)}
               prefetch={false}
               className={figmaDesktopNavLinkClass(isMarketplace)}
             >
@@ -901,7 +901,7 @@ export function UnifiedSignedInNav({
               Saves
             </Link>
             <Link
-              href={buildUrlWithChild('/marketplace', selectedChildId || null)}
+              href={buildUrlWithChild('/app/marketplace', selectedChildId || null)}
               prefetch={false}
               className={`py-3 text-center text-sm font-medium transition-colors ${
                 isMarketplace

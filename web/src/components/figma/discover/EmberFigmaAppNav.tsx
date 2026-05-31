@@ -69,7 +69,8 @@ export function EmberFigmaAppNav() {
 
   const isDiscover = pathname.startsWith('/discover');
   const isMyIdeas = pathname.startsWith('/my-ideas');
-  const isMarketplace = pathname.startsWith('/marketplace');
+  const isMarketplace =
+    pathname.startsWith('/marketplace') || pathname.startsWith('/app/marketplace');
   const isFamily = pathname.startsWith('/family');
 
   const buildUrlWithChild = useCallback(
@@ -203,7 +204,7 @@ export function EmberFigmaAppNav() {
               My ideas
             </Link>
             <Link
-              href={buildUrlWithChild('/marketplace', selectedChildId || null)}
+              href={buildUrlWithChild('/app/marketplace', selectedChildId || null)}
               prefetch={false}
               className={figmaDesktopNavLinkClass(isMarketplace)}
             >
@@ -243,7 +244,7 @@ export function EmberFigmaAppNav() {
           <span className="text-[11px] font-medium">My ideas</span>
         </Link>
         <Link
-          href={buildUrlWithChild('/marketplace', selectedChildId || null)}
+          href={buildUrlWithChild('/app/marketplace', selectedChildId || null)}
           prefetch={false}
           className={mobileTabClass(isMarketplace)}
         >
