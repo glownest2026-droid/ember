@@ -1,3 +1,89 @@
+## 2026-05-31 - PR9: Marketplace Intelligence Backbone, Taxonomy Bridge & Safety Gates
+
+- **Branch:** `feat/marketplace-intelligence-taxonomy-safety`
+
+### Summary
+- Fixed Step 2 → Step 3 identity drift in Create a Listing.
+- Step 3 draft generation now anchors to the parent-confirmed item identity.
+- Added a controlled marketplace item taxonomy (extended existing `marketplace_item_types`).
+- Added item aliases for Gemini/user wording.
+- Added a bridge from marketplace item types to Ember Stage 1 development wrapper cards.
+- Added a per-listing marketplace intelligence profile.
+- Added a taxonomy review queue for unmatched Gemini suggestions.
+- Added cautious age suitability and safety fields.
+- Added optional parent confirmation/editing for age guidance.
+- Added a recommendation eligibility helper for future child matching.
+- Added an ABI coverage-state helper for missing/non-missing age band logic.
+
+### Critical bug fixed
+- A helmet recognised as a plastic costume helmet can no longer draft as a Baby sleep aid.
+- Step 3 may enrich the confirmed item identity but may not contradict it. The
+  `generate-details` route now refuses to save a contradictory or too-generic draft
+  (`identity_conflict` / `identity_review_required`, HTTP 409). The guard is generic
+  (noun-based), not hard-coded to the helmet case.
+
+### Product decisions
+- Gemini suggests; Ember validates; the parent confirms.
+- Gemini cannot create live taxonomy truth.
+- Unknown taxonomy suggestions go to the review queue.
+- Manufacturer age guidance wins when known.
+- AI age suitability is an estimate, not a safety prescription.
+- Cautious copy: "Estimated play stage".
+- Optional manufacturer age confirmation, not forced.
+- Current child matching window for future PRs: current age + 6 months.
+- Missing ABI age band data is a content-coverage gap, NOT "no developmental need".
+
+### Data model
+- Migration: `supabase/sql/202605311200_marketplace_intelligence_taxonomy.sql`.
+- Extended (not recreated): `marketplace_item_types` (+`label`, `description`,
+  `parent_category_slug`, `default_min/max/outgrown_age_months`, `risk_level`,
+  `recommendation_policy`).
+- Added: `marketplace_item_type_aliases`, `marketplace_item_type_development_mappings`,
+  `marketplace_listing_intelligence`, `marketplace_taxonomy_review_queue`.
+- RLS: seller-owned draft intelligence protected; taxonomy tables authenticated-read /
+  server-write; review queue owner-scoped (no cross-user exposure; no dashboard in PR9).
+
+### Seed taxonomy
+- `toy_saxophone`, `dress_up_costume_helmet`, `child_binoculars`, `hammer_peg_toy`,
+  `picture_book`, `toy_doctor_kit`, `baby_sleep_aid` (+ aliases + Stage 1 dev mappings).
+
+### ABI/development bridge
+- Uses the exact seven Stage 1 wrapper slugs: `social_emotional`,
+  `self_care_independence`, `fine_motor`, `gross_motor`, `language_communication`,
+  `cognitive_problem_solving`, `toileting` (text slug bridge, no ABI FK).
+- Does not create new ABI Stage 2 editorial content.
+- Unknown Stage 1/Stage 2 suggestions go to the review queue.
+
+### Key files
+- `web/src/lib/marketplace/identity-guard.ts` (lock + drift detection)
+- `web/src/lib/marketplace/marketplace-taxonomy.ts` (controlled taxonomy mirror)
+- `web/src/lib/marketplace/intelligence.ts` (Gemini contract + validation)
+- `web/src/lib/marketplace/recommendation-eligibility.ts`
+- `web/src/lib/marketplace/coverage-state.ts`
+- `web/src/app/api/marketplace/listing-drafts/[draftId]/intelligence/route.ts` (POST/PATCH/GET)
+- `web/src/components/marketplace/EmberEstimateSection.tsx` ("Ember's estimate" UI)
+- `web/scripts/marketplace-pr9-smoke.mjs` (+ `test:marketplace-pr9`)
+
+### Verification
+- Build: pass (`pnpm -C web build`, 31 May 2026).
+- PR9 smoke: pass.
+- Helmet identity guard: pass (helmet → sleep aid blocked).
+- Saxophone identity guard: pass (saxophone → xylophone blocked; saxophone draft allowed).
+- Binoculars intelligence: pass (generic "Toy" draft → review_required; binoculars draft allowed).
+- Taxonomy unknown slug quarantine: pass (`dress_up_play_magic_category`, `imagination_world` not live).
+- Age/safety helper: pass (manufacturer 36m blocks <window child; AI-only → cautious).
+- Coverage-state helper: pass (31–33m exact; missing band → estimate-only, never "no needs").
+- Existing regression: PR7 smoke pass, PR8 smoke pass.
+
+### Known debt
+- PR10 will build personalised marketplace development cards and map filtering.
+- PR11 will build auto-matchmaking and in-app recommendations.
+- Full admin taxonomy review UI deferred.
+- Full restricted-category policy and moderation dashboard deferred.
+- ABI coverage beyond 31–33 months still requires content expansion.
+- Intelligence classification uses a deterministic alias→taxonomy mapping in PR9;
+  the Gemini classification contract (`intelligence.ts`) is ready to wire in later.
+
 ## fix(snag-pack): feedback round — home slider Expecting, remove-child hang, sign-out CTA, sign-in → /discover (30 May 2026)
 
 - **Branch:** `fix/snag-pack-discover-family-may30` (PR #220)

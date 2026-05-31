@@ -19,6 +19,10 @@ import {
   buildVisualSupportText,
   resolveUserFacingItemLabel,
 } from "@/lib/marketplace/ai-listing-display-label";
+import {
+  buildLockedConfirmedItemPayload,
+  validateDraftAgainstConfirmedItem,
+} from "@/lib/marketplace/identity-guard";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -262,8 +266,19 @@ export async function POST(
       aiCandidateLabel: topAiCandidate?.label,
     });
 
+    const confirmedVisualDescription =
+      pr3Raw?.analysis?.visual_description?.trim() || visualSupportText || "";
+
+    const lockedConfirmedItem = buildLockedConfirmedItemPayload({
+      confirmedItemLabel: confirmedCanonicalLabel,
+      confirmedVisualDescription,
+      confirmedCategoryLabel: categoryLabel,
+      source: "parent_confirmation",
+    });
+
     const prompt = buildListingDetailsGenerationPrompt({
       confirmedItemLabel: titleChoice.preferredTitleLabel,
+      confirmedVisualDescription,
       categoryLabel,
       productTypeSubtitle: productType?.subtitle ?? null,
       pr3Analysis: pr3Raw,
@@ -294,6 +309,41 @@ export async function POST(
       });
       if (canonicalReviewNote) {
         generated.details.canonical_review_note = canonicalReviewNote;
+      }
+
+      // Identity guard: Step 3 may enrich Step 2 but must not contradict it.
+      // If the draft drifts to a different item (e.g. confirmed helmet -> "Baby
+      // sleep aid"), refuse to save and return a conflict/review state to the UI.
+      const identityCheck = validateDraftAgainstConfirmedItem(lockedConfirmedItem, {
+        title: generated.details.suggested_title,
+        description: generated.details.suggested_description,
+      });
+      const modelFlaggedConflict = generated.details.identity_conflict === true;
+      if (!identityCheck.ok || modelFlaggedConflict) {
+        const isConflict = identityCheck.status === "conflict" || modelFlaggedConflict;
+        await logListingDetailsGenerationEvent(supabase, {
+          userId: user.id,
+          draftId,
+          modelUsed: generated.modelUsed,
+          tokenUsage: generated.tokenUsage,
+          success: false,
+          errorMessage: `identity_${isConflict ? "conflict" : "review_required"}: ${identityCheck.reason}`.slice(0, 500),
+          debugId,
+          providerStatus: null,
+          providerCode: null,
+          geminiAttempt: generated.geminiAttempt,
+        });
+        return json(
+          buildErrorPayload(
+            isConflict
+              ? "Ember’s draft didn’t match the item you confirmed, so we didn’t save it. Please try again."
+              : "Ember’s draft was too vague for the item you confirmed, so we didn’t save it. Please try again.",
+            isConflict ? "identity_conflict" : "identity_review_required",
+            debugId,
+            true
+          ),
+          { status: 409 }
+        );
       }
 
       const generatedAt = new Date().toISOString();

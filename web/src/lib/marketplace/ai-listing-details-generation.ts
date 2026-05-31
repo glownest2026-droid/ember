@@ -160,6 +160,7 @@ export function normalizeListingDraftDetails(
     safety_resale_notes: stringList(source.safety_resale_notes),
     photo_improvement_suggestions: stringList(source.photo_improvement_suggestions),
     restricted_or_blocked: Boolean(source.restricted_or_blocked),
+    identity_conflict: Boolean(source.identity_conflict),
     parent_editing_note: clampText(
       source.parent_editing_note,
       200,

@@ -6,6 +6,7 @@ import type { ChangeEvent } from "react";
 import { ListingDraftDetailsSection } from "@/components/marketplace/ListingDraftDetailsSection";
 import { ListingOpportunitySection } from "@/components/marketplace/ListingOpportunitySection";
 import { ListingDraftReviewSection } from "@/components/marketplace/ListingDraftReviewSection";
+import { EmberEstimateSection } from "@/components/marketplace/EmberEstimateSection";
 import { ListingDeveloperDiagnostics } from "@/components/marketplace/listing-flow/ListingDeveloperDiagnostics";
 import { ListingFlowStepShell } from "@/components/marketplace/listing-flow/ListingFlowStepShell";
 import {
@@ -388,6 +389,9 @@ export function CreateListingFlowView({
               embedded
               compactPhoto
             />
+            <div className="mt-4">
+              <EmberEstimateSection draftId={draftId} />
+            </div>
           </ListingFlowStepShell>
         </div>
       )}

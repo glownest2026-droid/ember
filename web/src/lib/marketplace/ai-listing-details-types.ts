@@ -27,6 +27,7 @@ export type ListingDraftDetailsJson = {
   safety_resale_notes: string[];
   photo_improvement_suggestions: string[];
   restricted_or_blocked: boolean;
+  identity_conflict?: boolean;
   parent_editing_note: string;
   canonical_review_note?: string;
   generation_model?: string;
