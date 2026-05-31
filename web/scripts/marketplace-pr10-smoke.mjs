@@ -125,8 +125,8 @@ assert.ok(!pageClient.includes("raw storage path"));
 // ---------------------------------------------------------------------------
 const resolverSrc = read("src/lib/marketplace/marketplace-item-type-resolver.ts");
 const diagnosticSrc = read("src/lib/marketplace/development-match-diagnostic.ts");
-const sqlTaxonomy = readFileSync(
-  join(root, "..", "supabase/sql/202605311200_marketplace_intelligence_taxonomy.sql"),
+const sqlPottySeed = readFileSync(
+  join(root, "..", "supabase/sql/202605311800_marketplace_potty_training_seat_seed.sql"),
   "utf8"
 );
 
@@ -137,8 +137,8 @@ assert.match(eligibility, /catalog_default_min_age_months/);
 assert.match(devOpps, /getSeedMappingsForSlug/);
 assert.ok(taxonomy.includes('slug: "potty_training_seat"'));
 assert.match(taxonomy, /toileting", "close"/);
-assert.match(sqlTaxonomy, /potty_training_seat/);
-assert.match(sqlTaxonomy, /I''m getting ready for potty/);
+assert.match(sqlPottySeed, /potty_training_seat/);
+assert.match(sqlPottySeed, /I''m getting ready for potty/);
 assert.match(diagnosticSrc, /missing_intelligence_and_no_title_fallback/);
 assert.match(diagnosticSrc, /own_listing/);
 
