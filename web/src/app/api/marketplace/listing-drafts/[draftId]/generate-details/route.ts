@@ -19,9 +19,10 @@ import {
   buildVisualSupportText,
   resolveUserFacingItemLabel,
 } from "@/lib/marketplace/ai-listing-display-label";
+import { resolveConfirmedIdentity } from "@/lib/marketplace/confirmed-item-identity";
 import {
   buildLockedConfirmedItemPayload,
-  validateDraftAgainstConfirmedItem,
+  reconcileDraftTitleWithConfirmedIdentity,
 } from "@/lib/marketplace/identity-guard";
 import { createClient } from "@/utils/supabase/route-handler";
 
@@ -266,20 +267,25 @@ export async function POST(
       aiCandidateLabel: topAiCandidate?.label,
     });
 
-    const confirmedVisualDescription =
-      pr3Raw?.analysis?.visual_description?.trim() || visualSupportText || "";
+    const resolvedIdentity = resolveConfirmedIdentity({
+      pr3Raw,
+      parentDisplayLabel: parentDisplayLabel || userFacingFromAnalysis,
+      productTypeLabel: productType?.label ?? null,
+      productTypeSubtitle: productType?.subtitle ?? null,
+    });
 
     const lockedConfirmedItem = buildLockedConfirmedItemPayload({
-      confirmedItemLabel: confirmedCanonicalLabel,
-      confirmedVisualDescription,
-      confirmedCategoryLabel: categoryLabel,
+      confirmedItemLabel: resolvedIdentity.confirmed_item_label,
+      confirmedVisualDescription: resolvedIdentity.confirmed_visual_description,
+      confirmedCategoryLabel: resolvedIdentity.confirmed_category_label,
       source: "parent_confirmation",
+      parentConfirmedAt: pr3Raw?.parent_confirmed_at ?? null,
     });
 
     const prompt = buildListingDetailsGenerationPrompt({
-      confirmedItemLabel: titleChoice.preferredTitleLabel,
-      confirmedVisualDescription,
-      categoryLabel,
+      confirmedItemLabel: resolvedIdentity.confirmed_item_label,
+      confirmedVisualDescription: resolvedIdentity.confirmed_visual_description,
+      categoryLabel: resolvedIdentity.confirmed_category_label,
       productTypeSubtitle: productType?.subtitle ?? null,
       pr3Analysis: pr3Raw,
     });
@@ -311,46 +317,24 @@ export async function POST(
         generated.details.canonical_review_note = canonicalReviewNote;
       }
 
-      // Identity guard: Step 3 may enrich Step 2 but must not contradict it.
-      // If the draft drifts to a different item (e.g. confirmed helmet -> "Baby
-      // sleep aid"), refuse to save and return a conflict/review state to the UI.
-      const identityCheck = validateDraftAgainstConfirmedItem(lockedConfirmedItem, {
+      // Identity guard: title + description must match confirmed item.
+      // Bad titles (e.g. stale "Sleep" for a helmet) are replaced with a deterministic fallback.
+      const titleReconcile = reconcileDraftTitleWithConfirmedIdentity(lockedConfirmedItem, {
         title: generated.details.suggested_title,
         description: generated.details.suggested_description,
+        identity_conflict: generated.details.identity_conflict,
       });
-      const modelFlaggedConflict = generated.details.identity_conflict === true;
-      if (!identityCheck.ok || modelFlaggedConflict) {
-        const isConflict = identityCheck.status === "conflict" || modelFlaggedConflict;
-        await logListingDetailsGenerationEvent(supabase, {
-          userId: user.id,
-          draftId,
-          modelUsed: generated.modelUsed,
-          tokenUsage: generated.tokenUsage,
-          success: false,
-          errorMessage: `identity_${isConflict ? "conflict" : "review_required"}: ${identityCheck.reason}`.slice(0, 500),
-          debugId,
-          providerStatus: null,
-          providerCode: null,
-          geminiAttempt: generated.geminiAttempt,
-        });
-        return json(
-          buildErrorPayload(
-            isConflict
-              ? "Ember’s draft didn’t match the item you confirmed, so we didn’t save it. Please try again."
-              : "Ember’s draft was too vague for the item you confirmed, so we didn’t save it. Please try again.",
-            isConflict ? "identity_conflict" : "identity_review_required",
-            debugId,
-            true
-          ),
-          { status: 409 }
-        );
+      generated.details.suggested_title = titleReconcile.title;
+      if (titleReconcile.corrected) {
+        generated.details.parent_editing_note =
+          "Ember adjusted the title to match the item you confirmed. Please review before publishing.";
       }
 
       const generatedAt = new Date().toISOString();
       const { error: updateError } = await supabase
         .from("marketplace_listing_drafts")
         .update({
-          title_draft: generated.details.suggested_title,
+          title_draft: titleReconcile.title,
           description_draft: generated.details.suggested_description,
           condition_suggestion: generated.details.condition_suggestion,
           listing_draft_details_json: generated.details,
@@ -383,7 +367,7 @@ export async function POST(
         {
           draft_id: draftId,
           details: generated.details,
-          title_draft: generated.details.suggested_title,
+          title_draft: titleReconcile.title,
           description_draft: generated.details.suggested_description,
           condition_suggestion: generated.details.condition_suggestion,
           listing_details_generated_at: generatedAt,

@@ -1,4 +1,10 @@
 import { NextRequest } from "next/server";
+import { resolveConfirmedIdentity } from "@/lib/marketplace/confirmed-item-identity";
+import {
+  clearDraftIntelligenceForDraft,
+  draftGeneratedFieldsClearPayload,
+} from "@/lib/marketplace/draft-generated-reset";
+import type { Pr3AiRawResponse } from "@/lib/marketplace/ai-listing-details-types";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -70,16 +76,13 @@ export async function POST(
   }
 
   if (body.selection === "not_sure") {
+    await clearDraftIntelligenceForDraft(supabase, draftId, user.id);
     const { data: updated, error: updateError } = await supabase
       .from("marketplace_listing_drafts")
       .update({
         product_type_id: null,
         status: "draft",
-        title_draft: null,
-        description_draft: null,
-        condition_confirmed_by_user: null,
-        listing_draft_details_json: null,
-        listing_details_generated_at: null,
+        ...draftGeneratedFieldsClearPayload(),
       })
       .eq("id", draftId)
       .eq("user_id", user.id)
@@ -117,25 +120,30 @@ export async function POST(
     typeof body.display_label === "string" && body.display_label.trim().length > 0
       ? body.display_label.trim()
       : null;
-  const existingRaw =
-    draft.ai_raw_response_json && typeof draft.ai_raw_response_json === "object"
-      ? (draft.ai_raw_response_json as Record<string, unknown>)
-      : {};
+  const existingRaw = (draft.ai_raw_response_json ?? null) as Pr3AiRawResponse | null;
+  const resolved = resolveConfirmedIdentity({
+    pr3Raw: existingRaw,
+    parentDisplayLabel: displayLabel,
+    productTypeLabel: productType.label,
+    productTypeSubtitle: productType.subtitle,
+  });
   const mergedRaw = {
-    ...existingRaw,
-    parent_confirmed_display_label: displayLabel,
+    ...(existingRaw && typeof existingRaw === "object" ? existingRaw : {}),
+    parent_confirmed_display_label: resolved.confirmed_item_label,
+    parent_confirmed_item_label: resolved.confirmed_item_label,
+    parent_confirmed_category_label: resolved.confirmed_category_label,
+    parent_confirmed_visual_description: resolved.confirmed_visual_description,
+    parent_confirmed_at: new Date().toISOString(),
   };
+
+  await clearDraftIntelligenceForDraft(supabase, draftId, user.id);
 
   const { data: updatedDraft, error: updateError } = await supabase
     .from("marketplace_listing_drafts")
     .update({
       product_type_id: productType.id,
       status: "confirmed",
-      title_draft: null,
-      description_draft: null,
-      condition_confirmed_by_user: null,
-      listing_draft_details_json: null,
-      listing_details_generated_at: null,
+      ...draftGeneratedFieldsClearPayload(),
       ai_raw_response_json: mergedRaw,
     })
     .eq("id", draftId)
@@ -154,7 +162,8 @@ export async function POST(
       selected_product_type: {
         id: productType.id,
         label: productType.label,
-        display_label: displayLabel,
+        display_label: resolved.confirmed_item_label,
+        category_label: resolved.confirmed_category_label,
         subtitle: productType.subtitle ?? null,
       },
       draft: updatedDraft,

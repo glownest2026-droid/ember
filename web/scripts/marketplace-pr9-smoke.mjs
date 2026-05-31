@@ -65,7 +65,56 @@ function detectConflict(confirmed, draft) {
   if (draftNouns.length > 0) return { conflict: true, confirmedNouns, draftNouns };
   return { conflict: false, confirmedNouns, draftNouns };
 }
+const SLEEP_DOMAIN_TERMS = ["sleep", "sleep aid", "baby sleep", "white noise", "night light", "cot soother"];
+
+function titleImpliesSleep(title) {
+  const norm = normalize(title);
+  return SLEEP_DOMAIN_TERMS.some((t) => {
+    const term = normalize(t);
+    return norm === term || norm.includes(` ${term} `) || norm.startsWith(`${term} `) || norm.endsWith(` ${term}`);
+  });
+}
+
+function confirmedHasPlayIdentity(confirmed) {
+  const text = [confirmed.label, confirmed.visual, confirmed.category].join(" ");
+  return /\bhelmet\b|\bvisor\b|\bbinocular|\bsaxophone\b/i.test(text) || findNouns(text).some((n) => !/sleep|soother|cot/.test(n));
+}
+
+function validateTitle(confirmed, title) {
+  if (titleImpliesSleep(title) && confirmedHasPlayIdentity(confirmed)) {
+    return { ok: false, status: "conflict" };
+  }
+  const nounConflict = detectConflict(confirmed, { title, description: "" });
+  if (nounConflict.conflict) {
+    return { ok: false, status: "conflict" };
+  }
+  if (isGenericTitle(title) && confirmedHasPlayIdentity(confirmed)) {
+    return { ok: false, status: "review_required" };
+  }
+  return { ok: true, status: "consistent" };
+}
+
+function fallbackTitle(confirmed) {
+  if (confirmed.label && !/\bpretend play\b|\bdress up\b/i.test(confirmed.label)) {
+    return confirmed.label;
+  }
+  if (/\bhelmet\b|\bvisor\b/i.test(confirmed.visual)) return "Plastic costume helmet";
+  if (/\bbinocular/i.test(confirmed.visual)) return "Child binoculars";
+  if (/\bsaxophone\b/i.test(confirmed.visual)) return "Saxophone-style musical toy";
+  return confirmed.label || "Confirmed item";
+}
+
+function reconcileTitle(confirmed, draft) {
+  const titleCheck = validateTitle(confirmed, draft.title);
+  if (titleCheck.ok && (draft.title ?? "").trim()) {
+    return { title: draft.title.trim(), corrected: false };
+  }
+  return { title: fallbackTitle(confirmed), corrected: true };
+}
+
 function validateDraft(confirmed, draft) {
+  const titleCheck = validateTitle(confirmed, draft.title);
+  if (!titleCheck.ok) return titleCheck;
   const c = detectConflict(confirmed, draft);
   if (c.conflict) return { ok: false, status: "conflict" };
   if (c.confirmedNouns.length > 0 && isGenericTitle(draft.title)) {
@@ -121,6 +170,47 @@ assert.equal(
   validateDraft(binoculars, { title: "Child binoculars", description: "Binoculars with a strap." }).ok,
   true
 );
+
+// A. Helmet stale title regression
+const helmetConcrete = {
+  label: "Plastic costume helmet",
+  visual: "The item is clearly a plastic costume helmet styled after medieval armour.",
+  category: "Dress up and pretend play",
+};
+const staleReconcile = reconcileTitle(helmetConcrete, {
+  title: "Sleep",
+  description: "A silver-coloured plastic toy helmet designed to look like a medieval knight's visor.",
+});
+assert.notEqual(staleReconcile.title.toLowerCase(), "sleep", "stale Sleep title must be replaced");
+assert.match(staleReconcile.title.toLowerCase(), /helmet|costume|knight|plastic/);
+assert.ok(staleReconcile.corrected, "stale title path should correct");
+
+// B. Helmet generated wrong title -> fallback
+const badGemini = reconcileTitle(helmetConcrete, { title: "Baby sleep aid", description: "helmet desc" });
+assert.notEqual(badGemini.title.toLowerCase(), "baby sleep aid");
+assert.equal(badGemini.title, "Plastic costume helmet");
+
+// C. Saxophone drift
+const sax = {
+  label: "Saxophone-style musical toy",
+  visual: "A red plastic saxophone-style toy with buttons.",
+  category: "Musical toys",
+};
+const saxBad = reconcileTitle(sax, { title: "Wooden xylophone", description: "Musical toy" });
+assert.match(saxBad.title.toLowerCase(), /saxophone/);
+assert.ok(!saxBad.title.toLowerCase().includes("xylophone"));
+
+// D. Binoculars generic fallback
+const binReconcile = reconcileTitle(binoculars, { title: "Toy item", description: "Binoculars" });
+assert.match(binReconcile.title.toLowerCase(), /binocular/);
+
+// E. Downstream reset — source invariants
+const resetHelper = read("src/lib/marketplace/draft-generated-reset.ts");
+assert.match(resetHelper, /draftGeneratedFieldsClearPayload/);
+assert.match(resetHelper, /clearDraftIntelligenceForDraft/);
+const selectRoute = read("src/app/api/marketplace/listing-drafts/[draftId]/select-candidate/route.ts");
+assert.match(selectRoute, /draftGeneratedFieldsClearPayload/);
+assert.match(selectRoute, /parent_confirmed_item_label/);
 
 // ---------------------------------------------------------------------------
 // Layer 1: taxonomy validation mirror (intelligence.ts)
@@ -287,9 +377,21 @@ assert.match(detailsPrompt, /do not contradict|Do not change the item identity/i
 assert.match(detailsPrompt, /identity_conflict/);
 
 const generateRoute = read("src/app/api/marketplace/listing-drafts/[draftId]/generate-details/route.ts");
-assert.match(generateRoute, /validateDraftAgainstConfirmedItem/);
-assert.match(generateRoute, /identity_conflict/);
+assert.match(generateRoute, /reconcileDraftTitleWithConfirmedIdentity/);
+assert.match(generateRoute, /resolveConfirmedIdentity/);
 assert.match(generateRoute, /lockedConfirmedItem/);
+
+const confirmedIdentity = read("src/lib/marketplace/confirmed-item-identity.ts");
+assert.match(confirmedIdentity, /resolveConfirmedIdentity/);
+assert.match(confirmedIdentity, /Plastic costume helmet/);
+
+const flowView = read("src/components/marketplace/listing-flow/CreateListingFlowView.tsx");
+assert.match(flowView, /categoryLabel/);
+assert.match(flowView, /EmberEstimateSection/);
+assert.ok(
+  flowView.includes("listing-step-details") && flowView.indexOf("EmberEstimateSection") < flowView.lastIndexOf("listing-step-review"),
+  "Ember estimate should appear in step 3 before review"
+);
 
 const taxonomy = read("src/lib/marketplace/marketplace-taxonomy.ts");
 for (const slug of ["social_emotional", "self_care_independence", "fine_motor", "gross_motor", "language_communication", "cognitive_problem_solving", "toileting"]) {

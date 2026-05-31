@@ -1,3 +1,24 @@
+## 2026-05-31 - PR9 Patch: Identity Drift and Stale Draft Title Fix
+
+- **Branch:** `feat/marketplace-intelligence-taxonomy-safety` (same PR #221)
+
+### Summary
+- Fixed remaining helmet identity drift where Step 3 title could remain “Sleep” after helmet confirmation.
+- Step 2 now preserves concrete item identity separately from category/development label.
+- Step 3 draft generation atomically updates title and description; bad titles get a deterministic fallback instead of being saved.
+- Stale downstream draft fields are cleared when photo or confirmed item changes (server + client).
+- Identity guard now validates title as well as description (catches standalone “Sleep” vs helmet).
+- Ember’s estimate moved to Step 3 (Draft the listing) so it is visible without scrolling to Review.
+
+### Root cause
+- Stale `title_draft` (“Sleep”) from a prior item could persist while a new helmet description was generated.
+- Step 2 stored only the broad category (“Dress up and pretend play”) as the confirmed label.
+- Identity guard did not treat standalone “Sleep” as conflicting with helmet/costume identity.
+
+### Verification
+- Build: pass
+- PR9 smoke: pass (includes stale Sleep title, saxophone/xylophone, binoculars, downstream reset invariants)
+
 ## 2026-05-31 - PR9: Marketplace Intelligence Backbone, Taxonomy Bridge & Safety Gates
 
 - **Branch:** `feat/marketplace-intelligence-taxonomy-safety`

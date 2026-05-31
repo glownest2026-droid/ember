@@ -52,4 +52,8 @@ export type Pr3AiRawResponse = {
   analysis?: Pr3StoredAnalysis;
   canonical_candidates?: { label?: string; subtitle?: string }[];
   parent_confirmed_display_label?: string;
+  parent_confirmed_item_label?: string;
+  parent_confirmed_category_label?: string;
+  parent_confirmed_visual_description?: string;
+  parent_confirmed_at?: string;
 };

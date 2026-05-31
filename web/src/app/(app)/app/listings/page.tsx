@@ -30,7 +30,16 @@ type DraftRow = {
   ai_detected_label: string | null;
   ai_raw_response_json: {
     parent_confirmed_display_label?: string;
-    analysis?: { detected_item_label?: string; possible_brand?: string };
+    parent_confirmed_item_label?: string;
+    parent_confirmed_category_label?: string;
+    parent_confirmed_visual_description?: string;
+    analysis?: {
+      detected_item_label?: string;
+      user_facing_item_label?: string;
+      visual_description?: string;
+      possible_brand?: string;
+      broad_category?: string;
+    };
   } | null;
 };
 
@@ -87,6 +96,7 @@ type SelectCandidateResponse = {
     id: string;
     label: string;
     display_label?: string | null;
+    category_label?: string | null;
     subtitle: string | null;
   };
   draft?: {
@@ -101,6 +111,7 @@ type ConfirmedDraftState = {
   productTypeId: string | null;
   label: string | null;
   displayLabel: string | null;
+  categoryLabel: string | null;
 };
 
 type PublishedListingRow = {
@@ -119,6 +130,27 @@ function getFileExtension(file: File): string {
   if (file.type === "image/png") return "png";
   if (file.type === "image/webp") return "webp";
   return "jpg";
+}
+
+function resolveDraftDisplayLabels(
+  draft: DraftRow,
+  productType?: { label: string | null; subtitle: string | null } | null
+): { displayLabel: string | null; categoryLabel: string | null } {
+  const raw = draft.ai_raw_response_json;
+  const displayLabel =
+    raw?.parent_confirmed_item_label?.trim() ||
+    raw?.parent_confirmed_display_label?.trim() ||
+    raw?.analysis?.user_facing_item_label?.trim() ||
+    raw?.analysis?.detected_item_label?.trim() ||
+    draft.ai_detected_label?.trim() ||
+    null;
+  const categoryLabel =
+    raw?.parent_confirmed_category_label?.trim() ||
+    productType?.subtitle?.trim() ||
+    raw?.analysis?.broad_category?.trim() ||
+    productType?.label?.trim() ||
+    null;
+  return { displayLabel, categoryLabel };
 }
 
 async function draftHasPublishedListing(
@@ -352,31 +384,29 @@ function AppListingsPhotoDraftPage() {
       setDetailsSavedOnce(Boolean(condition?.trim()));
       setPossibleBrand(draft.ai_raw_response_json?.analysis?.possible_brand?.trim() ?? null);
 
-      const displayLabel =
-        listing.item_label?.trim() ||
-        draft.ai_raw_response_json?.parent_confirmed_display_label?.trim() ||
-        draft.ai_raw_response_json?.analysis?.detected_item_label?.trim() ||
-        draft.ai_detected_label?.trim() ||
-        null;
-
       if (draft.product_type_id) {
         const { data: productType } = await supabase
           .from("product_types")
-          .select("label")
+          .select("label, subtitle")
           .eq("id", draft.product_type_id)
           .maybeSingle();
+        const labels = resolveDraftDisplayLabels(draft, productType);
         setConfirmedDraft({
           status: "confirmed",
           productTypeId: draft.product_type_id,
           label: productType?.label ?? null,
-          displayLabel,
+          displayLabel:
+            listing.item_label?.trim() || labels.displayLabel,
+          categoryLabel: labels.categoryLabel,
         });
       } else {
+        const labels = resolveDraftDisplayLabels(draft, null);
         setConfirmedDraft({
           status: "confirmed",
           productTypeId: null,
           label: null,
-          displayLabel,
+          displayLabel: listing.item_label?.trim() || labels.displayLabel,
+          categoryLabel: labels.categoryLabel,
         });
       }
 
@@ -411,19 +441,16 @@ function AppListingsPhotoDraftPage() {
       if (latest.status === "confirmed" && latest.product_type_id) {
         const { data: productType } = await supabase
           .from("product_types")
-          .select("label")
+          .select("label, subtitle")
           .eq("id", latest.product_type_id)
           .maybeSingle();
-        const visualLabel =
-          latest.ai_raw_response_json?.parent_confirmed_display_label?.trim() ||
-          latest.ai_raw_response_json?.analysis?.detected_item_label?.trim() ||
-          latest.ai_detected_label?.trim() ||
-          null;
+        const labels = resolveDraftDisplayLabels(latest, productType);
         setConfirmedDraft({
           status: latest.status,
           productTypeId: latest.product_type_id,
           label: productType?.label ?? null,
-          displayLabel: visualLabel,
+          displayLabel: labels.displayLabel,
+          categoryLabel: labels.categoryLabel,
         });
         setSelectionMessage("Confirmed item type saved on this draft.");
       } else if (latest.status === "draft" && !latest.product_type_id) {
@@ -432,6 +459,7 @@ function AppListingsPhotoDraftPage() {
           productTypeId: null,
           label: null,
           displayLabel: null,
+          categoryLabel: null,
         });
       }
 
@@ -673,6 +701,7 @@ function AppListingsPhotoDraftPage() {
           title_draft: null,
           description_draft: null,
           condition_confirmed_by_user: null,
+          condition_suggestion: null,
           listing_draft_details_json: null,
           listing_details_generated_at: null,
           ai_detected_label: null,
@@ -683,6 +712,17 @@ function AppListingsPhotoDraftPage() {
         .eq("user_id", user.id);
 
       if (updateDraftError) throw new Error(updateDraftError.message);
+
+      await supabase
+        .from("marketplace_listing_intelligence")
+        .delete()
+        .eq("draft_id", activeDraftId)
+        .eq("seller_user_id", user.id);
+      await supabase
+        .from("marketplace_taxonomy_review_queue")
+        .delete()
+        .eq("draft_id", activeDraftId)
+        .eq("submitted_by_user_id", user.id);
 
       setImageStoragePath(path);
       await refreshSignedPreview(path);
@@ -790,6 +830,10 @@ function AppListingsPhotoDraftPage() {
             displayLabel?.trim() ||
             analysisResult?.detected_item_label?.trim() ||
             null,
+          categoryLabel:
+            payload?.selected_product_type?.category_label?.trim() ||
+            payload?.selected_product_type?.subtitle?.trim() ||
+            null,
         });
         setDraftDetails({
           title: null,
@@ -806,6 +850,7 @@ function AppListingsPhotoDraftPage() {
           productTypeId: null,
           label: null,
           displayLabel: null,
+          categoryLabel: null,
         });
       }
       setSelectionMessage(payload?.message ?? "Item confirmed.");

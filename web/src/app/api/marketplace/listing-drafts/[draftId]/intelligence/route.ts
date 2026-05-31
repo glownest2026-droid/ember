@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { resolveConfirmedIdentity } from "@/lib/marketplace/confirmed-item-identity";
 import {
   buildLockedConfirmedItemPayload,
   type LockedConfirmedItem,
@@ -45,26 +46,18 @@ function buildConfirmedFromDraft(
   productType: { label: string | null; subtitle: string | null } | null
 ): LockedConfirmedItem {
   const raw = (draft.ai_raw_response_json ?? null) as Pr3AiRawResponse | null;
-  const parentDisplay =
-    typeof raw?.parent_confirmed_display_label === "string"
-      ? raw.parent_confirmed_display_label.trim()
-      : "";
-  const label =
-    parentDisplay ||
-    productType?.label?.trim() ||
-    raw?.analysis?.user_facing_item_label?.trim() ||
-    draft.ai_detected_label?.trim() ||
-    "";
-  const visual =
-    raw?.analysis?.visual_description?.trim() ||
-    raw?.analysis?.detected_item_label?.trim() ||
-    "";
-  const category = productType?.subtitle?.trim() || raw?.analysis?.broad_category?.trim() || "";
+  const identity = resolveConfirmedIdentity({
+    pr3Raw: raw,
+    parentDisplayLabel: raw?.parent_confirmed_item_label ?? raw?.parent_confirmed_display_label,
+    productTypeLabel: productType?.label ?? null,
+    productTypeSubtitle: productType?.subtitle ?? null,
+  });
   return buildLockedConfirmedItemPayload({
-    confirmedItemLabel: label,
-    confirmedVisualDescription: visual,
-    confirmedCategoryLabel: category,
+    confirmedItemLabel: identity.confirmed_item_label,
+    confirmedVisualDescription: identity.confirmed_visual_description,
+    confirmedCategoryLabel: identity.confirmed_category_label,
     source: "parent_confirmation",
+    parentConfirmedAt: raw?.parent_confirmed_at ?? null,
   });
 }
 

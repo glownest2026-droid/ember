@@ -32,6 +32,7 @@ type ConfirmedDraftState = {
   productTypeId: string | null;
   label: string | null;
   displayLabel: string | null;
+  categoryLabel: string | null;
 };
 
 export type CreateListingFlowViewProps = {
@@ -250,6 +251,9 @@ export function CreateListingFlowView({
                 <p className="font-medium text-[#1A1E23]">
                   {confirmedDraft?.displayLabel ?? "Item confirmed"}
                 </p>
+                {confirmedDraft?.categoryLabel && (
+                  <p className="text-xs text-[#5C646D]">{confirmedDraft.categoryLabel}</p>
+                )}
                 {brandCharacterHint && (
                   <p className="text-xs">
                     Only keep brand or character names if you&apos;re confident they&apos;re right.
@@ -389,9 +393,6 @@ export function CreateListingFlowView({
               embedded
               compactPhoto
             />
-            <div className="mt-4">
-              <EmberEstimateSection draftId={draftId} />
-            </div>
           </ListingFlowStepShell>
         </div>
       )}

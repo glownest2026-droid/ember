@@ -18,8 +18,11 @@ export function buildListingDetailsGenerationPrompt(args: {
   return [
     "You are helping create an editable second-hand marketplace listing draft for a UK parent.",
     "The parent has ALREADY CONFIRMED the item identity. This identity is locked.",
+    "allowed_to_change_item_identity: false",
     "Draft a title and description ONLY for this confirmed item.",
     "Do not change the item identity. Do not describe a different product, category, or use-case.",
+    "If you are uncertain, keep the title close to the confirmed item label.",
+    "Do not infer a different product (for example, do not turn a helmet into a sleep aid).",
     "If the photo context appears to conflict with the confirmed item, set \"identity_conflict\" to true and DO NOT invent an unrelated listing.",
     "Generate useful draft copy only — not final truth.",
     "Be cautious and honest. Use British English.",

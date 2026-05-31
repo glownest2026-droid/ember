@@ -333,8 +333,11 @@ export function ListingDraftDetailsSection({
               )}
               {detailsJson?.condition_suggestion && (
                 <p className="text-xs text-[#5C646D]">
-                  Ember&apos;s suggestion (not saved until you pick an option):{" "}
-                  {detailsJson.condition_suggestion}
+                  Condition needs your confirmation. Ember&apos;s note:{" "}
+                  {detailsJson.condition_suggestion.replace(
+                    /^Condition needs parent confirmation$/i,
+                    "please choose an option above"
+                  )}
                 </p>
               )}
             </div>

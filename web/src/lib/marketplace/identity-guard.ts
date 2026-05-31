@@ -1,17 +1,11 @@
 /**
  * Marketplace identity guard (PR9).
  *
- * Principle: Step 3 (draft generation) may ENRICH the parent-confirmed item
- * from Step 2, but it may NOT CONTRADICT it.
- *
- * This module is intentionally pragmatic. It does not attempt perfect semantic
- * safety. It catches *obvious* identity drift (e.g. a confirmed "plastic costume
- * helmet" being drafted as a "Baby sleep aid") and prevents the bad draft from
- * being saved. The rule is generic — it works on any pair of distinct item
- * identities, not just the helmet regression.
- *
- * Pure module (no server-only imports) so it can be unit-tested offline.
+ * Step 3 may ENRICH Step 2 but must NOT CONTRADICT it.
+ * Validates title and description; provides deterministic fallback titles.
  */
+
+import { isBroadCategoryLabel } from "./confirmed-item-identity";
 
 export type LockedConfirmedItem = {
   confirmed_item_label: string;
@@ -37,37 +31,33 @@ export type DraftIdentityValidation = {
   draft_terms: string[];
 };
 
-/**
- * Distinct, mutually-exclusive item nouns. If a draft asserts one of these and
- * the confirmed item asserts a *different* one (with no overlap), that is an
- * obvious contradiction. Multi-word entries are matched as phrases.
- */
 const EXCLUSIVE_ITEM_NOUNS: string[] = [
-  // music
   "saxophone", "xylophone", "trumpet", "drum kit", "drum", "piano", "keyboard",
   "guitar", "recorder", "tambourine", "maracas",
-  // optics / exploration
   "binoculars", "telescope", "magnifying glass", "microscope",
-  // sleep / nursery (the helmet regression target group)
   "sleep aid", "white noise machine", "night light", "cot soother", "soother",
   "cot", "crib", "swaddle", "sleeping bag", "dummy", "moses basket",
-  // dress-up / costume
   "helmet", "costume", "cape", "mask", "tutu", "fancy dress", "tiara",
-  // pretend play
   "doctor kit", "vet kit", "tea set", "toy kitchen", "cash register", "tool set",
-  // ride-on
   "balance bike", "scooter", "tricycle", "ride on",
-  // construction / puzzles
   "building blocks", "shape sorter", "stacking rings", "jigsaw", "puzzle",
-  // books
   "picture book", "board book", "story book", "book",
-  // soft / dolls
   "teddy", "soft toy", "doll", "dolls house",
-  // tactile cause-and-effect
   "pounding bench", "hammer and peg", "peg toy",
 ];
 
-/** Generic, low-information titles that should not replace a specific identity. */
+/** Standalone or phrase sleep-domain signals in titles. */
+const SLEEP_DOMAIN_TERMS = [
+  "sleep",
+  "sleep aid",
+  "baby sleep",
+  "white noise",
+  "night light",
+  "cot soother",
+  "soother",
+  "sound machine",
+];
+
 const GENERIC_TITLE_TERMS = new Set([
   "toy",
   "kids toy",
@@ -80,6 +70,7 @@ const GENERIC_TITLE_TERMS = new Set([
   "product",
   "thing",
   "stuff",
+  "toy item",
 ]);
 
 export function normalizeItemIdentityTerms(value: string | null | undefined): string {
@@ -103,13 +94,49 @@ function findExclusiveNouns(text: string | null | undefined): string[] {
   return found;
 }
 
+function significantTokens(text: string | null | undefined): string[] {
+  return normalizeItemIdentityTerms(text)
+    .split(" ")
+    .filter((t) => t.length >= 3);
+}
+
+function titleImpliesSleepDomain(title: string | null | undefined): boolean {
+  const norm = normalizeItemIdentityTerms(title);
+  if (!norm) return false;
+  return SLEEP_DOMAIN_TERMS.some((term) => {
+    const t = normalizeItemIdentityTerms(term);
+    return norm === t || norm.startsWith(`${t} `) || norm.endsWith(` ${t}`) || norm.includes(` ${t} `);
+  });
+}
+
+function confirmedHasConcretePlayIdentity(confirmed: LockedConfirmedItem): boolean {
+  const text = [
+    confirmed.confirmed_item_label,
+    confirmed.confirmed_visual_description,
+    confirmed.confirmed_category_label,
+  ].join(" ");
+  const nouns = findExclusiveNouns(text);
+  const playNouns = nouns.filter(
+    (n) => !SLEEP_DOMAIN_TERMS.some((s) => normalizeItemIdentityTerms(n).includes(normalizeItemIdentityTerms(s)))
+  );
+  if (playNouns.length > 0) return true;
+  return /\bhelmet\b|\bvisor\b|\bknight\b|\bbinocular|\bsaxophone\b|\bxylophone\b|\bpeg\b/i.test(text);
+}
+
+function tokensOverlap(a: string[], b: string[]): boolean {
+  const setB = new Set(b);
+  return a.some((t) => setB.has(t) && t.length >= 4);
+}
+
 function isGenericTitle(title: string | null | undefined): boolean {
   const norm = normalizeItemIdentityTerms(title);
   if (!norm) return true;
-  // Title is generic if every token is a generic word, or the whole string is a generic phrase.
   if (GENERIC_TITLE_TERMS.has(norm)) return true;
   const tokens = norm.split(" ").filter(Boolean);
-  const genericWords = new Set(["toy", "toys", "item", "items", "product", "thing", "baby", "kids", "childrens", "preloved", "second", "hand", "used"]);
+  const genericWords = new Set([
+    "toy", "toys", "item", "items", "product", "thing", "baby", "kids", "childrens",
+    "preloved", "second", "hand", "used",
+  ]);
   return tokens.length > 0 && tokens.every((t) => genericWords.has(t));
 }
 
@@ -131,11 +158,33 @@ export function buildLockedConfirmedItemPayload(args: {
   };
 }
 
-/**
- * Detects an obvious identity contradiction between the confirmed item and a
- * proposed draft. Returns conflict=true only when the draft clearly asserts a
- * *different* concrete item than the one the parent confirmed.
- */
+export function deriveDeterministicFallbackTitle(confirmed: LockedConfirmedItem): string {
+  const label = confirmed.confirmed_item_label.trim();
+  if (label && !isBroadCategoryLabel(label)) {
+    return label.length > 90 ? `${label.slice(0, 89)}…` : label;
+  }
+  const visual = confirmed.confirmed_visual_description.trim();
+  if (/\bhelmet\b|\bvisor\b|\bknight\b/i.test(visual)) {
+    return "Plastic costume helmet";
+  }
+  if (/\bbinocular/i.test(visual)) {
+    return "Child binoculars";
+  }
+  if (/\bsaxophone\b/i.test(visual)) {
+    return "Saxophone-style musical toy";
+  }
+  if (/\bxylophone\b/i.test(visual)) {
+    return "Toy xylophone";
+  }
+  if (visual.length > 12) {
+    const short = visual.split(/[.!?]/)[0]?.trim() ?? visual;
+    if (short.length <= 90) return short;
+    return `${short.slice(0, 87)}…`;
+  }
+  if (label) return label;
+  return "Confirmed item";
+}
+
 export function detectObviousIdentityConflict(
   confirmed: LockedConfirmedItem,
   draft: { title?: string | null; description?: string | null }
@@ -151,7 +200,6 @@ export function detectObviousIdentityConflict(
   const draftNouns = findExclusiveNouns(draftText);
 
   if (confirmedNouns.length === 0) {
-    // No strong identity to protect; nothing obvious to contradict.
     return { conflict: false, reason: "no_confirmed_identity_terms", confirmed_terms: confirmedNouns, draft_terms: draftNouns };
   }
 
@@ -162,7 +210,6 @@ export function detectObviousIdentityConflict(
   }
 
   if (draftNouns.length > 0) {
-    // Draft asserts a concrete item the parent never confirmed.
     return {
       conflict: true,
       reason: `Draft asserts "${draftNouns.join(", ")}" but the confirmed item is "${confirmedNouns.join(", ")}".`,
@@ -174,19 +221,88 @@ export function detectObviousIdentityConflict(
   return { conflict: false, reason: "draft_has_no_competing_identity", confirmed_terms: confirmedNouns, draft_terms: draftNouns };
 }
 
-/**
- * Validates a generated draft against the confirmed item. The Step 3 server
- * route should refuse to save when this returns ok=false.
- *
- * - "conflict": the draft contradicts the confirmed item -> do not save.
- * - "review_required": the draft is too generic to represent a specific
- *   confirmed item -> do not save; ask for a better draft.
- * - "consistent": safe to save.
- */
+/** Stricter title-only checks (catches standalone "Sleep" vs helmet). */
+export function validateTitleAgainstConfirmedItem(
+  confirmed: LockedConfirmedItem,
+  title: string | null | undefined
+): DraftIdentityValidation {
+  const titleNorm = normalizeItemIdentityTerms(title);
+  if (!titleNorm) {
+    return {
+      ok: false,
+      status: "review_required",
+      reason: "Draft title is empty.",
+      confirmed_terms: significantTokens(confirmed.confirmed_item_label),
+      draft_terms: [],
+    };
+  }
+
+  if (titleImpliesSleepDomain(title) && confirmedHasConcretePlayIdentity(confirmed)) {
+    return {
+      ok: false,
+      status: "conflict",
+      reason: "Draft title suggests sleep/nursery but the confirmed item is play equipment.",
+      confirmed_terms: significantTokens(confirmed.confirmed_item_label),
+      draft_terms: [titleNorm],
+    };
+  }
+
+  const nounConflict = detectObviousIdentityConflict(confirmed, { title, description: "" });
+  if (nounConflict.conflict) {
+    return {
+      ok: false,
+      status: "conflict",
+      reason: nounConflict.reason,
+      confirmed_terms: nounConflict.confirmed_terms,
+      draft_terms: nounConflict.draft_terms,
+    };
+  }
+
+  const confirmedTokens = significantTokens(
+    `${confirmed.confirmed_item_label} ${confirmed.confirmed_visual_description}`
+  );
+  const titleTokens = significantTokens(title);
+
+  if (confirmedHasConcretePlayIdentity(confirmed) && confirmedTokens.length > 0) {
+    if (!tokensOverlap(confirmedTokens, titleTokens) && isGenericTitle(title)) {
+      return {
+        ok: false,
+        status: "review_required",
+        reason: "Draft title is too generic for the confirmed item.",
+        confirmed_terms: confirmedTokens,
+        draft_terms: titleTokens,
+      };
+    }
+    if (!tokensOverlap(confirmedTokens, titleTokens) && titleTokens.length > 0) {
+      const conflict = detectObviousIdentityConflict(confirmed, { title, description: "" });
+      if (!conflict.conflict && titleTokens.every((t) => !confirmedTokens.includes(t))) {
+        return {
+          ok: false,
+          status: "conflict",
+          reason: "Draft title does not match the confirmed item identity.",
+          confirmed_terms: confirmedTokens,
+          draft_terms: titleTokens,
+        };
+      }
+    }
+  }
+
+  return {
+    ok: true,
+    status: "consistent",
+    reason: "title_consistent",
+    confirmed_terms: confirmedTokens,
+    draft_terms: titleTokens,
+  };
+}
+
 export function validateDraftAgainstConfirmedItem(
   confirmed: LockedConfirmedItem,
   draft: { title?: string | null; description?: string | null }
 ): DraftIdentityValidation {
+  const titleCheck = validateTitleAgainstConfirmedItem(confirmed, draft.title);
+  if (!titleCheck.ok) return titleCheck;
+
   const conflict = detectObviousIdentityConflict(confirmed, draft);
   if (conflict.conflict) {
     return {
@@ -198,8 +314,6 @@ export function validateDraftAgainstConfirmedItem(
     };
   }
 
-  // If the confirmed item has a specific identity but the draft title is generic,
-  // flag for review rather than saving a vague listing.
   if (conflict.confirmed_terms.length > 0 && isGenericTitle(draft.title)) {
     return {
       ok: false,
@@ -216,5 +330,32 @@ export function validateDraftAgainstConfirmedItem(
     reason: "draft_consistent_with_confirmed_item",
     confirmed_terms: conflict.confirmed_terms,
     draft_terms: conflict.draft_terms,
+  };
+}
+
+/**
+ * Applies identity rules to a generated draft. Returns a safe title (fallback if needed).
+ */
+export function reconcileDraftTitleWithConfirmedIdentity(
+  confirmed: LockedConfirmedItem,
+  draft: { title?: string | null; description?: string | null; identity_conflict?: boolean }
+): { title: string; corrected: boolean; validation: DraftIdentityValidation } {
+  const validation = validateDraftAgainstConfirmedItem(confirmed, draft);
+  const modelConflict = draft.identity_conflict === true;
+
+  if (validation.ok && !modelConflict) {
+    const title = (draft.title ?? "").trim();
+    if (title) {
+      return { title, corrected: false, validation };
+    }
+  }
+
+  const fallback = deriveDeterministicFallbackTitle(confirmed);
+  return {
+    title: fallback,
+    corrected: true,
+    validation: validation.ok && !modelConflict
+      ? { ...validation, ok: false, status: "review_required", reason: "empty_title_replaced_with_fallback" }
+      : validation,
   };
 }
