@@ -1,3 +1,12 @@
+## 2026-05-31 - PR10 UX: Compact marketplace layout + instant dev filter
+
+- **Branch:** `feat/marketplace-development-opportunities`
+
+### Summary
+- Marketplace layout: compact header, single location bar, horizontal development chips, map + listings side-by-side on desktop.
+- Development card taps filter client-side (no full page reload); URL updates via `history.replaceState`.
+- Shorter map height on marketplace; seller listings in collapsible section.
+
 ## 2026-05-31 - PR10: Personalised Marketplace by Development Area
 
 - **Branch:** `feat/marketplace-development-opportunities`

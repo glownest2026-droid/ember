@@ -26,7 +26,12 @@ export type MarketplaceMapProps = {
   nearbyListingCount: number;
   selectedListingId: string | null;
   onSelectListing: (listingId: string | null) => void;
+  /** Override map canvas height (Tailwind classes). */
+  mapContainerClassName?: string;
 };
+
+const DEFAULT_MAP_HEIGHT =
+  "h-[min(52vh,420px)] w-full overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#F8FAFC]";
 
 const UK_FALLBACK_CENTER: [number, number] = [-0.6, 51.48];
 
@@ -64,6 +69,7 @@ function MarketplaceMapbox({
   nearbyListingCount,
   selectedListingId,
   onSelectListing,
+  mapContainerClassName,
   token,
 }: MarketplaceMapProps & { token: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -254,7 +260,7 @@ function MarketplaceMapbox({
     <div className="space-y-2" data-testid="marketplace-mapbox-map">
       <div
         ref={containerRef}
-        className="h-[min(52vh,420px)] w-full overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#F8FAFC]"
+        className={mapContainerClassName ?? DEFAULT_MAP_HEIGHT}
         role="region"
         aria-label="Nearby listings map"
       />

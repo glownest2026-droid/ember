@@ -79,13 +79,18 @@ assert.match(eligibility, /do_not_recommend/);
 // F. UI / API source invariants
 // ---------------------------------------------------------------------------
 const pageClient = read("src/components/marketplace/MarketplacePageClient.tsx");
+const clientFilter = read("src/lib/marketplace/marketplace-listing-client-filter.ts");
 assert.match(pageClient, /MarketplaceDevelopmentSection/);
-assert.match(pageClient, /development-opportunities/);
+assert.match(pageClient, /filterListingsByDevelopment/);
+assert.match(pageClient, /history.replaceState/);
+assert.match(clientFilter, /filterListingsByDevelopment/);
 assert.match(pageClient, /listing-match-reason/);
 assert.match(pageClient, /childId/);
+assert.ok(!pageClient.includes("router.push"), "development filter must not full-page navigate");
 
 const devSection = read("src/components/marketplace/MarketplaceDevelopmentSection.tsx");
-assert.match(devSection, /View local toys by development area/);
+assert.match(devSection, /Local toys by development area/);
+assert.match(devSection, /overflow-x-auto/);
 assert.match(devSection, /Choose a child/);
 
 const devApi = read("src/app/api/marketplace/development-opportunities/route.ts");

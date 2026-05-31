@@ -23,9 +23,14 @@ async function parseJson<T>(response: Response): Promise<T | null> {
 
 type Props = {
   onPreferencesSaved?: () => void;
+  /** Inline edit control only — area label shown by parent. */
+  variant?: "default" | "inline";
 };
 
-export function MarketplaceYourPostcode({ onPreferencesSaved }: Props) {
+export function MarketplaceYourPostcode({
+  onPreferencesSaved,
+  variant = "default",
+}: Props) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -117,10 +122,81 @@ export function MarketplaceYourPostcode({ onPreferencesSaved }: Props) {
     );
   };
 
+  if (loading && variant === "inline") {
+    return <span className="text-xs text-[#5C646D]">…</span>;
+  }
+
   if (loading) {
     return (
       <div className="rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] px-4 py-3 text-sm text-[#5C646D]">
         Loading your postcode…
+      </div>
+    );
+  }
+
+  if (variant === "inline") {
+    return (
+      <div className="shrink-0">
+        {editing ? (
+          <div className="absolute right-0 top-full z-20 mt-1 w-[min(100vw-2rem,320px)] rounded-xl border border-[#E5E7EB] bg-white p-3 shadow-lg space-y-2">
+            <label className="sr-only" htmlFor="marketplace-postcode-inline">
+              UK postcode
+            </label>
+            <input
+              id="marketplace-postcode-inline"
+              value={draftPostcode}
+              onChange={(e) => setDraftPostcode(e.target.value)}
+              placeholder="e.g. SL4 2ABC"
+              autoComplete="postal-code"
+              className="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm"
+            />
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={saving || !draftPostcode.trim()}
+                onClick={handleSavePostcode}
+                className="inline-flex min-h-[36px] items-center rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white disabled:opacity-60"
+              >
+                {saving ? "Saving…" : "Save"}
+              </button>
+              <button
+                type="button"
+                disabled={locating || saving}
+                onClick={handleUseLocation}
+                className="inline-flex min-h-[36px] items-center gap-1 rounded-lg border border-[#E5E7EB] px-2 py-1.5 text-xs"
+              >
+                <LocateFixed className="h-3.5 w-3.5" aria-hidden />
+                {locating ? "…" : "Location"}
+              </button>
+              {prefs?.postcode && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDraftPostcode(prefs.postcode ?? "");
+                    setEditing(false);
+                    setError(null);
+                  }}
+                  className="text-xs text-[#5C646D] underline"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+            {error && <p className="text-xs text-red-600">{error}</p>}
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              setDraftPostcode(prefs?.postcode ?? "");
+              setEditing(true);
+            }}
+            className="inline-flex items-center gap-1 text-xs text-primary underline"
+          >
+            <Pencil className="h-3.5 w-3.5" aria-hidden />
+            {prefs?.postcode ? "Edit area" : "Set postcode"}
+          </button>
+        )}
       </div>
     );
   }
