@@ -10,7 +10,9 @@ import {
   matchSeedItemTypeByText,
   type RecommendationPolicy,
   type RiskLevel,
+  type SeedItemType,
 } from "@/lib/marketplace/marketplace-taxonomy";
+import { resolveObviousItemTypeSlugFromListingText } from "@/lib/marketplace/marketplace-item-type-resolver";
 import {
   computeRecommendationEligibility,
   type RecommendationEligibility,
@@ -95,13 +97,41 @@ export function resolveWrapperSlugsForListing(args: {
 
   const seedSlug =
     args.itemType?.slug ??
-    (args.intelligence?.marketplace_item_type_slug &&
-    getSeedItemType(args.intelligence.marketplace_item_type_slug)
-      ? args.intelligence.marketplace_item_type_slug
-      : matchSeedItemTypeByText(args.itemLabel));
+    args.intelligence?.marketplace_item_type_slug ??
+    resolveObviousItemTypeSlugFromListingText(args.itemLabel) ??
+    matchSeedItemTypeByText(args.itemLabel);
   const seed = getSeedItemType(seedSlug);
   if (!seed) return [];
   return seed.development_mappings.map((m) => m.stage1_wrapper_ux_slug);
+}
+
+/** DB row or seed mirror for buyer-side matching when preview DB seed is not applied yet. */
+export function resolveItemTypeRowForListing(args: {
+  itemType: ItemTypeRow | null;
+  intelligence: ListingIntelligenceRow | null;
+  itemLabel: string | null;
+  itemTypeBySlug: Map<string, ItemTypeRow>;
+}): ItemTypeRow | null {
+  if (args.itemType) return args.itemType;
+  const slug =
+    args.intelligence?.marketplace_item_type_slug ??
+    resolveObviousItemTypeSlugFromListingText(args.itemLabel) ??
+    matchSeedItemTypeByText(args.itemLabel);
+  if (!slug) return null;
+  const fromDb = args.itemTypeBySlug.get(slug);
+  if (fromDb) return fromDb;
+  const seed = getSeedItemType(slug);
+  return seed ? seedItemTypeToRow(seed) : null;
+}
+
+function seedItemTypeToRow(seed: SeedItemType): ItemTypeRow {
+  return {
+    slug: seed.slug,
+    default_min_age_months: seed.default_min_age_months,
+    default_max_age_months: seed.default_max_age_months,
+    risk_level: seed.risk_level,
+    recommendation_policy: seed.recommendation_policy,
+  };
 }
 
 export function enrichListingForBuyerMatch(args: {
@@ -118,14 +148,20 @@ export function enrichListingForBuyerMatch(args: {
   const itemType = args.itemType;
   const intel = args.intelligence;
 
-  const aiMin = intel?.ai_estimated_min_age_months ?? itemType?.default_min_age_months ?? null;
-  const aiMax = intel?.ai_estimated_max_age_months ?? itemType?.default_max_age_months ?? null;
+  const aiMin = intel?.ai_estimated_min_age_months ?? null;
+  const aiMax = intel?.ai_estimated_max_age_months ?? null;
+  const catalogMin =
+    intel?.ai_estimated_min_age_months == null ? itemType?.default_min_age_months ?? null : null;
+  const catalogMax =
+    intel?.ai_estimated_max_age_months == null ? itemType?.default_max_age_months ?? null : null;
 
   const eligibilityResult = computeRecommendationEligibility({
     child_age_months: args.childAgeMonths,
     child_lookahead_months: args.childLookaheadMonths ?? 6,
     ai_estimated_min_age_months: aiMin,
     ai_estimated_max_age_months: aiMax,
+    catalog_default_min_age_months: catalogMin,
+    catalog_default_max_age_months: catalogMax,
     parent_confirmed_min_age_months: intel?.parent_confirmed_min_age_months ?? null,
     parent_confirmed_max_age_months: intel?.parent_confirmed_max_age_months ?? null,
     manufacturer_min_age_months: intel?.manufacturer_min_age_months ?? null,
@@ -156,7 +192,7 @@ export function enrichListingForBuyerMatch(args: {
     recommendation_eligibility: eligibilityResult.eligibility,
     coverage_state: coverageState,
     match_reason: matchReason,
-    age_stage_copy: ageStageCopy(aiMin, aiMax),
+    age_stage_copy: ageStageCopy(aiMin ?? catalogMin, aiMax ?? catalogMax),
     caution_copy:
       eligibilityResult.eligibility === "browse_with_caution" ||
       eligibilityResult.eligibility === "do_not_recommend"

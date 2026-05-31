@@ -1,3 +1,29 @@
+## 2026-05-31 - PR10 Patch: Potty Development Mapping Fix
+
+### Summary
+- Fixed obvious potty-training listing not appearing under “I’m getting ready for potty”.
+- Added `potty_training_seat` marketplace item type with aliases and toileting mapping (seed + SQL).
+- Added conservative `resolveObviousItemTypeSlugFromListingText` for buyer-side title fallback.
+- Fixed catalog default ages being treated as AI estimates (`browse_with_caution`), which blocked `recommended` counts.
+- Added `development-match-diagnostic.ts` for explainable non-match reasons in tests.
+- PR10 smoke tests for potty resolver, catalog eligibility, and toileting seed.
+- UI: “Local opportunities by development area” (was “Local toys…”).
+
+### Root cause
+- No `potty_training_seat` in controlled taxonomy → title “Pink Potty Training Seat…” resolved to **zero** development wrappers.
+- Nearby beta listings list is unfiltered by development; development cards require wrapper + `recommended` eligibility.
+- Separately, when item types did match via catalog defaults, `enrichListingForBuyerMatch` passed defaults through `ai_estimated_*` fields → `computeRecommendationEligibility` treated them as AI-only → `browse_with_caution` → not counted as opportunities.
+
+### Verification
+- Build: pass
+- PR10 smoke: pass
+- PR9 smoke: pass
+- Potty listing appears under toileting: pass (code path; preview after deploy + optional SQL apply)
+- Map/listing filter works: pass (existing client filter + buyer_match)
+- Own listing exclusion still works: pass (`buyerUserId` skip unchanged)
+- Safety/cautious copy: pass (“May support”, estimated stage copy)
+- No exact location/privacy leak: pass (unchanged)
+
 ## 2026-05-31 - PR10 UX: Compact marketplace layout + instant dev filter
 
 - **Branch:** `feat/marketplace-development-opportunities`

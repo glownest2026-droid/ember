@@ -12,12 +12,24 @@ import {
   isPersonalisedCaution,
   isPersonalisedRecommended,
   listingMatchesWrapper,
+  resolveItemTypeRowForListing,
   type DevMappingRow,
   type EnrichedBuyerListingMatch,
   type ItemTypeRow,
   type ListingIntelligenceRow,
 } from "@/lib/marketplace/listing-match-enrichment";
 import { resolveCoverageState, type CoverageState } from "@/lib/marketplace/coverage-state";
+import { getSeedItemType } from "@/lib/marketplace/marketplace-taxonomy";
+
+function getSeedMappingsForSlug(slug: string): DevMappingRow[] {
+  const seed = getSeedItemType(slug);
+  if (!seed) return [];
+  return seed.development_mappings.map((m) => ({
+    stage1_wrapper_ux_slug: m.stage1_wrapper_ux_slug,
+    stage1_wrapper_ux_label: m.stage1_wrapper_ux_label,
+    mapping_strength: m.mapping_strength,
+  }));
+}
 
 export type NearbyListingForOpportunities = {
   id: string;
@@ -106,14 +118,19 @@ export function buildMarketplaceDevelopmentOpportunities(args: {
         ? args.intelligenceByDraftId.get(listing.source_draft_id) ?? null
         : null);
 
-    const itemType =
-      (intel?.marketplace_item_type_id
-        ? args.itemTypeById.get(intel.marketplace_item_type_id)
-        : null) ??
-      (intel?.marketplace_item_type_slug
-        ? args.itemTypeBySlug.get(intel.marketplace_item_type_slug)
-        : null) ??
-      null;
+    const itemType = resolveItemTypeRowForListing({
+      itemType:
+        (intel?.marketplace_item_type_id
+          ? args.itemTypeById.get(intel.marketplace_item_type_id)
+          : null) ??
+        (intel?.marketplace_item_type_slug
+          ? args.itemTypeBySlug.get(intel.marketplace_item_type_slug)
+          : null) ??
+        null,
+      intelligence: intel,
+      itemLabel: listing.item_label,
+      itemTypeBySlug: args.itemTypeBySlug,
+    });
 
     const typeId =
       intel?.marketplace_item_type_id ??
@@ -121,7 +138,12 @@ export function buildMarketplaceDevelopmentOpportunities(args: {
       (itemType?.slug
         ? [...args.itemTypeById.entries()].find(([, t]) => t.slug === itemType.slug)?.[0]
         : undefined);
-    const mappings = typeId ? args.mappingsByTypeId.get(typeId) ?? [] : [];
+    const mappings =
+      typeId && args.mappingsByTypeId.has(typeId)
+        ? args.mappingsByTypeId.get(typeId) ?? []
+        : itemType?.slug
+          ? (getSeedMappingsForSlug(itemType.slug) ?? [])
+          : [];
 
     const match = enrichListingForBuyerMatch({
       intelligence: intel,
