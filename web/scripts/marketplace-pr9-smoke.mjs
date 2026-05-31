@@ -392,6 +392,11 @@ const detailsSection = read("src/components/marketplace/ListingDraftDetailsSecti
 assert.match(detailsSection, /LISTING_REVIEW_CHECKLIST_ITEMS/);
 assert.match(detailsSection, /Save draft details/);
 assert.match(detailsSection, /formatProductTitleCase/);
+assert.match(detailsSection, /EmberEstimateSection/);
+assert.ok(
+  !read("src/components/marketplace/ListingDraftReviewSection.tsx").includes("Mark ready for next step"),
+  "review step must not duplicate mark-ready CTA"
+);
 
 const flowView = read("src/components/marketplace/listing-flow/CreateListingFlowView.tsx");
 assert.match(flowView, /categoryLabel/);
@@ -424,7 +429,9 @@ assert.ok(migration.includes("dress_up_costume_helmet"), "migration should seed 
 
 const estimateUi = read("src/components/marketplace/EmberEstimateSection.tsx");
 assert.match(estimateUi, /Estimated play stage/);
-assert.match(estimateUi, /May support/);
+assert.ok(!estimateUi.includes("May support:"), "estimate UI must not show development-area lines");
+assert.match(estimateUi, /onContinueAfterSave/);
+assert.match(estimateUi, /Continue to quick review|continueLabel/);
 assert.match(estimateUi, /Save estimate/);
 assert.match(estimateUi, /manufacturer/i);
 for (const banned of ["Suitable for", "Safe for", "Guaranteed", "Perfect for your child", "No needs found"]) {

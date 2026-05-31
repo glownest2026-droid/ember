@@ -1,3 +1,12 @@
+## 2026-05-31 - PR9 UX: Remove duplicate review CTA, slim estimate, continue after save
+
+- **Branch:** `feat/marketplace-intelligence-taxonomy-safety` (PR #221)
+
+### Summary
+- Removed **Mark ready for next step** and the duplicate review checklist from Step 4 (read-only review only; checks live in Step 3 **Save draft details**).
+- **Ember’s estimate** in Step 3: dropped “May support…” development lines; **Continue to quick review** appears after **Save estimate**.
+- After **Save draft details**, **Continue to review your draft** scrolls to Step 4.
+
 ## 2026-05-31 - PR9 UX: Product labels, title case, single save CTA
 
 - **Branch:** `feat/marketplace-intelligence-taxonomy-safety` (PR #221)

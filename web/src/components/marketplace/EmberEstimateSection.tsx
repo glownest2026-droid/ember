@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { STAGE1_WRAPPER_LABELS, type Stage1WrapperSlug } from "@/lib/marketplace/marketplace-taxonomy";
 
 type IntelligencePayload = {
   marketplace_item_type_slug: string | null;
@@ -28,11 +27,18 @@ const MANUFACTURER_AGE_OPTIONS: { label: string; months: number | null }[] = [
   { label: "Other", months: null },
 ];
 
-function stageLabel(slug: string): string | null {
-  return (STAGE1_WRAPPER_LABELS as Record<string, string>)[slug as Stage1WrapperSlug] ?? null;
-}
+type Props = {
+  draftId: string;
+  /** Called after a successful save — e.g. scroll to quick review or review step. */
+  onContinueAfterSave?: () => void;
+  continueLabel?: string;
+};
 
-export function EmberEstimateSection({ draftId }: { draftId: string }) {
+export function EmberEstimateSection({
+  draftId,
+  onContinueAfterSave,
+  continueLabel = "Continue with your draft",
+}: Props) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -125,8 +131,7 @@ export function EmberEstimateSection({ draftId }: { draftId: string }) {
   const min = data?.ai_estimated_min_age_months ?? null;
   const max = data?.ai_estimated_max_age_months ?? null;
   const hasEstimate = min !== null || max !== null;
-  const devSlugs = data?.development_area_slugs ?? [];
-  const uncertain = !data?.marketplace_item_type_slug || devSlugs.length === 0;
+  const uncertain = !data?.marketplace_item_type_slug;
 
   return (
     <section
@@ -151,26 +156,6 @@ export function EmberEstimateSection({ draftId }: { draftId: string }) {
       <p className="text-xs text-[#5C646D]">
         Please check the manufacturer’s age guidance if shown.
       </p>
-
-      {devSlugs.length > 0 && (
-        <ul className="space-y-1">
-          {devSlugs.map((slug) => {
-            const label = stageLabel(slug);
-            if (!label) return null;
-            return (
-              <li key={slug} className="text-sm text-[#1A1E23]">
-                May support: {label}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      {uncertain && (
-        <p className="text-sm text-[#5C646D]">
-          Ember is still learning where this fits. We’ll use your confirmation to improve matching.
-        </p>
-      )}
 
       {data?.safety_flags && data.safety_flags.length > 0 && (
         <div className="rounded-xl bg-[#FAFAFA] p-3">
@@ -225,14 +210,25 @@ export function EmberEstimateSection({ draftId }: { draftId: string }) {
             </select>
           </label>
         </div>
-        <button
-          type="button"
-          onClick={onSave}
-          disabled={saving}
-          className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-        >
-          {saving ? "Saving…" : "Save estimate"}
-        </button>
+        <div className="flex flex-wrap gap-2 items-center">
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={saving}
+            className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
+          >
+            {saving ? "Saving…" : "Save estimate"}
+          </button>
+          {savedNote && onContinueAfterSave && (
+            <button
+              type="button"
+              onClick={onContinueAfterSave}
+              className="inline-flex min-h-[44px] items-center rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-medium text-[#1A1E23]"
+            >
+              {continueLabel}
+            </button>
+          )}
+        </div>
         {savedNote && <p className="text-sm text-emerald-700">{savedNote}</p>}
       </div>
     </section>

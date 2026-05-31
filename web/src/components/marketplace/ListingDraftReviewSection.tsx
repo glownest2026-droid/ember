@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import type { ListingDraftDetailsJson } from "@/lib/marketplace/ai-listing-details-types";
 
 export type ListingDraftReviewJson = {
@@ -25,8 +24,6 @@ const CONDITION_LABELS: Record<string, string> = {
   not_sure: "Not sure yet",
 };
 
-import { LISTING_REVIEW_CHECKLIST_ITEMS } from "@/components/marketplace/listing-flow/listing-review-checklist";
-
 type Props = {
   draftId: string;
   previewUrl: string | null;
@@ -37,24 +34,13 @@ type Props = {
   condition: string;
   detailsJson: ListingDraftDetailsJson | null;
   initialReview: ListingDraftReviewJson | null;
-  onReviewUpdated: (review: ListingDraftReviewJson | null) => void;
+  onReviewUpdated?: (review: ListingDraftReviewJson | null) => void;
   onEditDetailsClick: () => void;
   embedded?: boolean;
   compactPhoto?: boolean;
 };
 
-async function parseApiPayload<T>(response: Response): Promise<{ payload: T | null }> {
-  const rawText = await response.text();
-  if (!rawText) return { payload: null };
-  try {
-    return { payload: JSON.parse(rawText) as T };
-  } catch {
-    return { payload: null };
-  }
-}
-
 export function ListingDraftReviewSection({
-  draftId,
   previewUrl,
   confirmedDisplayLabel,
   possibleBrandHint,
@@ -63,97 +49,17 @@ export function ListingDraftReviewSection({
   condition,
   detailsJson,
   initialReview,
-  onReviewUpdated,
+  onReviewUpdated: _onReviewUpdated,
   onEditDetailsClick,
   embedded = false,
   compactPhoto = false,
 }: Props) {
-  const [checklist, setChecklist] = useState({
-    accuracy_confirmed: initialReview?.accuracy_confirmed ?? false,
-    condition_confirmed: initialReview?.condition_confirmed ?? false,
-    parts_checked: initialReview?.parts_checked ?? false,
-    safety_checked: initialReview?.safety_checked ?? false,
-    photo_quality_confirmed: initialReview?.photo_quality_confirmed ?? false,
-  });
-  const [readyForNextStep, setReadyForNextStep] = useState(
-    Boolean(initialReview?.ready_for_next_step && !initialReview?.stale_after_edit)
+  const readyForNextStep = Boolean(
+    initialReview?.ready_for_next_step && !initialReview?.stale_after_edit
   );
-  const [staleAfterEdit, setStaleAfterEdit] = useState(Boolean(initialReview?.stale_after_edit));
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-
-  useEffect(() => {
-    setChecklist({
-      accuracy_confirmed: initialReview?.accuracy_confirmed ?? false,
-      condition_confirmed: initialReview?.condition_confirmed ?? false,
-      parts_checked: initialReview?.parts_checked ?? false,
-      safety_checked: initialReview?.safety_checked ?? false,
-      photo_quality_confirmed: initialReview?.photo_quality_confirmed ?? false,
-    });
-    setReadyForNextStep(Boolean(initialReview?.ready_for_next_step && !initialReview?.stale_after_edit));
-    setStaleAfterEdit(Boolean(initialReview?.stale_after_edit));
-  }, [initialReview]);
+  const staleAfterEdit = Boolean(initialReview?.stale_after_edit);
 
   const conditionBlocksReady = condition === "not_sure" || !condition.trim();
-  const hasTitleAndDescription = Boolean(titleDraft.trim() && descriptionDraft.trim());
-
-  const allChecked = useMemo(
-    () => Object.values(checklist).every(Boolean),
-    [checklist]
-  );
-
-  const canMarkReady =
-    allChecked && !conditionBlocksReady && hasTitleAndDescription && !saving && !readyForNextStep;
-
-  const handleToggle = (key: keyof typeof checklist) => {
-    setChecklist((prev) => ({ ...prev, [key]: !prev[key] }));
-    setSuccess(null);
-    if (readyForNextStep) {
-      setReadyForNextStep(false);
-      onReviewUpdated(null);
-    }
-  };
-
-  const handleMarkReady = async () => {
-    if (!canMarkReady) return;
-    setSaving(true);
-    setError(null);
-    setSuccess(null);
-    try {
-      const response = await fetch(`/api/marketplace/listing-drafts/${draftId}/review`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(checklist),
-      });
-      const { payload } = await parseApiPayload<{
-        error?: string;
-        missing_requirements?: string[];
-        review?: ListingDraftReviewJson;
-        ready_for_next_step?: boolean;
-      }>(response);
-      if (!response.ok) {
-        const missing = payload?.missing_requirements?.length
-          ? ` ${payload.missing_requirements.join(" ")}`
-          : "";
-        throw new Error((payload?.error ?? "Could not save your review.") + missing);
-      }
-      const review = payload?.review ?? {
-        ...checklist,
-        ready_for_next_step: true,
-        reviewed_at: new Date().toISOString(),
-        stale_after_edit: false,
-      };
-      setReadyForNextStep(true);
-      setStaleAfterEdit(false);
-      onReviewUpdated(review);
-      setSuccess("Draft marked ready for the next step.");
-    } catch (markError) {
-      setError(markError instanceof Error ? markError.message : "Could not save your review.");
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const details = detailsJson as DetailsWithReview | null;
 
@@ -252,7 +158,7 @@ export function ListingDraftReviewSection({
           </p>
           {conditionBlocksReady && (
             <p className="text-xs text-amber-800">
-              Choose a condition other than “Not sure yet” before marking ready.
+              Choose a condition other than “Not sure yet” in step 3, then save your draft.
             </p>
           )}
         </div>
@@ -310,39 +216,6 @@ export function ListingDraftReviewSection({
           <strong>Save draft details</strong>.
         </p>
       )}
-
-      {!embedded && (!readyForNextStep || staleAfterEdit) ? (
-        <div className="space-y-3 border-t border-[#E5E7EB] pt-4">
-          <p className="text-sm font-medium text-[#1A1E23]">Review checklist</p>
-          <ul className="space-y-3">
-            {LISTING_REVIEW_CHECKLIST_ITEMS.map((item) => (
-              <li key={item.key}>
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={checklist[item.key as keyof typeof checklist]}
-                    onChange={() => handleToggle(item.key as keyof typeof checklist)}
-                    className="mt-1 h-5 w-5 rounded border-[#E5E7EB]"
-                  />
-                  <span className="text-sm text-[#1A1E23]">{item.label}</span>
-                </label>
-              </li>
-            ))}
-          </ul>
-
-          <button
-            type="button"
-            disabled={!canMarkReady}
-            onClick={handleMarkReady}
-            className="inline-flex items-center rounded-xl bg-primary px-4 py-3 text-sm font-medium text-white disabled:opacity-50 min-h-[44px]"
-          >
-            {saving ? "Saving…" : "Mark ready for next step"}
-          </button>
-        </div>
-      ) : null}
-
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {success && <p className="text-sm text-emerald-700">{success}</p>}
 
       <p className="text-xs text-[#5C646D] border-t border-[#E5E7EB] pt-3">
         Next: price guidance and local interest. Not available yet.

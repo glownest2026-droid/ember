@@ -359,6 +359,13 @@ export function CreateListingFlowView({
               hasConfirmedItem={itemConfirmed}
               initialReview={draftReview}
               onSaved={onDetailsSaved}
+              onScrollToQuickReview={() => {
+                document.getElementById("listing-quick-review")?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              }}
+              onScrollToReview={() => onScrollToStep("review")}
             />
           </ListingFlowStepShell>
         </div>

@@ -7,6 +7,7 @@ import {
   LISTING_REVIEW_CHECKLIST_ITEMS,
   type ReviewChecklistState,
 } from "@/components/marketplace/listing-flow/listing-review-checklist";
+import { EmberEstimateSection } from "@/components/marketplace/EmberEstimateSection";
 import { formatProductTitleCase } from "@/lib/marketplace/listing-title-format";
 
 export type ListingDraftDetailsJson = {
@@ -73,6 +74,8 @@ type Props = {
   sectionId?: string;
   embedded?: boolean;
   onSaved?: (payload: SavedDraftPayload) => void;
+  onScrollToQuickReview?: () => void;
+  onScrollToReview?: () => void;
 };
 
 async function parseApiPayload<T>(response: Response): Promise<{ payload: T | null }> {
@@ -97,6 +100,8 @@ export function ListingDraftDetailsSection({
   sectionId,
   embedded = false,
   onSaved,
+  onScrollToQuickReview,
+  onScrollToReview,
 }: Props) {
   const [titleDraft, setTitleDraft] = useState(formatProductTitleCase(initialTitle ?? ""));
   const [descriptionDraft, setDescriptionDraft] = useState(initialDescription ?? "");
@@ -457,7 +462,13 @@ export function ListingDraftDetailsSection({
               <p className="text-xs text-[#5C646D]">{detailsJson.parent_editing_note}</p>
             )}
 
-            <div className="space-y-3 border-t border-[#E5E7EB] pt-4">
+            <EmberEstimateSection
+              draftId={draftId}
+              onContinueAfterSave={onScrollToQuickReview}
+              continueLabel="Continue to quick review"
+            />
+
+            <div id="listing-quick-review" className="space-y-3 border-t border-[#E5E7EB] pt-4">
               <p className="text-sm font-medium text-[#1A1E23]">Quick review</p>
               <p className="text-xs text-[#5C646D]">
                 Tick each line, then save once. This replaces a separate &ldquo;mark ready&rdquo; step.
@@ -501,7 +512,20 @@ export function ListingDraftDetailsSection({
             </button>
           </div>
 
-          {success && <p className="text-sm text-emerald-700">{success}</p>}
+          {success && (
+            <div className="space-y-2">
+              <p className="text-sm text-emerald-700">{success}</p>
+              {embedded && onScrollToReview && (
+                <button
+                  type="button"
+                  onClick={onScrollToReview}
+                  className="inline-flex min-h-[44px] items-center rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5 text-sm font-medium text-[#1A1E23]"
+                >
+                  Continue to review your draft
+                </button>
+              )}
+            </div>
+          )}
         </>
       )}
 
