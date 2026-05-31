@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { GeminiListingAnalysisOutput } from "./ai-listing-analysis";
+import { formatProductTitleCase } from "./listing-title-format";
 
 const BROAD_CANONICAL_LABELS = [
   "musical toy",
@@ -110,6 +111,9 @@ export function inferObjectLabelFromSupport(supportText: string): string | null 
   }
   if (/saxophone/i.test(support)) return "Saxophone-style musical toy";
   if (/trumpet/i.test(support) && !/xylophone/i.test(support)) return "Toy trumpet";
+  if (/\bhelmet\b|\bvisor\b|\bknight\b|\barmou?r\b/i.test(support)) {
+    return "Toy knight helmet";
+  }
   if (/binocular/i.test(support)) return "Toy binoculars";
   if (/doctor kit|toy doctor|medical kit|stethoscope|syringe/i.test(support)) {
     return "Toy doctor kit";
@@ -270,7 +274,8 @@ export function resolveUserFacingItemLabel(args: {
 }): CandidateTitlePick {
   const fromGemini = cleanLabel(args.userFacingItemLabel ?? "");
   if (isSpecificVisualLabel(fromGemini)) {
-    return { title: fromGemini, suggestedAiLabel: fromGemini };
+    const title = formatProductTitleCase(fromGemini);
+    return { title, suggestedAiLabel: title };
   }
 
   const ai = cleanLabel(args.aiCandidateLabel ?? "");
@@ -286,34 +291,41 @@ export function resolveUserFacingItemLabel(args: {
   });
 
   if (isSpecificVisualLabel(ai)) {
-    return { title: ai, suggestedAiLabel: ai };
+    const title = formatProductTitleCase(ai);
+    return { title, suggestedAiLabel: title };
   }
   if (isSpecificVisualLabel(detected)) {
-    return { title: detected, suggestedAiLabel: detected };
+    const title = formatProductTitleCase(detected);
+    return { title, suggestedAiLabel: title };
   }
 
   const inferred = inferObjectLabelFromSupport(support);
   if (inferred) {
-    return { title: inferred, suggestedAiLabel: inferred };
+    const title = formatProductTitleCase(inferred);
+    return { title, suggestedAiLabel: title };
   }
 
   if (/ice cream/i.test(support)) {
-    return { title: "Ice cream cart toy", suggestedAiLabel: "Ice cream cart toy" };
+    const title = formatProductTitleCase("Ice cream cart toy");
+    return { title, suggestedAiLabel: title };
   }
   if (/music|musical|microphone|instrument|singing|karaoke/i.test(support)) {
-    return { title: "Musical toy", suggestedAiLabel: detected || ai || "Musical toy" };
+    const title = formatProductTitleCase("Musical toy");
+    return { title, suggestedAiLabel: title };
   }
   if (/doctor|medical|stethoscope/i.test(support)) {
-    return { title: "Toy doctor kit", suggestedAiLabel: detected || ai || "Toy doctor kit" };
+    const title = formatProductTitleCase("Toy doctor kit");
+    return { title, suggestedAiLabel: title };
   }
 
   const broad = cleanLabel(args.broadCategory ?? "");
   if (broad && !isBroadCategoryTitle(broad)) {
-    const titled = broad.charAt(0).toUpperCase() + broad.slice(1);
-    return { title: titled, suggestedAiLabel: detected || ai || titled };
+    const title = formatProductTitleCase(broad);
+    return { title, suggestedAiLabel: title };
   }
 
-  return { title: "Toy item", suggestedAiLabel: detected || ai || "Toy item" };
+  const fallback = formatProductTitleCase("Toy item");
+  return { title: fallback, suggestedAiLabel: fallback };
 }
 
 export function resolveUserFacingLabelFromAnalysis(

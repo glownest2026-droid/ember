@@ -11,7 +11,8 @@
     "check:conflicts": "node scripts/check-no-conflict-markers.js",
     "test:marketplace-pr6": "node scripts/marketplace-pr6-smoke.mjs",
     "test:marketplace-pr7": "node scripts/marketplace-pr7-smoke.mjs",
-    "test:marketplace-pr8": "node scripts/marketplace-pr8-smoke.mjs"
+    "test:marketplace-pr8": "node scripts/marketplace-pr8-smoke.mjs",
+    "test:marketplace-pr9": "node scripts/marketplace-pr9-smoke.mjs"
   },
   "dependencies": {
     "@builder.io/react": "^9.0.0",

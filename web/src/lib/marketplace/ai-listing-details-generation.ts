@@ -9,6 +9,7 @@ import {
   resolveGeminiTimeoutMs,
 } from "./ai-listing-gemini-config";
 import { pickTitleFromContext } from "./ai-listing-display-label";
+import { formatProductTitleCase } from "./listing-title-format";
 import { runWithGeminiModelFallback, type GeminiModelAttemptMeta } from "./ai-listing-gemini-fallback";
 import {
   LISTING_ARRAY_MAX_ITEMS,
@@ -118,7 +119,7 @@ function reconcileSuggestedTitle(args: {
     return fallback;
   }
 
-  return cleanTitle(title);
+  return formatProductTitleCase(cleanTitle(title));
 }
 
 export function normalizeListingDraftDetails(
@@ -160,6 +161,7 @@ export function normalizeListingDraftDetails(
     safety_resale_notes: stringList(source.safety_resale_notes),
     photo_improvement_suggestions: stringList(source.photo_improvement_suggestions),
     restricted_or_blocked: Boolean(source.restricted_or_blocked),
+    identity_conflict: Boolean(source.identity_conflict),
     parent_editing_note: clampText(
       source.parent_editing_note,
       200,

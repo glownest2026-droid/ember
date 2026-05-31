@@ -1,3 +1,132 @@
+## 2026-05-31 - PR9 UX: Remove duplicate review CTA, slim estimate, continue after save
+
+- **Branch:** `feat/marketplace-intelligence-taxonomy-safety` (PR #221)
+
+### Summary
+- Removed **Mark ready for next step** and the duplicate review checklist from Step 4 (read-only review only; checks live in Step 3 **Save draft details**).
+- **Ember’s estimate** in Step 3: dropped “May support…” development lines; **Continue to quick review** appears after **Save estimate**.
+- After **Save draft details**, **Continue to review your draft** scrolls to Step 4.
+
+## 2026-05-31 - PR9 UX: Product labels, title case, single save CTA
+
+- **Branch:** `feat/marketplace-intelligence-taxonomy-safety` (PR #221)
+
+### Summary
+- Step 2 candidate cards show a concrete product title (e.g. “Toy knight helmet”) with category as subtitle, not the broad play category alone.
+- Listing titles use consistent product title casing (`formatProductTitleCase`) in Step 3 and server reconciliation paths.
+- Step 3 “Draft the listing” now includes the five quick-review checkboxes above **Save draft details**; saving also marks review ready (no separate **Mark ready** when embedded in the flow).
+
+### Verification
+- `pnpm -C web build`
+- `pnpm -C web test:marketplace-pr9`
+
+## 2026-05-31 - PR9 Patch: Identity Drift and Stale Draft Title Fix
+
+- **Branch:** `feat/marketplace-intelligence-taxonomy-safety` (same PR #221)
+
+### Summary
+- Fixed remaining helmet identity drift where Step 3 title could remain “Sleep” after helmet confirmation.
+- Step 2 now preserves concrete item identity separately from category/development label.
+- Step 3 draft generation atomically updates title and description; bad titles get a deterministic fallback instead of being saved.
+- Stale downstream draft fields are cleared when photo or confirmed item changes (server + client).
+- Identity guard now validates title as well as description (catches standalone “Sleep” vs helmet).
+- Ember’s estimate moved to Step 3 (Draft the listing) so it is visible without scrolling to Review.
+
+### Root cause
+- Stale `title_draft` (“Sleep”) from a prior item could persist while a new helmet description was generated.
+- Step 2 stored only the broad category (“Dress up and pretend play”) as the confirmed label.
+- Identity guard did not treat standalone “Sleep” as conflicting with helmet/costume identity.
+
+### Verification
+- Build: pass
+- PR9 smoke: pass (includes stale Sleep title, saxophone/xylophone, binoculars, downstream reset invariants)
+
+## 2026-05-31 - PR9: Marketplace Intelligence Backbone, Taxonomy Bridge & Safety Gates
+
+- **Branch:** `feat/marketplace-intelligence-taxonomy-safety`
+
+### Summary
+- Fixed Step 2 → Step 3 identity drift in Create a Listing.
+- Step 3 draft generation now anchors to the parent-confirmed item identity.
+- Added a controlled marketplace item taxonomy (extended existing `marketplace_item_types`).
+- Added item aliases for Gemini/user wording.
+- Added a bridge from marketplace item types to Ember Stage 1 development wrapper cards.
+- Added a per-listing marketplace intelligence profile.
+- Added a taxonomy review queue for unmatched Gemini suggestions.
+- Added cautious age suitability and safety fields.
+- Added optional parent confirmation/editing for age guidance.
+- Added a recommendation eligibility helper for future child matching.
+- Added an ABI coverage-state helper for missing/non-missing age band logic.
+
+### Critical bug fixed
+- A helmet recognised as a plastic costume helmet can no longer draft as a Baby sleep aid.
+- Step 3 may enrich the confirmed item identity but may not contradict it. The
+  `generate-details` route now refuses to save a contradictory or too-generic draft
+  (`identity_conflict` / `identity_review_required`, HTTP 409). The guard is generic
+  (noun-based), not hard-coded to the helmet case.
+
+### Product decisions
+- Gemini suggests; Ember validates; the parent confirms.
+- Gemini cannot create live taxonomy truth.
+- Unknown taxonomy suggestions go to the review queue.
+- Manufacturer age guidance wins when known.
+- AI age suitability is an estimate, not a safety prescription.
+- Cautious copy: "Estimated play stage".
+- Optional manufacturer age confirmation, not forced.
+- Current child matching window for future PRs: current age + 6 months.
+- Missing ABI age band data is a content-coverage gap, NOT "no developmental need".
+
+### Data model
+- Migration: `supabase/sql/202605311200_marketplace_intelligence_taxonomy.sql`.
+- Extended (not recreated): `marketplace_item_types` (+`label`, `description`,
+  `parent_category_slug`, `default_min/max/outgrown_age_months`, `risk_level`,
+  `recommendation_policy`).
+- Added: `marketplace_item_type_aliases`, `marketplace_item_type_development_mappings`,
+  `marketplace_listing_intelligence`, `marketplace_taxonomy_review_queue`.
+- RLS: seller-owned draft intelligence protected; taxonomy tables authenticated-read /
+  server-write; review queue owner-scoped (no cross-user exposure; no dashboard in PR9).
+
+### Seed taxonomy
+- `toy_saxophone`, `dress_up_costume_helmet`, `child_binoculars`, `hammer_peg_toy`,
+  `picture_book`, `toy_doctor_kit`, `baby_sleep_aid` (+ aliases + Stage 1 dev mappings).
+
+### ABI/development bridge
+- Uses the exact seven Stage 1 wrapper slugs: `social_emotional`,
+  `self_care_independence`, `fine_motor`, `gross_motor`, `language_communication`,
+  `cognitive_problem_solving`, `toileting` (text slug bridge, no ABI FK).
+- Does not create new ABI Stage 2 editorial content.
+- Unknown Stage 1/Stage 2 suggestions go to the review queue.
+
+### Key files
+- `web/src/lib/marketplace/identity-guard.ts` (lock + drift detection)
+- `web/src/lib/marketplace/marketplace-taxonomy.ts` (controlled taxonomy mirror)
+- `web/src/lib/marketplace/intelligence.ts` (Gemini contract + validation)
+- `web/src/lib/marketplace/recommendation-eligibility.ts`
+- `web/src/lib/marketplace/coverage-state.ts`
+- `web/src/app/api/marketplace/listing-drafts/[draftId]/intelligence/route.ts` (POST/PATCH/GET)
+- `web/src/components/marketplace/EmberEstimateSection.tsx` ("Ember's estimate" UI)
+- `web/scripts/marketplace-pr9-smoke.mjs` (+ `test:marketplace-pr9`)
+
+### Verification
+- Build: pass (`pnpm -C web build`, 31 May 2026).
+- PR9 smoke: pass.
+- Helmet identity guard: pass (helmet → sleep aid blocked).
+- Saxophone identity guard: pass (saxophone → xylophone blocked; saxophone draft allowed).
+- Binoculars intelligence: pass (generic "Toy" draft → review_required; binoculars draft allowed).
+- Taxonomy unknown slug quarantine: pass (`dress_up_play_magic_category`, `imagination_world` not live).
+- Age/safety helper: pass (manufacturer 36m blocks <window child; AI-only → cautious).
+- Coverage-state helper: pass (31–33m exact; missing band → estimate-only, never "no needs").
+- Existing regression: PR7 smoke pass, PR8 smoke pass.
+
+### Known debt
+- PR10 will build personalised marketplace development cards and map filtering.
+- PR11 will build auto-matchmaking and in-app recommendations.
+- Full admin taxonomy review UI deferred.
+- Full restricted-category policy and moderation dashboard deferred.
+- ABI coverage beyond 31–33 months still requires content expansion.
+- Intelligence classification uses a deterministic alias→taxonomy mapping in PR9;
+  the Gemini classification contract (`intelligence.ts`) is ready to wire in later.
+
 ## fix(snag-pack): feedback round — home slider Expecting, remove-child hang, sign-out CTA, sign-in → /discover (30 May 2026)
 
 - **Branch:** `fix/snag-pack-discover-family-may30` (PR #220)

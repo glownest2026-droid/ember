@@ -6,7 +6,10 @@ import {
   resolveUserFacingLabelFromAnalysis,
   pickInternalCategoryLabel,
   buildVisualSupportText,
+  isBroadCategoryTitle,
+  inferObjectLabelFromSupport,
 } from "./ai-listing-display-label";
+import { formatProductTitleCase } from "./listing-title-format";
 
 type ConfidenceBucket = "high" | "medium" | "low";
 
@@ -58,7 +61,21 @@ export async function buildCanonicalCandidates(
 
   for (const aiCandidate of aiCandidates) {
     const userFacing = resolveUserFacingLabelFromAnalysis(analysis, aiCandidate);
-    const normalizedLabel = userFacing.title.trim().toLowerCase();
+    let productTitle = userFacing.title;
+    if (isBroadCategoryTitle(productTitle)) {
+      const support = buildVisualSupportText({
+        userFacingItemLabel: analysis.user_facing_item_label,
+        detectedItemLabel: analysis.detected_item_label,
+        aiCandidateLabel: aiCandidate.label,
+        visualDescription: analysis.visual_description,
+        reason: aiCandidate.why,
+        broadCategory: analysis.broad_category,
+      });
+      const inferred = inferObjectLabelFromSupport(support);
+      if (inferred) productTitle = inferred;
+    }
+    productTitle = formatProductTitleCase(productTitle);
+    const normalizedLabel = productTitle.trim().toLowerCase();
     if (!normalizedLabel || seenLabels.has(normalizedLabel)) continue;
     seenLabels.add(normalizedLabel);
 
@@ -120,8 +137,8 @@ export async function buildCanonicalCandidates(
 
       cards.push({
         id: bestCanonical.id,
-        label: userFacing.title,
-        user_facing_item_label: userFacing.title,
+        label: productTitle,
+        user_facing_item_label: productTitle,
         suggested_ai_label: match.suggestedAiLabel,
         catalog_match_label: null,
         internal_nearest_canonical: match.isWeak ? bestCanonical.label : null,
@@ -160,8 +177,8 @@ export async function buildCanonicalCandidates(
 
     cards.push({
       id: null,
-      label: userFacing.title,
-      user_facing_item_label: userFacing.title,
+      label: productTitle,
+      user_facing_item_label: productTitle,
       suggested_ai_label: userFacing.suggestedAiLabel,
       catalog_match_label: null,
       internal_nearest_canonical: null,
@@ -178,10 +195,11 @@ export async function buildCanonicalCandidates(
 
   if (cards.length === 0) {
     const userFacing = resolveUserFacingLabelFromAnalysis(analysis);
+    const fallbackTitle = formatProductTitleCase(userFacing.title);
     cards.push({
       id: null,
-      label: userFacing.title,
-      user_facing_item_label: userFacing.title,
+      label: fallbackTitle,
+      user_facing_item_label: fallbackTitle,
       suggested_ai_label: userFacing.suggestedAiLabel,
       catalog_match_label: null,
       internal_nearest_canonical: null,

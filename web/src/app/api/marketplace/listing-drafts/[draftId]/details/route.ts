@@ -6,7 +6,13 @@ import {
   type ListingConditionValue,
   type ListingDraftDetailsJson,
 } from "@/lib/marketplace/ai-listing-details-types";
+import { resolveConfirmedIdentity } from "@/lib/marketplace/confirmed-item-identity";
+import type { Pr3AiRawResponse } from "@/lib/marketplace/ai-listing-details-types";
 import { clearReviewInDetailsJson } from "@/lib/marketplace/ai-listing-review";
+import {
+  buildLockedConfirmedItemPayload,
+  reconcileDraftTitleWithConfirmedIdentity,
+} from "@/lib/marketplace/identity-guard";
 import { syncPublishedBetaListingFromDraft } from "@/lib/marketplace/sync-beta-listing";
 import { createClient } from "@/utils/supabase/route-handler";
 
@@ -76,7 +82,9 @@ export async function PATCH(
 
   const { data: draft, error: draftError } = await supabase
     .from("marketplace_listing_drafts")
-    .select("id, user_id, status, listing_draft_details_json")
+    .select(
+      "id, user_id, status, product_type_id, listing_draft_details_json, ai_raw_response_json, description_draft"
+    )
     .eq("id", draftId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -108,7 +116,37 @@ export async function PATCH(
   }
 
   const updatePayload: Record<string, unknown> = {};
-  if (body.title_draft !== undefined) updatePayload.title_draft = body.title_draft.trim();
+  let safeTitle: string | undefined;
+  if (body.title_draft !== undefined) {
+    const trimmedTitle = body.title_draft.trim();
+    if (draft.status === "confirmed" && draft.product_type_id) {
+      const { data: productType } = await supabase
+        .from("product_types")
+        .select("label, subtitle")
+        .eq("id", draft.product_type_id)
+        .maybeSingle();
+      const pr3Raw = (draft.ai_raw_response_json ?? null) as Pr3AiRawResponse | null;
+      const identity = resolveConfirmedIdentity({
+        pr3Raw,
+        productTypeLabel: productType?.label ?? null,
+        productTypeSubtitle: productType?.subtitle ?? null,
+      });
+      const locked = buildLockedConfirmedItemPayload({
+        confirmedItemLabel: identity.confirmed_item_label,
+        confirmedVisualDescription: identity.confirmed_visual_description,
+        confirmedCategoryLabel: identity.confirmed_category_label,
+        source: "parent_confirmation",
+      });
+      const reconciled = reconcileDraftTitleWithConfirmedIdentity(locked, {
+        title: trimmedTitle,
+        description: body.description_draft ?? draft.description_draft,
+      });
+      safeTitle = reconciled.title;
+    } else {
+      safeTitle = trimmedTitle;
+    }
+    updatePayload.title_draft = safeTitle;
+  }
   if (body.description_draft !== undefined) {
     updatePayload.description_draft = body.description_draft.trim();
   }

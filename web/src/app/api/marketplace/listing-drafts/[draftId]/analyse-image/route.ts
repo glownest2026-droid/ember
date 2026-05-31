@@ -21,6 +21,7 @@ import {
   imageAnalysisLimitReachedMessage,
   resolveImageAnalysisDailyLimit,
 } from "@/lib/marketplace/ai-listing-rate-limit";
+import { clearDraftIntelligenceForDraft } from "@/lib/marketplace/draft-generated-reset";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -209,6 +210,8 @@ export async function POST(
       );
       const topConfidence = aiResult.analysis.product_type_candidates[0]?.confidence ?? 0;
 
+      await clearDraftIntelligenceForDraft(supabase, draftId, user.id);
+
       const { error: draftUpdateError } = await supabase
         .from("marketplace_listing_drafts")
         .update({
@@ -217,6 +220,7 @@ export async function POST(
           title_draft: null,
           description_draft: null,
           condition_confirmed_by_user: null,
+          condition_suggestion: null,
           listing_draft_details_json: null,
           listing_details_generated_at: null,
           ai_detected_label: aiResult.analysis.detected_item_label,

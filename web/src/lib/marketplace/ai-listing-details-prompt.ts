@@ -4,6 +4,7 @@ import type { Pr3AiRawResponse } from "./ai-listing-details-types";
 
 export function buildListingDetailsGenerationPrompt(args: {
   confirmedItemLabel: string;
+  confirmedVisualDescription?: string | null;
   categoryLabel: string;
   productTypeSubtitle: string | null;
   pr3Analysis: Pr3AiRawResponse | null;
@@ -16,7 +17,14 @@ export function buildListingDetailsGenerationPrompt(args: {
 
   return [
     "You are helping create an editable second-hand marketplace listing draft for a UK parent.",
-    "The parent has already confirmed the item type. Generate useful draft copy only — not final truth.",
+    "The parent has ALREADY CONFIRMED the item identity. This identity is locked.",
+    "allowed_to_change_item_identity: false",
+    "Draft a title and description ONLY for this confirmed item.",
+    "Do not change the item identity. Do not describe a different product, category, or use-case.",
+    "If you are uncertain, keep the title close to the confirmed item label.",
+    "Do not infer a different product (for example, do not turn a helmet into a sleep aid).",
+    "If the photo context appears to conflict with the confirmed item, set \"identity_conflict\" to true and DO NOT invent an unrelated listing.",
+    "Generate useful draft copy only — not final truth.",
     "Be cautious and honest. Use British English.",
     "Use the visual identification for the listing title whenever it is specific and sensible.",
     "Do not force the title to match a broad internal category.",
@@ -31,8 +39,11 @@ export function buildListingDetailsGenerationPrompt(args: {
     "Ask the parent to confirm condition and included parts.",
     "Return JSON only. No markdown. No prose outside JSON.",
     "",
-    "Confirmed item context:",
+    "Confirmed item context (locked — do not contradict):",
     `- Confirmed item label: ${args.confirmedItemLabel}`,
+    args.confirmedVisualDescription
+      ? `- Confirmed visual description: ${args.confirmedVisualDescription}`
+      : "",
     `- Category: ${args.categoryLabel}`,
     args.productTypeSubtitle ? `- Catalogue subtitle: ${args.productTypeSubtitle}` : "",
     analysis?.possible_brand && analysis.possible_brand !== "unknown"
@@ -57,6 +68,7 @@ export function buildListingDetailsGenerationPrompt(args: {
     '  "safety_resale_notes": ["Check for small loose parts before listing."],',
     '  "photo_improvement_suggestions": ["Add a second photo showing all accessories laid out clearly."],',
     '  "restricted_or_blocked": false,',
+    '  "identity_conflict": false,',
     '  "parent_editing_note": "Please review and edit before publishing."',
     "}",
   ]

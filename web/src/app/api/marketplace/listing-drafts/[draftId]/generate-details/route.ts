@@ -19,6 +19,11 @@ import {
   buildVisualSupportText,
   resolveUserFacingItemLabel,
 } from "@/lib/marketplace/ai-listing-display-label";
+import { resolveConfirmedIdentity } from "@/lib/marketplace/confirmed-item-identity";
+import {
+  buildLockedConfirmedItemPayload,
+  reconcileDraftTitleWithConfirmedIdentity,
+} from "@/lib/marketplace/identity-guard";
 import { createClient } from "@/utils/supabase/route-handler";
 
 export const dynamic = "force-dynamic";
@@ -262,9 +267,25 @@ export async function POST(
       aiCandidateLabel: topAiCandidate?.label,
     });
 
+    const resolvedIdentity = resolveConfirmedIdentity({
+      pr3Raw,
+      parentDisplayLabel: parentDisplayLabel || userFacingFromAnalysis,
+      productTypeLabel: productType?.label ?? null,
+      productTypeSubtitle: productType?.subtitle ?? null,
+    });
+
+    const lockedConfirmedItem = buildLockedConfirmedItemPayload({
+      confirmedItemLabel: resolvedIdentity.confirmed_item_label,
+      confirmedVisualDescription: resolvedIdentity.confirmed_visual_description,
+      confirmedCategoryLabel: resolvedIdentity.confirmed_category_label,
+      source: "parent_confirmation",
+      parentConfirmedAt: pr3Raw?.parent_confirmed_at ?? null,
+    });
+
     const prompt = buildListingDetailsGenerationPrompt({
-      confirmedItemLabel: titleChoice.preferredTitleLabel,
-      categoryLabel,
+      confirmedItemLabel: resolvedIdentity.confirmed_item_label,
+      confirmedVisualDescription: resolvedIdentity.confirmed_visual_description,
+      categoryLabel: resolvedIdentity.confirmed_category_label,
       productTypeSubtitle: productType?.subtitle ?? null,
       pr3Analysis: pr3Raw,
     });
@@ -296,11 +317,24 @@ export async function POST(
         generated.details.canonical_review_note = canonicalReviewNote;
       }
 
+      // Identity guard: title + description must match confirmed item.
+      // Bad titles (e.g. stale "Sleep" for a helmet) are replaced with a deterministic fallback.
+      const titleReconcile = reconcileDraftTitleWithConfirmedIdentity(lockedConfirmedItem, {
+        title: generated.details.suggested_title,
+        description: generated.details.suggested_description,
+        identity_conflict: generated.details.identity_conflict,
+      });
+      generated.details.suggested_title = titleReconcile.title;
+      if (titleReconcile.corrected) {
+        generated.details.parent_editing_note =
+          "Ember adjusted the title to match the item you confirmed. Please review before publishing.";
+      }
+
       const generatedAt = new Date().toISOString();
       const { error: updateError } = await supabase
         .from("marketplace_listing_drafts")
         .update({
-          title_draft: generated.details.suggested_title,
+          title_draft: titleReconcile.title,
           description_draft: generated.details.suggested_description,
           condition_suggestion: generated.details.condition_suggestion,
           listing_draft_details_json: generated.details,
@@ -333,7 +367,7 @@ export async function POST(
         {
           draft_id: draftId,
           details: generated.details,
-          title_draft: generated.details.suggested_title,
+          title_draft: titleReconcile.title,
           description_draft: generated.details.suggested_description,
           condition_suggestion: generated.details.condition_suggestion,
           listing_details_generated_at: generatedAt,

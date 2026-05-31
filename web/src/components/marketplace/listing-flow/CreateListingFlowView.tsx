@@ -31,6 +31,7 @@ type ConfirmedDraftState = {
   productTypeId: string | null;
   label: string | null;
   displayLabel: string | null;
+  categoryLabel: string | null;
 };
 
 export type CreateListingFlowViewProps = {
@@ -64,6 +65,7 @@ export type CreateListingFlowViewProps = {
     detailsJson: ListingDraftDetailsJson | null;
     generatedAt: string | null;
   };
+  draftReview: ListingDraftReviewJson | null;
   itemConfirmed: boolean;
   detailsSavedOnce: boolean;
   onDetailsSaved: (saved: {
@@ -71,8 +73,8 @@ export type CreateListingFlowViewProps = {
     description: string;
     condition: string | null;
     detailsJson: ListingDraftDetailsJson | null;
+    review: ListingDraftReviewJson | null;
   }) => void;
-  draftReview: ListingDraftReviewJson | null;
   onReviewUpdated: (review: ListingDraftReviewJson | null) => void;
   brandCharacterHint: string | null;
   defaultAreaLabel?: string | null;
@@ -107,10 +109,10 @@ export function CreateListingFlowView({
   confirmedDraft,
   onSelectCandidate,
   draftDetails,
+  draftReview,
   itemConfirmed,
   detailsSavedOnce,
   onDetailsSaved,
-  draftReview,
   onReviewUpdated,
   brandCharacterHint,
   defaultAreaLabel,
@@ -249,6 +251,9 @@ export function CreateListingFlowView({
                 <p className="font-medium text-[#1A1E23]">
                   {confirmedDraft?.displayLabel ?? "Item confirmed"}
                 </p>
+                {confirmedDraft?.categoryLabel && (
+                  <p className="text-xs text-[#5C646D]">{confirmedDraft.categoryLabel}</p>
+                )}
                 {brandCharacterHint && (
                   <p className="text-xs">
                     Only keep brand or character names if you&apos;re confident they&apos;re right.
@@ -352,7 +357,15 @@ export function CreateListingFlowView({
               initialDetails={draftDetails.detailsJson}
               initialGeneratedAt={draftDetails.generatedAt}
               hasConfirmedItem={itemConfirmed}
+              initialReview={draftReview}
               onSaved={onDetailsSaved}
+              onScrollToQuickReview={() => {
+                document.getElementById("listing-quick-review")?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              }}
+              onScrollToReview={() => onScrollToStep("review")}
             />
           </ListingFlowStepShell>
         </div>
