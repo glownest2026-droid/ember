@@ -1,43 +1,69 @@
 /**
  * Base URL for Supabase OAuth and magic-link redirects to `/auth/callback`.
  *
- * **Browser (sign-in tab):** Uses `window.location.origin`, normalized to the canonical
- * production host when on emberplay.app (apex vs www must match for PKCE cookies).
- * Preview deployments keep their `*.vercel.app` origin.
+ * **Browser (sign-in tab):** Uses `window.location.origin`, normalized to www on
+ * production emberplay.app (apex → www for PKCE cookies). Preview stays on `*.vercel.app`.
  *
- * **Server (no `window`):** Preview → `https://${VERCEL_URL}`; Production →
- * `NEXT_PUBLIC_SITE_URL` (canonical `https://www.emberplay.app`); else localhost.
+ * **Server (no `window`):** Preview → `https://${VERCEL_URL}`; Production auth →
+ * always `https://www.emberplay.app` (Vercel serves www; apex 307s to www).
  *
- * Supabase Redirect URLs must allow each origin you use (production www + apex, localhost,
- * Vercel preview pattern — see `web/docs/FEB_2026_AUTH_SETUP.md`).
+ * **Critical:** Never redirect www → apex. Vercel already redirects apex → www, so
+ * bouncing www back to apex causes ERR_TOO_MANY_REDIRECTS on /auth/callback.
  */
+
+export const PRODUCTION_AUTH_ORIGIN = 'https://www.emberplay.app';
 
 const EMBERPLAY_HOSTS = new Set(['emberplay.app', 'www.emberplay.app']);
 
-/** Production canonical origin from env, or www fallback when env is unset. */
-export function getCanonicalSiteOrigin(): string | null {
-  const trimmed = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, '');
-  if (trimmed) return trimmed;
-  if (process.env.VERCEL_ENV === 'production') {
-    return 'https://www.emberplay.app';
-  }
-  return null;
+export function isEmberplayProductionHost(hostname: string): boolean {
+  return EMBERPLAY_HOSTS.has(hostname);
 }
 
 /**
- * Map apex ↔ www (and env canonical) so OAuth PKCE cookies and session cookies stay on one host.
- * Non-production origins (localhost, vercel.app) pass through unchanged.
+ * Auth/session origin for production emberplay (always www).
+ * Pass-through for localhost and vercel.app previews.
  */
-export function normalizeAuthOrigin(origin: string): string {
-  const canonical = getCanonicalSiteOrigin();
-  if (!canonical) return origin;
+export function getProductionAuthOrigin(requestOrigin: string): string {
   try {
-    const current = new URL(origin);
-    if (!EMBERPLAY_HOSTS.has(current.hostname)) return origin;
-    return new URL(canonical).origin;
+    const host = new URL(requestOrigin).hostname;
+    if (isEmberplayProductionHost(host)) return PRODUCTION_AUTH_ORIGIN;
   } catch {
-    return origin;
+    /* ignore */
   }
+  return requestOrigin;
+}
+
+/**
+ * One-hop apex → www before code exchange. Never redirects www away from itself.
+ */
+export function shouldRedirectAuthToWww(requestOrigin: string): boolean {
+  try {
+    return new URL(requestOrigin).hostname === 'emberplay.app';
+  } catch {
+    return false;
+  }
+}
+
+/** Production canonical origin for server-side auth URL building. */
+export function getCanonicalSiteOrigin(): string | null {
+  if (process.env.VERCEL_ENV === 'production') {
+    return PRODUCTION_AUTH_ORIGIN;
+  }
+  const trimmed = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, '');
+  if (!trimmed) return null;
+  try {
+    if (isEmberplayProductionHost(new URL(trimmed).hostname)) {
+      return PRODUCTION_AUTH_ORIGIN;
+    }
+  } catch {
+    /* ignore */
+  }
+  return trimmed;
+}
+
+/** Browser OAuth redirectTo base; maps production emberplay to www. */
+export function normalizeAuthOrigin(origin: string): string {
+  return getProductionAuthOrigin(origin);
 }
 
 export function getAuthCallbackOrigin(): string {
@@ -71,10 +97,8 @@ export function safeNextPath(next: string | null | undefined): string {
   const fallback = '/discover';
   if (!next) return fallback;
   const value = next.trim();
-  // Same-origin absolute paths only (block protocol-relative / external URLs).
   if (!value.startsWith('/') || value.startsWith('//')) return fallback;
   const pathOnly = value.split(/[?#]/)[0];
-  // Land signed-in users in the app (/discover), not the marketing homepage.
   if (pathOnly === '/') return fallback;
   const blocked = ['/signin', '/signout', '/auth'];
   if (blocked.some((p) => pathOnly === p || pathOnly.startsWith(`${p}/`))) return fallback;

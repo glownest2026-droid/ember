@@ -1,16 +1,21 @@
 // Auth confirm: verify OTP/token and SET cookies on the response (route handler only).
 import { NextRequest, NextResponse } from 'next/server';
 import { bindSupabaseToResponse } from '../../../utils/supabase/route-handler';
-import { normalizeAuthOrigin, safeNextPath } from '../../../lib/auth-callback-url';
+import {
+  getProductionAuthOrigin,
+  safeNextPath,
+  shouldRedirectAuthToWww,
+} from '../../../lib/auth-callback-url';
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
-  const canonicalOrigin = normalizeAuthOrigin(url.origin);
 
-  if (canonicalOrigin !== url.origin) {
-    const canonicalConfirm = new URL(url.pathname + url.search, canonicalOrigin);
-    return NextResponse.redirect(canonicalConfirm);
+  if (shouldRedirectAuthToWww(url.origin)) {
+    const wwwConfirm = new URL(url.pathname + url.search, getProductionAuthOrigin(url.origin));
+    return NextResponse.redirect(wwwConfirm);
   }
+
+  const authOrigin = getProductionAuthOrigin(url.origin);
 
   const tokenHash = url.searchParams.get('token_hash');
   const type = url.searchParams.get('type');
@@ -20,12 +25,12 @@ export async function GET(request: NextRequest) {
       : safeNextPath(url.searchParams.get('next'));
 
   if (!tokenHash || !type) {
-    const errorUrl = new URL('/auth/error', canonicalOrigin);
+    const errorUrl = new URL('/auth/error', authOrigin);
     errorUrl.searchParams.set('error', 'Missing token or type parameter');
     return NextResponse.redirect(errorUrl);
   }
 
-  const redirectUrl = `${canonicalOrigin}${next}`;
+  const redirectUrl = `${authOrigin}${next}`;
   const response = NextResponse.redirect(redirectUrl);
 
   try {
@@ -34,7 +39,7 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.verifyOtp({ type: type as any, token_hash: tokenHash });
 
     if (error) {
-      const errorUrl = new URL('/auth/error', canonicalOrigin);
+      const errorUrl = new URL('/auth/error', authOrigin);
       errorUrl.searchParams.set('error', error.message);
       return NextResponse.redirect(errorUrl);
     }
@@ -52,7 +57,7 @@ export async function GET(request: NextRequest) {
 
     return response;
   } catch {
-    const errorUrl = new URL('/auth/error', canonicalOrigin);
+    const errorUrl = new URL('/auth/error', authOrigin);
     errorUrl.searchParams.set('error', 'Verification failed');
     return NextResponse.redirect(errorUrl);
   }
