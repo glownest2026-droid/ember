@@ -1,3 +1,16 @@
+## 2026-05-31 - fix(auth): stop /auth/callback ERR_TOO_MANY_REDIRECTS (www↔apex loop)
+
+- **Branch:** `fix/auth-callback-redirect-loop` · PR follow-up to #223
+
+### Root cause
+- PR #223 used `normalizeAuthOrigin()` to force **any** emberplay host to `NEXT_PUBLIC_SITE_URL`.
+- When that env was `https://emberplay.app` (apex) but Vercel serves **www**, the app redirected **www → apex** on `/auth/callback` while Vercel redirected **apex → www** → infinite loop.
+
+### Fix
+- Production auth origin is always `https://www.emberplay.app`.
+- Server only redirects **apex → www** once (`shouldRedirectAuthToWww`); never www → apex.
+- `pnpm -C web test:auth-callback` updated.
+
 ## 2026-05-31 - PR10 Patch: Potty Development Mapping Fix
 
 - **Branch:** `fix/marketplace-potty-toileting-mapping`
