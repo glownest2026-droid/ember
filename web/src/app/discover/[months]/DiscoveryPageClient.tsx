@@ -50,7 +50,7 @@ interface AgeBand {
   max_months: number | null;
 }
 
-type Wrapper = Pick<GatewayWrapperPublic, 'ux_wrapper_id' | 'ux_label' | 'ux_slug' | 'ux_description' | 'rank'>;
+type Wrapper = Pick<GatewayWrapperPublic, 'ux_wrapper_id' | 'ux_label' | 'ux_slug' | 'ux_description' | 'audience_lens' | 'rank'>;
 type PickItem = GatewayPick;
 
 interface DiscoveryPageClientProps {
@@ -651,6 +651,7 @@ export default function DiscoveryPageClient({
           slug: wrapper.ux_slug,
           label,
           helper: '',
+          audienceLens: wrapper.audience_lens,
           icon: meta?.icon ?? getWrapperIcon(wrapper.ux_slug, label),
           showSuggested: is25to27 && suggestedDoorwaySlugSet.has(slugNorm),
         };
@@ -917,6 +918,7 @@ export default function DiscoveryPageClient({
         // Remove explicit product examples from Stage 2 labels (e.g. "... (e.g. Snail's Pace)").
         title: (ct.label || ct.name || 'Play idea').replace(/\s*\(e\.g\.[^)]+\)\s*/gi, ' ').trim(),
         description: (ct.rationale || ct.description || '').trim(),
+        audienceLens: ct.audience_lens,
         scienceConnection: formatBandLabel(selectedBand),
         imageUrl: ct.image_url?.trim() || '',
       })),
@@ -1009,6 +1011,7 @@ export default function DiscoveryPageClient({
                       icon={tile.icon}
                       title={tile.label}
                       description={tile.helper}
+                      audienceLens={tile.audienceLens}
                       isSelected={isSelected}
                       showSuggested={tile.showSuggested}
                       onClick={() => handleWrapperSelect(tile.slug)}

@@ -2,6 +2,7 @@
 
 import { Save, CheckCircle, ChevronRight } from 'lucide-react';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
+import { getAudienceLensCardStyle } from '@/lib/discover/audienceLens';
 
 export function DiscoverFigmaPlayIdeaCard({
   title,
@@ -10,6 +11,7 @@ export function DiscoverFigmaPlayIdeaCard({
   onSeeExamples,
   onSaveIdea,
   onHaveThem,
+  audienceLens,
 }: {
   id: string;
   title: string;
@@ -21,9 +23,13 @@ export function DiscoverFigmaPlayIdeaCard({
   onSeeExamples: () => void;
   onSaveIdea: (e: React.MouseEvent, el: HTMLButtonElement | null) => void;
   onHaveThem?: (e: React.MouseEvent) => void;
+  audienceLens?: string | null;
 }) {
+  const lensStyle = getAudienceLensCardStyle(audienceLens);
+  const cardClass = lensStyle ? lensStyle.card : 'bg-white border-[#E7E2DC]';
+
   return (
-    <article className="bg-white border border-[#E7E2DC] rounded-[24px] overflow-hidden shadow-sm flex flex-col h-full group">
+    <article className={`${cardClass} rounded-[24px] overflow-hidden shadow-sm flex flex-col h-full group`}>
       <div className="relative aspect-[16/9] max-h-[180px] md:max-h-[220px] overflow-hidden bg-[#FBFAF7]">
         <DiscoverFigmaImage
           src={imageUrl}

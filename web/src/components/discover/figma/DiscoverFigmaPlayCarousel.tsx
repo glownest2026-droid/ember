@@ -9,6 +9,7 @@ export type PlayIdeaItem = {
   id: string;
   title: string;
   description: string;
+  audienceLens?: string | null;
   scienceConnection: string;
   imageUrl: string;
 };
@@ -108,6 +109,7 @@ export function DiscoverFigmaPlayCarousel({
                 id={idea.id}
                 title={idea.title}
                 description={idea.description}
+                audienceLens={idea.audienceLens}
                 imageUrl={idea.imageUrl}
                 isSelected={selectedId === idea.id}
                 onClick={() => onSelect(idea.id)}
