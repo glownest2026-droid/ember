@@ -9,6 +9,7 @@ export type PlayIdeaItem = {
   id: string;
   title: string;
   description: string;
+  audienceLens?: string | null;
   scienceConnection: string;
   imageUrl: string;
 };
@@ -75,7 +76,7 @@ export function DiscoverFigmaPlayCarousel({
   if (!items.length) return null;
 
   return (
-    <section className="flex flex-col gap-5 relative">
+    <section className="flex flex-col gap-3 md:gap-4 relative">
       <div className="flex justify-between items-end gap-3">
         <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">{sectionTitle}</h2>
         <div className="hidden md:flex items-center gap-2 shrink-0">
@@ -103,11 +104,12 @@ export function DiscoverFigmaPlayCarousel({
       <div className="overflow-hidden -mx-1 px-1" ref={emblaRef}>
         <div className="flex gap-4 md:gap-6">
           {items.map((idea) => (
-            <div key={idea.id} className="flex-[0_0_94%] md:flex-[0_0_62%] lg:flex-[0_0_46%] min-w-0">
+            <div key={idea.id} className="flex-[0_0_94%] md:flex-[0_0_58%] lg:flex-[0_0_42%] min-w-0">
               <DiscoverFigmaPlayIdeaCard
                 id={idea.id}
                 title={idea.title}
                 description={idea.description}
+                audienceLens={idea.audienceLens}
                 imageUrl={idea.imageUrl}
                 isSelected={selectedId === idea.id}
                 onClick={() => onSelect(idea.id)}

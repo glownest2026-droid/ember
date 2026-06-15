@@ -1,4 +1,14 @@
-## 2026-05-31 - fix(auth): stop /auth/callback ERR_TOO_MANY_REDIRECTS (www↔apex loop)
+## 2026-06-15 - feat(discover): ingest pilot 6–9m + 9–12m discover_projection bands
+
+- **Branch:** `feat/discover-6-9m-9-12m-pilot`
+- **Goal:** Import `discover_projection` tabs from 6–9M and 9–12M Ember ABI workbooks into the existing Discover gateway path; wire parent-friendly cluster labels, long why-text, category labels, and `audience_lens` card styling in `/discover/[months]`.
+- **Ground-truth read path:** `web/src/app/discover/page.tsx`, `web/src/app/discover/[months]/page.tsx`, `web/src/app/discover/[months]/DiscoveryPageClient.tsx`, `web/src/lib/pl/public.ts` → curated views (`v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_category_types_public`).
+- **Ingestion:** `scripts/generate-discover-projection-sql.mjs` → migrations `20260615120000` (audience_lens schema + views), `20260615120100` (90-row import), `20260615120200` (overlap + lens fix), `20260615120300`/`20260615120400` (age-band visibility).
+- **Import proof:** 42 rows (6–9m, 8 clusters) + 48 rows (9–12m, 8 clusters) = 90; Stage 3 products = 0.
+- **UI:** `audienceLens.ts` token mapping for `for_your_child` / `for_you` / `for_both` on Stage 1 + Stage 2 cards.
+- **Follow-up UX:** Restored full age-band slider taxonomy; grouped Stage 1 cards under “For them” / “For you” with higher-contrast lens colours; tightened Stage 2 vertical spacing for desktop viewport.
+- **Build:** `pnpm -C web install --frozen-lockfile` + `pnpm -C web build` pass.
+
 
 - **Branch:** `fix/auth-callback-redirect-loop` · PR follow-up to #223
 

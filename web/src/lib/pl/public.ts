@@ -81,6 +81,7 @@ export type GatewayWrapperPublic = {
   ux_label: string;
   ux_slug: string;
   ux_description: string | null;
+  audience_lens: string | null;
   age_band_id: string;
   rank: number;
 };
@@ -90,6 +91,7 @@ export type GatewayCategoryTypePublic = {
   development_need_id: string;
   rank: number;
   rationale: string | null;
+  audience_lens: string | null;
   id: string;
   slug: string;
   label: string | null;
@@ -127,7 +129,7 @@ export async function getGatewayWrappersForAgeBand(ageBandId: string): Promise<G
 
   const { data, error } = await supabase
     .from('v_gateway_wrappers_public')
-    .select('ux_wrapper_id, ux_label, ux_slug, ux_description, age_band_id, rank')
+    .select('ux_wrapper_id, ux_label, ux_slug, ux_description, audience_lens, age_band_id, rank')
     .eq('age_band_id', ageBandId)
     .order('rank', { ascending: true });
 
@@ -221,7 +223,7 @@ export async function getGatewayCategoryTypesForAgeBandAndWrapper(
 
   const { data: categoryRows, error: categoryError } = await supabase
     .from('v_gateway_category_types_public')
-    .select('age_band_id, development_need_id, rank, rationale, id, slug, label, name, description, image_url, safety_notes')
+    .select('age_band_id, development_need_id, rank, rationale, audience_lens, id, slug, label, name, description, image_url, safety_notes')
     .eq('age_band_id', ageBandId)
     .eq('development_need_id', developmentNeedId)
     .order('rank', { ascending: true });
@@ -266,7 +268,7 @@ export async function getGatewayTopPicksForAgeBandAndWrapperSlug(
 
   const { data: categoryRows, error: categoryError } = await supabase
     .from('v_gateway_category_types_public')
-    .select('age_band_id, development_need_id, rank, rationale, id, slug, label, name, description, image_url, safety_notes')
+    .select('age_band_id, development_need_id, rank, rationale, audience_lens, id, slug, label, name, description, image_url, safety_notes')
     .eq('age_band_id', ageBandId)
     .eq('development_need_id', developmentNeedId)
     .order('rank', { ascending: true });

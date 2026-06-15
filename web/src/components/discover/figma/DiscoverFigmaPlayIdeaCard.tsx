@@ -21,10 +21,11 @@ export function DiscoverFigmaPlayIdeaCard({
   onSeeExamples: () => void;
   onSaveIdea: (e: React.MouseEvent, el: HTMLButtonElement | null) => void;
   onHaveThem?: (e: React.MouseEvent) => void;
+  audienceLens?: string | null;
 }) {
   return (
     <article className="bg-white border border-[#E7E2DC] rounded-[24px] overflow-hidden shadow-sm flex flex-col h-full group">
-      <div className="relative aspect-[16/9] max-h-[180px] md:max-h-[220px] overflow-hidden bg-[#FBFAF7]">
+      <div className="relative aspect-[16/9] max-h-[150px] md:max-h-[165px] overflow-hidden bg-[#FBFAF7]">
         <DiscoverFigmaImage
           src={imageUrl}
           alt={title}
@@ -32,15 +33,15 @@ export function DiscoverFigmaPlayIdeaCard({
         />
       </div>
 
-      <div className="p-5 md:p-7 flex flex-col flex-1 gap-3">
+      <div className="p-4 md:p-5 flex flex-col flex-1 gap-2.5">
         <div>
-          <h3 className="font-bold text-[18px] md:text-[20px] text-[#253044] mb-1.5 leading-tight">{title}</h3>
+          <h3 className="font-bold text-[18px] md:text-[19px] text-[#253044] mb-1 leading-tight">{title}</h3>
           {description ? (
-            <p className="text-[15px] md:text-[16px] text-[#66717D] leading-relaxed">{description}</p>
+            <p className="text-[14px] md:text-[15px] text-[#66717D] leading-relaxed line-clamp-3 md:line-clamp-4">{description}</p>
           ) : null}
         </div>
 
-        <div className="mt-auto pt-4 flex items-center gap-3">
+        <div className="mt-auto pt-2 flex items-center gap-3">
           <button
             type="button"
             onClick={(e) => {

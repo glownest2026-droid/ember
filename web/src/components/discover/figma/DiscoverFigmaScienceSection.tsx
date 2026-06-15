@@ -13,7 +13,7 @@ export function DiscoverFigmaScienceSection({
 }) {
   if (!description.trim()) return null;
   return (
-    <section className="bg-[#FFF9F5] border border-[#F2E8E1] rounded-[20px] p-5 md:p-6 flex flex-col md:flex-row gap-4 md:items-start shadow-sm">
+    <section className="bg-[#FFF9F5] border border-[#F2E8E1] rounded-[20px] p-4 md:p-5 flex flex-col md:flex-row gap-3 md:items-start shadow-sm">
       <EmberRobinMark size="xl" />
       <div className="flex flex-col gap-2.5 min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
