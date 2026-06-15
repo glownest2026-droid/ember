@@ -28,6 +28,7 @@ import {
   type DiscoverChildPersonalization,
 } from '@/lib/discover/personalization';
 import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
+import { groupByAudienceLensSection, getAudienceLensCardStyle } from '@/lib/discover/audienceLens';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
 import {
@@ -658,6 +659,10 @@ export default function DiscoveryPageClient({
       }),
     [wrappers, doorwayMetaBySlug, is25to27, suggestedDoorwaySlugSet]
   );
+
+  const tileSections = useMemo(() => groupByAudienceLensSection(allTiles), [allTiles]);
+  const showLensSections = tileSections.length > 1 || tileSections.some((s) => s.title !== 'More to explore');
+
   const selectedWrapperLabel =
     wrappers.find((w) => w.ux_slug === selectedWrapper)?.ux_label ??
     allTiles.find((tile) => tile.slug === selectedWrapper)?.label ??
@@ -970,7 +975,11 @@ export default function DiscoveryPageClient({
       />
       <HowWeChooseSheet open={howWeChooseOpen} onClose={() => setHowWeChooseOpen(false)} />
 
-      <main className={`${EMBER_FIGMA_APP_CONTAINER} py-6 lg:py-10 pb-28 md:pb-12 flex flex-col gap-10 md:gap-14`}>
+      <main
+        className={`${EMBER_FIGMA_APP_CONTAINER} py-6 lg:py-8 pb-28 md:pb-10 flex flex-col ${
+          selectedWrapper ? 'gap-5 md:gap-6' : 'gap-10 md:gap-14'
+        }`}
+      >
         <section id="discover-figma-stage1" className="scroll-mt-6"><DiscoverFigmaChildHero
           childDisplayLabel={childProfile.displayLabel}
           childGender={childProfile.gender}
@@ -1002,27 +1011,66 @@ export default function DiscoveryPageClient({
                   <p className="text-sm text-[#66717D] mt-2">Pick a focus for this age. Sign in to personalize with your child.</p>
                 ) : null}
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
-                {allTiles.map((tile) => {
-                  const isSelected = selectedWrapper === tile.slug;
-                  return (
-                    <DiscoverFigmaNeedCard
-                      key={tile.slug}
-                      icon={tile.icon}
-                      title={tile.label}
-                      description={tile.helper}
-                      audienceLens={tile.audienceLens}
-                      isSelected={isSelected}
-                      showSuggested={tile.showSuggested}
-                      onClick={() => handleWrapperSelect(tile.slug)}
-                    />
-                  );
-                })}
-              </div>
+              {showLensSections ? (
+                <div className="flex flex-col gap-6 md:gap-7">
+                  {tileSections.map((section) => {
+                    const sectionAccent =
+                      getAudienceLensCardStyle(
+                        section.title === 'For them'
+                          ? 'for_your_child'
+                          : section.title === 'For you'
+                            ? 'for_you'
+                            : null
+                      )?.sectionAccent ?? 'text-[#66717D]';
+                    return (
+                      <div key={section.title} className="flex flex-col gap-3 md:gap-4">
+                        <p className={`text-[13px] font-bold uppercase tracking-wide m-0 ${sectionAccent}`}>
+                          {section.title}
+                        </p>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                          {section.items.map((tile) => {
+                            const isSelected = selectedWrapper === tile.slug;
+                            return (
+                              <DiscoverFigmaNeedCard
+                                key={tile.slug}
+                                icon={tile.icon}
+                                title={tile.label}
+                                description={tile.helper}
+                                audienceLens={tile.audienceLens}
+                                isSelected={isSelected}
+                                showSuggested={tile.showSuggested}
+                                onClick={() => handleWrapperSelect(tile.slug)}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
+                  {allTiles.map((tile) => {
+                    const isSelected = selectedWrapper === tile.slug;
+                    return (
+                      <DiscoverFigmaNeedCard
+                        key={tile.slug}
+                        icon={tile.icon}
+                        title={tile.label}
+                        description={tile.helper}
+                        audienceLens={tile.audienceLens}
+                        isSelected={isSelected}
+                        showSuggested={tile.showSuggested}
+                        onClick={() => handleWrapperSelect(tile.slug)}
+                      />
+                    );
+                  })}
+                </div>
+              )}
             </section>
 
             {selectedWrapper ? (
-              <section ref={whyMattersSectionRef} className="scroll-mt-24">
+              <section ref={whyMattersSectionRef} className="scroll-mt-16 md:scroll-mt-12">
                 {scienceBody ? (
                   <DiscoverFigmaScienceSection
                     title={scienceTitle}
@@ -1030,12 +1078,12 @@ export default function DiscoveryPageClient({
                     onExplain={() => setHowWeChooseOpen(true)}
                   />
                 ) : (
-                  <p className="text-[var(--ember-text-low)] text-sm mb-8">
+                  <p className="text-[var(--ember-text-low)] text-sm mb-4">
                     We&apos;re adding more detail for this focus soon.
                   </p>
                 )}
                 {playIdeaItems.length > 0 ? (
-                  <div className="flex justify-center mt-6">
+                  <div className="flex justify-center mt-2 md:mt-3">
                     <motion.button
                       type="button"
                       onClick={() => scrollToSection('discover-figma-ideas')}
@@ -1059,7 +1107,7 @@ export default function DiscoveryPageClient({
             ) : null}
 
             {selectedWrapper ? (
-              <section ref={nextStepsSectionRef} id="discover-figma-ideas" className="scroll-mt-24 md:scroll-mt-6">
+              <section ref={nextStepsSectionRef} id="discover-figma-ideas" className="scroll-mt-12 md:scroll-mt-2 -mt-1">
                 {playIdeaItems.length > 0 ? (
                   <DiscoverFigmaPlayCarousel
                     items={playIdeaItems}

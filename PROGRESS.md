@@ -6,6 +6,7 @@
 - **Ingestion:** `scripts/generate-discover-projection-sql.mjs` → migrations `20260615120000` (audience_lens schema + views), `20260615120100` (90-row import), `20260615120200` (overlap + lens fix), `20260615120300`/`20260615120400` (age-band visibility).
 - **Import proof:** 42 rows (6–9m, 8 clusters) + 48 rows (9–12m, 8 clusters) = 90; Stage 3 products = 0.
 - **UI:** `audienceLens.ts` token mapping for `for_your_child` / `for_you` / `for_both` on Stage 1 + Stage 2 cards.
+- **Follow-up UX:** Restored full age-band slider taxonomy; grouped Stage 1 cards under “For them” / “For you” with higher-contrast lens colours; tightened Stage 2 vertical spacing for desktop viewport.
 - **Build:** `pnpm -C web install --frozen-lockfile` + `pnpm -C web build` pass.
 
 
