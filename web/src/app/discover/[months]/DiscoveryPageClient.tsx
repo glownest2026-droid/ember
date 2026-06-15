@@ -28,7 +28,7 @@ import {
   type DiscoverChildPersonalization,
 } from '@/lib/discover/personalization';
 import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
-import { groupByAudienceLensSection, getAudienceLensCardStyle } from '@/lib/discover/audienceLens';
+import { groupByAudienceLensSection, AUDIENCE_LENS_SECTION_HEADERS } from '@/lib/discover/audienceLens';
 import { SaveToListModal } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
 import {
@@ -1015,13 +1015,7 @@ export default function DiscoveryPageClient({
                 <div className="flex flex-col gap-6 md:gap-7">
                   {tileSections.map((section) => {
                     const sectionAccent =
-                      getAudienceLensCardStyle(
-                        section.title === 'For them'
-                          ? 'for_your_child'
-                          : section.title === 'For you'
-                            ? 'for_you'
-                            : null
-                      )?.sectionAccent ?? 'text-[#66717D]';
+                      AUDIENCE_LENS_SECTION_HEADERS[section.title] ?? 'text-[#66717D]';
                     return (
                       <div key={section.title} className="flex flex-col gap-3 md:gap-4">
                         <p className={`text-[13px] font-bold uppercase tracking-wide m-0 ${sectionAccent}`}>
