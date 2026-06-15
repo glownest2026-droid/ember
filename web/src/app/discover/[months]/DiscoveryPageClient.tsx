@@ -185,7 +185,11 @@ export default function DiscoveryPageClient({
     (id: string) => {
       const el = document.getElementById(id);
       if (!el) return;
-      el.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'start' });
+      const headerVar = getComputedStyle(document.documentElement).getPropertyValue('--header-height').trim();
+      const headerOffset = (headerVar ? parseInt(headerVar, 10) : 88) + 12;
+      const rect = el.getBoundingClientRect();
+      const targetTop = Math.max(0, rect.top + window.scrollY - headerOffset);
+      window.scrollTo({ top: targetTop, behavior: shouldReduceMotion ? 'auto' : 'smooth' });
     },
     [shouldReduceMotion]
   );
@@ -1101,7 +1105,11 @@ export default function DiscoveryPageClient({
             ) : null}
 
             {selectedWrapper ? (
-              <section ref={nextStepsSectionRef} id="discover-figma-ideas" className="scroll-mt-12 md:scroll-mt-2 -mt-1">
+              <section
+                ref={nextStepsSectionRef}
+                id="discover-figma-ideas"
+                className="scroll-mt-[calc(var(--header-height,88px)+12px)] mt-4 md:mt-0 md:scroll-mt-2 md:-mt-1"
+              >
                 {playIdeaItems.length > 0 ? (
                   <DiscoverFigmaPlayCarousel
                     items={playIdeaItems}
