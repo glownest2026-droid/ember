@@ -4,26 +4,33 @@
  *
  * Usage:
  *   node scripts/generate-discover-projection-sql.mjs \
- *     "C:/Users/timwo/Downloads/6-9M Ember ABI.xlsx" \
- *     "C:/Users/timwo/Downloads/9-12M Ember ABI.xlsx"
+ *     --migration=20260615140000_reimport_discover_6_9m_9_12m_brand_voice \
+ *     "C:/Users/timwo/Downloads/Brand Voice Update - 6-9m.xlsx" \
+ *     "C:/Users/timwo/Downloads/Brand Voice Update - 9-12m.xlsx"
  */
 import fs from 'fs';
 import path from 'path';
 import XLSX from 'xlsx';
 
 const DEFAULT_FILES = [
-  'C:/Users/timwo/Downloads/6-9M Ember ABI.xlsx',
-  'C:/Users/timwo/Downloads/9-12M Ember ABI.xlsx',
+  'C:/Users/timwo/Downloads/Brand Voice Update - 6-9m.xlsx',
+  'C:/Users/timwo/Downloads/Brand Voice Update - 9-12m.xlsx',
 ];
 
-const outputSql = path.join(
-  process.cwd(),
-  'supabase/sql/202606151201_import_discover_6_9m_9_12m_pilot.sql'
-);
-const outputMigration = path.join(
-  process.cwd(),
-  'supabase/migrations/20260615120100_import_discover_6_9m_9_12m_pilot.sql'
-);
+const DEFAULT_MIGRATION_STEM = '20260615140000_reimport_discover_6_9m_9_12m_brand_voice';
+
+function parseArgs(argv) {
+  const files = [];
+  let migrationStem = DEFAULT_MIGRATION_STEM;
+  for (const arg of argv) {
+    if (arg.startsWith('--migration=')) {
+      migrationStem = arg.slice('--migration='.length);
+    } else {
+      files.push(arg);
+    }
+  }
+  return { files, migrationStem };
+}
 
 function q(value) {
   if (value == null || value === '') return 'NULL';
@@ -278,9 +285,9 @@ ON CONFLICT (slug) DO NOTHING;
 
 UPDATE public.pl_development_needs dn
 SET
-  name = COALESCE(NULLIF(dn.name, ''), src.development_need_canonical_name),
-  plain_english_description = COALESCE(NULLIF(dn.plain_english_description, ''), src.stage1_why_it_matters_ux_description),
-  why_it_matters = COALESCE(NULLIF(dn.why_it_matters, ''), src.stage1_why_it_matters_ux_description),
+  name = src.development_need_canonical_name,
+  plain_english_description = COALESCE(src.stage1_why_it_matters_ux_description, ''),
+  why_it_matters = COALESCE(src.stage1_why_it_matters_ux_description, ''),
   updated_at = now()
 FROM (
   SELECT DISTINCT
@@ -398,8 +405,8 @@ ON CONFLICT (slug) DO NOTHING;
 
 UPDATE public.pl_category_types ct
 SET
-  label = COALESCE(NULLIF(ct.label, ''), src.stage2_category_type_label),
-  name = COALESCE(NULLIF(ct.name, ''), src.stage2_category_type_name),
+  label = src.stage2_category_type_label,
+  name = src.stage2_category_type_name,
   updated_at = now()
 FROM tmp_discover_stage2_category_types src
 WHERE LOWER(COALESCE(ct.slug, '')) = LOWER(src.stage2_category_type_slug);
@@ -528,9 +535,17 @@ COMMIT;
 `;
 }
 
-const files = process.argv.slice(2);
-const inputFiles = files.length > 0 ? files : DEFAULT_FILES;
-const rows = loadRows(inputFiles);
+function sqlMirrorPath(stem) {
+  const m = stem.match(/^(\d{14})_(.+)$/);
+  if (m) return path.join(process.cwd(), `supabase/sql/${m[1].slice(0, 12)}_${m[2]}.sql`);
+  return path.join(process.cwd(), `supabase/sql/${stem}.sql`);
+}
+
+const { files: inputFiles, migrationStem } = parseArgs(process.argv.slice(2));
+const outputMigration = path.join(process.cwd(), `supabase/migrations/${migrationStem}.sql`);
+const outputSql = sqlMirrorPath(migrationStem);
+
+const rows = loadRows(inputFiles.length > 0 ? inputFiles : DEFAULT_FILES);
 
 const counts = rows.reduce(
   (acc, r) => {

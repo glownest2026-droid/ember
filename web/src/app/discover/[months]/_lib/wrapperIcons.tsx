@@ -96,6 +96,21 @@ const SLUG_TO_ICON: Record<string, LucideIcon> = {
 };
 
 const LABEL_PATTERNS: { test: RegExp; icon: LucideIcon }[] = [
+  // Brand voice (6–9m / 9–12m pilot)
+  { test: /i can sit and reach/i, icon: Hand },
+  { test: /getting ready to move/i, icon: Footprints },
+  { test: /hide and come back|things can hide/i, icon: Eye },
+  { test: /putting things in, out and together/i, icon: Layers },
+  { test: /everything goes in my mouth/i, icon: Apple },
+  { test: /getting ready for first tastes|first tastes/i, icon: UtensilsCrossed },
+  { test: /starting to get everywhere|suddenly into everything/i, icon: Shield },
+  { test: /listening, copying|joining in/i, icon: BookOpen },
+  { test: /hands can do more/i, icon: Hand },
+  { test: /finding things out/i, icon: Puzzle },
+  { test: /learning to tell you/i, icon: MessageCircle },
+  { test: /noticing faces and feelings/i, icon: Users },
+  { test: /good little moment/i, icon: CalendarDays },
+  // Legacy labels (other bands)
   { test: /sitting up|reaching for toys/i, icon: Hand },
   { test: /ready to crawl|crawling|on the move/i, icon: Footprints },
   { test: /hidden things|making things happen|figuring out/i, icon: Eye },

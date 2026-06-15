@@ -1,3 +1,12 @@
+## 2026-06-15 - feat(discover): re-ingest 6–9m + 9–12m brand voice copy
+
+- **Branch:** `feat/discover-6-9m-9-12m-brand-voice`
+- **Goal:** Re-import `discover_projection` from Brand Voice Update workbooks; slugs unchanged, all public-facing labels and rationale text revised.
+- **Generator:** `scripts/generate-discover-projection-sql.mjs` now overwrites `pl_development_needs` and `pl_category_types` text on re-import (not fill-empty-only); supports `--migration=` flag.
+- **Migration:** `20260615140000_reimport_discover_6_9m_9_12m_brand_voice.sql` — 90 rows (42 + 48), 8 clusters per band.
+- **UI:** `wrapperIcons.tsx` label-pattern fallbacks for first-person cluster titles (e.g. "I can sit and reach").
+- **Build:** `pnpm -C web build` pass; migration applied via `supabase db push`.
+
 ## 2026-06-15 - feat(discover): ingest pilot 6–9m + 9–12m discover_projection bands
 
 - **Branch:** `feat/discover-6-9m-9-12m-pilot`
