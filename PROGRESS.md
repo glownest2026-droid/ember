@@ -1,3 +1,21 @@
+## 2026-06-16 - feat(discover): ingest pilot 4–6m + 16–18m discover_projection bands
+
+- **Branch:** `feat/discover-4-6m-16-18m-pilot`
+- **Goal:** Import `discover_projection` tabs from 4–6M and 16–18M Ember ABI workbooks (Downloads) into the existing Discover gateway path; Stage 1 clusters + Stage 2 categories only.
+- **Ground-truth read path:** `web/src/app/discover/page.tsx`, `web/src/app/discover/[months]/page.tsx`, `web/src/lib/pl/public.ts` → curated views (`v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_category_types_public`).
+- **Generator:** `scripts/generate-discover-projection-sql.mjs` with `--migration=20260616200000_import_discover_4_6m_16_18m_pilot`.
+- **Migration:** `20260616200000_import_discover_4_6m_16_18m_pilot.sql` — 67 rows (34 + 33), 8 clusters per band; Stage 3 products = 0.
+- **Overlap:** Month 6 resolves to `6-9m` (higher min_months tie-break); no competing placeholder bands for 4–6 or 16–18 ranges.
+- **Validation (REST):** 8 wrappers + 34 categories on `4-6m`; 8 wrappers + 33 categories on `16-18m`; month resolver: 4–5→`4-6m`, 16–18→`16-18m`.
+- **Build:** `pnpm -C web build` pass; migration applied via `supabase db push`.
+
+### Rollback (scoped)
+```sql
+DELETE FROM pl_age_band_development_need_category_types WHERE age_band_id IN ('4-6m','16-18m');
+DELETE FROM pl_age_band_ux_wrappers WHERE age_band_id IN ('4-6m','16-18m');
+UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_id IN ('4-6m','16-18m');
+```
+
 ## 2026-06-16 - feat(discover): re-import 1–3m from Ember Bible v3 voice rebuild
 
 - **Branch:** `feat/discover-1-3m-13-15m-pilot` (PR #228)
@@ -3654,3 +3672,10 @@ Category-only cards remain publishable.
 - Build: pass (`pnpm build` in `web/`)
 - Lint: clean on edited files
 - Preview: see PR / Vercel
+
+## 2026-06-16 — ops: category_images mapping (6–9m sitting/reaching cluster)
+
+- **Goal:** Map five newly uploaded 6–9m category images in `category_images` to `pl_category_type_images`.
+- **Input slugs resolved:** `cat_sitting_play_mat`, `cat_reach_grab_toys`, `cat_hand_transfer_toys`, `cat_soft_graspable_balls`, `cat_first_puzzle`.
+- **What changed:** Idempotent upsert into `public.pl_category_type_images` using canonical public URLs `https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_<slug>_category.png` (`ON CONFLICT (category_type_id)`).
+- **Proof:** Preflight 5/5 objects found; write mapped 5/5; re-run idempotent (5 active rows, no duplicate-active anomalies); `v_gateway_category_type_images` returns all five URLs.
