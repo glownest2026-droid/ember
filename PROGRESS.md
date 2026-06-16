@@ -1,3 +1,12 @@
+## 2026-06-16 - feat(discover): re-import 13–15m from Ember Bible v2
+
+- **Branch:** `feat/discover-1-3m-13-15m-pilot` (PR #228)
+- **Source:** `02_Ember_Bible_13_15m_v2.xlsx` → `discover_projection` tab only (replaces prior `13-15M Ember ABI.xlsx` import).
+- **Migration:** `20260616180000_reimport_discover_13_15m_bible_v2.sql` — 47 rows, **10 clusters** (was 40 rows / 8 clusters).
+- **New clusters:** `ent_cluster_first_marks` (rank 6), `ent_cluster_joining_in` (rank 7); `ent_cluster_safety` label updated to "Keep curious hands safer"; ranks reordered.
+- **1-3m:** unchanged from `20260616170000_import_discover_1_3m_13_15m_pilot.sql`.
+- **Validation:** 10 wrappers + 47 category mappings on `13-15m`; Stage 3 = 0.
+
 ## 2026-06-16 - feat(discover): ingest pilot 1–3m + 13–15m discover_projection bands
 
 - **Branch:** `feat/discover-1-3m-13-15m-pilot`
