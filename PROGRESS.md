@@ -1,3 +1,39 @@
+## 2026-06-16 - feat(discover): re-import 1–3m from Ember Bible v3 voice rebuild
+
+- **Branch:** `feat/discover-1-3m-13-15m-pilot` (PR #228)
+- **Source:** `02_Ember_Bible_1_3m_v3_voice_rebuild.xlsx` → `discover_projection` tab only (replaces prior `1-3M Ember ABI.xlsx` import).
+- **Migration:** `20260616190000_reimport_discover_1_3m_bible_v3.sql` — 42 rows, **10 clusters** (was 38 rows / 8 clusters).
+- **New clusters:** `ent_cluster_listen_and_coo` (rank 2), `ent_cluster_kicks_wriggles` (rank 5); voice-rebuilt parent-friendly labels throughout.
+- **13-15m:** unchanged from `20260616180000_reimport_discover_13_15m_bible_v2.sql`.
+- **Validation:** 10 wrappers on `1-3m`; Stage 3 = 0.
+
+## 2026-06-16 - feat(discover): re-import 13–15m from Ember Bible v2
+
+- **Branch:** `feat/discover-1-3m-13-15m-pilot` (PR #228)
+- **Source:** `02_Ember_Bible_13_15m_v2.xlsx` → `discover_projection` tab only (replaces prior `13-15M Ember ABI.xlsx` import).
+- **Migration:** `20260616180000_reimport_discover_13_15m_bible_v2.sql` — 47 rows, **10 clusters** (was 40 rows / 8 clusters).
+- **New clusters:** `ent_cluster_first_marks` (rank 6), `ent_cluster_joining_in` (rank 7); `ent_cluster_safety` label updated to "Keep curious hands safer"; ranks reordered.
+- **1-3m:** unchanged from `20260616170000_import_discover_1_3m_13_15m_pilot.sql`.
+- **Validation:** 10 wrappers + 47 category mappings on `13-15m`; Stage 3 = 0.
+
+## 2026-06-16 - feat(discover): ingest pilot 1–3m + 13–15m discover_projection bands
+
+- **Branch:** `feat/discover-1-3m-13-15m-pilot`
+- **Goal:** Import `discover_projection` tabs from 1–3M and 13–15M Ember ABI workbooks (Downloads) into the existing Discover gateway path; Stage 1 clusters + Stage 2 categories only.
+- **Ground-truth read path:** `web/src/app/discover/page.tsx`, `web/src/app/discover/[months]/page.tsx`, `web/src/lib/pl/public.ts` → curated views (`v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_category_types_public`).
+- **Generator:** `scripts/generate-discover-projection-sql.mjs` — generic `age_N_Mm` → `N-Mm` mapping, dynamic per-band row/cluster validation, requires `--migration=` + workbook path(s).
+- **Migration:** `20260616170000_import_discover_1_3m_13_15m_pilot.sql` — 78 rows (38 + 40), 8 clusters per band; Stage 3 products = 0.
+- **Overlap:** No competing active placeholder bands for months 1–3 or 13–15 (verified via `pl_age_bands` query before import).
+- **Note:** 13–15m reuses `ent_cluster_*` slugs shared with 9–12m; global `pl_ux_wrappers.ux_label` is per-slug (existing architecture).
+- **Build:** `pnpm -C web install --frozen-lockfile` + `pnpm -C web build` pass; migration applied via `supabase db push`.
+
+### Rollback (scoped)
+```sql
+DELETE FROM pl_age_band_development_need_category_types WHERE age_band_id IN ('1-3m','13-15m');
+DELETE FROM pl_age_band_ux_wrappers WHERE age_band_id IN ('1-3m','13-15m');
+UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_id IN ('1-3m','13-15m');
+```
+
 ## 2026-06-15 - feat(discover): re-ingest 6–9m + 9–12m brand voice copy
 
 - **Branch:** `feat/discover-6-9m-9-12m-brand-voice`

@@ -1,33 +1,32 @@
 /**
- * Generate idempotent SQL import for Discover pilot age bands 6–9m and 9–12m.
+ * Generate idempotent SQL import for Discover age bands from discover_projection.
  * Source: discover_projection tab only (Ember ABI workbooks).
  *
  * Usage:
  *   node scripts/generate-discover-projection-sql.mjs \
- *     --migration=20260615140000_reimport_discover_6_9m_9_12m_brand_voice \
- *     "C:/Users/timwo/Downloads/Brand Voice Update - 6-9m.xlsx" \
- *     "C:/Users/timwo/Downloads/Brand Voice Update - 9-12m.xlsx"
+ *     --migration=20260616170000_import_discover_1_3m_13_15m_pilot \
+ *     "C:/Users/timwo/Downloads/1-3M Ember ABI.xlsx" \
+ *     "C:/Users/timwo/Downloads/13-15M Ember ABI.xlsx"
  */
 import fs from 'fs';
 import path from 'path';
 import XLSX from 'xlsx';
 
-const DEFAULT_FILES = [
-  'C:/Users/timwo/Downloads/Brand Voice Update - 6-9m.xlsx',
-  'C:/Users/timwo/Downloads/Brand Voice Update - 9-12m.xlsx',
-];
-
-const DEFAULT_MIGRATION_STEM = '20260615140000_reimport_discover_6_9m_9_12m_brand_voice';
-
 function parseArgs(argv) {
   const files = [];
-  let migrationStem = DEFAULT_MIGRATION_STEM;
+  let migrationStem = null;
   for (const arg of argv) {
     if (arg.startsWith('--migration=')) {
       migrationStem = arg.slice('--migration='.length);
     } else {
       files.push(arg);
     }
+  }
+  if (!migrationStem) {
+    throw new Error('Missing required --migration=YYYYMMDDHHMMSS_stem flag');
+  }
+  if (files.length === 0) {
+    throw new Error('Provide one or more Ember ABI workbook paths');
   }
   return { files, migrationStem };
 }
@@ -43,15 +42,33 @@ function toInt(value) {
 }
 
 function mapAgeBandId(raw) {
-  if (raw === 'age_6_9m') return '6-9m';
-  if (raw === 'age_9_12m') return '9-12m';
-  return raw;
+  const value = String(raw || '').trim();
+  const fromWorkbook = value.match(/^age_(\d+)_(\d+)m$/);
+  if (fromWorkbook) return `${fromWorkbook[1]}-${fromWorkbook[2]}m`;
+  return value;
 }
 
 function ageBandMeta(id) {
-  if (id === '6-9m') return { label: '6–9 months', min: 6, max: 9 };
-  if (id === '9-12m') return { label: '9–12 months', min: 9, max: 12 };
-  throw new Error(`Unknown age band id: ${id}`);
+  const match = String(id).match(/^(\d+)-(\d+)m$/);
+  if (!match) throw new Error(`Unknown age band id: ${id}`);
+  return {
+    label: `${match[1]}–${match[2]} months`,
+    min: parseInt(match[1], 10),
+    max: parseInt(match[2], 10),
+  };
+}
+
+function computeBandStats(rows) {
+  const bandIds = [...new Set(rows.map((r) => r.age_band_id))].sort();
+  const stats = {};
+  for (const bandId of bandIds) {
+    const bandRows = rows.filter((r) => r.age_band_id === bandId);
+    stats[bandId] = {
+      rows: bandRows.length,
+      clusters: new Set(bandRows.map((r) => r.stage1_wrapper_ux_slug)).size,
+    };
+  }
+  return { bandIds, stats, total: rows.length };
 }
 
 function buildClusterLensMap(rawRows) {
@@ -136,7 +153,66 @@ function loadRows(files) {
   return rawRows.map((raw) => normalizeRow(raw, clusterLensMap));
 }
 
-function buildSql(rows) {
+function buildValidationBlock({ bandIds, stats, total }) {
+  const bandList = bandIds.map((b) => q(b)).join(', ');
+  const declarations = [
+    '  v_rows_loaded INTEGER;',
+    ...bandIds.flatMap((bandId) => {
+      const safe = bandId.replace(/-/g, '_');
+      return [
+        `  v_rows_${safe} INTEGER;`,
+        `  v_clusters_${safe} INTEGER;`,
+      ];
+    }),
+    '  v_stage3_active INTEGER;',
+  ].join('\n');
+
+  const selects = [
+    '  SELECT COUNT(*) INTO v_rows_loaded FROM tmp_discover_projection_stage;',
+    ...bandIds.flatMap((bandId) => {
+      const safe = bandId.replace(/-/g, '_');
+      return [
+        `  SELECT COUNT(*) INTO v_rows_${safe} FROM tmp_discover_projection_stage WHERE age_band_id = ${q(bandId)};`,
+        `  SELECT COUNT(DISTINCT stage1_wrapper_ux_slug) INTO v_clusters_${safe}\n  FROM tmp_discover_projection_stage WHERE age_band_id = ${q(bandId)};`,
+      ];
+    }),
+    `  SELECT COUNT(*) INTO v_stage3_active\n  FROM public.pl_age_band_category_type_products\n  WHERE age_band_id IN (${bandList})\n    AND is_active = true;`,
+  ].join('\n');
+
+  const notices = [
+    `  RAISE NOTICE 'Discover projection rows loaded: % (expected ${total})', v_rows_loaded;`,
+    ...bandIds.map((bandId) => {
+      const safe = bandId.replace(/-/g, '_');
+      const { rows: expectedRows, clusters: expectedClusters } = stats[bandId];
+      return `  RAISE NOTICE '${bandId} rows: % (expected ${expectedRows}), clusters: % (expected ${expectedClusters})', v_rows_${safe}, v_clusters_${safe};`;
+    }),
+    "  RAISE NOTICE 'Active Stage 3 mappings (expected 0): %', v_stage3_active;",
+  ].join('\n');
+
+  const rowChecks = [
+    `  IF v_rows_loaded <> ${total} THEN`,
+    "    RAISE EXCEPTION 'Row count validation failed';",
+    '  END IF;',
+    ...bandIds.map((bandId) => {
+      const safe = bandId.replace(/-/g, '_');
+      const { rows: expectedRows } = stats[bandId];
+      return `  IF v_rows_${safe} <> ${expectedRows} THEN\n    RAISE EXCEPTION 'Row count validation failed for ${bandId}';\n  END IF;`;
+    }),
+  ].join('\n');
+
+  const clusterChecks = bandIds
+    .map((bandId) => {
+      const safe = bandId.replace(/-/g, '_');
+      const { clusters: expectedClusters } = stats[bandId];
+      return `  IF v_clusters_${safe} <> ${expectedClusters} THEN\n    RAISE EXCEPTION 'Cluster count validation failed for ${bandId}';\n  END IF;`;
+    })
+    .join('\n');
+
+  return { bandList, block: `DO $$\nDECLARE\n${declarations}\nBEGIN\n${selects}\n\n${notices}\n\n${rowChecks}\n${clusterChecks}\nEND $$;` };
+}
+
+function buildSql(rows, bandSummary) {
+  const { bandIds, stats, total } = bandSummary;
   const valuesSql = rows
     .map(
       (r) =>
@@ -144,11 +220,12 @@ function buildSql(rows) {
     )
     .join(',\n  ');
 
-  const bandIds = [...new Set(rows.map((r) => r.age_band_id))];
   const bandList = bandIds.map((b) => q(b)).join(', ');
+  const bandLabel = bandIds.map((id) => stats[id].label ?? id).join(', ');
+  const validation = buildValidationBlock({ bandIds, stats, total });
 
-  return `-- Discover pilot import: age bands 6–9m and 9–12m
--- Source: discover_projection tab from Ember ABI workbooks (6–9m + 9–12m)
+  return `-- Discover pilot import: age bands ${bandLabel}
+-- Source: discover_projection tab from Ember ABI workbooks (${bandIds.join(' + ')})
 -- Stage 3 intentionally empty. Idempotent: safe to re-run.
 
 BEGIN;
@@ -491,47 +568,14 @@ SET
   updated_at = now()
 WHERE p.age_band_id IN (SELECT DISTINCT age_band_id FROM tmp_discover_projection_stage);
 
-DO $$
-DECLARE
-  v_rows_loaded INTEGER;
-  v_rows_6_9 INTEGER;
-  v_rows_9_12 INTEGER;
-  v_clusters_6_9 INTEGER;
-  v_clusters_9_12 INTEGER;
-  v_stage3_active INTEGER;
-BEGIN
-  SELECT COUNT(*) INTO v_rows_loaded FROM tmp_discover_projection_stage;
-  SELECT COUNT(*) INTO v_rows_6_9 FROM tmp_discover_projection_stage WHERE age_band_id = '6-9m';
-  SELECT COUNT(*) INTO v_rows_9_12 FROM tmp_discover_projection_stage WHERE age_band_id = '9-12m';
-  SELECT COUNT(DISTINCT stage1_wrapper_ux_slug) INTO v_clusters_6_9
-  FROM tmp_discover_projection_stage WHERE age_band_id = '6-9m';
-  SELECT COUNT(DISTINCT stage1_wrapper_ux_slug) INTO v_clusters_9_12
-  FROM tmp_discover_projection_stage WHERE age_band_id = '9-12m';
-  SELECT COUNT(*) INTO v_stage3_active
-  FROM public.pl_age_band_category_type_products
-  WHERE age_band_id IN (${bandList})
-    AND is_active = true;
-
-  RAISE NOTICE 'Discover projection rows loaded: % (expected 90)', v_rows_loaded;
-  RAISE NOTICE '6-9m rows: % (expected 42), clusters: % (expected 8)', v_rows_6_9, v_clusters_6_9;
-  RAISE NOTICE '9-12m rows: % (expected 48), clusters: % (expected 8)', v_rows_9_12, v_clusters_9_12;
-  RAISE NOTICE 'Active Stage 3 mappings (expected 0): %', v_stage3_active;
-
-  IF v_rows_loaded <> 90 OR v_rows_6_9 <> 42 OR v_rows_9_12 <> 48 THEN
-    RAISE EXCEPTION 'Row count validation failed';
-  END IF;
-  IF v_clusters_6_9 <> 8 OR v_clusters_9_12 <> 8 THEN
-    RAISE EXCEPTION 'Cluster count validation failed';
-  END IF;
-END $$;
+${validation.block}
 
 COMMIT;
 
 -- Rollback (scoped):
--- DELETE FROM public.pl_age_band_development_need_category_types WHERE age_band_id IN ('6-9m','9-12m');
--- DELETE FROM public.pl_age_band_ux_wrappers WHERE age_band_id IN ('6-9m','9-12m');
--- DELETE FROM public.pl_age_band_category_type_products WHERE age_band_id IN ('6-9m','9-12m');
--- DELETE FROM public.pl_age_bands WHERE id IN ('6-9m','9-12m');
+-- DELETE FROM public.pl_age_band_development_need_category_types WHERE age_band_id IN (${bandList});
+-- DELETE FROM public.pl_age_band_ux_wrappers WHERE age_band_id IN (${bandList});
+-- UPDATE public.pl_age_band_category_type_products SET is_active = false WHERE age_band_id IN (${bandList});
 `;
 }
 
@@ -545,18 +589,13 @@ const { files: inputFiles, migrationStem } = parseArgs(process.argv.slice(2));
 const outputMigration = path.join(process.cwd(), `supabase/migrations/${migrationStem}.sql`);
 const outputSql = sqlMirrorPath(migrationStem);
 
-const rows = loadRows(inputFiles.length > 0 ? inputFiles : DEFAULT_FILES);
+const rows = loadRows(inputFiles);
+const bandSummary = computeBandStats(rows);
+for (const bandId of bandSummary.bandIds) {
+  bandSummary.stats[bandId].label = rows.find((r) => r.age_band_id === bandId)?.age_band_label;
+}
 
-const counts = rows.reduce(
-  (acc, r) => {
-    acc.total += 1;
-    acc[r.age_band_id] = (acc[r.age_band_id] || 0) + 1;
-    return acc;
-  },
-  { total: 0 }
-);
-
-const sql = buildSql(rows);
+const sql = buildSql(rows, bandSummary);
 fs.mkdirSync(path.dirname(outputSql), { recursive: true });
 fs.writeFileSync(outputSql, sql);
 fs.writeFileSync(outputMigration, sql);
@@ -564,4 +603,7 @@ fs.writeFileSync(outputMigration, sql);
 console.log('Generated import SQL:');
 console.log(`  ${outputSql}`);
 console.log(`  ${outputMigration}`);
-console.log(`Rows: total=${counts.total}, 6-9m=${counts['6-9m'] ?? 0}, 9-12m=${counts['9-12m'] ?? 0}`);
+const perBand = bandSummary.bandIds
+  .map((id) => `${id}=${bandSummary.stats[id].rows} rows/${bandSummary.stats[id].clusters} clusters`)
+  .join(', ');
+console.log(`Rows: total=${bandSummary.total}, ${perBand}`);
