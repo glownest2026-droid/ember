@@ -1,3 +1,12 @@
+## 2026-06-16 - feat(discover): re-import 1–3m from Ember Bible v3 voice rebuild
+
+- **Branch:** `feat/discover-1-3m-13-15m-pilot` (PR #228)
+- **Source:** `02_Ember_Bible_1_3m_v3_voice_rebuild.xlsx` → `discover_projection` tab only (replaces prior `1-3M Ember ABI.xlsx` import).
+- **Migration:** `20260616190000_reimport_discover_1_3m_bible_v3.sql` — 42 rows, **10 clusters** (was 38 rows / 8 clusters).
+- **New clusters:** `ent_cluster_listen_and_coo` (rank 2), `ent_cluster_kicks_wriggles` (rank 5); voice-rebuilt parent-friendly labels throughout.
+- **13-15m:** unchanged from `20260616180000_reimport_discover_13_15m_bible_v2.sql`.
+- **Validation:** 10 wrappers on `1-3m`; Stage 3 = 0.
+
 ## 2026-06-16 - feat(discover): re-import 13–15m from Ember Bible v2
 
 - **Branch:** `feat/discover-1-3m-13-15m-pilot` (PR #228)
