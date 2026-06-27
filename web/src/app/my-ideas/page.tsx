@@ -23,7 +23,7 @@ export default async function MyIdeasPage({
   }
 
   return (
-    <div className="container-wrap min-h-screen py-6">
+    <div className="min-h-screen py-6">
       <MyIdeasClient initialChildId={params.child ?? undefined} initialTab={params.tab ?? undefined} />
     </div>
   );

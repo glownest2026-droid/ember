@@ -508,12 +508,12 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <div className="lg:grid lg:grid-cols-[1fr_340px] lg:gap-8">
+      <main className="max-w-6xl mx-auto py-6 sm:py-8">
+        <div className="lg:grid lg:grid-cols-[1fr_340px] lg:gap-8 lg:px-6">
           <div
             id="my-list"
             ref={myListSectionRef}
-            className="rounded-xl border p-5 sm:p-6 mb-6 lg:mb-0 scroll-mt-24"
+            className="rounded-none sm:rounded-xl border-y sm:border border-x-0 sm:border-x p-5 sm:p-6 mb-6 lg:mb-0 scroll-mt-24 mx-0 sm:mx-0"
             style={{
               backgroundColor: 'var(--ember-surface-primary)',
               borderColor: 'var(--ember-border-subtle)',
@@ -742,9 +742,9 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
 
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 px-0 sm:px-0">
             <div
-              className="rounded-xl border p-5"
+              className="rounded-none sm:rounded-xl border-y sm:border border-x-0 sm:border-x p-5 w-full"
               style={{
                 backgroundColor: 'var(--ember-surface-primary)',
                 borderColor: 'var(--ember-border-subtle)',
@@ -767,7 +767,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
             </div>
 
             <div
-              className="rounded-xl border p-5"
+              className="rounded-none sm:rounded-xl border-y sm:border border-x-0 sm:border-x p-5 w-full"
               style={{
                 backgroundColor: 'var(--ember-surface-primary)',
                 borderColor: 'var(--ember-border-subtle)',
@@ -790,7 +790,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
             </div>
 
             <div
-              className="rounded-xl border p-5"
+              className="rounded-none sm:rounded-xl border-y sm:border border-x-0 sm:border-x p-5 w-full"
               style={{
                 backgroundColor: 'var(--ember-surface-primary)',
                 borderColor: 'var(--ember-border-subtle)',

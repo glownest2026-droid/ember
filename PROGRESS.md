@@ -1,3 +1,17 @@
+## 2026-06-27 — fix(snag-pack): discover UX polish (7 snags)
+
+- **Branch:** `fix/snag-pack-discover-ux`
+- **PR:** https://github.com/glownest2026-droid/ember/pull/231
+- **Preview:** https://ember-git-fix-snag-pack-discover-ux-tims-projects-cd69a894.vercel.app
+- **Snags:** 1-3m Lucide icons; Stage 2 Have toggle (grey/browse); save modal child name + “View X’s List”; remove science Read more; expandable Stage 2 cards; discover session resume via sessionStorage; My List widget mobile bleed
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. `/discover/2` — Stage 1 tiles show distinct icons (Smile, Mic, Eye, … not generic Shapes).
+2. Stage 2 Have button greys/restores card; save modal uses child name; expand icon opens fullscreen card.
+3. Discover → deep section → Saves → Discover tab resumes same wrapper.
+4. `/my-ideas` on mobile — sidebar widgets edge-to-edge.
+
 ## 2026-06-27 - feat(discover): v2 display_label, age-scoped images, deterministic storage lookup
 
 - **Branch:** `feat/discover-v2-display-label-age-images`

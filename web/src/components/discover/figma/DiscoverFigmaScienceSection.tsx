@@ -34,15 +34,6 @@ export function DiscoverFigmaScienceSection({
         >
           &ldquo;{description}&rdquo;
         </blockquote>
-        {onExplain ? (
-          <button
-            type="button"
-            onClick={onExplain}
-            className="text-[#FF5C34] font-semibold text-[14px] hover:underline underline-offset-2 self-start transition-all"
-          >
-            Read more
-          </button>
-        ) : null}
       </div>
     </section>
   );
