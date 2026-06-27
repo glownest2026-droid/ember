@@ -54,7 +54,7 @@ export function DiscoverFigmaPlayIdeaExpanded({
       aria-modal="true"
       aria-labelledby="expanded-idea-title"
     >
-      <div className="flex items-center justify-end px-4 pt-4 pb-2 shrink-0">
+      <div className="flex md:hidden items-center justify-end px-4 pt-4 pb-2 shrink-0">
         <button
           type="button"
           onClick={onClose}
@@ -66,12 +66,20 @@ export function DiscoverFigmaPlayIdeaExpanded({
       </div>
 
       <motion.div
-        className={`flex-1 overflow-y-auto px-4 pb-8 ${isDimmed ? 'opacity-60 grayscale' : ''}`}
+        className={`flex-1 overflow-y-auto px-4 pb-8 md:flex md:items-center md:justify-center md:py-8 ${isDimmed ? 'opacity-60 grayscale' : ''}`}
         initial={shouldReduceMotion ? false : { y: 24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
-        <article className="max-w-2xl mx-auto bg-white border border-[#E7E2DC] rounded-[24px] overflow-hidden shadow-lg flex flex-col">
+        <article className="relative max-w-2xl mx-auto w-full bg-white border border-[#E7E2DC] rounded-[24px] overflow-hidden shadow-lg flex flex-col">
+          <button
+            type="button"
+            onClick={onClose}
+            className="hidden md:flex absolute top-4 right-4 z-10 w-11 h-11 items-center justify-center rounded-full border border-[#E7E2DC] bg-white/95 text-[#253044] shadow-sm hover:bg-white transition-colors"
+            aria-label="Close expanded card"
+          >
+            <X size={22} strokeWidth={2.5} />
+          </button>
           <div className="relative aspect-[16/9] max-h-[280px] overflow-hidden bg-[#FBFAF7]">
             <DiscoverFigmaImage src={idea.imageUrl} alt={idea.title} className="w-full h-full object-cover" />
           </div>
