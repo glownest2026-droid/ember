@@ -48,6 +48,22 @@ function mapAgeBandId(raw) {
   return value;
 }
 
+function canonicalNameFromSlug(slug) {
+  const base = String(slug || '')
+    .replace(/^ent_cat_/, '')
+    .replace(/^cat_/, '')
+    .replace(/_/g, ' ')
+    .trim();
+  if (!base) return slug;
+  return base.replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function firstNeedEntityId(raw) {
+  const value = String(raw?.need_entity_ids || raw?.cluster_entity_id || '').trim();
+  if (!value) return '';
+  return value.split(';')[0].trim();
+}
+
 function ageBandMeta(id) {
   const match = String(id).match(/^(\d+)-(\d+)m$/);
   if (!match) throw new Error(`Unknown age band id: ${id}`);
@@ -119,13 +135,13 @@ function normalizeRow(raw, clusterLensMap) {
     stage1_wrapper_ux_label: clusterLabelParentFriendly,
     stage1_wrapper_rank_in_band: raw.cluster_rank,
     stage1_mapping_is_active: true,
-    development_need_slug: String(raw.cluster_entity_id || '').trim(),
+    development_need_slug: firstNeedEntityId(raw) || String(raw.cluster_entity_id || '').trim(),
     development_need_canonical_name: String(raw.cluster_label || clusterLabelParentFriendly).trim(),
     stage1_why_it_matters_ux_description: String(raw.cluster_why_it_matters_long || '').trim(),
     audience_lens: clusterAudienceLens,
     stage2_category_type_slug: String(raw.category_entity_id || '').trim(),
     stage2_category_type_label: String(raw.category_label || '').trim(),
-    stage2_category_type_name: String(raw.category_label || '').trim(),
+    stage2_category_type_name: canonicalNameFromSlug(String(raw.category_entity_id || '').trim()),
     stage2_play_ideas_rank: raw.category_rank,
     stage2_play_idea_mapping_rationale: String(raw.why_it_matters_long || '').trim(),
     category_audience_lens: categoryAudienceLens,
@@ -305,14 +321,13 @@ GROUP BY s.age_band_id, s.stage1_wrapper_ux_slug;
 CREATE TEMP TABLE tmp_discover_stage2_category_types AS
 SELECT
   s.stage2_category_type_slug,
-  s.stage2_category_type_label,
   s.stage2_category_type_name
 FROM (
   SELECT
     s.*,
     ROW_NUMBER() OVER (
-      PARTITION BY LOWER(TRIM(s.stage2_category_type_label))
-      ORDER BY s.min_months ASC, s.age_band_id ASC, s.stage2_play_ideas_rank ASC, s.stage2_category_type_slug ASC
+      PARTITION BY LOWER(TRIM(s.stage2_category_type_slug))
+      ORDER BY s.min_months ASC, s.age_band_id ASC, s.stage2_play_ideas_rank ASC
     ) AS rn
   FROM tmp_discover_projection_stage s
 ) s
@@ -464,29 +479,15 @@ INSERT INTO public.pl_category_types (
 )
 SELECT
   src.stage2_category_type_slug,
-  src.stage2_category_type_label,
+  src.stage2_category_type_name,
   src.stage2_category_type_name,
   NULL,
   NULL
 FROM tmp_discover_stage2_category_types src
 LEFT JOIN public.pl_category_types ct_slug
   ON LOWER(COALESCE(ct_slug.slug, '')) = LOWER(src.stage2_category_type_slug)
-LEFT JOIN public.pl_category_types ct_name
-  ON LOWER(COALESCE(ct_name.name, '')) = LOWER(src.stage2_category_type_name)
-LEFT JOIN public.pl_category_types ct_label
-  ON LOWER(COALESCE(ct_label.label, '')) = LOWER(src.stage2_category_type_label)
 WHERE ct_slug.id IS NULL
-  AND ct_name.id IS NULL
-  AND ct_label.id IS NULL
 ON CONFLICT (slug) DO NOTHING;
-
-UPDATE public.pl_category_types ct
-SET
-  label = src.stage2_category_type_label,
-  name = src.stage2_category_type_name,
-  updated_at = now()
-FROM tmp_discover_stage2_category_types src
-WHERE LOWER(COALESCE(ct.slug, '')) = LOWER(src.stage2_category_type_slug);
 
 CREATE TEMP TABLE tmp_discover_resolved_need_category AS
 SELECT DISTINCT
@@ -495,6 +496,7 @@ SELECT DISTINCT
   ct.id AS category_type_id,
   s.stage2_play_ideas_rank AS rank,
   NULLIF(TRIM(COALESCE(s.stage2_play_idea_mapping_rationale, '')), '') AS rationale,
+  NULLIF(TRIM(COALESCE(s.stage2_category_type_label, '')), '') AS display_label,
   NULLIF(TRIM(COALESCE(s.category_audience_lens, '')), '') AS audience_lens
 FROM tmp_discover_projection_stage s
 JOIN LATERAL (
@@ -542,6 +544,7 @@ INSERT INTO public.pl_age_band_development_need_category_types (
   category_type_id,
   rank,
   rationale,
+  display_label,
   audience_lens,
   is_active
 )
@@ -551,6 +554,7 @@ SELECT
   r.category_type_id,
   r.rank,
   r.rationale,
+  r.display_label,
   r.audience_lens,
   true
 FROM tmp_discover_resolved_need_category r
@@ -558,6 +562,7 @@ ON CONFLICT (age_band_id, development_need_id, category_type_id) DO UPDATE
 SET
   rank = EXCLUDED.rank,
   rationale = EXCLUDED.rationale,
+  display_label = EXCLUDED.display_label,
   audience_lens = EXCLUDED.audience_lens,
   is_active = true,
   updated_at = now();

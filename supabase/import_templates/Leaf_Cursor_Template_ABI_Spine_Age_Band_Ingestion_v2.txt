@@ -1,0 +1,207 @@
+You are Cursor acting as Lead Developer.
+
+GOAL
+Import one or more Discover age bands from attached Ember ABI workbook(s) (Spine Build 2.0) using ONLY the `discover_projection` tab, through the gateway ingestion path, so the band(s) resolve in `/discover/[months]` with correct Stage 1 + Stage 2 content — including age-band-specific presentation for shared category slugs (e.g. `cat_soft_graspable_balls`).
+
+SCOPE (ONE PR PER IMPORT BATCH)
+Example: “Import the attached `4-6M Ember ABI.xlsx`.”
+- Ingest only the requested age band(s).
+- Stage 1 (clusters/wrappers) + Stage 2 (categories) only.
+- Stage 3 products intentionally empty unless explicitly provided with real product data.
+- Do not ingest other tabs (`bible_entities`, `bible_relationships`, etc.) into gateway tables.
+- Do not redesign Discover UI unless a prerequisite schema migration is required (see below).
+
+NON-NEGOTIABLES
+1) Own the full dev loop: branch → migrations → commit → push → PR → checks green → Vercel preview.
+2) Do not ask the founder for engineering judgment calls.
+3) Do not fabricate content or mappings.
+4) Do not merge or split category slugs in code — trust `category_entity_id` from the workbook.
+5) Do not widen anon access to canonical tables; reads go through curated `v_gateway_*` views only.
+6) Stop and report if no deterministic ingestion path exists — except to add the prerequisite schema in “PREREQUISITE SCHEMA (run once)”.
+
+ARCHITECTURE PRINCIPLE (READ BEFORE CODING)
+
+GLOBAL IDENTITY (shared across lifecycle)
+- `discover_projection.category_entity_id` → `pl_category_types.slug`
+- **Slug-sharing rule:** same `category_entity_id` in any workbook = same global catalogue row. Different `category_entity_id` = different catalogue item. No product-overlap heuristics.
+- `bible_entities` (read-only QA): confirms `entity_type = category` and definition for each `entity_id`. Do not import this tab; use it to validate IDs exist.
+
+AGE-BAND PRESENTATION (what parents see on /discover)
+- Scoped to `pl_age_band_development_need_category_types`:
+  - `display_label` ← `category_label`
+  - `rationale` ← `why_it_matters_long`
+  - `audience_lens` ← row `audience_lens`
+  - `rank` ← `category_rank`
+- **Never UPDATE** global `pl_category_types.label` / `.name` on re-import.
+
+CLUSTER vs NEED (Spine 2.0 — every row in 4–6M workbook)
+- Wrapper slug = `cluster_entity_id` → `pl_ux_wrappers.ux_slug`
+- Development need slug = **first** semicolon-separated token in `need_entity_ids`; else `cluster_entity_id`
+- `cluster_label` → `pl_development_needs.name`
+- Do NOT collapse cluster and need when workbook distinguishes them.
+
+PREREQUISITE SCHEMA (run once, before first v2 import)
+If not already applied, ship a dedicated migration BEFORE band imports:
+
+A) Junction display title
+```sql
+ALTER TABLE public.pl_age_band_development_need_category_types
+  ADD COLUMN IF NOT EXISTS display_label TEXT;
+```
+
+B) Age-scoped category images
+```sql
+ALTER TABLE public.pl_category_type_images
+  ADD COLUMN IF NOT EXISTS age_band_id TEXT REFERENCES public.pl_age_bands(id) ON DELETE CASCADE;
+
+CREATE UNIQUE INDEX IF NOT EXISTS pl_category_type_images_band_unique
+  ON public.pl_category_type_images (category_type_id, COALESCE(age_band_id, '__global__'));
+```
+
+C) Gateway view updates
+- `v_gateway_category_types_public`: `COALESCE(abdnct.display_label, ct.name, ct.label) AS label`
+- Band-aware image view: prefer `age_band_id = <band>`, else `age_band_id IS NULL` global fallback
+
+D) App read path
+- `getGatewayCategoryTypeImages(categoryTypeIds, ageBandId)` in `web/src/lib/pl/public.ts`
+- Mirror in `/my-ideas`, gift list
+
+E) Update `supabase/import_templates/gateway_age_band_bulk_import_column_dictionary.csv`
+
+GROUND TRUTH (READ-ONLY FIRST — QUOTE PATHS)
+- Discover: `web/src/app/discover/[months]/page.tsx`, `web/src/lib/pl/public.ts`
+- Views: `v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_category_types_public`, `v_gateway_wrapper_detail_public`, `v_gateway_category_type_images*`
+- Generator: `scripts/generate-discover-projection-sql.mjs`
+- Example migration: `supabase/migrations/20260616200000_import_discover_4_6m_16_18m_pilot.sql`
+- Image mapping prompt: `Project Leaf - Cursor Image Mapping.txt` (separate job after upload)
+
+SOURCE INPUT
+- Workbook path(s) e.g. `4-6M Ember ABI.xlsx`, `16-18M Ember ABI.xlsx`
+- Sheet: **`discover_projection` only**
+- Do not mutate source files
+
+CONFIRMED `discover_projection` COLUMNS (Spine Build 2.0 — verified on 4-6M ABI)
+| Column | Role |
+|--------|------|
+| `age_band_id` | Workbook id `age_4_6m` → repo `4-6m` |
+| `cluster_entity_id` | Stage 1 wrapper slug |
+| `cluster_label` | Development need canonical name |
+| `cluster_label_parent_friendly` | Stage 1 card title |
+| `cluster_why_it_matters_long` | Stage 1 “Why this matters” body |
+| `cluster_rank` | Wrapper rank in band |
+| `need_entity_ids` | Need slug(s); first token → `pl_development_needs.slug` |
+| `category_entity_id` | **Global category slug** → `pl_category_types.slug` |
+| `category_label` | Age-band Stage 2 card title → junction `display_label` |
+| `category_rank` | Stage 2 rank |
+| `why_it_matters_long` | Stage 2 card description → junction `rationale` |
+| `audience_lens` | Category lens; also derives cluster lens if no `cluster_audience_lens` |
+| `mapping_rationale` | Internal research — do not show in UI |
+| `safety_note_public` | Optional safety copy |
+| `evidence_ids` | Audit only — do not import |
+
+CANONICAL FIELD MAPPING (GENERATOR NORMALISATION ONLY)
+
+| discover_projection | DB target |
+|---------------------|-----------|
+| `age_band_id` | `pl_age_bands.id` (`4-6m`), label, min/max months |
+| `cluster_entity_id` | `pl_ux_wrappers.ux_slug` |
+| `cluster_label_parent_friendly` | `pl_ux_wrappers.ux_label` |
+| `cluster_why_it_matters_long` | `pl_ux_wrappers.ux_description` |
+| `cluster_rank` | `pl_age_band_ux_wrappers.rank` |
+| `need_entity_ids` (first token) | `pl_development_needs.slug` |
+| `cluster_label` | `pl_development_needs.name` |
+| `category_entity_id` | `pl_category_types.slug` — INSERT if missing only |
+| `category_label` | `pl_age_band_development_need_category_types.display_label` |
+| `why_it_matters_long` | `pl_age_band_development_need_category_types.rationale` |
+| `audience_lens` | junction `audience_lens` |
+
+Global category INSERT only (ON CONFLICT DO NOTHING):
+- `name` = canonical name from slug (see rule below)
+- `label` = same as `name` on first insert only
+
+CANONICAL NAME RULE (global row, stable forever)
+From `category_entity_id` slug:
+- Strip `cat_`, `ent_cat_` prefix
+- Replace `_` with spaces; title case
+- Example: `cat_soft_graspable_balls` → `Soft graspable balls`
+
+Age-specific titles: junction `display_label` only (`category_label` from XLS).
+
+CLUSTER LENS RULE
+- If `cluster_audience_lens` exists → wrapper lens
+- Else: `audience_lens` from row with lowest `category_rank` per `(age_band_id, cluster_entity_id)`
+
+LEGACY SLUG DRIFT (manual fix only)
+If an old DB import used a different slug for the same bible entity (e.g. `ent_cat_soft_balls` vs `cat_soft_graspable_balls`):
+- On re-import from Spine 2.0 workbook, **workbook `category_entity_id` wins**
+- Do not auto-merge in generator; flag in PR notes if bible_entities shows one entity_id and DB has another
+
+IMAGE FILES (upload separately — see Image Mapping prompt)
+Age-scoped primary:
+  `ember_{category_entity_id}_{age_band_token}_category.png`
+Global fallback:
+  `ember_{category_entity_id}_category.png`
+Age band token: strip `age_` prefix, replace `-` with `_` → `4-6m` / `age_4_6m` → `4_6m`
+
+INGESTION IMPLEMENTATION
+1) Run / extend `scripts/generate-discover-projection-sql.mjs`:
+   ```bash
+   node scripts/generate-discover-projection-sql.mjs \
+     --migration=YYYYMMDDHHMMSS_import_discover_<bands>_pilot \
+     "path/to/4-6M Ember ABI.xlsx"
+   ```
+2) Emit idempotent SQL to `supabase/migrations/` + mirror `supabase/sql/`
+3) SQL MUST:
+   - Upsert bands, needs, wrappers, wrapper-needs, band-wrappers
+   - INSERT `pl_category_types` ON CONFLICT (slug) DO NOTHING — **no UPDATE label/name**
+   - Upsert junction: `display_label`, `rationale`, `rank`, `audience_lens`
+   - Deactivate removed junction rows for imported band(s) only
+   - Deactivate Stage 3 products for imported band(s)
+4) REMOVE v1 bug — never run:
+   ```sql
+   UPDATE pl_category_types SET label = ..., name = ... FROM tmp_discover_stage2_category_types ...
+   ```
+5) Dedupe global category staging by **slug**, not by label
+
+VALIDATION (REQUIRED)
+
+A. Workbook / SQL
+- Row + cluster counts match `discover_projection`
+- Reused slug spot-check: same `category_entity_id` in two bands → different `display_label` + `rationale`, same global `slug`
+- Global `pl_category_types.name` unchanged for existing slugs
+- Stage 3 active = 0 for imported band(s)
+
+B. REST (gateway views only)
+- `v_gateway_wrappers_public?age_band_id=eq.4-6m`
+- `v_gateway_category_types_public?age_band_id=eq.4-6m`
+- Card title = junction `display_label`; description = `rationale`
+
+C. UI
+- `/discover/5?wrapper=ent_cluster_4_6_floor_strength&show=1` — Stage 2 matches workbook
+
+D. Build
+- `pnpm -C web build`; `supabase db push --yes`; PR + Vercel preview green
+
+EXECUTION CHECKLIST
+1) Read `discover_projection`; print counts + columns
+2) Confirm prerequisite schema (or ship first)
+3) Map `age_4_6m` → `4-6m`; verify need ≠ cluster
+4) Generate SQL; confirm no global label UPDATE
+5) Apply migration
+6) Run Image Mapping prompt separately when PNGs uploaded
+7) Update `PROGRESS.md`
+
+ROLLBACK (imported bands only)
+```sql
+DELETE FROM pl_age_band_development_need_category_types WHERE age_band_id IN ('4-6m');
+DELETE FROM pl_age_band_ux_wrappers WHERE age_band_id IN ('4-6m');
+UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_id IN ('4-6m');
+DELETE FROM pl_category_type_images WHERE age_band_id IN ('4-6m');
+```
+
+WHEN FOUNDER ATTACHES ONLY THE XLS
+1) Read this template + generator script
+2) Ship prerequisite schema if missing
+3) Update generator to v2 rules
+4) Import requested band(s) only
+5) Image mapping is a **separate** Cursor job after assets are in Storage

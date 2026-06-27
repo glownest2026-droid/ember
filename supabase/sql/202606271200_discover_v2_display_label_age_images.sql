@@ -1,0 +1,349 @@
+-- Discover v2: age-scoped category images + junction display_label
+-- Idempotent. Safe to re-run.
+
+BEGIN;
+
+ALTER TABLE public.pl_age_band_development_need_category_types
+  ADD COLUMN IF NOT EXISTS display_label TEXT;
+
+ALTER TABLE public.pl_category_type_images
+  ADD COLUMN IF NOT EXISTS age_band_id TEXT REFERENCES public.pl_age_bands(id) ON DELETE CASCADE;
+
+CREATE UNIQUE INDEX IF NOT EXISTS pl_category_type_images_one_active_per_band
+  ON public.pl_category_type_images (category_type_id, (COALESCE(age_band_id, '__global__')))
+  WHERE is_active = true;
+
+DROP VIEW IF EXISTS public.v_gateway_category_type_images;
+CREATE VIEW public.v_gateway_category_type_images
+  WITH (security_invoker = false)
+AS
+SELECT
+  category_type_id,
+  age_band_id,
+  image_url,
+  alt
+FROM public.pl_category_type_images
+WHERE is_active = true
+ORDER BY category_type_id, age_band_id NULLS LAST, sort, created_at;
+
+GRANT SELECT ON public.v_gateway_category_type_images TO anon, authenticated;
+
+DROP VIEW IF EXISTS public.v_gateway_category_types_public;
+CREATE VIEW public.v_gateway_category_types_public AS
+SELECT
+  abdnct.age_band_id,
+  abdnct.development_need_id,
+  abdnct.rank,
+  abdnct.rationale,
+  abdnct.audience_lens,
+  abdnct.display_label,
+  ct.id,
+  ct.slug,
+  COALESCE(abdnct.display_label, ct.name, ct.label) AS label,
+  ct.name,
+  ct.description,
+  ct.image_url,
+  ct.safety_notes
+FROM public.pl_category_types ct
+INNER JOIN public.pl_age_band_development_need_category_types abdnct ON ct.id = abdnct.category_type_id
+WHERE abdnct.is_active = true
+ORDER BY abdnct.age_band_id, abdnct.development_need_id, abdnct.rank;
+
+GRANT SELECT ON public.v_gateway_category_types_public TO anon, authenticated;
+
+-- Consolidate legacy ent_cat_soft_balls -> cat_soft_graspable_balls (9-12m)
+UPDATE public.pl_age_band_development_need_category_types m
+SET
+  category_type_id = canonical.id,
+  display_label = COALESCE(m.display_label, legacy.label, 'Soft balls to chase and roll'),
+  updated_at = now()
+FROM public.pl_category_types legacy
+JOIN public.pl_category_types canonical ON canonical.slug = 'cat_soft_graspable_balls'
+WHERE legacy.slug = 'ent_cat_soft_balls'
+  AND m.category_type_id = legacy.id
+  AND m.age_band_id = '9-12m'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM public.pl_age_band_development_need_category_types existing
+    WHERE existing.age_band_id = m.age_band_id
+      AND existing.development_need_id = m.development_need_id
+      AND existing.category_type_id = canonical.id
+      AND existing.is_active = true
+  );
+
+UPDATE public.pl_age_band_development_need_category_types
+SET is_active = false, updated_at = now()
+WHERE category_type_id IN (
+  SELECT id FROM public.pl_category_types WHERE slug = 'ent_cat_soft_balls'
+);
+-- Backfill display_label from discover import migrations (generated; idempotent)
+UPDATE public.pl_age_band_development_need_category_types abdnct
+SET display_label = src.display_label, updated_at = now()
+FROM (
+  SELECT * FROM (VALUES
+    ('1-3m', 'cat_baby_safe_mirror', 'A baby-safe mirror for faces'),
+    ('1-3m', 'cat_baby_sleeping_bag', 'A well-fitting baby sleeping bag'),
+    ('1-3m', 'cat_board_books', 'Board books and face books'),
+    ('1-3m', 'cat_bottle_sterilising_kit', 'Bottle sterilising kit'),
+    ('1-3m', 'cat_breastfeeding_comfort_supplies', 'Breastfeeding comfort supplies'),
+    ('1-3m', 'cat_burp_cloths_muslins', 'Muslins and burp cloths'),
+    ('1-3m', 'cat_button_battery_check', 'Button battery checks'),
+    ('1-3m', 'cat_cleanable_sensory_toys', 'Easy-clean sensory toys'),
+    ('1-3m', 'cat_clear_cot_check', 'Clear cot checks'),
+    ('1-3m', 'cat_contrast_mobile_supervised', 'A supervised mobile or moving object'),
+    ('1-3m', 'cat_copying_faces_expressions', 'Copying faces and little expressions'),
+    ('1-3m', 'cat_face_to_face_play', 'Face-to-face talking and smiling'),
+    ('1-3m', 'cat_familiar_voice_pauses', 'Familiar voices and little pauses'),
+    ('1-3m', 'cat_firm_flat_mattress', 'A firm, flat, waterproof mattress'),
+    ('1-3m', 'cat_high_contrast_cards', 'High-contrast cards and simple patterns'),
+    ('1-3m', 'cat_kicky_floor_play', 'Kicky floor time'),
+    ('1-3m', 'cat_milk_storage_and_labels', 'Milk storage and labels'),
+    ('1-3m', 'cat_nappy_change_station', 'Nappy change station'),
+    ('1-3m', 'cat_play_gym_hanging_toys', 'A simple play gym or hanging toys'),
+    ('1-3m', 'cat_pram_walk_reset', 'A pram walk reset'),
+    ('1-3m', 'cat_reach_grab_toys', 'Reach-and-grab toys'),
+    ('1-3m', 'cat_rear_facing_car_seat', 'Rear-facing infant car seat'),
+    ('1-3m', 'cat_red_book_vaccine_planning', 'Red Book and vaccine planning'),
+    ('1-3m', 'cat_responsive_feeding_support', 'Responsive feeding cues'),
+    ('1-3m', 'cat_rolled_towel_tummy_support', 'Rolled-towel tummy support'),
+    ('1-3m', 'cat_room_thermometer', 'Room thermometer'),
+    ('1-3m', 'cat_safe_floor_space', 'A clear low floor space'),
+    ('1-3m', 'cat_safe_sleep_continuity', 'Safe sleep check-in'),
+    ('1-3m', 'cat_settling_routine_notes', 'A simple settling notes routine'),
+    ('1-3m', 'cat_small_object_sweep', 'Small-object safety sweep'),
+    ('1-3m', 'cat_soft_carrier_sling', 'A safe sling or carrier cuddle'),
+    ('1-3m', 'cat_soft_rattle_ring', 'A soft rattle or grasp ring'),
+    ('1-3m', 'cat_songs_action_games', 'Songs, rhymes and tiny games'),
+    ('1-3m', 'cat_sound_cylinders_shakers', 'Gentle shakers and sound toys'),
+    ('1-3m', 'cat_supported_side_lying_play', 'Side-lying pauses and turns'),
+    ('1-3m', 'cat_teethers', 'Chew-safe toys and early teethers'),
+    ('1-3m', 'cat_texture_cards_books', 'Soft textures to stroke and touch'),
+    ('1-3m', 'cat_tracking_rattle', 'A slow-moving rattle to track'),
+    ('1-3m', 'cat_tummy_time_books', 'A soft tummy-time book'),
+    ('1-3m', 'cat_tummy_time_mat', 'A simple tummy-time mat'),
+    ('1-3m', 'cat_tummy_time_wobbler', 'Tummy-time mirror or wobbler'),
+    ('1-3m', 'cat_white_noise_soother', 'Gentle white noise or sound reset'),
+    ('13-15m', 'cat_13_15_bath_cups', 'Bath cups and pouring games'),
+    ('13-15m', 'cat_13_15_bedtime_board_books', 'Bedtime board books'),
+    ('13-15m', 'cat_13_15_big_paper_scribbles', 'Big paper scribble space'),
+    ('13-15m', 'cat_13_15_bubbles', 'Bubbles'),
+    ('13-15m', 'cat_13_15_car_seat_size_check', 'Car-seat size and direction check'),
+    ('13-15m', 'cat_13_15_chunky_crayons', 'Chunky crayons'),
+    ('13-15m', 'cat_13_15_cleanup_basket', 'Clean-up basket games'),
+    ('13-15m', 'cat_13_15_comfort_toy', 'A safe comfort object'),
+    ('13-15m', 'cat_13_15_copy_me_clapping', 'Copy-me clapping games'),
+    ('13-15m', 'cat_13_15_cruising_furniture', 'Steady cruising surfaces'),
+    ('13-15m', 'cat_13_15_doll_soft_toy_care', 'Dolls and soft-toy care'),
+    ('13-15m', 'cat_13_15_furniture_anchors', 'Furniture anchors and corner checks'),
+    ('13-15m', 'cat_13_15_gesture_sign_games', 'First gestures and simple signs'),
+    ('13-15m', 'cat_13_15_library_baby_group', 'Library mats and baby groups'),
+    ('13-15m', 'cat_13_15_mess_safe_mark_making_setup', 'Mess-safe mark-making setup'),
+    ('13-15m', 'cat_13_15_park_swing_walks', 'Park walks and toddler swings'),
+    ('13-15m', 'cat_13_15_pause_wait_rhymes', 'Pause-and-wait rhymes'),
+    ('13-15m', 'cat_13_15_picture_word_cards', 'Picture and word cards'),
+    ('13-15m', 'cat_13_15_posting_coin_box', 'Posting boxes and coin slots'),
+    ('13-15m', 'cat_13_15_pram_walks', 'Pram walks and naming games'),
+    ('13-15m', 'cat_13_15_pretend_phone_talk', 'Pretend phone and object talk'),
+    ('13-15m', 'cat_13_15_pretend_shoes_brushes', 'Shoes, brushes and getting-ready play'),
+    ('13-15m', 'cat_13_15_push_pull_toys', 'Sturdy push-and-pull toys'),
+    ('13-15m', 'cat_13_15_routine_songs', 'Routine songs and transition cues'),
+    ('13-15m', 'cat_13_15_shape_peg_puzzles', 'Chunky shape and peg puzzles'),
+    ('13-15m', 'cat_13_15_simple_music_makers', 'Simple music makers'),
+    ('13-15m', 'cat_13_15_snack_prep_pots', 'Snack pots and safe food prep'),
+    ('13-15m', 'cat_13_15_toothbrush_toothpaste', 'Toddler toothbrush and toothpaste'),
+    ('13-15m', 'cat_13_15_tower_blocks', 'First tower blocks'),
+    ('13-15m', 'cat_13_15_toy_cups_spoons', 'Toy cups, spoons and plates'),
+    ('13-15m', 'cat_13_15_water_painting', 'Water painting and brush play'),
+    ('13-15m', 'cat_board_books', 'Board books and face books'),
+    ('13-15m', 'cat_button_battery_check', 'Button battery checks'),
+    ('13-15m', 'cat_cupboard_locks', 'Cupboard locks'),
+    ('13-15m', 'cat_feelings_faces_books', 'Baby faces and feelings books'),
+    ('13-15m', 'cat_first_spoons_bowls', 'Toddler spoons and bowls'),
+    ('13-15m', 'cat_highchair', 'A supportive highchair'),
+    ('13-15m', 'cat_object_permanence_box', 'Hide-and-find boxes'),
+    ('13-15m', 'cat_open_cup', 'An open or free-flow cup'),
+    ('13-15m', 'cat_safe_floor_space', 'A clear floor space'),
+    ('13-15m', 'cat_safe_household_objects', 'Safe everyday-object play'),
+    ('13-15m', 'cat_safety_gates', 'Safety gates'),
+    ('13-15m', 'cat_soft_graspable_balls', 'Soft balls to roll and chase'),
+    ('13-15m', 'cat_songs_action_games', 'Songs and action games'),
+    ('13-15m', 'cat_stacking_nesting_cups', 'Stacking and nesting cups'),
+    ('13-15m', 'cat_treasure_basket', 'A rotating safe treasure basket'),
+    ('13-15m', 'cat_weaning_bibs_mat', 'Bibs and splash mats'),
+    ('16-18m', 'cat_13_15_doll_soft_toy_care', 'Soft toy and doll care play'),
+    ('16-18m', 'cat_13_15_toy_cups_spoons', 'Pretend cups, spoons and food'),
+    ('16-18m', 'cat_16_18_bath_water_supervision', 'Bath and water supervision'),
+    ('16-18m', 'cat_16_18_body_part_books_games', 'Body-part books and games'),
+    ('16-18m', 'cat_16_18_chunky_crayons', 'Chunky crayons and first scribbles'),
+    ('16-18m', 'cat_16_18_finger_food_snack_prep', 'Finger-food and snack prep'),
+    ('16-18m', 'cat_16_18_first_word_picture_books', 'First-word picture books'),
+    ('16-18m', 'cat_16_18_furniture_window_checks', 'Furniture, stair and window checks'),
+    ('16-18m', 'cat_16_18_latch_busy_boards', 'Latches, doors and busy boards'),
+    ('16-18m', 'cat_16_18_low_climb_tunnel', 'Low climbing and crawl-through play'),
+    ('16-18m', 'cat_16_18_music_dance', 'Music and dancing games'),
+    ('16-18m', 'cat_16_18_naming_walks', 'Naming walks and object hunts'),
+    ('16-18m', 'cat_16_18_play_dough_soft_clay', 'Soft dough and squish-safe sensory play'),
+    ('16-18m', 'cat_16_18_play_kitchen_household_props', 'Play kitchen and household props'),
+    ('16-18m', 'cat_16_18_posting_drop_boxes', 'Posting and drop boxes'),
+    ('16-18m', 'cat_16_18_pull_push_toys', 'Push-and-pull toys'),
+    ('16-18m', 'cat_16_18_ramp_rolling_toys', 'Ramp and rolling toys'),
+    ('16-18m', 'cat_16_18_shape_sorters_puzzles', 'Shape sorters and first puzzles'),
+    ('16-18m', 'cat_16_18_stacking_pegboard', 'Stacking pegboards and block towers'),
+    ('16-18m', 'cat_16_18_texture_tubs', 'Texture tubs and safe sensory baskets'),
+    ('16-18m', 'cat_16_18_threading_beads', 'Threading beads and chunky lacing'),
+    ('16-18m', 'cat_16_18_toddler_bag_carry', 'Carry bags and little errands'),
+    ('16-18m', 'cat_16_18_toothbrush_routine', 'Toddler toothbrush and teeth routine'),
+    ('16-18m', 'cat_16_18_velcro_pull_hide', 'Pull, stick and hide toys'),
+    ('16-18m', 'cat_16_18_water_drawing', 'Water drawing mats'),
+    ('16-18m', 'cat_button_battery_check', 'Button battery checks'),
+    ('16-18m', 'cat_cupboard_locks', 'Cupboard locks and safer storage'),
+    ('16-18m', 'cat_first_spoons_bowls', 'Small spoons and stable bowls'),
+    ('16-18m', 'cat_open_cup', 'Open or free-flow cup'),
+    ('16-18m', 'cat_safety_gates', 'Safety gates'),
+    ('16-18m', 'cat_soft_graspable_balls', 'Soft balls to roll and chase'),
+    ('16-18m', 'cat_songs_action_games', 'Songs and action games'),
+    ('16-18m', 'cat_stacking_nesting_cups', 'Stacking and nesting cups'),
+    ('4-6m', 'cat_allergen_tracking', 'Food notes or allergen tracker'),
+    ('4-6m', 'cat_baby_safe_mirror', 'A baby-safe mirror'),
+    ('4-6m', 'cat_board_books', 'Chunky board books'),
+    ('4-6m', 'cat_button_battery_check', 'Button battery check'),
+    ('4-6m', 'cat_cleanable_sensory_toys', 'Easy-clean sensory toys'),
+    ('4-6m', 'cat_clear_cot_check', 'Clear cot check'),
+    ('4-6m', 'cat_crinkle_cloth_toys', 'Crinkle cloths and soft sound toys'),
+    ('4-6m', 'cat_family_faces_cards', 'Family photo cards'),
+    ('4-6m', 'cat_feelings_faces_books', 'Baby faces and feelings books'),
+    ('4-6m', 'cat_feet_discovery_games', 'Foot-finding floor games'),
+    ('4-6m', 'cat_first_spoons_bowls', 'First spoons and bowls'),
+    ('4-6m', 'cat_hand_transfer_toys', 'Toys to pass between hands'),
+    ('4-6m', 'cat_highchair', 'A supportive highchair'),
+    ('4-6m', 'cat_kick_play_socks', 'Kick-and-discover socks'),
+    ('4-6m', 'cat_mirror_body_play', 'Mirror-and-body play'),
+    ('4-6m', 'cat_mouth_safe_grasp_rings', 'Mouth-safe grasp rings'),
+    ('4-6m', 'cat_open_cup', 'An open or free-flow cup'),
+    ('4-6m', 'cat_parts_of_me_books', 'Body-part board books'),
+    ('4-6m', 'cat_pull_out_tissue_box', 'Pull-out box toys'),
+    ('4-6m', 'cat_reach_grab_toys', 'Reach-and-grab toys'),
+    ('4-6m', 'cat_rear_facing_car_seat', 'Rear-facing car-seat check'),
+    ('4-6m', 'cat_safe_household_objects', 'Safe everyday-object play'),
+    ('4-6m', 'cat_safe_sleep_continuity', 'Safe sleep check-in'),
+    ('4-6m', 'cat_small_object_sweep', 'Small-object safety sweep'),
+    ('4-6m', 'cat_soft_graspable_balls', 'Soft balls to watch, hold and roll'),
+    ('4-6m', 'cat_soft_sensory_balls', 'Soft sensory balls'),
+    ('4-6m', 'cat_songs_action_games', 'Songs, pauses and silly sounds'),
+    ('4-6m', 'cat_sound_cylinders_shakers', 'Soft rattles and shakers'),
+    ('4-6m', 'cat_spinner_reach_toys', 'Simple spinners for reaching'),
+    ('4-6m', 'cat_teethers', 'Teethers and chew-safe toys'),
+    ('4-6m', 'cat_texture_cards_books', 'Touch-and-feel cards or books'),
+    ('4-6m', 'cat_tummy_time_mat', 'A clean floor-play mat'),
+    ('4-6m', 'cat_tummy_time_wobbler', 'Wobbly tummy-time toys'),
+    ('4-6m', 'cat_weaning_bibs_mat', 'Bibs and splash mats'),
+    ('6-9m', 'cat_activity_cube_floor', 'Simple floor activity cubes'),
+    ('6-9m', 'cat_allergen_tracking', 'Food notes or allergen tracker'),
+    ('6-9m', 'cat_battery_free_toys', 'Battery-safe or battery-free toys'),
+    ('6-9m', 'cat_blind_cord_tidy', 'Blind cord tidies'),
+    ('6-9m', 'cat_board_books', 'Board books and face books'),
+    ('6-9m', 'cat_button_battery_check', 'Button battery checks'),
+    ('6-9m', 'cat_cleanable_sensory_toys', 'Easy-clean sensory toys'),
+    ('6-9m', 'cat_cupboard_locks', 'Cupboard locks'),
+    ('6-9m', 'cat_drop_roll_toys', 'Drop-and-roll toys'),
+    ('6-9m', 'cat_feelings_faces_books', 'Baby faces and feelings books'),
+    ('6-9m', 'cat_first_puzzle', 'Very first puzzles'),
+    ('6-9m', 'cat_first_signs_books', 'First signs and gesture books'),
+    ('6-9m', 'cat_first_spoons_bowls', 'First spoons and bowls'),
+    ('6-9m', 'cat_hand_transfer_toys', 'Toys to pass between hands'),
+    ('6-9m', 'cat_hide_squeak_eggs', 'Hide-and-squeak toys'),
+    ('6-9m', 'cat_highchair', 'A supportive highchair'),
+    ('6-9m', 'cat_object_permanence_box', 'Hide-and-find boxes'),
+    ('6-9m', 'cat_open_cup', 'An open or free-flow cup'),
+    ('6-9m', 'cat_peekaboo_scarf', 'Peekaboo scarves'),
+    ('6-9m', 'cat_pull_out_tissue_box', 'Pull-out box toys'),
+    ('6-9m', 'cat_reach_grab_toys', 'Reach-and-grab toys'),
+    ('6-9m', 'cat_reach_out_of_range', 'Just-out-of-reach play'),
+    ('6-9m', 'cat_roll_build_cones', 'Roll-and-stack cones'),
+    ('6-9m', 'cat_rolling_ball_set', 'Rolling balls'),
+    ('6-9m', 'cat_safe_floor_space', 'A clear floor space'),
+    ('6-9m', 'cat_safe_food_prep_tools', 'Safe food prep tools'),
+    ('6-9m', 'cat_safe_household_objects', 'Safe everyday-object play'),
+    ('6-9m', 'cat_safe_sleep_continuity', 'Safe sleep check-in'),
+    ('6-9m', 'cat_safety_gates', 'Safety gates'),
+    ('6-9m', 'cat_sitting_play_mat', 'A safe floor-play mat'),
+    ('6-9m', 'cat_small_object_sweep', 'Small-object safety sweep'),
+    ('6-9m', 'cat_soft_graspable_balls', 'Soft balls to hold and roll'),
+    ('6-9m', 'cat_songs_action_games', 'Songs and action games'),
+    ('6-9m', 'cat_sorting_containers', 'Simple sorting containers'),
+    ('6-9m', 'cat_sound_cylinders_shakers', 'Shakers and sound toys'),
+    ('6-9m', 'cat_stacking_nesting_cups', 'Stacking and nesting cups'),
+    ('6-9m', 'cat_teethers', 'Teethers and chew-safe toys'),
+    ('6-9m', 'cat_texture_cards_books', 'Touch-and-feel cards or books'),
+    ('6-9m', 'cat_transparent_tube_tower', 'Posting tubes and towers'),
+    ('6-9m', 'cat_treasure_basket', 'A safe treasure basket'),
+    ('6-9m', 'cat_tummy_time_wobbler', 'Wobbly tummy-time toys'),
+    ('6-9m', 'cat_weaning_bibs_mat', 'Bibs and splash mats'),
+    ('9-12m', 'ent_cat_animal_mini_books', 'Little animal books'),
+    ('9-12m', 'ent_cat_bath_cups', 'Bath cups and pouring'),
+    ('9-12m', 'ent_cat_bath_supervision', 'Safe bath and water-play routines'),
+    ('9-12m', 'ent_cat_bibs_mats', 'Bibs, mats and clean-up helpers'),
+    ('9-12m', 'ent_cat_blind_cord_cleats', 'Blind-cord tidies and cleats'),
+    ('9-12m', 'ent_cat_board_books', 'Board books for pointing and naming'),
+    ('9-12m', 'ent_cat_bubbles', 'Bubbles to watch and reach for'),
+    ('9-12m', 'ent_cat_container_basket', 'Treasure baskets and emptying games'),
+    ('9-12m', 'ent_cat_cruising_furniture', 'Steady surfaces for pulling up'),
+    ('9-12m', 'ent_cat_cupboard_locks', 'Cupboard locks for curious hands'),
+    ('9-12m', 'ent_cat_drop_roll_tubes', 'Drop, roll and tube games'),
+    ('9-12m', 'ent_cat_exclude_baby_walker', 'Skip seated baby walkers'),
+    ('9-12m', 'ent_cat_family_faces_cards', 'Family faces and favourite objects'),
+    ('9-12m', 'ent_cat_family_meal_plan', 'Joining simple family meals'),
+    ('9-12m', 'ent_cat_family_photos', 'Family photos and familiar faces'),
+    ('9-12m', 'ent_cat_feelings_books', 'Baby faces and feelings books'),
+    ('9-12m', 'ent_cat_finger_food_prep', 'Finger foods cut safely'),
+    ('9-12m', 'ent_cat_first_puzzles', 'Big-piece first puzzles'),
+    ('9-12m', 'ent_cat_floor_zone', 'Clear floor space for moving'),
+    ('9-12m', 'ent_cat_furniture_anchors', 'Anchored furniture for pull-up practice'),
+    ('9-12m', 'ent_cat_hide_favourite_toy', 'Hide-and-find favourite toys'),
+    ('9-12m', 'ent_cat_highchair', 'Safe sitting for messy meals'),
+    ('9-12m', 'ent_cat_library_baby_group', 'Library or baby-group floor time'),
+    ('9-12m', 'ent_cat_low_obstacle', 'Soft cushions and crawl-through games'),
+    ('9-12m', 'ent_cat_musical_noise', 'Clapping, shaking and noisy play'),
+    ('9-12m', 'ent_cat_open_cup', 'Tiny open-cup practice'),
+    ('9-12m', 'ent_cat_park_swings', 'Park trips and baby swings'),
+    ('9-12m', 'ent_cat_peekaboo_scarf', 'Peekaboo scarves and cloths'),
+    ('9-12m', 'ent_cat_pincer_puzzle', 'Chunky peg and drop games'),
+    ('9-12m', 'ent_cat_point_name_outings', 'Point-and-name little outings'),
+    ('9-12m', 'ent_cat_posting_boxes', 'Posting boxes and hiding lids'),
+    ('9-12m', 'ent_cat_pouches_caution', 'Using pouches without relying on them'),
+    ('9-12m', 'ent_cat_pram_walks', 'Pram walks with naming'),
+    ('9-12m', 'ent_cat_puppets', 'Puppets and silly voices'),
+    ('9-12m', 'ent_cat_push_pull_toy', 'Push-and-pull toys, when ready'),
+    ('9-12m', 'ent_cat_rhyme_games', 'Rhymes, claps and pat-a-cake'),
+    ('9-12m', 'ent_cat_safe_household_objects', 'Baby-safe household treasures'),
+    ('9-12m', 'ent_cat_safe_laundry_play', 'Supervised laundry basket play'),
+    ('9-12m', 'ent_cat_soft_balls', 'Soft balls to chase and roll'),
+    ('9-12m', 'ent_cat_soft_doll', 'Soft doll or cuddly care play'),
+    ('9-12m', 'ent_cat_sound_copy', 'Copy-me babble games'),
+    ('9-12m', 'ent_cat_stacking_cups', 'Stacking, nesting and filling cups'),
+    ('9-12m', 'ent_cat_stair_gates', 'Stair gates before the big climb'),
+    ('9-12m', 'ent_cat_switchboard', 'Safe switches, flaps and buttons'),
+    ('9-12m', 'ent_cat_texture_sensory', 'Texture balls for touching and rolling'),
+    ('9-12m', 'ent_cat_toy_rotation', 'Tiny toy rotation basket'),
+    ('9-12m', 'ent_cat_two_handed_objects', 'Two-hand toys and banging games'),
+    ('9-12m', 'ent_cat_waving_signs', 'Waving, pointing and simple signs')
+  ) AS v(age_band_id, slug, display_label)
+) src
+JOIN public.pl_category_types ct ON LOWER(ct.slug) = LOWER(src.slug)
+WHERE abdnct.age_band_id = src.age_band_id
+  AND abdnct.category_type_id = ct.id
+  AND abdnct.is_active = true
+  AND NULLIF(TRIM(src.display_label), '') IS NOT NULL
+  AND (abdnct.display_label IS DISTINCT FROM src.display_label);
+
+-- 9-12m soft balls label after ent_cat_soft_balls → cat_soft_graspable_balls consolidation
+UPDATE public.pl_age_band_development_need_category_types abdnct
+SET display_label = 'Soft balls to chase and roll', updated_at = now()
+FROM public.pl_category_types ct
+WHERE ct.slug = 'cat_soft_graspable_balls'
+  AND abdnct.category_type_id = ct.id
+  AND abdnct.age_band_id = '9-12m'
+  AND abdnct.is_active = true
+  AND abdnct.display_label IS DISTINCT FROM 'Soft balls to chase and roll';
+
+COMMIT;

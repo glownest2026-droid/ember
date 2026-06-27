@@ -13,8 +13,8 @@ import {
 } from '../../../lib/pl/public';
 import { getDiscoverServerPersonalization } from '../../../lib/discover/serverDiscoverChild';
 import {
-  applyCategoryImageOverrides,
-  fetchDiscoverV2ImageMappings,
+  applyStorageCategoryImages,
+  resolveStorageCategoryImages,
 } from '../../../lib/discover/categoryImageOverrides';
 import { resolveWrapperSlugFromFocusParam } from '../../../lib/compliance/resolveWrapperFromFocusParam';
 import DiscoveryPageClient from './DiscoveryPageClient';
@@ -149,9 +149,9 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
     selectedBandHasStage12Data && selectedWrapperSlug
       ? await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, selectedWrapperSlug)
       : [];
-  const v2ImageMappings =
-    categoryTypesRaw.length > 0 ? await fetchDiscoverV2ImageMappings(categoryTypesRaw) : [];
-  const categoryTypes = applyCategoryImageOverrides(categoryTypesRaw, v2ImageMappings);
+  const storageImageUrls =
+    categoryTypesRaw.length > 0 ? await resolveStorageCategoryImages(categoryTypesRaw) : new Map();
+  const categoryTypes = applyStorageCategoryImages(categoryTypesRaw, storageImageUrls);
 
   if (shouldShowPicks) {
     const categoryTypeId = categoryParam && categoryTypes.some((c) => c.id === categoryParam) ? categoryParam : null;
