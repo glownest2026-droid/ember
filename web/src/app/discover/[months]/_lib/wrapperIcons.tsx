@@ -22,6 +22,13 @@ import {
   Shield,
   BookOpen,
   CalendarDays,
+  Smile,
+  Mic,
+  HandMetal,
+  CloudMoon,
+  Milk,
+  Moon,
+  Stethoscope,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -93,9 +100,31 @@ const SLUG_TO_ICON: Record<string, LucideIcon> = {
   ent_cluster_safety: Shield,
   ent_cluster_stories: BookOpen,
   ent_cluster_days: CalendarDays,
+  // 1–3m pilot clusters
+  ent_cluster_faces_smiles_chats: Smile,
+  ent_cluster_listen_and_coo: Mic,
+  ent_cluster_watching_tracking: Eye,
+  ent_cluster_tummy_head_control: Activity,
+  ent_cluster_kicks_wriggles: Footprints,
+  ent_cluster_first_grasps: HandMetal,
+  ent_cluster_calm_crying_settling: CloudMoon,
+  ent_cluster_feeding_clean_kit: Milk,
+  ent_cluster_safe_sleep_setup: Moon,
+  ent_cluster_health_first_trips: Stethoscope,
 };
 
 const LABEL_PATTERNS: { test: RegExp; icon: LucideIcon }[] = [
+  // Brand voice (1–3m pilot)
+  { test: /finding your face|i.?m finding your face/i, icon: Smile },
+  { test: /listening to your voice|listening to familiar/i, icon: Mic },
+  { test: /watching the world|i.?m watching/i, icon: Eye },
+  { test: /stronger on my tummy|getting stronger on my tummy/i, icon: Activity },
+  { test: /starting to wriggle|i.?m starting to wriggle/i, icon: Footprints },
+  { test: /hands are waking up|hands waking up/i, icon: HandMetal },
+  { test: /settle and reconnect|crying, comfort/i, icon: CloudMoon },
+  { test: /feeds calm and clean|calm feeds and clean/i, icon: Milk },
+  { test: /sleep feel safe|safer sleep made simple/i, icon: Moon },
+  { test: /first trips|keep first trips simpler/i, icon: Stethoscope },
   // Brand voice (6–9m / 9–12m pilot)
   { test: /i can sit and reach/i, icon: Hand },
   { test: /getting ready to move/i, icon: Footprints },

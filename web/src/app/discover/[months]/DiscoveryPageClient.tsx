@@ -29,7 +29,7 @@ import {
 } from '@/lib/discover/personalization';
 import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
 import { groupByAudienceLensSection, AUDIENCE_LENS_SECTION_HEADERS } from '@/lib/discover/audienceLens';
-import { SaveToListModal } from '@/components/ui/SaveToListModal';
+import { SaveToListModal, savedToCopy, viewListCtaCopy } from '@/components/ui/SaveToListModal';
 import type { GatewayCategoryTypePublic } from '@/lib/pl/public';
 import {
   requireAuthThen,
@@ -38,6 +38,7 @@ import {
   type PendingAuthAction,
 } from '@/lib/auth/requireAuthThen';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
+import { saveDiscoverSession } from '@/lib/discover/discoverSession';
 
 /** A→B→C journey state: NoFocus | FocusSelected (Layer B visible) | CategorySelected | ShowingExamples (Layer C visible) */
 type DiscoverState = 'NoFocusSelected' | 'FocusSelected' | 'CategorySelected' | 'ShowingExamples';
@@ -114,7 +115,10 @@ export default function DiscoveryPageClient({
     signedIn: boolean;
     signinUrl: string;
     viewMyListHref?: string;
+    savedToLabel?: string;
+    viewListCtaLabel?: string;
   }>({ open: false, signedIn: false, signinUrl: '' });
+  const [dimmedCategoryIds, setDimmedCategoryIds] = useState<Set<string>>(new Set());
   const saveModalFocusRef = useRef<HTMLButtonElement | null>(null);
   const whyMattersSectionRef = useRef<HTMLElement | null>(null);
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
@@ -128,6 +132,25 @@ export default function DiscoveryPageClient({
   const selectedChildId = searchParams.get('child') ?? initialChildId ?? undefined;
   const withChildParam = (url: string) =>
     selectedChildId ? `${url}${url.includes('?') ? '&' : '?'}child=${encodeURIComponent(selectedChildId)}` : url;
+
+  const saveModalPersonalization = useMemo(
+    () => ({
+      savedToLabel: savedToCopy({ name: childProfile.displayLabel, gender: childProfile.gender }),
+      viewListCtaLabel: viewListCtaCopy({ name: childProfile.displayLabel }),
+    }),
+    [childProfile.displayLabel, childProfile.gender]
+  );
+
+  const openSavedModal = useCallback(
+    (partial: { signedIn: boolean; signinUrl: string; viewMyListHref?: string }) => {
+      setSaveModal({
+        open: true,
+        ...partial,
+        ...saveModalPersonalization,
+      });
+    },
+    [saveModalPersonalization]
+  );
 
   const childIdForPersonalization = selectedChildId?.trim() || initialChildId?.trim() || undefined;
 
@@ -173,6 +196,40 @@ export default function DiscoveryPageClient({
       subscription.unsubscribe();
     };
   }, [childIdForPersonalization]);
+
+  // Persist discover position so /discover can resume this section after leaving the flow.
+  useEffect(() => {
+    if (!pathname?.startsWith('/discover')) return;
+    const query = searchParams?.toString();
+    saveDiscoverSession(query ? `${pathname}?${query}` : pathname, selectedChildId);
+  }, [pathname, searchParams, selectedChildId]);
+
+  // Pre-dim Stage 2 cards the user has already marked as "have".
+  useEffect(() => {
+    if (!user) {
+      setDimmedCategoryIds(new Set());
+      return;
+    }
+    let cancelled = false;
+    const supabase = createClient();
+    void (async () => {
+      let query = supabase
+        .from('user_list_items')
+        .select('category_type_id')
+        .eq('kind', 'category')
+        .eq('have', true);
+      if (selectedChildId) query = query.eq('child_id', selectedChildId);
+      const { data, error } = await query;
+      if (cancelled || error) return;
+      const ids = (data ?? [])
+        .map((row) => (row as { category_type_id?: string | null }).category_type_id)
+        .filter((id): id is string => typeof id === 'string' && id.length > 0);
+      setDimmedCategoryIds(new Set(ids));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, selectedChildId, selectedWrapperSlug, categoryTypes.length]);
 
   const categoryFromUrl = searchParams.get('category');
   useEffect(() => {
@@ -431,6 +488,7 @@ export default function DiscoveryPageClient({
             signedIn: true,
             signinUrl: getSigninUrlForCategory(categoryId),
             viewMyListHref: withChildParam('/my-ideas?tab=ideas'),
+            ...saveModalPersonalization,
           });
           break;
         }
@@ -490,22 +548,31 @@ export default function DiscoveryPageClient({
             signedIn: true,
             signinUrl: getSigninUrl(productId),
             viewMyListHref: withChildParam('/my-ideas?tab=products'),
+            ...saveModalPersonalization,
           });
           break;
         }
         case 'have_category': {
           const categoryId = (action.payload.categoryId as string) || 'category';
           const childId = action.payload.childId as string | undefined;
+          const have = action.payload.have !== false;
           const { error } = await supabase.rpc('upsert_user_list_item', {
             p_kind: 'category',
             p_category_type_id: categoryId,
             p_want: true,
-            p_have: true,
+            p_have: have,
             p_gift: false,
             ...(childId ? { p_child_id: childId } : {}),
           });
-          if (!error) await refetchSubnavStats(selectedChildId);
-          setActionToast({ productId: categoryId, message: "We've noted it." });
+          if (!error) {
+            await refetchSubnavStats(selectedChildId);
+            setDimmedCategoryIds((prev) => {
+              const next = new Set(prev);
+              if (have) next.add(categoryId);
+              else next.delete(categoryId);
+              return next;
+            });
+          }
           break;
         }
         case 'have_product': {
@@ -548,7 +615,7 @@ export default function DiscoveryPageClient({
           break;
       }
     },
-    [selectedBand?.id, selectedWrapper, currentMonth, basePath, refetchSubnavStats, selectedChildId]
+    [selectedBand?.id, selectedWrapper, currentMonth, basePath, refetchSubnavStats, selectedChildId, saveModalPersonalization]
   );
 
   // Replay pending action once after sign-in (Option B: single place in DiscoveryPageClient)
@@ -580,9 +647,17 @@ export default function DiscoveryPageClient({
   }, [pathname, runReplayForAction]);
 
   const handleHaveThemCategory = (categoryId: string) => {
+    const wasDimmed = dimmedCategoryIds.has(categoryId);
+    setDimmedCategoryIds((prev) => {
+      const next = new Set(prev);
+      if (wasDimmed) next.delete(categoryId);
+      else next.add(categoryId);
+      return next;
+    });
+
     requireAuthThen({
       actionId: 'have_category',
-      payload: { categoryId, childId: selectedChildId },
+      payload: { categoryId, childId: selectedChildId, have: !wasDimmed },
       run: async () => {
         try {
           const supabase = createClient();
@@ -590,20 +665,31 @@ export default function DiscoveryPageClient({
             p_kind: 'category',
             p_category_type_id: categoryId,
             p_want: true,
-            p_have: true,
+            p_have: !wasDimmed,
             p_gift: false,
             ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
           });
           if (error) throw error;
           await refetchSubnavStats(selectedChildId);
-          setActionToast({ productId: categoryId, message: "We've noted it." });
         } catch {
+          setDimmedCategoryIds((prev) => {
+            const next = new Set(prev);
+            if (wasDimmed) next.add(categoryId);
+            else next.delete(categoryId);
+            return next;
+          });
           setActionToast({ productId: categoryId, message: "Couldn't update. Please try again." });
         }
       },
       openAuthModal: ({ signinUrl }) => {
+        setDimmedCategoryIds((prev) => {
+          const next = new Set(prev);
+          if (wasDimmed) next.add(categoryId);
+          else next.delete(categoryId);
+          return next;
+        });
         saveModalFocusRef.current = null;
-        setSaveModal({ open: true, signedIn: false, signinUrl });
+        openSavedModal({ signedIn: false, signinUrl });
         setActionToast({ productId: categoryId, message: 'Sign in to record what you have.' });
       },
       isAuthenticated: async () => {
@@ -798,6 +884,7 @@ export default function DiscoveryPageClient({
             signedIn: true,
             signinUrl: getSigninUrlForCategory(categoryId),
             viewMyListHref: withChildParam('/my-ideas?tab=ideas'),
+            ...saveModalPersonalization,
           });
         } catch {
           setActionToast({ productId: categoryId, message: 'Could not save idea. Please try again.' });
@@ -887,6 +974,7 @@ export default function DiscoveryPageClient({
           signedIn: true,
           signinUrl: getSigninUrl(productId),
           viewMyListHref: withChildParam('/my-ideas?tab=products'),
+          ...saveModalPersonalization,
         });
       },
       openAuthModal: ({ signinUrl }) =>
@@ -972,6 +1060,8 @@ export default function DiscoveryPageClient({
         onClose={() => setSaveModal((s) => ({ ...s, open: false }))}
         signedIn={saveModal.signedIn}
         signinUrl={saveModal.signinUrl}
+        savedToLabel={saveModal.savedToLabel}
+        viewListCtaLabel={saveModal.viewListCtaLabel}
         viewMyListHref={saveModal.viewMyListHref}
         onCloseFocusRef={saveModalFocusRef}
         onAuthSuccess={handleAuthSuccess}
@@ -1120,6 +1210,7 @@ export default function DiscoveryPageClient({
                     onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
                     onHaveThem={handleHaveThemCategory}
                     showHaveAction={!!user}
+                    dimmedCategoryIds={dimmedCategoryIds}
                   />
                 ) : (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-[var(--ember-text-low)] text-sm">

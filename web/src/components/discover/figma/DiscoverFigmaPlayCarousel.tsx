@@ -3,7 +3,9 @@
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { AnimatePresence } from 'motion/react';
 import { DiscoverFigmaPlayIdeaCard } from './DiscoverFigmaPlayIdeaCard';
+import { DiscoverFigmaPlayIdeaExpanded } from './DiscoverFigmaPlayIdeaExpanded';
 
 export type PlayIdeaItem = {
   id: string;
@@ -22,6 +24,7 @@ export function DiscoverFigmaPlayCarousel({
   onSaveIdea,
   onHaveThem,
   showHaveAction = true,
+  dimmedCategoryIds,
   sectionTitle,
 }: {
   items: PlayIdeaItem[];
@@ -31,6 +34,7 @@ export function DiscoverFigmaPlayCarousel({
   onSaveIdea: (categoryId: string, el: HTMLButtonElement | null) => void;
   onHaveThem: (categoryId: string) => void;
   showHaveAction?: boolean;
+  dimmedCategoryIds?: Set<string>;
   sectionTitle: string;
 }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -43,6 +47,7 @@ export function DiscoverFigmaPlayCarousel({
   const [nextBtnEnabled, setNextBtnEnabled] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
@@ -71,68 +76,92 @@ export function DiscoverFigmaPlayCarousel({
       emblaApi.reInit();
       emblaApi.scrollTo(0);
     }
+    setExpandedId(null);
   }, [items, emblaApi]);
 
   if (!items.length) return null;
 
-  return (
-    <section className="flex flex-col gap-3 md:gap-4 relative">
-      <div className="flex justify-between items-end gap-3">
-        <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">{sectionTitle}</h2>
-        <div className="hidden md:flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={scrollPrev}
-            disabled={!prevBtnEnabled}
-            className="w-10 h-10 rounded-full border border-[#E7E2DC] bg-white flex items-center justify-center text-[#253044] disabled:opacity-30 hover:bg-slate-50 transition-colors"
-            aria-label="Previous idea"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <button
-            type="button"
-            onClick={scrollNext}
-            disabled={!nextBtnEnabled}
-            className="w-10 h-10 rounded-full border border-[#E7E2DC] bg-white flex items-center justify-center text-[#253044] disabled:opacity-30 hover:bg-slate-50 transition-colors"
-            aria-label="Next idea"
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
-      </div>
+  const expandedIdea = expandedId ? items.find((i) => i.id === expandedId) ?? null : null;
 
-      <div className="overflow-hidden -mx-1 px-1" ref={emblaRef}>
-        <div className="flex gap-4 md:gap-6">
-          {items.map((idea) => (
-            <div key={idea.id} className="flex-[0_0_94%] md:flex-[0_0_58%] lg:flex-[0_0_42%] min-w-0">
-              <DiscoverFigmaPlayIdeaCard
-                id={idea.id}
-                title={idea.title}
-                description={idea.description}
-                audienceLens={idea.audienceLens}
-                imageUrl={idea.imageUrl}
-                isSelected={selectedId === idea.id}
-                onClick={() => onSelect(idea.id)}
-                onSeeExamples={() => onSeeExamples(idea.id)}
-                onSaveIdea={(e, el) => onSaveIdea(idea.id, el)}
-                onHaveThem={showHaveAction ? () => onHaveThem(idea.id) : undefined}
-              />
-            </div>
+  return (
+    <>
+      <section className="flex flex-col gap-3 md:gap-4 relative">
+        <div className="flex justify-between items-end gap-3">
+          <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">{sectionTitle}</h2>
+          <div className="hidden md:flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={scrollPrev}
+              disabled={!prevBtnEnabled}
+              className="w-10 h-10 rounded-full border border-[#E7E2DC] bg-white flex items-center justify-center text-[#253044] disabled:opacity-30 hover:bg-slate-50 transition-colors"
+              aria-label="Previous idea"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              type="button"
+              onClick={scrollNext}
+              disabled={!nextBtnEnabled}
+              className="w-10 h-10 rounded-full border border-[#E7E2DC] bg-white flex items-center justify-center text-[#253044] disabled:opacity-30 hover:bg-slate-50 transition-colors"
+              aria-label="Next idea"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-hidden -mx-1 px-1" ref={emblaRef}>
+          <div className="flex gap-4 md:gap-6">
+            {items.map((idea) => {
+              const isDimmed = dimmedCategoryIds?.has(idea.id) ?? false;
+              return (
+                <div key={idea.id} className="flex-[0_0_94%] md:flex-[0_0_58%] lg:flex-[0_0_42%] min-w-0">
+                  <DiscoverFigmaPlayIdeaCard
+                    id={idea.id}
+                    title={idea.title}
+                    description={idea.description}
+                    audienceLens={idea.audienceLens}
+                    imageUrl={idea.imageUrl}
+                    isSelected={selectedId === idea.id}
+                    onClick={() => onSelect(idea.id)}
+                    onSeeExamples={() => onSeeExamples(idea.id)}
+                    onSaveIdea={(e, el) => onSaveIdea(idea.id, el)}
+                    onHaveThem={showHaveAction ? () => onHaveThem(idea.id) : undefined}
+                    onExpand={() => setExpandedId(idea.id)}
+                    isDimmed={isDimmed}
+                    isHaveActive={isDimmed}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex md:hidden justify-center gap-2 mt-2">
+          {scrollSnaps.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              className={`h-2 rounded-full transition-all ${index === selectedIndex ? 'bg-[#FF5C34] w-4' : 'bg-[#E7E2DC] w-2'}`}
+              onClick={() => emblaApi?.scrollTo(index)}
+              aria-label={`Go to idea ${index + 1}`}
+            />
           ))}
         </div>
-      </div>
+      </section>
 
-      <div className="flex md:hidden justify-center gap-2 mt-2">
-        {scrollSnaps.map((_, index) => (
-          <button
-            key={index}
-            type="button"
-            className={`h-2 rounded-full transition-all ${index === selectedIndex ? 'bg-[#FF5C34] w-4' : 'bg-[#E7E2DC] w-2'}`}
-            onClick={() => emblaApi?.scrollTo(index)}
-            aria-label={`Go to idea ${index + 1}`}
+      <AnimatePresence>
+        {expandedIdea ? (
+          <DiscoverFigmaPlayIdeaExpanded
+            key={expandedIdea.id}
+            idea={expandedIdea}
+            isDimmed={dimmedCategoryIds?.has(expandedIdea.id)}
+            onClose={() => setExpandedId(null)}
+            onSeeExamples={() => onSeeExamples(expandedIdea.id)}
+            onSaveIdea={(e, el) => onSaveIdea(expandedIdea.id, el)}
           />
-        ))}
-      </div>
-    </section>
+        ) : null}
+      </AnimatePresence>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Save, CheckCircle, ChevronRight } from 'lucide-react';
+import { Save, CheckCircle, ChevronRight, Maximize2 } from 'lucide-react';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 
 export function DiscoverFigmaPlayIdeaCard({
@@ -10,6 +10,9 @@ export function DiscoverFigmaPlayIdeaCard({
   onSeeExamples,
   onSaveIdea,
   onHaveThem,
+  onExpand,
+  isDimmed = false,
+  isHaveActive = false,
 }: {
   id: string;
   title: string;
@@ -21,16 +24,36 @@ export function DiscoverFigmaPlayIdeaCard({
   onSeeExamples: () => void;
   onSaveIdea: (e: React.MouseEvent, el: HTMLButtonElement | null) => void;
   onHaveThem?: (e: React.MouseEvent) => void;
+  onExpand?: (e: React.MouseEvent) => void;
+  isDimmed?: boolean;
+  isHaveActive?: boolean;
   audienceLens?: string | null;
 }) {
   return (
-    <article className="bg-white border border-[#E7E2DC] rounded-[24px] overflow-hidden shadow-sm flex flex-col h-full group">
+    <article
+      className={`bg-white border border-[#E7E2DC] rounded-[24px] overflow-hidden shadow-sm flex flex-col h-full group transition-all duration-300 ${
+        isDimmed ? 'opacity-45 grayscale' : 'opacity-100'
+      }`}
+    >
       <div className="relative aspect-[16/9] max-h-[150px] md:max-h-[165px] overflow-hidden bg-[#FBFAF7]">
         <DiscoverFigmaImage
           src={imageUrl}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
+        {onExpand ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onExpand(e);
+            }}
+            className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-white/95 border border-[#E7E2DC] text-[#253044] shadow-sm hover:bg-white hover:border-[#FF5C34] hover:text-[#FF5C34] transition-colors"
+            aria-label={`Expand ${title}`}
+          >
+            <Maximize2 size={16} strokeWidth={2.5} />
+          </button>
+        ) : null}
       </div>
 
       <div className="p-4 md:p-5 flex flex-col flex-1 gap-2.5">
@@ -73,9 +96,14 @@ export function DiscoverFigmaPlayIdeaCard({
                 e.stopPropagation();
                 onHaveThem(e);
               }}
-              className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-[#E7E2DC] text-[#66717D] hover:text-[#7DBA78] hover:border-[#7DBA78] hover:bg-[#7DBA78]/10 transition-colors shadow-sm"
-              title="Already have it"
-              aria-label="Already have it"
+              className={`w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border transition-colors shadow-sm ${
+                isHaveActive
+                  ? 'border-[#7DBA78] bg-[#7DBA78]/15 text-[#7DBA78]'
+                  : 'border-[#E7E2DC] text-[#66717D] hover:text-[#7DBA78] hover:border-[#7DBA78] hover:bg-[#7DBA78]/10'
+              }`}
+              title={isHaveActive ? 'Show this idea again' : 'Already have it — hide while browsing'}
+              aria-label={isHaveActive ? 'Show this idea again' : 'Already have it — hide while browsing'}
+              aria-pressed={isHaveActive}
             >
               <CheckCircle size={20} strokeWidth={2.5} />
             </button>

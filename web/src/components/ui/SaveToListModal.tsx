@@ -26,8 +26,10 @@ interface SaveToListModalProps {
   onCloseFocusRef?: React.RefObject<HTMLElement | null>;
   /** Called when user signs in (e.g. OTP success in-modal); parent can refresh auth state */
   onAuthSuccess?: () => void;
-  /** Optional pre-computed label for saved confirmation (e.g. "Saved to your son's ideas"). If not set, modal fetches first child's gender when signed in and computes label. */
+  /** Optional pre-computed label for saved confirmation (e.g. "Saved to Poppy's ideas"). If not set, modal fetches first child's name when signed in. */
   savedToLabel?: string;
+  /** CTA label when signed in (e.g. "View Poppy's List"). Defaults to "View my toy ideas". */
+  viewListCtaLabel?: string;
   /** Link for "View my toy ideas" CTA when signed in. Defaults to /my-ideas; use e.g. /my-ideas?tab=ideas or /my-ideas?tab=products&child=xxx for deeplink. */
   viewMyListHref?: string;
   /** Match discover page typography and palette when opened from /discover. */
@@ -46,6 +48,13 @@ function getNextFromSigninUrl(signinUrl: string): string {
   } catch {
     return '/app';
   }
+}
+
+/** CTA for the saved confirmation modal. */
+export function viewListCtaCopy({ name }: { name?: string | null }): string {
+  const trimmedName = typeof name === 'string' ? name.trim() : '';
+  if (trimmedName.length > 0) return `View ${trimmedName}'s List`;
+  return 'View my list';
 }
 
 /** UK English; apostrophe: "Poppy's ideas". Son/daughter only when confidently mapped. */
@@ -96,6 +105,7 @@ export function SaveToListModal({
   onCloseFocusRef,
   onAuthSuccess,
   savedToLabel: savedToLabelProp,
+  viewListCtaLabel: viewListCtaLabelProp,
   viewMyListHref = '/my-ideas',
   appearance = 'default',
 }: SaveToListModalProps) {
@@ -116,6 +126,7 @@ export function SaveToListModal({
   const [sendErrorCooldown, setSendErrorCooldown] = useState(0);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [savedToLabelFetched, setSavedToLabelFetched] = useState<string>("Saved to your child's ideas");
+  const [viewListCtaFetched, setViewListCtaFetched] = useState<string>('View my list');
   const dialogRef = useRef<HTMLDialogElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
   const firstCodeRef = useRef<HTMLInputElement>(null);
@@ -140,6 +151,7 @@ export function SaveToListModal({
     if (!dialog) return;
     if (open) {
       setSavedToLabelFetched("Saved to your child's ideas");
+      setViewListCtaFetched('View my list');
       resetToChoose();
       dialog.showModal();
       requestAnimationFrame(() => {
@@ -156,19 +168,23 @@ export function SaveToListModal({
     }
   }, [open, signedIn, resetToChoose]);
 
-  // When modal is open and signed in, fetch first child's gender to personalise "Saved to …'s ideas" (no name; privacy).
+  // When modal is open and signed in, fetch first child's name to personalise copy.
   useEffect(() => {
     if (!open || !signedIn || savedToLabelProp != null) return;
     const supabase = createClient();
     void supabase
       .from('children')
-      .select('gender')
+      .select('child_name, display_name, gender')
       .eq('is_suppressed', false)
       .order('created_at', { ascending: false })
       .limit(1)
       .then(({ data }) => {
-        const first = Array.isArray(data) && data[0] ? (data[0] as { gender?: string | null }) : null;
-        setSavedToLabelFetched(savedToCopy({ gender: first?.gender ?? null }));
+        const first = Array.isArray(data) && data[0]
+          ? (data[0] as { child_name?: string | null; display_name?: string | null; gender?: string | null })
+          : null;
+        const name = (first?.child_name || first?.display_name)?.trim() || null;
+        setSavedToLabelFetched(savedToCopy({ name, gender: first?.gender ?? null }));
+        setViewListCtaFetched(viewListCtaCopy({ name }));
       });
   }, [open, signedIn, savedToLabelProp]);
 
@@ -388,7 +404,7 @@ export function SaveToListModal({
             </p>
             <div className="flex flex-col gap-2">
               <Link href={viewMyListHref} onClick={handleClose} className="min-h-[40px] rounded-lg border font-medium text-sm flex items-center justify-center w-full" style={{ borderColor: border, backgroundColor: accent, color: 'white', ...baseStyle }}>
-                View my toy ideas
+                {viewListCtaLabelProp ?? viewListCtaFetched}
               </Link>
               <button type="button" onClick={handleClose} className="min-h-[40px] rounded-lg font-medium text-sm w-full opacity-70 hover:opacity-100" style={{ border: 'none', backgroundColor: 'transparent', color: textLow, ...baseStyle }}>
                 Close

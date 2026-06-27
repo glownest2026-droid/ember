@@ -1,10 +1,9 @@
-import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import {
   getAgeBandForAge,
-  getGatewayAgeBandIdsWithPicks,
   getGatewayAgeBandsPublic,
 } from '../../lib/pl/public';
+import { DiscoverSessionRedirect } from './DiscoverSessionRedirect';
 
 function parseAgeBandIdRange(id: string): { min: number; max: number } | null {
   const match = id.match(/^(\d+)-(\d+)m$/);
@@ -33,7 +32,7 @@ function ageInMonthsFromBirthdate(birthdate: string): number {
   return (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
 }
 
-/** /discover redirects to age band from child when ?child= and age known; else 25-27 months default. Preserves ?child=. */
+/** /discover resumes saved section when possible; else age band from child or 25–27m default. */
 export default async function DiscoverPage({
   searchParams,
 }: {
@@ -43,11 +42,6 @@ export default async function DiscoverPage({
   const q = params.child ? `?child=${encodeURIComponent(params.child)}` : '';
 
   const ageBands = await getGatewayAgeBandsPublic();
-  const bandsWithPicks = await getGatewayAgeBandIdsWithPicks();
-
-  if (!ageBands || ageBands.length === 0) {
-    redirect(`/discover/26${q}`);
-  }
 
   let representativeMonth = 26;
 
@@ -69,8 +63,6 @@ export default async function DiscoverPage({
             if (rep != null) representativeMonth = rep;
           }
         } else {
-          // Birthdate is in the future (expecting). Resolve to the newborn/expecting
-          // band (month 0) instead of falling back to the 25–27 month default.
           const expectingBand = await getAgeBandForAge(0);
           representativeMonth = expectingBand
             ? getRepresentativeMonthForBand(expectingBand) ?? 0
@@ -80,5 +72,7 @@ export default async function DiscoverPage({
     }
   }
 
-  redirect(`/discover/${representativeMonth}${q}`);
+  const defaultPath = `/discover/${ageBands && ageBands.length > 0 ? representativeMonth : 26}${q}`;
+
+  return <DiscoverSessionRedirect defaultPath={defaultPath} childId={params.child ?? null} />;
 }
