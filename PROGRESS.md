@@ -1,3 +1,27 @@
+## 2026-06-27 - feat(discover): v2 display_label, age-scoped images, deterministic storage lookup
+
+- **Branch:** `feat/discover-v2-display-label-age-images`
+- **Migration:** `20260627120000_discover_v2_display_label_age_images.sql` (applied via `supabase db push`)
+- **Schema:** `pl_age_band_development_need_category_types.display_label`; `pl_category_type_images.age_band_id`; updated `v_gateway_category_types_public` (COALESCE display label) and `v_gateway_category_type_images` (exposes age_band_id)
+- **Backfill:** 246 junction `display_label` rows from import migrations; fixes cross-band title bleed (e.g. soft balls now band-specific)
+- **Slug fix:** `ent_cat_soft_balls` → `cat_soft_graspable_balls` on 9-12m
+- **App:** `getGatewayCategoryTypeImages(ids, ageBandId)` band-aware; replaced v2 fuzzy `categoryImageOverrides` with deterministic Storage HEAD probe (`ember_{slug}_{band}_category.png` → global fallback)
+- **Generator:** `generate-discover-projection-sql.mjs` v2 — `need_entity_ids`, junction `display_label`, no global label UPDATE, canonical name from slug
+- **Tooling:** `scripts/generate-display-label-backfill.mjs`; import templates + column dictionary updated
+- **Build:** `pnpm -C web build` pass
+- **Not in scope:** 207 unmapped slugs still need PNG uploads; 38 stock-photo mappings unchanged; zero age-scoped Storage files yet (convention ready)
+
+### How to verify
+1. Query `v_gateway_category_types_public?slug=eq.cat_soft_graspable_balls` — labels differ by band
+2. `/discover/5?wrapper=ent_cluster_4_6_floor_strength&show=1` — soft balls title = "Soft balls to watch, hold and roll"
+3. Upload `ember_cat_soft_graspable_balls_4_6m_category.png` then confirm band-specific image resolves
+
+## 2026-06-27 - docs(discover): ABI Spine v2 ingestion template + catalogue differentiation plan
+
+- **Context:** Reviewed `4-6M Ember ABI.xlsx` `discover_projection` columns vs current gateway import; documented age-scoped presentation model for shared category slugs (e.g. `cat_soft_graspable_balls`).
+- **Deliverable:** `supabase/import_templates/Leaf_Cursor_Template_ABI_Spine_Age_Band_Ingestion_v2.txt` + `Leaf_Cursor_Template_Category_Image_Mapping.txt`; G Drive image prompt upgraded. Slug rule: trust `category_entity_id` only.
+- **Next engineering:** One-time schema migration + update `scripts/generate-discover-projection-sql.mjs` to v2 rules before next band import.
+
 ## 2026-06-16 - feat(discover): ingest pilot 4–6m + 16–18m discover_projection bands
 
 - **Branch:** `feat/discover-4-6m-16-18m-pilot`

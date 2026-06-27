@@ -12,8 +12,8 @@ development_need_slug,pl_development_needs.slug,Join key for pl_ux_wrapper_needs
 development_need_canonical_name,pl_development_needs.name,Human check only; resolver should use slug.
 stage1_why_it_matters_ux_description,pl_ux_wrappers.ux_description,Stage 1 note (merged from deprecated Stage 2) shown as Why this matters under selected focus.
 stage2_category_type_slug,pl_category_types.slug,Global catalogue row; must exist before band mapping.
-stage2_category_type_label,pl_category_types.label,Tile subtitle / display.
-stage2_category_type_name,pl_category_types.name,Alternate display field.
+stage2_category_type_label,pl_age_band_development_need_category_types.display_label,Age-band Stage 2 card title (parent-facing).
+stage2_category_type_name,pl_category_types.name,Stable canonical name on first INSERT only; derived from slug.
 stage2_play_ideas_rank,pl_age_band_development_need_category_types.rank,Order of Stage 2 carousel for this need + band.
 stage2_play_idea_mapping_rationale,pl_age_band_development_need_category_types.rationale,Stage 2 card copy (Play ideas); falls back to pl_category_types.description in UI if empty.
 stage3_product_name,products.name,Resolve to products.id; product must have is_archived = false.
@@ -23,7 +23,7 @@ stage3_product_mapping_rationale,pl_age_band_category_type_products.rationale,Op
 optional_need_meta_stage_anchor_month,pl_age_band_development_need_meta.stage_anchor_month,Optional; feeds v_gateway_wrapper_detail_public.
 optional_need_meta_stage_phase,pl_age_band_development_need_meta.stage_phase,Optional.
 optional_need_meta_stage_reason,pl_age_band_development_need_meta.stage_reason,Optional.
-optional_category_image_url,v_gateway_category_type_images or pl_category_types.image_url,Overrides for tile imagery; founder-managed URLs common.
+optional_category_image_url,pl_category_type_images (+ age_band_id),Age-scoped: ember_{slug}_{age_band_token}_category.png; global fallback when age_band_id IS NULL.
 optional_category_safety_notes,pl_category_types.safety_notes,Shown where gateway exposes safety_notes.
 ref_ux_wrapper_uuid,pl_ux_wrappers.id,Filled when exporting from DB (see export script); optional for new-band authoring.
 ref_development_need_uuid,pl_development_needs.id,Filled when exporting from DB.

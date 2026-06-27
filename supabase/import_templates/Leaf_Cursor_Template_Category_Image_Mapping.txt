@@ -1,0 +1,200 @@
+You are running a **read-only-first, then safe-write** Supabase category image mapping job for Ember Discover.
+
+## Objective
+Map PNG lifestyle images in Supabase Storage bucket `category_images` to category types in `public.pl_category_types`, writing rows in `public.pl_category_type_images`.
+
+Supports **age-band-specific** images (preferred) and **global fallback** images (legacy).
+
+## Input (paste one of these formats)
+
+### Format A — slug + age band (preferred for Discover Stage 2 cards)
+```json
+[
+  { "slug": "cat_soft_graspable_balls", "age_band_id": "4-6m" },
+  { "slug": "cat_tummy_time_mat", "age_band_id": "4-6m" }
+]
+```
+
+### Format B — slug only (global fallback, all bands)
+```json
+["cat_soft_graspable_balls", "cat_first_puzzle"]
+```
+
+### Format C — derive from ABI workbook (after band import)
+Read `discover_projection` from attached Ember ABI `.xlsx`; for each row build:
+- `slug` = `category_entity_id`
+- `age_band_id` = normalised `age_band_id` (`age_4_6m` → `4-6m`)
+
+Deduplicate to unique `(slug, age_band_id)` pairs for the imported band.
+
+<PASTE_INPUT_HERE>
+
+---
+
+## Image filename convention (STRICT)
+
+**Bucket:** `category_images`  
+**Format:** PNG (`.png` only for new uploads)
+
+### Age-band-specific (primary — use for Discover lifestyle photos)
+```
+ember_{slug}_{age_band_token}_category.png
+```
+
+**Age band token:** from repo `age_band_id`, strip optional `age_` prefix, replace `-` with `_`.
+
+| age_band_id (repo) | age_band_token |
+|--------------------|----------------|
+| `4-6m`             | `4_6m`         |
+| `age_4_6m` (workbook) | `4_6m`      |
+| `16-18m`           | `16_18m`       |
+| `13-15m`           | `13_15m`       |
+
+**Examples:**
+| slug | age_band_id | Storage object name |
+|------|-------------|---------------------|
+| `cat_soft_graspable_balls` | `4-6m` | `ember_cat_soft_graspable_balls_4_6m_category.png` |
+| `cat_soft_graspable_balls` | `16-18m` | `ember_cat_soft_graspable_balls_16_18m_category.png` |
+| `cat_tummy_time_mat` | `4-6m` | `ember_cat_tummy_time_mat_4_6m_category.png` |
+
+### Global fallback (when one image serves all bands)
+```
+ember_{slug}_category.png
+```
+
+**Example:** `ember_cat_soft_graspable_balls_category.png`
+
+### Public URL (match existing project rows)
+```
+{SUPABASE_URL}/storage/v1/object/public/category_images/{filename}
+```
+Use the project’s `NEXT_PUBLIC_SUPABASE_URL` from env — do not guess the host.
+
+### Read-time lookup order (app behaviour after v2 schema)
+1. Active row in `pl_category_type_images` where `category_type_id` + `age_band_id = <band>`
+2. Active row where `category_type_id` + `age_band_id IS NULL` (global fallback)
+3. Legacy `pl_category_types.image_url`
+
+When mapping with Format B (slug only), write global fallback (`age_band_id IS NULL`).  
+When mapping with Format A, write age-scoped row (`age_band_id` set).
+
+---
+
+## Hard requirements
+1. Smallest safe change only; no unrelated edits.
+2. Do NOT ask for or store child names.
+3. Canonical DB key is `pl_category_types.id`; slug is lookup key only.
+4. Slug must match workbook `category_entity_id` exactly (including `cat_` prefix).
+5. Prefer `pl_category_type_images`; do not update `pl_category_types.image_url` unless no mapping table exists.
+6. Idempotent: re-running must not create duplicate active mappings for the same `(category_type_id, age_band_id)`.
+7. Preflight → dry-run SQL → execute → verify.
+8. If `pl_category_type_images.age_band_id` column does not exist yet, stop and report: prerequisite schema migration required (see ABI ingestion template v2).
+
+---
+
+## Required workflow
+
+### Step 1) Preflight (read-only)
+- Confirm Supabase MCP / SQL access.
+- Confirm bucket `category_images` exists.
+- Resolve each input slug → `pl_category_types.id`; **stop** if any slug missing.
+- For each input item compute:
+  - `expected_age_scoped` = `ember_{slug}_{age_band_token}_category.png` (when age_band_id provided)
+  - `expected_object_global` = `ember_{slug}_category.png`
+- Check `storage.objects` (or HEAD public URL) for object existence.
+- Count existing active mappings for `(category_type_id, age_band_id)`.
+
+**Preflight table columns:**
+| slug | age_band_id | category_type_id | expected_filename | object_found | existing_active | action_plan |
+
+**action_plan values:**
+- `upsert_age_scoped` — age file found + age_band_id in input
+- `upsert_global_fallback` — only global file found, or input has no age_band_id
+- `skip_missing_object` — neither file found
+- `review_duplicate_active` — >1 active row for same scope
+
+If object missing: skip that item; do not fail whole run.
+
+**Filename resolution when both exist:** prefer age-scoped file when input includes `age_band_id`.
+
+### Step 2) Dry-run SQL (no writes)
+Show exact SQL per eligible item:
+1. Deactivate other active rows for same `(category_type_id, age_band_id scope)` that point to a **different** URL.
+2. Insert or reactivate one row:
+   - `category_type_id`
+   - `age_band_id` = band id OR `NULL` for global
+   - `image_url` = full public URL
+   - `alt` = `NULL` (or `{display_label}` if junction label known and project uses alt)
+   - `is_active` = true
+   - `sort` = 0
+
+Do not execute until dry-run is shown.
+
+### Step 3) Execute
+Run writes in a transaction. Service role / migration path only — canonical table is RLS-protected.
+
+### Step 4) Post-write verification
+Per input item:
+| slug | age_band_id | mapped_filename | mapped_image_url | active_count | status |
+
+Status: `mapped` | `skipped_missing_object` | `error`
+
+Aggregate: total_input, mapped_count, skipped_count, error_count
+
+Safety checks:
+- Zero `(category_type_id, age_band_id)` pairs with >1 active mapping
+- Every `mapped` item has exactly one active row at intended scope
+- Optional: query `v_gateway_category_type_images` or band-aware view if deployed
+
+### Step 5) UI spot-check (when web preview available)
+- `/discover/<month>?wrapper=<cluster_slug>&show=1` — Stage 2 card shows mapped image for that band
+- Same slug in another band shows its own age-scoped image or global fallback
+
+---
+
+## Output format
+- `## Preflight`
+- `## Dry-run SQL`
+- `## Execution Result`
+- `## Verification`
+- `## Follow-ups`
+
+Keep output concise and machine-auditable.
+
+---
+
+## Suggested SQL patterns (adapt to live schema)
+
+Resolve ID:
+```sql
+SELECT id, slug FROM public.pl_category_types WHERE slug = 'cat_soft_graspable_balls';
+```
+
+Deactivate superseded active row:
+```sql
+UPDATE public.pl_category_type_images
+SET is_active = false
+WHERE category_type_id = :id
+  AND COALESCE(age_band_id, '__global__') = COALESCE(:age_band_id, '__global__')
+  AND is_active = true
+  AND image_url IS DISTINCT FROM :target_url;
+```
+
+Upsert age-scoped mapping:
+```sql
+INSERT INTO public.pl_category_type_images (category_type_id, age_band_id, image_url, alt, is_active, sort)
+VALUES (:id, '4-6m', :url, NULL, true, 0)
+ON CONFLICT (...) DO UPDATE SET image_url = EXCLUDED.image_url, is_active = true, sort = 0;
+```
+
+If no unique constraint on `(category_type_id, age_band_id)` yet, use deactivate-then-insert idempotently.
+
+---
+
+## Completion criteria
+- Every input item with a matching Storage object → exactly one active mapping at correct scope.
+- Missing objects reported as skipped, not errors.
+- No unrelated tables modified.
+- Verification confirms no duplicate-active anomalies.
+
+Now run the workflow.

@@ -140,33 +140,59 @@ export async function getGatewayWrappersForAgeBand(ageBandId: string): Promise<G
 /** Image mapping from v_gateway_category_type_images (founder-managed URLs) */
 export type GatewayCategoryTypeImage = {
   category_type_id: string;
+  age_band_id: string | null;
   image_url: string;
   alt: string | null;
 };
 
+type CategoryImageRow = GatewayCategoryTypeImage;
+
+function pickBestCategoryImages(
+  rows: CategoryImageRow[],
+  ageBandId?: string | null
+): Map<string, GatewayCategoryTypeImage> {
+  const grouped = new Map<string, CategoryImageRow[]>();
+  for (const row of rows) {
+    const list = grouped.get(row.category_type_id) ?? [];
+    list.push(row);
+    grouped.set(row.category_type_id, list);
+  }
+
+  const map = new Map<string, GatewayCategoryTypeImage>();
+  for (const [categoryTypeId, list] of grouped) {
+    const bandSpecific = ageBandId ? list.find((r) => r.age_band_id === ageBandId) : null;
+    const globalFallback = list.find((r) => r.age_band_id == null);
+    const chosen = bandSpecific ?? globalFallback ?? list[0];
+    if (chosen) {
+      map.set(categoryTypeId, {
+        category_type_id: categoryTypeId,
+        age_band_id: chosen.age_band_id,
+        image_url: chosen.image_url,
+        alt: chosen.alt,
+      });
+    }
+  }
+  return map;
+}
+
 /**
  * Fetch image mapping for category types (Layer B tiles).
- * Returns mapping from v_gateway_category_type_images. Empty if table/view missing.
+ * Prefers age-band-specific rows, then global fallback (age_band_id IS NULL).
  */
 export async function getGatewayCategoryTypeImages(
-  categoryTypeIds: string[]
+  categoryTypeIds: string[],
+  ageBandId?: string | null
 ): Promise<Map<string, GatewayCategoryTypeImage>> {
   if (categoryTypeIds.length === 0) return new Map();
   const supabase = createClient();
 
   const { data, error } = await supabase
     .from('v_gateway_category_type_images')
-    .select('category_type_id, image_url, alt')
+    .select('category_type_id, age_band_id, image_url, alt')
     .in('category_type_id', categoryTypeIds);
 
   if (error || !data) return new Map();
-  const map = new Map<string, GatewayCategoryTypeImage>();
-  for (const row of data as GatewayCategoryTypeImage[]) {
-    if (!map.has(row.category_type_id)) {
-      map.set(row.category_type_id, row);
-    }
-  }
-  return map;
+  return pickBestCategoryImages(data as CategoryImageRow[], ageBandId);
 }
 
 /**
@@ -188,7 +214,10 @@ export async function getGatewayHeroImageForAgeBand(ageBandId: string): Promise<
   if (categoryError || !categoryRows || categoryRows.length === 0) return null;
 
   const rows = categoryRows as { id: string; image_url: string | null; rank: number }[];
-  const imageMap = await getGatewayCategoryTypeImages(rows.map((r) => r.id));
+  const imageMap = await getGatewayCategoryTypeImages(
+    rows.map((r) => r.id),
+    ageBandId
+  );
 
   for (const row of rows) {
     const managed = imageMap.get(row.id)?.image_url;
@@ -231,7 +260,10 @@ export async function getGatewayCategoryTypesForAgeBandAndWrapper(
   if (categoryError || !categoryRows) return [];
   const categories = categoryRows as GatewayCategoryTypePublic[];
 
-  const imageMap = await getGatewayCategoryTypeImages(categories.map((c) => c.id));
+  const imageMap = await getGatewayCategoryTypeImages(
+    categories.map((c) => c.id),
+    ageBandId
+  );
   return categories.map((c) => {
     const img = imageMap.get(c.id);
     return img ? { ...c, image_url: img.image_url } : c;
