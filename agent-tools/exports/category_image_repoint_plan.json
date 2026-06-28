@@ -1,0 +1,814 @@
+{
+  "summary": {
+    "missing_before": 120,
+    "upsert_count": 25,
+    "storage_hits": 3,
+    "cross_band_hits": 22,
+    "unresolved_count": 95,
+    "by_band": {
+      "4-6m": 2,
+      "9-12m": 6,
+      "13-15m": 10,
+      "16-18m": 7
+    }
+  },
+  "upserts": [
+    {
+      "category_type_id": "314cee75-1e7b-4489-a789-c178109feb41",
+      "age_band_id": "13-15m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_feelings_faces_books_4_6m_category.png",
+      "slug": "cat_feelings_faces_books",
+      "age_band_id_card": "13-15m",
+      "source": "cross_band",
+      "filename": "ember_cat_feelings_faces_books_4_6m_category.png"
+    },
+    {
+      "category_type_id": "499cab91-4e58-443f-9ae5-749d4dffa05f",
+      "age_band_id": "13-15m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_highchair_4_6m_category.png",
+      "slug": "cat_highchair",
+      "age_band_id_card": "13-15m",
+      "source": "cross_band",
+      "filename": "ember_cat_highchair_4_6m_category.png"
+    },
+    {
+      "category_type_id": "c309beb1-58c1-4e17-bd4e-0e387b7d7b82",
+      "age_band_id": "13-15m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_open_cup_4_6m_category.png",
+      "slug": "cat_open_cup",
+      "age_band_id_card": "13-15m",
+      "source": "cross_band",
+      "filename": "ember_cat_open_cup_4_6m_category.png"
+    },
+    {
+      "category_type_id": "dad8a6e5-e642-4330-8a18-820ead5b2ac5",
+      "age_band_id": "13-15m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_first_spoons_bowls_4_6m_category.png",
+      "slug": "cat_first_spoons_bowls",
+      "age_band_id_card": "13-15m",
+      "source": "cross_band",
+      "filename": "ember_cat_first_spoons_bowls_4_6m_category.png"
+    },
+    {
+      "category_type_id": "14f2cfcb-18eb-42fe-9c3f-c7c211a98fda",
+      "age_band_id": "13-15m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_weaning_bibs_mat_4_6m_category.png",
+      "slug": "cat_weaning_bibs_mat",
+      "age_band_id_card": "13-15m",
+      "source": "cross_band",
+      "filename": "ember_cat_weaning_bibs_mat_4_6m_category.png"
+    },
+    {
+      "category_type_id": "78b4f5b1-e47a-4ef0-bdf2-2c1763666f37",
+      "age_band_id": "13-15m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_safe_household_objects_4_6m_category.png",
+      "slug": "cat_safe_household_objects",
+      "age_band_id_card": "13-15m",
+      "source": "cross_band",
+      "filename": "ember_cat_safe_household_objects_4_6m_category.png"
+    },
+    {
+      "category_type_id": "daacc440-a3e7-4320-a7a9-7eb24df82da3",
+      "age_band_id": "13-15m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_safe_floor_space_1_3m_category.png",
+      "slug": "cat_safe_floor_space",
+      "age_band_id_card": "13-15m",
+      "source": "cross_band",
+      "filename": "ember_cat_safe_floor_space_1_3m_category.png"
+    },
+    {
+      "category_type_id": "475b1492-e629-4816-8d26-4897eb6a9f0e",
+      "age_band_id": "13-15m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_button_battery_check_1_3m_category.png",
+      "slug": "cat_button_battery_check",
+      "age_band_id_card": "13-15m",
+      "source": "cross_band",
+      "filename": "ember_cat_button_battery_check_1_3m_category.png"
+    },
+    {
+      "category_type_id": "1c96c630-c8f2-4605-8742-40e3296abfef",
+      "age_band_id": "13-15m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_board_books_4_6m_category.png",
+      "slug": "cat_board_books",
+      "age_band_id_card": "13-15m",
+      "source": "cross_band",
+      "filename": "ember_cat_board_books_4_6m_category.png"
+    },
+    {
+      "category_type_id": "c29c77b5-ce58-44a1-b8e6-638b150d7132",
+      "age_band_id": "13-15m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_songs_action_games_4_6m_category.png",
+      "slug": "cat_songs_action_games",
+      "age_band_id_card": "13-15m",
+      "source": "cross_band",
+      "filename": "ember_cat_songs_action_games_4_6m_category.png"
+    },
+    {
+      "category_type_id": "c29c77b5-ce58-44a1-b8e6-638b150d7132",
+      "age_band_id": "16-18m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_songs_action_games_4_6m_category.png",
+      "slug": "cat_songs_action_games",
+      "age_band_id_card": "16-18m",
+      "source": "cross_band",
+      "filename": "ember_cat_songs_action_games_4_6m_category.png"
+    },
+    {
+      "category_type_id": "c309beb1-58c1-4e17-bd4e-0e387b7d7b82",
+      "age_band_id": "16-18m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_open_cup_4_6m_category.png",
+      "slug": "cat_open_cup",
+      "age_band_id_card": "16-18m",
+      "source": "cross_band",
+      "filename": "ember_cat_open_cup_4_6m_category.png"
+    },
+    {
+      "category_type_id": "dad8a6e5-e642-4330-8a18-820ead5b2ac5",
+      "age_band_id": "16-18m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_first_spoons_bowls_4_6m_category.png",
+      "slug": "cat_first_spoons_bowls",
+      "age_band_id_card": "16-18m",
+      "source": "cross_band",
+      "filename": "ember_cat_first_spoons_bowls_4_6m_category.png"
+    },
+    {
+      "category_type_id": "6c1986cf-2ff7-4321-b1ab-edbf42457b14",
+      "age_band_id": "16-18m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_16_18_threading_beads_category.png",
+      "slug": "cat_threading_beads",
+      "age_band_id_card": "16-18m",
+      "source": "storage",
+      "filename": "ember_cat_16_18_threading_beads_category.png"
+    },
+    {
+      "category_type_id": "4109bada-d23b-47bd-b235-ac81b7d190f4",
+      "age_band_id": "16-18m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_16_18_stacking_pegboard_category.png",
+      "slug": "cat_stacking_pegboard",
+      "age_band_id_card": "16-18m",
+      "source": "storage",
+      "filename": "ember_cat_16_18_stacking_pegboard_category.png"
+    },
+    {
+      "category_type_id": "6ab4672b-5718-43f7-b7fc-8e88559749fe",
+      "age_band_id": "16-18m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_16_18_music_dance_category.png",
+      "slug": "cat_music_dance",
+      "age_band_id_card": "16-18m",
+      "source": "storage",
+      "filename": "ember_cat_16_18_music_dance_category.png"
+    },
+    {
+      "category_type_id": "475b1492-e629-4816-8d26-4897eb6a9f0e",
+      "age_band_id": "16-18m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_button_battery_check_1_3m_category.png",
+      "slug": "cat_button_battery_check",
+      "age_band_id_card": "16-18m",
+      "source": "cross_band",
+      "filename": "ember_cat_button_battery_check_1_3m_category.png"
+    },
+    {
+      "category_type_id": "475b1492-e629-4816-8d26-4897eb6a9f0e",
+      "age_band_id": "4-6m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_button_battery_check_1_3m_category.png",
+      "slug": "cat_button_battery_check",
+      "age_band_id_card": "4-6m",
+      "source": "cross_band",
+      "filename": "ember_cat_button_battery_check_1_3m_category.png"
+    },
+    {
+      "category_type_id": "b4b7858c-ac10-4f3b-aca3-b0b6ec865270",
+      "age_band_id": "4-6m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_clear_cot_check_1_3m_category.png",
+      "slug": "cat_clear_cot_check",
+      "age_band_id_card": "4-6m",
+      "source": "cross_band",
+      "filename": "ember_cat_clear_cot_check_1_3m_category.png"
+    },
+    {
+      "category_type_id": "314cee75-1e7b-4489-a789-c178109feb41",
+      "age_band_id": "9-12m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_feelings_faces_books_4_6m_category.png",
+      "slug": "cat_feelings_faces_books",
+      "age_band_id_card": "9-12m",
+      "source": "cross_band",
+      "filename": "ember_cat_feelings_faces_books_4_6m_category.png"
+    },
+    {
+      "category_type_id": "499cab91-4e58-443f-9ae5-749d4dffa05f",
+      "age_band_id": "9-12m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_highchair_4_6m_category.png",
+      "slug": "cat_highchair",
+      "age_band_id_card": "9-12m",
+      "source": "cross_band",
+      "filename": "ember_cat_highchair_4_6m_category.png"
+    },
+    {
+      "category_type_id": "c309beb1-58c1-4e17-bd4e-0e387b7d7b82",
+      "age_band_id": "9-12m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_open_cup_4_6m_category.png",
+      "slug": "cat_open_cup",
+      "age_band_id_card": "9-12m",
+      "source": "cross_band",
+      "filename": "ember_cat_open_cup_4_6m_category.png"
+    },
+    {
+      "category_type_id": "78b4f5b1-e47a-4ef0-bdf2-2c1763666f37",
+      "age_band_id": "9-12m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_safe_household_objects_4_6m_category.png",
+      "slug": "cat_safe_household_objects",
+      "age_band_id_card": "9-12m",
+      "source": "cross_band",
+      "filename": "ember_cat_safe_household_objects_4_6m_category.png"
+    },
+    {
+      "category_type_id": "1c96c630-c8f2-4605-8742-40e3296abfef",
+      "age_band_id": "9-12m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_board_books_4_6m_category.png",
+      "slug": "cat_board_books",
+      "age_band_id_card": "9-12m",
+      "source": "cross_band",
+      "filename": "ember_cat_board_books_4_6m_category.png"
+    },
+    {
+      "category_type_id": "3bf29f68-5ebb-40dc-89a0-086dce596900",
+      "age_band_id": "9-12m",
+      "image_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_family_faces_cards_4_6m_category.png",
+      "slug": "cat_family_faces_cards",
+      "age_band_id_card": "9-12m",
+      "source": "cross_band",
+      "filename": "ember_cat_family_faces_cards_4_6m_category.png"
+    }
+  ],
+  "unresolved": [
+    {
+      "age_band_id": "13-15m",
+      "id": "bc4648b8-2510-453b-9848-5c26fa5f6d6e",
+      "slug": "cat_bedtime_board_books",
+      "label": "Bedtime board books"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "cba17456-66eb-46e7-90eb-8ead6ac63833",
+      "slug": "cat_toothbrush_toothpaste",
+      "label": "Toddler toothbrush and toothpaste"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "34794a43-a195-49ca-95de-8e045cb9b5a8",
+      "slug": "cat_comfort_toy",
+      "label": "A safe comfort object"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "99cef4c1-c78e-467d-8517-56484db223fa",
+      "slug": "cat_routine_songs",
+      "label": "Routine songs and transition cues"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "00761e08-df5b-479f-a2b0-db131f2c9322",
+      "slug": "cat_pram_walks",
+      "label": "Pram walks and naming games"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "835b99db-c6b0-4d80-9857-1939cad8a28d",
+      "slug": "cat_library_baby_group",
+      "label": "Library mats and baby groups"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "cfd4873f-cd43-45f0-a2cd-a4822ae74165",
+      "slug": "cat_bubbles",
+      "label": "Bubbles"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "840a111a-6fcc-4745-96f9-6fcbc6297418",
+      "slug": "cat_bath_cups",
+      "label": "Bath cups and pouring games"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "7fb7727f-0320-4d65-967c-705325dc0a99",
+      "slug": "cat_treasure_basket",
+      "label": "A rotating safe treasure basket"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "f65c860e-5c79-4339-b57f-54425ffd0491",
+      "slug": "cat_stacking_nesting_cups",
+      "label": "Stacking and nesting cups"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "cb43b4d8-3cd1-41b6-9f57-fd131d3a5c5b",
+      "slug": "cat_posting_coin_box",
+      "label": "Posting boxes and coin slots"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "cb87fcdc-66bb-4cc2-bd8b-55e78bd438b8",
+      "slug": "cat_object_permanence_box",
+      "label": "Hide-and-find boxes"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "1de6263d-4955-42fc-8c76-fe1431fe8ea7",
+      "slug": "cat_shape_peg_puzzles",
+      "label": "Chunky shape and peg puzzles"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "8a5875a0-3704-4555-83a2-b4e10cb6f680",
+      "slug": "cat_tower_blocks",
+      "label": "First tower blocks"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "4aebbbc0-443b-4aff-8fa8-0c8145f23ac1",
+      "slug": "cat_snack_prep_pots",
+      "label": "Snack pots and safe food prep"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "af0295d0-5072-45ca-837b-f629c62cbff6",
+      "slug": "cat_doll_soft_toy_care",
+      "label": "Dolls and soft-toy care"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "dee7f125-cb1c-4252-a01c-b668fa2f4aa4",
+      "slug": "cat_toy_cups_spoons",
+      "label": "Toy cups, spoons and plates"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "d639aa7f-3c6d-4f4b-a32a-a98e4738c8b4",
+      "slug": "cat_cleanup_basket",
+      "label": "Clean-up basket games"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "e282478e-1ab9-4ac0-8e9f-fda3b252fd1d",
+      "slug": "cat_pretend_shoes_brushes",
+      "label": "Shoes, brushes and getting-ready play"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "5fdb390d-e72f-4292-9f95-cd66223ec44c",
+      "slug": "cat_cruising_furniture",
+      "label": "Steady cruising surfaces"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "990ea45e-1186-417b-94ef-d17970b8eba5",
+      "slug": "cat_push_pull_toys",
+      "label": "Sturdy push-and-pull toys"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "5f67eadc-3d94-4b15-9295-220dd992a5ca",
+      "slug": "cat_park_swing_walks",
+      "label": "Park walks and toddler swings"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "9884ab18-4776-4e1b-ab78-76d791786ed4",
+      "slug": "cat_safety_gates",
+      "label": "Safety gates"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "ab2bc7cb-3296-4047-a948-863d90daa783",
+      "slug": "cat_cupboard_locks",
+      "label": "Cupboard locks"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "53f684d5-04c7-4bf5-a43b-289013cc8f2f",
+      "slug": "cat_furniture_anchors",
+      "label": "Furniture anchors and corner checks"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "dec4d2e9-5962-4e28-b919-12db20b0ce40",
+      "slug": "cat_car_seat_size_check",
+      "label": "Car-seat size and direction check"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "7ddabfb7-f156-4d3b-b93b-b99c81557694",
+      "slug": "cat_picture_word_cards",
+      "label": "Picture and word cards"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "e4c310de-9d79-4670-ab4d-d966b3b5cdaf",
+      "slug": "cat_gesture_sign_games",
+      "label": "First gestures and simple signs"
+    },
+    {
+      "age_band_id": "13-15m",
+      "id": "b306511a-3d94-4ac3-a7c8-0da86d93780e",
+      "slug": "cat_pretend_phone_talk",
+      "label": "Pretend phone and object talk"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "af0295d0-5072-45ca-837b-f629c62cbff6",
+      "slug": "cat_doll_soft_toy_care",
+      "label": "Soft toy and doll care play"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "dee7f125-cb1c-4252-a01c-b668fa2f4aa4",
+      "slug": "cat_toy_cups_spoons",
+      "label": "Pretend cups, spoons and food"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "3ee380fa-ded8-416d-a7f0-23fa16b0ce88",
+      "slug": "cat_play_kitchen_household_props",
+      "label": "Play kitchen and household props"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "691a9db6-36d9-4399-bf38-98b91bfa0c58",
+      "slug": "cat_toddler_bag_carry",
+      "label": "Carry bags and little errands"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "ac27015e-4a15-4828-8923-4ae4d6b716b7",
+      "slug": "cat_first_word_picture_books",
+      "label": "First-word picture books"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "2dc9cc38-631c-493d-afa4-3237dc00b0ef",
+      "slug": "cat_body_part_books_games",
+      "label": "Body-part books and games"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "c55d6e31-f536-42bb-a8cf-eac54a6e9c62",
+      "slug": "cat_naming_walks",
+      "label": "Naming walks and object hunts"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "7c39255f-216d-49ad-8361-fa112764f70a",
+      "slug": "cat_finger_food_snack_prep",
+      "label": "Finger-food and snack prep"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "dc9ea1e9-5da4-4f4b-896c-62843a479db6",
+      "slug": "cat_toothbrush_routine",
+      "label": "Toddler toothbrush and teeth routine"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "dd67d87f-0f41-4c7a-8799-524b49b9af80",
+      "slug": "cat_shape_sorters_puzzles",
+      "label": "Shape sorters and first puzzles"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "8c15be9d-3fe4-4ec0-9370-04a8ce2a5c9c",
+      "slug": "cat_velcro_pull_hide",
+      "label": "Pull, stick and hide toys"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "2874d8e8-4f6b-4103-a40a-793863fdc0ef",
+      "slug": "cat_pull_push_toys",
+      "label": "Push-and-pull toys"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "63fae8f0-e1ac-4996-83de-9d5c0d446e86",
+      "slug": "cat_low_climb_tunnel",
+      "label": "Low climbing and crawl-through play"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "315365c1-dc1b-4058-ab64-d03282aeeeea",
+      "slug": "cat_chunky_crayons",
+      "label": "Chunky crayons and first scribbles"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "b7626461-4419-406c-a792-7e7e0f1c20fb",
+      "slug": "cat_water_drawing",
+      "label": "Water drawing mats"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "51070dcd-3af3-41a6-80ba-a8d9e6f4d36a",
+      "slug": "cat_play_dough_soft_clay",
+      "label": "Soft dough and squish-safe sensory play"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "57df56e7-feca-4dc7-a505-feb6e8309e65",
+      "slug": "cat_texture_tubs",
+      "label": "Texture tubs and safe sensory baskets"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "9884ab18-4776-4e1b-ab78-76d791786ed4",
+      "slug": "cat_safety_gates",
+      "label": "Safety gates"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "ab2bc7cb-3296-4047-a948-863d90daa783",
+      "slug": "cat_cupboard_locks",
+      "label": "Cupboard locks and safer storage"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "1bb27946-4bb2-4b9d-b5e9-759ca5860c73",
+      "slug": "cat_furniture_window_checks",
+      "label": "Furniture, stair and window checks"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "cfed9284-aef5-4ff8-9150-20463cb9b603",
+      "slug": "cat_bath_water_supervision",
+      "label": "Bath and water supervision"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "2fa3c4f6-4e68-40a9-8dde-71708585400c",
+      "slug": "cat_ramp_rolling_toys",
+      "label": "Ramp and rolling toys"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "08a7046f-cacd-49ca-95a6-80f8e17e3bbf",
+      "slug": "cat_posting_drop_boxes",
+      "label": "Posting and drop boxes"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "f11ad2ba-93d8-460f-ab83-48231fa0f1a9",
+      "slug": "cat_latch_busy_boards",
+      "label": "Latches, doors and busy boards"
+    },
+    {
+      "age_band_id": "16-18m",
+      "id": "f65c860e-5c79-4339-b57f-54425ffd0491",
+      "slug": "cat_stacking_nesting_cups",
+      "label": "Stacking and nesting cups"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "0e1e2309-5bca-4f34-af78-692ee82c0a3e",
+      "slug": "cat_soft_doll",
+      "label": "Soft doll or cuddly care play"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "5dd73eb4-0216-4d7a-9ca8-98a3c4796bd8",
+      "slug": "cat_puppets",
+      "label": "Puppets and silly voices"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "28ef6834-320d-4fe5-9a33-c168d73ee4a0",
+      "slug": "cat_family_photos",
+      "label": "Family photos and familiar faces"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "69c48be5-04d3-4dfd-bb08-a7bed9a8e2e3",
+      "slug": "cat_pincer_puzzle",
+      "label": "Chunky peg and drop games"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "3cb473ee-e122-4159-a867-49e0614cf811",
+      "slug": "cat_finger_food_prep",
+      "label": "Finger foods cut safely"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "af6f3a7d-336c-4e1d-abd0-8c8ea6997419",
+      "slug": "cat_rhyme_games",
+      "label": "Rhymes, claps and pat-a-cake"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "80c0f30a-27d1-4906-86cb-d135a254943b",
+      "slug": "cat_waving_signs",
+      "label": "Waving, pointing and simple signs"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "12e94a6d-41fd-4996-b542-5d413704b0cf",
+      "slug": "cat_sound_copy",
+      "label": "Copy-me babble games"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "c7445497-c0b5-4a0a-8318-86bbc34558fc",
+      "slug": "cat_bibs_mats",
+      "label": "Bibs, mats and clean-up helpers"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "5b3ba2d3-dbbc-4c1a-8c0a-f08a09dd0250",
+      "slug": "cat_family_meal_plan",
+      "label": "Joining simple family meals"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "f3f256d8-0d2a-4ed6-b549-4b30b08f3140",
+      "slug": "cat_pouches_caution",
+      "label": "Using pouches without relying on them"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "eceae982-994d-4e18-b7d1-aee35243a38d",
+      "slug": "cat_drop_roll_tubes",
+      "label": "Drop, roll and tube games"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "d0ddbc51-131e-464e-b050-49e409fca0c6",
+      "slug": "cat_first_puzzles",
+      "label": "Big-piece first puzzles"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "8a7512f2-305d-4fe8-8893-632be7ca9e27",
+      "slug": "cat_switchboard",
+      "label": "Safe switches, flaps and buttons"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "ff5b6588-2896-4a43-8085-94f40cf9042a",
+      "slug": "cat_floor_zone",
+      "label": "Clear floor space for moving"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "5fdb390d-e72f-4292-9f95-cd66223ec44c",
+      "slug": "cat_cruising_furniture",
+      "label": "Steady surfaces for pulling up"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "990ea45e-1186-417b-94ef-d17970b8eba5",
+      "slug": "cat_push_pull_toys",
+      "label": "Push-and-pull toys, when ready"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "b9b965ec-d373-46b2-a8cf-0ccd87f2dfee",
+      "slug": "cat_park_swings",
+      "label": "Park trips and baby swings"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "1499637d-b35d-4242-9833-b43a9a893dd2",
+      "slug": "cat_low_obstacle",
+      "label": "Soft cushions and crawl-through games"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "ef3ca71f-076e-405a-a293-dfc26ece896c",
+      "slug": "cat_stair_gates",
+      "label": "Stair gates before the big climb"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "53f684d5-04c7-4bf5-a43b-289013cc8f2f",
+      "slug": "cat_furniture_anchors",
+      "label": "Anchored furniture for pull-up practice"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "ab2bc7cb-3296-4047-a948-863d90daa783",
+      "slug": "cat_cupboard_locks",
+      "label": "Cupboard locks for curious hands"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "3fea4f0a-623e-4d7e-bc62-902553cce684",
+      "slug": "cat_blind_cord_cleats",
+      "label": "Blind-cord tidies and cleats"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "b3c57dea-aafd-41d4-a4eb-586d85174026",
+      "slug": "cat_exclude_baby_walker",
+      "label": "Skip seated baby walkers"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "00761e08-df5b-479f-a2b0-db131f2c9322",
+      "slug": "cat_pram_walks",
+      "label": "Pram walks with naming"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "835b99db-c6b0-4d80-9857-1939cad8a28d",
+      "slug": "cat_library_baby_group",
+      "label": "Library or baby-group floor time"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "cfd4873f-cd43-45f0-a2cd-a4822ae74165",
+      "slug": "cat_bubbles",
+      "label": "Bubbles to watch and reach for"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "840a111a-6fcc-4745-96f9-6fcbc6297418",
+      "slug": "cat_bath_cups",
+      "label": "Bath cups and pouring"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "6b1069fa-1de6-4fe8-843b-b537e489bad1",
+      "slug": "cat_toy_rotation",
+      "label": "Tiny toy rotation basket"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "ea52d44f-5f06-4810-9e60-d71abe4d11f4",
+      "slug": "cat_safe_laundry_play",
+      "label": "Supervised laundry basket play"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "a2f31ae2-5244-4d98-ade3-a6aafbc74efb",
+      "slug": "cat_peekaboo_scarf",
+      "label": "Peekaboo scarves and cloths"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "f7b08527-63ac-4300-bb6e-c4c06cc8a4f3",
+      "slug": "cat_posting_boxes",
+      "label": "Posting boxes and hiding lids"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "1de10862-16fa-4119-945a-c02867d3159a",
+      "slug": "cat_container_basket",
+      "label": "Treasure baskets and emptying games"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "cc28cd24-e2a0-4abe-8303-ab8f26f3bad6",
+      "slug": "cat_hide_favourite_toy",
+      "label": "Hide-and-find favourite toys"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "97ad4592-bc69-4ba4-b484-0612d43c9753",
+      "slug": "cat_animal_mini_books",
+      "label": "Little animal books"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "cb23b67f-6fe5-48f3-b2a1-8db6647b4557",
+      "slug": "cat_point_name_outings",
+      "label": "Point-and-name little outings"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "f65c860e-5c79-4339-b57f-54425ffd0491",
+      "slug": "cat_stacking_nesting_cups",
+      "label": "Stacking, nesting and filling cups"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "47247240-bf08-4bb9-a516-4a1771865f0b",
+      "slug": "cat_two_handed_objects",
+      "label": "Two-hand toys and banging games"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "fcd2a021-6994-4d9c-a7b9-2f4780656aed",
+      "slug": "cat_musical_noise",
+      "label": "Clapping, shaking and noisy play"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "57da23ca-3fc2-444d-b994-7c654774fc18",
+      "slug": "cat_texture_sensory",
+      "label": "Texture balls for touching and rolling"
+    },
+    {
+      "age_band_id": "9-12m",
+      "id": "3faf02a5-c0c7-46d0-9f75-122a4abd799e",
+      "slug": "cat_bath_supervision",
+      "label": "Safe bath and water-play routines"
+    }
+  ]
+}
