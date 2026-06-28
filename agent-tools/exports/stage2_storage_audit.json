@@ -1,0 +1,732 @@
+{
+  "summary": {
+    "total": 95,
+    "storage_exists": 46,
+    "storage_exists_no_db": 46,
+    "storage_exists_has_db": 0,
+    "truly_missing": 49,
+    "by_band": {
+      "9-12m": {
+        "exists": 9,
+        "missing": 32
+      },
+      "13-15m": {
+        "exists": 29,
+        "missing": 0
+      },
+      "16-18m": {
+        "exists": 8,
+        "missing": 17
+      }
+    }
+  },
+  "found": [
+    {
+      "slug": "cat_bedtime_board_books",
+      "bandId": "13-15m",
+      "display_name": "Bedtime board books",
+      "category_type_id": "bc4648b8-2510-453b-9848-5c26fa5f6d6e",
+      "storage_file": "ember_cat_bedtime_board_books_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_bedtime_board_books_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_pram_walks",
+      "bandId": "13-15m",
+      "display_name": "Pram walks and naming games",
+      "category_type_id": "00761e08-df5b-479f-a2b0-db131f2c9322",
+      "storage_file": "ember_cat_pram_walks_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_pram_walks_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_stacking_nesting_cups",
+      "bandId": "13-15m",
+      "display_name": "Stacking and nesting cups",
+      "category_type_id": "f65c860e-5c79-4339-b57f-54425ffd0491",
+      "storage_file": "ember_cat_stacking_nesting_cups_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_stacking_nesting_cups_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_safety_gates",
+      "bandId": "13-15m",
+      "display_name": "Safety gates",
+      "category_type_id": "9884ab18-4776-4e1b-ab78-76d791786ed4",
+      "storage_file": "ember_cat_safety_gates_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_safety_gates_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_posting_coin_box",
+      "bandId": "13-15m",
+      "display_name": "Posting boxes and coin slots",
+      "category_type_id": "cb43b4d8-3cd1-41b6-9f57-fd131d3a5c5b",
+      "storage_file": "ember_cat_posting_coin_box_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_posting_coin_box_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_cruising_furniture",
+      "bandId": "13-15m",
+      "display_name": "Steady cruising surfaces",
+      "category_type_id": "5fdb390d-e72f-4292-9f95-cd66223ec44c",
+      "storage_file": "ember_cat_cruising_furniture_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_cruising_furniture_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_toothbrush_toothpaste",
+      "bandId": "13-15m",
+      "display_name": "Toddler toothbrush and toothpaste",
+      "category_type_id": "cba17456-66eb-46e7-90eb-8ead6ac63833",
+      "storage_file": "ember_cat_toothbrush_toothpaste_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_toothbrush_toothpaste_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_library_baby_group",
+      "bandId": "13-15m",
+      "display_name": "Library mats and baby groups",
+      "category_type_id": "835b99db-c6b0-4d80-9857-1939cad8a28d",
+      "storage_file": "ember_cat_library_baby_group_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_library_baby_group_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_picture_word_cards",
+      "bandId": "13-15m",
+      "display_name": "Picture and word cards",
+      "category_type_id": "7ddabfb7-f156-4d3b-b93b-b99c81557694",
+      "storage_file": "ember_cat_picture_word_cards_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_picture_word_cards_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_doll_soft_toy_care",
+      "bandId": "13-15m",
+      "display_name": "Dolls and soft-toy care",
+      "category_type_id": "af0295d0-5072-45ca-837b-f629c62cbff6",
+      "storage_file": "ember_cat_doll_soft_toy_care_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_doll_soft_toy_care_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_cupboard_locks",
+      "bandId": "13-15m",
+      "display_name": "Cupboard locks",
+      "category_type_id": "ab2bc7cb-3296-4047-a948-863d90daa783",
+      "storage_file": "ember_cat_cupboard_locks_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_cupboard_locks_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_furniture_anchors",
+      "bandId": "13-15m",
+      "display_name": "Furniture anchors and corner checks",
+      "category_type_id": "53f684d5-04c7-4bf5-a43b-289013cc8f2f",
+      "storage_file": "ember_cat_furniture_anchors_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_furniture_anchors_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_push_pull_toys",
+      "bandId": "13-15m",
+      "display_name": "Sturdy push-and-pull toys",
+      "category_type_id": "990ea45e-1186-417b-94ef-d17970b8eba5",
+      "storage_file": "ember_cat_push_pull_toys_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_push_pull_toys_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_object_permanence_box",
+      "bandId": "13-15m",
+      "display_name": "Hide-and-find boxes",
+      "category_type_id": "cb87fcdc-66bb-4cc2-bd8b-55e78bd438b8",
+      "storage_file": "ember_cat_object_permanence_box_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_object_permanence_box_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_bubbles",
+      "bandId": "13-15m",
+      "display_name": "Bubbles",
+      "category_type_id": "cfd4873f-cd43-45f0-a2cd-a4822ae74165",
+      "storage_file": "ember_cat_bubbles_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_bubbles_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_comfort_toy",
+      "bandId": "13-15m",
+      "display_name": "A safe comfort object",
+      "category_type_id": "34794a43-a195-49ca-95de-8e045cb9b5a8",
+      "storage_file": "ember_cat_comfort_toy_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_comfort_toy_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_toy_cups_spoons",
+      "bandId": "13-15m",
+      "display_name": "Toy cups, spoons and plates",
+      "category_type_id": "dee7f125-cb1c-4252-a01c-b668fa2f4aa4",
+      "storage_file": "ember_cat_toy_cups_spoons_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_toy_cups_spoons_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_bath_cups",
+      "bandId": "13-15m",
+      "display_name": "Bath cups and pouring games",
+      "category_type_id": "840a111a-6fcc-4745-96f9-6fcbc6297418",
+      "storage_file": "ember_cat_bath_cups_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_bath_cups_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_shape_peg_puzzles",
+      "bandId": "13-15m",
+      "display_name": "Chunky shape and peg puzzles",
+      "category_type_id": "1de6263d-4955-42fc-8c76-fe1431fe8ea7",
+      "storage_file": "ember_cat_shape_peg_puzzles_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_shape_peg_puzzles_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_cleanup_basket",
+      "bandId": "13-15m",
+      "display_name": "Clean-up basket games",
+      "category_type_id": "d639aa7f-3c6d-4f4b-a32a-a98e4738c8b4",
+      "storage_file": "ember_cat_cleanup_basket_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_cleanup_basket_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_gesture_sign_games",
+      "bandId": "13-15m",
+      "display_name": "First gestures and simple signs",
+      "category_type_id": "e4c310de-9d79-4670-ab4d-d966b3b5cdaf",
+      "storage_file": "ember_cat_gesture_sign_games_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_gesture_sign_games_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_snack_prep_pots",
+      "bandId": "13-15m",
+      "display_name": "Snack pots and safe food prep",
+      "category_type_id": "4aebbbc0-443b-4aff-8fa8-0c8145f23ac1",
+      "storage_file": "ember_cat_snack_prep_pots_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_snack_prep_pots_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_pretend_phone_talk",
+      "bandId": "13-15m",
+      "display_name": "Pretend phone and object talk",
+      "category_type_id": "b306511a-3d94-4ac3-a7c8-0da86d93780e",
+      "storage_file": "ember_cat_pretend_phone_talk_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_pretend_phone_talk_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_tower_blocks",
+      "bandId": "13-15m",
+      "display_name": "First tower blocks",
+      "category_type_id": "8a5875a0-3704-4555-83a2-b4e10cb6f680",
+      "storage_file": "ember_cat_tower_blocks_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_tower_blocks_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_car_seat_size_check",
+      "bandId": "13-15m",
+      "display_name": "Car-seat size and direction check",
+      "category_type_id": "dec4d2e9-5962-4e28-b919-12db20b0ce40",
+      "storage_file": "ember_cat_car_seat_size_check_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_car_seat_size_check_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_routine_songs",
+      "bandId": "13-15m",
+      "display_name": "Routine songs and transition cues",
+      "category_type_id": "99cef4c1-c78e-467d-8517-56484db223fa",
+      "storage_file": "ember_cat_routine_songs_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_routine_songs_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_park_swing_walks",
+      "bandId": "13-15m",
+      "display_name": "Park walks and toddler swings",
+      "category_type_id": "5f67eadc-3d94-4b15-9295-220dd992a5ca",
+      "storage_file": "ember_cat_park_swing_walks_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_park_swing_walks_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_treasure_basket",
+      "bandId": "13-15m",
+      "display_name": "A rotating safe treasure basket",
+      "category_type_id": "7fb7727f-0320-4d65-967c-705325dc0a99",
+      "storage_file": "ember_cat_treasure_basket_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_treasure_basket_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_pretend_shoes_brushes",
+      "bandId": "13-15m",
+      "display_name": "Shoes, brushes and getting-ready play",
+      "category_type_id": "e282478e-1ab9-4ac0-8e9f-fda3b252fd1d",
+      "storage_file": "ember_cat_pretend_shoes_brushes_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_pretend_shoes_brushes_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_doll_soft_toy_care",
+      "bandId": "16-18m",
+      "display_name": "Soft toy and doll care play",
+      "category_type_id": "af0295d0-5072-45ca-837b-f629c62cbff6",
+      "storage_file": "ember_cat_doll_soft_toy_care_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_doll_soft_toy_care_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_first_word_picture_books",
+      "bandId": "16-18m",
+      "display_name": "First-word picture books",
+      "category_type_id": "ac27015e-4a15-4828-8923-4ae4d6b716b7",
+      "storage_file": "ember_cat_first_word_picture_books_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_first_word_picture_books_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_chunky_crayons",
+      "bandId": "16-18m",
+      "display_name": "Chunky crayons and first scribbles",
+      "category_type_id": "315365c1-dc1b-4058-ab64-d03282aeeeea",
+      "storage_file": "ember_cat_chunky_crayons_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_chunky_crayons_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_safety_gates",
+      "bandId": "16-18m",
+      "display_name": "Safety gates",
+      "category_type_id": "9884ab18-4776-4e1b-ab78-76d791786ed4",
+      "storage_file": "ember_cat_safety_gates_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_safety_gates_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_ramp_rolling_toys",
+      "bandId": "16-18m",
+      "display_name": "Ramp and rolling toys",
+      "category_type_id": "2fa3c4f6-4e68-40a9-8dde-71708585400c",
+      "storage_file": "ember_cat_ramp_rolling_toys_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_ramp_rolling_toys_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_cupboard_locks",
+      "bandId": "16-18m",
+      "display_name": "Cupboard locks and safer storage",
+      "category_type_id": "ab2bc7cb-3296-4047-a948-863d90daa783",
+      "storage_file": "ember_cat_cupboard_locks_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_cupboard_locks_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_toy_cups_spoons",
+      "bandId": "16-18m",
+      "display_name": "Pretend cups, spoons and food",
+      "category_type_id": "dee7f125-cb1c-4252-a01c-b668fa2f4aa4",
+      "storage_file": "ember_cat_toy_cups_spoons_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_toy_cups_spoons_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_stacking_nesting_cups",
+      "bandId": "16-18m",
+      "display_name": "Stacking and nesting cups",
+      "category_type_id": "f65c860e-5c79-4339-b57f-54425ffd0491",
+      "storage_file": "ember_cat_stacking_nesting_cups_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_stacking_nesting_cups_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_pram_walks",
+      "bandId": "9-12m",
+      "display_name": "Pram walks with naming",
+      "category_type_id": "00761e08-df5b-479f-a2b0-db131f2c9322",
+      "storage_file": "ember_cat_pram_walks_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_pram_walks_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_cruising_furniture",
+      "bandId": "9-12m",
+      "display_name": "Steady surfaces for pulling up",
+      "category_type_id": "5fdb390d-e72f-4292-9f95-cd66223ec44c",
+      "storage_file": "ember_cat_cruising_furniture_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_cruising_furniture_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_furniture_anchors",
+      "bandId": "9-12m",
+      "display_name": "Anchored furniture for pull-up practice",
+      "category_type_id": "53f684d5-04c7-4bf5-a43b-289013cc8f2f",
+      "storage_file": "ember_cat_furniture_anchors_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_furniture_anchors_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_library_baby_group",
+      "bandId": "9-12m",
+      "display_name": "Library or baby-group floor time",
+      "category_type_id": "835b99db-c6b0-4d80-9857-1939cad8a28d",
+      "storage_file": "ember_cat_library_baby_group_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_library_baby_group_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_stacking_nesting_cups",
+      "bandId": "9-12m",
+      "display_name": "Stacking, nesting and filling cups",
+      "category_type_id": "f65c860e-5c79-4339-b57f-54425ffd0491",
+      "storage_file": "ember_cat_stacking_nesting_cups_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_stacking_nesting_cups_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_cupboard_locks",
+      "bandId": "9-12m",
+      "display_name": "Cupboard locks for curious hands",
+      "category_type_id": "ab2bc7cb-3296-4047-a948-863d90daa783",
+      "storage_file": "ember_cat_cupboard_locks_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_cupboard_locks_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_push_pull_toys",
+      "bandId": "9-12m",
+      "display_name": "Push-and-pull toys, when ready",
+      "category_type_id": "990ea45e-1186-417b-94ef-d17970b8eba5",
+      "storage_file": "ember_cat_push_pull_toys_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_push_pull_toys_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_bubbles",
+      "bandId": "9-12m",
+      "display_name": "Bubbles to watch and reach for",
+      "category_type_id": "cfd4873f-cd43-45f0-a2cd-a4822ae74165",
+      "storage_file": "ember_cat_bubbles_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_bubbles_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    },
+    {
+      "slug": "cat_bath_cups",
+      "bandId": "9-12m",
+      "display_name": "Bath cups and pouring",
+      "category_type_id": "840a111a-6fcc-4745-96f9-6fcbc6297418",
+      "storage_file": "ember_cat_bath_cups_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_bath_cups_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
+    }
+  ],
+  "notFound": [
+    {
+      "slug": "cat_body_part_books_games",
+      "bandId": "16-18m",
+      "display_name": "Body-part books and games"
+    },
+    {
+      "slug": "cat_pull_push_toys",
+      "bandId": "16-18m",
+      "display_name": "Push-and-pull toys"
+    },
+    {
+      "slug": "cat_posting_drop_boxes",
+      "bandId": "16-18m",
+      "display_name": "Posting and drop boxes"
+    },
+    {
+      "slug": "cat_water_drawing",
+      "bandId": "16-18m",
+      "display_name": "Water drawing mats"
+    },
+    {
+      "slug": "cat_play_dough_soft_clay",
+      "bandId": "16-18m",
+      "display_name": "Soft dough and squish-safe sensory play"
+    },
+    {
+      "slug": "cat_latch_busy_boards",
+      "bandId": "16-18m",
+      "display_name": "Latches, doors and busy boards"
+    },
+    {
+      "slug": "cat_low_climb_tunnel",
+      "bandId": "16-18m",
+      "display_name": "Low climbing and crawl-through play"
+    },
+    {
+      "slug": "cat_play_kitchen_household_props",
+      "bandId": "16-18m",
+      "display_name": "Play kitchen and household props"
+    },
+    {
+      "slug": "cat_shape_sorters_puzzles",
+      "bandId": "16-18m",
+      "display_name": "Shape sorters and first puzzles"
+    },
+    {
+      "slug": "cat_furniture_window_checks",
+      "bandId": "16-18m",
+      "display_name": "Furniture, stair and window checks"
+    },
+    {
+      "slug": "cat_finger_food_snack_prep",
+      "bandId": "16-18m",
+      "display_name": "Finger-food and snack prep"
+    },
+    {
+      "slug": "cat_naming_walks",
+      "bandId": "16-18m",
+      "display_name": "Naming walks and object hunts"
+    },
+    {
+      "slug": "cat_toothbrush_routine",
+      "bandId": "16-18m",
+      "display_name": "Toddler toothbrush and teeth routine"
+    },
+    {
+      "slug": "cat_velcro_pull_hide",
+      "bandId": "16-18m",
+      "display_name": "Pull, stick and hide toys"
+    },
+    {
+      "slug": "cat_texture_tubs",
+      "bandId": "16-18m",
+      "display_name": "Texture tubs and safe sensory baskets"
+    },
+    {
+      "slug": "cat_toddler_bag_carry",
+      "bandId": "16-18m",
+      "display_name": "Carry bags and little errands"
+    },
+    {
+      "slug": "cat_bath_water_supervision",
+      "bandId": "16-18m",
+      "display_name": "Bath and water supervision"
+    },
+    {
+      "slug": "cat_stair_gates",
+      "bandId": "9-12m",
+      "display_name": "Stair gates before the big climb"
+    },
+    {
+      "slug": "cat_floor_zone",
+      "bandId": "9-12m",
+      "display_name": "Clear floor space for moving"
+    },
+    {
+      "slug": "cat_peekaboo_scarf",
+      "bandId": "9-12m",
+      "display_name": "Peekaboo scarves and cloths"
+    },
+    {
+      "slug": "cat_pincer_puzzle",
+      "bandId": "9-12m",
+      "display_name": "Chunky peg and drop games"
+    },
+    {
+      "slug": "cat_soft_doll",
+      "bandId": "9-12m",
+      "display_name": "Soft doll or cuddly care play"
+    },
+    {
+      "slug": "cat_rhyme_games",
+      "bandId": "9-12m",
+      "display_name": "Rhymes, claps and pat-a-cake"
+    },
+    {
+      "slug": "cat_posting_boxes",
+      "bandId": "9-12m",
+      "display_name": "Posting boxes and hiding lids"
+    },
+    {
+      "slug": "cat_container_basket",
+      "bandId": "9-12m",
+      "display_name": "Treasure baskets and emptying games"
+    },
+    {
+      "slug": "cat_animal_mini_books",
+      "bandId": "9-12m",
+      "display_name": "Little animal books"
+    },
+    {
+      "slug": "cat_drop_roll_tubes",
+      "bandId": "9-12m",
+      "display_name": "Drop, roll and tube games"
+    },
+    {
+      "slug": "cat_finger_food_prep",
+      "bandId": "9-12m",
+      "display_name": "Finger foods cut safely"
+    },
+    {
+      "slug": "cat_waving_signs",
+      "bandId": "9-12m",
+      "display_name": "Waving, pointing and simple signs"
+    },
+    {
+      "slug": "cat_bibs_mats",
+      "bandId": "9-12m",
+      "display_name": "Bibs, mats and clean-up helpers"
+    },
+    {
+      "slug": "cat_sound_copy",
+      "bandId": "9-12m",
+      "display_name": "Copy-me babble games"
+    },
+    {
+      "slug": "cat_puppets",
+      "bandId": "9-12m",
+      "display_name": "Puppets and silly voices"
+    },
+    {
+      "slug": "cat_first_puzzles",
+      "bandId": "9-12m",
+      "display_name": "Big-piece first puzzles"
+    },
+    {
+      "slug": "cat_two_handed_objects",
+      "bandId": "9-12m",
+      "display_name": "Two-hand toys and banging games"
+    },
+    {
+      "slug": "cat_blind_cord_cleats",
+      "bandId": "9-12m",
+      "display_name": "Blind-cord tidies and cleats"
+    },
+    {
+      "slug": "cat_toy_rotation",
+      "bandId": "9-12m",
+      "display_name": "Tiny toy rotation basket"
+    },
+    {
+      "slug": "cat_bath_supervision",
+      "bandId": "9-12m",
+      "display_name": "Safe bath and water-play routines"
+    },
+    {
+      "slug": "cat_park_swings",
+      "bandId": "9-12m",
+      "display_name": "Park trips and baby swings"
+    },
+    {
+      "slug": "cat_musical_noise",
+      "bandId": "9-12m",
+      "display_name": "Clapping, shaking and noisy play"
+    },
+    {
+      "slug": "cat_switchboard",
+      "bandId": "9-12m",
+      "display_name": "Safe switches, flaps and buttons"
+    },
+    {
+      "slug": "cat_family_photos",
+      "bandId": "9-12m",
+      "display_name": "Family photos and familiar faces"
+    },
+    {
+      "slug": "cat_point_name_outings",
+      "bandId": "9-12m",
+      "display_name": "Point-and-name little outings"
+    },
+    {
+      "slug": "cat_family_meal_plan",
+      "bandId": "9-12m",
+      "display_name": "Joining simple family meals"
+    },
+    {
+      "slug": "cat_safe_laundry_play",
+      "bandId": "9-12m",
+      "display_name": "Supervised laundry basket play"
+    },
+    {
+      "slug": "cat_exclude_baby_walker",
+      "bandId": "9-12m",
+      "display_name": "Skip seated baby walkers"
+    },
+    {
+      "slug": "cat_low_obstacle",
+      "bandId": "9-12m",
+      "display_name": "Soft cushions and crawl-through games"
+    },
+    {
+      "slug": "cat_pouches_caution",
+      "bandId": "9-12m",
+      "display_name": "Using pouches without relying on them"
+    },
+    {
+      "slug": "cat_hide_favourite_toy",
+      "bandId": "9-12m",
+      "display_name": "Hide-and-find favourite toys"
+    },
+    {
+      "slug": "cat_texture_sensory",
+      "bandId": "9-12m",
+      "display_name": "Texture balls for touching and rolling"
+    }
+  ]
+}

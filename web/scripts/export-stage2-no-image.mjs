@@ -1,5 +1,6 @@
 /**
- * Export active Stage 2 category cards with no founder-managed image.
+ * Export active Stage 2 category cards with no founder-managed image in DB.
+ * Note: this does NOT check Storage — run audit-unresolved-category-images.mjs for that.
  */
 import fs from 'fs';
 import path from 'path';
