@@ -1,3 +1,34 @@
+## 2026-06-28 — feat(discover): import Spine v2 bands 19–21m, 25–27m, 31–33m
+
+- **Branch:** `feat/import-discover-19-21m-25-27m-31-33m`
+- **Source:** G Drive `02_Ember_Bible_19_21m_v1.xlsx`, `02_Ember_Bible_25_27m_v1.xlsx`, `02_Ember_Bible_31_33m_v1.xlsx` (`discover_projection` only)
+- **Migration:** `20260628210000_import_discover_19_21m_25_27m_31_33m_spine_v2.sql` — 120 rows, 8 clusters × 3 bands; legacy slug merges (`potty` → `cat_potty`, etc.) before import
+- **Master Library:** updated on G Drive — 120 rows appended (359 total); backup in `agent-tools/backups/master-library-pre-rebuild/`
+- **Applied:** `supabase db push` — validation notices pass (Stage 3 active = 0)
+- **Build:** `pnpm -C web build` pass
+- **Slug drift flagged:** legacy `potty`, `toilet-training-seat`, `toilet_training_seat`, `training_pants` merged to workbook `cat_*` slugs
+
+### How to verify
+1. `/discover/20` — 19–21 months band active; Stage 1 + Stage 2 match workbook voice
+2. `/discover/26` — 25–27 months; potty cluster Stage 2 shows band-specific titles (e.g. "Potty chair")
+3. `/discover/32` — 31–33 months active (replaces deprecated pre-Spine 2.0 band)
+4. REST `v_gateway_category_types_public?slug=eq.cat_songs_action_games&age_band_id=in.(19-21m,25-27m,31-33m)` — same slug, different `label` per band
+5. REST `v_gateway_category_types_public?age_band_id=eq.25-27m` — 41 rows; card titles = junction `display_label`
+
+## 2026-06-28 — fix(snag-pack): restore Discover 7–9 months age band
+
+- **Branch:** `fix/snag-pack-discover-7-9m-band` — PR [#235](https://github.com/glownest2026-droid/ember/pull/235)
+- **Root cause:** Spine v2 deprecate migration deactivated `6-9m` (label 7–9 months) with no import; the 7–9M workbook existed on G Drive as `02_Ember_Bible_Pilot_6_9m_discover_projection_voice_v1.xlsx` (misnamed 6-9m).
+- **Fix:** `20260628182042_restore_discover_7_9m_age_band.sql` (reactivate band); `20260628203000_import_discover_6_9m_spine_v2.sql` (42 rows, 8 clusters from workbook; id `6-9m`, label **7–9 months**, min 7 max 9).
+- **Applied:** `supabase db push` — validation notices pass.
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. `/discover/8` — slider shows **7–9 months**; Stage 1 includes "Things can hide and come back" (Spine v2 voice).
+2. Stage 2 first card on sitting cluster: **A safe floor-play mat** with updated rationale copy.
+3. REST `v_gateway_age_bands_public?id=eq.6-9m` — label `7–9 months`, min 7 max 9.
+4. No console errors desktop + mobile.
+
 ## 2026-06-28 — feat(catalogue): Spine v2 slug cleanup + unified re-import (mega-PR)
 
 - **Branch:** `feat/catalogue-spine-v2-cleanup` — PR [#234](https://github.com/glownest2026-droid/ember/pull/234)
