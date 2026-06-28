@@ -1,6 +1,7 @@
 ## 2026-06-28 — feat(discover): import 10–12m Spine v2 discover_projection band
 
 - **Branch:** `feat/import-discover-10-12m-spine-v2`
+- **PR:** https://github.com/glownest2026-droid/ember/pull/233
 - **Source:** `10-12M Ember ABI.xlsx` → `discover_projection` only (workbook `age_9_12m` → stored band id `9-12m`, months 10–12)
 - **Migration:** `20260628140000_import_discover_10_12m_spine_v2.sql` — 48 Stage 2 rows, 8 Stage 1 clusters; Stage 3 deactivated
 - **Generator:** legacy pilot band ranges (`6-9m`→7–9, `9-12m`→10–12); dedupe `pl_ux_wrapper_needs` to rank-1 category need per cluster (Spine 2.0 multi-need clusters)
