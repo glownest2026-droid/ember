@@ -1,0 +1,15 @@
+{
+  "total_rows": 239,
+  "active": 197,
+  "deprecated_6_9m": 42,
+  "image_mapped_yes": 206,
+  "image_mapped_no": 33,
+  "by_band": {
+    "age_1_3m": 42,
+    "age_4_6m": 34,
+    "age_6_9m": 42,
+    "age_9_12m": 48,
+    "age_13_15m": 40,
+    "age_16_18m": 33
+  }
+}

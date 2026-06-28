@@ -40,6 +40,20 @@
 1. `node web/scripts/export-stage2-no-image.mjs` — expect `missing_managed_image: 0`
 2. `/discover/10?show=1` — all 9-12m Stage 2 cards show lifestyle images (e.g. `cat_blind_cord_cleats`, `cat_texture_sensory`)
 
+## 2026-06-28 — ops(master-library): full rebuild from Spine 2.0 ABI workbooks
+
+- **File:** `G:/My Drive/.../Spine Build PACK 2.0/Leaf - Master Library.xlsx`
+- **Script:** `scripts/rebuild-master-library.mjs`
+- **Backup:** `agent-tools/backups/master-library-pre-rebuild/`
+- **Rows:** 239 total (197 active + 42 deprecated `age_6_9m`)
+- **New columns:** `band_status`, `storage_filename`, `image_mapped`
+- **Source:** 5 ABI `discover_projection` tabs (canonical `cat_*` slugs); deprecated 6-9m preserved from prior library
+
+### How to verify
+1. Open Master Library — all `category_entity_id` values are `cat_*` slugs (no misaligned rationale text)
+2. Confirm bands: `age_1_3m`, `age_4_6m`, `age_6_9m` (deprecated), `age_9_12m`, `age_13_15m`, `age_16_18m`
+3. Active rows: `image_mapped=yes` for all 197; deprecated rows may be `no` where no Storage file exists
+
 ## 2026-06-28 — fix(snag-pack): discover age-band hero copy
 
 - **Branch:** `fix/snag-pack-discover-hero-copy`
