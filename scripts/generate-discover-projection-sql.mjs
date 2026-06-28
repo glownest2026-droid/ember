@@ -64,7 +64,15 @@ function firstNeedEntityId(raw) {
   return value.split(';')[0].trim();
 }
 
+/** Stored band ids whose month range differs from id digits (pilot FK stability). */
+const LEGACY_AGE_BAND_META = {
+  '6-9m': { label: '7–9 months', min: 7, max: 9 },
+  '9-12m': { label: '10–12 months', min: 10, max: 12 },
+};
+
 function ageBandMeta(id) {
+  const legacy = LEGACY_AGE_BAND_META[id];
+  if (legacy) return legacy;
   const match = String(id).match(/^(\d+)-(\d+)m$/);
   if (!match) throw new Error(`Unknown age band id: ${id}`);
   return {
@@ -318,6 +326,22 @@ SELECT
 FROM tmp_discover_projection_stage s
 GROUP BY s.age_band_id, s.stage1_wrapper_ux_slug;
 
+CREATE TEMP TABLE tmp_discover_stage1_wrapper_needs AS
+SELECT
+  s.stage1_wrapper_ux_slug,
+  s.development_need_slug,
+  s.development_need_canonical_name
+FROM (
+  SELECT
+    s.*,
+    ROW_NUMBER() OVER (
+      PARTITION BY s.stage1_wrapper_ux_slug
+      ORDER BY s.stage2_play_ideas_rank ASC, s.min_months ASC, s.age_band_id ASC
+    ) AS rn
+  FROM tmp_discover_projection_stage s
+) s
+WHERE s.rn = 1;
+
 CREATE TEMP TABLE tmp_discover_stage2_category_types AS
 SELECT
   s.stage2_category_type_slug,
@@ -416,10 +440,10 @@ INSERT INTO public.pl_ux_wrapper_needs (
   ux_wrapper_id,
   development_need_id
 )
-SELECT DISTINCT
+SELECT
   uw.id AS ux_wrapper_id,
   dn.id AS development_need_id
-FROM tmp_discover_projection_stage s
+FROM tmp_discover_stage1_wrapper_needs s
 JOIN public.pl_ux_wrappers uw
   ON LOWER(uw.ux_slug) = LOWER(s.stage1_wrapper_ux_slug)
 JOIN LATERAL (

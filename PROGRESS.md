@@ -1,3 +1,20 @@
+## 2026-06-28 — feat(discover): import 10–12m Spine v2 discover_projection band
+
+- **Branch:** `feat/import-discover-10-12m-spine-v2`
+- **Source:** `10-12M Ember ABI.xlsx` → `discover_projection` only (workbook `age_9_12m` → stored band id `9-12m`, months 10–12)
+- **Migration:** `20260628140000_import_discover_10_12m_spine_v2.sql` — 48 Stage 2 rows, 8 Stage 1 clusters; Stage 3 deactivated
+- **Generator:** legacy pilot band ranges (`6-9m`→7–9, `9-12m`→10–12); dedupe `pl_ux_wrapper_needs` to rank-1 category need per cluster (Spine 2.0 multi-need clusters)
+- **Slug note:** workbook uses `ent_cat_soft_balls` (not prior `cat_soft_graspable_balls` fix slug) — workbook `category_entity_id` wins
+- **Applied:** `supabase db push` — validation notices pass (48 rows, 8 clusters, Stage 3 active 0)
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. REST `v_gateway_wrappers_public?age_band_id=eq.9-12m` — 8 wrappers; labels match workbook `cluster_label_parent_friendly`.
+2. REST `v_gateway_category_types_public?age_band_id=eq.9-12m` — 48 rows; card title = junction `display_label` (e.g. "Soft balls to chase and roll" for `ent_cat_soft_balls`).
+3. `/discover/10?wrapper=ent_cluster_move&show=1` — Stage 2 matches workbook; cluster title "I'm getting ready to move".
+4. Global `pl_category_types.name` unchanged for existing slugs on re-import (INSERT ON CONFLICT DO NOTHING only).
+5. Image mapping is a separate job after PNG uploads (`ember_{slug}_9_12m_category.png`).
+
 ## 2026-06-28 — fix(snag-pack): discover age-band hero copy
 
 - **Branch:** `fix/snag-pack-discover-hero-copy`
