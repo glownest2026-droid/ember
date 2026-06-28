@@ -1,3 +1,22 @@
+## 2026-06-28 — feat(catalogue): Spine v2 slug cleanup + unified re-import (mega-PR)
+
+- **Branch:** `feat/catalogue-spine-v2-cleanup`
+- **Source of truth:** 5 G Drive Spine 2.0 workbooks (`1-3M`, `4-6M`, `10-12M`, `13-15M`, `16-18M`)
+- **Crosswalk:** `agent-tools/exports/category_slug_crosswalk.csv` — 161 source slugs → 145 canonical `cat_*`
+- **Workbooks:** Patched `discover_projection.category_entity_id` on G Drive (97 cells across 10-12M, 13-15M, 16-18M); backups in `agent-tools/backups/spine-v2-workbooks-pre-slug-cleanup/`
+- **Migrations:** `20260628180000_catalogue_spine_v2_deprecate_merge.sql` (6 deprecated bands + 95 slug merges); `20260628190000_reimport_discover_spine_v2_all_bands.sql` (197 rows, 5 bands)
+- **Deprecated bands:** `6-9m`, `22-24m`, `25-27m`, `28-30m`, `31-33m`, `34-36m` — deactivated, label suffixed `[deprecated — pre-Spine 2.0]`
+- **Distinct slug preserved:** `cat_bedtime_board_books` (not merged into `cat_board_books`)
+- **Applied:** `supabase db push` — validation notices pass; zero `ent_cat_*` on 9-12m gateway
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. `/discover/10?wrapper=ent_cluster_move&show=1` — Stage 2 uses `cat_*` slugs; e.g. "Posting boxes and hiding lids" on `cat_posting_boxes`
+2. REST `v_gateway_age_bands_public` — no deprecated bands (6-9m, 34-36m absent)
+3. REST `v_gateway_category_types_public?age_band_id=eq.9-12m` — 48 rows, all `cat_*` slugs
+4. Open crosswalk CSV — `cat_bedtime_board_books` distinct from `cat_board_books`
+5. G Drive workbooks — `category_entity_id` columns use canonical `cat_*` (no `ent_cat_*`, no `cat_13_15_*`)
+
 ## 2026-06-28 — fix(snag-pack): discover age-band hero copy
 
 - **Branch:** `fix/snag-pack-discover-hero-copy`
