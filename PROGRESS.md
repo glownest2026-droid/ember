@@ -1,15 +1,15 @@
 ## 2026-06-28 — fix(snag-pack): restore Discover 7–9 months age band
 
-- **Branch:** `fix/snag-pack-discover-7-9m-band`
-- **Root cause:** Spine v2 deprecate migration (`20260628180000`) deactivated `6-9m` (label 7–9 months) with no 7–9M workbook replacement; `v_gateway_age_bands_public` exposed a gap between 4–6m and 9–12m.
-- **Fix:** `20260628182042_restore_discover_7_9m_age_band.sql` — re-activate `6-9m` band + wrapper/category/product mappings (pre-Spine 2.0 content preserved).
-- **Applied:** `supabase db push --include-all` — REST confirms `6-9m` / `7–9 months` / min 7 max 9; 8 wrappers.
+- **Branch:** `fix/snag-pack-discover-7-9m-band` — PR [#235](https://github.com/glownest2026-droid/ember/pull/235)
+- **Root cause:** Spine v2 deprecate migration deactivated `6-9m` (label 7–9 months) with no import; the 7–9M workbook existed on G Drive as `02_Ember_Bible_Pilot_6_9m_discover_projection_voice_v1.xlsx` (misnamed 6-9m).
+- **Fix:** `20260628182042_restore_discover_7_9m_age_band.sql` (reactivate band); `20260628203000_import_discover_6_9m_spine_v2.sql` (42 rows, 8 clusters from workbook; id `6-9m`, label **7–9 months**, min 7 max 9).
+- **Applied:** `supabase db push` — validation notices pass.
 - **Build:** `pnpm -C web build` pass
 
 ### How to verify
-1. `/discover/8` — age slider shows **7–9 months** between 4–6 and 9–12; Stage 1 wrappers load (e.g. "I can sit and reach").
-2. Slide slider through months 7, 8, 9 — band stays on 7–9 months; hero copy mentions sitting steadier / finger foods.
-3. REST `v_gateway_age_bands_public` — includes `6-9m` with label `7–9 months`.
+1. `/discover/8` — slider shows **7–9 months**; Stage 1 includes "Things can hide and come back" (Spine v2 voice).
+2. Stage 2 first card on sitting cluster: **A safe floor-play mat** with updated rationale copy.
+3. REST `v_gateway_age_bands_public?id=eq.6-9m` — label `7–9 months`, min 7 max 9.
 4. No console errors desktop + mobile.
 
 ## 2026-06-28 — feat(catalogue): Spine v2 slug cleanup + unified re-import (mega-PR)
