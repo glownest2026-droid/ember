@@ -23,9 +23,9 @@ const valueLines = rows
   .map((r) => `      ('${r.category_type_id}'::uuid, NULL, ${q(r.storage_url)})`)
   .join(',\n');
 
-const sql = `-- Ops: map existing global category_images -> pl_category_type_images
--- ${rows.length} global Storage files (audit found 46 band-card rows covered via global fallback)
--- Do NOT re-upload these in Make — DB map only
+const sql = `-- Ops: map new Make category_images -> pl_category_type_images (global fallback)
+-- ${rows.length} Storage files from audit ${data.summary?.total ?? '?'} DB-missing rows scanned
+-- Audit: ${data.summary?.storage_exists ?? '?'} in Storage, ${data.summary?.truly_missing ?? '?'} still absent
 
 BEGIN;
 
@@ -67,9 +67,9 @@ COMMIT;
 
 const migrationPath = path.join(
   ROOT,
-  'supabase/migrations/20260628210000_map_global_category_images_from_storage.sql'
+  'supabase/migrations/20260628220000_map_new_make_category_images.sql'
 );
-const mirrorPath = path.join(ROOT, 'supabase/sql/202606282100_map_global_category_images_from_storage.sql');
+const mirrorPath = path.join(ROOT, 'supabase/sql/202606282200_map_new_make_category_images.sql');
 
 if (write) {
   fs.writeFileSync(migrationPath, sql, 'utf8');
