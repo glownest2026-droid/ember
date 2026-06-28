@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation';
 import {
-  getAgeBandForAge,
   getGatewayAgeBandIdsWithPicks,
   getGatewayAgeBandsPublic,
   getGatewayCategoryTypesForAgeBandAndWrapper,
@@ -16,6 +15,7 @@ import {
   applyStorageCategoryImages,
   resolveStorageCategoryImages,
 } from '../../../lib/discover/categoryImageOverrides';
+import { resolveAgeBandForMonthFromBands } from '../../../lib/discover/pilotAgeBandRange';
 import { resolveWrapperSlugFromFocusParam } from '../../../lib/compliance/resolveWrapperFromFocusParam';
 import DiscoveryPageClient from './DiscoveryPageClient';
 
@@ -35,36 +35,12 @@ interface DiscoverMonthsPageProps {
 /** Must stay dynamic: searchParams, redirects, and optional ?child= personalization. */
 export const dynamic = 'force-dynamic';
 
-function parseAgeBandIdRange(id: string): { min: number; max: number } | null {
-  const match = id.match(/^(\d+)-(\d+)m$/);
-  if (!match) return null;
-  const min = parseInt(match[1], 10);
-  const max = parseInt(match[2], 10);
-  if (isNaN(min) || isNaN(max)) return null;
-  return { min, max };
-}
-
 /** Resolve age band for a month without redirecting to /discover (avoids /discover ↔ /discover/26 loop). */
 async function resolveAgeBandForMonth(
   monthParam: number,
   ageBands: GatewayAgeBandPublic[]
-): Promise<Awaited<ReturnType<typeof getAgeBandForAge>>> {
-  const fromDb = await getAgeBandForAge(monthParam);
-  if (fromDb) return fromDb;
-
-  for (const band of ageBands) {
-    const min = typeof band.min_months === 'number' ? band.min_months : NaN;
-    const max = typeof band.max_months === 'number' ? band.max_months : NaN;
-    if (!isNaN(min) && !isNaN(max) && monthParam >= min && monthParam <= max) {
-      return band;
-    }
-    const parsed = parseAgeBandIdRange(band.id);
-    if (parsed && monthParam >= parsed.min && monthParam <= parsed.max) {
-      return band;
-    }
-  }
-
-  return ageBands[0] ?? null;
+): Promise<GatewayAgeBandPublic | null> {
+  return resolveAgeBandForMonthFromBands(monthParam, ageBands);
 }
 
 export default async function DiscoverMonthsPage({ params, searchParams }: DiscoverMonthsPageProps) {
