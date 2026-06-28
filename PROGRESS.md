@@ -1,6 +1,6 @@
 ## 2026-06-28 — feat(catalogue): Spine v2 slug cleanup + unified re-import (mega-PR)
 
-- **Branch:** `feat/catalogue-spine-v2-cleanup`
+- **Branch:** `feat/catalogue-spine-v2-cleanup` — PR [#234](https://github.com/glownest2026-droid/ember/pull/234)
 - **Source of truth:** 5 G Drive Spine 2.0 workbooks (`1-3M`, `4-6M`, `10-12M`, `13-15M`, `16-18M`)
 - **Crosswalk:** `agent-tools/exports/category_slug_crosswalk.csv` — 161 source slugs → 145 canonical `cat_*`
 - **Workbooks:** Patched `discover_projection.category_entity_id` on G Drive (97 cells across 10-12M, 13-15M, 16-18M); backups in `agent-tools/backups/spine-v2-workbooks-pre-slug-cleanup/`
