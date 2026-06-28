@@ -1,0 +1,1013 @@
+The Ember Spine Prompt 2.1 SOP v8
+Age-band research and workbook production prompt
+
+Purpose
+Build Ember age-band research workbooks using evidence capture only, while consulting the Leaf Master Library to reuse stable Stage 1 and Stage 2 entity IDs where objectively appropriate.
+
+This v8 version inherits all v7 requirements and adds:
+1. A strict Entity ID and slug contract (prevents catalogue drift).
+2. Master Library as the single slug dictionary (with band_status for active vs deprecated rows).
+3. Column-integrity rules so ID fields never contain public copy.
+4. Workbook handoff rules so discover_projection is import-ready without downstream rework.
+5. Slug and column-integrity QA in the final checklist and run summary.
+
+v7 capabilities retained:
+- Age-band hero summary for the Discover page.
+- Product-intent flags (is_physical_product).
+- Community recommendation flags (is_community_recommended).
+- Stricter Ember voice QA, including banned public-copy terms and Stage 1 label grammar.
+- Final UI-readiness audit before delivery.
+
+Core principle
+Capture rankable facts. Do not rank.
+Capture evidence. Do not invent.
+Consult the Leaf Master Library. Do not treat the library as evidence.
+Write public copy for tired parents, not for researchers, developers or product managers.
+Entity IDs are stable machine identifiers. Public copy belongs in label and rationale fields only.
+
+Required inputs per run
+1. This v8 SOP.
+2. The three XLSX templates:
+   - 00_Source_Builder.xlsx
+   - 01_Source_Capture.xlsx
+   - 02_Ember_Bible.xlsx
+3. Leaf - Master Library.xlsx (single slug dictionary — not evidence).
+4. The target age band.
+5. Optional founder-supplied URLs.
+6. Optional Ember Voice Guidelines.
+
+Required outputs
+Return the three populated XLSX workbooks only unless asked otherwise:
+1. 00_Source_Builder_[AGE_BAND]_v1.xlsx
+2. 01_Source_Capture_[AGE_BAND]_v1.xlsx
+3. 02_Ember_Bible_[AGE_BAND]_v1.xlsx
+
+If only the Bible workbook is being rebuilt, return only:
+02_Ember_Bible_[AGE_BAND]_v[VERSION].xlsx
+
+Do not change existing sheet names unless required by this prompt.
+Preserve the template structure.
+Add only the required v8 columns or the required v8 metadata sheet where missing.
+
+1. What changed in v8
+
+Change: Entity ID and slug contract
+What v8 now does:
+Every category_entity_id must follow canonical cat_* slug grammar. Forbidden legacy patterns (ent_cat_*, band-prefixed slugs, copy in ID columns) are auto-fail at QA.
+
+Change: Master Library as single bible
+What v8 now does:
+Leaf - Master Library.xlsx is the only reference for existing slugs and prior coverage. Use band_status to distinguish active catalogue rows from deprecated historical rows.
+
+Change: Column integrity
+What v8 now does:
+ID columns contain identifiers only. Labels, rationales and hero copy never belong in entity_id or age_band_id fields.
+
+Change: Workbook handoff rules
+What v8 now does:
+discover_projection is populated so downstream import can trust category_entity_id as global identity and category_label / why_it_matters_* as band-scoped presentation.
+
+Change: Slug QA in delivery
+What v8 now does:
+Run summary reports new vs reused slugs, forbidden-pattern violations (must be zero), and merge candidates.
+
+Inherited from v7 (unchanged):
+- Age-band hero summary.
+- is_physical_product and is_community_recommended flags.
+- Ember voice QA and banned terms.
+- Stage 1 label grammar.
+- UI-readiness audit.
+
+2. Operating principles
+
+Manus owns scrape and capture only.
+Do not calculate scores, weights or formulaic rankings.
+Every public-facing idea must trace back to captured source evidence for the current age band, or a source with continuous coverage that includes the current band.
+Use three equal research lanes:
+- Development
+- Stage Logistics
+- Community Insights
+
+Consult the Leaf Master Library before creating final Stage 1 or Stage 2 entities.
+Reuse existing entity IDs when the meaning is objectively the same.
+Do not create near-duplicate slugs because wording differs.
+Do not use the library as source evidence.
+Community evidence remains weak signal unless corroborated or explicitly reviewed.
+Public copy must be warm, clear, grounded in real parent moments and free of internal infrastructure language.
+
+3. Required workbook package
+
+Workbook: 00_Source_Builder.xlsx
+Sheets:
+- source_register
+- source_page_inventory
+- source_age_coverage_matrix
+- extraction_rules
+Role:
+Defines the source universe, page inventory and source permissions.
+
+Workbook: 01_Source_Capture.xlsx
+Sheets:
+- source_page_capture
+- atomic_evidence
+- capture_qa
+Role:
+Captures what sources actually say, including page-level and atomic evidence.
+
+Workbook: 02_Ember_Bible.xlsx
+Sheets:
+- bible_entities
+- bible_relationships
+- lifecycle_timing
+- commerce_marketplace_rules
+- discover_projection
+- bible_qa
+Required v8 addition:
+- age_band_meta, if not already present
+
+Role:
+Projects approved evidence into canonical Ember entities and UI-ready Stage 1 and Stage 2 ideas.
+
+Leaf - Master Library.xlsx
+Primary sheet:
+- Master_Library
+
+Role:
+Single source of truth for existing entity IDs, labels, prior age-band coverage, band_status and duplication prevention.
+
+Key columns (consult before creating entities):
+- age_band_id
+- band_status (active | deprecated — pre-Spine 2.0)
+- cluster_entity_id
+- category_entity_id
+- cluster_label, category_label
+- audience_lens
+- evidence_ids (for reference only — not usable as evidence for the current run)
+
+Do not use the Master Library as evidence.
+Do not create a second slug reference file; the Master Library is the bible.
+
+4. Leaf Master Library rules
+
+Open Leaf - Master Library.xlsx before source research begins.
+
+Use Master_Library to identify:
+- existing cluster_entity_id
+- existing category_entity_id
+- existing cluster labels
+- existing parent-friendly labels
+- existing category labels
+- audience_lens
+- prior age-band coverage
+- band_status (active vs deprecated)
+- aliases and near-duplicates
+
+band_status rules:
+- active: live catalogue bands (e.g. 1-3m, 4-6m, 9-12m, 13-15m, 16-18m and future bands as added).
+- deprecated — pre-Spine 2.0: historical rows (e.g. pilot 6-9m). Consult for concept reuse; do not copy forbidden slug patterns from deprecated rows; do not treat as evidence.
+
+Do not use the library as evidence.
+Do not promote a Discover row because it exists in the library.
+A current-band Discover row needs current-band evidence or continuous evidence that clearly covers the current band.
+
+If the same concept appears again with fresh evidence:
+- reuse the existing category_entity_id or cluster_entity_id
+- add current-band lifecycle rows
+- add current-band relationships
+- write age-specific why-now copy in category_label and why_it_matters_* fields
+
+If the concept is materially different:
+- create a new stable entity ID following the slug contract (section 4A)
+- explain why it is distinct in bible_qa
+
+If the match is unclear:
+- mark needs_review
+- log the issue in bible_qa
+- do not silently create a duplicate
+
+Documented distinct-slug exceptions (reuse is wrong):
+- cat_bedtime_board_books is NOT the same as cat_board_books
+When in doubt, check Master Library and bible_qa before inventing a new slug.
+
+4A. Entity ID and slug contract
+
+This section prevents catalogue drift. Violations are auto-fail at QA.
+
+Category slugs (category_entity_id)
+
+Required format:
+cat_{snake_case_descriptor}
+
+Examples (good):
+cat_board_books
+cat_stacking_nesting_cups
+cat_push_pull_toys
+cat_bedtime_board_books
+
+Forbidden patterns (never use):
+- ent_cat_* (legacy pilot prefix)
+- cat_{band}_* e.g. cat_13_15_bath_cups, cat_16_18_chunky_crayons
+- Band tokens inside slug e.g. cat_9_12m_posting_boxes
+- Slugs without cat_ prefix (unless explicitly documented exception in bible_qa)
+- Sentences, rationales or labels in the category_entity_id column
+- More than six underscore-separated tokens without bible_qa justification
+
+Global identity rule (critical):
+- The same play/product idea across age bands uses the SAME category_entity_id.
+- Band-specific wording belongs in category_label, why_it_matters_short and why_it_matters_long — not a new slug.
+- Create a NEW slug only when the idea is materially different (different product family, different safety class, or distinct parent job).
+
+Cluster slugs (cluster_entity_id)
+
+Use stable snake_case identifiers.
+Prefer reusing existing cluster_entity_id from Master Library when the Stage 1 doorway meaning matches.
+Do not embed band labels in cluster IDs unless the cluster itself is band-unique and documented in bible_qa.
+Log new cluster_entity_id in bible_qa with reused vs new flag.
+
+Age band IDs (age_band_id)
+
+Workbook format: age_{start}_{end}m with underscores, e.g. age_19_21m, age_4_6m, age_9_12m.
+
+Rules:
+- age_band_id is machine identity for import.
+- age_band_label is parent-facing copy (e.g. 19–21 months).
+- Never put prose, labels or rationales in age_band_id.
+- Known legacy note: age_9_12m corresponds to 10–12 months in parent UI — do not rename the id; use correct age_band_label.
+
+Column integrity (all entity and ID columns)
+
+These columns must contain identifiers only:
+- age_band_id
+- cluster_entity_id
+- category_entity_id
+- need_entity_ids (semicolon-separated slugs)
+- evidence_ids, source_ids (reference tokens)
+
+These columns contain public copy:
+- cluster_label, cluster_label_parent_friendly
+- category_label
+- why_it_matters_short, why_it_matters_long
+- cluster_why_it_matters_short, cluster_why_it_matters_long
+- hero_summary
+
+Auto-fail if:
+- category_entity_id has more than six words or ends with a full stop
+- category_label is a paragraph where a short UI title is expected
+- why_it_matters_short exceeds 15 words
+- Any ID column contains banned public terms from section 16
+
+5. Source Builder SOP
+
+When URLs are supplied:
+Use supplied URLs as mandatory source pages.
+Record every supplied URL in source_page_inventory, even if inaccessible, thin or unsuitable.
+Add top-up sources only where supplied URLs cannot meet all three research lanes or the UI bar.
+
+When URLs are not supplied:
+Build the source register first.
+Do not begin by guessing products.
+Use the three-point boundary pattern:
+- one official or trusted source near the lower age boundary
+- one in-band core source
+- one trusted source near the upper age boundary
+
+For Stage Logistics, search by life situation rather than product guess:
+- sleep
+- feeding
+- hygiene
+- transport
+- safety
+- routines
+- moving out of a stage
+- household setup
+
+For Community Insights, search by real parent questions:
+- What do parents recommend?
+- What do they regret buying?
+- What do they wish they had known?
+- What hacks or adaptations appear repeatedly?
+- What feels confusing, stressful or easy to miss?
+
+Source roles
+
+Development sources:
+Examples: NHS, CDC, HSE, AAP, Zero to Three, EYFS where relevant.
+Allowed use:
+Developmental claims, age signals, play patterns, child-facing activities.
+
+Stage Logistics sources:
+Examples: NHS, Lullaby Trust, RoSPA, CAPT, GOV.UK safety and recall sources, specialist charities.
+Allowed use:
+Safety, feeding, sleep, hygiene, movement, home setup, avoid/restrict, new-only and safe-use notes.
+
+Commercial competitor sources:
+Examples: Lovevery kit pages and equivalent stage-led competitors.
+Allowed use:
+Item parity, category language, competitor coverage and commercial translation.
+Not allowed:
+Developmental truth unless separately supported by trusted developmental sources.
+
+Commercial translation sources:
+Examples: retailers, buying guides, editorial reviews.
+Allowed use:
+Category naming, aliases, product-family breadth.
+Not allowed:
+Core developmental or safety justification.
+
+Community insight sources:
+Examples: Mumsnet, Reddit, Netmums, parent forums, community-style MadeForMums pages.
+Allowed use:
+Weak signals, parent language, FOMO, hacks, regret, boredom, adaptations, recurring recommendations.
+Not allowed:
+High-confidence developmental claims or safety overrides.
+
+6. Source Capture SOP
+
+For each page, populate source_page_capture before atomic_evidence.
+
+Create one atomic_evidence row per extractable:
+- age signal
+- developmental theme
+- parent job
+- activity pattern
+- item mention
+- category hint
+- safety caution
+- avoid signal
+- community signal
+- competitor item
+- product-family mention
+- non-product routine or setup idea
+
+Do not make final category decisions in Stage 1.
+Use provisional_concept_tag only.
+
+Raw evidence text should be short and searchable.
+Do not paste long passages.
+If a source mentions an item that may not be age-safe or age-fit, capture it with caution rather than silently removing it.
+Where a source term resembles a Master Library term, note the possible match in review_note but finalise the entity decision only in the Bible stage.
+
+Evidence types:
+- age_callout
+- developmental_need
+- activity_pattern
+- equipment_need
+- safety_note
+- routine_or_setup
+- community_insight
+- competitor_item
+- avoid_or_restrict
+- commerce_hint
+
+7. Community Insights guardrails
+
+Community sources are Tier 3 unless manually upgraded for a specific reason.
+Capture parent language and signal strength in community_signal_raw.
+Classify community ideas as one of:
+- corroborates_existing_spine
+- new_candidate_for_review
+- parent_adaptation
+- fomo_signal_only
+- unsafe_or_caution
+- not_age_fit
+- commercial_noise
+
+Community evidence must not:
+- create high-confidence developmental claims by itself
+- override safety guidance
+- become a final public category unless corroborated or clearly framed as community-surfaced
+
+Community evidence is valuable for:
+- parent language
+- recurring practical ideas
+- boredom signals
+- FOMO signals
+- hacks
+- buying regret
+- adapted use cases
+- items parents repeatedly mention in real life
+
+8. Competitor and Lovevery item parity checkpoint
+
+For each Lovevery or competitor kit page, every named item in the kit must be accounted for.
+Every named item must have at least one atomic_evidence row, even if later folded into a broader category.
+No competitor item may disappear silently between source capture, Bible entities and Discover projection.
+
+If an equivalent category already exists in the Master Library:
+- reuse the existing category_entity_id unless the item is materially different
+
+If the item is brand-specific:
+- preserve the exact item name in evidence
+- map to a neutral Ember category where possible
+
+Required outcome per competitor item:
+- mapped_to_category
+- folded_into_equivalent
+- deferred_for_review
+- excluded_with_reason
+
+9. Ember Bible SOP
+
+Build final canonical entities only from captured evidence.
+Before creating a new entity, consult the Master Library dictionary.
+
+Entities can include:
+- development needs
+- parent jobs
+- Stage 1 clusters
+- Stage 2 categories
+- subtypes
+- aliases
+- excluded categories
+- move-on rules
+
+Create relationships that explain why a category belongs to:
+- an age band
+- a need
+- a cluster
+- a lifecycle stage
+- a commerce or marketplace rule
+
+Use lifecycle_timing to manage overlap across age bands objectively.
+
+Use commerce_marketplace_rules to separate:
+- educational relevance
+- gift-list relevance
+- product recommendation eligibility
+- marketplace eligibility
+- new-only rules
+- hygiene-sensitive rules
+- safety-sensitive rules
+- do-not-recommend rules
+
+Use bible_qa to record:
+- reused cluster IDs
+- reused category IDs
+- new clusters
+- new categories
+- unresolved duplicate risks
+- merge candidates
+- label conflicts
+- thin areas
+- community-only weak signals
+- excluded or deferred ideas
+- distinct-slug exceptions (when a new slug was chosen despite surface similarity)
+
+10. V8 age-band metadata
+
+In 02_Ember_Bible.xlsx, add or populate an age_band_meta sheet.
+
+Required columns:
+- age_band_id
+- age_band_label
+- age_band_start_month
+- age_band_end_month
+- hero_summary
+- hero_summary_evidence_ids
+- hero_summary_review_status
+- hero_summary_notes
+
+hero_summary rules:
+- Maximum 40 words.
+- One paragraph only.
+- Written for the Discover page hero.
+- Must describe the overall age band, not one cluster.
+- Must be source-backed.
+- Must not overclaim.
+- Must not use internal language.
+- Must not say every child will do the same thing.
+- Must feel specific to the age band.
+- Must avoid generic filler.
+
+Good example for 1–3 months:
+“At 1–3 months, your baby may be noticing faces, voices and movement, while slowly building strength through short awake moments. Choose what they seem drawn to, and Ember will show simple ideas that fit this stage.”
+
+Bad examples:
+“At this age, children develop across multiple domains.”
+“Your child is becoming more advanced and independent.”
+“This stage is critical for motor and sensory development.”
+“This cluster helps parents understand what to buy.”
+“Your child is practising everything they need for the next stage.”
+
+11. Discover projection SOP
+
+The Discover projection supports Stage 1 and Stage 2 only.
+Do not populate Stage 3 product examples unless explicitly instructed.
+
+Aim for:
+- 6 to 8 public Stage 1 clusters per age band
+- minimum 6 for_your_child clusters where the age band has enough evidence
+- at least 3 Stage 2 category ideas per public cluster
+- preferably 4 to 7 Stage 2 category ideas per public cluster
+
+Use audience_lens:
+- for_your_child
+- for_you
+- for_both
+
+Every discover_projection row must include:
+- age_band_id
+- audience_lens
+- cluster_entity_id
+- cluster_label
+- cluster_label_parent_friendly
+- cluster_why_it_matters_short
+- cluster_why_it_matters_long
+- category_entity_id
+- category_label
+- why_it_matters_short
+- why_it_matters_long
+- evidence_ids
+- source_ids
+- review_status
+- is_physical_product
+- is_community_recommended
+- community_source_ids
+- community_signal_note
+
+If the template does not already have the v8 columns, add them to discover_projection:
+- is_physical_product
+- is_community_recommended
+- community_source_ids
+- community_signal_note
+
+11A. Workbook handoff rules (import-ready output)
+
+This research step produces workbooks for downstream engineering import. You are not importing.
+
+Handoff contract for discover_projection:
+- Populate discover_projection as the authoritative Stage 1 + Stage 2 sheet for the target age band.
+- category_entity_id = stable global slug (see section 4A). Must match Master Library reuse or be logged as new in bible_qa.
+- category_label and why_it_matters_* = band-specific presentation (may differ per band for the same slug).
+- cluster_entity_id = stable Stage 1 wrapper slug; reuse from Master Library when meaning matches.
+- age_band_id = machine id (age_19_21m format), never parent-facing prose.
+- Leave Stage 3 product rows empty unless explicitly instructed with real product data.
+- Every public row must have evidence_ids from the current capture — not from Master Library alone.
+- No column swapping: IDs in ID columns, copy in copy columns (see section 4A).
+
+After delivery, engineering imports discover_projection only. bible_entities supports QA but is not the import source for Discover UI.
+
+12. is_physical_product rules
+
+is_physical_product is a Stage 2 category-level flag.
+
+Set is_physical_product = 1 when the category represents a tangible item a parent could buy, borrow, gift, list, store or move on.
+
+Examples with is_physical_product = 1:
+- potty
+- board books
+- high-contrast cards
+- play mat
+- teether
+- baby carrier
+- bibs
+- bath thermometer
+- blackout blind
+- toy basket
+- open cup
+- stacking cups
+- soft ball
+- learning tower
+
+Set is_physical_product = 0 when the category is an activity, routine, setup behaviour, safety check, parent habit, environmental practice or non-buyable idea.
+
+Examples with is_physical_product = 0:
+- small-object safety sweep
+- supervised tummy time
+- settling routine
+- feeding position support
+- singing and turn-taking
+- face-to-face chat
+- bath-time play
+- checking straps fit correctly
+- moving choking hazards out of reach
+- toy rotation
+- bedtime wind-down
+
+Important:
+is_physical_product is not the same as marketplace eligibility.
+A product can be physical but still unsuitable for resale.
+Examples:
+- mattress: physical product = 1, marketplace eligibility may be restricted or new-only
+- car seat: physical product = 1, marketplace eligibility may be restricted or new-only
+- bottle teat: physical product = 1, marketplace eligibility may be hygiene-restricted
+
+Downstream UI logic:
+If is_physical_product = 0:
+- disable Add to gift list
+- hide Ember Picks
+- hide Stage 3 product recommendation prompts
+- still allow the idea to appear as guidance
+
+If is_physical_product = 1:
+- Stage 3 product logic may be eligible, subject to safety, hygiene and marketplace rules
+
+13. is_community_recommended rules
+
+is_community_recommended is a Stage 2 category-level flag.
+
+Set is_community_recommended = 1 when a public Stage 2 category is materially supported by one or more parent-community sources such as:
+- Mumsnet
+- Reddit
+- Netmums
+- parenting forums
+- community-style review threads
+- parent discussion pages
+
+Set is_community_recommended = 0 when:
+- the category is supported only by official, clinical, charity, competitor, retailer or editorial sources
+- a community source was reviewed but did not materially support the final idea
+- the community signal was too weak, unsafe, not age-fit or excluded
+
+If is_community_recommended = 1:
+- populate community_source_ids
+- populate community_signal_note
+- preserve the source evidence IDs in evidence_ids
+- do not imply the idea is expert-approved because parents discuss it
+
+Good community_signal_note examples:
+“Parents repeatedly mention this as a practical setup help; evidence remains community-level.”
+“Forum signal supports parent interest, while age-fit is supported by trusted developmental sources.”
+“Community source suggests this is useful in real homes, but safety wording follows official guidance.”
+
+Bad community_signal_note examples:
+“Mumsnet proves this is best.”
+“Parents say this is essential.”
+“Community agrees every baby needs this.”
+“This is trending, so recommend it.”
+
+14. Stage 1 label grammar
+
+Stage 1 labels must be public UI doorways.
+They should make a tired parent think: “That sounds like my child.”
+
+For for_your_child labels:
+Prefer:
+- first-person child voice
+- present-progress wording
+- observable behaviours
+- soft discovery language
+- everyday moments
+
+Good examples:
+“I’m finding things out”
+“My hands can do more now”
+“I’m getting ready to move”
+“I’m learning to play with you”
+“I’m watching your face”
+“I’m listening to your voice”
+“My body is getting stronger”
+“I’m copying the everyday”
+“I’m making my first marks”
+
+Avoid:
+- commands
+- direct action tasks
+- clinical labels
+- product categories
+- adult infrastructure language
+
+Bad examples:
+“Lift my head”
+“Open my hands”
+“Gross motor development”
+“Fine motor manipulation”
+“Visual tracking”
+“Language acquisition”
+“Object permanence category”
+“Floor play setup”
+“Buy tummy time products”
+
+For for_you labels:
+Use parent-job language that feels useful and domestic.
+Good examples:
+“Keep curious hands safer”
+“Make feeds feel easier”
+“Help sleep stay safer”
+“Keep first trips simpler”
+“Make messy moments easier”
+“Give us a good little moment”
+
+Avoid:
+“Parent logistics”
+“Safety infrastructure”
+“Sleep product setup”
+“Feeding optimisation”
+“This cluster keeps the focus on…”
+
+15. Public copy rules
+
+All public-facing fields must follow Ember voice:
+- cluster_label
+- cluster_label_parent_friendly
+- cluster_why_it_matters_short
+- cluster_why_it_matters_long
+- category_label
+- why_it_matters_short
+- why_it_matters_long
+- hero_summary
+- any public-facing notes that may render in UI
+
+Use this copy formula:
+1. Recognition hook: name the real behaviour the parent may recognise.
+2. Reassurance: make the parent feel this is normal and worth noticing.
+3. Friendly science: explain the value in plain English.
+4. Simple action: suggest the kind of idea, play or setup that can help.
+
+Good copy:
+“Your baby may be starting to turn towards your voice, pause when you speak or watch your mouth move. Simple face-to-face chats, songs and pauses give them early practice with listening, attention and the back-and-forth rhythm of communication.”
+
+Bad copy:
+“This cluster supports early communication development through parent-child interaction.”
+
+Good copy:
+“Short awake moments on the floor can give your baby a chance to push, stretch and turn their head. A firm surface, a nearby face and a few simple objects can make the effort feel worthwhile.”
+
+Bad copy:
+“Tummy time is essential for physical development and should be implemented daily.”
+
+16. Banned public-copy terms and phrases
+
+Do not use the following in public-facing fields:
+- cluster
+- category
+- taxonomy
+- entity
+- source
+- evidence
+- research shows
+- developmental domain
+- milestone acquisition
+- cognitive development category
+- fine motor manipulation
+- gross motor development
+- bilateral coordination
+- sensory-motor integration
+- optimize
+- leverage
+- facilitate
+- critical window
+- essential
+- must-have
+- guaranteed
+- advanced
+- perfect for every child
+- buy now
+- do not miss
+- AI
+- AI-powered
+- magic
+- calm
+
+The word “safe” is allowed when safety is the actual point.
+The word “stage” is allowed sparingly, but avoid using it repeatedly as filler.
+The word “development” is allowed in navigation or page headings if already used by the product, but avoid it inside card labels and rationale copy where a real moment would be better.
+
+Internal sheets such as bible_qa may use technical language where necessary.
+Public-facing fields must not.
+
+17. Short and long copy length rules
+
+why_it_matters_short:
+- under 15 words
+- plain English
+- no jargon
+- no punctuation-heavy phrasing
+
+why_it_matters_long:
+- 40 to 60 words
+- start with a real moment
+- explain why it helps
+- include a simple category or idea direction
+- no pressure
+- no banned terms
+
+cluster_why_it_matters_short:
+- under 15 words
+- should explain the parent-recognisable value of the Stage 1 card
+
+cluster_why_it_matters_long:
+- 40 to 60 words
+- must describe the broad doorway
+- must not sound like an internal summary
+- must not mention “this cluster”
+
+hero_summary:
+- maximum 40 words
+- one paragraph
+- source-backed
+- age-band level
+
+18. Commerce and marketplace rules
+
+Keep educational relevance separate from commercial eligibility.
+
+For every relevant category, use commerce_marketplace_rules to specify:
+- education_eligible
+- gift_list_eligible
+- ember_picks_eligible
+- marketplace_eligible
+- new_only
+- hygiene_sensitive
+- safety_sensitive
+- restricted
+- reason
+
+Rules:
+If is_physical_product = 0:
+- gift_list_eligible should normally be 0
+- ember_picks_eligible should normally be 0
+- marketplace_eligible should be 0
+
+If is_physical_product = 1:
+- gift_list_eligible may be 1, unless safety/hygiene rules prevent it
+- ember_picks_eligible may be 1, unless safety/hygiene rules prevent it
+- marketplace_eligible depends on category policy
+
+Examples:
+Small-object safety sweep:
+- is_physical_product = 0
+- gift_list_eligible = 0
+- ember_picks_eligible = 0
+- marketplace_eligible = 0
+
+Potty:
+- is_physical_product = 1
+- gift_list_eligible = 1
+- ember_picks_eligible = 1
+- marketplace_eligible may be allowed with hygiene guidance
+
+Car seat:
+- is_physical_product = 1
+- gift_list_eligible may be 1 for new purchase guidance
+- ember_picks_eligible may be 1 for new-only recommendations
+- marketplace_eligible = 0 or restricted
+- new_only = 1
+- safety_sensitive = 1
+
+Mattress:
+- is_physical_product = 1
+- gift_list_eligible may be 1 for new purchase guidance
+- marketplace_eligible = 0 or restricted
+- new_only = 1
+- hygiene_sensitive = 1
+- safety_sensitive = 1
+
+19. Targeted top-up loop
+
+After the first Discover projection, check whether the UI bar is met.
+
+Run targeted top-up research if:
+- fewer than 6 public Stage 1 clusters exist
+- fewer than 6 for_your_child clusters exist where the age band supports it
+- any public cluster has fewer than 3 Stage 2 ideas
+- the age_band_meta hero summary lacks evidence
+- too many Stage 2 rows are non-product ideas, leaving downstream product surfaces thin
+- community flags cannot be populated because the community lane is under-researched
+
+Do not pad.
+Add only source-backed ideas.
+If the evidence does not support a full card or category, mark the area thin in bible_qa.
+
+Top-up by lane:
+Thin Development cluster:
+Search official milestone, activity and trusted development sources.
+
+Thin Stage Logistics cluster:
+Search by life situation: feeding, sleep, hygiene, transport, safety, routines, setup, outings.
+
+Thin Community signal:
+Search parent questions and capture as weak signal. Do not promote without review or corroboration.
+
+Thin product eligibility:
+Search category-level commercial translation sources to understand whether the idea is a tangible product family or non-product practice.
+
+Thin library reconciliation:
+Check whether an existing entity already covers the idea before creating a new one.
+
+20. Final QA checklist before delivery
+
+Source QA:
+- Every source used has a source_register row.
+- Every source page used has source_page_inventory row.
+- Every source page used has source_page_capture row.
+- Every public idea has evidence_ids.
+- No Discover row relies on the Master Library as evidence.
+
+Master Library QA:
+- Master Library was opened before Bible work.
+- Every public cluster was checked against existing cluster IDs.
+- Every public category was checked against existing category IDs.
+- No near-duplicate entity was created without explanation.
+- Unclear matches are logged in bible_qa.
+
+Slug QA (v8 — auto-fail if any violation):
+- Every category_entity_id matches ^cat_[a-z0-9_]+$
+- Zero ent_cat_* category slugs.
+- Zero band-prefixed category slugs (cat_13_15_*, cat_16_18_*, etc.).
+- Zero sentences or rationales in ID columns.
+- Reused slugs logged in bible_qa where meaning matches Master Library.
+- New slugs logged in bible_qa with distinctness justification.
+- Known exceptions (e.g. cat_bedtime_board_books vs cat_board_books) respected.
+
+Column integrity QA (v8 — auto-fail if any violation):
+- category_entity_id and cluster_entity_id contain identifiers only.
+- category_label is a short UI title, not a paragraph.
+- why_it_matters_short is under 15 words on every row.
+- age_band_id uses age_{n}_{n}m format, not prose.
+
+UI bar QA:
+- 6 to 8 public Stage 1 clusters.
+- Minimum 6 for_your_child clusters where evidence supports it.
+- At least 3 Stage 2 category ideas per public cluster.
+- audience_lens populated on every public row.
+- hero_summary exists and is under 40 words.
+- is_physical_product populated as 1 or 0 on every public Stage 2 row.
+- is_community_recommended populated as 1 or 0 on every public Stage 2 row.
+- community_source_ids populated where is_community_recommended = 1.
+- non-product ideas do not incorrectly enable gift list or Ember Picks logic.
+
+Voice QA:
+- Stage 1 labels feel like discovery doorways.
+- for_your_child labels are not action commands.
+- for_you labels feel like useful parent jobs.
+- No public-facing field uses internal terms such as cluster, category, entity, source or evidence.
+- No public-facing field uses banned pressure terms.
+- No public-facing field uses “calm”.
+- Public copy starts with real moments.
+- Public copy avoids academic labels.
+- Public copy avoids overclaiming.
+- Public copy does not sound like AI-generated filler.
+- Public copy does not say “this cluster” or “this category”.
+
+Commerce QA:
+- Education eligibility and product eligibility are separated.
+- is_physical_product does not override safety rules.
+- Physical but restricted items are still marked physical.
+- Non-product ideas are not treated as giftable products.
+- Marketplace rules reflect new-only, hygiene and safety constraints.
+
+Community QA:
+- Community evidence is flagged but not overstated.
+- Community-only ideas are marked weak unless corroborated.
+- Community recommendations preserve source IDs.
+- Unsafe, not-age-fit or noisy community ideas are deferred or excluded.
+
+Handoff QA (v8):
+- discover_projection is complete for Stage 1 + Stage 2.
+- Stage 3 empty unless explicitly instructed.
+- All rows pass slug and column-integrity checks above.
+
+Delivery QA:
+- Workbook formulas, filters and sheet structures are preserved where possible.
+- New v8 columns are added only where needed.
+- No spreadsheet error values.
+- No blank required v8 fields in public Discover rows.
+- Run summary includes:
+  - sources reviewed
+  - pages captured
+  - atomic evidence rows
+  - Bible entities
+  - relationships
+  - lifecycle rows
+  - commerce rules
+  - Discover projection rows
+  - reused clusters
+  - reused categories
+  - new clusters
+  - new categories
+  - unresolved conflicts
+  - top-up actions taken
+  - slug reuse count
+  - new slug count
+  - forbidden-pattern violations (must be 0)
+
+21. Delivery format
+
+Deliver the populated XLSX workbook files.
+
+Include a short run summary:
+- age band
+- sources reviewed
+- pages captured
+- atomic evidence rows
+- Bible entities
+- relationships
+- lifecycle rows
+- commerce rules
+- Discover projection rows
+- hero summary status
+- physical product flag status
+- community recommendation flag status
+- Master Library reuse summary (clusters reused, categories reused)
+- new cluster slugs (list)
+- new category slugs (list)
+- forbidden-pattern violations (must be 0)
+- voice QA status
+- gaps or thin areas
+
+Flag gaps honestly.
+Do not pad.
+Where a source is inaccessible, deleted, blocked or incomplete, record the issue in capture_qa and do not infer missing content.
+
+End of SOP v8.

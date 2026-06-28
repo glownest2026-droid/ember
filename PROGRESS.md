@@ -54,6 +54,17 @@
 2. Confirm bands: `age_1_3m`, `age_4_6m`, `age_6_9m` (deprecated), `age_9_12m`, `age_13_15m`, `age_16_18m`
 3. Active rows: `image_mapped=yes` for all 197; deprecated rows may be `no` where no Storage file exists
 
+## 2026-06-28 — docs(spine): Ember Spine Prompt v8 (slug contract)
+
+- **G Drive:** `Spine Build PACK 2.0/The Ember Spine Prompt 2.1 SOP v8.txt`
+- **Archive:** `Spine Build PACK 2.0/archive/The Ember Spine Prompt 2.1 SOP v7.txt`
+- **Repo mirror:** `agent-tools/spine-prompt/The Ember Spine Prompt 2.1 SOP v8.txt`
+- **v8 adds:** Entity ID & slug contract (§4A), Master Library as single bible, column integrity, workbook handoff rules (§11A), slug QA in delivery checklist
+
+### How to verify
+1. G Drive PACK folder has v8 only (v7 in `archive/`)
+2. Research pack attaches v8 + 3 templates + Master Library + Voice Guidelines
+
 ## 2026-06-28 — fix(snag-pack): discover age-band hero copy
 
 - **Branch:** `fix/snag-pack-discover-hero-copy`
