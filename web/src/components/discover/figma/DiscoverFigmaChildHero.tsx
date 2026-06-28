@@ -1,21 +1,17 @@
 'use client';
 
 import { EmberRobinMark } from '@/components/figma/discover/EmberRobinMark';
+import { getDiscoverHeroCopy } from './discoverHeroCopy';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 
 const HERO_FALLBACK =
   'https://images.unsplash.com/photo-1509781827353-fb95c262fc40?w=1080&q=80';
 
-function possessiveName(displayLabel: string | null): string {
-  const name = displayLabel?.trim();
-  if (!name) return "your child's";
-  return name.endsWith('s') ? `${name}'` : `${name}'s`;
-}
-
 export function DiscoverFigmaChildHero({
   childDisplayLabel,
   monthAge,
   bandLabel,
+  bandRange,
   isExpecting = false,
   heroImageUrl,
   selectedBandIndex,
@@ -27,6 +23,7 @@ export function DiscoverFigmaChildHero({
   childGender?: string | null;
   monthAge: number;
   bandLabel: string;
+  bandRange?: { min: number; max: number } | null;
   /** True when the selected band is the newborn/expecting (0–0 months) stage. */
   isExpecting?: boolean;
   heroImageUrl?: string | null;
@@ -37,14 +34,12 @@ export function DiscoverFigmaChildHero({
 }) {
   const name = childDisplayLabel?.trim() || null;
   const chipLabel = name ? `For ${name} · ${bandLabel}` : bandLabel;
-  const headline = isExpecting
-    ? (name ? `What ${name} will need` : 'What your baby will need')
-    : (name ? `What ${possessiveName(name)} practising now` : "What your child's practising now");
-  const sub = isExpecting
-    ? `Get ready for the early days. Choose a focus and we'll show useful ideas to prepare for ${name ?? 'your baby'}.`
-    : name
-    ? `At ${monthAge} months, ${name} may be getting more independent, more physical and more expressive. Choose a development and we'll show useful ideas for this stage.`
-    : `At ${monthAge} months, your child may be getting more independent, more physical and more expressive. Choose a development and we'll show useful ideas for this stage.`;
+  const { headline, sub } = getDiscoverHeroCopy({
+    bandRange: bandRange ?? null,
+    childDisplayLabel,
+    isExpecting,
+    monthAge,
+  });
 
   const heroImg = (
     <DiscoverFigmaImage

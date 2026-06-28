@@ -1037,7 +1037,8 @@ export default function DiscoveryPageClient({
   const showStartOverFab = startOverVisible && ideasSectionInView;
   const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
   const bandLabel = formatBandLabel(selectedBand);
-  const isExpecting = isExpectingRange(getBandRange(selectedBand));
+  const bandRange = getBandRange(selectedBand);
+  const isExpecting = isExpectingRange(bandRange);
   const examplesHaveRetailerLinks = useMemo(
     () => displayIdeas.some((p) => hasOutboundRetailerUrl(p.product)),
     [displayIdeas]
@@ -1083,6 +1084,7 @@ export default function DiscoveryPageClient({
               : (monthParam ?? 26)
           }
           bandLabel={bandLabel}
+          bandRange={bandRange}
           isExpecting={isExpecting}
           heroImageUrl={categoryTypes[0]?.image_url ?? bandHeroImageUrl ?? exampleProducts[0]?.product?.image_url ?? null}
           selectedBandIndex={selectedBandIndex}
