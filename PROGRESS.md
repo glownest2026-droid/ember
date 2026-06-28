@@ -17,6 +17,19 @@
 4. Open crosswalk CSV — `cat_bedtime_board_books` distinct from `cat_board_books`
 5. G Drive workbooks — `category_entity_id` columns use canonical `cat_*` (no `ent_cat_*`, no `cat_13_15_*`)
 
+## 2026-06-28 — ops(images): repoint category images post slug cleanup
+
+- **Migration:** `20260628200000_repoint_category_images_post_slug_cleanup.sql` — 25 DB mappings (3 Storage hits, 22 cross-band fallbacks)
+- **Generator:** `web/scripts/generate-category-image-repoint.mjs`
+- **Plan:** `agent-tools/exports/category_image_repoint_plan.json`
+- **Result:** missing managed images 120 → 95 (4-6m now fully covered; 9-12m/13-15m/16-18m still need new uploads)
+- **Applied:** `supabase db push`
+
+### How to verify
+1. Re-run `node web/scripts/export-stage2-no-image.mjs` — expect `missing_managed_image: 95`
+2. `/discover/14?wrapper=ent_cluster_move&show=1` — `cat_highchair` shows lifestyle image (cross-band from 4-6m)
+3. `/discover/17?show=1` — `cat_threading_beads` shows legacy-named Storage file
+
 ## 2026-06-28 — fix(snag-pack): discover age-band hero copy
 
 - **Branch:** `fix/snag-pack-discover-hero-copy`
