@@ -41,11 +41,12 @@ function toInt(value) {
   return Number.isFinite(n) ? String(n) : 'NULL';
 }
 
-function mapAgeBandId(raw) {
+function mapAgeBandId(raw, fallback) {
   const value = String(raw || '').trim();
+  if (!value && fallback) return fallback;
   const fromWorkbook = value.match(/^age_(\d+)_(\d+)m$/);
   if (fromWorkbook) return `${fromWorkbook[1]}-${fromWorkbook[2]}m`;
-  return value;
+  return value || fallback || '';
 }
 
 function canonicalNameFromSlug(slug) {
@@ -90,7 +91,7 @@ function computeBandStats(rows) {
 function buildClusterLensMap(rawRows) {
   const map = new Map();
   for (const raw of rawRows) {
-    const ageBandId = mapAgeBandId(String(raw.age_band_id || '').trim());
+    const ageBandId = mapAgeBandId(String(raw.age_band_id || '').trim(), raw.__defaultBand);
     const clusterId = String(raw.cluster_entity_id || '').trim();
     const key = `${ageBandId}|${clusterId}`;
     const explicitCluster = String(raw.cluster_audience_lens || '').trim();
@@ -114,7 +115,8 @@ function buildClusterLensMap(rawRows) {
 }
 
 function normalizeRow(raw, clusterLensMap) {
-  const ageBandId = mapAgeBandId(String(raw.age_band_id || '').trim());
+  const ageBandId = mapAgeBandId(String(raw.age_band_id || '').trim(), raw.__defaultBand);
+  if (!ageBandId) throw new Error(`Missing age_band_id for category ${raw.category_entity_id}`);
   const meta = ageBandMeta(ageBandId);
   const clusterId = String(raw.cluster_entity_id || '').trim();
   const clusterKey = `${ageBandId}|${clusterId}`;
@@ -148,13 +150,28 @@ function normalizeRow(raw, clusterLensMap) {
   };
 }
 
+function defaultBandFromPath(filePath) {
+  const name = path.basename(filePath);
+  const m = name.match(/^(\d+)-(\d+)M/i);
+  if (m) return `${m[1]}-${m[2]}m`;
+  return null;
+}
+
 function readDiscoverProjection(filePath) {
   const wb = XLSX.readFile(filePath);
   const sheet = wb.Sheets.discover_projection;
   if (!sheet) {
     throw new Error(`Missing discover_projection tab in ${filePath}`);
   }
-  return XLSX.utils.sheet_to_json(sheet, { defval: '' });
+  const defaultBand = defaultBandFromPath(filePath);
+  return XLSX.utils
+    .sheet_to_json(sheet, { defval: '' })
+    .filter(
+      (raw) =>
+        String(raw.category_entity_id || '').trim() &&
+        String(raw.cluster_entity_id || '').trim()
+    )
+    .map((raw) => ({ ...raw, __defaultBand: defaultBand }));
 }
 
 function loadRows(files) {
@@ -318,6 +335,22 @@ SELECT
 FROM tmp_discover_projection_stage s
 GROUP BY s.age_band_id, s.stage1_wrapper_ux_slug;
 
+CREATE TEMP TABLE tmp_discover_stage1_wrapper_needs AS
+SELECT
+  s.stage1_wrapper_ux_slug,
+  s.development_need_slug,
+  s.development_need_canonical_name
+FROM (
+  SELECT
+    s.*,
+    ROW_NUMBER() OVER (
+      PARTITION BY s.stage1_wrapper_ux_slug
+      ORDER BY s.stage2_play_ideas_rank ASC, s.min_months ASC, s.age_band_id ASC
+    ) AS rn
+  FROM tmp_discover_projection_stage s
+) s
+WHERE s.rn = 1;
+
 CREATE TEMP TABLE tmp_discover_stage2_category_types AS
 SELECT
   s.stage2_category_type_slug,
@@ -416,10 +449,10 @@ INSERT INTO public.pl_ux_wrapper_needs (
   ux_wrapper_id,
   development_need_id
 )
-SELECT DISTINCT
+SELECT
   uw.id AS ux_wrapper_id,
   dn.id AS development_need_id
-FROM tmp_discover_projection_stage s
+FROM tmp_discover_stage1_wrapper_needs s
 JOIN public.pl_ux_wrappers uw
   ON LOWER(uw.ux_slug) = LOWER(s.stage1_wrapper_ux_slug)
 JOIN LATERAL (

@@ -1,0 +1,162 @@
+source_slug,canonical_slug,merge_action,review_flag,age_bands,source_files,sample_display_label,bible_entity_id,bible_canonical_slug,aliases_merged_into_canonical
+cat_allergen_tracking,cat_allergen_tracking,keep,,4-6m,4-6M,Food notes or allergen tracker,cat_allergen_tracking,allergen_tracking,
+ent_cat_animal_mini_books,cat_animal_mini_books,rename,ent_prefix_removed,9-12m,10-12M,Little animal books,,,
+cat_baby_safe_mirror,cat_baby_safe_mirror,keep,,1-3m;4-6m,1-3M;4-6M,A baby-safe mirror for faces,cat_baby_safe_mirror,baby_safe_mirror,
+cat_baby_sleeping_bag,cat_baby_sleeping_bag,keep,,1-3m,1-3M,A well-fitting baby sleeping bag,cat_baby_sleeping_bag,baby_sleeping_bag,
+cat_13_15_bath_cups,cat_bath_cups,rename,merged_alias,13-15m,13-15M,Bath cups and pouring games,cat_13_15_bath_cups,13_15_bath_cups,ent_cat_bath_cups;cat_13_15_bath_cups
+ent_cat_bath_cups,cat_bath_cups,rename,merged_alias,9-12m,10-12M,Bath cups and pouring,,,ent_cat_bath_cups;cat_13_15_bath_cups
+ent_cat_bath_supervision,cat_bath_supervision,rename,ent_prefix_removed,9-12m,10-12M,Safe bath and water-play routines,,,
+cat_16_18_bath_water_supervision,cat_bath_water_supervision,rename,band_prefix_removed,16-18m,16-18M,Bath and water supervision,cat_16_18_bath_water_supervision,16_18_bath_water_supervision,
+cat_13_15_bedtime_board_books,cat_bedtime_board_books,rename,band_prefix_removed,13-15m,13-15M,Bedtime board books,cat_13_15_bedtime_board_books,13_15_bedtime_board_books,
+ent_cat_bibs_mats,cat_bibs_mats,rename,ent_prefix_removed,9-12m,10-12M,"Bibs, mats and clean-up helpers",,,
+ent_cat_blind_cord_cleats,cat_blind_cord_cleats,rename,ent_prefix_removed,9-12m,10-12M,Blind-cord tidies and cleats,,,
+cat_board_books,cat_board_books,keep,canonical_target,1-3m;13-15m;4-6m,1-3M;13-15M;4-6M,Board books and face books,cat_board_books,board_books,cat_board_books;ent_cat_board_books
+ent_cat_board_books,cat_board_books,rename,merged_alias,9-12m,10-12M,Board books for pointing and naming,,,cat_board_books;ent_cat_board_books
+cat_16_18_body_part_books_games,cat_body_part_books_games,rename,band_prefix_removed,16-18m,16-18M,Body-part books and games,cat_16_18_body_part_books_games,16_18_body_part_books_games,
+cat_bottle_sterilising_kit,cat_bottle_sterilising_kit,keep,,1-3m,1-3M,Bottle sterilising kit,cat_bottle_sterilising_kit,bottle_sterilising_kit,
+cat_breastfeeding_comfort_supplies,cat_breastfeeding_comfort_supplies,keep,,1-3m,1-3M,Breastfeeding comfort supplies,cat_breastfeeding_comfort_supplies,breastfeeding_comfort_supplies,
+cat_13_15_bubbles,cat_bubbles,rename,merged_alias,13-15m,13-15M,Bubbles,cat_13_15_bubbles,13_15_bubbles,ent_cat_bubbles;cat_13_15_bubbles
+ent_cat_bubbles,cat_bubbles,rename,merged_alias,9-12m,10-12M,Bubbles to watch and reach for,,,ent_cat_bubbles;cat_13_15_bubbles
+cat_burp_cloths_muslins,cat_burp_cloths_muslins,keep,,1-3m,1-3M,Muslins and burp cloths,cat_burp_cloths_muslins,burp_cloths_muslins,
+cat_button_battery_check,cat_button_battery_check,keep,,1-3m;13-15m;16-18m;4-6m,1-3M;13-15M;16-18M;4-6M,Button battery checks,cat_button_battery_check,button_battery_check,
+cat_13_15_car_seat_size_check,cat_car_seat_size_check,rename,band_prefix_removed,13-15m,13-15M,Car-seat size and direction check,cat_13_15_car_seat_size_check,13_15_car_seat_size_check,
+cat_16_18_chunky_crayons,cat_chunky_crayons,rename,band_prefix_removed,16-18m,16-18M,Chunky crayons and first scribbles,cat_16_18_chunky_crayons,16_18_chunky_crayons,
+cat_cleanable_sensory_toys,cat_cleanable_sensory_toys,keep,,1-3m;4-6m,1-3M;4-6M,Easy-clean sensory toys,cat_cleanable_sensory_toys,cleanable_sensory_toys,
+cat_13_15_cleanup_basket,cat_cleanup_basket,rename,band_prefix_removed,13-15m,13-15M,Clean-up basket games,cat_13_15_cleanup_basket,13_15_cleanup_basket,
+cat_clear_cot_check,cat_clear_cot_check,keep,,1-3m;4-6m,1-3M;4-6M,Clear cot checks,cat_clear_cot_check,clear_cot_check,
+cat_13_15_comfort_toy,cat_comfort_toy,rename,band_prefix_removed,13-15m,13-15M,A safe comfort object,cat_13_15_comfort_toy,13_15_comfort_toy,
+ent_cat_container_basket,cat_container_basket,rename,ent_prefix_removed,9-12m,10-12M,Treasure baskets and emptying games,,,
+cat_contrast_mobile_supervised,cat_contrast_mobile_supervised,keep,,1-3m,1-3M,A supervised mobile or moving object,cat_contrast_mobile_supervised,contrast_mobile_supervised,
+cat_copying_faces_expressions,cat_copying_faces_expressions,keep,,1-3m,1-3M,Copying faces and little expressions,cat_copying_faces_expressions,copying_faces_expressions,
+cat_crinkle_cloth_toys,cat_crinkle_cloth_toys,keep,,4-6m,4-6M,Crinkle cloths and soft sound toys,cat_crinkle_cloth_toys,crinkle_cloth_toys,
+cat_13_15_cruising_furniture,cat_cruising_furniture,rename,merged_alias,13-15m,13-15M,Steady cruising surfaces,cat_13_15_cruising_furniture,13_15_cruising_furniture,ent_cat_cruising_furniture;cat_13_15_cruising_furniture
+ent_cat_cruising_furniture,cat_cruising_furniture,rename,merged_alias,9-12m,10-12M,Steady surfaces for pulling up,,,ent_cat_cruising_furniture;cat_13_15_cruising_furniture
+cat_cupboard_locks,cat_cupboard_locks,keep,canonical_target,13-15m;16-18m,13-15M;16-18M,Cupboard locks,cat_cupboard_locks,cupboard_locks,ent_cat_cupboard_locks;cat_cupboard_locks
+ent_cat_cupboard_locks,cat_cupboard_locks,rename,merged_alias,9-12m,10-12M,Cupboard locks for curious hands,,,ent_cat_cupboard_locks;cat_cupboard_locks
+cat_13_15_doll_soft_toy_care,cat_doll_soft_toy_care,rename,band_prefix_removed,13-15m;16-18m,13-15M;16-18M,Dolls and soft-toy care,cat_13_15_doll_soft_toy_care,13_15_doll_soft_toy_care,
+ent_cat_drop_roll_tubes,cat_drop_roll_tubes,rename,ent_prefix_removed,9-12m,10-12M,"Drop, roll and tube games",,,
+ent_cat_exclude_baby_walker,cat_exclude_baby_walker,rename,ent_prefix_removed,9-12m,10-12M,Skip seated baby walkers,,,
+cat_face_to_face_play,cat_face_to_face_play,keep,,1-3m,1-3M,Face-to-face talking and smiling,cat_face_to_face_play,face_to_face_play,
+cat_familiar_voice_pauses,cat_familiar_voice_pauses,keep,,1-3m,1-3M,Familiar voices and little pauses,cat_familiar_voice_pauses,familiar_voice_pauses,
+cat_family_faces_cards,cat_family_faces_cards,keep,canonical_target,4-6m,4-6M,Family photo cards,cat_family_faces_cards,family_faces_cards,cat_family_faces_cards;ent_cat_family_faces_cards
+ent_cat_family_faces_cards,cat_family_faces_cards,rename,merged_alias,9-12m,10-12M,Family faces and favourite objects,,,cat_family_faces_cards;ent_cat_family_faces_cards
+ent_cat_family_meal_plan,cat_family_meal_plan,rename,ent_prefix_removed,9-12m,10-12M,Joining simple family meals,,,
+ent_cat_family_photos,cat_family_photos,rename,ent_prefix_removed,9-12m,10-12M,Family photos and familiar faces,,,
+cat_feelings_faces_books,cat_feelings_faces_books,keep,canonical_target,13-15m;4-6m,13-15M;4-6M,Baby faces and feelings books,cat_feelings_faces_books,feelings_faces_books,cat_feelings_faces_books;ent_cat_feelings_books
+ent_cat_feelings_books,cat_feelings_faces_books,rename,merged_alias,9-12m,10-12M,Baby faces and feelings books,,,cat_feelings_faces_books;ent_cat_feelings_books
+cat_feet_discovery_games,cat_feet_discovery_games,keep,,4-6m,4-6M,Foot-finding floor games,cat_feet_discovery_games,feet_discovery_games,
+ent_cat_finger_food_prep,cat_finger_food_prep,rename,ent_prefix_removed,9-12m,10-12M,Finger foods cut safely,,,
+cat_16_18_finger_food_snack_prep,cat_finger_food_snack_prep,rename,band_prefix_removed,16-18m,16-18M,Finger-food and snack prep,cat_16_18_finger_food_snack_prep,16_18_finger_food_snack_prep,
+cat_firm_flat_mattress,cat_firm_flat_mattress,keep,,1-3m,1-3M,"A firm, flat, waterproof mattress",cat_firm_flat_mattress,firm_flat_mattress,
+ent_cat_first_puzzles,cat_first_puzzles,rename,ent_prefix_removed,9-12m,10-12M,Big-piece first puzzles,,,
+cat_first_spoons_bowls,cat_first_spoons_bowls,keep,,13-15m;16-18m;4-6m,13-15M;16-18M;4-6M,First spoons and bowls,cat_first_spoons_bowls,first_spoons_bowls,
+cat_16_18_first_word_picture_books,cat_first_word_picture_books,rename,band_prefix_removed,16-18m,16-18M,First-word picture books,cat_16_18_first_word_picture_books,16_18_first_word_picture_books,
+ent_cat_floor_zone,cat_floor_zone,rename,ent_prefix_removed,9-12m,10-12M,Clear floor space for moving,,,
+cat_13_15_furniture_anchors,cat_furniture_anchors,rename,merged_alias,13-15m,13-15M,Furniture anchors and corner checks,cat_13_15_furniture_anchors,13_15_furniture_anchors,ent_cat_furniture_anchors;cat_13_15_furniture_anchors
+ent_cat_furniture_anchors,cat_furniture_anchors,rename,merged_alias,9-12m,10-12M,Anchored furniture for pull-up practice,,,ent_cat_furniture_anchors;cat_13_15_furniture_anchors
+cat_16_18_furniture_window_checks,cat_furniture_window_checks,rename,band_prefix_removed,16-18m,16-18M,"Furniture, stair and window checks",cat_16_18_furniture_window_checks,16_18_furniture_window_checks,
+cat_13_15_gesture_sign_games,cat_gesture_sign_games,rename,band_prefix_removed,13-15m,13-15M,First gestures and simple signs,cat_13_15_gesture_sign_games,13_15_gesture_sign_games,
+cat_hand_transfer_toys,cat_hand_transfer_toys,keep,,4-6m,4-6M,Toys to pass between hands,cat_hand_transfer_toys,hand_transfer_toys,
+ent_cat_hide_favourite_toy,cat_hide_favourite_toy,rename,ent_prefix_removed,9-12m,10-12M,Hide-and-find favourite toys,,,
+cat_high_contrast_cards,cat_high_contrast_cards,keep,,1-3m,1-3M,High-contrast cards and simple patterns,cat_high_contrast_cards,high_contrast_cards,
+cat_highchair,cat_highchair,keep,canonical_target,13-15m;4-6m,13-15M;4-6M,A supportive highchair,cat_highchair,highchair,cat_highchair;ent_cat_highchair
+ent_cat_highchair,cat_highchair,rename,merged_alias,9-12m,10-12M,Safe sitting for messy meals,,,cat_highchair;ent_cat_highchair
+cat_kick_play_socks,cat_kick_play_socks,keep,,4-6m,4-6M,Kick-and-discover socks,cat_kick_play_socks,kick_play_socks,
+cat_kicky_floor_play,cat_kicky_floor_play,keep,,1-3m,1-3M,Kicky floor time,cat_kicky_floor_play,kicky_floor_play,
+cat_16_18_latch_busy_boards,cat_latch_busy_boards,rename,band_prefix_removed,16-18m,16-18M,"Latches, doors and busy boards",cat_16_18_latch_busy_boards,16_18_latch_busy_boards,
+cat_13_15_library_baby_group,cat_library_baby_group,rename,merged_alias,13-15m,13-15M,Library mats and baby groups,cat_13_15_library_baby_group,13_15_library_baby_group,ent_cat_library_baby_group;cat_13_15_library_baby_group
+ent_cat_library_baby_group,cat_library_baby_group,rename,merged_alias,9-12m,10-12M,Library or baby-group floor time,,,ent_cat_library_baby_group;cat_13_15_library_baby_group
+cat_16_18_low_climb_tunnel,cat_low_climb_tunnel,rename,band_prefix_removed,16-18m,16-18M,Low climbing and crawl-through play,cat_16_18_low_climb_tunnel,16_18_low_climb_tunnel,
+ent_cat_low_obstacle,cat_low_obstacle,rename,ent_prefix_removed,9-12m,10-12M,Soft cushions and crawl-through games,,,
+cat_milk_storage_and_labels,cat_milk_storage_and_labels,keep,,1-3m,1-3M,Milk storage and labels,cat_milk_storage_and_labels,milk_storage_and_labels,
+cat_mirror_body_play,cat_mirror_body_play,keep,,4-6m,4-6M,Mirror-and-body play,cat_mirror_body_play,mirror_body_play,
+cat_mouth_safe_grasp_rings,cat_mouth_safe_grasp_rings,keep,,4-6m,4-6M,Mouth-safe grasp rings,cat_mouth_safe_grasp_rings,mouth_safe_grasp_rings,
+cat_16_18_music_dance,cat_music_dance,rename,band_prefix_removed,16-18m,16-18M,Music and dancing games,cat_16_18_music_dance,16_18_music_dance,
+ent_cat_musical_noise,cat_musical_noise,rename,ent_prefix_removed,9-12m,10-12M,"Clapping, shaking and noisy play",,,
+cat_16_18_naming_walks,cat_naming_walks,rename,band_prefix_removed,16-18m,16-18M,Naming walks and object hunts,cat_16_18_naming_walks,16_18_naming_walks,
+cat_nappy_change_station,cat_nappy_change_station,keep,,1-3m,1-3M,Nappy change station,cat_nappy_change_station,nappy_change_station,
+cat_object_permanence_box,cat_object_permanence_box,keep,,13-15m,13-15M,Hide-and-find boxes,cat_object_permanence_box,object_permanence_box,
+cat_open_cup,cat_open_cup,keep,canonical_target,13-15m;16-18m;4-6m,13-15M;16-18M;4-6M,An open or free-flow cup,cat_open_cup,open_cup,cat_open_cup;ent_cat_open_cup
+ent_cat_open_cup,cat_open_cup,rename,merged_alias,9-12m,10-12M,Tiny open-cup practice,,,cat_open_cup;ent_cat_open_cup
+cat_13_15_park_swing_walks,cat_park_swing_walks,rename,band_prefix_removed,13-15m,13-15M,Park walks and toddler swings,cat_13_15_park_swing_walks,13_15_park_swing_walks,
+ent_cat_park_swings,cat_park_swings,rename,ent_prefix_removed,9-12m,10-12M,Park trips and baby swings,,,
+cat_parts_of_me_books,cat_parts_of_me_books,keep,,4-6m,4-6M,Body-part board books,cat_parts_of_me_books,parts_of_me_books,
+ent_cat_peekaboo_scarf,cat_peekaboo_scarf,rename,ent_prefix_removed,9-12m,10-12M,Peekaboo scarves and cloths,,,
+cat_13_15_picture_word_cards,cat_picture_word_cards,rename,band_prefix_removed,13-15m,13-15M,Picture and word cards,cat_13_15_picture_word_cards,13_15_picture_word_cards,
+ent_cat_pincer_puzzle,cat_pincer_puzzle,rename,ent_prefix_removed,9-12m,10-12M,Chunky peg and drop games,,,
+cat_16_18_play_dough_soft_clay,cat_play_dough_soft_clay,rename,band_prefix_removed,16-18m,16-18M,Soft dough and squish-safe sensory play,cat_16_18_play_dough_soft_clay,16_18_play_dough_soft_clay,
+cat_play_gym_hanging_toys,cat_play_gym_hanging_toys,keep,,1-3m,1-3M,A simple play gym or hanging toys,cat_play_gym_hanging_toys,play_gym_hanging_toys,
+cat_16_18_play_kitchen_household_props,cat_play_kitchen_household_props,rename,band_prefix_removed,16-18m,16-18M,Play kitchen and household props,cat_16_18_play_kitchen_household_props,16_18_play_kitchen_household_props,
+ent_cat_point_name_outings,cat_point_name_outings,rename,ent_prefix_removed,9-12m,10-12M,Point-and-name little outings,,,
+ent_cat_posting_boxes,cat_posting_boxes,rename,ent_prefix_removed,9-12m,10-12M,Posting boxes and hiding lids,,,
+cat_13_15_posting_coin_box,cat_posting_coin_box,rename,band_prefix_removed,13-15m,13-15M,Posting boxes and coin slots,cat_13_15_posting_coin_box,13_15_posting_coin_box,
+cat_16_18_posting_drop_boxes,cat_posting_drop_boxes,rename,band_prefix_removed,16-18m,16-18M,Posting and drop boxes,cat_16_18_posting_drop_boxes,16_18_posting_drop_boxes,
+ent_cat_pouches_caution,cat_pouches_caution,rename,ent_prefix_removed,9-12m,10-12M,Using pouches without relying on them,,,
+cat_pram_walk_reset,cat_pram_walk_reset,keep,,1-3m,1-3M,A pram walk reset,cat_pram_walk_reset,pram_walk_reset,
+cat_13_15_pram_walks,cat_pram_walks,rename,merged_alias,13-15m,13-15M,Pram walks and naming games,cat_13_15_pram_walks,13_15_pram_walks,ent_cat_pram_walks;cat_13_15_pram_walks
+ent_cat_pram_walks,cat_pram_walks,rename,merged_alias,9-12m,10-12M,Pram walks with naming,,,ent_cat_pram_walks;cat_13_15_pram_walks
+cat_13_15_pretend_phone_talk,cat_pretend_phone_talk,rename,band_prefix_removed,13-15m,13-15M,Pretend phone and object talk,cat_13_15_pretend_phone_talk,13_15_pretend_phone_talk,
+cat_13_15_pretend_shoes_brushes,cat_pretend_shoes_brushes,rename,band_prefix_removed,13-15m,13-15M,"Shoes, brushes and getting-ready play",cat_13_15_pretend_shoes_brushes,13_15_pretend_shoes_brushes,
+cat_pull_out_tissue_box,cat_pull_out_tissue_box,keep,,4-6m,4-6M,Pull-out box toys,cat_pull_out_tissue_box,pull_out_tissue_box,
+cat_16_18_pull_push_toys,cat_pull_push_toys,rename,band_prefix_removed,16-18m,16-18M,Push-and-pull toys,cat_16_18_pull_push_toys,16_18_pull_push_toys,
+ent_cat_puppets,cat_puppets,rename,ent_prefix_removed,9-12m,10-12M,Puppets and silly voices,,,
+cat_13_15_push_pull_toys,cat_push_pull_toys,rename,merged_alias,13-15m,13-15M,Sturdy push-and-pull toys,cat_13_15_push_pull_toys,13_15_push_pull_toys,ent_cat_push_pull_toy;cat_13_15_push_pull_toys
+ent_cat_push_pull_toy,cat_push_pull_toys,rename,merged_alias,9-12m,10-12M,"Push-and-pull toys, when ready",,,ent_cat_push_pull_toy;cat_13_15_push_pull_toys
+cat_16_18_ramp_rolling_toys,cat_ramp_rolling_toys,rename,band_prefix_removed,16-18m,16-18M,Ramp and rolling toys,cat_16_18_ramp_rolling_toys,16_18_ramp_rolling_toys,
+cat_reach_grab_toys,cat_reach_grab_toys,keep,,1-3m;4-6m,1-3M;4-6M,Reach-and-grab toys,cat_reach_grab_toys,reach_grab_toys,
+cat_rear_facing_car_seat,cat_rear_facing_car_seat,keep,,1-3m;4-6m,1-3M;4-6M,Rear-facing infant car seat,cat_rear_facing_car_seat,rear_facing_car_seat,
+cat_red_book_vaccine_planning,cat_red_book_vaccine_planning,keep,,1-3m,1-3M,Red Book and vaccine planning,cat_red_book_vaccine_planning,red_book_vaccine_planning,
+cat_responsive_feeding_support,cat_responsive_feeding_support,keep,,1-3m,1-3M,Responsive feeding cues,cat_responsive_feeding_support,responsive_feeding_support,
+ent_cat_rhyme_games,cat_rhyme_games,rename,ent_prefix_removed,9-12m,10-12M,"Rhymes, claps and pat-a-cake",,,
+cat_rolled_towel_tummy_support,cat_rolled_towel_tummy_support,keep,,1-3m,1-3M,Rolled-towel tummy support,cat_rolled_towel_tummy_support,rolled_towel_tummy_support,
+cat_room_thermometer,cat_room_thermometer,keep,,1-3m,1-3M,Room thermometer,cat_room_thermometer,room_thermometer,
+cat_13_15_routine_songs,cat_routine_songs,rename,band_prefix_removed,13-15m,13-15M,Routine songs and transition cues,cat_13_15_routine_songs,13_15_routine_songs,
+cat_safe_floor_space,cat_safe_floor_space,keep,,1-3m;13-15m,1-3M;13-15M,A clear low floor space,cat_safe_floor_space,safe_floor_space,
+cat_safe_household_objects,cat_safe_household_objects,keep,canonical_target,13-15m;4-6m,13-15M;4-6M,Safe everyday-object play,cat_safe_household_objects,safe_household_objects,cat_safe_household_objects;ent_cat_safe_household_objects
+ent_cat_safe_household_objects,cat_safe_household_objects,rename,merged_alias,9-12m,10-12M,Baby-safe household treasures,,,cat_safe_household_objects;ent_cat_safe_household_objects
+ent_cat_safe_laundry_play,cat_safe_laundry_play,rename,ent_prefix_removed,9-12m,10-12M,Supervised laundry basket play,,,
+cat_safe_sleep_continuity,cat_safe_sleep_continuity,keep,,1-3m;4-6m,1-3M;4-6M,Safe sleep check-in,cat_safe_sleep_continuity,safe_sleep_continuity,
+cat_safety_gates,cat_safety_gates,keep,,13-15m;16-18m,13-15M;16-18M,Safety gates,cat_safety_gates,safety_gates,
+cat_settling_routine_notes,cat_settling_routine_notes,keep,,1-3m,1-3M,A simple settling notes routine,cat_settling_routine_notes,settling_routine_notes,
+cat_13_15_shape_peg_puzzles,cat_shape_peg_puzzles,rename,band_prefix_removed,13-15m,13-15M,Chunky shape and peg puzzles,cat_13_15_shape_peg_puzzles,13_15_shape_peg_puzzles,
+cat_16_18_shape_sorters_puzzles,cat_shape_sorters_puzzles,rename,band_prefix_removed,16-18m,16-18M,Shape sorters and first puzzles,cat_16_18_shape_sorters_puzzles,16_18_shape_sorters_puzzles,
+cat_small_object_sweep,cat_small_object_sweep,keep,,1-3m;4-6m,1-3M;4-6M,Small-object safety sweep,cat_small_object_sweep,small_object_sweep,
+cat_13_15_snack_prep_pots,cat_snack_prep_pots,rename,band_prefix_removed,13-15m,13-15M,Snack pots and safe food prep,cat_13_15_snack_prep_pots,13_15_snack_prep_pots,
+cat_soft_carrier_sling,cat_soft_carrier_sling,keep,,1-3m,1-3M,A safe sling or carrier cuddle,cat_soft_carrier_sling,soft_carrier_sling,
+ent_cat_soft_doll,cat_soft_doll,rename,ent_prefix_removed,9-12m,10-12M,Soft doll or cuddly care play,,,
+cat_soft_graspable_balls,cat_soft_graspable_balls,keep,canonical_target,13-15m;16-18m;4-6m,13-15M;16-18M;4-6M,"Soft balls to watch, hold and roll",cat_soft_graspable_balls,soft_graspable_balls,cat_soft_graspable_balls;ent_cat_soft_balls
+ent_cat_soft_balls,cat_soft_graspable_balls,rename,merged_alias,9-12m,10-12M,Soft balls to chase and roll,,,cat_soft_graspable_balls;ent_cat_soft_balls
+cat_soft_rattle_ring,cat_soft_rattle_ring,keep,,1-3m,1-3M,A soft rattle or grasp ring,cat_soft_rattle_ring,soft_rattle_ring,
+cat_soft_sensory_balls,cat_soft_sensory_balls,keep,,4-6m,4-6M,Soft sensory balls,cat_soft_sensory_balls,soft_sensory_balls,
+cat_songs_action_games,cat_songs_action_games,keep,,1-3m;13-15m;16-18m;4-6m,1-3M;13-15M;16-18M;4-6M,"Songs, rhymes and tiny games",cat_songs_action_games,songs_action_games,
+ent_cat_sound_copy,cat_sound_copy,rename,ent_prefix_removed,9-12m,10-12M,Copy-me babble games,,,
+cat_sound_cylinders_shakers,cat_sound_cylinders_shakers,keep,,1-3m;4-6m,1-3M;4-6M,Gentle shakers and sound toys,cat_sound_cylinders_shakers,sound_cylinders_shakers,
+cat_spinner_reach_toys,cat_spinner_reach_toys,keep,,4-6m,4-6M,Simple spinners for reaching,cat_spinner_reach_toys,spinner_reach_toys,
+cat_stacking_nesting_cups,cat_stacking_nesting_cups,keep,canonical_target,13-15m;16-18m,13-15M;16-18M,Stacking and nesting cups,cat_stacking_nesting_cups,stacking_nesting_cups,ent_cat_stacking_cups;cat_stacking_nesting_cups
+ent_cat_stacking_cups,cat_stacking_nesting_cups,rename,merged_alias,9-12m,10-12M,"Stacking, nesting and filling cups",,,ent_cat_stacking_cups;cat_stacking_nesting_cups
+cat_16_18_stacking_pegboard,cat_stacking_pegboard,rename,band_prefix_removed,16-18m,16-18M,Stacking pegboards and block towers,cat_16_18_stacking_pegboard,16_18_stacking_pegboard,
+ent_cat_stair_gates,cat_stair_gates,rename,ent_prefix_removed,9-12m,10-12M,Stair gates before the big climb,,,
+cat_supported_side_lying_play,cat_supported_side_lying_play,keep,,1-3m,1-3M,Side-lying pauses and turns,cat_supported_side_lying_play,supported_side_lying_play,
+ent_cat_switchboard,cat_switchboard,rename,ent_prefix_removed,9-12m,10-12M,"Safe switches, flaps and buttons",,,
+cat_teethers,cat_teethers,keep,,1-3m;4-6m,1-3M;4-6M,Chew-safe toys and early teethers,cat_teethers,teethers,
+cat_texture_cards_books,cat_texture_cards_books,keep,,1-3m;4-6m,1-3M;4-6M,Soft textures to stroke and touch,cat_texture_cards_books,texture_cards_books,
+ent_cat_texture_sensory,cat_texture_sensory,rename,ent_prefix_removed,9-12m,10-12M,Texture balls for touching and rolling,,,
+cat_16_18_texture_tubs,cat_texture_tubs,rename,band_prefix_removed,16-18m,16-18M,Texture tubs and safe sensory baskets,cat_16_18_texture_tubs,16_18_texture_tubs,
+cat_16_18_threading_beads,cat_threading_beads,rename,band_prefix_removed,16-18m,16-18M,Threading beads and chunky lacing,cat_16_18_threading_beads,16_18_threading_beads,
+cat_16_18_toddler_bag_carry,cat_toddler_bag_carry,rename,band_prefix_removed,16-18m,16-18M,Carry bags and little errands,cat_16_18_toddler_bag_carry,16_18_toddler_bag_carry,
+cat_16_18_toothbrush_routine,cat_toothbrush_routine,rename,band_prefix_removed,16-18m,16-18M,Toddler toothbrush and teeth routine,cat_16_18_toothbrush_routine,16_18_toothbrush_routine,
+cat_13_15_toothbrush_toothpaste,cat_toothbrush_toothpaste,rename,band_prefix_removed,13-15m,13-15M,Toddler toothbrush and toothpaste,cat_13_15_toothbrush_toothpaste,13_15_toothbrush_toothpaste,
+cat_13_15_tower_blocks,cat_tower_blocks,rename,band_prefix_removed,13-15m,13-15M,First tower blocks,cat_13_15_tower_blocks,13_15_tower_blocks,
+cat_13_15_toy_cups_spoons,cat_toy_cups_spoons,rename,band_prefix_removed,13-15m;16-18m,13-15M;16-18M,"Toy cups, spoons and plates",cat_13_15_toy_cups_spoons,13_15_toy_cups_spoons,
+ent_cat_toy_rotation,cat_toy_rotation,rename,ent_prefix_removed,9-12m,10-12M,Tiny toy rotation basket,,,
+cat_tracking_rattle,cat_tracking_rattle,keep,,1-3m,1-3M,A slow-moving rattle to track,cat_tracking_rattle,tracking_rattle,
+cat_treasure_basket,cat_treasure_basket,keep,,13-15m,13-15M,A rotating safe treasure basket,cat_treasure_basket,treasure_basket,
+cat_tummy_time_books,cat_tummy_time_books,keep,,1-3m,1-3M,A soft tummy-time book,cat_tummy_time_books,tummy_time_books,
+cat_tummy_time_mat,cat_tummy_time_mat,keep,,1-3m;4-6m,1-3M;4-6M,A simple tummy-time mat,cat_tummy_time_mat,tummy_time_mat,
+cat_tummy_time_wobbler,cat_tummy_time_wobbler,keep,,1-3m;4-6m,1-3M;4-6M,Tummy-time mirror or wobbler,cat_tummy_time_wobbler,tummy_time_wobbler,
+ent_cat_two_handed_objects,cat_two_handed_objects,rename,ent_prefix_removed,9-12m,10-12M,Two-hand toys and banging games,,,
+cat_16_18_velcro_pull_hide,cat_velcro_pull_hide,rename,band_prefix_removed,16-18m,16-18M,"Pull, stick and hide toys",cat_16_18_velcro_pull_hide,16_18_velcro_pull_hide,
+cat_16_18_water_drawing,cat_water_drawing,rename,band_prefix_removed,16-18m,16-18M,Water drawing mats,cat_16_18_water_drawing,16_18_water_drawing,
+ent_cat_waving_signs,cat_waving_signs,rename,ent_prefix_removed,9-12m,10-12M,"Waving, pointing and simple signs",,,
+cat_weaning_bibs_mat,cat_weaning_bibs_mat,keep,,13-15m;4-6m,13-15M;4-6M,Bibs and splash mats,cat_weaning_bibs_mat,weaning_bibs_mat,
+cat_white_noise_soother,cat_white_noise_soother,keep,,1-3m,1-3M,Gentle white noise or sound reset,cat_white_noise_soother,white_noise_soother,
