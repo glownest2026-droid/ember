@@ -67,9 +67,9 @@ COMMIT;
 
 const migrationPath = path.join(
   ROOT,
-  'supabase/migrations/20260628220000_map_new_make_category_images.sql'
+  'supabase/migrations/20260628230000_map_final_9_12m_category_images.sql'
 );
-const mirrorPath = path.join(ROOT, 'supabase/sql/202606282200_map_new_make_category_images.sql');
+const mirrorPath = path.join(ROOT, 'supabase/sql/202606282300_map_final_9_12m_category_images.sql');
 
 if (write) {
   fs.writeFileSync(migrationPath, sql, 'utf8');

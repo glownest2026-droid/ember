@@ -30,6 +30,16 @@
 2. `/discover/14?wrapper=ent_cluster_move&show=1` — `cat_highchair` shows lifestyle image (cross-band from 4-6m)
 3. `/discover/17?show=1` — `cat_threading_beads` shows legacy-named Storage file
 
+## 2026-06-28 — ops(images): Stage 2 category images complete (197/197)
+
+- **Migrations:** `20260628210000` (32 global), `20260628220000` (34 Make batch), `20260628230000` (final 15 × 9-12m)
+- **Result:** `missing_managed_image: 0` across all 5 active bands
+- **Export:** `agent-tools/exports/stage2_categories_no_image.csv` — header only
+
+### How to verify
+1. `node web/scripts/export-stage2-no-image.mjs` — expect `missing_managed_image: 0`
+2. `/discover/10?show=1` — all 9-12m Stage 2 cards show lifestyle images (e.g. `cat_blind_cord_cleats`, `cat_texture_sensory`)
+
 ## 2026-06-28 — fix(snag-pack): discover age-band hero copy
 
 - **Branch:** `fix/snag-pack-discover-hero-copy`

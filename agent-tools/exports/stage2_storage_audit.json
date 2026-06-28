@@ -1,14 +1,14 @@
 {
   "summary": {
     "total": 15,
-    "storage_exists": 0,
-    "storage_exists_no_db": 0,
+    "storage_exists": 15,
+    "storage_exists_no_db": 15,
     "storage_exists_has_db": 0,
-    "truly_missing": 15,
+    "truly_missing": 0,
     "by_band": {
       "9-12m": {
-        "exists": 0,
-        "missing": 15
+        "exists": 15,
+        "missing": 0
       },
       "13-15m": {
         "exists": 0,
@@ -20,82 +20,157 @@
       }
     }
   },
-  "found": [],
-  "notFound": [
+  "found": [
     {
       "slug": "cat_blind_cord_cleats",
       "bandId": "9-12m",
-      "display_name": "Blind-cord tidies and cleats"
+      "display_name": "Blind-cord tidies and cleats",
+      "category_type_id": "3fea4f0a-623e-4d7e-bc62-902553cce684",
+      "storage_file": "ember_cat_blind_cord_cleats_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_blind_cord_cleats_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_toy_rotation",
       "bandId": "9-12m",
-      "display_name": "Tiny toy rotation basket"
+      "display_name": "Tiny toy rotation basket",
+      "category_type_id": "6b1069fa-1de6-4fe8-843b-b537e489bad1",
+      "storage_file": "ember_cat_toy_rotation_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_toy_rotation_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_bath_supervision",
       "bandId": "9-12m",
-      "display_name": "Safe bath and water-play routines"
+      "display_name": "Safe bath and water-play routines",
+      "category_type_id": "3faf02a5-c0c7-46d0-9f75-122a4abd799e",
+      "storage_file": "ember_cat_bath_supervision_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_bath_supervision_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_park_swings",
       "bandId": "9-12m",
-      "display_name": "Park trips and baby swings"
+      "display_name": "Park trips and baby swings",
+      "category_type_id": "b9b965ec-d373-46b2-a8cf-0ccd87f2dfee",
+      "storage_file": "ember_cat_park_swings_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_park_swings_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_musical_noise",
       "bandId": "9-12m",
-      "display_name": "Clapping, shaking and noisy play"
+      "display_name": "Clapping, shaking and noisy play",
+      "category_type_id": "fcd2a021-6994-4d9c-a7b9-2f4780656aed",
+      "storage_file": "ember_cat_musical_noise_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_musical_noise_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_switchboard",
       "bandId": "9-12m",
-      "display_name": "Safe switches, flaps and buttons"
+      "display_name": "Safe switches, flaps and buttons",
+      "category_type_id": "8a7512f2-305d-4fe8-8893-632be7ca9e27",
+      "storage_file": "ember_cat_switchboard_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_switchboard_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_family_photos",
       "bandId": "9-12m",
-      "display_name": "Family photos and familiar faces"
+      "display_name": "Family photos and familiar faces",
+      "category_type_id": "28ef6834-320d-4fe5-9a33-c168d73ee4a0",
+      "storage_file": "ember_cat_family_photos_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_family_photos_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_point_name_outings",
       "bandId": "9-12m",
-      "display_name": "Point-and-name little outings"
+      "display_name": "Point-and-name little outings",
+      "category_type_id": "cb23b67f-6fe5-48f3-b2a1-8db6647b4557",
+      "storage_file": "ember_cat_point_name_outings_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_point_name_outings_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_family_meal_plan",
       "bandId": "9-12m",
-      "display_name": "Joining simple family meals"
+      "display_name": "Joining simple family meals",
+      "category_type_id": "5b3ba2d3-dbbc-4c1a-8c0a-f08a09dd0250",
+      "storage_file": "ember_cat_family_meal_plan_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_family_meal_plan_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_safe_laundry_play",
       "bandId": "9-12m",
-      "display_name": "Supervised laundry basket play"
+      "display_name": "Supervised laundry basket play",
+      "category_type_id": "ea52d44f-5f06-4810-9e60-d71abe4d11f4",
+      "storage_file": "ember_cat_safe_laundry_play_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_safe_laundry_play_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_exclude_baby_walker",
       "bandId": "9-12m",
-      "display_name": "Skip seated baby walkers"
+      "display_name": "Skip seated baby walkers",
+      "category_type_id": "b3c57dea-aafd-41d4-a4eb-586d85174026",
+      "storage_file": "ember_cat_exclude_baby_walker_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_exclude_baby_walker_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_low_obstacle",
       "bandId": "9-12m",
-      "display_name": "Soft cushions and crawl-through games"
+      "display_name": "Soft cushions and crawl-through games",
+      "category_type_id": "1499637d-b35d-4242-9833-b43a9a893dd2",
+      "storage_file": "ember_cat_low_obstacle_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_low_obstacle_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_pouches_caution",
       "bandId": "9-12m",
-      "display_name": "Using pouches without relying on them"
+      "display_name": "Using pouches without relying on them",
+      "category_type_id": "f3f256d8-0d2a-4ed6-b549-4b30b08f3140",
+      "storage_file": "ember_cat_pouches_caution_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_pouches_caution_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_hide_favourite_toy",
       "bandId": "9-12m",
-      "display_name": "Hide-and-find favourite toys"
+      "display_name": "Hide-and-find favourite toys",
+      "category_type_id": "cc28cd24-e2a0-4abe-8303-ab8f26f3bad6",
+      "storage_file": "ember_cat_hide_favourite_toy_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_hide_favourite_toy_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     },
     {
       "slug": "cat_texture_sensory",
       "bandId": "9-12m",
-      "display_name": "Texture balls for touching and rolling"
+      "display_name": "Texture balls for touching and rolling",
+      "category_type_id": "57da23ca-3fc2-444d-b994-7c654774fc18",
+      "storage_file": "ember_cat_texture_sensory_category.png",
+      "storage_url": "https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_cat_texture_sensory_category.png",
+      "has_db_mapping": false,
+      "db_rows": []
     }
-  ]
+  ],
+  "notFound": []
 }
