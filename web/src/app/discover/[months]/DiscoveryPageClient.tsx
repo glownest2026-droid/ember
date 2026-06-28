@@ -13,6 +13,7 @@ import {
   SUGGESTED_DOORWAY_KEYS_25_27,
   normaliseSlug,
 } from '@/lib/discover/doorways';
+import { getEffectiveAgeBandRange } from '@/lib/discover/pilotAgeBandRange';
 import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
 import { AffiliateDisclosureNotice } from '@/components/compliance/AffiliateDisclosureNotice';
 import { hasOutboundRetailerUrl } from '@/lib/compliance/externalRetailerLink';
@@ -282,15 +283,7 @@ export default function DiscoveryPageClient({
     router.replace(query ? `${target}?${query}` : target, { scroll: false });
   }, [searchParams, pathname, monthParam, basePath, router, selectedChildId]);
 
-  const getBandRange = (band: AgeBand | null): { min: number; max: number } | null => {
-    if (!band) return null;
-    const min = typeof band.min_months === 'number' ? band.min_months : NaN;
-    const max = typeof band.max_months === 'number' ? band.max_months : NaN;
-    if (!isNaN(min) && !isNaN(max)) return { min, max };
-    const match = band.id.match(/^(\d+)-(\d+)m$/);
-    if (!match) return null;
-    return { min: parseInt(match[1], 10), max: parseInt(match[2], 10) };
-  };
+  const getBandRange = (band: AgeBand | null) => getEffectiveAgeBandRange(band);
 
   // Snag: the newborn band (0–0 months) represents an unborn baby — show "Expecting".
   const isExpectingRange = (range: { min: number; max: number } | null): boolean =>
@@ -1037,7 +1030,8 @@ export default function DiscoveryPageClient({
   const showStartOverFab = startOverVisible && ideasSectionInView;
   const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
   const bandLabel = formatBandLabel(selectedBand);
-  const isExpecting = isExpectingRange(getBandRange(selectedBand));
+  const bandRange = getBandRange(selectedBand);
+  const isExpecting = isExpectingRange(bandRange);
   const examplesHaveRetailerLinks = useMemo(
     () => displayIdeas.some((p) => hasOutboundRetailerUrl(p.product)),
     [displayIdeas]
@@ -1083,6 +1077,7 @@ export default function DiscoveryPageClient({
               : (monthParam ?? 26)
           }
           bandLabel={bandLabel}
+          bandRange={bandRange}
           isExpecting={isExpecting}
           heroImageUrl={categoryTypes[0]?.image_url ?? bandHeroImageUrl ?? exampleProducts[0]?.product?.image_url ?? null}
           selectedBandIndex={selectedBandIndex}

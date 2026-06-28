@@ -1,3 +1,20 @@
+## 2026-06-28 — fix(snag-pack): discover age-band hero copy
+
+- **Branch:** `fix/snag-pack-discover-hero-copy`
+- **PR:** https://github.com/glownest2026-droid/ember/pull/232
+- **Preview:** https://ember-git-fix-snag-pack-discover-655092-tims-projects-cd69a894.vercel.app
+- **Snags:** Per-band hero headline + body on Discover for 1–3m, 4–6m, 7–9m, 10–12m, 13–15m (13–15m uses "young one" headline); pilot band slider labels corrected 6–9→7–9 and 9–12→10–12
+- **Migration:** `20260628120000_fix_pilot_age_band_ranges_7_9_10_12.sql` (applied via `supabase db push`)
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. Preview `/discover/2` — headline "What your baby's practising now"; body mentions turning towards faces.
+2. `/discover/5` — reaching with purpose / first tastes copy.
+3. `/discover/8` — sitting steadier / finger foods copy.
+4. `/discover/10` — 9–12 months busy/brave copy (band label still 10–12 months).
+5. `/discover/14` — "What your young one's practising now" + toddler steadier-on-feet copy.
+6. Slide age slider — hero updates per band; no console errors desktop + mobile.
+
 ## 2026-06-27 — fix(snag-pack): discover UX polish (7 snags)
 
 - **Branch:** `fix/snag-pack-discover-ux`
