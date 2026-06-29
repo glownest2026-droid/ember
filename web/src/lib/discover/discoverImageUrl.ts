@@ -1,10 +1,11 @@
 import type { DiscoverFigmaImageVariant } from '@/components/discover/figma/DiscoverFigmaImage';
 
-const VARIANT_WIDTH: Record<DiscoverFigmaImageVariant, number> = {
-  hero: 800,
-  card: 640,
-  product: 800,
-  'product-side': 384,
+/** Target dimensions — must preserve source aspect ratio via resize=contain (width-only breaks to portrait). */
+const VARIANT_DIMENSIONS: Record<DiscoverFigmaImageVariant, { width: number; height: number }> = {
+  hero: { width: 800, height: 600 },
+  card: { width: 640, height: 360 },
+  product: { width: 800, height: 450 },
+  'product-side': { width: 384, height: 216 },
 };
 
 const SUPABASE_OBJECT_PATH =
@@ -13,9 +14,22 @@ const SUPABASE_OBJECT_PATH =
 const SUPABASE_RENDER_PATH =
   /^https:\/\/([^/]+)\/storage\/v1\/render\/image\/public\/(.+?)(\?.*)?$/i;
 
+function supabaseRenderUrl(host: string, path: string, variant: DiscoverFigmaImageVariant): string {
+  const { width, height } = VARIANT_DIMENSIONS[variant];
+  // width-only resize returns wrong aspect (e.g. 640×768 for 16:9 sources) and object-cover crops like a zoom.
+  const params = new URLSearchParams({
+    width: String(width),
+    height: String(height),
+    resize: 'contain',
+    quality: '75',
+    format: 'webp',
+  });
+  return `https://${host}/storage/v1/render/image/public/${path}?${params.toString()}`;
+}
+
 /**
- * Serve Supabase category assets via Storage image transforms (WebP, capped width)
- * so cold loads pull ~30–40 KB instead of ~1.5 MB PNG originals.
+ * Serve Supabase category assets via Storage image transforms (WebP, aspect-preserving).
+ * Category masters are 1376×768; width-only transforms distort aspect and break object-cover framing.
  */
 export function optimizeDiscoverImageUrl(
   url: string | null | undefined,
@@ -24,24 +38,20 @@ export function optimizeDiscoverImageUrl(
   if (!url?.trim()) return '';
 
   const trimmed = url.trim();
-  const width = VARIANT_WIDTH[variant];
 
   const objectMatch = trimmed.match(SUPABASE_OBJECT_PATH);
   if (objectMatch) {
     const [, host, path] = objectMatch;
-    return `https://${host}/storage/v1/render/image/public/${path}?width=${width}&quality=75&format=webp`;
+    return supabaseRenderUrl(host, path, variant);
   }
 
   const renderMatch = trimmed.match(SUPABASE_RENDER_PATH);
   if (renderMatch) {
-    const [, host, path, query = ''] = renderMatch;
-    const params = new URLSearchParams(query.replace(/^\?/, ''));
-    if (!params.has('width')) params.set('width', String(width));
-    if (!params.has('quality')) params.set('quality', '75');
-    if (!params.has('format')) params.set('format', 'webp');
-    return `https://${host}/storage/v1/render/image/public/${path}?${params.toString()}`;
+    const [, host, path] = renderMatch;
+    return supabaseRenderUrl(host, path, variant);
   }
 
+  const { width } = VARIANT_DIMENSIONS[variant];
   if (/images\.unsplash\.com/i.test(trimmed)) {
     try {
       const u = new URL(trimmed);
