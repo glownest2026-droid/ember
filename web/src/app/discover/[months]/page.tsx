@@ -1,17 +1,15 @@
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import {
+  getGatewayAgeBandIdsWithPicks,
+  getGatewayAgeBandsPublic,
+  getGatewayCategoryTypesForAgeBandAndWrapper,
+  getGatewayTopPicksForAgeBandAndCategoryType,
+  getGatewayTopPicksForAgeBandAndWrapperSlug,
+  getGatewayTopProductsForAgeBand,
+  getGatewayWrappersForAgeBand,
   getGatewayHeroImageForAgeBand,
   type GatewayAgeBandPublic,
 } from '../../../lib/pl/public';
-import {
-  getGatewayAgeBandIdsWithPicksCached,
-  getGatewayAgeBandsPublicCached,
-  getGatewayCategoryTypesForAgeBandAndWrapperCached,
-  getGatewayTopPicksForAgeBandAndCategoryTypeCached,
-  getGatewayTopPicksForAgeBandAndWrapperSlugCached,
-  getGatewayTopProductsForAgeBandCached,
-  getGatewayWrappersForAgeBandCached,
-} from '../../../lib/pl/gateway-cache';
 import { getDiscoverServerPersonalization } from '../../../lib/discover/serverDiscoverChild';
 import {
   applyStorageCategoryImages,
@@ -65,14 +63,15 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
   }
   const monthParam = monthsNum;
 
-  const ageBands = await getGatewayAgeBandsPublicCached();
-  const bandsWithPicks = await getGatewayAgeBandIdsWithPicksCached();
+  const ageBands = await getGatewayAgeBandsPublic();
+  const bandsWithPicks = await getGatewayAgeBandIdsWithPicks();
 
   const ageBand = await resolveAgeBandForMonth(monthParam, ageBands);
   if (!ageBand) {
-    redirect('/discover/26');
+    if (monthParam !== 26) redirect('/discover/26');
+    notFound();
   }
-  const wrappers = await getGatewayWrappersForAgeBandCached(ageBand.id);
+  const wrappers = await getGatewayWrappersForAgeBand(ageBand.id);
 
   if (reviewMode && !showParam) {
     const focusWrapper = resolveWrapperSlugFromFocusParam(focusParam, wrappers);
@@ -100,7 +99,7 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
   const selectedBandHasProducts = selectedBandHasPicks;
   let selectedBandHasStage12Data = false;
   for (const wrapper of wrappers) {
-    const categories = await getGatewayCategoryTypesForAgeBandAndWrapperCached(ageBand.id, wrapper.ux_slug);
+    const categories = await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, wrapper.ux_slug);
     if (categories.length > 0) {
       selectedBandHasStage12Data = true;
       break;
@@ -118,14 +117,14 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
   const shouldShowPicks = (showParam === '1' || reviewMode) && selectedBandHasStage12Data;
   let effectiveWrapperSlug =
     selectedWrapperSlug ?? defaultSlug25to27 ?? wrappers[0]?.ux_slug ?? null;
-  let picks: Awaited<ReturnType<typeof getGatewayTopPicksForAgeBandAndWrapperSlugCached>> = [];
+  let picks: Awaited<ReturnType<typeof getGatewayTopPicksForAgeBandAndWrapperSlug>> = [];
   const exampleProducts = selectedBandHasProducts
-    ? await getGatewayTopProductsForAgeBandCached(ageBand.id, 12)
+    ? await getGatewayTopProductsForAgeBand(ageBand.id, 12)
     : [];
 
   const categoryTypesRaw =
     selectedBandHasStage12Data && selectedWrapperSlug
-      ? await getGatewayCategoryTypesForAgeBandAndWrapperCached(ageBand.id, selectedWrapperSlug)
+      ? await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, selectedWrapperSlug)
       : [];
   const storageImageUrls =
     categoryTypesRaw.length > 0 ? await resolveStorageCategoryImages(categoryTypesRaw) : new Map();
@@ -134,9 +133,9 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
   if (shouldShowPicks) {
     const categoryTypeId = categoryParam && categoryTypes.some((c) => c.id === categoryParam) ? categoryParam : null;
     if (categoryTypeId) {
-      picks = await getGatewayTopPicksForAgeBandAndCategoryTypeCached(ageBand.id, categoryTypeId, 12);
+      picks = await getGatewayTopPicksForAgeBandAndCategoryType(ageBand.id, categoryTypeId, 12);
     } else if (selectedWrapperSlug) {
-      picks = await getGatewayTopPicksForAgeBandAndWrapperSlugCached(ageBand.id, selectedWrapperSlug, 12);
+      picks = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, selectedWrapperSlug, 12);
     } else {
       if (effectiveWrapperSlug) {
         const childQ = childParam ? `&child=${encodeURIComponent(childParam)}` : '';
