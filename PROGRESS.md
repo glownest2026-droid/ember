@@ -1,3 +1,18 @@
+## 2026-06-29 — fix(discover): perceived performance and image loading
+
+- **Branch:** `fix/discover-perceived-performance` — PR [#238](https://github.com/glownest2026-droid/ember/pull/238)
+- **Scope:** `/discover`, `/discover/[months]` — recommendation card tap scroll + card images only
+- **Interaction:** Scroll no longer waits for server `categoryTypes`; instant `behavior: 'auto'` on tap; immediate NeedCard press feedback
+- **Images:** `DiscoverFigmaImage` upgraded to `next/image` with `sizes`, lazy load, reserved aspect-ratio placeholders, hero `priority`
+- **Build:** `pnpm -C web build` pass
+- **Browser smoke:** Playwright desktop + iPhone 13 — tap→scroll movement 100–213ms, settled &lt;400ms, routes stable, no console errors, no oversized card images on mobile
+
+### How to verify
+1. `/discover/26` — tap 3 development cards; scroll begins within ~150ms; no long smooth-scroll pause
+2. `/discover/32` — play-idea card images fade in over reserved space (no strip loading)
+3. `/discover` — client redirect to age band; no redirect loop
+4. `pnpm -C web build` passes
+
 ## 2026-06-28 — fix(snag-pack): restore Discover 7–9 months age band
 
 - **Branch:** `fix/snag-pack-discover-7-9m-band` — PR [#235](https://github.com/glownest2026-droid/ember/pull/235)

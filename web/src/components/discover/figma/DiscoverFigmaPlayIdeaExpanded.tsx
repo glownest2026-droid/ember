@@ -81,7 +81,7 @@ export function DiscoverFigmaPlayIdeaExpanded({
             <X size={22} strokeWidth={2.5} />
           </button>
           <div className="relative aspect-[16/9] max-h-[280px] overflow-hidden bg-[#FBFAF7]">
-            <DiscoverFigmaImage src={idea.imageUrl} alt={idea.title} className="w-full h-full object-cover" />
+            <DiscoverFigmaImage src={idea.imageUrl} alt={idea.title} variant="product" className="object-cover" />
           </div>
           <div className="p-5 md:p-7 flex flex-col gap-4">
             <h2 id="expanded-idea-title" className="font-bold text-[22px] md:text-[26px] text-[#253044] leading-tight m-0">

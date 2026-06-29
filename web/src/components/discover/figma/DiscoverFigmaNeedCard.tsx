@@ -42,7 +42,7 @@ export function DiscoverFigmaNeedCard({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={`relative flex flex-col items-start text-left p-4 md:p-5 rounded-[20px] transition-all border w-full ${
+      className={`relative flex flex-col items-start text-left p-4 md:p-5 rounded-[20px] transition-[border-color,box-shadow,transform,background-color] duration-150 border w-full active:scale-[0.98] ${
         disabled ? 'opacity-60 cursor-not-allowed border-[#E7E2DC] bg-white' : ''
       } ${!disabled ? lensCard : ''}`}
     >
