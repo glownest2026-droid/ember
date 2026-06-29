@@ -240,28 +240,44 @@ export default function DiscoveryPageClient({
   }, [showPicks, categoryFromUrl, categoryTypes]);
 
   const scrollToSection = useCallback(
-    (id: string) => {
+    (id: string, behaviorOverride?: ScrollBehavior) => {
       const el = document.getElementById(id);
       if (!el) return;
       const headerVar = getComputedStyle(document.documentElement).getPropertyValue('--header-height').trim();
       const headerOffset = (headerVar ? parseInt(headerVar, 10) : 88) + 12;
       const rect = el.getBoundingClientRect();
       const targetTop = Math.max(0, rect.top + window.scrollY - headerOffset);
-      window.scrollTo({ top: targetTop, behavior: shouldReduceMotion ? 'auto' : 'smooth' });
+      const behavior = behaviorOverride ?? (shouldReduceMotion ? 'auto' : 'smooth');
+      window.scrollTo({ top: targetTop, behavior });
     },
     [shouldReduceMotion]
   );
 
+  const scrollToWhyMatters = useCallback(() => {
+    const headerOffset = 72;
+    const run = () => {
+      const el = whyMattersSectionRef.current ?? nextStepsSectionRef.current;
+      if (!el) return false;
+      const rect = el.getBoundingClientRect();
+      const targetTop = Math.max(0, rect.top + window.scrollY - headerOffset);
+      if (window.scrollY < targetTop - 20 || window.scrollY > targetTop + 20) {
+        window.scrollTo({ top: targetTop, behavior: 'auto' });
+      }
+      return true;
+    };
+    requestAnimationFrame(() => {
+      if (!run()) requestAnimationFrame(run);
+    });
+  }, []);
+
   useEffect(() => {
     if (showPicks) {
       setShowingExamples(true);
-      const timer = setTimeout(() => {
-        const el = document.getElementById('examplesProgressBar') ?? document.getElementById('examplesSection');
-        if (el) el.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'start' });
-      }, 50);
-      return () => clearTimeout(timer);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'auto'));
+      });
     }
-  }, [showPicks, shouldReduceMotion]);
+  }, [showPicks, scrollToSection]);
 
   useEffect(() => {
     if (!actionToast) return;
@@ -360,27 +376,11 @@ export default function DiscoveryPageClient({
     }
   }, [selectedBandIndex, basePath, currentMonth, ageBands, propBandIndex, router]);
 
-  const layerBReady = selectedWrapper && categoryTypes.length > 0;
   useEffect(() => {
-    if (!layerBReady || !pendingScrollToNextSteps) return;
-    const behavior = shouldReduceMotion ? ('auto' as const) : ('smooth' as const);
-    requestAnimationFrame(() => {
-      // Anchor to "why it matters" on both mobile and desktop; the animated arrow
-      // below it then guides the user down to the actual ideas.
-      const el = whyMattersSectionRef.current ?? nextStepsSectionRef.current;
-      if (!el) {
-        setPendingScrollToNextSteps(false);
-        return;
-      }
-      const headerOffset = 72;
-      const rect = el.getBoundingClientRect();
-      const targetTop = Math.max(0, rect.top + window.scrollY - headerOffset);
-      if (window.scrollY < targetTop - 20 || window.scrollY > targetTop + 20) {
-        window.scrollTo({ top: targetTop, behavior });
-      }
-      setPendingScrollToNextSteps(false);
-    });
-  }, [layerBReady, pendingScrollToNextSteps, shouldReduceMotion]);
+    if (!selectedWrapper || !pendingScrollToNextSteps) return;
+    scrollToWhyMatters();
+    setPendingScrollToNextSteps(false);
+  }, [selectedWrapper, pendingScrollToNextSteps, scrollToWhyMatters]);
 
   // Snag #6: only surface the floating "Start over" while the "Ideas for…" section
   // is within the viewport. Scrolling back up (out of the ideas section) hides it.
@@ -396,7 +396,7 @@ export default function DiscoveryPageClient({
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [layerBReady, selectedWrapper]);
+  }, [selectedWrapper]);
 
   const handleWrapperSelect = (wrapperSlug: string) => {
     if (selectedWrapper === wrapperSlug) {
@@ -424,7 +424,7 @@ export default function DiscoveryPageClient({
     setShowingExamples(true);
     router.push(withChildParam(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper!)}&show=1&category=${encodeURIComponent(categoryId)}`), { scroll: false });
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => scrollToSection('examplesProgressBar'));
+      requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'auto'));
     });
   };
 

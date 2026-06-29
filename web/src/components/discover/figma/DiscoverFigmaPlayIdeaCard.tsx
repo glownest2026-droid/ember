@@ -39,7 +39,8 @@ export function DiscoverFigmaPlayIdeaCard({
         <DiscoverFigmaImage
           src={imageUrl}
           alt={title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          variant="card"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {onExpand ? (
           <button

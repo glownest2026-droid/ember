@@ -45,7 +45,9 @@ export function DiscoverFigmaChildHero({
     <DiscoverFigmaImage
       src={heroImageUrl || HERO_FALLBACK}
       alt=""
-      className="w-full h-full object-cover"
+      variant="hero"
+      priority
+      className="object-cover"
     />
   );
 

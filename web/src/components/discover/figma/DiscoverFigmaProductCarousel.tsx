@@ -76,7 +76,7 @@ export function DiscoverFigmaProductCarousel({
           >
             <div className="relative h-[420px] rounded-3xl overflow-hidden bg-white shadow-lg opacity-40 group-hover:opacity-60 transition-opacity">
               <div className="relative h-48 bg-[var(--ember-surface-soft)]">
-                <DiscoverFigmaImage src={prevProduct.imageUrl} alt="" className="w-full h-full object-cover" />
+                <DiscoverFigmaImage src={prevProduct.imageUrl} alt="" variant="product-side" className="object-cover" />
               </div>
               <div className="p-4">
                 <h4 className="text-sm font-medium text-[var(--ember-text-high)] line-clamp-2">{prevProduct.name}</h4>
@@ -101,7 +101,7 @@ export function DiscoverFigmaProductCarousel({
               onDragEnd={handleDragEnd}
             >
               <div className="relative h-56 lg:h-80 bg-[var(--ember-surface-soft)]">
-                <DiscoverFigmaImage src={current.imageUrl} alt="" className="w-full h-full object-cover" />
+                <DiscoverFigmaImage src={current.imageUrl} alt="" variant="product" className="object-cover" />
                 <div className="absolute top-3 left-3 lg:top-4 lg:left-4 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-full shadow-md">
                   <span className="text-xs lg:text-sm font-semibold text-[var(--ember-text-high)]">{current.ageRange}</span>
                 </div>
@@ -214,7 +214,7 @@ export function DiscoverFigmaProductCarousel({
           >
             <div className="relative h-[420px] rounded-3xl overflow-hidden bg-white shadow-lg opacity-40 group-hover:opacity-60 transition-opacity">
               <div className="relative h-48 bg-[var(--ember-surface-soft)]">
-                <DiscoverFigmaImage src={nextProduct.imageUrl} alt="" className="w-full h-full object-cover" />
+                <DiscoverFigmaImage src={nextProduct.imageUrl} alt="" variant="product-side" className="object-cover" />
               </div>
               <div className="p-4">
                 <h4 className="text-sm font-medium text-[var(--ember-text-high)] line-clamp-2">{nextProduct.name}</h4>
