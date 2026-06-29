@@ -111,6 +111,31 @@ const SLUG_TO_ICON: Record<string, LucideIcon> = {
   ent_cluster_feeding_clean_kit: Milk,
   ent_cluster_safe_sleep_setup: Moon,
   ent_cluster_health_first_trips: Stethoscope,
+  // Spine v2 (19-33m) clusters
+  ent_cluster_19_21_words_pointing: MessageCircle,
+  ent_cluster_19_21_pretend_copying: Theater,
+  ent_cluster_19_21_busy_hands: Hand,
+  ent_cluster_19_21_move_climb: Activity,
+  ent_cluster_19_21_pouring_feeding: UtensilsCrossed,
+  ent_cluster_19_21_big_feelings: HeartHandshake,
+  ent_cluster_19_21_potty_bathroom: CalendarCheck2,
+  ent_cluster_19_21_safer_home: Shield,
+  ent_cluster_talk_stories: MessageCircle,
+  ent_cluster_pretend_helper_play: Theater,
+  ent_cluster_busy_hands_puzzles: Hand,
+  ent_cluster_big_movement: Activity,
+  ent_cluster_feelings_turn_taking: Users,
+  ent_cluster_independence_practice: CheckCircle2,
+  ent_cluster_potty_toilet_practice: CalendarCheck2,
+  ent_cluster_home_rhythm_safety: Shield,
+  ent_cluster_talk_stories_questions: MessageCircle,
+  ent_cluster_pretend_social_worlds: Theater,
+  ent_cluster_puzzles_patterns_problem_solving: Puzzle,
+  ent_cluster_busy_hands_making_marks: Hand,
+  ent_cluster_jumping_balance_big_moves: Activity,
+  ent_cluster_little_helper_independence: CheckCircle2,
+  ent_cluster_potty_teeth_body_routines: CalendarCheck2,
+  ent_cluster_safer_spaces_bigger_curiosity: Shield,
 };
 
 const LABEL_PATTERNS: { test: RegExp; icon: LucideIcon }[] = [
@@ -151,6 +176,16 @@ const LABEL_PATTERNS: { test: RegExp; icon: LucideIcon }[] = [
   { test: /busy little hands/i, icon: Hand },
   { test: /chats|claps|signs/i, icon: MessageCircle },
   { test: /fill the day/i, icon: CalendarDays },
+  // Spine v2 toddler bands (19-33m) refreshed voice
+  { test: /finding my words|words everywhere|talk|pointing/i, icon: MessageCircle },
+  { test: /copying everyday life|pretend|role.?play/i, icon: Theater },
+  { test: /busy little hands|hands are busy|hands can do more/i, icon: Hand },
+  { test: /moving with purpose|bigger moves|move|climb/i, icon: Activity },
+  { test: /playing with others|play with others|turn.?taking|sharing/i, icon: Users },
+  { test: /potty|toilet|bathroom|teeth|body routines/i, icon: CalendarCheck2 },
+  { test: /figuring things out|problem solving/i, icon: Puzzle },
+  { test: /doing it myself|do it myself|independence/i, icon: CheckCircle2 },
+  { test: /settle|calm|big feelings|emotions/i, icon: HeartHandshake },
   { test: /play with other|social emotional|big feelings|feelings/i, icon: Users },
   { test: /doing more by myself|independence|myself|let me help/i, icon: CheckCircle2 },
   { test: /hands can|fine motor|little hands/i, icon: Hand },
@@ -178,8 +213,10 @@ export function getWrapperIcon(uxSlug: string, uxLabel: string): LucideIcon {
     if (icon) return icon;
   }
   const label = (uxLabel ?? '').toLowerCase();
+  const slug = (uxSlug ?? '').toLowerCase().replace(/[_-]+/g, ' ');
+  const combined = `${slug} ${label}`;
   for (const { test, icon } of LABEL_PATTERNS) {
-    if (test.test(label)) return icon;
+    if (test.test(combined)) return icon;
   }
   return Shapes;
 }

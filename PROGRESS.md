@@ -1,3 +1,60 @@
+## 2026-06-29 — fix(discover): remove Stage 2 icon badges + improve Stage 1 icon accuracy
+
+- **Stage 2:** removed top-left icon badge from Discover play idea cards (`DiscoverFigmaPlayIdeaCard`), per UI direction.
+- **Stage 1:** added explicit Spine v2 cluster slug → Lucide mappings in `wrapperIcons.tsx` so cards like "My hands are getting busy" and "Potty, teeth and little routines" resolve to semantically correct icons.
+- **Validation:** `pnpm -C web build` pass; no lint issues on touched files.
+
+### How to verify
+1. Open any Discover Stage 2 carousel card and confirm there is no top-left icon badge.
+2. On Stage 1 (19–33m flows), confirm:
+   - "My hands are getting busy" uses a hand icon.
+   - "Potty, teeth and little routines" uses a routine/potty icon (calendar-check).
+3. Check additional Stage 1 cards across `/discover/20`, `/discover/26`, `/discover/32` for consistent icon relevance.
+
+## 2026-06-29 — fix(discover): complete Lucide icon coverage for Stage 1 + Stage 2 cards
+
+- **Scope:** Discover card icon system only (minimal UI change, no data/migration changes)
+- **Stage 1:** strengthened wrapper icon matching in `wrapperIcons.tsx` for refreshed 19–33m cluster voice/slugs, reducing generic fallback icons.
+- **Stage 2:** added `categoryIcons.tsx` resolver and wired icons into play cards so every category card shows a semantic Lucide icon.
+- **UI update:** `DiscoverFigmaPlayIdeaCard` now renders the assigned icon as a badge on each card.
+- **Validation:** `pnpm -C web build` pass; no lint issues in edited files.
+
+### How to verify
+1. Open `/discover/20`, `/discover/26`, `/discover/32` and select several Stage 1 developments — each tile should show a relevant Lucide icon (no generic blank/incorrect look).
+2. In Stage 2 carousels for those bands, confirm every play card has an icon badge (top-left) matching card intent (e.g. potty/routines, language/books, movement, pretend play).
+3. Switch wrappers and verify icons remain stable and context-appropriate across cards.
+
+## 2026-06-29 — fix(discover): reimport 19–21m, 25–27m, 31–33m with rebuilt tone/voice
+
+- **Branch:** `feat/import-discover-19-21m-25-27m-31-33m`
+- **Source:** G Drive rebuilt files `19-21M Ember ABI.xlsx`, `25-27M Ember ABI.xlsx`, `31-33M Ember ABI.xlsx` (`discover_projection` only)
+- **Migration:** `20260629100000_reimport_discover_19_21m_25_27m_31_33m_spine_v2.sql` (120 rows total; 39/41/40)
+- **Applied:** `supabase db push` — validation notices pass, Stage 3 active = 0
+- **Spot-check:** `v_gateway_category_types_public?age_band_id=eq.25-27m` returns updated rebuilt labels (e.g. `cat_potty` = "A potty to practise sitting")
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. `/discover/20`, `/discover/26`, `/discover/32` — Stage 1 + Stage 2 copy reflects rebuilt tone from new workbooks.
+2. REST `v_gateway_category_types_public?age_band_id=eq.25-27m&order=rank.asc&limit=5` — first cards match new tone ("A potty to practise sitting", etc.).
+3. Run `supabase db push --yes` on a clean env — migration validates row/cluster totals (120 rows; 8 clusters per band).
+
+## 2026-06-28 — feat(discover): import Spine v2 bands 19–21m, 25–27m, 31–33m
+
+- **Branch:** `feat/import-discover-19-21m-25-27m-31-33m`
+- **Source:** G Drive `02_Ember_Bible_19_21m_v1.xlsx`, `02_Ember_Bible_25_27m_v1.xlsx`, `02_Ember_Bible_31_33m_v1.xlsx` (`discover_projection` only)
+- **Migration:** `20260628210000_import_discover_19_21m_25_27m_31_33m_spine_v2.sql` — 120 rows, 8 clusters × 3 bands; legacy slug merges (`potty` → `cat_potty`, etc.) before import
+- **Master Library:** updated on G Drive — 120 rows appended (359 total); backup in `agent-tools/backups/master-library-pre-rebuild/`
+- **Applied:** `supabase db push` — validation notices pass (Stage 3 active = 0)
+- **Build:** `pnpm -C web build` pass
+- **Slug drift flagged:** legacy `potty`, `toilet-training-seat`, `toilet_training_seat`, `training_pants` merged to workbook `cat_*` slugs
+
+### How to verify
+1. `/discover/20` — 19–21 months band active; Stage 1 + Stage 2 match workbook voice
+2. `/discover/26` — 25–27 months; potty cluster Stage 2 shows band-specific titles (e.g. "Potty chair")
+3. `/discover/32` — 31–33 months active (replaces deprecated pre-Spine 2.0 band)
+4. REST `v_gateway_category_types_public?slug=eq.cat_songs_action_games&age_band_id=in.(19-21m,25-27m,31-33m)` — same slug, different `label` per band
+5. REST `v_gateway_category_types_public?age_band_id=eq.25-27m` — 41 rows; card titles = junction `display_label`
+
 ## 2026-06-28 — fix(snag-pack): restore Discover 7–9 months age band
 
 - **Branch:** `fix/snag-pack-discover-7-9m-band` — PR [#235](https://github.com/glownest2026-droid/ember/pull/235)
