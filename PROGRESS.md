@@ -3,7 +3,7 @@
 - **Branch:** `fix/discover-image-delivery`
 - **Images:** Supabase Storage render URLs (WebP, width-capped) — ~37 KB vs ~1.5 MB PNG origin
 - **UX:** Per-wrapper play-idea cache, loading skeleton (no stale images on toggle), route + image prefetch on card hover
-- **Server:** Gateway cached queries on discover month page
+- **Server:** Gateway cached queries on discover month page — **reverted** (`unstable_cache` + `cookies()` broke age-band load → redirect loop)
 - **Carousel:** Eager load for first two visible slides
 - **Build:** `pnpm -C web build` pass
 
