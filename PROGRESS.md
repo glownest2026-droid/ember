@@ -1,3 +1,18 @@
+## 2026-06-29 — fix(discover): faster category image delivery
+
+- **Branch:** `fix/discover-image-delivery`
+- **Images:** Supabase Storage render URLs (WebP, width-capped) — ~37 KB vs ~1.5 MB PNG origin
+- **UX:** Per-wrapper play-idea cache, loading skeleton (no stale images on toggle), route + image prefetch on card hover
+- **Server:** Gateway cached queries on discover month page
+- **Carousel:** Eager load for first two visible slides
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. `/discover/2` — tap “I'm watching the world”; skeleton then images (not wrong wrapper's cards)
+2. Toggle development cards — revisit prior card shows images instantly from cache
+3. DevTools Network — category images ~30–40 KB WebP, not 1.5 MB PNG
+4. Hover a development card before tap — route prefetched
+
 ## 2026-06-29 — fix(discover): perceived performance and image loading
 
 - **Branch:** `fix/discover-perceived-performance` — PR [#238](https://github.com/glownest2026-droid/ember/pull/238)

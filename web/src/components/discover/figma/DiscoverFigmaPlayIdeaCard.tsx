@@ -13,12 +13,14 @@ export function DiscoverFigmaPlayIdeaCard({
   onExpand,
   isDimmed = false,
   isHaveActive = false,
+  imagePriority = false,
 }: {
   id: string;
   title: string;
   description: string;
   scienceConnection?: string;
   imageUrl: string;
+  imagePriority?: boolean;
   isSelected?: boolean;
   onClick?: () => void;
   onSeeExamples: () => void;
@@ -40,6 +42,7 @@ export function DiscoverFigmaPlayIdeaCard({
           src={imageUrl}
           alt={title}
           variant="card"
+          priority={imagePriority}
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {onExpand ? (

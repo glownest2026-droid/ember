@@ -12,6 +12,7 @@ export function DiscoverFigmaNeedCard({
   disabled,
   showSuggested,
   audienceLens,
+  onPrefetch,
 }: {
   icon: LucideIcon;
   title: string;
@@ -19,6 +20,7 @@ export function DiscoverFigmaNeedCard({
   science?: string;
   isSelected: boolean;
   onClick: () => void;
+  onPrefetch?: () => void;
   disabled?: boolean;
   showSuggested?: boolean;
   audienceLens?: string | null;
@@ -42,6 +44,8 @@ export function DiscoverFigmaNeedCard({
       type="button"
       disabled={disabled}
       onClick={onClick}
+      onPointerEnter={onPrefetch}
+      onFocus={onPrefetch}
       className={`relative flex flex-col items-start text-left p-4 md:p-5 rounded-[20px] transition-[border-color,box-shadow,transform,background-color] duration-150 border w-full active:scale-[0.98] ${
         disabled ? 'opacity-60 cursor-not-allowed border-[#E7E2DC] bg-white' : ''
       } ${!disabled ? lensCard : ''}`}

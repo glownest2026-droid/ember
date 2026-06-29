@@ -1,7 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { optimizeDiscoverImageUrl } from '@/lib/discover/discoverImageUrl';
 
 const PLACEHOLDER_BG =
   'linear-gradient(135deg, var(--ember-surface-soft) 0%, var(--ember-border-subtle) 100%)';
@@ -32,8 +33,14 @@ export function DiscoverFigmaImage({
 }) {
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const optimizedSrc = optimizeDiscoverImageUrl(src, variant);
 
-  if (!src?.trim() || failed) {
+  useEffect(() => {
+    setFailed(false);
+    setLoaded(false);
+  }, [optimizedSrc]);
+
+  if (!optimizedSrc || failed) {
     return (
       <div
         className={className}
@@ -48,14 +55,14 @@ export function DiscoverFigmaImage({
   return (
     <div className="relative w-full h-full overflow-hidden" style={{ background: PLACEHOLDER_BG }}>
       <Image
-        src={src}
+        src={optimizedSrc}
         alt={alt}
         fill
         sizes={sizes ?? SIZE_PRESETS[variant]}
         priority={priority}
-        loading={priority ? undefined : 'lazy'}
+        loading={priority ? 'eager' : 'lazy'}
         quality={variant === 'hero' ? 80 : 75}
-        className={`${className} transition-opacity duration-200 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+        className={`${className} transition-opacity duration-150 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setLoaded(true)}
         onError={() => setFailed(true)}
       />

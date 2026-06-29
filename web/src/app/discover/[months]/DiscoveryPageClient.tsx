@@ -21,7 +21,13 @@ import { DiscoverFigmaChildHero } from '@/components/discover/figma/DiscoverFigm
 import { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigmaNeedCard';
 import { DiscoverFigmaScienceSection } from '@/components/discover/figma/DiscoverFigmaScienceSection';
 import { DiscoverFigmaPlayCarousel } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
+import type { PlayIdeaItem } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
 import { DiscoverFigmaProductCarousel } from '@/components/discover/figma/DiscoverFigmaProductCarousel';
+import { prefetchDiscoverImageUrls } from '@/lib/discover/discoverImageUrl';
+import {
+  categoryTypesToPlayIdeaItems,
+  wrapperPlayIdeasCacheKey,
+} from '@/lib/discover/playIdeaItems';
 import { getWrapperIcon } from './_lib/wrapperIcons';
 import {
   displayChildName,
@@ -125,6 +131,7 @@ export default function DiscoveryPageClient({
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
   const [ideasSectionInView, setIdeasSectionInView] = useState(false);
+  const [playIdeaCache, setPlayIdeaCache] = useState<Record<string, PlayIdeaItem[]>>({});
   const replayAttemptedRef = useRef(false);
   const basePath = '/discover';
   const { user, refetch: refetchSubnavStats } = useSubnavStats();
@@ -407,8 +414,19 @@ export default function DiscoveryPageClient({
     setSelectedCategoryId(null);
     setShowingExamples(false);
     setPendingScrollToNextSteps(true);
+    const cached = playIdeaCache[wrapperPlayIdeasCacheKey(ageBand?.id, wrapperSlug)];
+    if (cached?.length) prefetchDiscoverImageUrls(cached.map((item) => item.imageUrl), 'card');
     router.push(withChildParam(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`), { scroll: false });
   };
+
+  const prefetchWrapper = useCallback(
+    (wrapperSlug: string) => {
+      router.prefetch(withChildParam(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`));
+      const cached = playIdeaCache[wrapperPlayIdeasCacheKey(ageBand?.id, wrapperSlug)];
+      if (cached?.length) prefetchDiscoverImageUrls(cached.map((item) => item.imageUrl), 'card');
+    },
+    [router, withChildParam, basePath, currentMonth, ageBand?.id, playIdeaCache]
+  );
 
   const handleDiscoverStartOver = useCallback(() => {
     setSelectedWrapper(null);
@@ -1001,19 +1019,35 @@ export default function DiscoveryPageClient({
 
   const selectedWrapperRecord = wrappers.find((w) => w.ux_slug === selectedWrapper) ?? null;
   const scienceBody = (selectedWrapperRecord?.ux_description || '').trim();
-  const playIdeaItems = useMemo(
-    () =>
-      categoryTypes.map((ct) => ({
-        id: ct.id,
-        // Remove explicit product examples from Stage 2 labels (e.g. "... (e.g. Snail's Pace)").
-        title: (ct.label || ct.name || 'Play idea').replace(/\s*\(e\.g\.[^)]+\)\s*/gi, ' ').trim(),
-        description: (ct.rationale || ct.description || '').trim(),
-        audienceLens: ct.audience_lens,
-        scienceConnection: formatBandLabel(selectedBand),
-        imageUrl: ct.image_url?.trim() || '',
-      })),
-    [categoryTypes, selectedBand]
-  );
+  const bandLabelForIdeas = formatBandLabel(selectedBand);
+
+  useEffect(() => {
+    if (!selectedWrapperSlug || !ageBand?.id || categoryTypes.length === 0) return;
+    const key = wrapperPlayIdeasCacheKey(ageBand.id, selectedWrapperSlug);
+    const items = categoryTypesToPlayIdeaItems(categoryTypes, bandLabelForIdeas);
+    setPlayIdeaCache((prev) => ({ ...prev, [key]: items }));
+  }, [selectedWrapperSlug, categoryTypes, ageBand?.id, bandLabelForIdeas]);
+
+  const playIdeaItems = useMemo(() => {
+    if (!selectedWrapper) return [];
+    const serverSynced = selectedWrapper === selectedWrapperSlug && categoryTypes.length > 0;
+    if (serverSynced) {
+      return categoryTypesToPlayIdeaItems(categoryTypes, bandLabelForIdeas);
+    }
+    return playIdeaCache[wrapperPlayIdeasCacheKey(ageBand?.id, selectedWrapper)] ?? [];
+  }, [
+    selectedWrapper,
+    selectedWrapperSlug,
+    categoryTypes,
+    playIdeaCache,
+    ageBand?.id,
+    bandLabelForIdeas,
+  ]);
+
+  const ideasSectionLoading =
+    Boolean(selectedWrapper) &&
+    playIdeaItems.length === 0 &&
+    (selectedWrapper !== selectedWrapperSlug || categoryTypes.length === 0);
 
   const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
   const scienceTitle = 'Why this matters now';
@@ -1123,6 +1157,7 @@ export default function DiscoveryPageClient({
                                 isSelected={isSelected}
                                 showSuggested={tile.showSuggested}
                                 onClick={() => handleWrapperSelect(tile.slug)}
+                                onPrefetch={() => prefetchWrapper(tile.slug)}
                               />
                             );
                           })}
@@ -1145,6 +1180,7 @@ export default function DiscoveryPageClient({
                         isSelected={isSelected}
                         showSuggested={tile.showSuggested}
                         onClick={() => handleWrapperSelect(tile.slug)}
+                        onPrefetch={() => prefetchWrapper(tile.slug)}
                       />
                     );
                   })}
@@ -1195,7 +1231,25 @@ export default function DiscoveryPageClient({
                 id="discover-figma-ideas"
                 className="scroll-mt-[calc(var(--header-height,88px)+12px)] mt-4 md:mt-0 md:scroll-mt-2 md:-mt-1"
               >
-                {playIdeaItems.length > 0 ? (
+                {ideasSectionLoading ? (
+                  <div className="flex flex-col gap-4" aria-busy="true" aria-label="Loading ideas">
+                    <div className="h-9 w-2/3 max-w-md rounded-lg bg-[#E7E2DC]/60 animate-pulse" />
+                    <div className="flex gap-4 overflow-hidden">
+                      {[0, 1].map((i) => (
+                        <div
+                          key={i}
+                          className="flex-[0_0_94%] md:flex-[0_0_58%] rounded-[24px] border border-[#E7E2DC] overflow-hidden bg-white"
+                        >
+                          <div className="aspect-[16/9] max-h-[150px] bg-[#E7E2DC]/50 animate-pulse" />
+                          <div className="p-4 space-y-2">
+                            <div className="h-5 w-3/4 rounded bg-[#E7E2DC]/60 animate-pulse" />
+                            <div className="h-4 w-full rounded bg-[#E7E2DC]/40 animate-pulse" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : playIdeaItems.length > 0 ? (
                   <DiscoverFigmaPlayCarousel
                     items={playIdeaItems}
                     sectionTitle={ideasSectionTitle}
