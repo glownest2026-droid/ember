@@ -1,3 +1,17 @@
+## 2026-06-29 — fix(discover): reimport 19–21m, 25–27m, 31–33m with rebuilt tone/voice
+
+- **Branch:** `feat/import-discover-19-21m-25-27m-31-33m`
+- **Source:** G Drive rebuilt files `19-21M Ember ABI.xlsx`, `25-27M Ember ABI.xlsx`, `31-33M Ember ABI.xlsx` (`discover_projection` only)
+- **Migration:** `20260629100000_reimport_discover_19_21m_25_27m_31_33m_spine_v2.sql` (120 rows total; 39/41/40)
+- **Applied:** `supabase db push` — validation notices pass, Stage 3 active = 0
+- **Spot-check:** `v_gateway_category_types_public?age_band_id=eq.25-27m` returns updated rebuilt labels (e.g. `cat_potty` = "A potty to practise sitting")
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. `/discover/20`, `/discover/26`, `/discover/32` — Stage 1 + Stage 2 copy reflects rebuilt tone from new workbooks.
+2. REST `v_gateway_category_types_public?age_band_id=eq.25-27m&order=rank.asc&limit=5` — first cards match new tone ("A potty to practise sitting", etc.).
+3. Run `supabase db push --yes` on a clean env — migration validates row/cluster totals (120 rows; 8 clusters per band).
+
 ## 2026-06-28 — feat(discover): import Spine v2 bands 19–21m, 25–27m, 31–33m
 
 - **Branch:** `feat/import-discover-19-21m-25-27m-31-33m`
