@@ -112,7 +112,7 @@ export function DiscoverFigmaPlayCarousel({
 
         <div className="overflow-hidden -mx-1 px-1" ref={emblaRef}>
           <div className="flex gap-4 md:gap-6">
-            {items.map((idea) => {
+            {items.map((idea, index) => {
               const isDimmed = dimmedCategoryIds?.has(idea.id) ?? false;
               return (
                 <div key={idea.id} className="flex-[0_0_94%] md:flex-[0_0_58%] lg:flex-[0_0_42%] min-w-0">
@@ -122,6 +122,7 @@ export function DiscoverFigmaPlayCarousel({
                     description={idea.description}
                     audienceLens={idea.audienceLens}
                     imageUrl={idea.imageUrl}
+                    imagePriority={index < 2}
                     isSelected={selectedId === idea.id}
                     onClick={() => onSelect(idea.id)}
                     onSeeExamples={() => onSeeExamples(idea.id)}

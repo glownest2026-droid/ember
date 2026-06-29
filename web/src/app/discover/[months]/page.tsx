@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import {
   getGatewayAgeBandIdsWithPicks,
   getGatewayAgeBandsPublic,
@@ -68,7 +68,8 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
 
   const ageBand = await resolveAgeBandForMonth(monthParam, ageBands);
   if (!ageBand) {
-    redirect('/discover/26');
+    if (monthParam !== 26) redirect('/discover/26');
+    notFound();
   }
   const wrappers = await getGatewayWrappersForAgeBand(ageBand.id);
 
