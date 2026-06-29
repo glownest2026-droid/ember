@@ -4,6 +4,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence } from 'motion/react';
+import type { LucideIcon } from 'lucide-react';
 import { DiscoverFigmaPlayIdeaCard } from './DiscoverFigmaPlayIdeaCard';
 import { DiscoverFigmaPlayIdeaExpanded } from './DiscoverFigmaPlayIdeaExpanded';
 
@@ -11,6 +12,7 @@ export type PlayIdeaItem = {
   id: string;
   title: string;
   description: string;
+  icon: LucideIcon;
   audienceLens?: string | null;
   scienceConnection: string;
   imageUrl: string;
@@ -120,6 +122,7 @@ export function DiscoverFigmaPlayCarousel({
                     id={idea.id}
                     title={idea.title}
                     description={idea.description}
+                    icon={idea.icon}
                     audienceLens={idea.audienceLens}
                     imageUrl={idea.imageUrl}
                     isSelected={selectedId === idea.id}

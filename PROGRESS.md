@@ -1,3 +1,16 @@
+## 2026-06-29 — fix(discover): complete Lucide icon coverage for Stage 1 + Stage 2 cards
+
+- **Scope:** Discover card icon system only (minimal UI change, no data/migration changes)
+- **Stage 1:** strengthened wrapper icon matching in `wrapperIcons.tsx` for refreshed 19–33m cluster voice/slugs, reducing generic fallback icons.
+- **Stage 2:** added `categoryIcons.tsx` resolver and wired icons into play cards so every category card shows a semantic Lucide icon.
+- **UI update:** `DiscoverFigmaPlayIdeaCard` now renders the assigned icon as a badge on each card.
+- **Validation:** `pnpm -C web build` pass; no lint issues in edited files.
+
+### How to verify
+1. Open `/discover/20`, `/discover/26`, `/discover/32` and select several Stage 1 developments — each tile should show a relevant Lucide icon (no generic blank/incorrect look).
+2. In Stage 2 carousels for those bands, confirm every play card has an icon badge (top-left) matching card intent (e.g. potty/routines, language/books, movement, pretend play).
+3. Switch wrappers and verify icons remain stable and context-appropriate across cards.
+
 ## 2026-06-29 — fix(discover): reimport 19–21m, 25–27m, 31–33m with rebuilt tone/voice
 
 - **Branch:** `feat/import-discover-19-21m-25-27m-31-33m`

@@ -151,6 +151,16 @@ const LABEL_PATTERNS: { test: RegExp; icon: LucideIcon }[] = [
   { test: /busy little hands/i, icon: Hand },
   { test: /chats|claps|signs/i, icon: MessageCircle },
   { test: /fill the day/i, icon: CalendarDays },
+  // Spine v2 toddler bands (19-33m) refreshed voice
+  { test: /finding my words|words everywhere|talk|pointing/i, icon: MessageCircle },
+  { test: /copying everyday life|pretend|role.?play/i, icon: Theater },
+  { test: /busy little hands|hands are busy|hands can do more/i, icon: Hand },
+  { test: /moving with purpose|bigger moves|move|climb/i, icon: Activity },
+  { test: /playing with others|play with others|turn.?taking|sharing/i, icon: Users },
+  { test: /potty|toilet|bathroom|teeth|body routines/i, icon: CalendarCheck2 },
+  { test: /figuring things out|problem solving/i, icon: Puzzle },
+  { test: /doing it myself|do it myself|independence/i, icon: CheckCircle2 },
+  { test: /settle|calm|big feelings|emotions/i, icon: HeartHandshake },
   { test: /play with other|social emotional|big feelings|feelings/i, icon: Users },
   { test: /doing more by myself|independence|myself|let me help/i, icon: CheckCircle2 },
   { test: /hands can|fine motor|little hands/i, icon: Hand },
@@ -178,8 +188,10 @@ export function getWrapperIcon(uxSlug: string, uxLabel: string): LucideIcon {
     if (icon) return icon;
   }
   const label = (uxLabel ?? '').toLowerCase();
+  const slug = (uxSlug ?? '').toLowerCase().replace(/[_-]+/g, ' ');
+  const combined = `${slug} ${label}`;
   for (const { test, icon } of LABEL_PATTERNS) {
-    if (test.test(label)) return icon;
+    if (test.test(combined)) return icon;
   }
   return Shapes;
 }

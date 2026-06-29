@@ -23,6 +23,7 @@ import { DiscoverFigmaScienceSection } from '@/components/discover/figma/Discove
 import { DiscoverFigmaPlayCarousel } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
 import { DiscoverFigmaProductCarousel } from '@/components/discover/figma/DiscoverFigmaProductCarousel';
 import { getWrapperIcon } from './_lib/wrapperIcons';
+import { getCategoryIcon } from './_lib/categoryIcons';
 import {
   displayChildName,
   personalizationFromChildrenRow,
@@ -1008,6 +1009,11 @@ export default function DiscoveryPageClient({
         // Remove explicit product examples from Stage 2 labels (e.g. "... (e.g. Snail's Pace)").
         title: (ct.label || ct.name || 'Play idea').replace(/\s*\(e\.g\.[^)]+\)\s*/gi, ' ').trim(),
         description: (ct.rationale || ct.description || '').trim(),
+        icon: getCategoryIcon(
+          ct.slug || '',
+          (ct.label || ct.name || 'Play idea').replace(/\s*\(e\.g\.[^)]+\)\s*/gi, ' ').trim(),
+          (ct.rationale || ct.description || '').trim()
+        ),
         audienceLens: ct.audience_lens,
         scienceConnection: formatBandLabel(selectedBand),
         imageUrl: ct.image_url?.trim() || '',
