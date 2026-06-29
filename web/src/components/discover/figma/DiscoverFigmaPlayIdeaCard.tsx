@@ -37,7 +37,7 @@ export function DiscoverFigmaPlayIdeaCard({
         isDimmed ? 'opacity-45 grayscale' : 'opacity-100'
       }`}
     >
-      <div className="relative overflow-hidden bg-[#FBFAF7]">
+      <div className="relative aspect-[16/9] max-h-[150px] md:max-h-[165px] overflow-hidden bg-[#FBFAF7]">
         <DiscoverFigmaImage
           src={imageUrl}
           alt={title}
