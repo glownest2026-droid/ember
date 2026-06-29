@@ -53,7 +53,7 @@ export function DiscoverFigmaChildHero({
 
   return (
     <section className="flex flex-col md:flex-row gap-8 md:gap-12 md:items-center pt-2 md:pt-6 w-full">
-      <div className="md:hidden w-full rounded-[24px] overflow-hidden aspect-[4/3] border border-[#E7E2DC] shadow-sm">
+      <div className="relative md:hidden w-full rounded-[24px] overflow-hidden aspect-[4/3] border border-[#E7E2DC] shadow-sm">
         {heroImg}
       </div>
 
@@ -98,7 +98,7 @@ export function DiscoverFigmaChildHero({
       </div>
 
       <div className="flex-1 hidden md:block">
-        <div className="rounded-[20px] overflow-hidden aspect-[4/3] border border-[#E7E2DC] shadow-sm">{heroImg}</div>
+        <div className="relative rounded-[20px] overflow-hidden aspect-[4/3] border border-[#E7E2DC] shadow-sm">{heroImg}</div>
       </div>
     </section>
   );
