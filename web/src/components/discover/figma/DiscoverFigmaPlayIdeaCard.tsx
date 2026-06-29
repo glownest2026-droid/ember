@@ -1,13 +1,11 @@
 'use client';
 
 import { Save, CheckCircle, ChevronRight, Maximize2 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 
 export function DiscoverFigmaPlayIdeaCard({
   title,
   description,
-  icon: Icon,
   imageUrl,
   onSeeExamples,
   onSaveIdea,
@@ -19,7 +17,6 @@ export function DiscoverFigmaPlayIdeaCard({
   id: string;
   title: string;
   description: string;
-  icon: LucideIcon;
   scienceConnection?: string;
   imageUrl: string;
   isSelected?: boolean;
@@ -44,9 +41,6 @@ export function DiscoverFigmaPlayIdeaCard({
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute top-3 left-3 w-9 h-9 rounded-full bg-white/95 border border-[#E7E2DC] flex items-center justify-center text-[#B8432B] shadow-sm">
-          <Icon size={16} strokeWidth={2.4} />
-        </div>
         {onExpand ? (
           <button
             type="button"

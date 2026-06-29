@@ -122,7 +122,6 @@ export function DiscoverFigmaPlayCarousel({
                     id={idea.id}
                     title={idea.title}
                     description={idea.description}
-                    icon={idea.icon}
                     audienceLens={idea.audienceLens}
                     imageUrl={idea.imageUrl}
                     isSelected={selectedId === idea.id}

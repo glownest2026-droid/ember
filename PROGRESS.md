@@ -1,3 +1,16 @@
+## 2026-06-29 — fix(discover): remove Stage 2 icon badges + improve Stage 1 icon accuracy
+
+- **Stage 2:** removed top-left icon badge from Discover play idea cards (`DiscoverFigmaPlayIdeaCard`), per UI direction.
+- **Stage 1:** added explicit Spine v2 cluster slug → Lucide mappings in `wrapperIcons.tsx` so cards like "My hands are getting busy" and "Potty, teeth and little routines" resolve to semantically correct icons.
+- **Validation:** `pnpm -C web build` pass; no lint issues on touched files.
+
+### How to verify
+1. Open any Discover Stage 2 carousel card and confirm there is no top-left icon badge.
+2. On Stage 1 (19–33m flows), confirm:
+   - "My hands are getting busy" uses a hand icon.
+   - "Potty, teeth and little routines" uses a routine/potty icon (calendar-check).
+3. Check additional Stage 1 cards across `/discover/20`, `/discover/26`, `/discover/32` for consistent icon relevance.
+
 ## 2026-06-29 — fix(discover): complete Lucide icon coverage for Stage 1 + Stage 2 cards
 
 - **Scope:** Discover card icon system only (minimal UI change, no data/migration changes)
