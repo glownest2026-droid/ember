@@ -20,6 +20,10 @@ import { hasOutboundRetailerUrl } from '@/lib/compliance/externalRetailerLink';
 import { DiscoverFigmaChildHero } from '@/components/discover/figma/DiscoverFigmaChildHero';
 import { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigmaNeedCard';
 import { DiscoverFigmaScienceSection } from '@/components/discover/figma/DiscoverFigmaScienceSection';
+import {
+  DiscoverAudienceToggle,
+  type DiscoverAudienceMode,
+} from '@/components/discover/figma/DiscoverAudienceToggle';
 import { DiscoverFigmaPlayCarousel } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
 import type { PlayIdeaItem } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
 import { DiscoverFigmaProductCarousel } from '@/components/discover/figma/DiscoverFigmaProductCarousel';
@@ -75,6 +79,9 @@ interface DiscoveryPageClientProps {
   picks: PickItem[];
   exampleProducts: PickItem[];
   categoryTypes: GatewayCategoryTypePublic[];
+  /** Gift-friendly product rows per wrapper slug (for Thea audience filtering). */
+  giftFriendlyCountByWrapper?: Record<string, number>;
+  bandHasGiftIdeas?: boolean;
   /** Representative category image for the age band (hero fallback when no wrapper selected). */
   bandHeroImageUrl?: string | null;
   showDebug?: boolean;
@@ -97,6 +104,8 @@ export default function DiscoveryPageClient({
   picks,
   exampleProducts,
   categoryTypes,
+  giftFriendlyCountByWrapper = {},
+  bandHasGiftIdeas = false,
   bandHeroImageUrl = null,
   showDebug = false,
   initialChildId,
@@ -132,7 +141,7 @@ export default function DiscoveryPageClient({
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
   const [ideasSectionInView, setIdeasSectionInView] = useState(false);
   const [playIdeaCache, setPlayIdeaCache] = useState<Record<string, PlayIdeaItem[]>>({});
-  const [giftMode, setGiftMode] = useState(false);
+  const [audienceMode, setAudienceMode] = useState<DiscoverAudienceMode>('parent');
   const replayAttemptedRef = useRef(false);
   const basePath = '/discover';
   const { user, refetch: refetchSubnavStats } = useSubnavStats();
@@ -757,13 +766,45 @@ export default function DiscoveryPageClient({
           audienceLens: wrapper.audience_lens,
           icon: meta?.icon ?? getWrapperIcon(wrapper.ux_slug, label),
           showSuggested: is25to27 && suggestedDoorwaySlugSet.has(slugNorm),
+          giftFriendlyCount: giftFriendlyCountByWrapper[wrapper.ux_slug] ?? 0,
         };
       }),
-    [wrappers, doorwayMetaBySlug, is25to27, suggestedDoorwaySlugSet]
+    [wrappers, doorwayMetaBySlug, is25to27, suggestedDoorwaySlugSet, giftFriendlyCountByWrapper]
   );
 
-  const tileSections = useMemo(() => groupByAudienceLensSection(allTiles), [allTiles]);
+  const visibleTiles = useMemo(() => {
+    if (audienceMode !== 'gift') return allTiles;
+    return allTiles.filter((tile) => tile.giftFriendlyCount > 0);
+  }, [allTiles, audienceMode]);
+
+  const tileSections = useMemo(() => {
+    const sections = groupByAudienceLensSection(visibleTiles);
+    return sections.filter((section) => section.items.length > 0);
+  }, [visibleTiles]);
   const showLensSections = tileSections.length > 1 || tileSections.some((s) => s.title !== 'More to explore');
+
+  const handleAudienceModeChange = useCallback(
+    (mode: DiscoverAudienceMode) => {
+      setAudienceMode(mode);
+      if (mode === 'gift' && selectedWrapper) {
+        const count = giftFriendlyCountByWrapper[selectedWrapper] ?? 0;
+        if (count === 0) {
+          setSelectedWrapper(null);
+          setSelectedCategoryId(null);
+          setShowingExamples(false);
+          router.push(withChildParam(`${basePath}/${currentMonth}`), { scroll: false });
+        }
+      }
+    },
+    [
+      selectedWrapper,
+      giftFriendlyCountByWrapper,
+      router,
+      withChildParam,
+      basePath,
+      currentMonth,
+    ]
+  );
 
   const selectedWrapperLabel =
     wrappers.find((w) => w.ux_slug === selectedWrapper)?.ux_label ??
@@ -1094,9 +1135,14 @@ export default function DiscoveryPageClient({
     const lower = selectedWrapperLabel.trim().toLowerCase();
     return lower ? lower.charAt(0).toUpperCase() + lower.slice(1) : lower;
   })();
-  const ideasSectionTitle = selectedWrapperLabel
-    ? `Ideas for “${ideasDevelopmentName}”`
-    : 'Ideas to try';
+  const ideasSectionTitle =
+    audienceMode === 'gift'
+      ? selectedWrapperLabel
+        ? `Gift ideas for “${ideasDevelopmentName}”`
+        : `Gift ideas for ${bandLabelForIdeas}`
+      : selectedWrapperLabel
+        ? `Ideas for “${ideasDevelopmentName}”`
+        : 'Ideas to try';
   // Show the Start over control only while ideas are available to reset.
   const startOverVisible = Boolean(selectedWrapper || (showPicks && displayIdeas.length > 0));
   // Snag #6: the floating FAB is gated on the "Ideas for…" section being in view.
@@ -1166,10 +1212,24 @@ export default function DiscoveryPageClient({
 
         {selectedBandHasStage12Data ? (
           <>
+            {bandHasGiftIdeas ? (
+              <DiscoverAudienceToggle
+                mode={audienceMode}
+                onChange={handleAudienceModeChange}
+                bandLabel={bandLabel}
+              />
+            ) : null}
+
             <section className="flex flex-col gap-5">
               <div>
-                <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">Choose a development</h2>
-                {!user ? (
+                <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
+                  {audienceMode === 'gift' ? 'Pick an area to shop for' : 'Choose a development'}
+                </h2>
+                {audienceMode === 'gift' ? (
+                  <p className="text-sm text-[#66717D] mt-2">
+                    Only areas with tangible gift ideas for this age — parent routines and safety checks are hidden.
+                  </p>
+                ) : !user ? (
                   <p className="text-sm text-[#66717D] mt-2">Pick a focus for this age. Sign in to personalize with your child.</p>
                 ) : null}
               </div>
@@ -1207,7 +1267,7 @@ export default function DiscoveryPageClient({
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
-                  {allTiles.map((tile) => {
+                  {visibleTiles.map((tile) => {
                     const isSelected = selectedWrapper === tile.slug;
                     return (
                       <DiscoverFigmaNeedCard
@@ -1229,18 +1289,20 @@ export default function DiscoveryPageClient({
 
             {selectedWrapper ? (
               <section ref={whyMattersSectionRef} className="scroll-mt-16 md:scroll-mt-12">
-                {scienceBody ? (
+                {audienceMode === 'parent' && scienceBody ? (
                   <DiscoverFigmaScienceSection
                     title={scienceTitle}
                     description={scienceBody}
                     onExplain={() => setHowWeChooseOpen(true)}
                   />
-                ) : (
+                ) : audienceMode === 'parent' ? (
                   <p className="text-[var(--ember-text-low)] text-sm mb-4">
                     We&apos;re adding more detail for this focus soon.
                   </p>
-                )}
-                {(usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
+                ) : null}
+                {(audienceMode === 'gift'
+                  ? giftIdeas.length > 0
+                  : usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
                   <div className="flex justify-center mt-2 md:mt-3">
                     <motion.button
                       type="button"
@@ -1254,7 +1316,9 @@ export default function DiscoveryPageClient({
                           : { duration: 1.4, repeat: Infinity, ease: 'easeInOut' }
                       }
                     >
-                      <span className="text-[13px] font-medium">See the ideas</span>
+                      <span className="text-[13px] font-medium">
+                        {audienceMode === 'gift' ? 'See gift ideas' : 'See the ideas'}
+                      </span>
                       <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E7E2DC] bg-white shadow-sm">
                         <ChevronDown size={20} strokeWidth={2.5} aria-hidden />
                       </span>
@@ -1288,44 +1352,25 @@ export default function DiscoveryPageClient({
                       ))}
                     </div>
                   </div>
-                ) : (usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
+                ) : (audienceMode === 'gift' ? giftIdeas.length > 0 : usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
                   <div className="flex flex-col gap-6">
-                    <div className="flex items-center justify-between gap-3">
-                      <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">{ideasSectionTitle}</h2>
-                      <button
-                        type="button"
-                        onClick={() => setGiftMode((v) => !v)}
-                        className="rounded-full border border-[#E7E2DC] bg-white px-4 py-2 text-sm font-semibold text-[#253044] hover:border-[#D0C9C0]"
-                      >
-                        {giftMode ? 'Back to parent view' : 'Show gift ideas'}
-                      </button>
-                    </div>
-                    {giftMode ? (
-                      <section className="rounded-3xl border border-[#E7E2DC] bg-white p-5 md:p-6">
-                        <h3 className="text-[20px] md:text-[24px] font-bold text-[#253044] m-0">Gift ideas for 13–15 months</h3>
-                        <p className="text-[14px] text-[#66717D] mt-2 mb-4">
-                          Tangible ideas that fit this age, without making you guess what the child already has.
-                        </p>
-                        {giftIdeas.length > 0 ? (
-                          <DiscoverFigmaPlayCarousel
-                            items={giftIdeas}
-                            sectionTitle="Things that can help"
-                            selectedId={selectedCategoryId}
-                            onSelect={setSelectedCategoryId}
-                            onSeeExamples={handleShowExamples}
-                            onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
-                            onGiftAction={(categoryId, el) => handleSaveCategory(categoryId, el)}
-                            onHaveThem={handleHaveThemCategory}
-                            showHaveAction={false}
-                            showEmberPicks
-                            showSaveAction={false}
-                            showGiftAction
-                            dimmedCategoryIds={dimmedCategoryIds}
-                          />
-                        ) : (
-                          <p className="text-sm text-[#66717D] m-0">No gift-friendly rows yet for this focus.</p>
-                        )}
-                      </section>
+                    <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">{ideasSectionTitle}</h2>
+                    {audienceMode === 'gift' ? (
+                      <DiscoverFigmaPlayCarousel
+                        items={giftIdeas}
+                        sectionTitle="Things that can help"
+                        selectedId={selectedCategoryId}
+                        onSelect={setSelectedCategoryId}
+                        onSeeExamples={handleShowExamples}
+                        onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
+                        onGiftAction={(categoryId, el) => handleSaveCategory(categoryId, el)}
+                        onHaveThem={handleHaveThemCategory}
+                        showHaveAction={false}
+                        showEmberPicks
+                        showSaveAction={false}
+                        showGiftAction
+                        dimmedCategoryIds={dimmedCategoryIds}
+                      />
                     ) : (
                       <>
                         {usefulIdeas.length > 0 ? (
