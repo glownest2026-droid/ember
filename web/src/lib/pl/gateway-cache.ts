@@ -1,9 +1,16 @@
 import { unstable_cache } from 'next/cache';
-import type { GatewayCategoryTypePublic, GatewayPick, GatewayWrapperPublic } from './public';
+import type {
+  GatewayCategoryTypePublic,
+  GatewayCategoryTypesByWrapper,
+  GatewayPick,
+  GatewayWrapperPublic,
+} from './public';
 import {
   getGatewayAgeBandIdsWithPicks,
   getGatewayAgeBandsPublic,
+  getGatewayCategoryTypesByWrapperForAgeBand,
   getGatewayCategoryTypesForAgeBandAndWrapper,
+  getGatewayHeroImageForAgeBand,
   getGatewayTopPicksForAgeBandAndCategoryType,
   getGatewayTopPicksForAgeBandAndWrapperSlug,
   getGatewayTopProductsForAgeBand,
@@ -48,6 +55,26 @@ export function getGatewayCategoryTypesForAgeBandAndWrapperCached(
   return unstable_cache(
     () => getGatewayCategoryTypesForAgeBandAndWrapper(ageBandId, wrapperSlug),
     ['gateway-category-types', ageBandId, wrapperSlug],
+    { revalidate: GATEWAY_PUBLIC_REVALIDATE_SECONDS, tags: [gatewayTag, `gateway-band-${ageBandId}`] }
+  )();
+}
+
+export function getGatewayCategoryTypesByWrapperForAgeBandCached(
+  ageBandId: string,
+  wrapperSlugs: string[]
+): Promise<GatewayCategoryTypesByWrapper> {
+  const slugsKey = [...wrapperSlugs].sort().join(',');
+  return unstable_cache(
+    () => getGatewayCategoryTypesByWrapperForAgeBand(ageBandId, wrapperSlugs),
+    ['gateway-category-types-by-wrapper', ageBandId, slugsKey],
+    { revalidate: GATEWAY_PUBLIC_REVALIDATE_SECONDS, tags: [gatewayTag, `gateway-band-${ageBandId}`] }
+  )();
+}
+
+export function getGatewayHeroImageForAgeBandCached(ageBandId: string) {
+  return unstable_cache(
+    () => getGatewayHeroImageForAgeBand(ageBandId),
+    ['gateway-hero-image', ageBandId],
     { revalidate: GATEWAY_PUBLIC_REVALIDATE_SECONDS, tags: [gatewayTag, `gateway-band-${ageBandId}`] }
   )();
 }
