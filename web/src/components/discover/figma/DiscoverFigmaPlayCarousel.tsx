@@ -14,6 +14,18 @@ export type PlayIdeaItem = {
   audienceLens?: string | null;
   scienceConnection: string;
   imageUrl: string;
+  uiLane?: string | null;
+  contentType?: string | null;
+  showEmberPicks?: boolean | null;
+  showGiftAction?: boolean | null;
+  giftFriendly?: boolean | null;
+  buyerModeLabel?: string | null;
+  giftNote?: string | null;
+  ownershipNote?: string | null;
+  cardCtaLabel?: string | null;
+  renderRule?: string | null;
+  laneRank?: number | null;
+  categoryRank?: number | null;
 };
 
 export function DiscoverFigmaPlayCarousel({
@@ -22,8 +34,12 @@ export function DiscoverFigmaPlayCarousel({
   onSelect,
   onSeeExamples,
   onSaveIdea,
+  onGiftAction,
   onHaveThem,
   showHaveAction = true,
+  showEmberPicks = true,
+  showSaveAction = true,
+  showGiftAction = false,
   dimmedCategoryIds,
   sectionTitle,
 }: {
@@ -32,8 +48,12 @@ export function DiscoverFigmaPlayCarousel({
   onSelect: (id: string) => void;
   onSeeExamples: (id: string) => void;
   onSaveIdea: (categoryId: string, el: HTMLButtonElement | null) => void;
+  onGiftAction?: (categoryId: string, el: HTMLButtonElement | null) => void;
   onHaveThem: (categoryId: string) => void;
   showHaveAction?: boolean;
+  showEmberPicks?: boolean;
+  showSaveAction?: boolean;
+  showGiftAction?: boolean;
   dimmedCategoryIds?: Set<string>;
   sectionTitle: string;
 }) {
@@ -127,10 +147,17 @@ export function DiscoverFigmaPlayCarousel({
                     onClick={() => onSelect(idea.id)}
                     onSeeExamples={() => onSeeExamples(idea.id)}
                     onSaveIdea={(e, el) => onSaveIdea(idea.id, el)}
+                    onGiftAction={onGiftAction ? (e, el) => onGiftAction(idea.id, el) : undefined}
                     onHaveThem={showHaveAction ? () => onHaveThem(idea.id) : undefined}
                     onExpand={() => setExpandedId(idea.id)}
                     isDimmed={isDimmed}
                     isHaveActive={isDimmed}
+                    showEmberPicks={showEmberPicks && idea.showEmberPicks !== false}
+                    showSaveAction={showSaveAction}
+                    showGiftAction={showGiftAction && idea.showGiftAction === true}
+                    ctaLabel={idea.cardCtaLabel || 'See Ember Picks'}
+                    helperNote={idea.ownershipNote}
+                    badgeLabel={idea.buyerModeLabel}
                   />
                 </div>
               );
@@ -160,6 +187,10 @@ export function DiscoverFigmaPlayCarousel({
             onClose={() => setExpandedId(null)}
             onSeeExamples={() => onSeeExamples(expandedIdea.id)}
             onSaveIdea={(e, el) => onSaveIdea(expandedIdea.id, el)}
+            onGiftAction={onGiftAction ? (e, el) => onGiftAction(expandedIdea.id, el) : undefined}
+            showEmberPicks={showEmberPicks && expandedIdea.showEmberPicks !== false}
+            showGiftAction={showGiftAction && expandedIdea.showGiftAction === true}
+            ctaLabel={expandedIdea.cardCtaLabel || 'See Ember Picks'}
           />
         ) : null}
       </AnimatePresence>

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { ChevronRight, Save, X } from 'lucide-react';
+import { ChevronRight, Save, Gift, X } from 'lucide-react';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 
 export type ExpandedPlayIdea = {
@@ -18,12 +18,20 @@ export function DiscoverFigmaPlayIdeaExpanded({
   onClose,
   onSeeExamples,
   onSaveIdea,
+  onGiftAction,
+  showEmberPicks = true,
+  showGiftAction = false,
+  ctaLabel = 'Ember Picks',
 }: {
   idea: ExpandedPlayIdea;
   isDimmed?: boolean;
   onClose: () => void;
   onSeeExamples: () => void;
   onSaveIdea: (e: React.MouseEvent, el: HTMLButtonElement | null) => void;
+  onGiftAction?: (e: React.MouseEvent, el: HTMLButtonElement | null) => void;
+  showEmberPicks?: boolean;
+  showGiftAction?: boolean;
+  ctaLabel?: string;
 }) {
   const shouldReduceMotion = useReducedMotion() ?? false;
 
@@ -93,17 +101,19 @@ export function DiscoverFigmaPlayIdeaExpanded({
               </p>
             ) : null}
             <div className="flex items-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  onSeeExamples();
-                  onClose();
-                }}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 bg-[#FF5C34] hover:bg-[#E04B28] text-white py-3.5 px-4 rounded-full font-bold text-[15px] transition-colors shadow-sm"
-              >
-                Ember Picks
-                <ChevronRight size={18} strokeWidth={2.5} aria-hidden />
-              </button>
+              {showEmberPicks ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSeeExamples();
+                    onClose();
+                  }}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 bg-[#FF5C34] hover:bg-[#E04B28] text-white py-3.5 px-4 rounded-full font-bold text-[15px] transition-colors shadow-sm"
+                >
+                  {ctaLabel}
+                  <ChevronRight size={18} strokeWidth={2.5} aria-hidden />
+                </button>
+              ) : null}
               <button
                 type="button"
                 onClick={(e) => onSaveIdea(e, e.currentTarget)}
@@ -112,6 +122,16 @@ export function DiscoverFigmaPlayIdeaExpanded({
               >
                 <Save size={20} strokeWidth={2.5} />
               </button>
+              {showGiftAction && onGiftAction ? (
+                <button
+                  type="button"
+                  onClick={(e) => onGiftAction(e, e.currentTarget)}
+                  className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-[#E7E2DC] text-[#66717D] hover:bg-[#FBFAF7] transition-colors shadow-sm"
+                  aria-label="Save gift idea"
+                >
+                  <Gift size={20} strokeWidth={2.5} />
+                </button>
+              ) : null}
             </div>
           </div>
         </article>

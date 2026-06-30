@@ -1,3 +1,18 @@
+## 2026-06-30 — feat(discover): 13–15m Conor+Thea v4 rebuild (lane UI + gift mode)
+
+- **Source:** `02_Ember_Bible_13_15m_Conor_Thea_v4.xlsx` (`discover_projection`)
+- **Data model:** Added Stage 2 lane/action metadata on junction (`content_type`, `ui_lane`, `show_ember_picks`, `show_gift_action`, `gift_friendly`, `buyer_mode_label`, `gift_note`, `ownership_note`, `product_family_label`, `card_cta_label`, `render_rule`)
+- **Migrations:** `20260630103000_discover_stage2_ui_lanes.sql`; `20260630110000_reimport_discover_13_15m_conor_thea_v4.sql` (58 rows, 10 clusters; Stage 3 active = 0)
+- **UI:** Stage 2 split into `Useful ideas`, `Things that can help`, and `Quick checks`; added `Show gift ideas` mode for Thea with gift-friendly product rows only
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. `/discover/14` → choose a development, then confirm separate `Useful ideas`, `Things that can help`, `Quick checks` sections (no mixed carousel)
+2. `Useful ideas` and `Quick checks` do not show Ember Picks CTA
+3. `Things that can help` shows Ember Picks only on rows flagged for it
+4. Tap `Show gift ideas` and confirm only gift-friendly product categories render
+5. REST `v_gateway_category_types_public?age_band_id=eq.13-15m` shows lane/gift fields populated
+
 ## 2026-06-30 — feat(discover): Conor-grade 13–15m content overhaul
 
 - **Source:** `02_Ember_Bible_13-15M_Ember_ABI_Conor_Grade_v3.xlsx` (`discover_projection` + `age_band_meta`)

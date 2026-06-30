@@ -92,6 +92,20 @@ export type GatewayCategoryTypePublic = {
   rank: number;
   rationale: string | null;
   audience_lens: string | null;
+  content_type: string | null;
+  ui_lane: string | null;
+  ui_section_title: string | null;
+  lane_rank: number | null;
+  show_ember_picks: boolean | null;
+  show_gift_action: boolean | null;
+  gift_friendly: boolean | null;
+  buyer_mode_label: string | null;
+  gift_note: string | null;
+  ownership_note: string | null;
+  product_family_label: string | null;
+  primary_persona: string | null;
+  card_cta_label: string | null;
+  render_rule: string | null;
   id: string;
   slug: string;
   label: string | null;
@@ -289,7 +303,7 @@ export async function getGatewayCategoryTypesForAgeBandAndWrapper(
 
   const { data: categoryRows, error: categoryError } = await supabase
     .from('v_gateway_category_types_public')
-    .select('age_band_id, development_need_id, rank, rationale, audience_lens, id, slug, label, name, description, image_url, safety_notes')
+    .select('age_band_id, development_need_id, rank, rationale, audience_lens, content_type, ui_lane, ui_section_title, lane_rank, show_ember_picks, show_gift_action, gift_friendly, buyer_mode_label, gift_note, ownership_note, product_family_label, primary_persona, card_cta_label, render_rule, id, slug, label, name, description, image_url, safety_notes')
     .eq('age_band_id', ageBandId)
     .in('development_need_id', developmentNeedIds);
 
@@ -330,7 +344,7 @@ export async function getGatewayTopPicksForAgeBandAndWrapperSlug(
 
   const { data: categoryRows, error: categoryError } = await supabase
     .from('v_gateway_category_types_public')
-    .select('age_band_id, development_need_id, rank, rationale, audience_lens, id, slug, label, name, description, image_url, safety_notes')
+    .select('age_band_id, development_need_id, rank, rationale, audience_lens, content_type, ui_lane, ui_section_title, lane_rank, show_ember_picks, show_gift_action, gift_friendly, buyer_mode_label, gift_note, ownership_note, product_family_label, primary_persona, card_cta_label, render_rule, id, slug, label, name, description, image_url, safety_notes')
     .eq('age_band_id', ageBandId)
     .in('development_need_id', developmentNeedIds);
 

@@ -132,6 +132,7 @@ export default function DiscoveryPageClient({
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
   const [ideasSectionInView, setIdeasSectionInView] = useState(false);
   const [playIdeaCache, setPlayIdeaCache] = useState<Record<string, PlayIdeaItem[]>>({});
+  const [giftMode, setGiftMode] = useState(false);
   const replayAttemptedRef = useRef(false);
   const basePath = '/discover';
   const { user, refetch: refetchSubnavStats } = useSubnavStats();
@@ -1043,6 +1044,45 @@ export default function DiscoveryPageClient({
     bandLabelForIdeas,
   ]);
 
+  const laneForItem = useCallback((item: PlayIdeaItem): 'useful_ideas' | 'quick_checks' | 'things_that_can_help' => {
+    if (item.uiLane === 'useful_ideas' || item.uiLane === 'quick_checks' || item.uiLane === 'things_that_can_help') {
+      return item.uiLane;
+    }
+    const isProduct = item.contentType === 'product_category';
+    return isProduct ? 'things_that_can_help' : 'useful_ideas';
+  }, []);
+
+  const sortedPlayIdeas = useMemo(
+    () =>
+      [...playIdeaItems].sort((a, b) => {
+        const laneA = a.laneRank ?? a.categoryRank ?? Number.MAX_SAFE_INTEGER;
+        const laneB = b.laneRank ?? b.categoryRank ?? Number.MAX_SAFE_INTEGER;
+        if (laneA !== laneB) return laneA - laneB;
+        return (a.categoryRank ?? Number.MAX_SAFE_INTEGER) - (b.categoryRank ?? Number.MAX_SAFE_INTEGER);
+      }),
+    [playIdeaItems]
+  );
+
+  const usefulIdeas = useMemo(
+    () => sortedPlayIdeas.filter((item) => laneForItem(item) === 'useful_ideas'),
+    [sortedPlayIdeas, laneForItem]
+  );
+  const quickChecks = useMemo(
+    () => sortedPlayIdeas.filter((item) => laneForItem(item) === 'quick_checks'),
+    [sortedPlayIdeas, laneForItem]
+  );
+  const thingsThatCanHelp = useMemo(
+    () => sortedPlayIdeas.filter((item) => laneForItem(item) === 'things_that_can_help'),
+    [sortedPlayIdeas, laneForItem]
+  );
+  const giftIdeas = useMemo(
+    () =>
+      thingsThatCanHelp.filter(
+        (item) => item.contentType === 'product_category' && item.giftFriendly === true
+      ),
+    [thingsThatCanHelp]
+  );
+
   const ideasSectionLoading =
     Boolean(selectedWrapper) &&
     playIdeaItems.length === 0 &&
@@ -1200,7 +1240,7 @@ export default function DiscoveryPageClient({
                     We&apos;re adding more detail for this focus soon.
                   </p>
                 )}
-                {playIdeaItems.length > 0 ? (
+                {(usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
                   <div className="flex justify-center mt-2 md:mt-3">
                     <motion.button
                       type="button"
@@ -1248,18 +1288,97 @@ export default function DiscoveryPageClient({
                       ))}
                     </div>
                   </div>
-                ) : playIdeaItems.length > 0 ? (
-                  <DiscoverFigmaPlayCarousel
-                    items={playIdeaItems}
-                    sectionTitle={ideasSectionTitle}
-                    selectedId={selectedCategoryId}
-                    onSelect={setSelectedCategoryId}
-                    onSeeExamples={handleShowExamples}
-                    onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
-                    onHaveThem={handleHaveThemCategory}
-                    showHaveAction={!!user}
-                    dimmedCategoryIds={dimmedCategoryIds}
-                  />
+                ) : (usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
+                  <div className="flex flex-col gap-6">
+                    <div className="flex items-center justify-between gap-3">
+                      <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">{ideasSectionTitle}</h2>
+                      <button
+                        type="button"
+                        onClick={() => setGiftMode((v) => !v)}
+                        className="rounded-full border border-[#E7E2DC] bg-white px-4 py-2 text-sm font-semibold text-[#253044] hover:border-[#D0C9C0]"
+                      >
+                        {giftMode ? 'Back to parent view' : 'Show gift ideas'}
+                      </button>
+                    </div>
+                    {giftMode ? (
+                      <section className="rounded-3xl border border-[#E7E2DC] bg-white p-5 md:p-6">
+                        <h3 className="text-[20px] md:text-[24px] font-bold text-[#253044] m-0">Gift ideas for 13–15 months</h3>
+                        <p className="text-[14px] text-[#66717D] mt-2 mb-4">
+                          Tangible ideas that fit this age, without making you guess what the child already has.
+                        </p>
+                        {giftIdeas.length > 0 ? (
+                          <DiscoverFigmaPlayCarousel
+                            items={giftIdeas}
+                            sectionTitle="Things that can help"
+                            selectedId={selectedCategoryId}
+                            onSelect={setSelectedCategoryId}
+                            onSeeExamples={handleShowExamples}
+                            onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
+                            onGiftAction={(categoryId, el) => handleSaveCategory(categoryId, el)}
+                            onHaveThem={handleHaveThemCategory}
+                            showHaveAction={false}
+                            showEmberPicks
+                            showSaveAction={false}
+                            showGiftAction
+                            dimmedCategoryIds={dimmedCategoryIds}
+                          />
+                        ) : (
+                          <p className="text-sm text-[#66717D] m-0">No gift-friendly rows yet for this focus.</p>
+                        )}
+                      </section>
+                    ) : (
+                      <>
+                        {usefulIdeas.length > 0 ? (
+                          <DiscoverFigmaPlayCarousel
+                            items={usefulIdeas}
+                            sectionTitle="Useful ideas"
+                            selectedId={selectedCategoryId}
+                            onSelect={setSelectedCategoryId}
+                            onSeeExamples={handleShowExamples}
+                            onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
+                            onHaveThem={handleHaveThemCategory}
+                            showHaveAction={false}
+                            showEmberPicks={false}
+                            showSaveAction
+                            showGiftAction={false}
+                            dimmedCategoryIds={dimmedCategoryIds}
+                          />
+                        ) : null}
+                        {thingsThatCanHelp.length > 0 ? (
+                          <DiscoverFigmaPlayCarousel
+                            items={thingsThatCanHelp}
+                            sectionTitle="Things that can help"
+                            selectedId={selectedCategoryId}
+                            onSelect={setSelectedCategoryId}
+                            onSeeExamples={handleShowExamples}
+                            onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
+                            onGiftAction={(categoryId, el) => handleSaveCategory(categoryId, el)}
+                            onHaveThem={handleHaveThemCategory}
+                            showHaveAction={!!user}
+                            showEmberPicks
+                            showSaveAction
+                            showGiftAction
+                            dimmedCategoryIds={dimmedCategoryIds}
+                          />
+                        ) : null}
+                        {quickChecks.length > 0 ? (
+                          <section className="rounded-3xl border border-[#E7E2DC] bg-white p-5 md:p-6">
+                            <h3 className="text-[20px] md:text-[24px] font-bold text-[#253044] m-0 mb-4">Quick checks</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {quickChecks.map((item) => (
+                                <article key={item.id} className="rounded-2xl border border-[#E7E2DC] bg-[#FBFAF7] p-4">
+                                  <h4 className="text-[16px] font-semibold text-[#253044] m-0">{item.title}</h4>
+                                  {item.description ? (
+                                    <p className="text-[14px] text-[#66717D] mt-2 mb-0">{item.description}</p>
+                                  ) : null}
+                                </article>
+                              ))}
+                            </div>
+                          </section>
+                        ) : null}
+                      </>
+                    )}
+                  </div>
                 ) : (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-[var(--ember-text-low)] text-sm">
                     We&apos;re adding more ideas here.
