@@ -758,6 +758,19 @@ const outputMigration = path.join(process.cwd(), `supabase/migrations/${migratio
 const outputSql = sqlMirrorPath(migrationStem);
 
 const rows = loadRows(inputFiles);
+const truncatedClusterWhy = [
+  ...new Set(
+    rows
+      .filter((r) => r.stage1_why_it_matters_ux_description.endsWith('...'))
+      .map((r) => r.stage1_wrapper_ux_slug)
+  ),
+];
+if (truncatedClusterWhy.length > 0) {
+  console.warn(
+    `WARNING: cluster_why_it_matters_long looks truncated for: ${truncatedClusterWhy.join(', ')}. ` +
+      'Fix the workbook cells (or run a cluster-why patch migration) before shipping.'
+  );
+}
 const bandSummary = computeBandStats(rows);
 for (const bandId of bandSummary.bandIds) {
   bandSummary.stats[bandId].label = rows.find((r) => r.age_band_id === bandId)?.age_band_label;

@@ -5,6 +5,7 @@
 - **Migration:** `20260630140000_reimport_discover_13_15m_thea_depth_v5.sql` — 74 rows, 10 clusters, 30 `gift_friendly` product rows (was 58 / 14 in v4); Stage 3 active = 0
 - **Gift clusters visible in Buying a gift mode:** working things out, telling you things, copying your day, braver on feet, first marks, joining in (meals / safety / parent-only clusters still hidden)
 - **Applied:** `supabase db push` OK
+- **Follow-up:** `20260630150000_fix_13_15m_cluster_why_text.sql` restores full Stage 1 why-text (v5 workbook cells were truncated at ~80 chars)
 
 ### How to verify
 1. `/discover/14` → **Buying a gift** → six development cards (not empty carousels on any visible card)
