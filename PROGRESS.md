@@ -1,3 +1,18 @@
+## 2026-06-30 — feat(discover): 13–15m Thea depth v5 catalogue rebuild
+
+- **Source:** `02_Ember_Bible_13_15m_Thea_Depth_v5.xlsx` (`discover_projection`)
+- **Why:** v4 gift depth too thin for Thea; v5 adds tangible gift rows across six child clusters
+- **Migration:** `20260630140000_reimport_discover_13_15m_thea_depth_v5.sql` — 74 rows, 10 clusters, 30 `gift_friendly` product rows (was 58 / 14 in v4); Stage 3 active = 0
+- **Gift clusters visible in Buying a gift mode:** working things out, telling you things, copying your day, braver on feet, first marks, joining in (meals / safety / parent-only clusters still hidden)
+- **Applied:** `supabase db push` OK
+
+### How to verify
+1. `/discover/14` → **Buying a gift** → six development cards (not empty carousels on any visible card)
+2. Pick e.g. “I'm working things out” → multiple gift-friendly rows in carousel
+3. “I'm taking charge at meals” still hidden in gift mode (no gift rows by design)
+4. **I'm the parent** → full 74-row lane split (`Useful ideas` / `Things that can help` / `Quick checks`)
+5. REST `v_gateway_category_types_public?age_band_id=eq.13-15m` → 74 rows, 30 with `gift_friendly=true`
+
 ## 2026-06-30 — feat(discover): 13–15m Conor+Thea v4 rebuild (lane UI + gift mode)
 
 - **Source:** `02_Ember_Bible_13_15m_Conor_Thea_v4.xlsx` (`discover_projection`)
