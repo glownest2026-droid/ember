@@ -90,7 +90,7 @@ export function DiscoverFigmaPlayIdeaCard({
           ) : null}
         </div>
 
-        <div className="mt-auto pt-2 flex items-center gap-3">
+        <div className="mt-auto pt-2 flex flex-wrap md:flex-nowrap items-center gap-3">
           {showEmberPicks ? (
             <button
               type="button"

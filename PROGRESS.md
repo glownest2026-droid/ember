@@ -3884,3 +3884,13 @@ Category-only cards remain publishable.
 - **Input slugs resolved:** `cat_sitting_play_mat`, `cat_reach_grab_toys`, `cat_hand_transfer_toys`, `cat_soft_graspable_balls`, `cat_first_puzzle`.
 - **What changed:** Idempotent upsert into `public.pl_category_type_images` using canonical public URLs `https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_<slug>_category.png` (`ON CONFLICT (category_type_id)`).
 - **Proof:** Preflight 5/5 objects found; write mapped 5/5; re-run idempotent (5 active rows, no duplicate-active anomalies); `v_gateway_category_type_images` returns all five URLs.
+
+## 2026-06-30 — Discover Stage 2 mobile card actions regression
+
+### Summary
+- Fixed a Stage 2 mobile layout regression where trailing card actions (including the "have it / hide while browsing" control) could be clipped and appear missing.
+- Applied the smallest possible UI change in `DiscoverFigmaPlayIdeaCard`: action row now allows wrapping on mobile (`flex-wrap`) while preserving the existing desktop layout (`md:flex-nowrap`).
+
+### Verification
+- Code diff reviewed for `web/src/components/discover/figma/DiscoverFigmaPlayIdeaCard.tsx`.
+- `pnpm lint` in `web/` could not run in this environment because `node_modules` are not installed (`next: not found`).
