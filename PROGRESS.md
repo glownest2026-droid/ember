@@ -3889,8 +3889,14 @@ Category-only cards remain publishable.
 
 ### Summary
 - Fixed a Stage 2 mobile layout regression where trailing card actions (including the "have it / hide while browsing" control) could be clipped and appear missing.
-- Applied the smallest possible UI change in `DiscoverFigmaPlayIdeaCard`: action row now allows wrapping on mobile (`flex-wrap`) while preserving the existing desktop layout (`md:flex-nowrap`).
+- Updated `DiscoverFigmaPlayIdeaCard` action layout to match UX intent: first row is the CTA button, second row is the action icons (save / gift / have).
+- Restored sticky "have/hide" behavior in `DiscoveryPageClient` with backward-compatible category upsert handling:
+  - retries `upsert_user_list_item` without `p_child_id` when the child-aware overload is missing
+  - applies the same compatibility path during replayed auth actions
+  - when a child is selected, rehydrates dimmed cards from both child rows and legacy global (`child_id IS NULL`) rows
 
 ### Verification
-- Code diff reviewed for `web/src/components/discover/figma/DiscoverFigmaPlayIdeaCard.tsx`.
+- Code diff reviewed for:
+  - `web/src/components/discover/figma/DiscoverFigmaPlayIdeaCard.tsx`
+  - `web/src/app/discover/[months]/DiscoveryPageClient.tsx`
 - `pnpm lint` in `web/` could not run in this environment because `node_modules` are not installed (`next: not found`).
