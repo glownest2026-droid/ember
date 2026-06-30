@@ -1,7 +1,9 @@
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import { getAgeBandForAge } from '../../lib/pl/public';
 import { getGatewayAgeBandsPublicCached } from '../../lib/pl/gateway-cache';
-import { DiscoverSessionRedirect } from './DiscoverSessionRedirect';
+import { DISCOVER_RESUME_COOKIE } from '../../lib/discover/discoverSession';
 
 function parseAgeBandIdRange(id: string): { min: number; max: number } | null {
   const match = id.match(/^(\d+)-(\d+)m$/);
@@ -30,6 +32,11 @@ function ageInMonthsFromBirthdate(birthdate: string): number {
   return (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
 }
 
+function resumeCookieName(childId: string | null | undefined): string {
+  const id = childId?.trim() || 'none';
+  return `${DISCOVER_RESUME_COOKIE}:${id}`;
+}
+
 /** /discover resumes saved section when possible; else age band from child or 25–27m default. */
 export default async function DiscoverPage({
   searchParams,
@@ -38,6 +45,11 @@ export default async function DiscoverPage({
 }) {
   const params = await searchParams;
   const q = params.child ? `?child=${encodeURIComponent(params.child)}` : '';
+  const cookieStore = await cookies();
+  const resumePath = cookieStore.get(resumeCookieName(params.child ?? null))?.value;
+  if (resumePath?.startsWith('/discover')) {
+    redirect(resumePath);
+  }
 
   const ageBands = await getGatewayAgeBandsPublicCached();
 
@@ -70,7 +82,5 @@ export default async function DiscoverPage({
     }
   }
 
-  const defaultPath = `/discover/${ageBands && ageBands.length > 0 ? representativeMonth : 26}${q}`;
-
-  return <DiscoverSessionRedirect defaultPath={defaultPath} childId={params.child ?? null} />;
+  redirect(`/discover/${ageBands && ageBands.length > 0 ? representativeMonth : 26}${q}`);
 }
