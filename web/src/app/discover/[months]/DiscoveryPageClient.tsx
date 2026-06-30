@@ -786,6 +786,7 @@ export default function DiscoveryPageClient({
 
   const handleAudienceModeChange = useCallback(
     (mode: DiscoverAudienceMode) => {
+      if (mode === audienceMode) return;
       setAudienceMode(mode);
       if (mode === 'gift' && selectedWrapper) {
         const count = giftFriendlyCountByWrapper[selectedWrapper] ?? 0;
@@ -796,14 +797,19 @@ export default function DiscoveryPageClient({
           router.push(withChildParam(`${basePath}/${currentMonth}`), { scroll: false });
         }
       }
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => scrollToSection('discover-audience-developments'));
+      });
     },
     [
+      audienceMode,
       selectedWrapper,
       giftFriendlyCountByWrapper,
       router,
       withChildParam,
       basePath,
       currentMonth,
+      scrollToSection,
     ]
   );
 
@@ -1221,7 +1227,7 @@ export default function DiscoveryPageClient({
               />
             ) : null}
 
-            <section className="flex flex-col gap-5">
+            <section id="discover-audience-developments" className="flex flex-col gap-5 scroll-mt-[calc(var(--header-height,88px)+12px)]">
               <div>
                 <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
                   {audienceMode === 'gift' ? 'Pick an area to shop for' : 'Choose a development'}
