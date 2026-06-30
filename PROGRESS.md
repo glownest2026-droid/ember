@@ -19,7 +19,7 @@
 - **Data model:** Added Stage 2 lane/action metadata on junction (`content_type`, `ui_lane`, `show_ember_picks`, `show_gift_action`, `gift_friendly`, `buyer_mode_label`, `gift_note`, `ownership_note`, `product_family_label`, `card_cta_label`, `render_rule`)
 - **Migrations:** `20260630103000_discover_stage2_ui_lanes.sql`; `20260630110000_reimport_discover_13_15m_conor_thea_v4.sql` (58 rows, 10 clusters; Stage 3 active = 0)
 - **UI:** Stage 2 split into `Useful ideas`, `Things that can help`, and `Quick checks`; early **Who is this for?** toggle (`I'm the parent` / `Buying a gift`) above Stage 1 grid
-- **Thea fix:** In gift mode, Stage 1 cards with zero `gift_friendly` rows are hidden (e.g. “I'm taking charge at meals” on 13–15m); no empty gift carousels; “Why this matters now” hidden for gift shoppers
+- **Thea fix:** In gift mode, Stage 1 cards with zero `gift_friendly` rows are hidden (e.g. “I'm taking charge at meals” on 13–15m); no empty gift carousels
 - **Build:** `pnpm -C web build` pass
 
 ### How to verify

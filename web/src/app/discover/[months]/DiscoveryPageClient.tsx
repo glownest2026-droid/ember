@@ -1290,17 +1290,17 @@ export default function DiscoveryPageClient({
 
             {selectedWrapper ? (
               <section ref={whyMattersSectionRef} className="scroll-mt-16 md:scroll-mt-12">
-                {audienceMode === 'parent' && scienceBody ? (
+                {scienceBody ? (
                   <DiscoverFigmaScienceSection
                     title={scienceTitle}
                     description={scienceBody}
                     onExplain={() => setHowWeChooseOpen(true)}
                   />
-                ) : audienceMode === 'parent' ? (
+                ) : (
                   <p className="text-[var(--ember-text-low)] text-sm mb-4">
                     We&apos;re adding more detail for this focus soon.
                   </p>
-                ) : null}
+                )}
                 {(audienceMode === 'gift'
                   ? giftIdeas.length > 0
                   : usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
