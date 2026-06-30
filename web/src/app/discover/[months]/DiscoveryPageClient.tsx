@@ -141,6 +141,7 @@ export default function DiscoveryPageClient({
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
   const [ideasSectionInView, setIdeasSectionInView] = useState(false);
   const [playIdeaCache, setPlayIdeaCache] = useState<Record<string, PlayIdeaItem[]>>({});
+  // Default parent view — most users are the parent; gift mode is opt-in only.
   const [audienceMode, setAudienceMode] = useState<DiscoverAudienceMode>('parent');
   const replayAttemptedRef = useRef(false);
   const basePath = '/discover';
