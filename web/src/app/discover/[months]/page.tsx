@@ -73,6 +73,15 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
   }
   const wrappers = await getGatewayWrappersForAgeBand(ageBand.id);
 
+  const giftFriendlyCountByWrapper: Record<string, number> = {};
+  for (const wrapper of wrappers) {
+    const categories = await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, wrapper.ux_slug);
+    giftFriendlyCountByWrapper[wrapper.ux_slug] = categories.filter(
+      (c) => c.content_type === 'product_category' && c.gift_friendly === true
+    ).length;
+  }
+  const bandHasGiftIdeas = Object.values(giftFriendlyCountByWrapper).some((count) => count > 0);
+
   if (reviewMode && !showParam) {
     const focusWrapper = resolveWrapperSlugFromFocusParam(focusParam, wrappers);
     const reviewWrapper =
@@ -168,6 +177,8 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
         picks={picks}
         exampleProducts={exampleProducts}
         categoryTypes={categoryTypes}
+        giftFriendlyCountByWrapper={giftFriendlyCountByWrapper}
+        bandHasGiftIdeas={bandHasGiftIdeas}
         showDebug={showDebug}
         initialChildId={childParam ?? undefined}
         serverPersonalization={serverPersonalization}

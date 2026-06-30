@@ -147,7 +147,53 @@ function normalizeRow(raw, clusterLensMap) {
     stage2_play_ideas_rank: raw.category_rank,
     stage2_play_idea_mapping_rationale: String(raw.why_it_matters_long || '').trim(),
     category_audience_lens: categoryAudienceLens,
+    stage2_content_type: normalizeEnum(
+      raw.content_type,
+      ['activity', 'setup', 'safety_check', 'product_category'],
+      null
+    ),
+    stage2_ui_lane: normalizeEnum(
+      raw.ui_lane,
+      ['useful_ideas', 'quick_checks', 'things_that_can_help'],
+      parseLegacyLane(raw.is_physical_product)
+    ),
+    stage2_ui_section_title: String(raw.ui_section_title || '').trim() || null,
+    stage2_lane_rank: raw.lane_rank,
+    stage2_show_ember_picks: toBooleanOrNull(raw.show_ember_picks),
+    stage2_show_gift_action: toBooleanOrNull(raw.show_gift_action),
+    stage2_gift_friendly: toBooleanOrNull(raw.gift_friendly),
+    stage2_buyer_mode_label: String(raw.buyer_mode_label || '').trim() || null,
+    stage2_gift_note: String(raw.gift_note || '').trim() || null,
+    stage2_ownership_note: String(raw.ownership_note || '').trim() || null,
+    stage2_product_family_label: String(raw.product_family_label || '').trim() || null,
+    stage2_primary_persona: normalizeEnum(raw.primary_persona, ['conor', 'thea', 'both'], null),
+    stage2_card_cta_label: String(raw.card_cta_label || '').trim() || null,
+    stage2_render_rule: normalizeEnum(
+      raw.render_rule,
+      ['no_shop_actions', 'safety_no_shop_actions', 'product_actions'],
+      null
+    ),
   };
+}
+
+function normalizeEnum(value, allowed, fallback = null) {
+  const v = String(value || '').trim().toLowerCase();
+  if (!v) return fallback;
+  return allowed.includes(v) ? v : fallback;
+}
+
+function toBooleanOrNull(value) {
+  if (value === true || value === false) return value;
+  const v = String(value ?? '').trim().toLowerCase();
+  if (!v) return null;
+  if (['true', '1', 'yes', 'y'].includes(v)) return true;
+  if (['false', '0', 'no', 'n'].includes(v)) return false;
+  return null;
+}
+
+function parseLegacyLane(isPhysicalProduct) {
+  const isProduct = toBooleanOrNull(isPhysicalProduct) === true;
+  return isProduct ? 'things_that_can_help' : 'useful_ideas';
 }
 
 function defaultBandFromPath(filePath) {
@@ -249,7 +295,7 @@ function buildSql(rows, bandSummary) {
   const valuesSql = rows
     .map(
       (r) =>
-        `(${q(r.age_band_id)},${q(r.age_band_label)},${r.min_months},${r.max_months},true,${q(r.stage1_wrapper_ux_slug)},${q(r.stage1_wrapper_ux_label)},${toInt(r.stage1_wrapper_rank_in_band)},true,${q(r.development_need_slug)},${q(r.development_need_canonical_name)},${q(r.stage1_why_it_matters_ux_description)},${q(r.audience_lens)},${q(r.stage2_category_type_slug)},${q(r.stage2_category_type_label)},${q(r.stage2_category_type_name)},${toInt(r.stage2_play_ideas_rank)},${q(r.stage2_play_idea_mapping_rationale)},${q(r.category_audience_lens)})`
+        `(${q(r.age_band_id)},${q(r.age_band_label)},${r.min_months},${r.max_months},true,${q(r.stage1_wrapper_ux_slug)},${q(r.stage1_wrapper_ux_label)},${toInt(r.stage1_wrapper_rank_in_band)},true,${q(r.development_need_slug)},${q(r.development_need_canonical_name)},${q(r.stage1_why_it_matters_ux_description)},${q(r.audience_lens)},${q(r.stage2_category_type_slug)},${q(r.stage2_category_type_label)},${q(r.stage2_category_type_name)},${toInt(r.stage2_play_ideas_rank)},${q(r.stage2_play_idea_mapping_rationale)},${q(r.category_audience_lens)},${q(r.stage2_content_type)},${q(r.stage2_ui_lane)},${q(r.stage2_ui_section_title)},${toInt(r.stage2_lane_rank)},${r.stage2_show_ember_picks === null ? 'NULL' : r.stage2_show_ember_picks},${r.stage2_show_gift_action === null ? 'NULL' : r.stage2_show_gift_action},${r.stage2_gift_friendly === null ? 'NULL' : r.stage2_gift_friendly},${q(r.stage2_buyer_mode_label)},${q(r.stage2_gift_note)},${q(r.stage2_ownership_note)},${q(r.stage2_product_family_label)},${q(r.stage2_primary_persona)},${q(r.stage2_card_cta_label)},${q(r.stage2_render_rule)})`
     )
     .join(',\n  ');
 
@@ -282,7 +328,21 @@ CREATE TEMP TABLE tmp_discover_projection_stage (
   stage2_category_type_name TEXT NOT NULL,
   stage2_play_ideas_rank INTEGER NOT NULL,
   stage2_play_idea_mapping_rationale TEXT,
-  category_audience_lens TEXT
+  category_audience_lens TEXT,
+  content_type TEXT,
+  ui_lane TEXT,
+  ui_section_title TEXT,
+  lane_rank INTEGER,
+  show_ember_picks BOOLEAN,
+  show_gift_action BOOLEAN,
+  gift_friendly BOOLEAN,
+  buyer_mode_label TEXT,
+  gift_note TEXT,
+  ownership_note TEXT,
+  product_family_label TEXT,
+  primary_persona TEXT,
+  card_cta_label TEXT,
+  render_rule TEXT
 ) ON COMMIT DROP;
 
 INSERT INTO tmp_discover_projection_stage (
@@ -304,7 +364,21 @@ INSERT INTO tmp_discover_projection_stage (
   stage2_category_type_name,
   stage2_play_ideas_rank,
   stage2_play_idea_mapping_rationale,
-  category_audience_lens
+  category_audience_lens,
+  content_type,
+  ui_lane,
+  ui_section_title,
+  lane_rank,
+  show_ember_picks,
+  show_gift_action,
+  gift_friendly,
+  buyer_mode_label,
+  gift_note,
+  ownership_note,
+  product_family_label,
+  primary_persona,
+  card_cta_label,
+  render_rule
 )
 VALUES
   ${valuesSql};
@@ -530,7 +604,21 @@ SELECT DISTINCT
   s.stage2_play_ideas_rank AS rank,
   NULLIF(TRIM(COALESCE(s.stage2_play_idea_mapping_rationale, '')), '') AS rationale,
   NULLIF(TRIM(COALESCE(s.stage2_category_type_label, '')), '') AS display_label,
-  NULLIF(TRIM(COALESCE(s.category_audience_lens, '')), '') AS audience_lens
+  NULLIF(TRIM(COALESCE(s.category_audience_lens, '')), '') AS audience_lens,
+  s.content_type,
+  s.ui_lane,
+  NULLIF(TRIM(COALESCE(s.ui_section_title, '')), '') AS ui_section_title,
+  s.lane_rank,
+  s.show_ember_picks,
+  s.show_gift_action,
+  s.gift_friendly,
+  NULLIF(TRIM(COALESCE(s.buyer_mode_label, '')), '') AS buyer_mode_label,
+  NULLIF(TRIM(COALESCE(s.gift_note, '')), '') AS gift_note,
+  NULLIF(TRIM(COALESCE(s.ownership_note, '')), '') AS ownership_note,
+  NULLIF(TRIM(COALESCE(s.product_family_label, '')), '') AS product_family_label,
+  s.primary_persona,
+  NULLIF(TRIM(COALESCE(s.card_cta_label, '')), '') AS card_cta_label,
+  s.render_rule
 FROM tmp_discover_projection_stage s
 JOIN LATERAL (
   SELECT d.id
@@ -579,6 +667,20 @@ INSERT INTO public.pl_age_band_development_need_category_types (
   rationale,
   display_label,
   audience_lens,
+  content_type,
+  ui_lane,
+  ui_section_title,
+  lane_rank,
+  show_ember_picks,
+  show_gift_action,
+  gift_friendly,
+  buyer_mode_label,
+  gift_note,
+  ownership_note,
+  product_family_label,
+  primary_persona,
+  card_cta_label,
+  render_rule,
   is_active
 )
 SELECT
@@ -589,6 +691,20 @@ SELECT
   r.rationale,
   r.display_label,
   r.audience_lens,
+  r.content_type,
+  r.ui_lane,
+  r.ui_section_title,
+  r.lane_rank,
+  r.show_ember_picks,
+  r.show_gift_action,
+  r.gift_friendly,
+  r.buyer_mode_label,
+  r.gift_note,
+  r.ownership_note,
+  r.product_family_label,
+  r.primary_persona,
+  r.card_cta_label,
+  r.render_rule,
   true
 FROM tmp_discover_resolved_need_category r
 ON CONFLICT (age_band_id, development_need_id, category_type_id) DO UPDATE
@@ -597,6 +713,20 @@ SET
   rationale = EXCLUDED.rationale,
   display_label = EXCLUDED.display_label,
   audience_lens = EXCLUDED.audience_lens,
+  content_type = EXCLUDED.content_type,
+  ui_lane = EXCLUDED.ui_lane,
+  ui_section_title = EXCLUDED.ui_section_title,
+  lane_rank = EXCLUDED.lane_rank,
+  show_ember_picks = EXCLUDED.show_ember_picks,
+  show_gift_action = EXCLUDED.show_gift_action,
+  gift_friendly = EXCLUDED.gift_friendly,
+  buyer_mode_label = EXCLUDED.buyer_mode_label,
+  gift_note = EXCLUDED.gift_note,
+  ownership_note = EXCLUDED.ownership_note,
+  product_family_label = EXCLUDED.product_family_label,
+  primary_persona = EXCLUDED.primary_persona,
+  card_cta_label = EXCLUDED.card_cta_label,
+  render_rule = EXCLUDED.render_rule,
   is_active = true,
   updated_at = now();
 
@@ -628,6 +758,19 @@ const outputMigration = path.join(process.cwd(), `supabase/migrations/${migratio
 const outputSql = sqlMirrorPath(migrationStem);
 
 const rows = loadRows(inputFiles);
+const truncatedClusterWhy = [
+  ...new Set(
+    rows
+      .filter((r) => r.stage1_why_it_matters_ux_description.endsWith('...'))
+      .map((r) => r.stage1_wrapper_ux_slug)
+  ),
+];
+if (truncatedClusterWhy.length > 0) {
+  console.warn(
+    `WARNING: cluster_why_it_matters_long looks truncated for: ${truncatedClusterWhy.join(', ')}. ` +
+      'Fix the workbook cells (or run a cluster-why patch migration) before shipping.'
+  );
+}
 const bandSummary = computeBandStats(rows);
 for (const bandId of bandSummary.bandIds) {
   bandSummary.stats[bandId].label = rows.find((r) => r.age_band_id === bandId)?.age_band_label;

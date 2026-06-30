@@ -1,6 +1,6 @@
 'use client';
 
-import { Save, CheckCircle, ChevronRight, Maximize2 } from 'lucide-react';
+import { Save, CheckCircle, ChevronRight, Maximize2, Gift } from 'lucide-react';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 
 export function DiscoverFigmaPlayIdeaCard({
@@ -9,11 +9,18 @@ export function DiscoverFigmaPlayIdeaCard({
   imageUrl,
   onSeeExamples,
   onSaveIdea,
+  onGiftAction,
   onHaveThem,
   onExpand,
   isDimmed = false,
   isHaveActive = false,
   imagePriority = false,
+  showEmberPicks = true,
+  showSaveAction = true,
+  showGiftAction = false,
+  ctaLabel = 'Ember Picks',
+  helperNote = null,
+  badgeLabel = null,
 }: {
   id: string;
   title: string;
@@ -25,11 +32,18 @@ export function DiscoverFigmaPlayIdeaCard({
   onClick?: () => void;
   onSeeExamples: () => void;
   onSaveIdea: (e: React.MouseEvent, el: HTMLButtonElement | null) => void;
+  onGiftAction?: (e: React.MouseEvent, el: HTMLButtonElement | null) => void;
   onHaveThem?: (e: React.MouseEvent) => void;
   onExpand?: (e: React.MouseEvent) => void;
   isDimmed?: boolean;
   isHaveActive?: boolean;
   audienceLens?: string | null;
+  showEmberPicks?: boolean;
+  showSaveAction?: boolean;
+  showGiftAction?: boolean;
+  ctaLabel?: string;
+  helperNote?: string | null;
+  badgeLabel?: string | null;
 }) {
   return (
     <article
@@ -62,37 +76,63 @@ export function DiscoverFigmaPlayIdeaCard({
 
       <div className="p-4 md:p-5 flex flex-col flex-1 gap-2.5">
         <div>
+          {badgeLabel ? (
+            <span className="inline-flex rounded-full border border-[#E7E2DC] bg-[#FBFAF7] px-2 py-0.5 text-[11px] font-semibold text-[#66717D] mb-2">
+              {badgeLabel}
+            </span>
+          ) : null}
           <h3 className="font-bold text-[18px] md:text-[19px] text-[#253044] mb-1 leading-tight">{title}</h3>
           {description ? (
             <p className="text-[14px] md:text-[15px] text-[#66717D] leading-relaxed line-clamp-3 md:line-clamp-4">{description}</p>
           ) : null}
+          {helperNote ? (
+            <p className="text-[12px] text-[#66717D] leading-relaxed mt-2">{helperNote}</p>
+          ) : null}
         </div>
 
         <div className="mt-auto pt-2 flex items-center gap-3">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onSeeExamples();
-            }}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 bg-[#FF5C34] hover:bg-[#E04B28] text-white py-3.5 px-4 rounded-full font-bold text-[15px] transition-colors shadow-sm whitespace-nowrap"
-            aria-label={`Ember Picks for ${title}`}
-          >
-            Ember Picks
-            <ChevronRight size={18} strokeWidth={2.5} aria-hidden />
-          </button>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onSaveIdea(e, e.currentTarget);
-            }}
-            className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-[#E7E2DC] text-[#66717D] hover:bg-[#FBFAF7] hover:border-[#D0C9C0] transition-colors shadow-sm"
-            title="Save"
-            aria-label="Save idea"
-          >
-            <Save size={20} strokeWidth={2.5} />
-          </button>
+          {showEmberPicks ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSeeExamples();
+              }}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 bg-[#FF5C34] hover:bg-[#E04B28] text-white py-3.5 px-4 rounded-full font-bold text-[15px] transition-colors shadow-sm whitespace-nowrap"
+              aria-label={`${ctaLabel} for ${title}`}
+            >
+              {ctaLabel}
+              <ChevronRight size={18} strokeWidth={2.5} aria-hidden />
+            </button>
+          ) : null}
+          {showSaveAction ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSaveIdea(e, e.currentTarget);
+              }}
+              className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-[#E7E2DC] text-[#66717D] hover:bg-[#FBFAF7] hover:border-[#D0C9C0] transition-colors shadow-sm"
+              title="Save"
+              aria-label="Save idea"
+            >
+              <Save size={20} strokeWidth={2.5} />
+            </button>
+          ) : null}
+          {showGiftAction && onGiftAction ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onGiftAction(e, e.currentTarget);
+              }}
+              className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-[#E7E2DC] text-[#66717D] hover:bg-[#FBFAF7] hover:border-[#D0C9C0] transition-colors shadow-sm"
+              title="Save gift idea"
+              aria-label="Save gift idea"
+            >
+              <Gift size={20} strokeWidth={2.5} />
+            </button>
+          ) : null}
           {onHaveThem ? (
             <button
               type="button"

@@ -1,3 +1,51 @@
+## 2026-06-30 — feat(discover): 13–15m Thea depth v5 catalogue rebuild
+
+- **Source:** `02_Ember_Bible_13_15m_Thea_Depth_v5.xlsx` (`discover_projection`)
+- **Why:** v4 gift depth too thin for Thea; v5 adds tangible gift rows across six child clusters
+- **Migration:** `20260630140000_reimport_discover_13_15m_thea_depth_v5.sql` — 74 rows, 10 clusters, 30 `gift_friendly` product rows (was 58 / 14 in v4); Stage 3 active = 0
+- **Gift clusters visible in Buying a gift mode:** working things out, telling you things, copying your day, braver on feet, first marks, joining in (meals / safety / parent-only clusters still hidden)
+- **Applied:** `supabase db push` OK
+- **Follow-up:** `20260630150000_fix_13_15m_cluster_why_text.sql` restores full Stage 1 why-text (v5 workbook cells were truncated at ~80 chars)
+
+### How to verify
+1. `/discover/14` → **Buying a gift** → six development cards (not empty carousels on any visible card)
+2. Pick e.g. “I'm working things out” → multiple gift-friendly rows in carousel
+3. “I'm taking charge at meals” still hidden in gift mode (no gift rows by design)
+4. **I'm the parent** → full 74-row lane split (`Useful ideas` / `Things that can help` / `Quick checks`)
+5. REST `v_gateway_category_types_public?age_band_id=eq.13-15m` → 74 rows, 30 with `gift_friendly=true`
+
+## 2026-06-30 — feat(discover): 13–15m Conor+Thea v4 rebuild (lane UI + gift mode)
+
+- **Source:** `02_Ember_Bible_13_15m_Conor_Thea_v4.xlsx` (`discover_projection`)
+- **Data model:** Added Stage 2 lane/action metadata on junction (`content_type`, `ui_lane`, `show_ember_picks`, `show_gift_action`, `gift_friendly`, `buyer_mode_label`, `gift_note`, `ownership_note`, `product_family_label`, `card_cta_label`, `render_rule`)
+- **Migrations:** `20260630103000_discover_stage2_ui_lanes.sql`; `20260630110000_reimport_discover_13_15m_conor_thea_v4.sql` (58 rows, 10 clusters; Stage 3 active = 0)
+- **UI:** Stage 2 split into `Useful ideas`, `Things that can help`, and `Quick checks`; early **Who is this for?** toggle (`I'm the parent` / `Buying a gift`) above Stage 1 grid
+- **Thea fix:** In gift mode, Stage 1 cards with zero `gift_friendly` rows are hidden (e.g. “I'm taking charge at meals” on 13–15m); no empty gift carousels
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. `/discover/14` → choose a development, then confirm separate `Useful ideas`, `Things that can help`, `Quick checks` sections (no mixed carousel)
+2. `Useful ideas` and `Quick checks` do not show Ember Picks CTA
+3. `Things that can help` shows Ember Picks only on rows flagged for it
+4. Toggle **Buying a gift** above the development grid → only clusters with gift rows appear; “I'm taking charge at meals” is hidden
+5. Select a gift cluster → gift carousel only (no empty “No gift-friendly rows” state)
+6. REST `v_gateway_category_types_public?age_band_id=eq.13-15m` shows lane/gift fields populated
+
+## 2026-06-30 — feat(discover): Conor-grade 13–15m content overhaul
+
+- **Source:** `02_Ember_Bible_13-15M_Ember_ABI_Conor_Grade_v3.xlsx` (`discover_projection` + `age_band_meta`)
+- **Migration:** `20260630120000_import_discover_13_15m_conor_grade.sql` — 50 rows, **10 clusters** (was 8/40); new Conor-grade Stage 1 voice + Stage 2 ideas with buy/borrow/bring-back-out in rationale
+- **Hero:** `discoverHeroCopy.ts` updated from workbook `hero_summary`
+- **Icons:** 10 new cluster slugs mapped in `wrapperIcons.tsx`
+- **Applied:** `supabase db push` — validation notices pass; Stage 3 active = 0
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. `/discover/14` — 10 Stage 1 clusters (e.g. "I'm working things out"); hero mentions purposeful experiments
+2. `/discover/14?wrapper=ent_cluster_working_things_out&show=1` — Stage 2 cards match workbook; expanded card shows buy/borrow copy
+3. REST `v_gateway_wrappers_public?age_band_id=eq.13-15m` — 10 rows
+4. REST `v_gateway_category_types_public?age_band_id=eq.13-15m` — 50 rows
+
 ## 2026-06-30 — fix(pwa): open to Discover instead of /app placeholder
 
 - **Root cause:** PWA `manifest.ts` had `start_url: '/app'`, and `/app` was a dev placeholder (“Signed in as …email…”).
