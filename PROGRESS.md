@@ -1,3 +1,20 @@
+## 2026-06-30 — perf(discover): Phase 1 server catalogue speed
+
+- **Public client:** `createPublicCatalogueClient()` — cookieless Supabase for gateway reads; safe inside `unstable_cache` (fixes May redirect-loop constraint)
+- **Batch fetch:** `getGatewayCategoryTypesByWrapperForAgeBand` — one mapping + one category + one image query per age band (was N×wrapper sequential loops)
+- **Cache wired:** `/discover/[months]` uses `gateway-cache` for bands, wrappers, categories, products, picks, hero
+- **SSR images:** deterministic Storage URLs via `applyDeterministicStorageCategoryImages` — no blocking HEAD probes
+- **Client:** `categoriesByWrapper` preloaded on page — wrapper tap shows Stage 2 cards instantly from props (no skeleton wait for server round-trip)
+- **Also:** `/discover` + `/api/discover/age-bands` use cached age bands
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. DevTools → Network → `/discover/14` document TTFB: should drop sharply vs before (especially on 2nd load within 30m)
+2. `/discover/14` → tap any Stage 1 card → Stage 2 carousel appears immediately (no multi-second skeleton)
+3. `/discover` → single redirect to band page; no redirect loop
+4. Signed-in `?child=` — hero still personalises
+5. `pnpm -C web build` passes
+
 ## 2026-06-30 — feat(discover): 13–15m Thea depth v5 catalogue rebuild
 
 - **Source:** `02_Ember_Bible_13_15m_Thea_Depth_v5.xlsx` (`discover_projection`)

@@ -1,8 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
-import {
-  getAgeBandForAge,
-  getGatewayAgeBandsPublic,
-} from '../../lib/pl/public';
+import { getAgeBandForAge } from '../../lib/pl/public';
+import { getGatewayAgeBandsPublicCached } from '../../lib/pl/gateway-cache';
 import { DiscoverSessionRedirect } from './DiscoverSessionRedirect';
 
 function parseAgeBandIdRange(id: string): { min: number; max: number } | null {
@@ -41,7 +39,7 @@ export default async function DiscoverPage({
   const params = await searchParams;
   const q = params.child ? `?child=${encodeURIComponent(params.child)}` : '';
 
-  const ageBands = await getGatewayAgeBandsPublic();
+  const ageBands = await getGatewayAgeBandsPublicCached();
 
   let representativeMonth = 26;
 

@@ -75,6 +75,25 @@ export function applyStorageCategoryImages(
   });
 }
 
+/**
+ * Build deterministic Storage URLs for category cards (no HEAD probes).
+ * DiscoverFigmaImage shows a placeholder when the asset is missing.
+ */
+export function applyDeterministicStorageCategoryImages(
+  categories: GatewayCategoryTypePublic[]
+): GatewayCategoryTypePublic[] {
+  const base = getCategoryImagesPublicBaseUrl();
+  if (!base) return categories;
+
+  return categories.map((category) => {
+    if (hasManagedCategoryImage(category.image_url)) return category;
+    if (category.image_url && !isStockPhotoUrl(category.image_url)) return category;
+
+    const { ageScoped } = categoryImageFilenames(category.slug, category.age_band_id);
+    return { ...category, image_url: `${base}/${encodeURIComponent(ageScoped)}` };
+  });
+}
+
 /** Cached Storage HEAD probes for deterministic filenames. */
 export function resolveStorageCategoryImagesCached(
   categories: Pick<GatewayCategoryTypePublic, 'id' | 'slug' | 'age_band_id' | 'image_url'>[]

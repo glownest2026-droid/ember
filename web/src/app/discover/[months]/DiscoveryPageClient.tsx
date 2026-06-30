@@ -79,6 +79,8 @@ interface DiscoveryPageClientProps {
   picks: PickItem[];
   exampleProducts: PickItem[];
   categoryTypes: GatewayCategoryTypePublic[];
+  /** Preloaded Stage 2 cards for every wrapper (instant client-side wrapper switch). */
+  categoriesByWrapper?: Record<string, GatewayCategoryTypePublic[]>;
   /** Gift-friendly product rows per wrapper slug (for Thea audience filtering). */
   giftFriendlyCountByWrapper?: Record<string, number>;
   bandHasGiftIdeas?: boolean;
@@ -104,6 +106,7 @@ export default function DiscoveryPageClient({
   picks,
   exampleProducts,
   categoryTypes,
+  categoriesByWrapper = {},
   giftFriendlyCountByWrapper = {},
   bandHasGiftIdeas = false,
   bandHeroImageUrl = null,
@@ -1082,11 +1085,19 @@ export default function DiscoveryPageClient({
     if (selectedWrapper === selectedWrapperSlug) {
       return categoryTypesToPlayIdeaItems(categoryTypes, bandLabelForIdeas);
     }
-    return playIdeaCache[wrapperPlayIdeasCacheKey(ageBand?.id, selectedWrapper)] ?? [];
+    const cacheKey = wrapperPlayIdeasCacheKey(ageBand?.id, selectedWrapper);
+    const cached = playIdeaCache[cacheKey];
+    if (cached?.length) return cached;
+    const preloaded = categoriesByWrapper[selectedWrapper];
+    if (preloaded?.length) {
+      return categoryTypesToPlayIdeaItems(preloaded, bandLabelForIdeas);
+    }
+    return [];
   }, [
     selectedWrapper,
     selectedWrapperSlug,
     categoryTypes,
+    categoriesByWrapper,
     playIdeaCache,
     ageBand?.id,
     bandLabelForIdeas,
@@ -1131,10 +1142,7 @@ export default function DiscoveryPageClient({
     [thingsThatCanHelp]
   );
 
-  const ideasSectionLoading =
-    Boolean(selectedWrapper) &&
-    playIdeaItems.length === 0 &&
-    selectedWrapper !== selectedWrapperSlug;
+  const ideasSectionLoading = Boolean(selectedWrapper) && playIdeaItems.length === 0;
 
   const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
   const scienceTitle = 'Why this matters now';

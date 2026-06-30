@@ -1,4 +1,7 @@
-import { createClient } from '../../utils/supabase/server';
+import { createPublicCatalogueClient } from '../../utils/supabase/public-catalogue';
+
+const CATEGORY_TYPE_SELECT =
+  'age_band_id, development_need_id, rank, rationale, audience_lens, content_type, ui_lane, ui_section_title, lane_rank, show_ember_picks, show_gift_action, gift_friendly, buyer_mode_label, gift_note, ownership_note, product_family_label, primary_persona, card_cta_label, render_rule, id, slug, label, name, description, image_url, safety_notes';
 
 export type GatewayAgeBandPublic = {
   id: string;
@@ -14,7 +17,7 @@ export type GatewayAgeBandPublic = {
  * Fallback: legacy table `pl_age_bands` (PR0-era).
  */
 export async function getGatewayAgeBandsPublic(): Promise<GatewayAgeBandPublic[]> {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const { data: viewData, error: viewError } = await supabase
     .from('v_gateway_age_bands_public')
@@ -35,15 +38,18 @@ export async function getGatewayAgeBandsPublic(): Promise<GatewayAgeBandPublic[]
  * Fallback: legacy published sets in `pl_age_moment_sets`.
  */
 export async function getGatewayAgeBandIdsWithPicks(): Promise<Set<string>> {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const { data: productRows, error: productError } = await supabase
     .from('v_gateway_products_public')
     .select('age_band_id');
 
   if (!productError && productRows) {
-    const ids = (productRows as Array<{ age_band_id?: string | null }>).map(r => r.age_band_id).filter(Boolean) as string[];
-    return new Set(ids);
+    const ids = new Set<string>();
+    for (const row of productRows as Array<{ age_band_id?: string | null }>) {
+      if (row.age_band_id) ids.add(row.age_band_id);
+    }
+    return ids;
   }
   return new Set();
 }
@@ -56,7 +62,7 @@ export async function getGatewayAgeBandIdsWithPicks(): Promise<Set<string>> {
  * @returns Age band object or null
  */
 export async function getAgeBandForAge(ageMonths: number) {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   // Preferred source: curated view (Phase A contract)
   const { data: viewData, error: viewError } = await supabase
@@ -139,7 +145,7 @@ export type GatewayPick = {
  * Fetch gateway UX wrappers for a given age band (public view).
  */
 export async function getGatewayWrappersForAgeBand(ageBandId: string): Promise<GatewayWrapperPublic[]> {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const { data, error } = await supabase
     .from('v_gateway_wrappers_public')
@@ -198,7 +204,7 @@ export async function getGatewayCategoryTypeImages(
   ageBandId?: string | null
 ): Promise<Map<string, GatewayCategoryTypeImage>> {
   if (categoryTypeIds.length === 0) return new Map();
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const { data, error } = await supabase
     .from('v_gateway_category_type_images')
@@ -217,7 +223,7 @@ export async function getGatewayCategoryTypeImages(
  * the hero reflects the age band's development cards without fetching every wrapper.
  */
 export async function getGatewayHeroImageForAgeBand(ageBandId: string): Promise<string | null> {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const { data: categoryRows, error: categoryError } = await supabase
     .from('v_gateway_category_types_public')
@@ -249,7 +255,7 @@ async function getDevelopmentNeedIdsForAgeBandAndWrapper(
   ageBandId: string,
   wrapperSlug: string
 ): Promise<string[]> {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const { data: bandNeedRows, error: bandNeedError } = await supabase
     .from('v_gateway_age_band_wrapper_needs_public')
@@ -296,14 +302,14 @@ export async function getGatewayCategoryTypesForAgeBandAndWrapper(
   ageBandId: string,
   wrapperSlug: string
 ): Promise<GatewayCategoryTypePublic[]> {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const developmentNeedIds = await getDevelopmentNeedIdsForAgeBandAndWrapper(ageBandId, wrapperSlug);
   if (developmentNeedIds.length === 0) return [];
 
   const { data: categoryRows, error: categoryError } = await supabase
     .from('v_gateway_category_types_public')
-    .select('age_band_id, development_need_id, rank, rationale, audience_lens, content_type, ui_lane, ui_section_title, lane_rank, show_ember_picks, show_gift_action, gift_friendly, buyer_mode_label, gift_note, ownership_note, product_family_label, primary_persona, card_cta_label, render_rule, id, slug, label, name, description, image_url, safety_notes')
+    .select(CATEGORY_TYPE_SELECT)
     .eq('age_band_id', ageBandId)
     .in('development_need_id', developmentNeedIds);
 
@@ -323,6 +329,95 @@ export async function getGatewayCategoryTypesForAgeBandAndWrapper(
   });
 }
 
+export type GatewayCategoryTypesByWrapper = Record<string, GatewayCategoryTypePublic[]>;
+
+function canonicalWrapperSlug(wrapperSlugs: string[], dbSlug: string): string {
+  return wrapperSlugs.find((s) => s.toLowerCase() === dbSlug.toLowerCase()) ?? dbSlug;
+}
+
+/**
+ * Batch-fetch Stage 2 category cards for every wrapper on an age band.
+ * One wrapper→need mapping query, one category query, one image query (not N×wrapper).
+ */
+export async function getGatewayCategoryTypesByWrapperForAgeBand(
+  ageBandId: string,
+  wrapperSlugs: string[]
+): Promise<GatewayCategoryTypesByWrapper> {
+  const empty = Object.fromEntries(wrapperSlugs.map((slug) => [slug, []])) as GatewayCategoryTypesByWrapper;
+  if (wrapperSlugs.length === 0) return empty;
+
+  const supabase = createPublicCatalogueClient();
+  const slugLookup = new Set(wrapperSlugs.map((s) => s.toLowerCase()));
+  const needIdsByWrapper = new Map<string, string[]>();
+
+  const { data: bandNeedRows, error: bandNeedError } = await supabase
+    .from('v_gateway_age_band_wrapper_needs_public')
+    .select('wrapper_slug, development_need_id, need_rank')
+    .eq('age_band_id', ageBandId)
+    .order('need_rank', { ascending: true });
+
+  if (!bandNeedError && bandNeedRows) {
+    for (const row of bandNeedRows) {
+      const dbSlug = row.wrapper_slug as string;
+      if (!slugLookup.has(dbSlug.toLowerCase())) continue;
+      const slug = canonicalWrapperSlug(wrapperSlugs, dbSlug);
+      const needId = row.development_need_id as string;
+      const list = needIdsByWrapper.get(slug) ?? [];
+      if (!list.includes(needId)) list.push(needId);
+      needIdsByWrapper.set(slug, list);
+    }
+  }
+
+  const missingSlugs = wrapperSlugs.filter((slug) => (needIdsByWrapper.get(slug) ?? []).length === 0);
+  if (missingSlugs.length > 0) {
+    const { data: wrapperDetails, error: wrapperError } = await supabase
+      .from('v_gateway_wrapper_detail_public')
+      .select('ux_slug, development_need_id')
+      .eq('age_band_id', ageBandId)
+      .in('ux_slug', missingSlugs);
+
+    if (!wrapperError && wrapperDetails) {
+      for (const row of wrapperDetails) {
+        const dbSlug = row.ux_slug as string;
+        const needId = row.development_need_id as string | null;
+        if (!needId) continue;
+        const slug = canonicalWrapperSlug(wrapperSlugs, dbSlug);
+        needIdsByWrapper.set(slug, [needId]);
+      }
+    }
+  }
+
+  const allNeedIds = [...new Set([...needIdsByWrapper.values()].flat())];
+  if (allNeedIds.length === 0) return empty;
+
+  const { data: categoryRows, error: categoryError } = await supabase
+    .from('v_gateway_category_types_public')
+    .select(CATEGORY_TYPE_SELECT)
+    .eq('age_band_id', ageBandId)
+    .in('development_need_id', allNeedIds);
+
+  if (categoryError || !categoryRows) return empty;
+
+  const imageMap = await getGatewayCategoryTypeImages(
+    (categoryRows as GatewayCategoryTypePublic[]).map((c) => c.id),
+    ageBandId
+  );
+  const withImages = (categoryRows as GatewayCategoryTypePublic[]).map((c) => {
+    const img = imageMap.get(c.id);
+    return img ? { ...c, image_url: img.image_url } : c;
+  });
+
+  const result = { ...empty };
+  for (const slug of wrapperSlugs) {
+    const needIds = needIdsByWrapper.get(slug) ?? [];
+    if (needIds.length === 0) continue;
+    const needSet = new Set(needIds);
+    const filtered = withImages.filter((c) => needSet.has(c.development_need_id));
+    result[slug] = sortCategoriesByNeedOrder(filtered, needIds);
+  }
+  return result;
+}
+
 /**
  * Generate top picks for an age band + wrapper (public views only).
  *
@@ -337,7 +432,7 @@ export async function getGatewayTopPicksForAgeBandAndWrapperSlug(
   wrapperSlug: string,
   limit: number = 3
 ): Promise<GatewayPick[]> {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const developmentNeedIds = await getDevelopmentNeedIdsForAgeBandAndWrapper(ageBandId, wrapperSlug);
   if (developmentNeedIds.length === 0) return [];
@@ -415,7 +510,7 @@ export async function getGatewayTopPicksForAgeBandAndCategoryType(
   categoryTypeId: string,
   limit: number = 12
 ): Promise<GatewayPick[]> {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const { data: categoryRow, error: categoryError } = await supabase
     .from('v_gateway_category_types_public')
@@ -455,7 +550,7 @@ export async function getGatewayTopProductsForAgeBand(
   ageBandId: string,
   limit: number = 3
 ): Promise<GatewayPick[]> {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const { data: productRows, error: productError } = await supabase
     .from('v_gateway_products_public')
@@ -507,7 +602,7 @@ export async function getGatewayTopProductsForAgeBand(
  * @returns Array of moments with published sets, or empty array
  */
 export async function getActiveMomentsForAgeBand(ageBandId: string) {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   // First get all published sets for this age band
   const { data: sets, error: setsError } = await supabase
@@ -547,7 +642,7 @@ export async function getActiveMomentsForAgeBand(ageBandId: string) {
  * @returns Published sets with their cards, evidence, and display text, or null if error
  */
 export async function getPublishedSetsForAgeBand(ageBandId: string) {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const { data, error } = await supabase
     .from('pl_age_moment_sets')
@@ -628,7 +723,7 @@ export function parseAgeBandSlug(slug: string): { min: number; max: number } | n
  * Returns the age band if found, or null.
  */
 export async function getAgeBandByRange(minMonths: number, maxMonths: number) {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const { data, error } = await supabase
     .from('pl_age_bands')
@@ -699,7 +794,7 @@ export async function getPublishedSetForAgeBandAndMoment(
   ageBandId: string,
   momentId: string
 ): Promise<TransformedAgeMomentSet | null> {
-  const supabase = createClient();
+  const supabase = createPublicCatalogueClient();
 
   const { data, error } = await supabase
     .from('pl_age_moment_sets')

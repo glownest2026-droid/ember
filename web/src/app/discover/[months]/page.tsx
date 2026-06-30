@@ -1,20 +1,17 @@
 import { notFound, redirect } from 'next/navigation';
+import type { GatewayAgeBandPublic } from '../../../lib/pl/public';
 import {
-  getGatewayAgeBandIdsWithPicks,
-  getGatewayAgeBandsPublic,
-  getGatewayCategoryTypesForAgeBandAndWrapper,
-  getGatewayTopPicksForAgeBandAndCategoryType,
-  getGatewayTopPicksForAgeBandAndWrapperSlug,
-  getGatewayTopProductsForAgeBand,
-  getGatewayWrappersForAgeBand,
-  getGatewayHeroImageForAgeBand,
-  type GatewayAgeBandPublic,
-} from '../../../lib/pl/public';
+  getGatewayAgeBandIdsWithPicksCached,
+  getGatewayAgeBandsPublicCached,
+  getGatewayCategoryTypesByWrapperForAgeBandCached,
+  getGatewayHeroImageForAgeBandCached,
+  getGatewayTopPicksForAgeBandAndCategoryTypeCached,
+  getGatewayTopPicksForAgeBandAndWrapperSlugCached,
+  getGatewayTopProductsForAgeBandCached,
+  getGatewayWrappersForAgeBandCached,
+} from '../../../lib/pl/gateway-cache';
 import { getDiscoverServerPersonalization } from '../../../lib/discover/serverDiscoverChild';
-import {
-  applyStorageCategoryImages,
-  resolveStorageCategoryImages,
-} from '../../../lib/discover/categoryImageOverrides';
+import { applyDeterministicStorageCategoryImages } from '../../../lib/discover/categoryImageOverrides';
 import { resolveAgeBandForMonthFromBands } from '../../../lib/discover/pilotAgeBandRange';
 import { resolveWrapperSlugFromFocusParam } from '../../../lib/compliance/resolveWrapperFromFocusParam';
 import DiscoveryPageClient from './DiscoveryPageClient';
@@ -63,20 +60,29 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
   }
   const monthParam = monthsNum;
 
-  const ageBands = await getGatewayAgeBandsPublic();
-  const bandsWithPicks = await getGatewayAgeBandIdsWithPicks();
+  const [ageBands, bandsWithPicks, serverPersonalization] = await Promise.all([
+    getGatewayAgeBandsPublicCached(),
+    getGatewayAgeBandIdsWithPicksCached(),
+    getDiscoverServerPersonalization(childParam),
+  ]);
 
   const ageBand = await resolveAgeBandForMonth(monthParam, ageBands);
   if (!ageBand) {
     if (monthParam !== 26) redirect('/discover/26');
     notFound();
   }
-  const wrappers = await getGatewayWrappersForAgeBand(ageBand.id);
+
+  const wrappers = await getGatewayWrappersForAgeBandCached(ageBand.id);
+  const wrapperSlugs = wrappers.map((w) => w.ux_slug);
+  const categoriesByWrapper = await getGatewayCategoryTypesByWrapperForAgeBandCached(
+    ageBand.id,
+    wrapperSlugs
+  );
 
   const giftFriendlyCountByWrapper: Record<string, number> = {};
-  for (const wrapper of wrappers) {
-    const categories = await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, wrapper.ux_slug);
-    giftFriendlyCountByWrapper[wrapper.ux_slug] = categories.filter(
+  for (const slug of wrapperSlugs) {
+    const categories = categoriesByWrapper[slug] ?? [];
+    giftFriendlyCountByWrapper[slug] = categories.filter(
       (c) => c.content_type === 'product_category' && c.gift_friendly === true
     ).length;
   }
@@ -106,60 +112,50 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
 
   const selectedBandHasPicks = bandsWithPicks.has(ageBand.id);
   const selectedBandHasProducts = selectedBandHasPicks;
-  let selectedBandHasStage12Data = false;
-  for (const wrapper of wrappers) {
-    const categories = await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, wrapper.ux_slug);
-    if (categories.length > 0) {
-      selectedBandHasStage12Data = true;
-      break;
-    }
-  }
+  const selectedBandHasStage12Data = wrapperSlugs.some(
+    (slug) => (categoriesByWrapper[slug] ?? []).length > 0
+  );
 
   const is25to27 = monthParam >= 25 && monthParam <= 27;
   const defaultSlug25to27 =
-    is25to27 && wrappers.some(w => w.ux_slug === 'let-me-help') ? 'let-me-help' : null;
+    is25to27 && wrappers.some((w) => w.ux_slug === 'let-me-help') ? 'let-me-help' : null;
 
   const selectedWrapperSlug =
     wrapperFromQuery ??
     (!wrapperSlugParam && !focusParam && is25to27 ? defaultSlug25to27 : null);
 
   const shouldShowPicks = (showParam === '1' || reviewMode) && selectedBandHasStage12Data;
-  let effectiveWrapperSlug =
+  const effectiveWrapperSlug =
     selectedWrapperSlug ?? defaultSlug25to27 ?? wrappers[0]?.ux_slug ?? null;
-  let picks: Awaited<ReturnType<typeof getGatewayTopPicksForAgeBandAndWrapperSlug>> = [];
-  const exampleProducts = selectedBandHasProducts
-    ? await getGatewayTopProductsForAgeBand(ageBand.id, 12)
-    : [];
 
   const categoryTypesRaw =
     selectedBandHasStage12Data && selectedWrapperSlug
-      ? await getGatewayCategoryTypesForAgeBandAndWrapper(ageBand.id, selectedWrapperSlug)
+      ? (categoriesByWrapper[selectedWrapperSlug] ?? [])
       : [];
-  const storageImageUrls =
-    categoryTypesRaw.length > 0 ? await resolveStorageCategoryImages(categoryTypesRaw) : new Map();
-  const categoryTypes = applyStorageCategoryImages(categoryTypesRaw, storageImageUrls);
+  const categoryTypes = applyDeterministicStorageCategoryImages(categoryTypesRaw);
 
+  let picks: Awaited<ReturnType<typeof getGatewayTopPicksForAgeBandAndWrapperSlugCached>> = [];
   if (shouldShowPicks) {
-    const categoryTypeId = categoryParam && categoryTypes.some((c) => c.id === categoryParam) ? categoryParam : null;
+    const categoryTypeId =
+      categoryParam && categoryTypes.some((c) => c.id === categoryParam) ? categoryParam : null;
     if (categoryTypeId) {
-      picks = await getGatewayTopPicksForAgeBandAndCategoryType(ageBand.id, categoryTypeId, 12);
+      picks = await getGatewayTopPicksForAgeBandAndCategoryTypeCached(ageBand.id, categoryTypeId, 12);
     } else if (selectedWrapperSlug) {
-      picks = await getGatewayTopPicksForAgeBandAndWrapperSlug(ageBand.id, selectedWrapperSlug, 12);
-    } else {
-      if (effectiveWrapperSlug) {
-        const childQ = childParam ? `&child=${encodeURIComponent(childParam)}` : '';
-        redirect(`/discover/${monthParam}?wrapper=${encodeURIComponent(effectiveWrapperSlug)}&show=1${childQ}`);
-      }
+      picks = await getGatewayTopPicksForAgeBandAndWrapperSlugCached(ageBand.id, selectedWrapperSlug, 12);
+    } else if (effectiveWrapperSlug) {
+      const childQ = childParam ? `&child=${encodeURIComponent(childParam)}` : '';
+      redirect(`/discover/${monthParam}?wrapper=${encodeURIComponent(effectiveWrapperSlug)}&show=1${childQ}`);
     }
   }
 
-  const serverPersonalization = await getDiscoverServerPersonalization(childParam);
-
-  // Personalise the hero with a category image from this age band's development cards.
-  // Only needed when no wrapper is selected (otherwise the selected wrapper's category
-  // image is already available client-side), keeping the extra query cost minimal.
-  const bandHeroImageUrl =
-    categoryTypes.length === 0 ? await getGatewayHeroImageForAgeBand(ageBand.id) : null;
+  const [exampleProducts, bandHeroImageUrl] = await Promise.all([
+    selectedBandHasProducts
+      ? getGatewayTopProductsForAgeBandCached(ageBand.id, 12)
+      : Promise.resolve([]),
+    categoryTypes.length === 0
+      ? getGatewayHeroImageForAgeBandCached(ageBand.id)
+      : Promise.resolve(null),
+  ]);
 
   return (
     <main className="min-h-screen">
@@ -177,6 +173,12 @@ export default async function DiscoverMonthsPage({ params, searchParams }: Disco
         picks={picks}
         exampleProducts={exampleProducts}
         categoryTypes={categoryTypes}
+        categoriesByWrapper={Object.fromEntries(
+          wrapperSlugs.map((slug) => [
+            slug,
+            applyDeterministicStorageCategoryImages(categoriesByWrapper[slug] ?? []),
+          ])
+        )}
         giftFriendlyCountByWrapper={giftFriendlyCountByWrapper}
         bandHasGiftIdeas={bandHasGiftIdeas}
         showDebug={showDebug}
