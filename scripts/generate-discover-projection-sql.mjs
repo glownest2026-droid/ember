@@ -145,9 +145,17 @@ function normalizeRow(raw, clusterLensMap) {
     stage2_category_type_label: String(raw.category_label || '').trim(),
     stage2_category_type_name: canonicalNameFromSlug(String(raw.category_entity_id || '').trim()),
     stage2_play_ideas_rank: raw.category_rank,
-    stage2_play_idea_mapping_rationale: String(raw.why_it_matters_long || '').trim(),
+    stage2_play_idea_mapping_rationale: joinRationale(
+      String(raw.why_it_matters_long || '').trim(),
+      String(raw.buy_borrow_bring_back_out || '').trim()
+    ),
     category_audience_lens: categoryAudienceLens,
   };
+}
+
+function joinRationale(practical, buyBorrow) {
+  const parts = [practical, buyBorrow].filter((p) => p && p.trim());
+  return parts.join('\n\n');
 }
 
 function defaultBandFromPath(filePath) {

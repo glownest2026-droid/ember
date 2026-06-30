@@ -35,7 +35,7 @@ const BAND_HERO_COPY: Record<string, BandHeroCopy> = {
   '13-15': {
     headlineAnonymous: "What your young one's practising now",
     subAnonymous:
-      'At 13–15 months, your toddler may be getting steadier on their feet, louder in their choices and more eager to copy you. Choose a development and we\u2019ll show useful ideas for what\u2019s coming next.',
+      'At 13–15 months, first-year basics can become purposeful experiments: carrying, tipping, pointing, copying, feeding and trying to get everywhere. Pick a development to see what is changing now, useful ideas for this stage, and what to buy, borrow or bring back out.',
     subjectPhrase: 'your toddler',
   },
 };

@@ -1,3 +1,18 @@
+## 2026-06-30 — feat(discover): Conor-grade 13–15m content overhaul
+
+- **Source:** `02_Ember_Bible_13-15M_Ember_ABI_Conor_Grade_v3.xlsx` (`discover_projection` + `age_band_meta`)
+- **Migration:** `20260630120000_import_discover_13_15m_conor_grade.sql` — 50 rows, **10 clusters** (was 8/40); new Conor-grade Stage 1 voice + Stage 2 ideas with buy/borrow/bring-back-out in rationale
+- **Hero:** `discoverHeroCopy.ts` updated from workbook `hero_summary`
+- **Icons:** 10 new cluster slugs mapped in `wrapperIcons.tsx`
+- **Applied:** `supabase db push` — validation notices pass; Stage 3 active = 0
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. `/discover/14` — 10 Stage 1 clusters (e.g. "I'm working things out"); hero mentions purposeful experiments
+2. `/discover/14?wrapper=ent_cluster_working_things_out&show=1` — Stage 2 cards match workbook; expanded card shows buy/borrow copy
+3. REST `v_gateway_wrappers_public?age_band_id=eq.13-15m` — 10 rows
+4. REST `v_gateway_category_types_public?age_band_id=eq.13-15m` — 50 rows
+
 ## 2026-06-30 — fix(pwa): open to Discover instead of /app placeholder
 
 - **Root cause:** PWA `manifest.ts` had `start_url: '/app'`, and `/app` was a dev placeholder (“Signed in as …email…”).

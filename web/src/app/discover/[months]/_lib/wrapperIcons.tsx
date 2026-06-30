@@ -111,6 +111,17 @@ const SLUG_TO_ICON: Record<string, LucideIcon> = {
   ent_cluster_feeding_clean_kit: Milk,
   ent_cluster_safe_sleep_setup: Moon,
   ent_cluster_health_first_trips: Stethoscope,
+  // 13–15m Conor-grade clusters
+  ent_cluster_working_things_out: Puzzle,
+  ent_cluster_telling_things: MessageCircle,
+  ent_cluster_copying_day: Theater,
+  ent_cluster_braver_feet: Footprints,
+  ent_cluster_meals_charge: UtensilsCrossed,
+  ent_cluster_first_marks: Pencil,
+  ent_cluster_joining_in: Users,
+  ent_cluster_suddenly_everything: Shield,
+  ent_cluster_between_baby_toddler: HeartHandshake,
+  ent_cluster_change_scene: CalendarDays,
 };
 
 const LABEL_PATTERNS: { test: RegExp; icon: LucideIcon }[] = [
@@ -139,6 +150,16 @@ const LABEL_PATTERNS: { test: RegExp; icon: LucideIcon }[] = [
   { test: /learning to tell you/i, icon: MessageCircle },
   { test: /noticing faces and feelings/i, icon: Users },
   { test: /good little moment/i, icon: CalendarDays },
+  // 13–15m Conor-grade clusters
+  { test: /working things out/i, icon: Puzzle },
+  { test: /telling you things/i, icon: MessageCircle },
+  { test: /copying your day/i, icon: Theater },
+  { test: /braver on my feet/i, icon: Footprints },
+  { test: /taking charge at meals/i, icon: UtensilsCrossed },
+  { test: /making my first marks/i, icon: Pencil },
+  { test: /joining in properly/i, icon: Users },
+  { test: /between baby and toddler/i, icon: HeartHandshake },
+  { test: /change of scene/i, icon: CalendarDays },
   // Legacy labels (other bands)
   { test: /sitting up|reaching for toys/i, icon: Hand },
   { test: /ready to crawl|crawling|on the move/i, icon: Footprints },
