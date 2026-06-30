@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'Ember',
     short_name: 'Ember',
     description: 'Simple, trusted guidance from bump to big steps.',
-    start_url: '/app',
+    start_url: '/discover',
     display: 'standalone',
     background_color: '#FFFCF8',
     theme_color: '#FFBEAB',
