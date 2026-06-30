@@ -1,3 +1,13 @@
+## 2026-06-30 — fix(pwa): open to Discover instead of /app placeholder
+
+- **Root cause:** PWA `manifest.ts` had `start_url: '/app'`, and `/app` was a dev placeholder (“Signed in as …email…”).
+- **Fix:** `start_url` → `/discover`; `/app` now server-redirects to `/discover` (covers existing installed PWAs still bookmarked at `/app`).
+
+### How to verify
+1. Open `/app` in browser — should redirect to `/discover` (or age-band child route).
+2. Reinstall PWA (or clear site data) and launch from home screen — lands on Discover, not email page.
+3. `/app/marketplace`, `/app/messages`, etc. still work unchanged.
+
 ## 2026-06-30 — fix(discover): carousel loading hang on wrapper select
 
 - **Branch:** `fix/discover-carousel-loading-hang`
