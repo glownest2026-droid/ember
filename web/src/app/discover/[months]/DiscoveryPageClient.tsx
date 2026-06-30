@@ -1030,8 +1030,7 @@ export default function DiscoveryPageClient({
 
   const playIdeaItems = useMemo(() => {
     if (!selectedWrapper) return [];
-    const serverSynced = selectedWrapper === selectedWrapperSlug && categoryTypes.length > 0;
-    if (serverSynced) {
+    if (selectedWrapper === selectedWrapperSlug) {
       return categoryTypesToPlayIdeaItems(categoryTypes, bandLabelForIdeas);
     }
     return playIdeaCache[wrapperPlayIdeasCacheKey(ageBand?.id, selectedWrapper)] ?? [];
@@ -1047,7 +1046,7 @@ export default function DiscoveryPageClient({
   const ideasSectionLoading =
     Boolean(selectedWrapper) &&
     playIdeaItems.length === 0 &&
-    (selectedWrapper !== selectedWrapperSlug || categoryTypes.length === 0);
+    selectedWrapper !== selectedWrapperSlug;
 
   const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
   const scienceTitle = 'Why this matters now';

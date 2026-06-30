@@ -228,15 +228,25 @@ export async function getGatewayHeroImageForAgeBand(ageBandId: string): Promise<
 }
 
 /**
- * Fetch category types for an age band + wrapper (Layer B).
- * Uses v_gateway_category_types_public via wrapper → development_need resolution.
- * Joins image_url from v_gateway_category_type_images when available.
+ * Resolve development_need_id(s) for an age band + wrapper.
+ * Spine v2 bands use age-band-specific mappings; older bands fall back to the global wrapper→need link.
  */
-export async function getGatewayCategoryTypesForAgeBandAndWrapper(
+async function getDevelopmentNeedIdsForAgeBandAndWrapper(
   ageBandId: string,
   wrapperSlug: string
-): Promise<GatewayCategoryTypePublic[]> {
+): Promise<string[]> {
   const supabase = createClient();
+
+  const { data: bandNeedRows, error: bandNeedError } = await supabase
+    .from('v_gateway_age_band_wrapper_needs_public')
+    .select('development_need_id, need_rank')
+    .eq('age_band_id', ageBandId)
+    .eq('wrapper_slug', wrapperSlug)
+    .order('need_rank', { ascending: true });
+
+  if (!bandNeedError && bandNeedRows && bandNeedRows.length > 0) {
+    return bandNeedRows.map((row) => row.development_need_id as string);
+  }
 
   const { data: wrapperDetail, error: wrapperError } = await supabase
     .from('v_gateway_wrapper_detail_public')
@@ -247,18 +257,47 @@ export async function getGatewayCategoryTypesForAgeBandAndWrapper(
     .maybeSingle();
 
   if (wrapperError || !wrapperDetail?.development_need_id) return [];
+  return [wrapperDetail.development_need_id as string];
+}
 
-  const developmentNeedId = wrapperDetail.development_need_id as string;
+function sortCategoriesByNeedOrder(
+  categories: GatewayCategoryTypePublic[],
+  needIds: string[]
+): GatewayCategoryTypePublic[] {
+  const needIndex = new Map(needIds.map((id, index) => [id, index]));
+  return [...categories].sort((a, b) => {
+    const needA = needIndex.get(a.development_need_id) ?? 0;
+    const needB = needIndex.get(b.development_need_id) ?? 0;
+    if (needA !== needB) return needA - needB;
+    return a.rank - b.rank;
+  });
+}
+
+/**
+ * Fetch category types for an age band + wrapper (Layer B).
+ * Uses v_gateway_category_types_public via wrapper → development_need resolution.
+ * Joins image_url from v_gateway_category_type_images when available.
+ */
+export async function getGatewayCategoryTypesForAgeBandAndWrapper(
+  ageBandId: string,
+  wrapperSlug: string
+): Promise<GatewayCategoryTypePublic[]> {
+  const supabase = createClient();
+
+  const developmentNeedIds = await getDevelopmentNeedIdsForAgeBandAndWrapper(ageBandId, wrapperSlug);
+  if (developmentNeedIds.length === 0) return [];
 
   const { data: categoryRows, error: categoryError } = await supabase
     .from('v_gateway_category_types_public')
     .select('age_band_id, development_need_id, rank, rationale, audience_lens, id, slug, label, name, description, image_url, safety_notes')
     .eq('age_band_id', ageBandId)
-    .eq('development_need_id', developmentNeedId)
-    .order('rank', { ascending: true });
+    .in('development_need_id', developmentNeedIds);
 
   if (categoryError || !categoryRows) return [];
-  const categories = categoryRows as GatewayCategoryTypePublic[];
+  const categories = sortCategoriesByNeedOrder(
+    categoryRows as GatewayCategoryTypePublic[],
+    developmentNeedIds
+  );
 
   const imageMap = await getGatewayCategoryTypeImages(
     categories.map((c) => c.id),
@@ -286,28 +325,21 @@ export async function getGatewayTopPicksForAgeBandAndWrapperSlug(
 ): Promise<GatewayPick[]> {
   const supabase = createClient();
 
-  const { data: wrapperDetail, error: wrapperError } = await supabase
-    .from('v_gateway_wrapper_detail_public')
-    .select('development_need_id, ux_slug')
-    .eq('age_band_id', ageBandId)
-    .eq('ux_slug', wrapperSlug)
-    .limit(1)
-    .maybeSingle();
-
-  if (wrapperError || !wrapperDetail?.development_need_id) return [];
-
-  const developmentNeedId = wrapperDetail.development_need_id as string;
+  const developmentNeedIds = await getDevelopmentNeedIdsForAgeBandAndWrapper(ageBandId, wrapperSlug);
+  if (developmentNeedIds.length === 0) return [];
 
   const { data: categoryRows, error: categoryError } = await supabase
     .from('v_gateway_category_types_public')
     .select('age_band_id, development_need_id, rank, rationale, audience_lens, id, slug, label, name, description, image_url, safety_notes')
     .eq('age_band_id', ageBandId)
-    .eq('development_need_id', developmentNeedId)
-    .order('rank', { ascending: true });
+    .in('development_need_id', developmentNeedIds);
 
   if (categoryError || !categoryRows || categoryRows.length === 0) return [];
 
-  const categories = categoryRows as GatewayCategoryTypePublic[];
+  const categories = sortCategoriesByNeedOrder(
+    categoryRows as GatewayCategoryTypePublic[],
+    developmentNeedIds
+  );
   const categoryIds = categories.map(c => c.id);
 
   const { data: productRows, error: productError } = await supabase

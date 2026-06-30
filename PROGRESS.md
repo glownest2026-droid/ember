@@ -1,3 +1,15 @@
+## 2026-06-30 — fix(discover): carousel loading hang on wrapper select
+
+- **Branch:** `fix/discover-carousel-loading-hang`
+- **Root cause:** (1) `ideasSectionLoading` treated synced empty `categoryTypes` as still loading → infinite skeleton; (2) gateway resolved one global `development_need_id` per wrapper slug, so 13–15m clusters like `ent_cluster_words` queried 9–12m needs and returned zero categories.
+- **Fix:** Loading skeleton only while client/server wrapper slug mismatch; age-band wrapper→need view resolves `development_need_id` via anchored category slugs; gateway fetches categories for all mapped needs per band.
+- **Migrations:** `20260630053819_fix_age_band_wrapper_needs_mapping.sql`, `20260630054526_fix_age_band_wrapper_needs_via_category.sql` (applied via `supabase db push`).
+
+### How to verify
+1. `/discover/14` → tap **I'm telling you things** — carousel shows 5 ideas (not loading skeleton)
+2. Repeat for **I'm off and moving**, **I'm posting, stacking and finding out**
+3. Direct URL `/discover/14?wrapper=ent_cluster_words` — Board books and Picture cards visible
+
 ## 2026-06-29 — fix(discover): faster category image delivery
 
 - **Branch:** `fix/discover-image-delivery`
