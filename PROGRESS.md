@@ -3899,4 +3899,4 @@ Category-only cards remain publishable.
 - Code diff reviewed for:
   - `web/src/components/discover/figma/DiscoverFigmaPlayIdeaCard.tsx`
   - `web/src/app/discover/[months]/DiscoveryPageClient.tsx`
-- `pnpm lint` in `web/` could not run in this environment because `node_modules` are not installed (`next: not found`).
+- Build: pass (`pnpm build` in `web/`)

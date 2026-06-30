@@ -94,11 +94,9 @@ interface DiscoveryPageClientProps {
 }
 
 function isMissingUpsertFunction(error: { code?: string; message?: string } | null | undefined): boolean {
-  return !!error && (
-    error.code === '42883' ||
-    error.message?.includes('does not exist') ||
-    error.message?.includes('function')
-  );
+  if (!error) return false;
+  const message = error.message ?? '';
+  return error.code === '42883' || message.includes('does not exist') || message.includes('function');
 }
 
 export default function DiscoveryPageClient({
