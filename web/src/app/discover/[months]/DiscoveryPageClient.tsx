@@ -94,6 +94,12 @@ interface DiscoveryPageClientProps {
   v2ImageMappings?: { filename: string; matchedCategoryName: string | null; confidence: string }[];
 }
 
+function isMissingUpsertFunction(error: { code?: string; message?: string } | null | undefined): boolean {
+  if (!error) return false;
+  const message = error.message ?? '';
+  return error.code === '42883' || message.includes('does not exist') || message.includes('function');
+}
+
 export default function DiscoveryPageClient({
   ageBands,
   ageBand,
@@ -266,7 +272,11 @@ export default function DiscoveryPageClient({
         .select('category_type_id')
         .eq('kind', 'category')
         .eq('have', true);
-      if (selectedChildId) query = query.eq('child_id', selectedChildId);
+      if (selectedChildId) {
+        // Backward compatibility: if "have" was saved before child-aware upsert existed,
+        // those rows are child_id = NULL and should still dim in child context.
+        query = query.or(`child_id.eq.${selectedChildId},child_id.is.null`);
+      }
       const { data, error } = await query;
       if (cancelled || error) return;
       const ids = (data ?? [])
@@ -639,7 +649,7 @@ export default function DiscoveryPageClient({
           const categoryId = (action.payload.categoryId as string) || 'category';
           const childId = action.payload.childId as string | undefined;
           const have = action.payload.have !== false;
-          const { error } = await supabase.rpc('upsert_user_list_item', {
+          let { error } = await supabase.rpc('upsert_user_list_item', {
             p_kind: 'category',
             p_category_type_id: categoryId,
             p_want: true,
@@ -647,6 +657,16 @@ export default function DiscoveryPageClient({
             p_gift: false,
             ...(childId ? { p_child_id: childId } : {}),
           });
+          if (isMissingUpsertFunction(error) && childId) {
+            const retry = await supabase.rpc('upsert_user_list_item', {
+              p_kind: 'category',
+              p_category_type_id: categoryId,
+              p_want: true,
+              p_have: have,
+              p_gift: false,
+            });
+            error = retry.error;
+          }
           if (!error) {
             await refetchSubnavStats(selectedChildId);
             setDimmedCategoryIds((prev) => {
@@ -744,7 +764,7 @@ export default function DiscoveryPageClient({
       run: async () => {
         try {
           const supabase = createClient();
-          const { error } = await supabase.rpc('upsert_user_list_item', {
+          let { error } = await supabase.rpc('upsert_user_list_item', {
             p_kind: 'category',
             p_category_type_id: categoryId,
             p_want: true,
@@ -752,6 +772,16 @@ export default function DiscoveryPageClient({
             p_gift: false,
             ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
           });
+          if (isMissingUpsertFunction(error) && selectedChildId) {
+            const retry = await supabase.rpc('upsert_user_list_item', {
+              p_kind: 'category',
+              p_category_type_id: categoryId,
+              p_want: true,
+              p_have: !wasDimmed,
+              p_gift: false,
+            });
+            error = retry.error;
+          }
           if (error) throw error;
           await refetchSubnavStats(selectedChildId);
         } catch {
