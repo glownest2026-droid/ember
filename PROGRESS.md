@@ -1,3 +1,26 @@
+## 2026-07-01 — feat(discover): 1–3m Conor+Thea depth v1 catalogue rebuild
+
+- **Source:** `02_Ember_Bible_1_3m_Conor_Thea_Depth_v1.xlsx` (`discover_projection`)
+- **Migration:** `20260701120000_reimport_discover_1_3m_conor_thea_depth_v1.sql` — 45 workbook rows → **43** junction rows (10 clusters), **16** `gift_friendly` product rows; Stage 3 active = 0
+- **Generator fix:** `scripts/generate-discover-projection-sql.mjs` — `DISTINCT ON (age_band_id, development_need_id, category_type_id)` when shared slugs appear under multiple clusters with the same need (2 collisions: `cat_board_books`, `cat_high_contrast_cards`)
+- **Gift toggle:** enabled — 6 child clusters with gift depth; parent-only clusters (settling, feeding kit, sleep, health trips) hidden in gift mode
+- **Workbook snag (founder):** `cat_high_contrast_cards` row under **I'm finding your face** uses `ent_need_visual_tracking`, but that cluster only resolves `ent_need_face_smile_chat` in `v_gateway_age_band_wrapper_needs_public` — the card will not appear on the faces carousel (watching/listen clusters still show it). Faces-specific labels for the two deduped slugs collapse to listen/watching versions.
+
+### How to verify
+1. `/discover/2` → **I'm the parent** — 10 Stage 1 cards; Stage 2 lanes (`Useful ideas` / `Things that can help` / `Quick checks`)
+2. `/discover/2` → **Buying a gift** — 6 development cards with populated carousels (no empty gift grids)
+3. REST `v_gateway_category_types_public?age_band_id=eq.1-3m` → 43 rows, 16 with `gift_friendly=true`
+4. REST `v_gateway_wrappers_public?age_band_id=eq.1-3m` → 10 clusters with child-voice labels
+5. `pnpm -C web build` passes
+
+## 2026-07-01 — chore(rules): Conor-grade catalogue upload workflow
+
+- **Rule:** `.cursor/rules/conor-grade-catalogue-upload.mdc` — ingest + verify + **always open PR** with green Vercel preview (founder should not need to ask).
+
+### How to verify
+1. Say "Upload this Conor-grade catalogue" — agent follows full pipeline including PR handoff.
+2. Rule visible in Cursor Rules as always-applied.
+
 ## 2026-07-01 — fix(discover): hero layout + navbar Manrope typography
 
 - **Typography:** Hero `h1` and navbar both use Manrope (`--font-sans` / `font-sans`) — fixes serif/sans mismatch from brandbook `h1` rule.

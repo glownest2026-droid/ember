@@ -1,0 +1,87 @@
+---
+description: Trigger workflow — "Upload this Conor-grade catalogue" (or similar). Ingest discover_projection data for /discover and verify against 13–15m gold standard.
+alwaysApply: true
+---
+
+# Conor-grade catalogue upload
+
+## Trigger phrases
+
+When the user says **"Upload this Conor-grade catalogue"** or similar (e.g. "ingest this Conor-grade band", "replace the discover catalogue for …", "upload the ABI for …"), run this workflow end-to-end — ingest, verify, **open a PR, and hand off a green Vercel preview**. Do not stop at SQL generation or `db push`.
+
+## 1) Replace catalogue data on `/discover`
+
+**Source:** attached Ember ABI workbook → **`discover_projection` tab only** (Spine 2.0). Full spec: `supabase/import_templates/Leaf_Cursor_Template_ABI_Spine_Age_Band_Ingestion_v2.txt`.
+
+**Pipeline:**
+1. Read `discover_projection`; quote row count, cluster count, and target `age_band_id`(s).
+2. Generate idempotent migration:
+   ```bash
+   node scripts/generate-discover-projection-sql.mjs \
+     --migration=YYYYMMDDHHMMSS_reimport_discover_<bands>_<label> \
+     "path/to/workbook.xlsx"
+   ```
+3. Mirror to `supabase/sql/`; apply with `supabase db push`.
+4. **Never** `UPDATE pl_category_types.label/name` on re-import — junction `display_label` + `rationale` only.
+5. Deactivate removed junction rows and Stage 3 products for imported band(s) only.
+6. Update `PROGRESS.md` with source file, migration name, counts, and verify steps.
+
+**Reads:** gateway views only (`v_gateway_*`), not canonical tables in the app.
+
+## 2) Ensure parent/gift toggle is enabled
+
+Toggle renders only when the band has Stage 1+2 data **and** at least one `product_category` row with `gift_friendly = true` (`bandHasGiftIdeas` in `web/src/app/discover/[months]/page.tsx`).
+
+Before finishing:
+- Count `gift_friendly` rows in the migration / REST (`v_gateway_category_types_public?age_band_id=eq.<band>`).
+- If zero gift rows: **stop and tell the founder** — toggle will not appear; do not ship a Conor-grade band without gift depth (see 13–15m: 30 gift rows across six child clusters).
+- Confirm workbook columns are populated: `content_type`, `ui_lane`, `gift_friendly`, `buyer_mode_label`, `gift_note`, `ownership_note`, `show_gift_action`, `card_cta_label`, `render_rule`.
+- On `/discover/{repMonth}`: **I'm the parent** and **Buying a gift** pills visible; gift mode hides Stage 1 clusters with zero gift rows (no empty carousels).
+
+## 3) Verify against 13–15m gold standard
+
+**Reference band:** `13-15m` → `/discover/14`. Current bar: 74 rows, 10 clusters, 30 `gift_friendly` product rows, lane split (`Useful ideas` / `Things that can help` / `Quick checks`), Stage 3 active = 0.
+
+For the **imported** band, match this experience bar:
+
+| Check | Gold standard (13–15m) |
+|-------|------------------------|
+| Stage 1 voice | Child-voice "I'm…" labels; full why-text (not truncated) |
+| Stage 2 lanes | Three lanes render in parent mode |
+| Gift mode | Gift clusters only; parent-only clusters hidden |
+| Card copy | Junction `display_label` + `rationale`; buy/borrow/bring-back-out judgement |
+| REST parity | Row + gift counts match workbook |
+| Build | `pnpm -C web build` passes |
+
+Run the **Conor five tests** from `conscientious-conor.mdc` on sample Stage 1 + Stage 2 copy; flag failures explicitly.
+
+**REST spot-checks:**
+- `v_gateway_wrappers_public?age_band_id=eq.<band>`
+- `v_gateway_category_types_public?age_band_id=eq.<band>`
+
+**UI spot-checks** (imported band's rep month **and** `/discover/14` if different band):
+1. Parent mode — full lane split, Ember Picks CTA where `show_ember_picks`
+2. Gift mode — populated carousels only on gift clusters
+3. Stage 1 → Stage 2 navigation — instant client nav, no skeleton hang
+
+## 4) PR — always, without being asked
+
+**Do not stop at `supabase db push`.** After ingest + verify, open a PR every time — the founder should never have to ask.
+
+**Branch:** `feat/discover-<bands>-<label>` from `origin/main` (one import batch per PR).
+
+**Commit (catalogue PR only):**
+- `supabase/migrations/` + `supabase/sql/` for this import
+- `scripts/generate-discover-projection-sql.mjs` if generator changed
+- `PROGRESS.md` entry for this band
+- `.cursor/rules/` only if the workflow rule itself changed
+
+**Then:** `git push -u origin HEAD` → `gh pr create` → follow `pr-handoff.mdc` until green.
+
+**Handoff (required before you finish):**
+1. `gh pr checks <n>` — all Vercel checks pass
+2. `gh pr view <n> --json mergeable,mergeStateStatus` — `MERGEABLE` / `CLEAN`
+3. Preview URL from Vercel bot comment (`*.vercel.app`, not dashboard)
+4. Close with preview link + path to test, e.g. `/discover/2` for 1–3m
+
+**Note:** DB migration may already be applied via `supabase db push` before the PR merges; the PR still ships the SQL for history and other envs.
