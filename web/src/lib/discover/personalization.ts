@@ -32,6 +32,21 @@ export function monthsOldFromBirthdate(birthdate: string | null | undefined): nu
   return months >= 0 ? months : null;
 }
 
+/** After add-child: open Discover on the child's month with nav scoped to them. */
+export function discoverPathForChild(childId: string, birthdate: string | null | undefined): string {
+  const childQ = `child=${encodeURIComponent(childId)}`;
+  if (!birthdate?.trim()) return `/discover/26?${childQ}`;
+
+  const birth = new Date(birthdate.trim());
+  if (Number.isNaN(birth.getTime())) return `/discover/26?${childQ}`;
+
+  const now = new Date();
+  const rawMonths =
+    (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+  const monthSegment = rawMonths < 0 ? 0 : rawMonths;
+  return `/discover/${monthSegment}?${childQ}`;
+}
+
 export type DiscoverChildPersonalization = {
   displayLabel: string | null;
   gender: string | null;

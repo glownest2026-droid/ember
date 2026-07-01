@@ -6,12 +6,14 @@ import { ChevronDown, ChevronUp, Mail, Users } from 'lucide-react';
 interface CoParentCardProps {
   coParentEmail: string;
   setCoParentEmail: (value: string) => void;
+  compact?: boolean;
 }
 
 /** UI only — invite not persisted in this PR. */
-export function CoParentCard({ coParentEmail, setCoParentEmail }: CoParentCardProps) {
+export function CoParentCard({ coParentEmail, setCoParentEmail, compact = false }: CoParentCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const togglePad = compact ? 'p-4 md:p-5' : 'p-6';
 
   const handleSendInvite = async () => {
     if (!coParentEmail || !coParentEmail.includes('@')) return;
@@ -23,11 +25,11 @@ export function CoParentCard({ coParentEmail, setCoParentEmail }: CoParentCardPr
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-[var(--ember-border-subtle)] overflow-hidden shadow-sm mb-6">
+    <div className="bg-white rounded-3xl border border-[var(--ember-border-subtle)] overflow-hidden shadow-sm h-full">
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-6 flex items-center justify-between hover:bg-[var(--ember-surface-soft)]/50 transition-colors text-left"
+        className={`w-full ${togglePad} flex items-center justify-between hover:bg-[var(--ember-surface-soft)]/50 transition-colors text-left`}
       >
         <div className="flex items-center gap-2">
           <Users className="w-5 h-5 text-[var(--ember-accent-base)]" strokeWidth={2} />

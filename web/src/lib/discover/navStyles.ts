@@ -9,11 +9,12 @@ export function figmaDesktopNavLinkClass(active: boolean): string {
 }
 
 export function figmaMutedNavLinkClass(active = false): string {
-  return `cursor-pointer text-base font-medium transition-colors whitespace-nowrap ${
+  return `font-sans cursor-pointer text-base font-medium transition-colors whitespace-nowrap ${
     active ? 'text-[#253044]' : 'text-[#66717D] hover:text-[#253044]'
   }`;
 }
 
+/** Brand wordmark — inherits header font (not forced to nav link sans). */
 export const FIGMA_LOGO_WORDMARK_CLASS = 'font-bold text-xl text-[#253044]';
 
 export const FIGMA_CHILD_PILL_CLASS =

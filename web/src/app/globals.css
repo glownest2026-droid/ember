@@ -247,11 +247,18 @@ h3, h4, h5, h6 {
 
 /* Figma May 2026 app shell (discover / my-ideas / marketplace / family) */
 html.ember-figma-app body {
-  font-family: var(--font-discover-manrope), 'Manrope', system-ui, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Figma shell: headings match navbar Manrope (overrides brandbook serif h1/h2) */
+html.ember-figma-app h1,
+html.ember-figma-app h2 {
+  font-family: var(--font-sans);
 }
 
 /* Figma Root.tsx desktop nav links — explicit border so active orange underline always renders */
 .figma-desktop-nav-link {
+  font-family: var(--font-sans);
   cursor: pointer;
   font-size: 1rem;
   line-height: 1.5rem;

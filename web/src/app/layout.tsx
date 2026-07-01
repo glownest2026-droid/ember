@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${discoverManrope.variable} ${discoverPlayful.variable} overflow-x-clip`}
+      className={`${discoverManrope.variable} ${discoverPlayful.variable} ember-figma-app overflow-x-clip`}
     >
       <body className={`${discoverManrope.className} antialiased min-w-0 max-w-[100vw] bg-white`}>
         <ThemeProvider>

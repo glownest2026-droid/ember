@@ -1,3 +1,42 @@
+## 2026-07-01 — fix(discover): hero layout + navbar Manrope typography
+
+- **Typography:** Hero `h1` and navbar both use Manrope (`--font-sans` / `font-sans`) — fixes serif/sans mismatch from brandbook `h1` rule.
+- **Hero layout (desktop):** Parent/gift toggle on same row as age chip, right-aligned above hero image.
+- **Hero layout (desktop):** Image height stretches to match description + age slider block (grid row symmetry).
+- **Add-child:** Figma shell styling (warm `#FBFAF7`, Manrope, orange icons); form left / marketing right on desktop; edit saves return to `/family?saved=1&child=…`.
+- **Discover toggle:** Removed auto-scroll to developments section on parent/gift switch (toggle is now at top).
+- **Files:** `globals.css`, `layout.tsx`, `navStyles.ts`, `DiscoverFigmaChildHero.tsx`, `DiscoverAudienceToggle.tsx`, `DiscoveryPageClient.tsx`, `AddChildForm.tsx`, card components.
+
+### How to verify
+1. `/discover/14` desktop — single top row: compact age chip left, parent/gift pills right; image height matches title + copy + slider.
+2. Navbar "Ember" wordmark uses pre-change brand font (not forced `font-sans`).
+3. `/add-children` desktop — hero + full form (incl. consent + submit) above the fold; no duplicate "Add a child" header row.
+
+## 2026-07-01 — fix(typography): navbar matches discover hero Manrope
+
+- **Issue:** Hero headline (`h1`) used brandbook serif via global `h1` rule; navbar used Manrope via `discoverManrope.className` — visually mismatched.
+- **Fix:** Figma app shell (`ember-figma-app`) forces `h1`/`h2` and nav links to `var(--font-sans)` (Manrope); hero `h1` gets explicit `font-sans`; `ember-figma-app` on `<html>` for SSR.
+
+### How to verify
+1. Open `/discover/14` — inspect navbar links and “What your child’s practising now” headline: both should be Manrope (not Source Serif).
+2. DevTools → Computed → `font-family` on both elements should match.
+
+## 2026-06-30 — perf(discover): Phase 2 client navigation and ISR shell
+
+- **Client nav:** `discoverClientNav.ts` — wrapper/show/category URL updates via `history.pushState` (no RSC refetch on Stage 1/2 taps)
+- **Picks:** Ember Picks loaded client-side from `/api/discover/picks` when opening examples
+- **API:** `/api/discover/category-types` — CDN-cached Stage 2 fallback
+- **Entry:** `/discover` server `redirect()` + resume cookie mirror (drops client double-hop spinner)
+- **ISR:** `/discover/[months]` `revalidate=1800`; query params handled client-side only
+- **Build:** `pnpm -C web build` pass
+
+### How to verify
+1. `/discover/14` — tap Stage 1 cards rapidly: no full page reload between wrappers (Network: no new document requests)
+2. Tap Ember Picks on a product row — examples load without document navigation
+3. `/discover` — instant server redirect (no "Loading discover…" flash)
+4. Return to `/discover` after browsing — resumes last section via cookie
+5. `pnpm -C web build` passes
+
 ## 2026-06-30 — perf(discover): Phase 1 server catalogue speed
 
 - **Public client:** `createPublicCatalogueClient()` — cookieless Supabase for gateway reads; safe inside `unstable_cache` (fixes May redirect-loop constraint)

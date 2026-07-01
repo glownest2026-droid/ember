@@ -30,7 +30,6 @@ import { DiscoverFigmaProductCarousel } from '@/components/discover/figma/Discov
 import { prefetchDiscoverImageUrls } from '@/lib/discover/discoverImageUrl';
 import {
   categoryTypesToPlayIdeaItems,
-  wrapperPlayIdeasCacheKey,
 } from '@/lib/discover/playIdeaItems';
 import { getWrapperIcon } from './_lib/wrapperIcons';
 import {
@@ -50,6 +49,7 @@ import {
 } from '@/lib/auth/requireAuthThen';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { saveDiscoverSession } from '@/lib/discover/discoverSession';
+import { useDiscoverClientSearchParams } from '@/lib/discover/discoverClientNav';
 
 /** A→B→C journey state: NoFocus | FocusSelected (Layer B visible) | CategorySelected | ShowingExamples (Layer C visible) */
 type DiscoverState = 'NoFocusSelected' | 'FocusSelected' | 'CategorySelected' | 'ShowingExamples';
@@ -74,13 +74,14 @@ interface DiscoveryPageClientProps {
   monthParam: number | null;
   resolutionDebug?: string | null;
   wrappers: Wrapper[];
-  selectedWrapperSlug: string | null;
-  showPicks: boolean;
-  picks: PickItem[];
   exampleProducts: PickItem[];
-  categoryTypes: GatewayCategoryTypePublic[];
   /** Preloaded Stage 2 cards for every wrapper (instant client-side wrapper switch). */
   categoriesByWrapper?: Record<string, GatewayCategoryTypePublic[]>;
+  /** @deprecated Query params are client-driven; kept for transitional compatibility. */
+  selectedWrapperSlug?: string | null;
+  showPicks?: boolean;
+  picks?: PickItem[];
+  categoryTypes?: GatewayCategoryTypePublic[];
   /** Gift-friendly product rows per wrapper slug (for Thea audience filtering). */
   giftFriendlyCountByWrapper?: Record<string, number>;
   bandHasGiftIdeas?: boolean;
@@ -101,12 +102,12 @@ export default function DiscoveryPageClient({
   monthParam,
   resolutionDebug,
   wrappers,
-  selectedWrapperSlug,
-  showPicks,
-  picks,
   exampleProducts,
-  categoryTypes,
   categoriesByWrapper = {},
+  selectedWrapperSlug: _selectedWrapperSlug = null,
+  showPicks: _showPicks = false,
+  picks: _picks = [],
+  categoryTypes: _categoryTypes = [],
   giftFriendlyCountByWrapper = {},
   bandHasGiftIdeas = false,
   bandHeroImageUrl = null,
@@ -143,7 +144,9 @@ export default function DiscoveryPageClient({
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
   const [ideasSectionInView, setIdeasSectionInView] = useState(false);
-  const [playIdeaCache, setPlayIdeaCache] = useState<Record<string, PlayIdeaItem[]>>({});
+  const [fetchedPicks, setFetchedPicks] = useState<PickItem[]>([]);
+  const [picksLoading, setPicksLoading] = useState(false);
+  const picksFetchKeyRef = useRef<string | null>(null);
   // Default parent view — most users are the parent; gift mode is opt-in only.
   const [audienceMode, setAudienceMode] = useState<DiscoverAudienceMode>('parent');
   const replayAttemptedRef = useRef(false);
@@ -151,7 +154,8 @@ export default function DiscoveryPageClient({
   const { user, refetch: refetchSubnavStats } = useSubnavStats();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const selectedChildId = searchParams.get('child') ?? initialChildId ?? undefined;
+  const { params: clientParams, replace: replaceClientParams } = useDiscoverClientSearchParams(pathname);
+  const selectedChildId = clientParams.get('child') ?? searchParams.get('child') ?? initialChildId ?? undefined;
   const withChildParam = (url: string) =>
     selectedChildId ? `${url}${url.includes('?') ? '&' : '?'}child=${encodeURIComponent(selectedChildId)}` : url;
 
@@ -222,9 +226,31 @@ export default function DiscoveryPageClient({
   // Persist discover position so /discover can resume this section after leaving the flow.
   useEffect(() => {
     if (!pathname?.startsWith('/discover')) return;
-    const query = searchParams?.toString();
+    const query = clientParams.toString();
     saveDiscoverSession(query ? `${pathname}?${query}` : pathname, selectedChildId);
-  }, [pathname, searchParams, selectedChildId]);
+  }, [pathname, clientParams, selectedChildId]);
+
+  const fetchPicksForCategory = useCallback(
+    async (categoryId: string) => {
+      if (!ageBand?.id) return;
+      const key = `${ageBand.id}|${categoryId}`;
+      if (picksFetchKeyRef.current === key) return;
+      picksFetchKeyRef.current = key;
+      setPicksLoading(true);
+      try {
+        const res = await fetch(
+          `/api/discover/picks?ageBandId=${encodeURIComponent(ageBand.id)}&categoryTypeId=${encodeURIComponent(categoryId)}`
+        );
+        const payload = (await res.json()) as { picks?: PickItem[] };
+        setFetchedPicks(payload.picks ?? []);
+      } catch {
+        setFetchedPicks([]);
+      } finally {
+        setPicksLoading(false);
+      }
+    },
+    [ageBand?.id]
+  );
 
   // Pre-dim Stage 2 cards the user has already marked as "have".
   useEffect(() => {
@@ -251,14 +277,7 @@ export default function DiscoveryPageClient({
     return () => {
       cancelled = true;
     };
-  }, [user, selectedChildId, selectedWrapperSlug, categoryTypes.length]);
-
-  const categoryFromUrl = searchParams.get('category');
-  useEffect(() => {
-    if (showPicks && categoryFromUrl && categoryTypes.some((c) => c.id === categoryFromUrl)) {
-      setSelectedCategoryId(categoryFromUrl);
-    }
-  }, [showPicks, categoryFromUrl, categoryTypes]);
+  }, [user, selectedChildId, clientParams.get('wrapper')]);
 
   const scrollToSection = useCallback(
     (id: string, behaviorOverride?: ScrollBehavior) => {
@@ -290,15 +309,6 @@ export default function DiscoveryPageClient({
       if (!run()) requestAnimationFrame(run);
     });
   }, []);
-
-  useEffect(() => {
-    if (showPicks) {
-      setShowingExamples(true);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'auto'));
-      });
-    }
-  }, [showPicks, scrollToSection]);
 
   useEffect(() => {
     if (!actionToast) return;
@@ -348,12 +358,35 @@ export default function DiscoveryPageClient({
 
   const propBandIndex = getBandIndexById(ageBand?.id ?? null);
   const [selectedBandIndex, setSelectedBandIndex] = useState(propBandIndex);
-  const [selectedWrapper, setSelectedWrapper] = useState<string | null>(selectedWrapperSlug);
+  const wrapperFromUrl = clientParams.get('wrapper');
+  const [selectedWrapper, setSelectedWrapper] = useState<string | null>(wrapperFromUrl);
 
   useEffect(() => {
     setSelectedBandIndex(propBandIndex);
-    setSelectedWrapper(selectedWrapperSlug);
-  }, [propBandIndex, selectedWrapperSlug]);
+  }, [propBandIndex]);
+
+  useEffect(() => {
+    setSelectedWrapper(wrapperFromUrl);
+  }, [wrapperFromUrl]);
+
+  const categoryFromUrl = clientParams.get('category');
+  const showFromUrl = clientParams.get('show') === '1';
+
+  useEffect(() => {
+    if (!showFromUrl || !categoryFromUrl || !wrapperFromUrl) return;
+    const types = categoriesByWrapper[wrapperFromUrl] ?? [];
+    if (!types.some((c) => c.id === categoryFromUrl)) return;
+    setSelectedCategoryId(categoryFromUrl);
+    setShowingExamples(true);
+    void fetchPicksForCategory(categoryFromUrl);
+  }, [showFromUrl, categoryFromUrl, wrapperFromUrl, categoriesByWrapper, fetchPicksForCategory]);
+
+  useEffect(() => {
+    if (!showFromUrl) return;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'auto'));
+    });
+  }, [showFromUrl, scrollToSection]);
 
   const selectedBand = ageBands[selectedBandIndex] ?? ageBand;
   const currentMonth = monthParam ?? 25;
@@ -378,7 +411,7 @@ export default function DiscoveryPageClient({
   }
 
   function getRetailerHostFromProductId(productId: string): string | null {
-    const all = [...picks, ...exampleProducts];
+    const all = [...fetchedPicks, ...exampleProducts];
     const pick = all.find((p) => p.product.id === productId);
     const url =
       pick?.product.canonical_url ||
@@ -427,34 +460,59 @@ export default function DiscoveryPageClient({
     setSelectedWrapper(wrapperSlug);
     setSelectedCategoryId(null);
     setShowingExamples(false);
+    setFetchedPicks([]);
+    picksFetchKeyRef.current = null;
     setPendingScrollToNextSteps(true);
-    const cached = playIdeaCache[wrapperPlayIdeasCacheKey(ageBand?.id, wrapperSlug)];
-    if (cached?.length) prefetchDiscoverImageUrls(cached.map((item) => item.imageUrl), 'card');
-    router.push(withChildParam(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`), { scroll: false });
+    const types = categoriesByWrapper[wrapperSlug] ?? [];
+    if (types.length > 0) {
+      const items = categoryTypesToPlayIdeaItems(types, formatBandLabel(selectedBand));
+      prefetchDiscoverImageUrls(items.map((item) => item.imageUrl), 'card');
+    }
+    replaceClientParams((p) => {
+      p.set('wrapper', wrapperSlug);
+      p.delete('show');
+      p.delete('category');
+      p.delete('review');
+    });
   };
 
   const prefetchWrapper = useCallback(
     (wrapperSlug: string) => {
-      router.prefetch(withChildParam(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(wrapperSlug)}`));
-      const cached = playIdeaCache[wrapperPlayIdeasCacheKey(ageBand?.id, wrapperSlug)];
-      if (cached?.length) prefetchDiscoverImageUrls(cached.map((item) => item.imageUrl), 'card');
+      const types = categoriesByWrapper[wrapperSlug] ?? [];
+      if (types.length > 0) {
+        const items = categoryTypesToPlayIdeaItems(types, formatBandLabel(selectedBand));
+        prefetchDiscoverImageUrls(items.map((item) => item.imageUrl), 'card');
+      }
     },
-    [router, withChildParam, basePath, currentMonth, ageBand?.id, playIdeaCache]
+    [categoriesByWrapper, selectedBand]
   );
 
   const handleDiscoverStartOver = useCallback(() => {
     setSelectedWrapper(null);
     setSelectedCategoryId(null);
     setShowingExamples(false);
-    router.push(withChildParam(`${basePath}/${currentMonth}`), { scroll: false });
+    setFetchedPicks([]);
+    picksFetchKeyRef.current = null;
+    replaceClientParams((p) => {
+      p.delete('wrapper');
+      p.delete('show');
+      p.delete('category');
+      p.delete('review');
+      p.delete('focus');
+    });
     const top = document.getElementById('discover-figma-stage1');
     top?.scrollIntoView({ behavior: shouldReduceMotion ? 'auto' : 'smooth', block: 'start' });
-  }, [basePath, currentMonth, router, shouldReduceMotion, withChildParam]);
+  }, [replaceClientParams, shouldReduceMotion]);
 
   const handleShowExamples = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
     setShowingExamples(true);
-    router.push(withChildParam(`${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper!)}&show=1&category=${encodeURIComponent(categoryId)}`), { scroll: false });
+    replaceClientParams((p) => {
+      if (selectedWrapper) p.set('wrapper', selectedWrapper);
+      p.set('show', '1');
+      p.set('category', categoryId);
+    });
+    void fetchPicksForCategory(categoryId);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'auto'));
     });
@@ -797,23 +855,17 @@ export default function DiscoveryPageClient({
           setSelectedWrapper(null);
           setSelectedCategoryId(null);
           setShowingExamples(false);
-          router.push(withChildParam(`${basePath}/${currentMonth}`), { scroll: false });
+          setFetchedPicks([]);
+          picksFetchKeyRef.current = null;
+          replaceClientParams((p) => {
+            p.delete('wrapper');
+            p.delete('show');
+            p.delete('category');
+          });
         }
       }
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => scrollToSection('discover-audience-developments'));
-      });
     },
-    [
-      audienceMode,
-      selectedWrapper,
-      giftFriendlyCountByWrapper,
-      router,
-      withChildParam,
-      basePath,
-      currentMonth,
-      scrollToSection,
-    ]
+    [audienceMode, selectedWrapper, giftFriendlyCountByWrapper, replaceClientParams]
   );
 
   const selectedWrapperLabel =
@@ -829,7 +881,8 @@ export default function DiscoveryPageClient({
 
   const sliderProgress = ageBands.length > 0 ? (selectedBandIndex / Math.max(1, ageBands.length - 1)) * 100 : 0;
 
-  const displayIdeas = showPicks && picks.length > 0 ? picks : exampleProducts;
+  const displayIdeas =
+    showingExamples && fetchedPicks.length > 0 ? fetchedPicks : exampleProducts;
 
   const shortlistTrackKeyRef = useRef<string | null>(null);
   useEffect(() => {
@@ -1073,35 +1126,11 @@ export default function DiscoveryPageClient({
   const scienceBody = (selectedWrapperRecord?.ux_description || '').trim();
   const bandLabelForIdeas = formatBandLabel(selectedBand);
 
-  useEffect(() => {
-    if (!selectedWrapperSlug || !ageBand?.id || categoryTypes.length === 0) return;
-    const key = wrapperPlayIdeasCacheKey(ageBand.id, selectedWrapperSlug);
-    const items = categoryTypesToPlayIdeaItems(categoryTypes, bandLabelForIdeas);
-    setPlayIdeaCache((prev) => ({ ...prev, [key]: items }));
-  }, [selectedWrapperSlug, categoryTypes, ageBand?.id, bandLabelForIdeas]);
-
   const playIdeaItems = useMemo(() => {
     if (!selectedWrapper) return [];
-    if (selectedWrapper === selectedWrapperSlug) {
-      return categoryTypesToPlayIdeaItems(categoryTypes, bandLabelForIdeas);
-    }
-    const cacheKey = wrapperPlayIdeasCacheKey(ageBand?.id, selectedWrapper);
-    const cached = playIdeaCache[cacheKey];
-    if (cached?.length) return cached;
-    const preloaded = categoriesByWrapper[selectedWrapper];
-    if (preloaded?.length) {
-      return categoryTypesToPlayIdeaItems(preloaded, bandLabelForIdeas);
-    }
-    return [];
-  }, [
-    selectedWrapper,
-    selectedWrapperSlug,
-    categoryTypes,
-    categoriesByWrapper,
-    playIdeaCache,
-    ageBand?.id,
-    bandLabelForIdeas,
-  ]);
+    const types = categoriesByWrapper[selectedWrapper] ?? [];
+    return categoryTypesToPlayIdeaItems(types, bandLabelForIdeas);
+  }, [selectedWrapper, categoriesByWrapper, bandLabelForIdeas]);
 
   const laneForItem = useCallback((item: PlayIdeaItem): 'useful_ideas' | 'quick_checks' | 'things_that_can_help' => {
     if (item.uiLane === 'useful_ideas' || item.uiLane === 'quick_checks' || item.uiLane === 'things_that_can_help') {
@@ -1159,7 +1188,7 @@ export default function DiscoveryPageClient({
         ? `Ideas for “${ideasDevelopmentName}”`
         : 'Ideas to try';
   // Show the Start over control only while ideas are available to reset.
-  const startOverVisible = Boolean(selectedWrapper || (showPicks && displayIdeas.length > 0));
+  const startOverVisible = Boolean(selectedWrapper || (showingExamples && displayIdeas.length > 0));
   // Snag #6: the floating FAB is gated on the "Ideas for…" section being in view.
   const showStartOverFab = startOverVisible && ideasSectionInView;
   const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
@@ -1213,11 +1242,36 @@ export default function DiscoveryPageClient({
           bandLabel={bandLabel}
           bandRange={bandRange}
           isExpecting={isExpecting}
-          heroImageUrl={categoryTypes[0]?.image_url ?? bandHeroImageUrl ?? exampleProducts[0]?.product?.image_url ?? null}
+          heroImageUrl={
+            (selectedWrapper ? categoriesByWrapper[selectedWrapper]?.[0]?.image_url : null) ??
+            bandHeroImageUrl ??
+            exampleProducts[0]?.product?.image_url ??
+            null
+          }
           selectedBandIndex={selectedBandIndex}
           bandCount={ageBands.length}
           sliderProgress={sliderProgress}
           onBandIndexChange={setSelectedBandIndex}
+          audienceToggle={
+            selectedBandHasStage12Data && bandHasGiftIdeas ? (
+              <DiscoverAudienceToggle
+                variant="inline"
+                mode={audienceMode}
+                onChange={handleAudienceModeChange}
+                bandLabel={bandLabel}
+              />
+            ) : undefined
+          }
+          audienceToggleMobile={
+            selectedBandHasStage12Data && bandHasGiftIdeas ? (
+              <DiscoverAudienceToggle
+                variant="card"
+                mode={audienceMode}
+                onChange={handleAudienceModeChange}
+                bandLabel={bandLabel}
+              />
+            ) : undefined
+          }
         />
         </section>
 
@@ -1227,14 +1281,6 @@ export default function DiscoveryPageClient({
 
         {selectedBandHasStage12Data ? (
           <>
-            {bandHasGiftIdeas ? (
-              <DiscoverAudienceToggle
-                mode={audienceMode}
-                onChange={handleAudienceModeChange}
-                bandLabel={bandLabel}
-              />
-            ) : null}
-
             <section id="discover-audience-developments" className="flex flex-col gap-5 scroll-mt-[calc(var(--header-height,88px)+12px)]">
               <div>
                 <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
@@ -1486,7 +1532,11 @@ export default function DiscoveryPageClient({
                   />
                   <p className="text-xs text-[var(--ember-text-low)] mt-2">Chosen for {chosenForLabel}</p>
                 </div>
-                {displayIdeas.length === 0 ? (
+                {picksLoading ? (
+                  <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]" aria-busy="true">
+                    Loading examples…
+                  </div>
+                ) : displayIdeas.length === 0 ? (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]">
                     Examples coming soon
                   </div>
