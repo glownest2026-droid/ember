@@ -1,3 +1,16 @@
+## 2026-07-01 — feat(discover): 1–3m Conor+Thea depth v2 (more purchase depth)
+
+- **Source:** `02_Ember_Bible_1_3m_Conor_Thea_Depth_v2_more_purchase_depth.xlsx` (`discover_projection`) — replaces v1 workbook
+- **Migration:** `20260701140000_reimport_discover_1_3m_conor_thea_depth_v2.sql` — **55** workbook rows → **53** junction rows (10 clusters), **26** `gift_friendly` product rows (was 16 in v1); Stage 3 active = 0; applied via `supabase db push`
+- **Depth:** More `things_that_can_help` product cards with ownership / buy-borrow copy across child clusters
+- **Snag (unchanged from v1):** `cat_high_contrast_cards` under **I'm finding your face** maps `ent_need_visual_tracking` — won't surface on faces carousel; 2 slug collisions deduped (`cat_board_books`, `cat_high_contrast_cards`)
+
+### How to verify
+1. `/discover/2` → **I'm the parent** — 10 Stage 1 cards; heavier product lane vs v1
+2. `/discover/2` → **Buying a gift** — gift carousels populated on child clusters
+3. REST `v_gateway_category_types_public?age_band_id=eq.1-3m` → 53 rows, 26 with `gift_friendly=true`
+4. `pnpm -C web build` passes
+
 ## 2026-07-01 — feat(discover): 1–3m Conor+Thea depth v1 catalogue rebuild
 
 - **Source:** `02_Ember_Bible_1_3m_Conor_Thea_Depth_v1.xlsx` (`discover_projection`)
