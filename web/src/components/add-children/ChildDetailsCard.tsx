@@ -11,6 +11,7 @@ interface ChildDetailsCardProps {
   gender: string;
   setGender: (value: string) => void;
   onPrivacyClick: () => void;
+  compact?: boolean;
 }
 
 /** Child details: optional call name (Figma), DOB, gender. */
@@ -22,16 +23,21 @@ export function ChildDetailsCard({
   gender,
   setGender,
   onPrivacyClick,
+  compact = false,
 }: ChildDetailsCardProps) {
+  const blockGap = compact ? 'mb-4' : 'mb-6';
+  const cardPad = compact ? 'p-4 md:p-5' : 'p-6';
+  const headerGap = compact ? 'mb-4' : 'mb-6';
+
   return (
-    <div className="bg-white rounded-3xl border border-[var(--ember-border-subtle)] p-6 mb-6 shadow-sm">
-      <div className="flex items-center gap-2 mb-6">
+    <div className={`bg-white rounded-3xl border border-[var(--ember-border-subtle)] ${cardPad} shadow-sm`}>
+      <div className={`flex items-center gap-2 ${headerGap}`}>
         <Heart className="w-5 h-5 text-[var(--ember-accent-base)]" strokeWidth={2} fill="currentColor" />
         <h2 className="text-lg font-medium text-[var(--ember-text-high)]">Tell us about them</h2>
       </div>
 
       {/* Name input (Figma: "What do you call them?" optional) */}
-      <div className="mb-6">
+      <div className={blockGap}>
         <label htmlFor="childName" className="block text-sm font-medium text-[var(--ember-text-high)] mb-2">
           What do you call them? <span className="font-normal text-[var(--ember-text-low)]">(optional)</span>
         </label>
@@ -45,7 +51,7 @@ export function ChildDetailsCard({
         />
       </div>
 
-      <div className="mb-6">
+      <div className={blockGap}>
         <label htmlFor="dateOfBirth" className="block text-sm font-medium text-[var(--ember-text-high)] mb-2">
           When were they born?
         </label>

@@ -7,6 +7,7 @@ interface PersonalisationCardProps {
   setRemindersEnabled: (value: boolean) => void;
   reminderFrequency: string;
   setReminderFrequency: (value: string) => void;
+  compact?: boolean;
 }
 
 /** UI only — not persisted to DB. */
@@ -15,14 +16,18 @@ export function PersonalisationCard({
   setRemindersEnabled,
   reminderFrequency,
   setReminderFrequency,
+  compact = false,
 }: PersonalisationCardProps) {
+  const cardPad = compact ? 'p-4 md:p-5' : 'p-6';
+  const descGap = compact ? 'mb-3' : 'mb-6';
+
   return (
-    <div className="bg-white rounded-3xl border border-[var(--ember-border-subtle)] p-6 mb-6 shadow-sm">
+    <div className={`bg-white rounded-3xl border border-[var(--ember-border-subtle)] ${cardPad} shadow-sm h-full`}>
       <div className="flex items-center gap-2 mb-2">
         <Bell className="w-5 h-5 text-[var(--ember-accent-base)]" strokeWidth={2} />
         <h2 className="text-lg font-medium text-[var(--ember-text-high)]">Get toy recommendations</h2>
       </div>
-      <p className="text-xs text-[var(--ember-text-low)] mb-6">
+      <p className={`text-xs text-[var(--ember-text-low)] ${descGap}`}>
         We&apos;ll suggest new toys as they grow and learn
       </p>
       <div className="mb-4">
