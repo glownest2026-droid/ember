@@ -89,15 +89,15 @@ function MarketingPanel({ isEdit }: { isEdit: boolean }) {
         <div>
           <h3 className={`text-base font-semibold ${EMBER_FIGMA_TEXT}`}>Proactive parental purchasing</h3>
           <p className={`mt-1.5 text-sm leading-relaxed ${EMBER_FIGMA_MUTED}`}>
-            Ember spots what&apos;s changing at their stage — so you know when to buy, borrow, or bring something back
-            out, without the usual last-minute scramble.
+            Ember spots what&apos;s changing at their stage, so you know when to buy, borrow, or bring something back
+            out without the usual last-minute scramble.
           </p>
         </div>
         <OrangeIconTile icon={ShoppingBag} title="Right toy, right time">
-          Play ideas and shortlists matched to what they&apos;re practising now — not a catalogue dump.
+          Play ideas and shortlists matched to what they&apos;re practising now, not a catalogue dump.
         </OrangeIconTile>
         <OrangeIconTile icon={Shield} title="You stay in control">
-          Edit or delete this profile anytime. We never sell your data.
+          Edit or delete this profile anytime.
         </OrangeIconTile>
       </div>
     </div>
@@ -233,11 +233,10 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
           </button>
         </div>
 
-        {/* Mobile: marketing snippet above form */}
-        <div className={`mb-5 lg:hidden ${EMBER_FIGMA_MUTED} text-center text-sm`}>
-          <Sparkles className="mx-auto mb-2 h-5 w-5" style={{ color: ACCENT }} strokeWidth={2} />
-          Tell us their age — we&apos;ll tailor Discover to their stage.
-        </div>
+        {/* Mobile: page title */}
+        <h2 className={`mb-5 text-center text-xl font-semibold lg:hidden ${EMBER_FIGMA_TEXT}`}>
+          {isEdit ? 'Edit child' : 'Add a child'}
+        </h2>
 
         <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-12 xl:gap-16">
           {/* Left — form */}
@@ -310,7 +309,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
                         onChange={(e) => setGender(e.target.value)}
                         className={INPUT_CLASS}
                       >
-                        <option value="">—</option>
+                        <option value="">Select</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
                         <option value="other">Other</option>
@@ -348,10 +347,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
                     <span>Saving…</span>
                   </>
                 ) : (
-                  <>
-                    <Sparkles className="h-5 w-5" strokeWidth={2} />
-                    <span>{submitLabel}</span>
-                  </>
+                  <span>{submitLabel}</span>
                 )}
               </button>
             </form>
