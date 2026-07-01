@@ -1,3 +1,25 @@
+## 2026-07-01 — fix(discover): hero layout + navbar Manrope typography
+
+- **Typography:** Hero `h1` and navbar both use Manrope (`--font-sans` / `font-sans`) — fixes serif/sans mismatch from brandbook `h1` rule.
+- **Hero layout (desktop):** Parent/gift toggle on same row as age chip, right-aligned above hero image.
+- **Hero layout (desktop):** Image height stretches to match description + age slider block (grid row symmetry).
+- **Files:** `globals.css`, `layout.tsx`, `navStyles.ts`, `DiscoverFigmaChildHero.tsx`, `DiscoverAudienceToggle.tsx`, `DiscoveryPageClient.tsx`.
+
+### How to verify
+1. `/discover/14` desktop — age chip top-left, parent/gift toggle top-right above image.
+2. Image bottom aligns with age slider card bottom; description + slider fill the left column beside the image.
+3. Navbar and hero headline share Manrope in DevTools computed styles.
+4. Mobile — toggle still appears below slider (unchanged flow).
+
+## 2026-07-01 — fix(typography): navbar matches discover hero Manrope
+
+- **Issue:** Hero headline (`h1`) used brandbook serif via global `h1` rule; navbar used Manrope via `discoverManrope.className` — visually mismatched.
+- **Fix:** Figma app shell (`ember-figma-app`) forces `h1`/`h2` and nav links to `var(--font-sans)` (Manrope); hero `h1` gets explicit `font-sans`; `ember-figma-app` on `<html>` for SSR.
+
+### How to verify
+1. Open `/discover/14` — inspect navbar links and “What your child’s practising now” headline: both should be Manrope (not Source Serif).
+2. DevTools → Computed → `font-family` on both elements should match.
+
 ## 2026-06-30 — perf(discover): Phase 2 client navigation and ISR shell
 
 - **Client nav:** `discoverClientNav.ts` — wrapper/show/category URL updates via `history.pushState` (no RSC refetch on Stage 1/2 taps)

@@ -9,12 +9,12 @@ export function figmaDesktopNavLinkClass(active: boolean): string {
 }
 
 export function figmaMutedNavLinkClass(active = false): string {
-  return `cursor-pointer text-base font-medium transition-colors whitespace-nowrap ${
+  return `font-sans cursor-pointer text-base font-medium transition-colors whitespace-nowrap ${
     active ? 'text-[#253044]' : 'text-[#66717D] hover:text-[#253044]'
   }`;
 }
 
-export const FIGMA_LOGO_WORDMARK_CLASS = 'font-bold text-xl text-[#253044]';
+export const FIGMA_LOGO_WORDMARK_CLASS = 'font-sans font-bold text-xl text-[#253044]';
 
 export const FIGMA_CHILD_PILL_CLASS =
   'flex cursor-pointer items-center gap-2 rounded-full border border-[#E7E2DC] bg-white px-3 py-1.5 transition-colors hover:bg-slate-50';

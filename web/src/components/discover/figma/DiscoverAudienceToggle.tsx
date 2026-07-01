@@ -6,10 +6,12 @@ export function DiscoverAudienceToggle({
   mode,
   onChange,
   bandLabel,
+  className = '',
 }: {
   mode: DiscoverAudienceMode;
   onChange: (mode: DiscoverAudienceMode) => void;
   bandLabel: string;
+  className?: string;
 }) {
   const helper =
     mode === 'parent'
@@ -18,7 +20,7 @@ export function DiscoverAudienceToggle({
 
   return (
     <section
-      className="rounded-[20px] border border-[#E7E2DC] bg-white p-4 md:p-5 shadow-sm"
+      className={`rounded-[20px] border border-[#E7E2DC] bg-white p-4 md:p-4 shadow-sm md:max-w-[22rem] md:w-full ${className}`.trim()}
       aria-label="Who is this page for?"
     >
       <p className="text-[13px] font-semibold text-[#66717D] m-0 mb-3">Who is this for?</p>

@@ -1261,6 +1261,15 @@ export default function DiscoveryPageClient({
           bandCount={ageBands.length}
           sliderProgress={sliderProgress}
           onBandIndexChange={setSelectedBandIndex}
+          audienceToggle={
+            selectedBandHasStage12Data && bandHasGiftIdeas ? (
+              <DiscoverAudienceToggle
+                mode={audienceMode}
+                onChange={handleAudienceModeChange}
+                bandLabel={bandLabel}
+              />
+            ) : undefined
+          }
         />
         </section>
 
@@ -1270,14 +1279,6 @@ export default function DiscoveryPageClient({
 
         {selectedBandHasStage12Data ? (
           <>
-            {bandHasGiftIdeas ? (
-              <DiscoverAudienceToggle
-                mode={audienceMode}
-                onChange={handleAudienceModeChange}
-                bandLabel={bandLabel}
-              />
-            ) : null}
-
             <section id="discover-audience-developments" className="flex flex-col gap-5 scroll-mt-[calc(var(--header-height,88px)+12px)]">
               <div>
                 <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
