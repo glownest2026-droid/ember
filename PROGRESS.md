@@ -1,3 +1,17 @@
+## 2026-07-01 — feat(discover): 31–33m Conor+Thea depth v2
+
+- **Source:** `02_Ember_Bible_31_33m_Conor_Thea_Depth_v2.xlsx` (`discover_projection`) — replaces legacy ABI v8 child-voice band
+- **Migrations:** `20260701180000_reimport_discover_31_33m_conor_thea_depth_v2.sql` + `20260701180100_fix_31_33m_wrapper_needs.sql`; applied via `supabase db push`
+- **Counts:** 60 workbook rows → **60** junction rows, **8** Stage 1 clusters, **35** `gift_friendly` product rows, Stage 3 active = 0; **0** slug dedupes
+- **Wiring:** One `ent_need_31_33_*` per cluster in `v_gateway_age_band_wrapper_needs_public`
+- **Cache:** `GATEWAY_CATALOGUE_CACHE_VERSION = 20260701e`
+
+### How to verify
+1. `/discover/32` → **I'm the parent** — 8 child-voice Stage 1 cards; three lanes on Stage 2
+2. `/discover/32` → **Buying a gift** — gift carousels on all 8 clusters
+3. `/discover/32?wrapper=ent_cluster_hands_make_more&show=1` → **Twist, turn and peg puzzles**
+4. REST `v_gateway_category_types_public?age_band_id=eq.31-33m` → 60 rows, 35 with `gift_friendly=true`
+
 ## 2026-07-01 — feat(discover): 1–3m Conor+Thea depth v2 (more purchase depth)
 
 - **Source:** `02_Ember_Bible_1_3m_Conor_Thea_Depth_v2_more_purchase_depth.xlsx` (`discover_projection`) — replaces v1 workbook
