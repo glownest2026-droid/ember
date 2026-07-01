@@ -19,6 +19,7 @@ import { ValidationErrorSheet } from './ValidationErrorSheet';
 import { OlderChildSheet } from './OlderChildSheet';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import { discoverPathForChild } from '@/lib/discover/personalization';
 import { EVENTS } from '@/lib/analytics/eventNames';
 import { trackEvent } from '@/lib/analytics/trackEvent';
 import {
@@ -168,8 +169,11 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
       router.push(
         isEdit && initial?.id
           ? `/family?saved=1&child=${encodeURIComponent(initial.id)}`
-          : '/discover'
+          : result.childId
+            ? discoverPathForChild(result.childId, dateOfBirth)
+            : '/discover'
       );
+      router.refresh();
     });
   };
 
@@ -193,8 +197,11 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
       router.push(
         isEdit && initial?.id
           ? `/family?saved=1&child=${encodeURIComponent(initial.id)}`
-          : '/discover'
+          : result.childId
+            ? discoverPathForChild(result.childId, dateOfBirth)
+            : '/discover'
       );
+      router.refresh();
     });
   };
 
