@@ -864,17 +864,8 @@ export default function DiscoveryPageClient({
           });
         }
       }
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => scrollToSection('discover-audience-developments'));
-      });
     },
-    [
-      audienceMode,
-      selectedWrapper,
-      giftFriendlyCountByWrapper,
-      replaceClientParams,
-      scrollToSection,
-    ]
+    [audienceMode, selectedWrapper, giftFriendlyCountByWrapper, replaceClientParams]
   );
 
   const selectedWrapperLabel =

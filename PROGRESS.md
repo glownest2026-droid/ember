@@ -3,7 +3,8 @@
 - **Typography:** Hero `h1` and navbar both use Manrope (`--font-sans` / `font-sans`) — fixes serif/sans mismatch from brandbook `h1` rule.
 - **Hero layout (desktop):** Parent/gift toggle on same row as age chip, right-aligned above hero image.
 - **Hero layout (desktop):** Image height stretches to match description + age slider block (grid row symmetry).
-- **Add-child:** Single centre column (hero + compact one-card form); marketing copy in left rail on desktop; removed duplicate page header and non-persisted reminder/co-parent cards; inline submit with consent in-form.
+- **Add-child:** Figma shell styling (warm `#FBFAF7`, Manrope, orange icons); form left / marketing right on desktop; edit saves return to `/family?saved=1&child=…`.
+- **Discover toggle:** Removed auto-scroll to developments section on parent/gift switch (toggle is now at top).
 - **Files:** `globals.css`, `layout.tsx`, `navStyles.ts`, `DiscoverFigmaChildHero.tsx`, `DiscoverAudienceToggle.tsx`, `DiscoveryPageClient.tsx`, `AddChildForm.tsx`, card components.
 
 ### How to verify

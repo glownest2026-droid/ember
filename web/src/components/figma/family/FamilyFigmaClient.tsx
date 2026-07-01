@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import { Plus, Sparkles, Eye, RefreshCw, ArrowRight, Gift, Search, Camera, Check, Trash2 } from 'lucide-react';
+import { Plus, Sparkles, Eye, RefreshCw, ArrowRight, Gift, Search, Camera, Check, Trash2, Pencil } from 'lucide-react';
 import { ShareYourGiftListWidget } from './ShareYourGiftListWidget';
 import type { FamilyChild } from './ChildProfileCard';
 import type { ChildStats } from './ChildProfileCard';
@@ -495,19 +495,31 @@ export function FamilyFigmaClient({
                   Add child
                 </Link>
                 {children.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setRemoveChildError(null);
-                      setRemoveChildOpen(true);
-                    }}
-                    disabled={!removeTargetChild}
-                    title={removeTargetChild ? `Remove ${removeTargetLabel}` : 'Select a child to remove'}
-                    className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium border border-[#E5E7EB] text-[#5C646D] hover:bg-[#FFF1F0] hover:text-[#B8432B] hover:border-[#FFB4A8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#5C646D] disabled:hover:border-[#E5E7EB]"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Remove child
-                  </button>
+                  <>
+                    <Link
+                      href={removeTargetChild ? `/add-children/${removeTargetChild.id}` : '#'}
+                      aria-disabled={!removeTargetChild}
+                      title={removeTargetChild ? `Edit ${removeTargetLabel}` : 'Select a child to edit'}
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium border border-[#E5E7EB] text-[#5C646D] hover:bg-[#FFF5F3] hover:text-[#FF6347] hover:border-[#FF6347] transition-colors aria-disabled:pointer-events-none aria-disabled:opacity-50"
+                      tabIndex={removeTargetChild ? 0 : -1}
+                    >
+                      <Pencil className="w-4 h-4" />
+                      Edit child
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRemoveChildError(null);
+                        setRemoveChildOpen(true);
+                      }}
+                      disabled={!removeTargetChild}
+                      title={removeTargetChild ? `Remove ${removeTargetLabel}` : 'Select a child to remove'}
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium border border-[#E5E7EB] text-[#5C646D] hover:bg-[#FFF1F0] hover:text-[#B8432B] hover:border-[#FFB4A8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[#5C646D] disabled:hover:border-[#E5E7EB]"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Remove child
+                    </button>
+                  </>
                 )}
               </div>
             </div>
