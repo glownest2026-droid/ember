@@ -597,7 +597,7 @@ WHERE ct_slug.id IS NULL
 ON CONFLICT (slug) DO NOTHING;
 
 CREATE TEMP TABLE tmp_discover_resolved_need_category AS
-SELECT DISTINCT
+SELECT DISTINCT ON (s.age_band_id, dn.id, ct.id)
   s.age_band_id,
   dn.id AS development_need_id,
   ct.id AS category_type_id,
@@ -644,7 +644,13 @@ JOIN LATERAL (
     END,
     c.id
   LIMIT 1
-) ct ON true;
+) ct ON true
+ORDER BY
+  s.age_band_id,
+  dn.id,
+  ct.id,
+  s.stage1_wrapper_rank_in_band DESC,
+  s.stage2_play_ideas_rank ASC;
 
 UPDATE public.pl_age_band_development_need_category_types m
 SET
