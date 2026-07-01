@@ -2,11 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, HelpCircle, Sparkles } from 'lucide-react';
+import { ArrowLeft, Calendar, HelpCircle, Info, Sparkles } from 'lucide-react';
 import { saveChild, deleteChild } from '@/lib/children/actions';
-import { ChildDetailsCard } from './ChildDetailsCard';
-import { PersonalisationCard } from './PersonalisationCard';
-import { CoParentCard } from './CoParentCard';
 import { PrivacySheet } from './PrivacySheet';
 import { ValidationErrorSheet } from './ValidationErrorSheet';
 import { OlderChildSheet } from './OlderChildSheet';
@@ -23,36 +20,8 @@ type ChildData = {
 };
 
 const HERO_IMAGE = '/home/hero.webp';
-
-function SubmitButton({
-  isPending,
-  label,
-  className = '',
-}: {
-  isPending: boolean;
-  label: string;
-  className?: string;
-}) {
-  return (
-    <button
-      type="submit"
-      disabled={isPending}
-      className={`w-full py-3.5 md:py-3 bg-[var(--ember-accent-base)] text-white rounded-xl font-semibold text-base hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_8px_32px_rgba(255,99,71,0.3)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${className}`}
-    >
-      {isPending ? (
-        <>
-          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          <span>Saving…</span>
-        </>
-      ) : (
-        <>
-          <Sparkles className="w-5 h-5" strokeWidth={2} />
-          <span>{label}</span>
-        </>
-      )}
-    </button>
-  );
-}
+const INPUT_CLASS =
+  'w-full px-3.5 py-2.5 rounded-xl border border-[var(--ember-border-subtle)] bg-white text-[var(--ember-text-high)] text-base placeholder:text-[var(--ember-text-low)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--ember-accent-base)] focus:border-transparent transition-all input';
 
 export function AddChildForm({ initial, backHref = '/family' }: { initial?: ChildData; backHref?: string }) {
   const [showPrivacySheet, setShowPrivacySheet] = useState(false);
@@ -67,11 +36,9 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
   const [dateOfBirth, setDateOfBirth] = useState(initial?.birthdate ?? '');
   const [gender, setGender] = useState(initial?.gender ?? '');
   const [consentGiven, setConsentGiven] = useState(!!initial?.id);
-  const [remindersEnabled, setRemindersEnabled] = useState(true);
-  const [reminderFrequency, setReminderFrequency] = useState('monthly');
-  const [coParentEmail, setCoParentEmail] = useState('');
 
   const submitLabel = initial?.id ? 'Save changes' : 'Add a child';
+  const isEdit = !!initial?.id;
 
   const runSubmit = () => {
     setError(null);
@@ -80,7 +47,7 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
       return;
     }
     if (!consentGiven) {
-      setError('Please confirm consent to store the profile');
+      setError('Please tick the box to confirm we can store this profile');
       return;
     }
     const dob = new Date(dateOfBirth);
@@ -103,19 +70,18 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
       try {
         const supabase = createClient();
         const { data } = await supabase.auth.getUser();
-        if (data.user?.id) {
-          const eventName =
-            result?.action === 'updated' ? EVENTS.CHILD_PROFILE_UPDATED : EVENTS.CHILD_PROFILE_CREATED;
-          if (result?.childId) {
-            trackEvent(eventName, {
+        if (data.user?.id && result?.childId) {
+          trackEvent(
+            result?.action === 'updated' ? EVENTS.CHILD_PROFILE_UPDATED : EVENTS.CHILD_PROFILE_CREATED,
+            {
               user_id: data.user.id,
               child_id: result.childId,
               age_band_id: result.age_band_id ?? null,
-            });
-          }
+            }
+          );
         }
       } catch {
-        // Fail closed: don't block UX.
+        // Fail closed
       }
 
       router.push('/discover');
@@ -139,25 +105,6 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
         setError(result.error);
         return;
       }
-
-      try {
-        const supabase = createClient();
-        const { data } = await supabase.auth.getUser();
-        if (data.user?.id) {
-          const eventName =
-            result?.action === 'updated' ? EVENTS.CHILD_PROFILE_UPDATED : EVENTS.CHILD_PROFILE_CREATED;
-          if (result?.childId) {
-            trackEvent(eventName, {
-              user_id: data.user.id,
-              child_id: result.childId,
-              age_band_id: result.age_band_id ?? null,
-            });
-          }
-        }
-      } catch {
-        // Fail closed
-      }
-
       router.push('/discover');
     });
   };
@@ -178,164 +125,199 @@ export function AddChildForm({ initial, backHref = '/family' }: { initial?: Chil
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[var(--ember-accent-base)]/5 to-white">
-      <header className="bg-white/90 backdrop-blur-sm border-b border-[var(--ember-border-subtle)] sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 md:py-4 flex items-center justify-between">
-          <Link
-            href={backHref}
-            className="p-2 -ml-2 hover:bg-[var(--ember-surface-soft)] rounded-full transition-colors"
-            aria-label="Back"
-          >
-            <ArrowLeft className="w-5 h-5 text-[var(--ember-text-high)]" strokeWidth={2} />
-          </Link>
-          <h1 className="text-lg md:text-xl font-medium text-[var(--ember-text-high)]">
-            {initial?.id ? 'Edit child' : 'Add a child'}
-          </h1>
-          <button
-            type="button"
-            onClick={() => setShowPrivacySheet(true)}
-            className="p-2 -mr-2 hover:bg-[var(--ember-surface-soft)] rounded-full transition-colors"
-            aria-label="Privacy information"
-          >
-            <HelpCircle className="w-5 h-5 text-[var(--ember-text-low)]" strokeWidth={2} />
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-5 md:py-6 pb-36 md:pb-8">
-        {/* Mobile: hero + intro stacked */}
-        <div className="md:hidden mb-6">
-          <div className="mb-5 rounded-2xl overflow-hidden shadow-md">
-            <img src={HERO_IMAGE} alt="" className="w-full h-36 object-cover" />
-          </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Sparkles className="w-5 h-5 text-[var(--ember-accent-base)]" strokeWidth={2} />
-              <h2 className="text-2xl font-semibold text-[var(--ember-text-high)]">Start their journey</h2>
-              <Sparkles className="w-5 h-5 text-[var(--ember-accent-base)]" strokeWidth={2} />
-            </div>
-            <p className="text-[var(--ember-text-low)] text-base leading-relaxed">
-              We&apos;ll curate toys and activities for their stage
-            </p>
-          </div>
-        </div>
-
-        <div className="md:grid md:grid-cols-[minmax(220px,280px)_1fr] md:gap-8 lg:gap-10 md:items-start">
-          {/* Desktop: compact intro rail */}
-          <aside className="hidden md:block md:sticky md:top-[4.5rem]">
-            <div className="rounded-2xl overflow-hidden shadow-md mb-4">
-              <img src={HERO_IMAGE} alt="" className="w-full h-36 object-cover" />
-            </div>
-            <h2 className="text-xl font-semibold text-[var(--ember-text-high)] mb-2">Start their journey</h2>
-            <p className="text-sm text-[var(--ember-text-low)] leading-relaxed">
-              We&apos;ll curate toys and activities to support their development at every stage.
+      <main className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:py-6 pb-28 lg:pb-8">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)_minmax(0,1fr)] lg:items-start lg:gap-x-10 xl:gap-x-14">
+          {/* Left rail — marketing copy off the form column */}
+          <aside className="hidden lg:block lg:sticky lg:top-24 lg:pt-2">
+            <h2 className="text-2xl font-semibold leading-tight text-[var(--ember-text-high)]">
+              Start their journey
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-[var(--ember-text-low)]">
+              We&apos;ll curate toys and activities to support their development at every stage — starting with their
+              age.
             </p>
           </aside>
 
+          {/* Centre — hero + compact form */}
           <div className="min-w-0">
-            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-3">
-              {error && (
-                <div className="rounded-xl bg-red-100 p-3 text-red-700 text-sm" role="alert">
+            <div className="mb-3 flex items-center justify-between">
+              <Link
+                href={backHref}
+                className="-ml-1 rounded-full p-2 transition-colors hover:bg-[var(--ember-surface-soft)]"
+                aria-label="Back"
+              >
+                <ArrowLeft className="h-5 w-5 text-[var(--ember-text-high)]" strokeWidth={2} />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowPrivacySheet(true)}
+                className="-mr-1 rounded-full p-2 transition-colors hover:bg-[var(--ember-surface-soft)]"
+                aria-label="Privacy information"
+              >
+                <HelpCircle className="h-5 w-5 text-[var(--ember-text-low)]" strokeWidth={2} />
+              </button>
+            </div>
+
+            <div className="mb-4 overflow-hidden rounded-2xl shadow-md">
+              <img src={HERO_IMAGE} alt="" className="h-28 w-full object-cover sm:h-32" />
+            </div>
+
+            <p className="mb-4 text-center text-sm text-[var(--ember-text-low)] lg:hidden">
+              Toys and activities for their stage — tell us their age to begin.
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {error ? (
+                <div className="rounded-xl bg-red-100 p-3 text-sm text-red-700" role="alert">
                   {error}
                 </div>
-              )}
+              ) : null}
 
-              <ChildDetailsCard
-                compact
-                childName={childName}
-                setChildName={setChildName}
-                dateOfBirth={dateOfBirth}
-                setDateOfBirth={setDateOfBirth}
-                gender={gender}
-                setGender={setGender}
-                onPrivacyClick={() => setShowPrivacySheet(true)}
-              />
+              <div className="rounded-2xl border border-[var(--ember-border-subtle)] bg-white p-4 shadow-sm sm:p-5">
+                <p className="mb-3 text-sm font-medium text-[var(--ember-text-high)]">About them</p>
 
-              <label className="flex items-start gap-3 p-4 md:p-3.5 bg-[var(--ember-accent-base)]/5 rounded-2xl border border-[var(--ember-accent-base)]/20 cursor-pointer hover:border-[var(--ember-accent-base)]/40 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={consentGiven}
-                  onChange={(e) => setConsentGiven(e.target.checked)}
-                  className="mt-0.5 w-5 h-5 shrink-0 rounded border-[var(--ember-border-subtle)] text-[var(--ember-accent-base)] focus:ring-2 focus:ring-[var(--ember-accent-base)] focus:ring-offset-0 cursor-pointer"
-                />
-                <span className="text-sm text-[var(--ember-text-high)] flex-1">
-                  I understand this is stored to personalise recommendations
-                </span>
-              </label>
+                <div className="space-y-3">
+                  <div>
+                    <label htmlFor="childName" className="mb-1.5 block text-sm text-[var(--ember-text-high)]">
+                      What do you call them?{' '}
+                      <span className="text-[var(--ember-text-low)]">(optional)</span>
+                    </label>
+                    <input
+                      id="childName"
+                      type="text"
+                      value={childName}
+                      onChange={(e) => setChildName(e.target.value)}
+                      placeholder="e.g. Lily, Button, Little One…"
+                      className={INPUT_CLASS}
+                    />
+                  </div>
 
-              <div className="md:grid md:grid-cols-2 md:gap-3">
-                <PersonalisationCard compact remindersEnabled={remindersEnabled} setRemindersEnabled={setRemindersEnabled} reminderFrequency={reminderFrequency} setReminderFrequency={setReminderFrequency} />
-                <CoParentCard compact coParentEmail={coParentEmail} setCoParentEmail={setCoParentEmail} />
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label htmlFor="dateOfBirth" className="mb-1.5 block text-sm text-[var(--ember-text-high)]">
+                        Date of birth
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="dateOfBirth"
+                          type="date"
+                          value={dateOfBirth}
+                          onChange={(e) => setDateOfBirth(e.target.value)}
+                          className={`${INPUT_CLASS} pr-10`}
+                          required
+                        />
+                        <Calendar
+                          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ember-text-low)]"
+                          strokeWidth={2}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowPrivacySheet(true)}
+                        className="mt-1 flex items-center gap-1 text-xs text-[var(--ember-text-low)] underline hover:text-[var(--ember-accent-base)]"
+                      >
+                        <Info className="h-3 w-3" strokeWidth={2} />
+                        Why we ask
+                      </button>
+                    </div>
+
+                    <div>
+                      <label htmlFor="gender" className="mb-1.5 block text-sm text-[var(--ember-text-high)]">
+                        Gender <span className="text-[var(--ember-text-low)]">(optional)</span>
+                      </label>
+                      <select
+                        id="gender"
+                        value={gender}
+                        onChange={(e) => setGender(e.target.value)}
+                        className={INPUT_CLASS}
+                      >
+                        <option value="">—</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                        <option value="prefer_not_to_say">Prefer not to say</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-[var(--ember-accent-base)]/20 bg-[var(--ember-accent-base)]/5 p-3">
+                    <input
+                      type="checkbox"
+                      checked={consentGiven}
+                      onChange={(e) => setConsentGiven(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-[var(--ember-border-subtle)] text-[var(--ember-accent-base)] focus:ring-[var(--ember-accent-base)]"
+                    />
+                    <span className="text-sm leading-snug text-[var(--ember-text-high)]">
+                      I understand this is stored to personalise recommendations
+                    </span>
+                  </label>
+                </div>
               </div>
 
-              <SubmitButton isPending={isPending} label={submitLabel} className="hidden md:flex mt-1" />
+              <button
+                type="submit"
+                disabled={isPending}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--ember-accent-base)] py-3 text-base font-semibold text-white transition-all hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_8px_32px_rgba(255,99,71,0.3)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isPending ? (
+                  <>
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    <span>Saving…</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-5 w-5" strokeWidth={2} />
+                    <span>{submitLabel}</span>
+                  </>
+                )}
+              </button>
             </form>
 
-            <div className="mt-6 md:mt-4 text-center md:text-left">
-              <p className="text-sm text-[var(--ember-text-low)] mb-2 md:mb-1.5">
-                You can edit or delete this profile anytime
-              </p>
-              <div className="flex items-center justify-center md:justify-start gap-4 text-sm flex-wrap">
+            <div className="mt-4 text-center text-sm text-[var(--ember-text-low)] lg:text-left">
+              <p className="mb-2">You can edit or delete this profile anytime.</p>
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 lg:justify-start">
                 <button
                   type="button"
                   onClick={() => setShowPrivacySheet(true)}
-                  className="text-[var(--ember-text-low)] hover:text-[var(--ember-accent-base)] transition-colors underline"
+                  className="underline hover:text-[var(--ember-accent-base)]"
                 >
                   Privacy
                 </button>
-                <span className="text-[var(--ember-border-subtle)]">·</span>
-                <Link href="/account" className="text-[var(--ember-text-low)] hover:text-[var(--ember-accent-base)] transition-colors underline">
+                <span aria-hidden>·</span>
+                <Link href="/account" className="underline hover:text-[var(--ember-accent-base)]">
                   Account
                 </Link>
-                {initial?.id && (
+                {isEdit ? (
                   <>
-                    <span className="text-[var(--ember-border-subtle)]">·</span>
+                    <span aria-hidden>·</span>
                     <button
                       type="button"
                       onClick={handleDelete}
                       disabled={deleting || isPending}
-                      className="text-red-600 hover:text-red-700 transition-colors underline disabled:opacity-50"
+                      className="text-red-600 underline hover:text-red-700 disabled:opacity-50"
                     >
                       {deleting ? 'Deleting…' : 'Delete profile'}
                     </button>
                   </>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
+
+          {/* Right rail — balance + edit hint */}
+          <aside className="hidden lg:block lg:sticky lg:top-24 lg:pt-2">
+            {isEdit ? (
+              <p className="text-sm leading-relaxed text-[var(--ember-text-low)]">
+                Changes update what you see on Discover and in your saves.
+              </p>
+            ) : (
+              <p className="text-sm leading-relaxed text-[var(--ember-text-low)]">
+                No name required — age is enough to get started. You can add more detail later.
+              </p>
+            )}
+          </aside>
         </div>
       </main>
-
-      {/* Mobile: fixed CTA — desktop submit lives inside the form above */}
-      <div
-        className="md:hidden fixed bottom-20 left-0 right-0 z-40 bg-white border-t border-[var(--ember-border-subtle)] shadow-lg px-4 sm:px-6 py-4"
-        style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
-      >
-        <div className="max-w-5xl mx-auto w-full space-y-3">
-          {error && (
-            <p className="text-red-600 text-sm text-center" role="alert">
-              {error}
-            </p>
-          )}
-          <button
-            type="button"
-            onClick={runSubmit}
-            disabled={isPending}
-            className="w-full py-4 bg-[var(--ember-accent-base)] text-white rounded-xl font-semibold text-base hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_8px_32px_rgba(255,99,71,0.3)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isPending ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Saving…</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5" strokeWidth={2} />
-                <span>{submitLabel}</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
 
       <PrivacySheet open={showPrivacySheet} onOpenChange={setShowPrivacySheet} />
       <ValidationErrorSheet open={showValidationError} onOpenChange={setShowValidationError} />

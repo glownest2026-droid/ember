@@ -3,13 +3,13 @@
 - **Typography:** Hero `h1` and navbar both use Manrope (`--font-sans` / `font-sans`) — fixes serif/sans mismatch from brandbook `h1` rule.
 - **Hero layout (desktop):** Parent/gift toggle on same row as age chip, right-aligned above hero image.
 - **Hero layout (desktop):** Image height stretches to match description + age slider block (grid row symmetry).
-- **Add-child (desktop):** Two-column layout — compact intro rail left, full form right; consent visible before submit; submit inline (not fixed bar); personalisation + co-parent side-by-side.
+- **Add-child:** Single centre column (hero + compact one-card form); marketing copy in left rail on desktop; removed duplicate page header and non-persisted reminder/co-parent cards; inline submit with consent in-form.
 - **Files:** `globals.css`, `layout.tsx`, `navStyles.ts`, `DiscoverFigmaChildHero.tsx`, `DiscoverAudienceToggle.tsx`, `DiscoveryPageClient.tsx`, `AddChildForm.tsx`, card components.
 
 ### How to verify
 1. `/discover/14` desktop — single top row: compact age chip left, parent/gift pills right; image height matches title + copy + slider.
 2. Navbar "Ember" wordmark uses pre-change brand font (not forced `font-sans`).
-3. `/add-children` desktop — all fields + consent + submit visible without scrolling on a typical laptop viewport.
+3. `/add-children` desktop — hero + full form (incl. consent + submit) above the fold; no duplicate "Add a child" header row.
 
 ## 2026-07-01 — fix(typography): navbar matches discover hero Manrope
 
