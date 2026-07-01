@@ -1264,6 +1264,17 @@ export default function DiscoveryPageClient({
           audienceToggle={
             selectedBandHasStage12Data && bandHasGiftIdeas ? (
               <DiscoverAudienceToggle
+                variant="inline"
+                mode={audienceMode}
+                onChange={handleAudienceModeChange}
+                bandLabel={bandLabel}
+              />
+            ) : undefined
+          }
+          audienceToggleMobile={
+            selectedBandHasStage12Data && bandHasGiftIdeas ? (
+              <DiscoverAudienceToggle
+                variant="card"
                 mode={audienceMode}
                 onChange={handleAudienceModeChange}
                 bandLabel={bandLabel}

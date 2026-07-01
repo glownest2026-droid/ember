@@ -14,7 +14,8 @@ export function figmaMutedNavLinkClass(active = false): string {
   }`;
 }
 
-export const FIGMA_LOGO_WORDMARK_CLASS = 'font-sans font-bold text-xl text-[#253044]';
+/** Brand wordmark — inherits header font (not forced to nav link sans). */
+export const FIGMA_LOGO_WORDMARK_CLASS = 'font-bold text-xl text-[#253044]';
 
 export const FIGMA_CHILD_PILL_CLASS =
   'flex cursor-pointer items-center gap-2 rounded-full border border-[#E7E2DC] bg-white px-3 py-1.5 transition-colors hover:bg-slate-50';

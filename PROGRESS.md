@@ -7,10 +7,9 @@
 - **Files:** `globals.css`, `layout.tsx`, `navStyles.ts`, `DiscoverFigmaChildHero.tsx`, `DiscoverAudienceToggle.tsx`, `DiscoveryPageClient.tsx`, `AddChildForm.tsx`, card components.
 
 ### How to verify
-1. `/discover/14` desktop — age chip top-left, parent/gift toggle top-right above image.
-2. Image bottom aligns with age slider card bottom.
+1. `/discover/14` desktop — single top row: compact age chip left, parent/gift pills right; image height matches title + copy + slider.
+2. Navbar "Ember" wordmark uses pre-change brand font (not forced `font-sans`).
 3. `/add-children` desktop — all fields + consent + submit visible without scrolling on a typical laptop viewport.
-4. Mobile add-child — fixed bottom CTA unchanged; scroll to see consent before tapping.
 
 ## 2026-07-01 — fix(typography): navbar matches discover hero Manrope
 

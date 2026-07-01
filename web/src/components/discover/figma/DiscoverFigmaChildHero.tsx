@@ -10,9 +10,9 @@ const HERO_FALLBACK =
 
 function AgeBandChip({ label }: { label: string }) {
   return (
-    <div className="inline-flex items-center gap-2 bg-[#FBFAF7] border border-[#E7E2DC] px-2.5 py-1.5 rounded-full shadow-sm">
+    <div className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-[#E7E2DC] bg-[#FBFAF7] px-2.5 py-1.5 shadow-sm">
       <EmberRobinMark size="lg" />
-      <span className="text-[13px] font-bold text-[#253044]">{label}</span>
+      <span className="whitespace-nowrap text-[13px] font-bold text-[#253044]">{label}</span>
     </div>
   );
 }
@@ -33,14 +33,14 @@ function AgeSliderCard({
   onBandIndexChange: (index: number) => void;
 }) {
   return (
-    <div className="bg-white border border-[#E7E2DC] rounded-[20px] p-5 shadow-sm">
+    <div className="rounded-[20px] border border-[#E7E2DC] bg-white p-5 shadow-sm">
       <div className="mb-4">
-        <span className="font-bold text-[#253044] text-[17px]">
+        <span className="text-[17px] font-bold text-[#253044]">
           {name ? `${name} · ${bandLabel}` : bandLabel}
         </span>
       </div>
       <div
-        className="discovery-slider-wrap relative w-full h-5 mb-3"
+        className="discovery-slider-wrap relative h-5 w-full mb-3"
         style={{ '--slider-progress': `${sliderProgress}%` } as React.CSSProperties}
       >
         <input
@@ -54,7 +54,7 @@ function AgeSliderCard({
           aria-label="Age range"
         />
       </div>
-      <p className="text-[13px] text-[#66717D] m-0">
+      <p className="m-0 text-[13px] text-[#66717D]">
         Slide to a different age if you want to explore another stage.
       </p>
     </div>
@@ -73,21 +73,23 @@ export function DiscoverFigmaChildHero({
   sliderProgress,
   onBandIndexChange,
   audienceToggle,
+  audienceToggleMobile,
 }: {
   childDisplayLabel: string | null;
   childGender?: string | null;
   monthAge: number;
   bandLabel: string;
   bandRange?: { min: number; max: number } | null;
-  /** True when the selected band is the newborn/expecting (0–0 months) stage. */
   isExpecting?: boolean;
   heroImageUrl?: string | null;
   selectedBandIndex: number;
   bandCount: number;
   sliderProgress: number;
   onBandIndexChange: (index: number) => void;
-  /** Parent/gift toggle — desktop: top-right above hero image; mobile: below slider. */
+  /** Desktop top row — inline pill toggle only. */
   audienceToggle?: ReactNode;
+  /** Mobile — full card below slider. */
+  audienceToggleMobile?: ReactNode;
 }) {
   const name = childDisplayLabel?.trim() || null;
   const chipLabel = name ? `For ${name} · ${bandLabel}` : bandLabel;
@@ -119,45 +121,42 @@ export function DiscoverFigmaChildHero({
     />
   );
 
+  const leftContent = (
+    <>
+      <h1 className="font-sans m-0 text-[32px] font-bold leading-[1.1] text-[#253044] md:text-[44px] md:leading-[1.05]">
+        {headline}
+      </h1>
+      <p className="m-0 max-w-lg text-[16px] leading-relaxed text-[#66717D] md:text-[17px]">{sub}</p>
+      {sliderCard}
+    </>
+  );
+
   return (
     <section className="w-full pt-2 md:pt-6">
       {/* Mobile: image first */}
-      <div className="relative mb-6 w-full overflow-hidden rounded-[24px] border border-[#E7E2DC] aspect-[4/3] shadow-sm md:hidden">
+      <div className="relative mb-6 aspect-[4/3] w-full overflow-hidden rounded-[24px] border border-[#E7E2DC] shadow-sm md:hidden">
         {heroImg}
       </div>
 
       {/* Mobile: stacked content */}
       <div className="flex flex-col gap-6 md:hidden">
         <AgeBandChip label={chipLabel} />
-        <div>
-          <h1 className="font-sans text-[32px] leading-[1.1] font-bold text-[#253044] mb-4">{headline}</h1>
-          <p className="text-[16px] text-[#66717D] leading-relaxed max-w-lg">{sub}</p>
-        </div>
-        {sliderCard}
-        {audienceToggle ? <div className="w-full">{audienceToggle}</div> : null}
+        <div className="flex flex-col gap-4">{leftContent}</div>
+        {audienceToggleMobile ? <div className="w-full">{audienceToggleMobile}</div> : null}
       </div>
 
-      {/* Desktop: age chip + toggle row, headline, then matched desc/slider | image */}
-      <div className="hidden md:grid md:grid-cols-2 md:gap-x-12 md:gap-y-5 md:items-start">
-        <AgeBandChip label={chipLabel} />
-        {audienceToggle ? (
-          <div className="flex justify-end self-start">{audienceToggle}</div>
-        ) : (
-          <div aria-hidden />
-        )}
-
-        <h1 className="font-sans col-start-1 text-[44px] leading-[1.05] font-bold text-[#253044] m-0">
-          {headline}
-        </h1>
-        <div className="col-start-2 row-start-2" aria-hidden />
-
-        <div className="col-start-1 row-start-3 flex flex-col gap-6">
-          <p className="text-[17px] text-[#66717D] leading-relaxed max-w-lg m-0">{sub}</p>
-          {sliderCard}
+      {/* Desktop: single-line top bar, then title + copy + slider | image */}
+      <div className="hidden md:flex md:flex-col md:gap-5">
+        <div className="flex items-center justify-between gap-4">
+          <AgeBandChip label={chipLabel} />
+          {audienceToggle ? <div className="shrink-0">{audienceToggle}</div> : null}
         </div>
 
-        <div className="col-start-2 row-start-3 relative h-full min-h-[12rem] overflow-hidden rounded-[20px] border border-[#E7E2DC] shadow-sm">
-          {heroImg}
+        <div className="grid grid-cols-2 items-stretch gap-x-12">
+          <div className="flex flex-col gap-5">{leftContent}</div>
+          <div className="relative min-h-[16rem] overflow-hidden rounded-[20px] border border-[#E7E2DC] shadow-sm">
+            {heroImg}
+          </div>
         </div>
       </div>
     </section>
