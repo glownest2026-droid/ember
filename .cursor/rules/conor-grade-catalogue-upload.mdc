@@ -22,9 +22,10 @@ When the user says **"Upload this Conor-grade catalogue"** or similar (e.g. "ing
      "path/to/workbook.xlsx"
    ```
 3. Mirror to `supabase/sql/`; apply with `supabase db push`.
-4. **Never** `UPDATE pl_category_types.label/name` on re-import — junction `display_label` + `rationale` only.
-5. Deactivate removed junction rows and Stage 3 products for imported band(s) only.
-6. Update `PROGRESS.md` with source file, migration name, counts, and verify steps.
+4. **Bust Discover cache** — bump `GATEWAY_CATALOGUE_CACHE_VERSION` in `web/src/lib/pl/gateway-cache.ts` (or `POST /api/discover/revalidate-catalogue?ageBandId=<band>` with `Authorization: Bearer $CRON_SECRET` after deploy).
+5. **Never** `UPDATE pl_category_types.label/name` on re-import — junction `display_label` + `rationale` only.
+6. Deactivate removed junction rows and Stage 3 products for imported band(s) only.
+7. Update `PROGRESS.md` with source file, migration name, counts, and verify steps.
 
 **Reads:** gateway views only (`v_gateway_*`), not canonical tables in the app.
 
