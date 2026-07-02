@@ -66,6 +66,12 @@ function firstNeedEntityId(raw) {
 }
 
 function ageBandMeta(id) {
+  const canonical = {
+    '6-9m': { label: '7–9 months', min: 7, max: 9 },
+    '9-12m': { label: '10–12 months', min: 10, max: 12 },
+  }[id];
+  if (canonical) return canonical;
+
   const match = String(id).match(/^(\d+)-(\d+)m$/);
   if (!match) throw new Error(`Unknown age band id: ${id}`);
   return {

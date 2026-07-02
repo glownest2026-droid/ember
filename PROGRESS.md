@@ -1,3 +1,44 @@
+## 2026-07-02 — feat(data): map 31–33m Stage 2 category images (60/60)
+
+- **Preflight:** HEAD 200 on all 60 slugs in `category_images` — global filenames `ember_{slug}_category.png` (no age-scoped `*_31_33m_*` variants uploaded)
+- **Manifest:** `agent-tools/exports/31-33m_category_image_verified_map.json`
+- **Migration:** `20260702222945_fix_31_33m_category_images_verified.sql` — applied via `supabase db push`
+- **Result:** 60 active rows in `v_gateway_category_type_images` for `age_band_id=31-33m`; export gap count **0**
+
+### How to verify
+1. `node web/scripts/export-stage2-no-image-band.mjs 31-33m` → `missing_managed_image: 0`
+2. REST `v_gateway_category_type_images?age_band_id=eq.31-33m` → 60 rows, all `image_url` HEAD 200
+3. `/discover/32` → drill into any Stage 1 cluster → Stage 2 cards show images (not grey placeholders)
+
+## 2026-07-02 — fix(discover): mutually exclusive bands, Have-it toggle, name/gender copy
+
+- **Age bands:** migration `20260702230000_mutually_exclusive_age_band_ranges.sql` — `6-9m` → **7–9**, `9-12m` → **10–12** (no month overlap); hero keys `7-9` / `10-12`
+- **Have it:** light-switch UX — content greys out, action row stays interactive; no optimistic flip before auth; persist per child; reload only on user/child change
+- **Personalisation:** `personalizeDiscoverCopy()` — name swaps (`your baby`/`your toddler` → child name) + gender (`them`/`their` → him/her) on hero, Stage 1 why-text, Stage 2 rationale/notes
+- **Cache:** `GATEWAY_CATALOGUE_CACHE_VERSION = 20260702c`
+
+### How to verify
+1. Slider shows **7–9 months** and **10–12 months**; hero sub matches chip exactly
+2. `/discover/8` → Things that can help → tap Have → card greys, stays grey on refresh; tap again to restore
+3. Child with name + gender → hero/why-text uses name and him/her not them
+4. `pnpm -C web build` passes
+
+## 2026-07-02 — fix(discover): audit — icons, notes, Have-it layout, hero bands
+
+- **Stage 1 icons:** slug + label patterns for 4–6m, 16–18m, 19–21m, 25–27m, 31–33m; `ent_cluster_solve` → Eye (hidden things)
+- **Gift mode notes:** `ownership_note` hidden in gift toggle; `gift_note` only via `resolveStage2HelperNote`
+- **Parent notes:** client filter (`cardNotes.ts`) + migration `20260702220000_prune_redundant_ownership_notes.sql` — prunes well-duh borrow/reuse copy
+- **Have it mobile:** two-row card actions — CTA row, then Save / Have / Gift icons; dim/hide state unchanged
+- **Age band hero:** removed legacy `PILOT_AGE_BAND_RANGE_BY_ID` overrides; hero sub uses slider `min–max` from gateway (fixes 10–12 showing 9–12)
+- **Cache:** `GATEWAY_CATALOGUE_CACHE_VERSION = 20260702b`
+
+### How to verify
+1. `/discover/5` gift toggle → product cards show gift notes only, no “borrow or reuse…”
+2. `/discover/10` hero sub starts “At 9–12 months” (matches slider chip)
+3. `/discover/8` parent → Things that can help → mobile: Ember Picks on row 1, Save+Have+Gift on row 2
+4. Stage 1 icons spot-check 4–6m floor gym (Activity), 9–12m hidden things (Eye)
+5. `pnpm -C web build` passes
+
 ## 2026-07-01 — feat(discover): 31–33m Conor+Thea depth v2
 
 - **Source:** `02_Ember_Bible_31_33m_Conor_Thea_Depth_v2.xlsx` (`discover_projection`) — replaces legacy ABI v8 child-voice band
@@ -3973,3 +4014,20 @@ Category-only cards remain publishable.
 - **Input slugs resolved:** `cat_sitting_play_mat`, `cat_reach_grab_toys`, `cat_hand_transfer_toys`, `cat_soft_graspable_balls`, `cat_first_puzzle`.
 - **What changed:** Idempotent upsert into `public.pl_category_type_images` using canonical public URLs `https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_<slug>_category.png` (`ON CONFLICT (category_type_id)`).
 - **Proof:** Preflight 5/5 objects found; write mapped 5/5; re-run idempotent (5 active rows, no duplicate-active anomalies); `v_gateway_category_type_images` returns all five URLs.
+
+## 2026-07-02 — Discover audit follow-up: age bands, notes, Have it
+
+### Summary
+- **Mutually exclusive age bands:** DB migration re-applies 7–9 / 10–12 ranges; deactivated overlapping `24_30m`; runtime `DISPLAY_RANGE_BY_BAND_ID` + generator `ageBandMeta` canonical labels; bumped `GATEWAY_CATALOGUE_CACHE_VERSION` and added version to age-bands cache key.
+- **Parent vs gift notes:** Migration clears gift-buyer copy from `ownership_note`; client filters `isGiftOrientedNote` and hides gift badges in parent mode (`resolveStage2BadgeLabel`).
+- **Have it:** Session-scoped `discoverHaveIt.ts` (sessionStorage) merged with DB on load; optimistic toggle + replay persistence; hydrate from session before async fetch.
+
+### Migrations
+- `20260702233000_enforce_mutually_exclusive_age_bands.sql`
+- `20260702233100_clear_gift_copy_from_ownership_notes.sql`
+
+### Verify
+- `/discover/8` — chip, slider, hero show **7–9 months** (not 6–9)
+- `/discover/10` — **10–12 months**
+- `/discover/32` parent mode — Feeling faces card: no “High chance the family owns…”
+- Sign in → Things that can help → Have it → refresh: card stays greyed

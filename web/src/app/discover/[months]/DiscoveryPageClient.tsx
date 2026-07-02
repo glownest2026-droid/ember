@@ -35,6 +35,7 @@ import { getWrapperIcon } from './_lib/wrapperIcons';
 import {
   displayChildName,
   personalizationFromChildrenRow,
+  personalizeDiscoverCopy,
   type DiscoverChildPersonalization,
 } from '@/lib/discover/personalization';
 import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
@@ -48,6 +49,7 @@ import {
   type PendingAuthAction,
 } from '@/lib/auth/requireAuthThen';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
+import { mergeHaveCategoryIds, readHaveCategoryIds, writeHaveCategoryId } from '@/lib/discover/discoverHaveIt';
 import { saveDiscoverSession } from '@/lib/discover/discoverSession';
 import { useDiscoverClientSearchParams } from '@/lib/discover/discoverClientNav';
 
@@ -150,8 +152,9 @@ export default function DiscoveryPageClient({
   // Default parent view — most users are the parent; gift mode is opt-in only.
   const [audienceMode, setAudienceMode] = useState<DiscoverAudienceMode>('parent');
   const replayAttemptedRef = useRef(false);
+  const fallbackHaveChildIdRef = useRef<string | null>(null);
   const basePath = '/discover';
-  const { user, refetch: refetchSubnavStats } = useSubnavStats();
+  const { user, loading: subnavLoading, refetch: refetchSubnavStats } = useSubnavStats();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { params: clientParams, replace: replaceClientParams } = useDiscoverClientSearchParams(pathname);
@@ -254,10 +257,12 @@ export default function DiscoveryPageClient({
 
   // Pre-dim Stage 2 cards the user has already marked as "have".
   useEffect(() => {
+    if (subnavLoading) return;
     if (!user) {
       setDimmedCategoryIds(new Set());
       return;
     }
+    setDimmedCategoryIds((prev) => mergeHaveCategoryIds(user.id, selectedChildId, [], prev));
     let cancelled = false;
     const supabase = createClient();
     void (async () => {
@@ -272,12 +277,39 @@ export default function DiscoveryPageClient({
       const ids = (data ?? [])
         .map((row) => (row as { category_type_id?: string | null }).category_type_id)
         .filter((id): id is string => typeof id === 'string' && id.length > 0);
-      setDimmedCategoryIds(new Set(ids));
+      setDimmedCategoryIds((prev) => mergeHaveCategoryIds(user.id, selectedChildId, ids, prev));
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, selectedChildId, clientParams.get('wrapper')]);
+  }, [user, selectedChildId, subnavLoading]);
+
+  const resolveHaveChildId = useCallback(async (): Promise<string | undefined> => {
+    if (selectedChildId) return selectedChildId;
+    if (fallbackHaveChildIdRef.current) return fallbackHaveChildIdRef.current;
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('children')
+      .select('id')
+      .or('is_suppressed.is.null,is_suppressed.eq.false')
+      .order('created_at', { ascending: true })
+      .limit(1);
+    const id = (data?.[0] as { id?: string } | undefined)?.id;
+    if (typeof id === 'string' && id.length > 0) {
+      fallbackHaveChildIdRef.current = id;
+      return id;
+    }
+    return undefined;
+  }, [selectedChildId]);
+
+  const personalizeCopy = useCallback(
+    (text: string) =>
+      personalizeDiscoverCopy(text, {
+        displayLabel: childProfile.displayLabel,
+        gender: childProfile.gender,
+      }),
+    [childProfile.displayLabel, childProfile.gender]
+  );
 
   const scrollToSection = useCallback(
     (id: string, behaviorOverride?: ScrollBehavior) => {
@@ -637,18 +669,20 @@ export default function DiscoveryPageClient({
         }
         case 'have_category': {
           const categoryId = (action.payload.categoryId as string) || 'category';
-          const childId = action.payload.childId as string | undefined;
+          const childId = (action.payload.childId as string | undefined) ?? (await resolveHaveChildId());
           const have = action.payload.have !== false;
+          if (!childId) break;
           const { error } = await supabase.rpc('upsert_user_list_item', {
             p_kind: 'category',
             p_category_type_id: categoryId,
             p_want: true,
             p_have: have,
             p_gift: false,
-            ...(childId ? { p_child_id: childId } : {}),
+            p_child_id: childId,
           });
           if (!error) {
-            await refetchSubnavStats(selectedChildId);
+            await refetchSubnavStats(selectedChildId ?? childId);
+            writeHaveCategoryId(user.id, selectedChildId, categoryId, have);
             setDimmedCategoryIds((prev) => {
               const next = new Set(prev);
               if (have) next.add(categoryId);
@@ -698,7 +732,7 @@ export default function DiscoveryPageClient({
           break;
       }
     },
-    [selectedBand?.id, selectedWrapper, currentMonth, basePath, refetchSubnavStats, selectedChildId, saveModalPersonalization]
+    [selectedBand?.id, selectedWrapper, currentMonth, basePath, refetchSubnavStats, selectedChildId, saveModalPersonalization, resolveHaveChildId]
   );
 
   // Replay pending action once after sign-in (Option B: single place in DiscoveryPageClient)
@@ -731,30 +765,47 @@ export default function DiscoveryPageClient({
 
   const handleHaveThemCategory = (categoryId: string) => {
     const wasDimmed = dimmedCategoryIds.has(categoryId);
+    const nextHave = !wasDimmed;
+
     setDimmedCategoryIds((prev) => {
       const next = new Set(prev);
-      if (wasDimmed) next.delete(categoryId);
-      else next.add(categoryId);
+      if (nextHave) next.add(categoryId);
+      else next.delete(categoryId);
       return next;
     });
 
-    requireAuthThen({
+    if (user) {
+      writeHaveCategoryId(user.id, selectedChildId, categoryId, nextHave);
+    }
+
+    void requireAuthThen({
       actionId: 'have_category',
-      payload: { categoryId, childId: selectedChildId, have: !wasDimmed },
+      payload: { categoryId, childId: selectedChildId, have: nextHave },
       run: async () => {
+        const childId = await resolveHaveChildId();
+        if (!childId) {
+          setActionToast({
+            productId: categoryId,
+            message: 'Select a child in the header to track what you have.',
+          });
+          return;
+        }
         try {
           const supabase = createClient();
           const { error } = await supabase.rpc('upsert_user_list_item', {
             p_kind: 'category',
             p_category_type_id: categoryId,
             p_want: true,
-            p_have: !wasDimmed,
+            p_have: nextHave,
             p_gift: false,
-            ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
+            p_child_id: childId,
           });
           if (error) throw error;
-          await refetchSubnavStats(selectedChildId);
+          const authedUser = user ?? (await supabase.auth.getUser()).data.user;
+          if (authedUser) writeHaveCategoryId(authedUser.id, selectedChildId, categoryId, nextHave);
+          await refetchSubnavStats(selectedChildId ?? childId);
         } catch {
+          if (user) writeHaveCategoryId(user.id, selectedChildId, categoryId, wasDimmed);
           setDimmedCategoryIds((prev) => {
             const next = new Set(prev);
             if (wasDimmed) next.add(categoryId);
@@ -765,6 +816,7 @@ export default function DiscoveryPageClient({
         }
       },
       openAuthModal: ({ signinUrl }) => {
+        if (user) writeHaveCategoryId(user.id, selectedChildId, categoryId, wasDimmed);
         setDimmedCategoryIds((prev) => {
           const next = new Set(prev);
           if (wasDimmed) next.add(categoryId);
@@ -776,8 +828,11 @@ export default function DiscoveryPageClient({
         setActionToast({ productId: categoryId, message: 'Sign in to record what you have.' });
       },
       isAuthenticated: async () => {
-        const { data: { user } } = await createClient().auth.getUser();
-        return !!user;
+        if (user) return true;
+        const {
+          data: { user: authedUser },
+        } = await createClient().auth.getUser();
+        return !!authedUser;
       },
       getReturnUrl: () =>
         withChildParam(
@@ -1123,14 +1178,19 @@ export default function DiscoveryPageClient({
     : formatBandLabel(selectedBand);
 
   const selectedWrapperRecord = wrappers.find((w) => w.ux_slug === selectedWrapper) ?? null;
-  const scienceBody = (selectedWrapperRecord?.ux_description || '').trim();
+  const scienceBody = personalizeCopy((selectedWrapperRecord?.ux_description || '').trim());
   const bandLabelForIdeas = formatBandLabel(selectedBand);
 
   const playIdeaItems = useMemo(() => {
     if (!selectedWrapper) return [];
     const types = categoriesByWrapper[selectedWrapper] ?? [];
-    return categoryTypesToPlayIdeaItems(types, bandLabelForIdeas);
-  }, [selectedWrapper, categoriesByWrapper, bandLabelForIdeas]);
+    return categoryTypesToPlayIdeaItems(types, bandLabelForIdeas).map((item) => ({
+      ...item,
+      description: personalizeCopy(item.description),
+      ownershipNote: item.ownershipNote ? personalizeCopy(item.ownershipNote) : item.ownershipNote,
+      giftNote: item.giftNote ? personalizeCopy(item.giftNote) : item.giftNote,
+    }));
+  }, [selectedWrapper, categoriesByWrapper, bandLabelForIdeas, personalizeCopy]);
 
   const laneForItem = useCallback((item: PlayIdeaItem): 'useful_ideas' | 'quick_checks' | 'things_that_can_help' => {
     if (item.uiLane === 'useful_ideas' || item.uiLane === 'quick_checks' || item.uiLane === 'things_that_can_help') {
@@ -1430,6 +1490,7 @@ export default function DiscoveryPageClient({
                         showEmberPicks
                         showSaveAction={false}
                         showGiftAction
+                        noteMode="gift"
                         dimmedCategoryIds={dimmedCategoryIds}
                       />
                     ) : (
@@ -1447,6 +1508,7 @@ export default function DiscoveryPageClient({
                             showEmberPicks={false}
                             showSaveAction
                             showGiftAction={false}
+                            noteMode="parent"
                             dimmedCategoryIds={dimmedCategoryIds}
                           />
                         ) : null}
@@ -1460,10 +1522,11 @@ export default function DiscoveryPageClient({
                             onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
                             onGiftAction={(categoryId, el) => handleSaveCategory(categoryId, el)}
                             onHaveThem={handleHaveThemCategory}
-                            showHaveAction={!!user}
+                            showHaveAction
                             showEmberPicks
                             showSaveAction
                             showGiftAction
+                            noteMode="parent"
                             dimmedCategoryIds={dimmedCategoryIds}
                           />
                         ) : null}
