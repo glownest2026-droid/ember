@@ -90,7 +90,7 @@ export function DiscoverFigmaPlayIdeaCard({
           ) : null}
         </div>
 
-        <div className="mt-auto pt-2 flex items-center gap-3">
+        <div className="mt-auto pt-2 flex flex-col gap-3">
           {showEmberPicks ? (
             <button
               type="button"
@@ -98,59 +98,63 @@ export function DiscoverFigmaPlayIdeaCard({
                 e.stopPropagation();
                 onSeeExamples();
               }}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 bg-[#FF5C34] hover:bg-[#E04B28] text-white py-3.5 px-4 rounded-full font-bold text-[15px] transition-colors shadow-sm whitespace-nowrap"
+              className="w-full inline-flex items-center justify-center gap-1.5 bg-[#FF5C34] hover:bg-[#E04B28] text-white py-3.5 px-4 rounded-full font-bold text-[15px] transition-colors shadow-sm whitespace-nowrap"
               aria-label={`${ctaLabel} for ${title}`}
             >
               {ctaLabel}
               <ChevronRight size={18} strokeWidth={2.5} aria-hidden />
             </button>
           ) : null}
-          {showSaveAction ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSaveIdea(e, e.currentTarget);
-              }}
-              className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-[#E7E2DC] text-[#66717D] hover:bg-[#FBFAF7] hover:border-[#D0C9C0] transition-colors shadow-sm"
-              title="Save"
-              aria-label="Save idea"
-            >
-              <Save size={20} strokeWidth={2.5} />
-            </button>
-          ) : null}
-          {showGiftAction && onGiftAction ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onGiftAction(e, e.currentTarget);
-              }}
-              className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-[#E7E2DC] text-[#66717D] hover:bg-[#FBFAF7] hover:border-[#D0C9C0] transition-colors shadow-sm"
-              title="Save gift idea"
-              aria-label="Save gift idea"
-            >
-              <Gift size={20} strokeWidth={2.5} />
-            </button>
-          ) : null}
-          {onHaveThem ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onHaveThem(e);
-              }}
-              className={`w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border transition-colors shadow-sm ${
-                isHaveActive
-                  ? 'border-[#7DBA78] bg-[#7DBA78]/15 text-[#7DBA78]'
-                  : 'border-[#E7E2DC] text-[#66717D] hover:text-[#7DBA78] hover:border-[#7DBA78] hover:bg-[#7DBA78]/10'
-              }`}
-              title={isHaveActive ? 'Show this idea again' : 'Already have it — hide while browsing'}
-              aria-label={isHaveActive ? 'Show this idea again' : 'Already have it — hide while browsing'}
-              aria-pressed={isHaveActive}
-            >
-              <CheckCircle size={20} strokeWidth={2.5} />
-            </button>
+          {showSaveAction || (showGiftAction && onGiftAction) || onHaveThem ? (
+            <div className="flex items-center justify-center gap-3">
+              {showSaveAction ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSaveIdea(e, e.currentTarget);
+                  }}
+                  className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-[#E7E2DC] text-[#66717D] hover:bg-[#FBFAF7] hover:border-[#D0C9C0] transition-colors shadow-sm"
+                  title="Save"
+                  aria-label="Save idea"
+                >
+                  <Save size={20} strokeWidth={2.5} />
+                </button>
+              ) : null}
+              {onHaveThem ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onHaveThem(e);
+                  }}
+                  className={`w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border transition-colors shadow-sm ${
+                    isHaveActive
+                      ? 'border-[#7DBA78] bg-[#7DBA78]/15 text-[#7DBA78]'
+                      : 'border-[#E7E2DC] text-[#66717D] hover:text-[#7DBA78] hover:border-[#7DBA78] hover:bg-[#7DBA78]/10'
+                  }`}
+                  title={isHaveActive ? 'Show this idea again' : 'Already have it — hide while browsing'}
+                  aria-label={isHaveActive ? 'Show this idea again' : 'Already have it — hide while browsing'}
+                  aria-pressed={isHaveActive}
+                >
+                  <CheckCircle size={20} strokeWidth={2.5} />
+                </button>
+              ) : null}
+              {showGiftAction && onGiftAction ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onGiftAction(e, e.currentTarget);
+                  }}
+                  className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-full border border-[#E7E2DC] text-[#66717D] hover:bg-[#FBFAF7] hover:border-[#D0C9C0] transition-colors shadow-sm"
+                  title="Save gift idea"
+                  aria-label="Save gift idea"
+                >
+                  <Gift size={20} strokeWidth={2.5} />
+                </button>
+              ) : null}
+            </div>
           ) : null}
         </div>
       </div>

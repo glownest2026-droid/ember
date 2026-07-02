@@ -1430,6 +1430,7 @@ export default function DiscoveryPageClient({
                         showEmberPicks
                         showSaveAction={false}
                         showGiftAction
+                        noteMode="gift"
                         dimmedCategoryIds={dimmedCategoryIds}
                       />
                     ) : (
@@ -1447,6 +1448,7 @@ export default function DiscoveryPageClient({
                             showEmberPicks={false}
                             showSaveAction
                             showGiftAction={false}
+                            noteMode="parent"
                             dimmedCategoryIds={dimmedCategoryIds}
                           />
                         ) : null}
@@ -1464,6 +1466,7 @@ export default function DiscoveryPageClient({
                             showEmberPicks
                             showSaveAction
                             showGiftAction
+                            noteMode="parent"
                             dimmedCategoryIds={dimmedCategoryIds}
                           />
                         ) : null}

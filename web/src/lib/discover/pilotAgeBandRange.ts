@@ -1,18 +1,10 @@
-/** Correct month ranges for pilot bands whose stored ids still use legacy 6-9 / 9-12 labels. */
-export const PILOT_AGE_BAND_RANGE_BY_ID: Record<string, { min: number; max: number }> = {
-  '6-9m': { min: 7, max: 9 },
-  '9-12m': { min: 10, max: 12 },
-};
-
+/** Age band month ranges — always from gateway / slider (pl_age_bands min_months, max_months). */
 export function getEffectiveAgeBandRange(band: {
   id: string;
   min_months?: number | null;
   max_months?: number | null;
 } | null): { min: number; max: number } | null {
   if (!band) return null;
-
-  const override = PILOT_AGE_BAND_RANGE_BY_ID[band.id];
-  if (override) return override;
 
   const min = typeof band.min_months === 'number' ? band.min_months : NaN;
   const max = typeof band.max_months === 'number' ? band.max_months : NaN;
