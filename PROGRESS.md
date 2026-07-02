@@ -1,3 +1,16 @@
+## 2026-07-03 — feat(discover): 19–21m + 25–27m Conor+Thea depth v2
+
+- **Source:** `02_Ember_Bible_19_21m_Conor_Thea_Depth_v2.xlsx` + `02_Ember_Bible_25_27m_Conor_Thea_Depth_v2.xlsx` (`discover_projection`)
+- **Migration:** `20260703090000_reimport_discover_19_21m_25_27m_conor_thea_depth_v2.sql`; applied via `supabase db push`
+- **Counts:** 19–21m **49** rows / **8** clusters / **28** `gift_friendly`; 25–27m **52** rows / **8** clusters / **32** `gift_friendly`; Stage 3 active = 0
+- **Cache:** `GATEWAY_CATALOGUE_CACHE_VERSION = 20260703a`
+
+### How to verify
+1. REST `v_gateway_category_types_public?age_band_id=eq.19-21m` → 49 rows; `gift_friendly=eq.true` → 28
+2. REST `v_gateway_category_types_public?age_band_id=eq.25-27m` → 52 rows; `gift_friendly=eq.true` → 32
+3. `/discover/19` and `/discover/25` — parent/gift toggle; three lanes; child-voice Stage 1 clusters
+4. `pnpm -C web build` passes
+
 ## 2026-07-02 — feat(data): map 31–33m Stage 2 category images (60/60)
 
 - **Preflight:** HEAD 200 on all 60 slugs in `category_images` — global filenames `ember_{slug}_category.png` (no age-scoped `*_31_33m_*` variants uploaded)
