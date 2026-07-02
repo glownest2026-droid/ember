@@ -1,3 +1,17 @@
+## 2026-07-02 — feat(discover): 4–6m, 6–9m, 9–12m Conor+Thea depth v2
+
+- **Source:** `02_Ember_Bible_4_6m_Conor_Thea_Depth_v2.xlsx`, `02_Ember_Bible_6_9m_Conor_Thea_Depth_v2.xlsx`, `02_Ember_Bible_9_12m_Conor_Thea_Depth_v2.xlsx` (`discover_projection`) — overwrites prior Spine v2 / brand-voice catalogues for these bands
+- **Migration:** `20260702110000_reimport_discover_4_6m_6_9m_9_12m_conor_thea_depth_v2.sql`; applied via `supabase db push`
+- **Counts:** 147 workbook rows → **4-6m** 45 junction / 8 clusters / 27 `gift_friendly`; **6-9m** 42 / 8 / 28; **9-12m** 60 / 8 / 26; Stage 3 active = 0
+- **Cache:** `GATEWAY_CATALOGUE_CACHE_VERSION = 20260702a`
+
+### How to verify
+1. `/discover/5` → **I'm the parent** — 8 child-voice Stage 1 cards; three lanes on Stage 2
+2. `/discover/8` → **Buying a gift** — gift carousels on 6–9m clusters
+3. `/discover/10` → **I'm the parent** — 9–12m Conor+Thea depth copy
+4. REST `v_gateway_category_types_public?age_band_id=eq.4-6m` → 45 rows, 27 `gift_friendly=true` (repeat for `6-9m`, `9-12m`)
+5. `pnpm -C web build` passes
+
 ## 2026-07-01 — feat(discover): 31–33m Conor+Thea depth v2
 
 - **Source:** `02_Ember_Bible_31_33m_Conor_Thea_Depth_v2.xlsx` (`discover_projection`) — replaces legacy ABI v8 child-voice band
