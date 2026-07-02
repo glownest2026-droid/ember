@@ -2,36 +2,30 @@ type BandRange = { min: number; max: number };
 
 type BandHeroCopy = {
   headlineAnonymous: string;
-  /** Body after "At {range}, " — use subjectPhrase for personalization swap. */
+  /** Body after "At {range}, " — generic child references personalised at runtime. */
   body: string;
-  subjectPhrase: string;
 };
 
 const BAND_HERO_COPY: Record<string, BandHeroCopy> = {
   '1-3': {
     headlineAnonymous: "What your baby's practising now",
     body: 'your baby may start turning towards faces, voices and movement while building strength in short awake moments. Notice what draws them in, then choose a focus to find simple ideas for what\u2019s coming next.',
-    subjectPhrase: 'your baby',
   },
   '4-6': {
     headlineAnonymous: "What your baby's practising now",
     body: 'your baby may start reaching with purpose, pushing up, exploring with their mouth and getting ready for first tastes. Choose a development and we\u2019ll show simple ideas for this stage.',
-    subjectPhrase: 'your baby',
   },
-  '6-9': {
+  '7-9': {
     headlineAnonymous: "What your baby's practising now",
     body: 'your baby may be sitting steadier, reaching with more purpose and exploring everything with their hands and mouth. Hidden objects, finger foods and early crawling signs can all become lovely clues for what to try next.',
-    subjectPhrase: 'your baby',
   },
-  '9-12': {
+  '10-12': {
     headlineAnonymous: "What your baby's practising now",
     body: 'your baby may be getting busier, braver and more curious: reaching, crawling, pulling up, copying sounds, finding hidden things and trying finger foods. Choose a development and we\u2019ll show useful ideas for this stage.',
-    subjectPhrase: 'your baby',
   },
   '13-15': {
     headlineAnonymous: "What your young one's practising now",
-    body: 'first-year basics can become purposeful experiments: carrying, tipping, pointing, copying, feeding and trying to get everywhere. Pick a development to see what is changing now, useful ideas for this stage, and what to buy, borrow or bring back out.',
-    subjectPhrase: 'your toddler',
+    body: 'your toddler may be turning first-year basics into purposeful experiments: carrying, tipping, pointing, copying, feeding and trying to get everywhere. Pick a development to see what is changing now, useful ideas for this stage, and what to buy, borrow or bring back out.',
   },
 };
 
@@ -50,9 +44,18 @@ function formatRangePhrase(range: BandRange): string {
   return `${range.min}\u2013${range.max} months`;
 }
 
-function personalizeBody(body: string, subjectPhrase: string, name: string | null): string {
-  if (!name) return body;
-  return body.replace(subjectPhrase, name);
+function headlineForBand(range: BandRange | null, name: string | null): string {
+  const key = bandKey(range);
+  const template = (key && BAND_HERO_COPY[key]?.headlineAnonymous) || "What your child's practising now";
+  if (!name) return template;
+  if (template.includes("young one's")) {
+    return `What ${possessiveName(name)} practising now`;
+  }
+  return `What ${possessiveName(name)} practising now`;
+}
+
+function childSubject(name: string | null): string {
+  return name?.trim() || 'your child';
 }
 
 export function getDiscoverHeroCopy({
@@ -60,37 +63,41 @@ export function getDiscoverHeroCopy({
   childDisplayLabel,
   isExpecting,
   monthAge,
+  personalizeCopy,
 }: {
   bandRange: BandRange | null;
   childDisplayLabel: string | null;
   isExpecting: boolean;
   monthAge: number;
+  personalizeCopy: (text: string) => string;
 }): { headline: string; sub: string } {
   const name = childDisplayLabel?.trim() || null;
 
   if (isExpecting) {
     return {
       headline: name ? `What ${name} will need` : 'What your baby will need',
-      sub: `Get ready for the early days. Choose a focus and we'll show useful ideas to prepare for ${name ?? 'your baby'}.`,
+      sub: personalizeCopy(
+        `Get ready for the early days. Choose a focus and we'll show useful ideas to prepare for ${name ?? 'your baby'}.`
+      ),
     };
   }
 
   const copy = BAND_HERO_COPY[bandKey(bandRange) ?? ''];
   if (copy && bandRange) {
-    const headline = name ? `What ${possessiveName(name)} practising now` : copy.headlineAnonymous;
-    const body = personalizeBody(copy.body, copy.subjectPhrase, name);
     const rangePhrase = formatRangePhrase(bandRange);
+    const body = personalizeCopy(copy.body);
     return {
-      headline,
+      headline: headlineForBand(bandRange, name),
       sub: `At ${rangePhrase}, ${body}`,
     };
   }
 
   const rangePhrase = bandRange ? formatRangePhrase(bandRange) : `${monthAge} months`;
+  const subject = childSubject(name);
   return {
-    headline: name ? `What ${possessiveName(name)} practising now` : "What your child's practising now",
-    sub: name
-      ? `At ${rangePhrase}, ${name} may be getting more independent, more physical and more expressive. Choose a development and we'll show useful ideas for this stage.`
-      : `At ${rangePhrase}, your child may be getting more independent, more physical and more expressive. Choose a development and we'll show useful ideas for this stage.`,
+    headline: headlineForBand(bandRange, name),
+    sub: personalizeCopy(
+      `At ${rangePhrase}, ${subject} may be getting more independent, more physical and more expressive. Choose a development and we'll show useful ideas for this stage.`
+    ),
   };
 }

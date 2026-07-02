@@ -47,50 +47,59 @@ export function DiscoverFigmaPlayIdeaCard({
 }) {
   return (
     <article
-      className={`bg-white border border-[#E7E2DC] rounded-[24px] overflow-hidden shadow-sm flex flex-col h-full group transition-all duration-300 ${
-        isDimmed ? 'opacity-45 grayscale' : 'opacity-100'
-      }`}
+      className="bg-white border border-[#E7E2DC] rounded-[24px] overflow-hidden shadow-sm flex flex-col h-full group transition-all duration-300"
     >
-      <div className="relative aspect-[16/9] max-h-[150px] md:max-h-[165px] overflow-hidden bg-[#FBFAF7]">
-        <DiscoverFigmaImage
-          src={imageUrl}
-          alt={title}
-          variant="card"
-          priority={imagePriority}
-          className="transition-transform duration-500 group-hover:scale-105"
-        />
-        {onExpand ? (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onExpand(e);
-            }}
-            className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-white/95 border border-[#E7E2DC] text-[#253044] shadow-sm hover:bg-white hover:border-[#FF5C34] hover:text-[#FF5C34] transition-colors"
-            aria-label={`Expand ${title}`}
-          >
-            <Maximize2 size={16} strokeWidth={2.5} />
-          </button>
-        ) : null}
-      </div>
-
-      <div className="p-4 md:p-5 flex flex-col flex-1 gap-2.5">
-        <div>
-          {badgeLabel ? (
-            <span className="inline-flex rounded-full border border-[#E7E2DC] bg-[#FBFAF7] px-2 py-0.5 text-[11px] font-semibold text-[#66717D] mb-2">
-              {badgeLabel}
-            </span>
-          ) : null}
-          <h3 className="font-bold text-[18px] md:text-[19px] text-[#253044] mb-1 leading-tight">{title}</h3>
-          {description ? (
-            <p className="text-[14px] md:text-[15px] text-[#66717D] leading-relaxed line-clamp-3 md:line-clamp-4">{description}</p>
-          ) : null}
-          {helperNote ? (
-            <p className="text-[12px] text-[#66717D] leading-relaxed mt-2">{helperNote}</p>
+      <div
+        className={`flex flex-col flex-1 transition-all duration-300 ${
+          isDimmed ? 'opacity-35 grayscale pointer-events-none select-none' : 'opacity-100'
+        }`}
+      >
+        <div className="relative aspect-[16/9] max-h-[150px] md:max-h-[165px] overflow-hidden bg-[#FBFAF7]">
+          <DiscoverFigmaImage
+            src={imageUrl}
+            alt={title}
+            variant="card"
+            priority={imagePriority}
+            className={`transition-transform duration-500 ${isDimmed ? '' : 'group-hover:scale-105'}`}
+          />
+          {onExpand && !isDimmed ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onExpand(e);
+              }}
+              className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-white/95 border border-[#E7E2DC] text-[#253044] shadow-sm hover:bg-white hover:border-[#FF5C34] hover:text-[#FF5C34] transition-colors"
+              aria-label={`Expand ${title}`}
+            >
+              <Maximize2 size={16} strokeWidth={2.5} />
+            </button>
           ) : null}
         </div>
 
-        <div className="mt-auto pt-2 flex flex-col gap-3">
+        <div className="p-4 md:p-5 flex flex-col flex-1 gap-2.5">
+          <div>
+            {badgeLabel ? (
+              <span className="inline-flex rounded-full border border-[#E7E2DC] bg-[#FBFAF7] px-2 py-0.5 text-[11px] font-semibold text-[#66717D] mb-2">
+                {badgeLabel}
+              </span>
+            ) : null}
+            <h3 className="font-bold text-[18px] md:text-[19px] text-[#253044] mb-1 leading-tight">{title}</h3>
+            {description ? (
+              <p className="text-[14px] md:text-[15px] text-[#66717D] leading-relaxed line-clamp-3 md:line-clamp-4">{description}</p>
+            ) : null}
+            {helperNote ? (
+              <p className="text-[12px] text-[#66717D] leading-relaxed mt-2">{helperNote}</p>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      {isDimmed ? (
+        <p className="px-4 md:px-5 pt-1 text-[12px] font-medium text-[#7DBA78]">Already have this — hidden while browsing</p>
+      ) : null}
+
+      <div className="p-4 md:p-5 pt-2 flex flex-col gap-3">
           {showEmberPicks ? (
             <button
               type="button"
@@ -156,7 +165,6 @@ export function DiscoverFigmaPlayIdeaCard({
               ) : null}
             </div>
           ) : null}
-        </div>
       </div>
     </article>
   );

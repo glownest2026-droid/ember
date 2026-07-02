@@ -106,3 +106,65 @@ export function childIsPhrase(firstName: string | null): string {
 export function childPossessive(firstName: string | null): string {
   return firstName?.trim() ? `${firstName.trim()}'s` : "your child's";
 }
+
+/** Object pronoun — "them" → him/her when gender known */
+export function objectPronoun(gender: string | null | undefined): 'him' | 'her' | 'them' {
+  const g = (gender || '').trim().toLowerCase();
+  if (g === 'male' || g === 'boy' || g === 'm') return 'him';
+  if (g === 'female' || g === 'girl' || g === 'f') return 'her';
+  return 'them';
+}
+
+/** Reflexive — "themselves" → himself/herself when gender known */
+export function reflexivePronoun(gender: string | null | undefined): 'himself' | 'herself' | 'themselves' {
+  const g = (gender || '').trim().toLowerCase();
+  if (g === 'male' || g === 'boy' || g === 'm') return 'himself';
+  if (g === 'female' || g === 'girl' || g === 'f') return 'herself';
+  return 'themselves';
+}
+
+export type DiscoverCopyPersonalization = {
+  displayLabel?: string | null;
+  gender?: string | null;
+};
+
+/**
+ * Runtime personalization for discover-facing copy (hero, Stage 1 why-text, Stage 2 rationale).
+ * Swaps generic child references for name + gendered pronouns when profile data exists.
+ */
+export function personalizeDiscoverCopy(
+  text: string,
+  { displayLabel, gender }: DiscoverCopyPersonalization
+): string {
+  if (!text?.trim()) return text;
+
+  const name = displayLabel?.trim() || null;
+  const subj = subjectPronoun(gender);
+  const poss = possessivePronoun(gender);
+  const obj = objectPronoun(gender);
+  const refl = reflexivePronoun(gender);
+
+  let out = text;
+
+  if (name) {
+    out = out
+      .replace(/\byour toddler\b/gi, name)
+      .replace(/\byour young one\b/gi, name)
+      .replace(/\byour baby\b/gi, name)
+      .replace(/\byour child\b/gi, name)
+      .replace(/\bYour toddler\b/g, name)
+      .replace(/\bYour baby\b/g, name)
+      .replace(/\bYour child\b/g, name);
+  }
+
+  if (gender && (subj === 'he' || subj === 'she')) {
+    out = out
+      .replace(/\bthey\b/gi, (match) => (match[0] === 'T' ? subj.charAt(0).toUpperCase() + subj.slice(1) : subj))
+      .replace(/\bthem\b/gi, (match) => (match[0] === 'T' ? obj.charAt(0).toUpperCase() + obj.slice(1) : obj))
+      .replace(/\btheir\b/gi, (match) => (match[0] === 'T' ? poss.charAt(0).toUpperCase() + poss.slice(1) : poss))
+      .replace(/\bthemselves\b/gi, (match) => (match[0] === 'T' ? refl.charAt(0).toUpperCase() + refl.slice(1) : refl));
+  }
+
+  return out;
+}
+

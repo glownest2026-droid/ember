@@ -35,6 +35,7 @@ import { getWrapperIcon } from './_lib/wrapperIcons';
 import {
   displayChildName,
   personalizationFromChildrenRow,
+  personalizeDiscoverCopy,
   type DiscoverChildPersonalization,
 } from '@/lib/discover/personalization';
 import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
@@ -267,6 +268,7 @@ export default function DiscoveryPageClient({
         .eq('kind', 'category')
         .eq('have', true);
       if (selectedChildId) query = query.eq('child_id', selectedChildId);
+      else query = query.is('child_id', null);
       const { data, error } = await query;
       if (cancelled || error) return;
       const ids = (data ?? [])
@@ -277,7 +279,16 @@ export default function DiscoveryPageClient({
     return () => {
       cancelled = true;
     };
-  }, [user, selectedChildId, clientParams.get('wrapper')]);
+  }, [user, selectedChildId]);
+
+  const personalizeCopy = useCallback(
+    (text: string) =>
+      personalizeDiscoverCopy(text, {
+        displayLabel: childProfile.displayLabel,
+        gender: childProfile.gender,
+      }),
+    [childProfile.displayLabel, childProfile.gender]
+  );
 
   const scrollToSection = useCallback(
     (id: string, behaviorOverride?: ScrollBehavior) => {
@@ -730,62 +741,84 @@ export default function DiscoveryPageClient({
   }, [pathname, runReplayForAction]);
 
   const handleHaveThemCategory = (categoryId: string) => {
-    const wasDimmed = dimmedCategoryIds.has(categoryId);
-    setDimmedCategoryIds((prev) => {
-      const next = new Set(prev);
-      if (wasDimmed) next.delete(categoryId);
-      else next.add(categoryId);
-      return next;
-    });
+    void (async () => {
+      const wasDimmed = dimmedCategoryIds.has(categoryId);
+      const supabase = createClient();
+      const {
+        data: { user: authedUser },
+      } = await supabase.auth.getUser();
 
-    requireAuthThen({
-      actionId: 'have_category',
-      payload: { categoryId, childId: selectedChildId, have: !wasDimmed },
-      run: async () => {
-        try {
-          const supabase = createClient();
-          const { error } = await supabase.rpc('upsert_user_list_item', {
-            p_kind: 'category',
-            p_category_type_id: categoryId,
-            p_want: true,
-            p_have: !wasDimmed,
-            p_gift: false,
-            ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
-          });
-          if (error) throw error;
-          await refetchSubnavStats(selectedChildId);
-        } catch {
-          setDimmedCategoryIds((prev) => {
-            const next = new Set(prev);
-            if (wasDimmed) next.add(categoryId);
-            else next.delete(categoryId);
-            return next;
-          });
-          setActionToast({ productId: categoryId, message: "Couldn't update. Please try again." });
-        }
-      },
-      openAuthModal: ({ signinUrl }) => {
+      if (!authedUser) {
+        requireAuthThen({
+          actionId: 'have_category',
+          payload: { categoryId, childId: selectedChildId, have: !wasDimmed },
+          run: async () => {
+            setDimmedCategoryIds((prev) => {
+              const next = new Set(prev);
+              if (wasDimmed) next.delete(categoryId);
+              else next.add(categoryId);
+              return next;
+            });
+            const { error } = await supabase.rpc('upsert_user_list_item', {
+              p_kind: 'category',
+              p_category_type_id: categoryId,
+              p_want: true,
+              p_have: !wasDimmed,
+              p_gift: false,
+              ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
+            });
+            if (error) throw error;
+            await refetchSubnavStats(selectedChildId);
+          },
+          openAuthModal: ({ signinUrl }) => {
+            saveModalFocusRef.current = null;
+            openSavedModal({ signedIn: false, signinUrl });
+            setActionToast({ productId: categoryId, message: 'Sign in to record what you have.' });
+          },
+          isAuthenticated: async () => {
+            const {
+              data: { user },
+            } = await createClient().auth.getUser();
+            return !!user;
+          },
+          getReturnUrl: () =>
+            withChildParam(
+              selectedWrapper
+                ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1&category=${encodeURIComponent(categoryId)}`
+                : `${basePath}/${currentMonth}`,
+            ),
+        });
+        return;
+      }
+
+      setDimmedCategoryIds((prev) => {
+        const next = new Set(prev);
+        if (wasDimmed) next.delete(categoryId);
+        else next.add(categoryId);
+        return next;
+      });
+
+      try {
+        const { error } = await supabase.rpc('upsert_user_list_item', {
+          p_kind: 'category',
+          p_category_type_id: categoryId,
+          p_want: true,
+          p_have: !wasDimmed,
+          p_gift: false,
+          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
+        });
+        if (error) throw error;
+        await refetchSubnavStats(selectedChildId);
+      } catch {
         setDimmedCategoryIds((prev) => {
           const next = new Set(prev);
           if (wasDimmed) next.add(categoryId);
           else next.delete(categoryId);
           return next;
         });
-        saveModalFocusRef.current = null;
-        openSavedModal({ signedIn: false, signinUrl });
-        setActionToast({ productId: categoryId, message: 'Sign in to record what you have.' });
-      },
-      isAuthenticated: async () => {
-        const { data: { user } } = await createClient().auth.getUser();
-        return !!user;
-      },
-      getReturnUrl: () =>
-        withChildParam(
-          selectedWrapper
-            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1&category=${encodeURIComponent(categoryId)}`
-            : `${basePath}/${currentMonth}`,
-        ),
-    });
+        setActionToast({ productId: categoryId, message: "Couldn't update. Please try again." });
+      }
+    })();
   };
 
   const getProductUrl = (p: PickItem) =>
@@ -1123,14 +1156,19 @@ export default function DiscoveryPageClient({
     : formatBandLabel(selectedBand);
 
   const selectedWrapperRecord = wrappers.find((w) => w.ux_slug === selectedWrapper) ?? null;
-  const scienceBody = (selectedWrapperRecord?.ux_description || '').trim();
+  const scienceBody = personalizeCopy((selectedWrapperRecord?.ux_description || '').trim());
   const bandLabelForIdeas = formatBandLabel(selectedBand);
 
   const playIdeaItems = useMemo(() => {
     if (!selectedWrapper) return [];
     const types = categoriesByWrapper[selectedWrapper] ?? [];
-    return categoryTypesToPlayIdeaItems(types, bandLabelForIdeas);
-  }, [selectedWrapper, categoriesByWrapper, bandLabelForIdeas]);
+    return categoryTypesToPlayIdeaItems(types, bandLabelForIdeas).map((item) => ({
+      ...item,
+      description: personalizeCopy(item.description),
+      ownershipNote: item.ownershipNote ? personalizeCopy(item.ownershipNote) : item.ownershipNote,
+      giftNote: item.giftNote ? personalizeCopy(item.giftNote) : item.giftNote,
+    }));
+  }, [selectedWrapper, categoriesByWrapper, bandLabelForIdeas, personalizeCopy]);
 
   const laneForItem = useCallback((item: PlayIdeaItem): 'useful_ideas' | 'quick_checks' | 'things_that_can_help' => {
     if (item.uiLane === 'useful_ideas' || item.uiLane === 'quick_checks' || item.uiLane === 'things_that_can_help') {
@@ -1462,7 +1500,7 @@ export default function DiscoveryPageClient({
                             onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
                             onGiftAction={(categoryId, el) => handleSaveCategory(categoryId, el)}
                             onHaveThem={handleHaveThemCategory}
-                            showHaveAction={!!user}
+                            showHaveAction
                             showEmberPicks
                             showSaveAction
                             showGiftAction

@@ -1,3 +1,28 @@
+## 2026-07-02 — feat(data): map 31–33m Stage 2 category images (60/60)
+
+- **Preflight:** HEAD 200 on all 60 slugs in `category_images` — global filenames `ember_{slug}_category.png` (no age-scoped `*_31_33m_*` variants uploaded)
+- **Manifest:** `agent-tools/exports/31-33m_category_image_verified_map.json`
+- **Migration:** `20260702222945_fix_31_33m_category_images_verified.sql` — applied via `supabase db push`
+- **Result:** 60 active rows in `v_gateway_category_type_images` for `age_band_id=31-33m`; export gap count **0**
+
+### How to verify
+1. `node web/scripts/export-stage2-no-image-band.mjs 31-33m` → `missing_managed_image: 0`
+2. REST `v_gateway_category_type_images?age_band_id=eq.31-33m` → 60 rows, all `image_url` HEAD 200
+3. `/discover/32` → drill into any Stage 1 cluster → Stage 2 cards show images (not grey placeholders)
+
+## 2026-07-02 — fix(discover): mutually exclusive bands, Have-it toggle, name/gender copy
+
+- **Age bands:** migration `20260702230000_mutually_exclusive_age_band_ranges.sql` — `6-9m` → **7–9**, `9-12m` → **10–12** (no month overlap); hero keys `7-9` / `10-12`
+- **Have it:** light-switch UX — content greys out, action row stays interactive; no optimistic flip before auth; persist per child; reload only on user/child change
+- **Personalisation:** `personalizeDiscoverCopy()` — name swaps (`your baby`/`your toddler` → child name) + gender (`them`/`their` → him/her) on hero, Stage 1 why-text, Stage 2 rationale/notes
+- **Cache:** `GATEWAY_CATALOGUE_CACHE_VERSION = 20260702c`
+
+### How to verify
+1. Slider shows **7–9 months** and **10–12 months**; hero sub matches chip exactly
+2. `/discover/8` → Things that can help → tap Have → card greys, stays grey on refresh; tap again to restore
+3. Child with name + gender → hero/why-text uses name and him/her not them
+4. `pnpm -C web build` passes
+
 ## 2026-07-02 — fix(discover): audit — icons, notes, Have-it layout, hero bands
 
 - **Stage 1 icons:** slug + label patterns for 4–6m, 16–18m, 19–21m, 25–27m, 31–33m; `ent_cluster_solve` → Eye (hidden things)
