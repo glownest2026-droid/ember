@@ -152,6 +152,7 @@ export default function DiscoveryPageClient({
   // Default parent view — most users are the parent; gift mode is opt-in only.
   const [audienceMode, setAudienceMode] = useState<DiscoverAudienceMode>('parent');
   const replayAttemptedRef = useRef(false);
+  const fallbackHaveChildIdRef = useRef<string | null>(null);
   const basePath = '/discover';
   const { user, loading: subnavLoading, refetch: refetchSubnavStats } = useSubnavStats();
   const pathname = usePathname();
@@ -261,7 +262,7 @@ export default function DiscoveryPageClient({
       setDimmedCategoryIds(new Set());
       return;
     }
-    setDimmedCategoryIds(readHaveCategoryIds(user.id, selectedChildId));
+    setDimmedCategoryIds((prev) => mergeHaveCategoryIds(user.id, selectedChildId, [], prev));
     let cancelled = false;
     const supabase = createClient();
     void (async () => {
@@ -271,18 +272,35 @@ export default function DiscoveryPageClient({
         .eq('kind', 'category')
         .eq('have', true);
       if (selectedChildId) query = query.eq('child_id', selectedChildId);
-      else query = query.is('child_id', null);
       const { data, error } = await query;
       if (cancelled || error) return;
       const ids = (data ?? [])
         .map((row) => (row as { category_type_id?: string | null }).category_type_id)
         .filter((id): id is string => typeof id === 'string' && id.length > 0);
-      setDimmedCategoryIds(mergeHaveCategoryIds(user.id, selectedChildId, ids));
+      setDimmedCategoryIds((prev) => mergeHaveCategoryIds(user.id, selectedChildId, ids, prev));
     })();
     return () => {
       cancelled = true;
     };
   }, [user, selectedChildId, subnavLoading]);
+
+  const resolveHaveChildId = useCallback(async (): Promise<string | undefined> => {
+    if (selectedChildId) return selectedChildId;
+    if (fallbackHaveChildIdRef.current) return fallbackHaveChildIdRef.current;
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('children')
+      .select('id')
+      .or('is_suppressed.is.null,is_suppressed.eq.false')
+      .order('created_at', { ascending: true })
+      .limit(1);
+    const id = (data?.[0] as { id?: string } | undefined)?.id;
+    if (typeof id === 'string' && id.length > 0) {
+      fallbackHaveChildIdRef.current = id;
+      return id;
+    }
+    return undefined;
+  }, [selectedChildId]);
 
   const personalizeCopy = useCallback(
     (text: string) =>
@@ -651,19 +669,20 @@ export default function DiscoveryPageClient({
         }
         case 'have_category': {
           const categoryId = (action.payload.categoryId as string) || 'category';
-          const childId = action.payload.childId as string | undefined;
+          const childId = (action.payload.childId as string | undefined) ?? (await resolveHaveChildId());
           const have = action.payload.have !== false;
+          if (!childId) break;
           const { error } = await supabase.rpc('upsert_user_list_item', {
             p_kind: 'category',
             p_category_type_id: categoryId,
             p_want: true,
             p_have: have,
             p_gift: false,
-            ...(childId ? { p_child_id: childId } : {}),
+            p_child_id: childId,
           });
           if (!error) {
-            await refetchSubnavStats(selectedChildId);
-            writeHaveCategoryId(user.id, childId, categoryId, have);
+            await refetchSubnavStats(selectedChildId ?? childId);
+            writeHaveCategoryId(user.id, selectedChildId, categoryId, have);
             setDimmedCategoryIds((prev) => {
               const next = new Set(prev);
               if (have) next.add(categoryId);
@@ -713,7 +732,7 @@ export default function DiscoveryPageClient({
           break;
       }
     },
-    [selectedBand?.id, selectedWrapper, currentMonth, basePath, refetchSubnavStats, selectedChildId, saveModalPersonalization]
+    [selectedBand?.id, selectedWrapper, currentMonth, basePath, refetchSubnavStats, selectedChildId, saveModalPersonalization, resolveHaveChildId]
   );
 
   // Replay pending action once after sign-in (Option B: single place in DiscoveryPageClient)
@@ -755,90 +774,73 @@ export default function DiscoveryPageClient({
       return next;
     });
 
-    void (async () => {
-      const supabase = createClient();
-      const {
-        data: { user: authedUser },
-      } = await supabase.auth.getUser();
+    if (user) {
+      writeHaveCategoryId(user.id, selectedChildId, categoryId, nextHave);
+    }
 
-      if (!authedUser) {
+    void requireAuthThen({
+      actionId: 'have_category',
+      payload: { categoryId, childId: selectedChildId, have: nextHave },
+      run: async () => {
+        const childId = await resolveHaveChildId();
+        if (!childId) {
+          setActionToast({
+            productId: categoryId,
+            message: 'Select a child in the header to track what you have.',
+          });
+          return;
+        }
+        try {
+          const supabase = createClient();
+          const { error } = await supabase.rpc('upsert_user_list_item', {
+            p_kind: 'category',
+            p_category_type_id: categoryId,
+            p_want: true,
+            p_have: nextHave,
+            p_gift: false,
+            p_child_id: childId,
+          });
+          if (error) throw error;
+          const authedUser = user ?? (await supabase.auth.getUser()).data.user;
+          if (authedUser) writeHaveCategoryId(authedUser.id, selectedChildId, categoryId, nextHave);
+          await refetchSubnavStats(selectedChildId ?? childId);
+        } catch {
+          if (user) writeHaveCategoryId(user.id, selectedChildId, categoryId, wasDimmed);
+          setDimmedCategoryIds((prev) => {
+            const next = new Set(prev);
+            if (wasDimmed) next.add(categoryId);
+            else next.delete(categoryId);
+            return next;
+          });
+          setActionToast({ productId: categoryId, message: "Couldn't update. Please try again." });
+        }
+      },
+      openAuthModal: ({ signinUrl }) => {
+        if (user) writeHaveCategoryId(user.id, selectedChildId, categoryId, wasDimmed);
         setDimmedCategoryIds((prev) => {
           const next = new Set(prev);
           if (wasDimmed) next.add(categoryId);
           else next.delete(categoryId);
           return next;
         });
-        requireAuthThen({
-          actionId: 'have_category',
-          payload: { categoryId, childId: selectedChildId, have: nextHave },
-          run: async () => {
-            const {
-              data: { user: signedInUser },
-            } = await supabase.auth.getUser();
-            if (!signedInUser) return;
-            const { error } = await supabase.rpc('upsert_user_list_item', {
-              p_kind: 'category',
-              p_category_type_id: categoryId,
-              p_want: true,
-              p_have: nextHave,
-              p_gift: false,
-              ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
-            });
-            if (error) throw error;
-            writeHaveCategoryId(signedInUser.id, selectedChildId, categoryId, nextHave);
-            setDimmedCategoryIds((prev) => {
-              const next = new Set(prev);
-              if (nextHave) next.add(categoryId);
-              else next.delete(categoryId);
-              return next;
-            });
-            await refetchSubnavStats(selectedChildId);
-          },
-          openAuthModal: ({ signinUrl }) => {
-            saveModalFocusRef.current = null;
-            openSavedModal({ signedIn: false, signinUrl });
-            setActionToast({ productId: categoryId, message: 'Sign in to record what you have.' });
-          },
-          isAuthenticated: async () => {
-            const {
-              data: { user },
-            } = await createClient().auth.getUser();
-            return !!user;
-          },
-          getReturnUrl: () =>
-            withChildParam(
-              selectedWrapper
-                ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1&category=${encodeURIComponent(categoryId)}`
-                : `${basePath}/${currentMonth}`,
-            ),
-        });
-        return;
-      }
-
-      writeHaveCategoryId(authedUser.id, selectedChildId, categoryId, nextHave);
-
-      try {
-        const { error } = await supabase.rpc('upsert_user_list_item', {
-          p_kind: 'category',
-          p_category_type_id: categoryId,
-          p_want: true,
-          p_have: nextHave,
-          p_gift: false,
-          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
-        });
-        if (error) throw error;
-        await refetchSubnavStats(selectedChildId);
-      } catch {
-        writeHaveCategoryId(authedUser.id, selectedChildId, categoryId, wasDimmed);
-        setDimmedCategoryIds((prev) => {
-          const next = new Set(prev);
-          if (wasDimmed) next.add(categoryId);
-          else next.delete(categoryId);
-          return next;
-        });
-        setActionToast({ productId: categoryId, message: "Couldn't update. Please try again." });
-      }
-    })();
+        saveModalFocusRef.current = null;
+        openSavedModal({ signedIn: false, signinUrl });
+        setActionToast({ productId: categoryId, message: 'Sign in to record what you have.' });
+      },
+      isAuthenticated: async () => {
+        if (user) return true;
+        const {
+          data: { user: authedUser },
+        } = await createClient().auth.getUser();
+        return !!authedUser;
+      },
+      getReturnUrl: () =>
+        withChildParam(
+          selectedWrapper
+            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1&category=${encodeURIComponent(categoryId)}`
+            : `${basePath}/${currentMonth}`,
+        ),
+    });
   };
 
   const getProductUrl = (p: PickItem) =>

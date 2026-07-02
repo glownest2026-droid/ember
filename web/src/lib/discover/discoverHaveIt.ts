@@ -54,9 +54,13 @@ export function writeHaveCategoryId(
 export function mergeHaveCategoryIds(
   userId: string,
   childId: string | null | undefined,
-  fromDb: Iterable<string>
+  fromDb: Iterable<string>,
+  keepAlso?: Iterable<string>
 ): Set<string> {
   const merged = readHaveCategoryIds(userId, childId);
   for (const id of fromDb) merged.add(id);
+  if (keepAlso) {
+    for (const id of keepAlso) merged.add(id);
+  }
   return merged;
 }
