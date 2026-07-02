@@ -22,7 +22,7 @@ import {
 export const GATEWAY_PUBLIC_REVALIDATE_SECONDS = 30 * 60;
 
 /** Bump after catalogue imports so Discover picks up new Stage 2 rows without waiting for TTL. */
-export const GATEWAY_CATALOGUE_CACHE_VERSION = '20260702c';
+export const GATEWAY_CATALOGUE_CACHE_VERSION = '20260702d';
 
 const gatewayTag = 'gateway-public';
 
@@ -35,7 +35,7 @@ export async function revalidateDiscoverCatalogue(ageBandId?: string) {
 }
 
 export function getGatewayAgeBandsPublicCached() {
-  return unstable_cache(() => getGatewayAgeBandsPublic(), ['gateway-age-bands-public'], {
+  return unstable_cache(() => getGatewayAgeBandsPublic(), ['gateway-age-bands-public', GATEWAY_CATALOGUE_CACHE_VERSION], {
     revalidate: GATEWAY_PUBLIC_REVALIDATE_SECONDS,
     tags: [gatewayTag],
   })();

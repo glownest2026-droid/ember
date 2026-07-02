@@ -4014,3 +4014,20 @@ Category-only cards remain publishable.
 - **Input slugs resolved:** `cat_sitting_play_mat`, `cat_reach_grab_toys`, `cat_hand_transfer_toys`, `cat_soft_graspable_balls`, `cat_first_puzzle`.
 - **What changed:** Idempotent upsert into `public.pl_category_type_images` using canonical public URLs `https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_<slug>_category.png` (`ON CONFLICT (category_type_id)`).
 - **Proof:** Preflight 5/5 objects found; write mapped 5/5; re-run idempotent (5 active rows, no duplicate-active anomalies); `v_gateway_category_type_images` returns all five URLs.
+
+## 2026-07-02 — Discover audit follow-up: age bands, notes, Have it
+
+### Summary
+- **Mutually exclusive age bands:** DB migration re-applies 7–9 / 10–12 ranges; deactivated overlapping `24_30m`; runtime `DISPLAY_RANGE_BY_BAND_ID` + generator `ageBandMeta` canonical labels; bumped `GATEWAY_CATALOGUE_CACHE_VERSION` and added version to age-bands cache key.
+- **Parent vs gift notes:** Migration clears gift-buyer copy from `ownership_note`; client filters `isGiftOrientedNote` and hides gift badges in parent mode (`resolveStage2BadgeLabel`).
+- **Have it:** Session-scoped `discoverHaveIt.ts` (sessionStorage) merged with DB on load; optimistic toggle + replay persistence; hydrate from session before async fetch.
+
+### Migrations
+- `20260702233000_enforce_mutually_exclusive_age_bands.sql`
+- `20260702233100_clear_gift_copy_from_ownership_notes.sql`
+
+### Verify
+- `/discover/8` — chip, slider, hero show **7–9 months** (not 6–9)
+- `/discover/10` — **10–12 months**
+- `/discover/32` parent mode — Feeling faces card: no “High chance the family owns…”
+- Sign in → Things that can help → Have it → refresh: card stays greyed

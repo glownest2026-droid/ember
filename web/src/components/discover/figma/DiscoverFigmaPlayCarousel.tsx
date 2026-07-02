@@ -1,7 +1,7 @@
 'use client';
 
 import useEmblaCarousel from 'embla-carousel-react';
-import { resolveStage2HelperNote } from '@/lib/discover/cardNotes';
+import { resolveStage2BadgeLabel, resolveStage2HelperNote } from '@/lib/discover/cardNotes';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence } from 'motion/react';
@@ -160,7 +160,7 @@ export function DiscoverFigmaPlayCarousel({
                     showGiftAction={showGiftAction && idea.showGiftAction === true}
                     ctaLabel={idea.cardCtaLabel || 'See Ember Picks'}
                     helperNote={resolveStage2HelperNote(noteMode, idea.ownershipNote, idea.giftNote)}
-                    badgeLabel={idea.buyerModeLabel}
+                    badgeLabel={resolveStage2BadgeLabel(noteMode, idea.buyerModeLabel)}
                   />
                 </div>
               );

@@ -49,6 +49,7 @@ import {
   type PendingAuthAction,
 } from '@/lib/auth/requireAuthThen';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
+import { mergeHaveCategoryIds, readHaveCategoryIds, writeHaveCategoryId } from '@/lib/discover/discoverHaveIt';
 import { saveDiscoverSession } from '@/lib/discover/discoverSession';
 import { useDiscoverClientSearchParams } from '@/lib/discover/discoverClientNav';
 
@@ -152,7 +153,7 @@ export default function DiscoveryPageClient({
   const [audienceMode, setAudienceMode] = useState<DiscoverAudienceMode>('parent');
   const replayAttemptedRef = useRef(false);
   const basePath = '/discover';
-  const { user, refetch: refetchSubnavStats } = useSubnavStats();
+  const { user, loading: subnavLoading, refetch: refetchSubnavStats } = useSubnavStats();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { params: clientParams, replace: replaceClientParams } = useDiscoverClientSearchParams(pathname);
@@ -255,10 +256,12 @@ export default function DiscoveryPageClient({
 
   // Pre-dim Stage 2 cards the user has already marked as "have".
   useEffect(() => {
+    if (subnavLoading) return;
     if (!user) {
       setDimmedCategoryIds(new Set());
       return;
     }
+    setDimmedCategoryIds(readHaveCategoryIds(user.id, selectedChildId));
     let cancelled = false;
     const supabase = createClient();
     void (async () => {
@@ -274,12 +277,12 @@ export default function DiscoveryPageClient({
       const ids = (data ?? [])
         .map((row) => (row as { category_type_id?: string | null }).category_type_id)
         .filter((id): id is string => typeof id === 'string' && id.length > 0);
-      setDimmedCategoryIds(new Set(ids));
+      setDimmedCategoryIds(mergeHaveCategoryIds(user.id, selectedChildId, ids));
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, selectedChildId]);
+  }, [user, selectedChildId, subnavLoading]);
 
   const personalizeCopy = useCallback(
     (text: string) =>
@@ -660,6 +663,7 @@ export default function DiscoveryPageClient({
           });
           if (!error) {
             await refetchSubnavStats(selectedChildId);
+            writeHaveCategoryId(user.id, childId, categoryId, have);
             setDimmedCategoryIds((prev) => {
               const next = new Set(prev);
               if (have) next.add(categoryId);
@@ -741,33 +745,53 @@ export default function DiscoveryPageClient({
   }, [pathname, runReplayForAction]);
 
   const handleHaveThemCategory = (categoryId: string) => {
+    const wasDimmed = dimmedCategoryIds.has(categoryId);
+    const nextHave = !wasDimmed;
+
+    setDimmedCategoryIds((prev) => {
+      const next = new Set(prev);
+      if (nextHave) next.add(categoryId);
+      else next.delete(categoryId);
+      return next;
+    });
+
     void (async () => {
-      const wasDimmed = dimmedCategoryIds.has(categoryId);
       const supabase = createClient();
       const {
         data: { user: authedUser },
       } = await supabase.auth.getUser();
 
       if (!authedUser) {
+        setDimmedCategoryIds((prev) => {
+          const next = new Set(prev);
+          if (wasDimmed) next.add(categoryId);
+          else next.delete(categoryId);
+          return next;
+        });
         requireAuthThen({
           actionId: 'have_category',
-          payload: { categoryId, childId: selectedChildId, have: !wasDimmed },
+          payload: { categoryId, childId: selectedChildId, have: nextHave },
           run: async () => {
-            setDimmedCategoryIds((prev) => {
-              const next = new Set(prev);
-              if (wasDimmed) next.delete(categoryId);
-              else next.add(categoryId);
-              return next;
-            });
+            const {
+              data: { user: signedInUser },
+            } = await supabase.auth.getUser();
+            if (!signedInUser) return;
             const { error } = await supabase.rpc('upsert_user_list_item', {
               p_kind: 'category',
               p_category_type_id: categoryId,
               p_want: true,
-              p_have: !wasDimmed,
+              p_have: nextHave,
               p_gift: false,
               ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
             });
             if (error) throw error;
+            writeHaveCategoryId(signedInUser.id, selectedChildId, categoryId, nextHave);
+            setDimmedCategoryIds((prev) => {
+              const next = new Set(prev);
+              if (nextHave) next.add(categoryId);
+              else next.delete(categoryId);
+              return next;
+            });
             await refetchSubnavStats(selectedChildId);
           },
           openAuthModal: ({ signinUrl }) => {
@@ -791,25 +815,21 @@ export default function DiscoveryPageClient({
         return;
       }
 
-      setDimmedCategoryIds((prev) => {
-        const next = new Set(prev);
-        if (wasDimmed) next.delete(categoryId);
-        else next.add(categoryId);
-        return next;
-      });
+      writeHaveCategoryId(authedUser.id, selectedChildId, categoryId, nextHave);
 
       try {
         const { error } = await supabase.rpc('upsert_user_list_item', {
           p_kind: 'category',
           p_category_type_id: categoryId,
           p_want: true,
-          p_have: !wasDimmed,
+          p_have: nextHave,
           p_gift: false,
           ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
         });
         if (error) throw error;
         await refetchSubnavStats(selectedChildId);
       } catch {
+        writeHaveCategoryId(authedUser.id, selectedChildId, categoryId, wasDimmed);
         setDimmedCategoryIds((prev) => {
           const next = new Set(prev);
           if (wasDimmed) next.add(categoryId);
