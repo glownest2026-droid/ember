@@ -4015,6 +4015,24 @@ Category-only cards remain publishable.
 - **What changed:** Idempotent upsert into `public.pl_category_type_images` using canonical public URLs `https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_<slug>_category.png` (`ON CONFLICT (category_type_id)`).
 - **Proof:** Preflight 5/5 objects found; write mapped 5/5; re-run idempotent (5 active rows, no duplicate-active anomalies); `v_gateway_category_type_images` returns all five URLs.
 
+## 2026-07-03 — Discover: final four age bands (16–18m, 22–24m, 28–30m, 34–36m)
+
+### Summary
+- **Source workbooks (discover_projection):**
+  - `02_Ember_Bible_16_18m_v1_1_QA_patch.xlsx`
+  - `02_Ember_Bible_22_24m_v1.xlsx`
+  - `02_Ember_Bible_28_30m_v1_QA_patch.xlsx`
+  - `02_Ember_Bible_34_36m_v1_1.xlsx`
+- **Migration:** `20260703140000_reimport_discover_16_18m_22_24m_28_30m_34_36m_final.sql` (+ mirror in `supabase/sql/`)
+- **Counts (workbook = REST):** 189 total Stage 2 rows across 4 bands; 8 clusters each; gift_friendly: 16-18m 17, 22-24m 29, 28-30m 19, 34-36m 25; Stage 3 active = 0
+- **Cache:** bumped `GATEWAY_CATALOGUE_CACHE_VERSION` → `20260703c`
+
+### Verify
+- REST parity on `v_gateway_wrappers_public` + `v_gateway_category_types_public` for each band
+- UI: `/discover/17` (16–18m), `/discover/23` (22–24m), `/discover/29` (28–30m), `/discover/35` (34–36m)
+- Parent/gift toggle visible on all four (gift rows present)
+- Three lanes render: Useful ideas / Things that can help / Quick checks
+
 ## 2026-07-02 — Discover audit follow-up: age bands, notes, Have it
 
 ### Summary
