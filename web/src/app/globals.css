@@ -109,6 +109,116 @@
   color: var(--ember-text-high);
 }
 
+/* Homepage typography: soft Manrope scale (marketing warmth, Discover family) */
+.homepage-discover-brand .home-display {
+  font-size: 2.5rem;
+  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+@media (min-width: 640px) {
+  .homepage-discover-brand .home-display {
+    font-size: 2.75rem;
+  }
+}
+@media (min-width: 1024px) {
+  .homepage-discover-brand .home-display {
+    font-size: 3.5rem;
+  }
+}
+
+.homepage-discover-brand .home-lead {
+  font-size: 1.125rem;
+  line-height: 1.65;
+  font-weight: 400;
+  color: var(--ember-text-low);
+}
+@media (min-width: 640px) {
+  .homepage-discover-brand .home-lead {
+    font-size: 1.25rem;
+  }
+}
+
+.homepage-discover-brand .home-section-title {
+  font-size: 1.75rem;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+@media (min-width: 640px) {
+  .homepage-discover-brand .home-section-title {
+    font-size: 2rem;
+  }
+}
+@media (min-width: 1024px) {
+  .homepage-discover-brand .home-section-title {
+    font-size: 2.25rem;
+  }
+}
+
+.homepage-discover-brand .home-section-lead {
+  font-size: 1rem;
+  line-height: 1.65;
+  font-weight: 400;
+  color: var(--ember-text-low);
+}
+@media (min-width: 640px) {
+  .homepage-discover-brand .home-section-lead {
+    font-size: 1.125rem;
+  }
+}
+
+.homepage-discover-brand .home-pullquote {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+@media (min-width: 640px) {
+  .homepage-discover-brand .home-pullquote {
+    font-size: 1.875rem;
+  }
+}
+@media (min-width: 1024px) {
+  .homepage-discover-brand .home-pullquote {
+    font-size: 2rem;
+  }
+}
+
+.homepage-discover-brand .home-card-title {
+  font-size: 1.125rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+@media (min-width: 640px) {
+  .homepage-discover-brand .home-card-title {
+    font-size: 1.25rem;
+  }
+}
+
+.homepage-discover-brand .home-body {
+  font-size: 1rem;
+  line-height: 1.65;
+  font-weight: 400;
+  color: var(--ember-text-low);
+}
+
+.homepage-discover-brand .home-cta {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.homepage-discover-brand .home-link {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.homepage-discover-brand .home-media {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+
 /* Ember 2026 Brandbook design tokens (Unified UX + Brand) */
 :root {
   --ember-bg-canvas: #FAFAFA;

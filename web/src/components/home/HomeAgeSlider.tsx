@@ -91,13 +91,13 @@ export function HomeAgeSlider() {
           className="max-w-4xl mx-auto"
         >
           <div className="text-center mb-8">
-            <p className="text-lg text-[var(--ember-text-low)] mb-2">My child&apos;s current age</p>
+            <p className="home-body mb-2">My child&apos;s current age</p>
             <motion.p
               key={currentAgeLabel || 'loading'}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reducedMotion ? 0 : 0.3 }}
-              className="text-3xl lg:text-4xl text-[var(--ember-text-high)] font-bold"
+              className="text-2xl lg:text-[1.75rem] text-[var(--ember-text-high)] font-semibold"
             >
               {ready ? currentAgeLabel : '\u00A0'}
             </motion.p>
@@ -150,7 +150,7 @@ export function HomeAgeSlider() {
                             showLabelOnMobile ? 'block' : 'hidden sm:block'
                           } ${
                             active
-                              ? 'text-[var(--ember-accent-base)] font-semibold'
+                              ? 'text-[var(--ember-accent-base)] font-medium'
                               : 'text-[var(--ember-text-low)]'
                           }`}
                         >
@@ -169,7 +169,7 @@ export function HomeAgeSlider() {
                 href={discoverHref}
                 whileHover={reducedMotion ? {} : { scale: 1.02 }}
                 whileTap={reducedMotion ? {} : { scale: 0.98 }}
-                className="inline-flex items-center gap-3 px-10 py-5 bg-[var(--ember-accent-base)] text-white text-lg rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_12px_40px_rgba(255,92,52,0.35)] font-medium"
+                className="home-cta inline-flex items-center gap-3 px-8 py-4 bg-[var(--ember-accent-base)] text-white rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_12px_40px_rgba(255,92,52,0.25)]"
               >
                 Begin your journey
                 <ArrowRight className="w-5 h-5" strokeWidth={2.5} />

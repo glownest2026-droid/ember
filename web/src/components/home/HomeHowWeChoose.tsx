@@ -24,18 +24,16 @@ export function HomeHowWeChoose() {
         className="max-w-5xl mx-auto text-center"
       >
         <div className="bg-[var(--ember-surface-soft)] rounded-[3rem] p-12 lg:p-20 border-2 border-[var(--ember-border-subtle)]">
-          <h2
-            className="font-sans text-4xl lg:text-5xl mb-12 text-[var(--ember-text-high)] font-bold tracking-[-0.01em]"
-          >
+          <h2 className="home-section-title mb-10 text-[var(--ember-text-high)]">
             How we choose.
           </h2>
-          <div className="grid sm:grid-cols-2 gap-x-12 gap-y-8 max-w-3xl mb-10 text-left">
+          <div className="grid sm:grid-cols-2 gap-x-10 gap-y-6 max-w-3xl mb-8 text-left mx-auto">
             {BULLETS.map((text) => (
-              <div key={text} className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-[var(--ember-accent-base)]/10 flex items-center justify-center flex-shrink-0 mt-1">
+              <div key={text} className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-[var(--ember-accent-base)]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Check className="w-5 h-5 text-[var(--ember-accent-base)]" strokeWidth={2.5} />
                 </div>
-                <p className="text-lg text-[var(--ember-text-high)] leading-relaxed">{text}</p>
+                <p className="home-body text-[var(--ember-text-high)]">{text}</p>
               </div>
             ))}
           </div>

@@ -14,18 +14,18 @@ export function HomeStageBlocks() {
   return (
     <>
       {/* Block 1: Parenting moves in stages (image left) */}
-      <section className="max-w-[90rem] mx-auto px-6 lg:px-12 py-24 lg:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <section className="max-w-[90rem] mx-auto px-6 lg:px-12 py-20 lg:py-28">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={transition}
-            className="relative rounded-3xl overflow-hidden shadow-[0px_20px_60px_rgba(0,0,0,0.12)] h-[350px] lg:h-[400px] lg:order-1"
+            className="home-media relative h-[320px] lg:h-[380px] lg:order-1"
           >
             <HomeStage2Media
               src={HOME_STAGE2_IMAGES.stages}
-              alt="Soft graspable balls Stage 2 play idea"
+              alt="Real-object basket setup Stage 2 play idea"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
           </motion.div>
@@ -36,7 +36,7 @@ export function HomeStageBlocks() {
             transition={transition}
             className="lg:order-2"
           >
-            <p className="font-sans text-3xl lg:text-5xl text-[var(--ember-text-high)] leading-tight font-bold tracking-[-0.01em]">
+            <p className="home-pullquote text-[var(--ember-text-high)]">
               Parenting moves in stages. So should what you buy.
             </p>
           </motion.div>
@@ -44,24 +44,24 @@ export function HomeStageBlocks() {
       </section>
 
       {/* Block 2: Built around how children actually grow */}
-      <section className="bg-gradient-to-b from-[var(--ember-surface-primary)] to-[var(--ember-surface-soft)] py-24 lg:py-32">
+      <section className="bg-gradient-to-b from-[var(--ember-surface-primary)] to-[var(--ember-surface-soft)] py-20 lg:py-28">
         <div className="max-w-[90rem] mx-auto px-6 lg:px-12">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center mb-20">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-16">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-100px' }}
               transition={transition}
             >
-              <h2 className="font-sans text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)] font-bold tracking-[-0.01em]">
+              <h2 className="home-section-title mb-4 text-[var(--ember-text-high)]">
                 Built around how children actually grow.
               </h2>
-              <p className="font-sans text-xl lg:text-2xl text-[var(--ember-text-low)] leading-relaxed mb-8 font-normal">
+              <p className="home-section-lead mb-6">
                 Every stage brings new discoveries. We show you what&apos;s next for their stage.
               </p>
               <Link
                 href="/discover"
-                className="flex items-center gap-2 text-[var(--ember-accent-base)] text-lg hover:gap-3 transition-all font-medium"
+                className="home-link inline-flex items-center gap-2 text-[var(--ember-accent-base)] hover:gap-3 transition-all"
               >
                 Learn about stages
                 <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
@@ -72,7 +72,7 @@ export function HomeStageBlocks() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-100px' }}
               transition={transition}
-              className="relative rounded-3xl overflow-hidden shadow-[0px_20px_60px_rgba(0,0,0,0.12)] h-[400px] lg:h-[500px]"
+              className="home-media relative h-[360px] lg:h-[440px]"
             >
               <HomeStage2Media
                 src={HOME_STAGE2_IMAGES.grow}
@@ -83,13 +83,13 @@ export function HomeStageBlocks() {
           </div>
 
           {/* Block 3: What they're practising matters */}
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-100px' }}
               transition={transition}
-              className="relative rounded-3xl overflow-hidden shadow-[0px_20px_60px_rgba(0,0,0,0.12)] h-[400px] lg:h-[500px] lg:order-1"
+              className="home-media relative h-[360px] lg:h-[440px] lg:order-1"
             >
               <HomeStage2Media
                 src={HOME_STAGE2_IMAGES.practising}
@@ -104,15 +104,15 @@ export function HomeStageBlocks() {
               transition={transition}
               className="lg:order-2"
             >
-              <h2 className="font-sans text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)] font-bold tracking-[-0.01em]">
+              <h2 className="home-section-title mb-4 text-[var(--ember-text-high)]">
                 What they&apos;re practising matters.
               </h2>
-              <p className="font-sans text-xl lg:text-2xl text-[var(--ember-text-low)] leading-relaxed mb-8 font-normal">
+              <p className="home-section-lead mb-6">
                 We match products to what your child is actually doing, not what marketing says they should have.
               </p>
               <Link
                 href="/discover"
-                className="flex items-center gap-2 text-[var(--ember-accent-base)] text-lg hover:gap-3 transition-all font-medium"
+                className="home-link inline-flex items-center gap-2 text-[var(--ember-accent-base)] hover:gap-3 transition-all"
               >
                 See examples
                 <ArrowRight className="w-5 h-5" strokeWidth={2.5} />

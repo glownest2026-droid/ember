@@ -13,8 +13,8 @@ function categoryImage(filename: string): string {
 export const HOME_STAGE2_IMAGES = {
   /** Hero: copy-me / playful turn-taking energy */
   hero: categoryImage('ember_cat_copy_me_games_category.png'),
-  /** Stages block: graspable play across early months */
-  stages: categoryImage('ember_cat_soft_graspable_balls_category.png'),
+  /** Stages block: real-object basket setup (newer quality art) */
+  stages: categoryImage('ember_cat_real_object_baskets_category.png'),
   /** How children grow: hide-and-find */
   grow: categoryImage('ember_cat_hide_find_cups_category.png'),
   /** Practising matters: stacking / fine motor */
