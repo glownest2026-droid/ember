@@ -9,6 +9,7 @@ import { createClient } from '@/utils/supabase/client';
 import type { User as AuthUser } from '@supabase/supabase-js';
 import { Menu, X } from 'lucide-react';
 import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
+import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 import {
   FIGMA_CTA_PRIMARY_CLASS,
   FIGMA_CTA_TEXT_CLASS,
@@ -40,6 +41,7 @@ export default function DiscoverStickyHeader() {
   const isPricing = pathname === '/pricing';
   const isMarketplace = pathname?.startsWith('/marketplace') ?? false;
   const isHome = pathname === '/';
+  const shellContainer = isHome || isPricing ? EMBER_MARKETING_CONTAINER : EMBER_FIGMA_APP_CONTAINER;
 
   useEffect(() => {
     const supabase = createClient();
@@ -71,7 +73,7 @@ export default function DiscoverStickyHeader() {
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}
     >
-      <div className={`${EMBER_FIGMA_APP_CONTAINER} flex h-16 items-center justify-between gap-4 md:h-20`}>
+      <div className={`${shellContainer} flex h-16 items-center justify-between gap-4 md:h-20`}>
         <button
           type="button"
           onClick={() => setMobileMenuOpen((o) => !o)}
@@ -137,7 +139,7 @@ export default function DiscoverStickyHeader() {
 
       {mobileMenuOpen && (
         <div className={`border-t border-[#E7E2DC] md:hidden ${FIGMA_NAV_HEADER_CLASS}`}>
-          <nav className={`${EMBER_FIGMA_APP_CONTAINER} flex flex-col gap-1 py-4`}>
+          <nav className={`${shellContainer} flex flex-col gap-1 py-4`}>
             <Link
               href="/discover"
               onClick={() => setMobileMenuOpen(false)}

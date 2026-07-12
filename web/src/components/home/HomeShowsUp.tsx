@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import Link from 'next/link';
 import { Eye, Bookmark, Store, ArrowRight } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
+import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 
 const CARDS = [
   {
@@ -34,7 +35,7 @@ export function HomeShowsUp() {
 
   return (
     <section className="bg-[var(--ember-surface-primary)] py-20 lg:py-28">
-      <div className="max-w-[90rem] mx-auto px-6 lg:px-12">
+      <div className={EMBER_MARKETING_CONTAINER}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

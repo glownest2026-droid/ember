@@ -6,6 +6,7 @@ import { ArrowRight } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import { HOME_STAGE2_IMAGES } from './homeStage2Images';
 import { HomeStage2Media } from './HomeStage2Media';
+import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 
 export function HomeStageBlocks() {
   const reducedMotion = useReducedMotion() ?? false;
@@ -14,7 +15,7 @@ export function HomeStageBlocks() {
   return (
     <>
       {/* Block 1: Parenting moves in stages (image left) */}
-      <section className="max-w-[90rem] mx-auto px-6 lg:px-12 py-20 lg:py-28">
+      <section className={`${EMBER_MARKETING_CONTAINER} py-20 lg:py-28`}>
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -25,7 +26,7 @@ export function HomeStageBlocks() {
           >
             <HomeStage2Media
               src={HOME_STAGE2_IMAGES.stages}
-              alt="Real-object basket setup Stage 2 play idea"
+              alt="Low shelf tidy-up Stage 2 play idea"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
           </motion.div>
@@ -45,7 +46,7 @@ export function HomeStageBlocks() {
 
       {/* Block 2: Built around how children actually grow */}
       <section className="bg-gradient-to-b from-[var(--ember-surface-primary)] to-[var(--ember-surface-soft)] py-20 lg:py-28">
-        <div className="max-w-[90rem] mx-auto px-6 lg:px-12">
+        <div className={EMBER_MARKETING_CONTAINER}>
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-16">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -76,7 +77,7 @@ export function HomeStageBlocks() {
             >
               <HomeStage2Media
                 src={HOME_STAGE2_IMAGES.grow}
-                alt="Hide-and-find cups Stage 2 play idea"
+                alt="Hide-and-squeak toys Stage 2 play idea"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
             </motion.div>

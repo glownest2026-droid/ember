@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useReducedMotion } from 'motion/react';
+import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 
 type AgeBand = {
   id: string;
@@ -83,7 +84,7 @@ export function HomeAgeSlider() {
 
   return (
     <section className="bg-[var(--ember-surface-primary)] border-y border-[var(--ember-border-subtle)]">
-      <div className="max-w-[90rem] mx-auto px-6 lg:px-12 py-16 lg:py-20">
+      <div className={`${EMBER_MARKETING_CONTAINER} py-16 lg:py-20`}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -3,6 +3,7 @@
 import { motion } from 'motion/react';
 import { Check } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
+import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 
 const BULLETS = [
   'We explain why something matters at this stage.',
@@ -15,7 +16,7 @@ export function HomeHowWeChoose() {
   const reducedMotion = useReducedMotion() ?? false;
 
   return (
-    <section className="max-w-[90rem] mx-auto px-6 lg:px-12 py-24 lg:py-32">
+    <section className={`${EMBER_MARKETING_CONTAINER} py-24 lg:py-32`}>
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}

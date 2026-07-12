@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { useReducedMotion } from 'motion/react';
+import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 
 const EMBER_LOGO = 'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
 
@@ -44,7 +45,7 @@ export function HomeHowItWorks() {
 
   return (
     <section id="how-ember-works" className="relative overflow-hidden bg-[var(--ember-surface-primary)]">
-      <div className="max-w-[90rem] mx-auto px-6 lg:px-12 py-24 lg:py-32">
+      <div className={`${EMBER_MARKETING_CONTAINER} py-24 lg:py-32`}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -1,3 +1,24 @@
+## 2026-07-13 — fix(marketing): homepage image diversity, hero scale, nav alignment
+
+- **Images:** five distinct families/scenes — dropped recurring orange-sweater catalogue model
+- **Hero:** display ~44–68px semibold (SaaS opening impact, still not bold)
+- **Layout:** shared `max-w-7xl` marketing container; nav widens on `/` + `/pricing`; removed redundant `ContentSpacer`
+
+### How to verify
+1. Preview `/` — no repeat orange-sweater parent; logo aligns with hero text edges
+2. Hero headline reads larger than section titles
+3. No double gap under sticky nav
+
+## 2026-07-13 — fix(marketing): softer homepage type scale + stages image swap
+
+- **Type:** shared `.home-*` scale — semibold/medium headings (not bold), body 16–18px like Discover
+- **Stages image:** `ember_cat_real_object_baskets_category.png` (replaces old soft-balls art)
+- **Rhythm:** slightly tighter section padding + lighter image shadows
+
+### How to verify
+1. Preview `/` — headings feel lighter; body reads at ~17px not 24px+
+2. "Parenting moves in stages" block shows real-object basket art
+
 ## 2026-07-13 — fix(marketing): homepage typography, crop, no em dashes
 
 - Hero/body: regular weight (Discover body pattern); headings stay Manrope bold

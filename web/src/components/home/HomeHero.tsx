@@ -5,11 +5,12 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { HOME_STAGE2_IMAGES } from './homeStage2Images';
 import { HomeStage2Media } from './HomeStage2Media';
+import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 
 export function HomeHero() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[var(--ember-surface-primary)] to-[var(--ember-bg-canvas)]">
-      <div className="max-w-[90rem] mx-auto px-6 lg:px-12 pt-16 pb-20 lg:pt-24 lg:pb-28">
+      <div className={`${EMBER_MARKETING_CONTAINER} pt-10 pb-20 lg:pt-14 lg:pb-28`}>
         <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -49,7 +50,7 @@ export function HomeHero() {
           >
             <HomeStage2Media
               src={HOME_STAGE2_IMAGES.hero}
-              alt="Copy-me play idea from Ember Discover"
+              alt="Soft dough and simple tools Stage 2 play idea"
               sizes="(max-width: 1024px) 100vw, 50vw"
               priority
             />

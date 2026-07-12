@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useReducedMotion } from 'motion/react';
 import { HOME_STAGE2_IMAGES } from './homeStage2Images';
 import { HomeStage2Media } from './HomeStage2Media';
+import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 
 export function HomeFinalCTA() {
   const reducedMotion = useReducedMotion() ?? false;
@@ -12,7 +13,7 @@ export function HomeFinalCTA() {
   return (
     <section className="relative overflow-hidden py-24 lg:py-32">
       <div className="absolute inset-0 bg-gradient-to-br from-[var(--ember-blush)] to-white" aria-hidden />
-      <div className="relative max-w-[90rem] mx-auto px-6 lg:px-12">
+      <div className={`relative ${EMBER_MARKETING_CONTAINER}`}>
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -46,7 +47,7 @@ export function HomeFinalCTA() {
           >
             <HomeStage2Media
               src={HOME_STAGE2_IMAGES.finalCta}
-              alt="Animal books Stage 2 play idea"
+              alt="Choking-aware meal setup Stage 2 idea"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
           </motion.div>
