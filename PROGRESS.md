@@ -1,3 +1,15 @@
+## 2026-07-13 — fix(marketing): homepage typography, crop, no em dashes
+
+- Hero/body: regular weight (Discover body pattern); headings stay Manrope bold
+- CTAs: `font-medium` / normal only (never bold)
+- Media: edge-to-edge `object-cover` + live `rounded-3xl` shadow (no padded card frame)
+- Em dashes removed from homepage copy + site title
+
+### How to verify
+1. Preview `/` vs live: hero image fills the frame edge-to-edge
+2. Subtext and CTAs are not bold
+3. No "—" in hero line
+
 ## 2026-07-13 — feat(marketing): homepage Discover brand + Stage 2 Storage images
 
 - **Brand:** `.homepage-discover-brand` remaps tokens to Discover Figma (`#253044`, `#FF5C34`, `#FBFAF7`, `#E7E2DC`); Manrope headings (no Source Serif)

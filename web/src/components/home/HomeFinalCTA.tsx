@@ -20,10 +20,10 @@ export function HomeFinalCTA() {
             viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: reducedMotion ? 0 : 0.6, delay: 0.2 }}
           >
-            <h2 className="text-5xl lg:text-6xl mb-6 text-[var(--ember-text-high)] leading-[1.05] font-bold tracking-[-0.02em]">
+            <h2 className="font-sans text-5xl lg:text-6xl mb-6 text-[var(--ember-text-high)] leading-[1.05] font-bold tracking-[-0.02em]">
               Never behind the curve.
             </h2>
-            <p className="text-2xl text-[var(--ember-text-low)] mb-10 leading-relaxed">
+            <p className="font-sans text-2xl text-[var(--ember-text-low)] mb-10 leading-relaxed font-normal">
               Over 600 free ideas. Know what&apos;s next. Buy smart. Move it on.
             </p>
             <Link href="/discover" passHref legacyBehavior>
@@ -31,7 +31,7 @@ export function HomeFinalCTA() {
                 href="/discover"
                 whileHover={reducedMotion ? {} : { scale: 1.02, y: -2 }}
                 whileTap={reducedMotion ? {} : { scale: 0.98 }}
-                className="inline-block px-10 py-5 bg-[var(--ember-accent-base)] text-white text-lg rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_12px_48px_rgba(255,92,52,0.3)] font-bold"
+                className="inline-block px-10 py-5 bg-[var(--ember-accent-base)] text-white text-lg rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_12px_48px_rgba(255,92,52,0.3)] font-medium"
               >
                 See what&apos;s next
               </motion.a>
@@ -42,11 +42,11 @@ export function HomeFinalCTA() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: reducedMotion ? 0 : 0.6 }}
-            className="relative rounded-[20px] overflow-hidden border border-[var(--ember-border-subtle)] shadow-sm h-[400px] lg:h-[500px]"
+            className="relative rounded-3xl overflow-hidden shadow-[0px_20px_60px_rgba(0,0,0,0.12)] h-[400px] lg:h-[500px]"
           >
             <HomeStage2Media
               src={HOME_STAGE2_IMAGES.finalCta}
-              alt="Animal books — Stage 2 play idea"
+              alt="Animal books Stage 2 play idea"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
           </motion.div>

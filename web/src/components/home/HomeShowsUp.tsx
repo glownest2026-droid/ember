@@ -42,10 +42,10 @@ export function HomeShowsUp() {
           transition={{ duration: reducedMotion ? 0 : 0.6 }}
           className="max-w-6xl mb-16"
         >
-          <h2 className="text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)] font-bold tracking-[-0.01em]">
+          <h2 className="font-sans text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)] font-bold tracking-[-0.01em]">
             How it shows up.
           </h2>
-          <p className="text-xl lg:text-2xl text-[var(--ember-text-low)] max-w-2xl">
+          <p className="font-sans text-xl lg:text-2xl text-[var(--ember-text-low)] max-w-2xl font-normal">
             Three simple places built around your family&apos;s journey.
           </p>
         </motion.div>
@@ -64,11 +64,11 @@ export function HomeShowsUp() {
                 <div className="w-14 h-14 rounded-2xl bg-white border border-[var(--ember-border-subtle)] flex items-center justify-center mb-6 shadow-sm">
                   <card.icon className="w-7 h-7 text-[var(--ember-accent-base)]" strokeWidth={2} />
                 </div>
-                <h3 className="text-2xl mb-3 text-[var(--ember-text-high)] font-bold">{card.title}</h3>
-                <p className="text-lg text-[var(--ember-text-low)] leading-relaxed mb-6">{card.body}</p>
+                <h3 className="font-sans text-2xl mb-3 text-[var(--ember-text-high)] font-bold">{card.title}</h3>
+                <p className="font-sans text-lg text-[var(--ember-text-low)] leading-relaxed mb-6 font-normal">{card.body}</p>
                 <Link
                   href={card.href}
-                  className="text-[var(--ember-accent-base)] transition-all duration-300 hover:text-[var(--ember-accent-hover)] flex items-center gap-2 group-hover:gap-3 font-semibold"
+                  className="text-[var(--ember-accent-base)] transition-all duration-300 hover:text-[var(--ember-accent-hover)] flex items-center gap-2 group-hover:gap-3 font-medium"
                 >
                   {card.cta}
                   <ArrowRight className="w-5 h-5" strokeWidth={2} />

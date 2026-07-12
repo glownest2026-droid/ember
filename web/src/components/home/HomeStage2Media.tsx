@@ -3,8 +3,7 @@
 import Image from 'next/image';
 
 /**
- * Stage 2 Storage art sits on clean product-style canvases.
- * Soft Discover canvas + contain keeps framing honest (no heavy crop).
+ * Edge-to-edge Stage 2 art (matches live homepage hero media framing).
  */
 export function HomeStage2Media({
   src,
@@ -20,14 +19,14 @@ export function HomeStage2Media({
   className?: string;
 }) {
   return (
-    <div className={`relative h-full w-full bg-[#FBFAF7] ${className}`.trim()}>
+    <div className={`relative h-full w-full ${className}`.trim()}>
       <Image
         src={src}
         alt={alt}
         fill
         priority={priority}
         sizes={sizes}
-        className="object-contain p-4 sm:p-6 lg:p-8"
+        className="object-cover"
       />
     </div>
   );

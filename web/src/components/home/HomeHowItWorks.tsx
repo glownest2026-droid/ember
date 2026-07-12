@@ -14,7 +14,7 @@ const CARDS: { icon: LucideIcon; title: string; body: ReactNode }[] = [
   {
     icon: Lightbulb,
     title: 'Know it',
-    body: 'We show what your child is practising right now — and what matters next. Over 600 free ideas, without the overwhelm.',
+    body: 'We show what your child is practising right now, and what matters next. Over 600 free ideas, without the overwhelm.',
   },
   {
     icon: ShoppingBag,
@@ -52,10 +52,10 @@ export function HomeHowItWorks() {
           transition={{ duration: reducedMotion ? 0 : 0.6 }}
           className="text-center mb-20"
         >
-          <h2 className="text-4xl lg:text-5xl xl:text-6xl mb-6 text-[var(--ember-text-high)] leading-[1.1] font-bold tracking-[-0.02em]">
+          <h2 className="font-sans text-4xl lg:text-5xl xl:text-6xl mb-6 text-[var(--ember-text-high)] leading-[1.1] font-bold tracking-[-0.02em]">
             How Ember Works.
           </h2>
-          <p className="text-xl lg:text-2xl text-[var(--ember-text-low)] max-w-3xl mx-auto">
+          <p className="font-sans text-xl lg:text-2xl text-[var(--ember-text-low)] max-w-3xl mx-auto font-normal">
             We help you know what matters now.
             <br />
             Choose what fits this stage, then pass it on when the time comes.
@@ -172,11 +172,11 @@ export function HomeHowItWorks() {
                   <div className="w-14 h-14 rounded-2xl bg-[var(--ember-accent-base)]/10 flex items-center justify-center">
                     <card.icon className="w-7 h-7 text-[var(--ember-accent-base)]" strokeWidth={2} />
                   </div>
-                  <h3 className="text-2xl lg:text-3xl text-[var(--ember-text-high)] font-bold">
+                  <h3 className="font-sans text-2xl lg:text-3xl text-[var(--ember-text-high)] font-bold">
                     {card.title}
                   </h3>
                 </div>
-                <p className="text-lg lg:text-xl leading-relaxed text-[var(--ember-text-low)]">{card.body}</p>
+                <p className="font-sans text-lg lg:text-xl leading-relaxed text-[var(--ember-text-low)] font-normal">{card.body}</p>
               </motion.div>
             ))}
           </div>

@@ -23,7 +23,7 @@ function rangeOf(band: AgeBand | undefined): { min: number; max: number } | null
   return null;
 }
 
-// The newborn band (0–0 months) represents an unborn baby — show "Expecting",
+// The newborn band (0-0 months) represents an unborn baby: show "Expecting",
 // mirroring /discover's formatBandLabel.
 function isExpectingRange(r: { min: number; max: number } | null): boolean {
   return !!r && r.min === 0 && r.max === 0;
@@ -169,8 +169,7 @@ export function HomeAgeSlider() {
                 href={discoverHref}
                 whileHover={reducedMotion ? {} : { scale: 1.02 }}
                 whileTap={reducedMotion ? {} : { scale: 0.98 }}
-                className="inline-flex items-center gap-3 px-10 py-5 bg-[var(--ember-accent-base)] text-white text-lg rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_12px_40px_rgba(255,99,71,0.35)]"
-                style={{ fontWeight: 600 }}
+                className="inline-flex items-center gap-3 px-10 py-5 bg-[var(--ember-accent-base)] text-white text-lg rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_12px_40px_rgba(255,92,52,0.35)] font-medium"
               >
                 Begin your journey
                 <ArrowRight className="w-5 h-5" strokeWidth={2.5} />

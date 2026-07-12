@@ -16,24 +16,24 @@ export function HomeHero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <h1 className="text-[3.5rem] lg:text-[5rem] xl:text-[5.5rem] leading-[1.05] mb-6 text-[var(--ember-text-high)] font-bold tracking-[-0.02em]">
+            <h1 className="font-sans text-[3.5rem] lg:text-[5rem] xl:text-[5.5rem] leading-[1.05] mb-6 text-[var(--ember-text-high)] font-bold tracking-[-0.02em]">
               Your proactive
               <br />
               play guide
             </h1>
-            <p className="text-2xl lg:text-3xl leading-relaxed text-[var(--ember-text-low)] mb-12 max-w-2xl font-medium">
-              From bump to big steps — over 600 free ideas for what they&apos;re practising next.
+            <p className="font-sans text-2xl lg:text-3xl leading-relaxed text-[var(--ember-text-low)] mb-12 max-w-2xl font-normal">
+              From bump to big steps. Over 600 free ideas for what they&apos;re practising next.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 href="/discover"
-                className="inline-flex items-center justify-center px-8 py-4 bg-[var(--ember-accent-base)] text-white text-lg rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_8px_32px_rgba(255,92,52,0.3)] font-bold"
+                className="inline-flex items-center justify-center px-8 py-4 bg-[var(--ember-accent-base)] text-white text-lg rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_8px_32px_rgba(255,92,52,0.3)] font-medium"
               >
                 Start exploring
               </Link>
               <Link
                 href="#how-ember-works"
-                className="inline-flex items-center gap-2 px-8 py-4 text-[var(--ember-text-high)] text-lg transition-all duration-300 hover:text-[var(--ember-accent-base)] justify-center font-semibold"
+                className="inline-flex items-center gap-2 px-8 py-4 text-[var(--ember-text-high)] text-lg transition-all duration-300 hover:text-[var(--ember-accent-base)] justify-center font-normal"
               >
                 How it works
                 <ArrowRight className="w-5 h-5" strokeWidth={2} />
@@ -45,7 +45,7 @@ export function HomeHero() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative rounded-[20px] overflow-hidden border border-[var(--ember-border-subtle)] shadow-sm h-[400px] lg:h-[550px]"
+            className="relative rounded-3xl overflow-hidden shadow-[0px_20px_60px_rgba(0,0,0,0.12)] h-[400px] lg:h-[550px]"
           >
             <HomeStage2Media
               src={HOME_STAGE2_IMAGES.hero}

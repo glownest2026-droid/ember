@@ -25,7 +25,7 @@ export function HomeHowWeChoose() {
       >
         <div className="bg-[var(--ember-surface-soft)] rounded-[3rem] p-12 lg:p-20 border-2 border-[var(--ember-border-subtle)]">
           <h2
-            className="text-4xl lg:text-5xl mb-12 text-[var(--ember-text-high)] font-bold tracking-[-0.01em]"
+            className="font-sans text-4xl lg:text-5xl mb-12 text-[var(--ember-text-high)] font-bold tracking-[-0.01em]"
           >
             How we choose.
           </h2>
