@@ -14,7 +14,7 @@ const CARDS: { icon: LucideIcon; title: string; body: ReactNode }[] = [
   {
     icon: Lightbulb,
     title: 'Know it',
-    body: 'We show what your child is practising right now — and what matters next. Clear explanations. No overwhelm.',
+    body: 'We show what your child is practising right now — and what matters next. Over 600 free ideas, without the overwhelm.',
   },
   {
     icon: ShoppingBag,

@@ -29,7 +29,7 @@ export function HomeHero() {
               className="text-2xl lg:text-3xl leading-relaxed text-[var(--ember-text-low)] mb-12 max-w-2xl"
               style={{ fontFamily: 'var(--font-serif)', fontWeight: 300 }}
             >
-              From bump to big steps — researched ideas for what they&apos;re learning next.
+              From bump to big steps — over 600 free ideas for what they&apos;re practising next.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link

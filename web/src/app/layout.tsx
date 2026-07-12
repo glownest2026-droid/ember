@@ -14,7 +14,8 @@ import { PublicFooterGate } from "../components/compliance/PublicFooterGate";
 
 export const metadata: Metadata = {
   title: "Ember — Simple, trusted guidance from bump to big steps.",
-  description: "Never behind the curve. Know what's next. Buy smart. Move it on.",
+  description:
+    "Over 600 free ideas for your child's first three years. Know what's next. Buy smart. Move it on.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

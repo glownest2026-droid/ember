@@ -1,3 +1,14 @@
+## 2026-07-12 — feat(marketing): homepage calls out 600+ Stage 2 ideas
+
+- **Hero:** “over 600 free ideas for what they’re practising next”
+- **Also:** How it works (Know it), How it shows up (Discover), final CTA, root meta description
+- **Tone:** catalogue depth without “science-backed” / catalogue-speak
+
+### How to verify
+1. Open `/` — hero subhead mentions over 600 free ideas
+2. Scroll to How Ember Works / How it shows up — same signal, lightly
+3. View page source meta description includes “Over 600 free ideas…”
+
 ## 2026-07-02 — feat(data): map 31–33m Stage 2 category images (60/60)
 
 - **Preflight:** HEAD 200 on all 60 slugs in `category_images` — global filenames `ember_{slug}_category.png` (no age-scoped `*_31_33m_*` variants uploaded)

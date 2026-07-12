@@ -9,7 +9,7 @@ const CARDS = [
   {
     icon: Eye,
     title: 'Discover',
-    body: 'See what your child is practising now. Built around their stage, not products.',
+    body: 'Over 600 free ideas across the first three years. Built around their stage, not a product catalogue.',
     cta: 'See what\'s next',
     href: '/discover',
   },

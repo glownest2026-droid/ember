@@ -29,7 +29,7 @@ export function HomeFinalCTA() {
               Never behind the curve.
             </h2>
             <p className="text-2xl text-[var(--ember-text-low)] mb-10 leading-relaxed">
-              Know what&apos;s next. Buy smart. Move it on.
+              Over 600 free ideas. Know what&apos;s next. Buy smart. Move it on.
             </p>
             <Link href="/discover" passHref legacyBehavior>
               <motion.a
