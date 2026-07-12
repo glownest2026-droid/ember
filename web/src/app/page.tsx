@@ -16,8 +16,7 @@ export default function HomePage() {
   const { user } = useSubnavStats();
   return (
     <main
-      className={`min-h-screen bg-[var(--ember-bg-canvas)] ${user ? 'pb-20 md:pb-0' : ''}`}
-      style={{ fontFamily: 'var(--font-sans)' }}
+      className={`homepage-discover-brand min-h-screen bg-[var(--ember-bg-canvas)] ${user ? 'pb-20 md:pb-0' : ''}`}
     >
       <ContentSpacer />
       <HomeHero />

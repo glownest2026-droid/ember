@@ -1,16 +1,11 @@
 'use client';
 
 import { motion } from 'motion/react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
-
-const STAGES_IMAGE = '/home/stages.webp';
-const UNSPLASH_PARENT =
-  'https://images.unsplash.com/photo-1758513359249-95d9f54f280b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080';
-const UNSPLASH_BLOCKS =
-  'https://images.unsplash.com/photo-1768844871840-26f6ed6a8e39?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080';
+import { HOME_STAGE2_IMAGES } from './homeStage2Images';
+import { HomeStage2Media } from './HomeStage2Media';
 
 export function HomeStageBlocks() {
   const reducedMotion = useReducedMotion() ?? false;
@@ -26,9 +21,13 @@ export function HomeStageBlocks() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={transition}
-            className="relative rounded-3xl overflow-hidden shadow-[0px_20px_60px_rgba(0,0,0,0.12)] h-[350px] lg:h-[400px] lg:order-1"
+            className="relative rounded-[20px] overflow-hidden border border-[var(--ember-border-subtle)] shadow-sm h-[350px] lg:h-[400px] lg:order-1"
           >
-            <Image src={STAGES_IMAGE} alt="Children sharing toys" className="w-full h-full object-cover" width={800} height={400} sizes="(max-width: 1024px) 100vw, 50vw" />
+            <HomeStage2Media
+              src={HOME_STAGE2_IMAGES.stages}
+              alt="Soft graspable balls — Stage 2 play idea"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -37,10 +36,7 @@ export function HomeStageBlocks() {
             transition={transition}
             className="lg:order-2"
           >
-            <p
-              className="text-3xl lg:text-5xl text-[var(--ember-text-high)] leading-tight"
-              style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: '-0.01em' }}
-            >
+            <p className="text-3xl lg:text-5xl text-[var(--ember-text-high)] leading-tight font-bold tracking-[-0.01em]">
               Parenting moves in stages. So should what you buy.
             </p>
           </motion.div>
@@ -57,16 +53,16 @@ export function HomeStageBlocks() {
               viewport={{ once: true, margin: '-100px' }}
               transition={transition}
             >
-              <h2
-                className="text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)]"
-                style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: '-0.01em' }}
-              >
+              <h2 className="text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)] font-bold tracking-[-0.01em]">
                 Built around how children actually grow.
               </h2>
               <p className="text-xl lg:text-2xl text-[var(--ember-text-low)] leading-relaxed mb-8">
                 Every stage brings new discoveries. We show you what&apos;s next for their stage.
               </p>
-              <Link href="/discover" className="flex items-center gap-2 text-[var(--ember-accent-base)] text-lg hover:gap-3 transition-all font-semibold">
+              <Link
+                href="/discover"
+                className="flex items-center gap-2 text-[var(--ember-accent-base)] text-lg hover:gap-3 transition-all font-bold"
+              >
                 Learn about stages
                 <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
               </Link>
@@ -76,9 +72,13 @@ export function HomeStageBlocks() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-100px' }}
               transition={transition}
-              className="relative rounded-3xl overflow-hidden shadow-[0px_20px_60px_rgba(0,0,0,0.12)] h-[400px] lg:h-[500px]"
+              className="relative rounded-[20px] overflow-hidden border border-[var(--ember-border-subtle)] shadow-sm h-[400px] lg:h-[500px]"
             >
-              <Image src={UNSPLASH_PARENT} alt="Parent playing with toddler" className="w-full h-full object-cover" width={1080} height={500} sizes="(max-width: 1024px) 100vw, 50vw" />
+              <HomeStage2Media
+                src={HOME_STAGE2_IMAGES.grow}
+                alt="Hide-and-find cups — Stage 2 play idea"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
             </motion.div>
           </div>
 
@@ -89,9 +89,13 @@ export function HomeStageBlocks() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-100px' }}
               transition={transition}
-              className="relative rounded-3xl overflow-hidden shadow-[0px_20px_60px_rgba(0,0,0,0.12)] h-[400px] lg:h-[500px] lg:order-1"
+              className="relative rounded-[20px] overflow-hidden border border-[var(--ember-border-subtle)] shadow-sm h-[400px] lg:h-[500px] lg:order-1"
             >
-              <Image src={UNSPLASH_BLOCKS} alt="Toddler learning with blocks" className="w-full h-full object-cover" width={1080} height={500} sizes="(max-width: 1024px) 100vw, 50vw" />
+              <HomeStage2Media
+                src={HOME_STAGE2_IMAGES.practising}
+                alt="Stacking and nesting cups — Stage 2 play idea"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
             </motion.div>
             <motion.div
               initial={{ opacity: 0, x: 30 }}
@@ -100,16 +104,16 @@ export function HomeStageBlocks() {
               transition={transition}
               className="lg:order-2"
             >
-              <h2
-                className="text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)]"
-                style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: '-0.01em' }}
-              >
+              <h2 className="text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)] font-bold tracking-[-0.01em]">
                 What they&apos;re practising matters.
               </h2>
               <p className="text-xl lg:text-2xl text-[var(--ember-text-low)] leading-relaxed mb-8">
                 We match products to what your child is actually doing — not what marketing says they should have.
               </p>
-              <Link href="/discover" className="flex items-center gap-2 text-[var(--ember-accent-base)] text-lg hover:gap-3 transition-all font-semibold">
+              <Link
+                href="/discover"
+                className="flex items-center gap-2 text-[var(--ember-accent-base)] text-lg hover:gap-3 transition-all font-bold"
+              >
                 See examples
                 <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
               </Link>

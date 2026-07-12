@@ -52,10 +52,7 @@ export function HomeHowItWorks() {
           transition={{ duration: reducedMotion ? 0 : 0.6 }}
           className="text-center mb-20"
         >
-          <h2
-            className="text-4xl lg:text-5xl xl:text-6xl mb-6 text-[var(--ember-text-high)] leading-[1.1]"
-            style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: '-0.02em' }}
-          >
+          <h2 className="text-4xl lg:text-5xl xl:text-6xl mb-6 text-[var(--ember-text-high)] leading-[1.1] font-bold tracking-[-0.02em]">
             How Ember Works.
           </h2>
           <p className="text-xl lg:text-2xl text-[var(--ember-text-low)] max-w-3xl mx-auto">
@@ -169,16 +166,13 @@ export function HomeHowItWorks() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ duration: reducedMotion ? 0 : 0.6, delay: 0.1 + i * 0.1 }}
-                className="bg-[var(--ember-bg-canvas)] rounded-3xl p-8 lg:p-10 border border-[var(--ember-border-subtle)]"
+                className="bg-[var(--ember-bg-canvas)] rounded-[20px] p-8 lg:p-10 border border-[var(--ember-border-subtle)]"
               >
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-14 h-14 rounded-2xl bg-[var(--ember-accent-base)]/10 flex items-center justify-center">
                     <card.icon className="w-7 h-7 text-[var(--ember-accent-base)]" strokeWidth={2} />
                   </div>
-                  <h3
-                    className="text-2xl lg:text-3xl text-[var(--ember-text-high)]"
-                    style={{ fontFamily: 'var(--font-serif)', fontWeight: 400 }}
-                  >
+                  <h3 className="text-2xl lg:text-3xl text-[var(--ember-text-high)] font-bold">
                     {card.title}
                   </h3>
                 </div>

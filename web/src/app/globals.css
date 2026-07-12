@@ -72,6 +72,43 @@
 }
 /* Mobile tab row uses JS + position:fixed when scrolled (see UnifiedSignedInNav) */
 
+/* Homepage remaps brand tokens to Discover Figma (May 2026) — Manrope + #253044 / #FF5C34 */
+.homepage-discover-brand {
+  --ember-bg-canvas: #fbfaf7;
+  --ember-surface-primary: #ffffff;
+  --ember-surface-soft: #fbfaf7;
+  --ember-text-high: #253044;
+  --ember-text-low: #66717d;
+  --ember-border-subtle: #e7e2dc;
+  --ember-accent-base: #ff5c34;
+  --ember-accent-hover: #e04b28;
+  --ember-focus-ring: #ff5c34;
+  --ember-blush: #fff6f3;
+  --ember-primary: #ff5c34;
+  --ember-primary-dark: #e04b28;
+  --ember-primary-light: #ff8870;
+  --ember-gray-900: #253044;
+  --ember-gray-600: #66717d;
+  --ember-gray-300: #e7e2dc;
+  --ember-gray-200: #fbfaf7;
+  --ember-gray-100: #fbfaf7;
+  --ember-primary-10: rgba(255, 92, 52, 0.1);
+  --ember-primary-5: rgba(255, 92, 52, 0.05);
+  --shadow-primary: 0px 8px 32px rgba(255, 92, 52, 0.3);
+  /* Discover headings are Manrope — neutralize legacy serif overrides on homepage */
+  --font-serif: var(--font-sans);
+  font-family: var(--font-sans);
+  color: var(--ember-text-high);
+  background-color: var(--ember-bg-canvas);
+}
+
+.homepage-discover-brand h1,
+.homepage-discover-brand h2,
+.homepage-discover-brand h3 {
+  font-family: var(--font-sans);
+  color: var(--ember-text-high);
+}
+
 /* Ember 2026 Brandbook design tokens (Unified UX + Brand) */
 :root {
   --ember-bg-canvas: #FAFAFA;

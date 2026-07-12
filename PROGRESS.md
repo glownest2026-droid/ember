@@ -1,3 +1,14 @@
+## 2026-07-13 — feat(marketing): homepage Discover brand + Stage 2 Storage images
+
+- **Brand:** `.homepage-discover-brand` remaps tokens to Discover Figma (`#253044`, `#FF5C34`, `#FBFAF7`, `#E7E2DC`); Manrope headings (no Source Serif)
+- **Imagery:** Unsplash / local webp replaced with `category_images` Stage 2 PNGs (`homeStage2Images.ts` + `HomeStage2Media`)
+- **PR:** continues #254
+
+### How to verify
+1. Open `/` — headings look like Discover (Manrope bold); accent is `#FF5C34`
+2. Hero + stage blocks + final CTA show Stage 2 product art (not stock photos)
+3. Compare side-by-side with `/discover/14`
+
 ## 2026-07-12 — feat(marketing): homepage calls out 600+ Stage 2 ideas
 
 - **Hero:** “over 600 free ideas for what they’re practising next”

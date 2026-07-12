@@ -42,10 +42,7 @@ export function HomeShowsUp() {
           transition={{ duration: reducedMotion ? 0 : 0.6 }}
           className="max-w-6xl mb-16"
         >
-          <h2
-            className="text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)]"
-            style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: '-0.01em' }}
-          >
+          <h2 className="text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)] font-bold tracking-[-0.01em]">
             How it shows up.
           </h2>
           <p className="text-xl lg:text-2xl text-[var(--ember-text-low)] max-w-2xl">
@@ -63,16 +60,11 @@ export function HomeShowsUp() {
               transition={{ duration: reducedMotion ? 0 : 0.5, delay: 0.1 + i * 0.1 }}
               className="group"
             >
-              <div className="bg-[var(--ember-bg-canvas)] rounded-3xl p-8 lg:p-10 transition-all duration-300 hover:shadow-[0px_8px_32px_rgba(0,0,0,0.08)] hover:translate-y-[-4px]">
+              <div className="bg-[var(--ember-bg-canvas)] rounded-[20px] border border-[var(--ember-border-subtle)] p-8 lg:p-10 transition-all duration-300 hover:shadow-md hover:translate-y-[-4px]">
                 <div className="w-14 h-14 rounded-2xl bg-white border border-[var(--ember-border-subtle)] flex items-center justify-center mb-6 shadow-sm">
                   <card.icon className="w-7 h-7 text-[var(--ember-accent-base)]" strokeWidth={2} />
                 </div>
-                <h3
-                  className="text-2xl mb-3 text-[var(--ember-text-high)]"
-                  style={{ fontFamily: 'var(--font-serif)', fontWeight: 400 }}
-                >
-                  {card.title}
-                </h3>
+                <h3 className="text-2xl mb-3 text-[var(--ember-text-high)] font-bold">{card.title}</h3>
                 <p className="text-lg text-[var(--ember-text-low)] leading-relaxed mb-6">{card.body}</p>
                 <Link
                   href={card.href}
