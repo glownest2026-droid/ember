@@ -1,3 +1,5 @@
+- **Hero image:** `ember_cat_copy_me_games_category.png` (white family; single hero use)
+
 ## 2026-07-13 — fix(marketing): homepage image diversity, hero scale, nav alignment
 
 - **Images:** five distinct families/scenes — dropped recurring orange-sweater catalogue model

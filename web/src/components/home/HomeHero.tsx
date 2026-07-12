@@ -50,7 +50,7 @@ export function HomeHero() {
           >
             <HomeStage2Media
               src={HOME_STAGE2_IMAGES.hero}
-              alt="Soft dough and simple tools Stage 2 play idea"
+              alt="Copy-me play idea from Ember Discover"
               sizes="(max-width: 1024px) 100vw, 50vw"
               priority
             />

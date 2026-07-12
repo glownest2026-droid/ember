@@ -14,8 +14,8 @@ function categoryImage(filename: string): string {
 
 /** Curated Stage 2 PNGs for homepage sections (HEAD-verified). */
 export const HOME_STAGE2_IMAGES = {
-  /** Hero: father + dough play (distinct from catalogue orange-sweater set) */
-  hero: categoryImage('ember_cat_soft_dough_and_simple_tools_category.png'),
+  /** Hero: copy-me play — white family, high-energy opening (single use on page) */
+  hero: categoryImage('ember_cat_copy_me_games_category.png'),
   /** Stages block: father + low-shelf tidy */
   stages: categoryImage('ember_cat_low_shelf_tidy_category.png'),
   /** How children grow: hide-and-squeak */
