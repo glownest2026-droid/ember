@@ -98,7 +98,7 @@ export function HomeAgeSlider() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reducedMotion ? 0 : 0.3 }}
-              className="text-2xl lg:text-[1.75rem] text-[var(--ember-text-high)] font-semibold"
+              className="home-section-title text-[var(--ember-text-high)]"
             >
               {ready ? currentAgeLabel : '\u00A0'}
             </motion.p>

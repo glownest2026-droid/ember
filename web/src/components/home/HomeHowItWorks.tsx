@@ -151,7 +151,7 @@ export function HomeHowItWorks() {
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
                   <Image src={EMBER_LOGO} alt="" className="h-14 sm:h-20 lg:h-24 w-auto mx-auto mb-1 sm:mb-2 opacity-30" width={96} height={96} />
-                  <p className="text-xs sm:text-sm text-[var(--ember-text-low)]" style={{ fontWeight: 500 }}>
+                  <p className="home-body text-[var(--ember-text-low)]" style={{ fontWeight: 500 }}>
                     One calm loop
                   </p>
                 </div>
@@ -219,7 +219,7 @@ function NodeBox({
         <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl bg-[var(--ember-accent-base)]/10 flex items-center justify-center">
           <Icon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-[var(--ember-accent-base)]" strokeWidth={2} />
         </div>
-        <span className="text-sm sm:text-base text-[var(--ember-text-high)]" style={{ fontWeight: 500 }}>
+        <span className="home-body text-[var(--ember-text-high)]" style={{ fontWeight: 500 }}>
           {label}
         </span>
       </div>

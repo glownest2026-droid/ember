@@ -1,5 +1,15 @@
 - **Hero image:** `ember_cat_copy_me_games_category.png` (white family; single hero use)
 
+## 2026-07-13 — fix(marketing): homepage fonts locked to Discover Manrope
+
+- **Source of truth:** Discover body = Manrope 16/17px `#66717D` (`DiscoverFigmaChildHero`)
+- **Conflict found:** ThemeProvider defaults still inject Inter (body) + Source Serif 4 (headings)
+- Homepage now forces `--brand-font-*` + every `.home-*` class to Discover Manrope; body metrics match Discover
+
+### How to verify
+1. Preview `/` vs `/discover/26` — body copy should be the same Manrope face
+2. "How Ember Works." and other section titles — Manrope, not serif
+
 ## 2026-07-13 — fix(marketing): full-viewport hero (Apple-style first impression)
 
 - Hero `min-h` fills viewport below sticky nav so age slider sits below the fold
