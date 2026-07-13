@@ -40,11 +40,11 @@ export default function PricingPageFigmaClient() {
             >
               Browse for free.
               <br />
-              <span className="text-[#FF5C34]">Let Pip guide what to buy.</span>
+              <span className="text-[#FF5C34]">Get Pip to help with what to buy.</span>
             </h1>
             <p className="mx-auto max-w-xl text-[1.125rem] leading-relaxed text-[#66717D]">
-              Free Ember is the stage catalogue. Ember Plus adds Pip — timely help when it&apos;s
-              actually useful.
+              Free Ember shows what fits this age. Plus adds Pip — so you&apos;re not left to figure
+              every purchase out on your own.
             </p>
           </div>
         </div>
@@ -57,11 +57,11 @@ export default function PricingPageFigmaClient() {
             <PricingCard
               name="Free"
               price="£0"
-              label="Browse Ember yourself"
+              label="Have a look round yourself"
               features={[
-                'Stage-aware ideas for your child’s age',
-                'Save ideas and share a gift list',
-                'Browse local marketplace listings',
+                'Ideas for what they’re into at this age',
+                'Save things and share a gift list',
+                'Browse local listings',
                 '1 child profile',
               ]}
               ctaText="Start free"
@@ -72,13 +72,13 @@ export default function PricingPageFigmaClient() {
               price="£3.99"
               period="/month"
               annualPrice="or £29 for your first year"
-              label="Pip guides what to do next"
+              label="Pip helps with what to do next"
               recommended={true}
               badge="Recommended"
               features={[
-                'Pip’s Trail — calm stage cues',
-                'Pip Picks — shortlists, not research holes',
-                'Nearby finds and Move-On prompts',
+                'Pip’s Trail — what’s changing next',
+                'Pip Picks — a few options, not 40 tabs',
+                'Local finds, and when to pass stuff on',
                 'More than one child',
               ]}
               ctaText="Start Plus"
@@ -118,19 +118,19 @@ export default function PricingPageFigmaClient() {
           <div className="mx-auto max-w-2xl">
             <FAQItem
               question="Can I cancel anytime?"
-              answer="Yes. Plus is £3.99/month with no lock-in. Cancel anytime and keep access until the end of your billing period."
+              answer="Yes. Plus is £3.99 a month. Cancel whenever you like — you keep it until the end of the month you’ve paid for."
             />
             <FAQItem
               question="What’s the difference between Free and Plus?"
-              answer="Free lets you browse the catalogue, save ideas, and use the marketplace yourself. Plus adds Pip — calm cues when a stage shifts, product shortlists, and help spotting local finds or things ready to pass on."
+              answer="Free is for browsing: ideas for their age, saves, gift lists, and local listings. Plus adds Pip — a nudge when something’s changing, a few buying options when you need them, and a heads-up when kit might be ready to pass on."
             />
             <FAQItem
               question="How does Ember make money?"
-              answer="Some retailer links may earn a commission, and Plus is £3.99/month. That never changes stage guidance or Pip Picks."
+              answer="Some shop links may earn Ember a commission, and Plus is £3.99 a month. That doesn’t change what we recommend."
             />
             <FAQItem
               question="Can I use Ember for more than one child?"
-              answer="Free includes one child profile. Plus supports more than one, so Pip can guide you across siblings and stages."
+              answer="Free covers one child. Plus covers more than one, so you can keep siblings on different stages without juggling accounts."
             />
           </div>
           <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-[#66717D]">

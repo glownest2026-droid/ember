@@ -36,57 +36,57 @@ const JOURNEY_STEPS: JourneyStep[] = [
   {
     id: 'free',
     title: 'Browse Ember free',
-    desc: 'Stage ideas, saves, and gift lists — at your own pace.',
+    desc: 'Ideas, saves and gift lists — look round in your own time.',
     isFree: true,
     Icon: LayoutList,
     cardTag: 'Free',
     cardTitle: 'Explore the catalogue',
-    cardSub: 'Over 600 stage-aware ideas. Open Discover and browse by age.',
+    cardSub: 'Hundreds of ideas by age. Open Discover and have a poke about.',
     cardImage: PRICING_JOURNEY_IMAGES.catalogue,
     cardHref: '/discover',
   },
   {
     id: 'trail',
     title: "Pip's Trail",
-    desc: 'Calm cues when your child’s stage shifts.',
+    desc: 'A nudge when they’re moving into something new.',
     isFree: false,
     Icon: Route,
     cardTag: 'Pip’s Trail',
     cardTitle: 'Bring the cups back out',
-    cardSub: 'If you already have stacking cups, the shift now is pouring and nesting — not buying another set.',
+    cardSub: 'If you’ve already got stacking cups, this stage is pouring and nesting — not buying another set.',
     cardImage: PRICING_JOURNEY_IMAGES.trail,
   },
   {
     id: 'picks',
     title: 'Pip Picks',
-    desc: 'A short product list when buying is worth it.',
+    desc: 'A few buying options when you actually need them.',
     isFree: false,
     Icon: Gift,
     cardTag: 'Pip Picks',
-    cardTitle: 'First puzzles worth considering',
-    cardSub: 'A tight shortlist for this stage — with why now, not a shop floor dump.',
+    cardTitle: 'A few first puzzles to look at',
+    cardSub: 'Not every puzzle on the internet. A small list that fits this age, and why.',
     cardImage: PRICING_JOURNEY_IMAGES.picks,
   },
   {
     id: 'nearby',
     title: 'Pip Nearby',
-    desc: 'Local matches when borrow or pre-loved fits better.',
+    desc: 'Local finds when borrowing or pre-loved makes more sense.',
     isFree: false,
     Icon: MapPin,
     cardTag: 'Pip Nearby',
     cardTitle: 'Balance gear near you',
-    cardSub: 'Spot local listings that fit this stage before you buy new.',
+    cardSub: 'See what’s listed locally for this age before you buy new.',
     cardImage: PRICING_JOURNEY_IMAGES.nearby,
   },
   {
     id: 'moveon',
     title: 'Pip Move-On',
-    desc: 'When something’s outgrown — pass on, list, or clear space.',
+    desc: 'A heads-up when something’s done its job.',
     isFree: false,
     Icon: Package,
     cardTag: 'Pip Move-On',
     cardTitle: 'Ready to pass on?',
-    cardSub: 'Pip flags kit you may no longer need, and who nearby might want it.',
+    cardSub: 'Stuff you might be finished with — and whether someone nearby wants it.',
     cardImage: PRICING_JOURNEY_IMAGES.moveOn,
   },
 ];
@@ -230,7 +230,7 @@ export function PipJourneyExplainer() {
         {!step.isFree && (
           <span className={styles.pipChip}>
             <img src={PIP_LOGO_URL} alt="" width={20} height={20} />
-            Pip spotted this
+            Pip’s note
           </span>
         )}
       </div>
@@ -285,7 +285,7 @@ export function PipJourneyExplainer() {
             <span className={styles.trackDividerBadge}>
               <img src={PIP_LOGO_URL} alt="" width={16} height={16} />
               <Plus size={12} strokeWidth={2.5} aria-hidden />
-              Pip joins with Plus
+              Plus starts here
             </span>
           </div>
 
