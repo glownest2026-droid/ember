@@ -1,3 +1,9 @@
+## 2026-07-13 — feat(pricing): Meet Pip clarity + Ember journey art
+
+- Meet Pip section names the logo as Plus guide; journey cards use Stage 2 `category_images` + “Pip spotted this” chips
+- Explore the catalogue card links to `/discover`; hero price is £3.99/month (no “from”)
+- Journey + FAQ copy rewritten for Conor tone
+
 ## 2026-07-13 — feat(pricing): Pip journey explainer + brand refresh
 
 - `/pricing` uses marketing container, canvas `#FBFAF7`, Manrope via `homepage-discover-brand`, accent `#FF5C34` with white CTA text
