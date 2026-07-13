@@ -1,0 +1,27 @@
+---
+description: Ember visual brand — Manrope, colours, CTAs, layout (Discover is source of truth)
+alwaysApply: true
+---
+
+# Ember brand book (agent)
+
+Full doc: `web/docs/EMBER_BRAND_BOOK.md`
+
+## Source of truth
+
+- **Product UI:** `/discover` (Figma May 2026) — Manrope + tokens in `figmaTokens.ts` / `navStyles.ts`
+- **Marketing:** same face and colours; homepage may use larger type via `.homepage-discover-brand`
+
+## Non-negotiables
+
+1. **Font:** Manrope 400/500/600/700 only on public Discover + marketing. Do not ship Inter or Source Serif 4 on those surfaces (ThemeProvider may still inject them — override).
+2. **Colours:** ink `#253044`, muted `#66717D`, accent `#FF5C34`, canvas `#FBFAF7`, border `#E7E2DC`.
+3. **Orange CTAs:** always **white** text (`#FFFFFF`) on `#FF5C34` — never navy/black on orange.
+4. **Homepage body:** `.home-lead`, `.home-section-lead`, `.home-body` share one size (currently 20–24px).
+5. **Nav logo:** robin can be large (~80–88px); wordmark **"Ember"** stays `text-xl` — do not double the word with the icon.
+6. **Containers:** marketing `max-w-7xl` (`EMBER_MARKETING_CONTAINER`); in-app Discover `max-w-5xl`. Align signed-out nav to marketing width on `/` and `/pricing`.
+7. **Imagery:** prefer Stage 2 catalogue art; no repeated adult model across adjacent homepage sections.
+
+## Copy
+
+Follow `conscientious-conor.mdc` / `web/docs/CONSCIENTIOUS_CONOR.md` for parent-facing voice.
