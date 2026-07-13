@@ -1,5 +1,11 @@
 - **Hero image:** `ember_cat_copy_me_games_category.png` (white family; single hero use)
 
+## 2026-07-13 — docs: Ember brand book
+
+- Canonical: `web/docs/EMBER_BRAND_BOOK.md`
+- Agent rule: `.cursor/rules/ember-brand-book.mdc` (alwaysApply)
+- Captures Manrope, Discover colours, CTA white-on-orange, marketing scale, nav logo rules
+
 ## 2026-07-13 — fix(marketing): white text on orange homepage CTAs
 
 - Removed blanket `a { color: inherit }` that overrode Tailwind `text-white`
