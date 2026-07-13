@@ -10,8 +10,6 @@ import {
   Package,
   Plus,
   Route,
-  Star,
-  Sun,
   type LucideIcon,
 } from 'lucide-react';
 import styles from './pip-journey-explainer.module.css';
@@ -50,7 +48,7 @@ const JOURNEY_STEPS: JourneyStep[] = [
   {
     id: 'trail',
     title: "Pip's Trail",
-    desc: 'Calm “worth a look” cues when your child’s stage shifts.',
+    desc: 'Calm cues when your child’s stage shifts.',
     isFree: false,
     Icon: Route,
     cardTag: 'Pip’s Trail',
@@ -61,7 +59,7 @@ const JOURNEY_STEPS: JourneyStep[] = [
   {
     id: 'picks',
     title: 'Pip Picks',
-    desc: 'A short product list when buying is actually worth it.',
+    desc: 'A short product list when buying is worth it.',
     isFree: false,
     Icon: Gift,
     cardTag: 'Pip Picks',
@@ -72,35 +70,13 @@ const JOURNEY_STEPS: JourneyStep[] = [
   {
     id: 'nearby',
     title: 'Pip Nearby',
-    desc: 'Local parent matches when borrow or pre-loved fits better.',
+    desc: 'Local matches when borrow or pre-loved fits better.',
     isFree: false,
     Icon: MapPin,
     cardTag: 'Pip Nearby',
     cardTitle: 'Balance gear near you',
     cardSub: 'Spot local listings that fit this stage before you buy new.',
     cardImage: PRICING_JOURNEY_IMAGES.nearby,
-  },
-  {
-    id: 'seasons',
-    title: 'Pip Seasons',
-    desc: 'Ahead-of-time help for summer, Christmas, birthdays, holidays.',
-    isFree: false,
-    Icon: Sun,
-    cardTag: 'Pip Seasons',
-    cardTitle: 'Out-and-about season',
-    cardSub: 'What to pack, what to skip, and what family can usefully gift.',
-    cardImage: PRICING_JOURNEY_IMAGES.seasons,
-  },
-  {
-    id: 'moments',
-    title: 'Pip Moments',
-    desc: 'Big life shifts: nursery, travel, new sibling, settling weeks.',
-    isFree: false,
-    Icon: Star,
-    cardTag: 'Pip Moments',
-    cardTitle: 'Nursery starts soon',
-    cardSub: 'A practical pack for the weeks ahead — not a generic checklist.',
-    cardImage: PRICING_JOURNEY_IMAGES.moments,
   },
   {
     id: 'moveon',
@@ -278,11 +254,6 @@ export function PipJourneyExplainer() {
 
   return (
     <div id="pip-world" className={styles.root}>
-      <p className={styles.subtitle}>
-        Follow Pip along the trail. Free Ember lets you browse. Plus wakes Pip up — so help shows up
-        when it&apos;s useful, not as another feed to check.
-      </p>
-
       <div className={styles.journeyContainer}>
         <div className={styles.journeyTrackPanel} ref={trackRef}>
           <div className={styles.trackLineBg} aria-hidden />

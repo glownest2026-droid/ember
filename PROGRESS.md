@@ -1,3 +1,9 @@
+## 2026-07-13 — feat(pricing): haircut — lean SaaS structure
+
+- Page reduced to: hero → plans → Meet Pip → journey → short FAQ
+- Removed trust grid, final CTA, hero Pip badge, journey Seasons/Moments stops, and FAQ bloat
+- Meet Pip kept as compact profile; journey kept as the single Plus differentiator
+
 ## 2026-07-13 — feat(pricing): Meet Pip clarity + Ember journey art
 
 - Meet Pip section names the logo as Plus guide; journey cards use Stage 2 `category_images` + “Pip spotted this” chips
