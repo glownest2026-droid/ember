@@ -1,5 +1,10 @@
 - **Hero image:** `ember_cat_copy_me_games_category.png` (white family; single hero use)
 
+## 2026-07-13 — fix(marketing): white text on orange homepage CTAs
+
+- Removed blanket `a { color: inherit }` that overrode Tailwind `text-white`
+- `.home-cta` locked to `#ffffff` on orange buttons
+
 ## 2026-07-13 — fix(marketing): homepage fonts locked to Discover Manrope
 
 - **Source of truth:** Discover body = Manrope 16/17px `#66717D` (`DiscoverFigmaChildHero`)
