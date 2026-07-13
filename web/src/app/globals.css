@@ -121,7 +121,6 @@
 .homepage-discover-brand button,
 .homepage-discover-brand label {
   font-family: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
-  color: inherit;
 }
 
 /* Homepage typography: Discover Manrope scale (marketing sizes, same face as /discover) */
@@ -221,6 +220,12 @@
   font-family: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
   font-size: 1rem;
   font-weight: 500;
+}
+
+/* Orange primary buttons: always white label on accent fill */
+.homepage-discover-brand a.home-cta,
+.homepage-discover-brand .home-cta {
+  color: #ffffff;
 }
 
 .homepage-discover-brand .home-media {
