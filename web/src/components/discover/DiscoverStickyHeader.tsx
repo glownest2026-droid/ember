@@ -102,7 +102,7 @@ export default function DiscoverStickyHeader() {
             height={88}
             priority
           />
-          <span className="hidden truncate sm:block font-bold text-4xl text-[#253044]">Ember</span>
+          <span className="hidden truncate sm:block font-bold text-xl text-[#253044]">Ember</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
