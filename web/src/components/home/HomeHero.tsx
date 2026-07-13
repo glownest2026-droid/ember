@@ -25,19 +25,19 @@ export function HomeHero() {
             <p className="home-lead mb-10 max-w-xl lg:mb-12">
               From bump to big steps. Over 600 free ideas for what they&apos;re practising next.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 href="/discover"
-                className="home-cta inline-flex items-center justify-center px-8 py-4 bg-[var(--ember-accent-base)] text-white rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_8px_32px_rgba(255,92,52,0.25)]"
+                className="home-cta home-cta-hero inline-flex items-center justify-center px-9 py-4.5 lg:px-10 lg:py-5 bg-[var(--ember-accent-base)] text-white rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_8px_32px_rgba(255,92,52,0.25)]"
               >
                 Start exploring
               </Link>
               <Link
                 href="#how-ember-works"
-                className="home-link inline-flex items-center gap-2 px-8 py-4 text-[var(--ember-text-high)] transition-all duration-300 hover:text-[var(--ember-accent-base)] justify-center font-normal"
+                className="home-link home-link-hero inline-flex items-center gap-2.5 px-8 py-4.5 lg:py-5 text-[var(--ember-text-high)] transition-all duration-300 hover:text-[var(--ember-accent-base)] justify-center font-normal"
               >
                 How it works
-                <ArrowRight className="w-5 h-5" strokeWidth={2} />
+                <ArrowRight className="w-5 h-5 lg:w-6 lg:h-6" strokeWidth={2} />
               </Link>
             </div>
           </motion.div>
