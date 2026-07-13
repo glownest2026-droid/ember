@@ -1,5 +1,14 @@
 - **Hero image:** `ember_cat_copy_me_games_category.png` (white family; single hero use)
 
+## 2026-07-13 — fix(marketing): full-viewport hero (Apple-style first impression)
+
+- Hero `min-h` fills viewport below sticky nav so age slider sits below the fold
+- Display ~48–88px; image up to ~620px tall; larger CTAs + lead
+
+### How to verify
+1. Preview `/` on desktop — first screen is brand + hero only
+2. Scroll once to reach "My child's current age"
+
 ## 2026-07-13 — fix(marketing): homepage image diversity, hero scale, nav alignment
 
 - **Images:** five distinct families/scenes — dropped recurring orange-sweater catalogue model

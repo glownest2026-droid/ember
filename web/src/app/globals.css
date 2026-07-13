@@ -111,19 +111,24 @@
 
 /* Homepage typography: soft Manrope scale (marketing warmth, Discover family) */
 .homepage-discover-brand .home-display {
-  font-size: 2.75rem;
-  line-height: 1.06;
+  font-size: 3rem;
+  line-height: 1.04;
   font-weight: 600;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
 }
 @media (min-width: 640px) {
   .homepage-discover-brand .home-display {
-    font-size: 3.25rem;
+    font-size: 3.75rem;
   }
 }
 @media (min-width: 1024px) {
   .homepage-discover-brand .home-display {
-    font-size: 4.25rem;
+    font-size: 5rem;
+  }
+}
+@media (min-width: 1280px) {
+  .homepage-discover-brand .home-display {
+    font-size: 5.5rem;
   }
 }
 
@@ -136,6 +141,11 @@
 @media (min-width: 640px) {
   .homepage-discover-brand .home-lead {
     font-size: 1.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .homepage-discover-brand .home-lead {
+    font-size: 1.375rem;
   }
 }
 
