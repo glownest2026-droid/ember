@@ -9,7 +9,7 @@ import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 
 export function HomeHero() {
   return (
-    <section className="relative flex min-h-[calc(100dvh-4rem)] items-center overflow-hidden bg-gradient-to-b from-[var(--ember-surface-primary)] to-[var(--ember-bg-canvas)] md:min-h-[calc(100dvh-5rem)]">
+    <section className="relative flex min-h-[calc(100dvh-6rem)] items-center overflow-hidden bg-gradient-to-b from-[var(--ember-surface-primary)] to-[var(--ember-bg-canvas)] md:min-h-[calc(100dvh-7rem)]">
       <div className={`${EMBER_MARKETING_CONTAINER} w-full py-16 lg:py-20`}>
         <div className="grid lg:grid-cols-[1.05fr_1fr] gap-12 lg:gap-20 items-center">
           <motion.div

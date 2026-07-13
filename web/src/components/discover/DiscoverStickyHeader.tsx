@@ -13,7 +13,6 @@ import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 import {
   FIGMA_CTA_PRIMARY_CLASS,
   FIGMA_CTA_TEXT_CLASS,
-  FIGMA_LOGO_WORDMARK_CLASS,
   FIGMA_NAV_HEADER_CLASS,
   figmaDesktopNavLinkClass,
   figmaMutedNavLinkClass,
@@ -73,7 +72,7 @@ export default function DiscoverStickyHeader() {
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}
     >
-      <div className={`${shellContainer} flex h-16 items-center justify-between gap-4 md:h-20`}>
+      <div className={`${shellContainer} flex h-24 items-center justify-between gap-4 md:h-28`}>
         <button
           type="button"
           onClick={() => setMobileMenuOpen((o) => !o)}
@@ -92,18 +91,18 @@ export default function DiscoverStickyHeader() {
               scrollToTop();
             }
           }}
-          className="flex min-w-0 shrink-0 items-center gap-2.5"
+          className="flex min-w-0 shrink-0 items-center gap-3"
           aria-label="Ember home"
         >
           <Image
             src={EMBER_LOGO_SRC}
             alt=""
-            className="h-10 w-10 object-contain md:h-11 md:w-11"
-            width={44}
-            height={44}
+            className="h-20 w-20 object-contain md:h-[88px] md:w-[88px]"
+            width={88}
+            height={88}
             priority
           />
-          <span className={`hidden truncate sm:block ${FIGMA_LOGO_WORDMARK_CLASS}`}>Ember</span>
+          <span className="hidden truncate sm:block font-bold text-4xl text-[#253044]">Ember</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
