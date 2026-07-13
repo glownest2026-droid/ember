@@ -1,3 +1,12 @@
+## 2026-07-13 — feat(pricing): Pip journey explainer + brand refresh
+
+- `/pricing` uses marketing container, canvas `#FBFAF7`, Manrope via `homepage-discover-brand`, accent `#FF5C34` with white CTA text
+- Hero introduces Pip as Plus guide; plan cards use Pip Trail / Picks language (no banned "unlock")
+- After **Know it. Buy it. Move it on.**, replaced interactive comparison with `PipJourneyExplainer` (Gemini HTML port)
+- FAQ + trust + final CTA updated for Pip; affiliate links to `/how-ember-makes-money` and `/affiliate-disclosure`
+
+**Verify:** open `/pricing` — Pip logo in hero; journey auto-advances; Free/Plus cards; Start free → sign-in or Discover
+
 - **Hero image:** `ember_cat_copy_me_games_category.png` (white family; single hero use)
 
 ## 2026-07-13 — fix(marketing): white text on orange homepage CTAs
