@@ -1,3 +1,84 @@
+- **Hero image:** `ember_cat_copy_me_games_category.png` (white family; single hero use)
+
+## 2026-07-13 — fix(marketing): white text on orange homepage CTAs
+
+- Removed blanket `a { color: inherit }` that overrode Tailwind `text-white`
+- `.home-cta` locked to `#ffffff` on orange buttons
+
+## 2026-07-13 — fix(marketing): homepage fonts locked to Discover Manrope
+
+- **Source of truth:** Discover body = Manrope 16/17px `#66717D` (`DiscoverFigmaChildHero`)
+- **Conflict found:** ThemeProvider defaults still inject Inter (body) + Source Serif 4 (headings)
+- Homepage now forces `--brand-font-*` + every `.home-*` class to Discover Manrope; body metrics match Discover
+
+### How to verify
+1. Preview `/` vs `/discover/26` — body copy should be the same Manrope face
+2. "How Ember Works." and other section titles — Manrope, not serif
+
+## 2026-07-13 — fix(marketing): full-viewport hero (Apple-style first impression)
+
+- Hero `min-h` fills viewport below sticky nav so age slider sits below the fold
+- Display ~48–88px; image up to ~620px tall; larger CTAs + lead
+
+### How to verify
+1. Preview `/` on desktop — first screen is brand + hero only
+2. Scroll once to reach "My child's current age"
+
+## 2026-07-13 — fix(marketing): homepage image diversity, hero scale, nav alignment
+
+- **Images:** five distinct families/scenes — dropped recurring orange-sweater catalogue model
+- **Hero:** display ~44–68px semibold (SaaS opening impact, still not bold)
+- **Layout:** shared `max-w-7xl` marketing container; nav widens on `/` + `/pricing`; removed redundant `ContentSpacer`
+
+### How to verify
+1. Preview `/` — no repeat orange-sweater parent; logo aligns with hero text edges
+2. Hero headline reads larger than section titles
+3. No double gap under sticky nav
+
+## 2026-07-13 — fix(marketing): softer homepage type scale + stages image swap
+
+- **Type:** shared `.home-*` scale — semibold/medium headings (not bold), body 16–18px like Discover
+- **Stages image:** `ember_cat_real_object_baskets_category.png` (replaces old soft-balls art)
+- **Rhythm:** slightly tighter section padding + lighter image shadows
+
+### How to verify
+1. Preview `/` — headings feel lighter; body reads at ~17px not 24px+
+2. "Parenting moves in stages" block shows real-object basket art
+
+## 2026-07-13 — fix(marketing): homepage typography, crop, no em dashes
+
+- Hero/body: regular weight (Discover body pattern); headings stay Manrope bold
+- CTAs: `font-medium` / normal only (never bold)
+- Media: edge-to-edge `object-cover` + live `rounded-3xl` shadow (no padded card frame)
+- Em dashes removed from homepage copy + site title
+
+### How to verify
+1. Preview `/` vs live: hero image fills the frame edge-to-edge
+2. Subtext and CTAs are not bold
+3. No "—" in hero line
+
+## 2026-07-13 — feat(marketing): homepage Discover brand + Stage 2 Storage images
+
+- **Brand:** `.homepage-discover-brand` remaps tokens to Discover Figma (`#253044`, `#FF5C34`, `#FBFAF7`, `#E7E2DC`); Manrope headings (no Source Serif)
+- **Imagery:** Unsplash / local webp replaced with `category_images` Stage 2 PNGs (`homeStage2Images.ts` + `HomeStage2Media`)
+- **PR:** continues #254
+
+### How to verify
+1. Open `/` — headings look like Discover (Manrope bold); accent is `#FF5C34`
+2. Hero + stage blocks + final CTA show Stage 2 product art (not stock photos)
+3. Compare side-by-side with `/discover/14`
+
+## 2026-07-12 — feat(marketing): homepage calls out 600+ Stage 2 ideas
+
+- **Hero:** “over 600 free ideas for what they’re practising next”
+- **Also:** How it works (Know it), How it shows up (Discover), final CTA, root meta description
+- **Tone:** catalogue depth without “science-backed” / catalogue-speak
+
+### How to verify
+1. Open `/` — hero subhead mentions over 600 free ideas
+2. Scroll to How Ember Works / How it shows up — same signal, lightly
+3. View page source meta description includes “Over 600 free ideas…”
+
 ## 2026-07-02 — feat(data): map 31–33m Stage 2 category images (60/60)
 
 - **Preflight:** HEAD 200 on all 60 slugs in `category_images` — global filenames `ember_{slug}_category.png` (no age-scoped `*_31_33m_*` variants uploaded)

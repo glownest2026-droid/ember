@@ -4,12 +4,13 @@ import { motion } from 'motion/react';
 import Link from 'next/link';
 import { Eye, Bookmark, Store, ArrowRight } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
+import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 
 const CARDS = [
   {
     icon: Eye,
     title: 'Discover',
-    body: 'See what your child is practising now. Built around their stage, not products.',
+    body: 'Over 600 free ideas across the first three years. Built around their stage, not a product catalogue.',
     cta: 'See what\'s next',
     href: '/discover',
   },
@@ -33,27 +34,24 @@ export function HomeShowsUp() {
   const reducedMotion = useReducedMotion() ?? false;
 
   return (
-    <section className="bg-[var(--ember-surface-primary)] py-24 lg:py-32">
-      <div className="max-w-[90rem] mx-auto px-6 lg:px-12">
+    <section className="bg-[var(--ember-surface-primary)] py-20 lg:py-28">
+      <div className={EMBER_MARKETING_CONTAINER}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: reducedMotion ? 0 : 0.6 }}
-          className="max-w-6xl mb-16"
+          className="max-w-6xl mb-12"
         >
-          <h2
-            className="text-4xl lg:text-5xl mb-6 text-[var(--ember-text-high)]"
-            style={{ fontFamily: 'var(--font-serif)', fontWeight: 400, letterSpacing: '-0.01em' }}
-          >
+          <h2 className="home-section-title mb-3 text-[var(--ember-text-high)]">
             How it shows up.
           </h2>
-          <p className="text-xl lg:text-2xl text-[var(--ember-text-low)] max-w-2xl">
+          <p className="home-section-lead max-w-xl">
             Three simple places built around your family&apos;s journey.
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6">
           {CARDS.map((card, i) => (
             <motion.div
               key={card.title}
@@ -63,20 +61,15 @@ export function HomeShowsUp() {
               transition={{ duration: reducedMotion ? 0 : 0.5, delay: 0.1 + i * 0.1 }}
               className="group"
             >
-              <div className="bg-[var(--ember-bg-canvas)] rounded-3xl p-8 lg:p-10 transition-all duration-300 hover:shadow-[0px_8px_32px_rgba(0,0,0,0.08)] hover:translate-y-[-4px]">
-                <div className="w-14 h-14 rounded-2xl bg-white border border-[var(--ember-border-subtle)] flex items-center justify-center mb-6 shadow-sm">
-                  <card.icon className="w-7 h-7 text-[var(--ember-accent-base)]" strokeWidth={2} />
+              <div className="bg-[var(--ember-bg-canvas)] rounded-[20px] border border-[var(--ember-border-subtle)] p-7 lg:p-8 transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]">
+                <div className="w-12 h-12 rounded-2xl bg-white border border-[var(--ember-border-subtle)] flex items-center justify-center mb-5 shadow-sm">
+                  <card.icon className="w-6 h-6 text-[var(--ember-accent-base)]" strokeWidth={2} />
                 </div>
-                <h3
-                  className="text-2xl mb-3 text-[var(--ember-text-high)]"
-                  style={{ fontFamily: 'var(--font-serif)', fontWeight: 400 }}
-                >
-                  {card.title}
-                </h3>
-                <p className="text-lg text-[var(--ember-text-low)] leading-relaxed mb-6">{card.body}</p>
+                <h3 className="home-card-title mb-2 text-[var(--ember-text-high)]">{card.title}</h3>
+                <p className="home-body mb-5">{card.body}</p>
                 <Link
                   href={card.href}
-                  className="text-[var(--ember-accent-base)] transition-all duration-300 hover:text-[var(--ember-accent-hover)] flex items-center gap-2 group-hover:gap-3 font-semibold"
+                  className="home-link text-[var(--ember-accent-base)] transition-all duration-300 hover:text-[var(--ember-accent-hover)] inline-flex items-center gap-2 group-hover:gap-3"
                 >
                   {card.cta}
                   <ArrowRight className="w-5 h-5" strokeWidth={2} />
