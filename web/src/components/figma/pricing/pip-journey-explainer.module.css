@@ -14,29 +14,11 @@
   --pip-transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.sectionPipLogo {
-  width: 140px;
-  height: 140px;
-  margin: 0 auto 1.5rem;
-  border-radius: 50%;
-  background: var(--pip-surface);
-  border: 2px solid var(--pip-border);
-  box-shadow: 0 16px 32px -8px rgba(37, 48, 68, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sectionPipLogo img {
-  width: 90px;
-  height: auto;
-}
-
 .subtitle {
   text-align: center;
   color: var(--pip-muted);
   font-size: 1.125rem;
-  max-width: 36rem;
+  max-width: 40rem;
   margin: 0 auto 3rem;
   line-height: 1.5;
   font-weight: 400;
@@ -159,6 +141,19 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   gap: 0.375rem;
+}
+
+.trackDividerBadge img {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.nodePipMark {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .journeyNode {
@@ -292,6 +287,22 @@
   transform: translateY(10px);
 }
 
+.conceptCardLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--pip-radius-xl);
+  transition: transform 0.2s ease;
+}
+
+.conceptCardLink:hover {
+  transform: translateY(-2px);
+}
+
+.conceptCardLink:hover .conceptTitle {
+  color: var(--pip-accent);
+}
+
 .conceptCard {
   background: var(--pip-surface);
   border: 1px solid var(--pip-border);
@@ -302,12 +313,40 @@
   flex-direction: column;
 }
 
+.conceptImageWrap {
+  position: relative;
+}
+
 .conceptImage {
   height: 200px;
   width: 100%;
   background-size: cover;
   background-position: center;
   background-color: var(--pip-soft-blush);
+}
+
+.pipChip {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--pip-border);
+  color: var(--pip-ink);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.35rem 0.6rem;
+  border-radius: 99px;
+  box-shadow: 0 4px 12px rgba(37, 48, 68, 0.08);
+}
+
+.pipChip img {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
 }
 
 @media (min-width: 768px) {
