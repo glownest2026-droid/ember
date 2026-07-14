@@ -27,7 +27,7 @@ export function MeetPipSection() {
                 />
               </div>
               <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#FF5C34] px-3 py-1 text-[0.6875rem] font-semibold text-white shadow-sm sm:text-xs">
-                Comes with Plus
+                Comes with Ember Plus
               </span>
             </div>
             <div className="min-w-0">

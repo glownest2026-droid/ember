@@ -1,3 +1,9 @@
+## 2026-07-14 — fix(pricing): Ember Plus wording, features intro, Seasons v2
+
+- Hero: “Get more from Ember with Pip, your play coach”; always “Ember Plus” in UI copy
+- Journey intro: “Ember Plus features”
+- Uploaded + mapped `ember_pricing_journey_seasons_christmas_v2_category.png` (HEAD 200)
+
 ## 2026-07-14 — feat(pricing): map custom journey images (HEAD 200)
 
 - Wired 5 Make uploads into `pricingImages.ts` (Free, Patch, Seasons, Chapters, Pass-On)

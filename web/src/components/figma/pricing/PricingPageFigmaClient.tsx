@@ -56,8 +56,8 @@ export default function PricingPageFigmaClient() {
               <span className="text-[#FF5C34]">Ember Plus guides your way.</span>
             </h1>
             <p className="mx-auto max-w-lg text-[1rem] leading-relaxed text-[#66717D] sm:text-[1.0625rem]">
-              600+ free play ideas and a <MarketplaceLink>Smart Marketplace</MarketplaceLink>. Plus
-              brings Pip.
+              600+ free play ideas and a <MarketplaceLink>Smart Marketplace</MarketplaceLink>. Get
+              more from Ember with Pip, your play coach.
             </p>
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function PricingPageFigmaClient() {
                 'Pip’s Pass-On — when toys are done, help them find a new home',
                 'More than one child',
               ]}
-              ctaText="Start Plus"
+              ctaText="Start Ember Plus"
               ctaHref="#compare"
             />
           </div>
@@ -123,8 +123,14 @@ export default function PricingPageFigmaClient() {
             <p className="mx-auto mt-3 max-w-xl text-[1.0625rem] text-[#66717D]">
               That’s Ember in three steps.
               <br />
-              With <strong className="font-semibold text-[#253044]">Plus</strong>, Pip helps you stay
-              ahead through six exclusive features.
+              With <strong className="font-semibold text-[#253044]">Ember Plus</strong>, Pip helps
+              you stay ahead through six exclusive features.
+            </p>
+            <p
+              className="mx-auto mt-6 font-semibold tracking-[-0.01em] text-[#253044]"
+              style={{ fontSize: 'clamp(1.25rem, 2.5vw, 1.5rem)', lineHeight: 1.2 }}
+            >
+              Ember Plus features
             </p>
           </div>
           <PipJourneyExplainer />
@@ -142,10 +148,10 @@ export default function PricingPageFigmaClient() {
           <div className="mx-auto max-w-2xl">
             <FAQItem
               question="Can I cancel anytime?"
-              answer="Yes. Plus is £3.99 a month. Cancel whenever you like — you keep it until the end of the month you’ve paid for."
+              answer="Yes. Ember Plus is £3.99 a month. Cancel whenever you like — you keep it until the end of the month you’ve paid for."
             />
             <FAQItem
-              question="What’s the difference between Free and Plus?"
+              question="What’s the difference between Free and Ember Plus?"
               answer={
                 <>
                   Free is a full product: 600+ play ideas, saves, gift lists and the{' '}
@@ -157,11 +163,11 @@ export default function PricingPageFigmaClient() {
             />
             <FAQItem
               question="How does Ember make money?"
-              answer="Some shop links may earn Ember a commission, and Plus is £3.99 a month. That doesn’t change what we recommend."
+              answer="Some shop links may earn Ember a commission, and Ember Plus is £3.99 a month. That doesn’t change what we recommend."
             />
             <FAQItem
               question="Can I use Ember for more than one child?"
-              answer="Free covers one child. Plus covers more than one, so siblings can sit at different ages without juggling accounts."
+              answer="Free covers one child. Ember Plus covers more than one, so siblings can sit at different ages without juggling accounts."
             />
           </div>
           <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-[#66717D]">

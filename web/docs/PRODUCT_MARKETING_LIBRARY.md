@@ -397,15 +397,17 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 
 ## 7. Pricing page rules
 
-1. Hero: short Free promise + Plus beat only — no unexplained Pip badge, no long Plus paragraph.  
-2. Meet Pip **before** price cards — who Pip is, then what Free/Plus cost. Compact enough that plans peek on mobile.  
+1. Hero: short Free promise + Ember Plus beat only — no unexplained Pip badge, no long Plus paragraph.  
+2. Meet Pip **before** price cards — who Pip is, then what Free / Ember Plus cost. Compact enough that plans peek on mobile.  
 3. Free box: GOOD product — play library depth, Smart Marketplace, gift list. Prefer “play / developmental ideas”, never “stage ideas” or “forever.”  
-4. Plus box: GREAT product — one specific line per Pip feature (what — why), **optimistic framing**. Plus CTA can jump to journey (`#compare`).  
-5. Journey cards: split lines; **visually weight** the personalised spike (underline/bold — e.g. “1 new perfect match”, “animal play”). No internal labels. Put Ember/Pip on the front foot.  
-6. Always hyperlink Marketplace (and “Smart Marketplace”) to `/marketplace`.  
-7. Never weaken Free to prop up Plus.  
-8. No competitor foils. No negative pink-elephant openers.  
-9. Run every line through §0 founder lesson (AI red flags / optimistic tone / proactive Ember).
+4. Ember Plus box: GREAT product — one specific line per Pip feature (what — why), **optimistic framing**. CTA can jump to journey (`#compare`).  
+5. Always say **Ember Plus** in parent copy — not bare “Plus” (except UI shorthand inside an Ember Plus card title if needed).  
+6. Journey needs a clear intro (e.g. “Ember Plus features”) before the feature slider.  
+7. Journey cards: split lines; **visually weight** the personalised spike (underline/bold — e.g. “1 new perfect match”, “animal play”). No internal labels. Put Ember/Pip on the front foot.  
+8. Always hyperlink Marketplace (and “Smart Marketplace”) to `/marketplace`.  
+9. Never weaken Free to prop up Ember Plus.  
+10. No competitor foils. No negative pink-elephant openers.  
+11. Run every line through §0 founder lesson (AI red flags / optimistic tone / proactive Ember).
 
 ---
 

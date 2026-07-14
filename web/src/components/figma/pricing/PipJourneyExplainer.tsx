@@ -480,7 +480,7 @@ export function PipJourneyExplainer() {
                     <span className={styles.trackDividerBadge}>
                       <img src={PIP_LOGO_URL} alt="" width={16} height={16} />
                       <Plus size={12} strokeWidth={2.5} aria-hidden />
-                      Plus starts here
+                      Ember Plus starts here
                     </span>
                   </div>
                 ) : null}
@@ -576,7 +576,7 @@ export function PipJourneyExplainer() {
               <span className={styles.trackDividerBadge}>
                 <img src={PIP_LOGO_URL} alt="" width={16} height={16} />
                 <Plus size={12} strokeWidth={2.5} aria-hidden />
-                Plus starts here
+                Ember Plus starts here
               </span>
             </div>
 

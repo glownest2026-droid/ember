@@ -17,7 +17,7 @@ export const PRICING_JOURNEY_IMAGES = {
   pathway: categoryImage('ember_cat_stacking_nesting_cups_category.png'),
   picks: categoryImage('ember_cat_first_puzzles_category.png'),
   proximity: categoryImage('ember_pricing_journey_patch_walkers_category.png'),
-  seasons: categoryImage('ember_pricing_journey_seasons_christmas_category.png'),
+  seasons: categoryImage('ember_pricing_journey_seasons_christmas_v2_category.png'),
   moments: categoryImage('ember_pricing_journey_chapters_nursery_category.png'),
   moveOn: categoryImage('ember_pricing_journey_pass_on_white_noise_category.png'),
 } as const;
