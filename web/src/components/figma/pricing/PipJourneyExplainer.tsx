@@ -112,11 +112,11 @@ const JOURNEY_STEPS: JourneyStep[] = [
   },
   {
     id: 'proximity',
-    title: 'Pip Proximity',
-    desc: "Local toy recommendations for your child’s age — the moment they fit. You’ll know when a neighbour has a nearby match.",
+    title: "Pip’s Patch Finds",
+    desc: "Local toy finds for your child’s age — the moment they fit. You’ll know when a neighbour has a nearby match.",
     isFree: false,
     Icon: MapPin,
-    cardTag: 'Pip Proximity',
+    cardTag: "Pip’s Patch Finds",
     cardBody: (
       <div className={styles.conceptLines}>
         <p className={styles.conceptLine}>
@@ -151,11 +151,11 @@ const JOURNEY_STEPS: JourneyStep[] = [
   },
   {
     id: 'moments',
-    title: "Pip’s Moments",
-    desc: 'First day at nursery, a new sibling, travel — help for the moment you’re actually in.',
+    title: "Pip’s Chapters",
+    desc: 'First day at nursery, a new sibling, travel — help for the chapter you’re actually in.',
     isFree: false,
     Icon: Star,
-    cardTag: 'Pip’s Moments',
+    cardTag: "Pip’s Chapters",
     cardFootnote: 'First day at nursery',
     cardBody: (
       <div className={styles.conceptLines}>
@@ -173,11 +173,11 @@ const JOURNEY_STEPS: JourneyStep[] = [
   },
   {
     id: 'moveon',
-    title: 'Pip Move-On',
+    title: "Pip’s Pass-On",
     desc: 'A heads-up when something’s done its job — and a path to pass it on.',
     isFree: false,
     Icon: Package,
-    cardTag: 'Pip Move-On',
+    cardTag: "Pip’s Pass-On",
     cardBody: (
       <div className={styles.conceptLines}>
         <p className={styles.conceptLine}>

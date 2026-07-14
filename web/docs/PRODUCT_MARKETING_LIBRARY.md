@@ -1,6 +1,6 @@
 # Ember Product Marketing Library
 
-**Status:** Draft v2.2 — plain-language pass (2026-07-14)  
+**Status:** Draft v2.3 — feature naming confirmed (2026-07-14)  
 **Owner:** Founder + product marketing  
 **Audience:** Humans writing homepage, pricing, emails, App Store, ads — and agents generating parent-facing copy.
 
@@ -186,7 +186,7 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | **Feel** | Capable, self-serve, complete | Relieved, ahead, helped |
 | **Quality bar** | GOOD — keep as long as you want | GREAT — Ember at full strength |
 | **Never say** | “Just browsing” / “limited” / “basic listings” | That Free is pointless alone |
-| **Always true** | Ideas personalised by age; clear buying judgement; Smart Marketplace; saves/gift list | Pathway, Picks, Proximity, Seasons, Moments, Move-On (as shipped) |
+| **Always true** | Ideas personalised by age; clear buying judgement; Smart Marketplace; saves/gift list | Pathway, Picks, Patch Finds, Seasons, Chapters, Pass-On (as shipped) |
 
 **Pricing page rule:** Free bullets = a product you’d keep. Plus bullets = one line each: **what it is — why it helps**.
 
@@ -233,7 +233,7 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 
 | | |
 |--|--|
-| **Tier** | Free base; Plus can add Proximity / Move-On on top |
+| **Tier** | Free base; Plus can add Patch Finds / Pass-On on top |
 | **Status** | partial (beta live; match density varies by area) |
 | **WHAT** | List playroom kit quickly — including from a photo — and match families on **what children need now**, not a random pile. |
 | **WHAT talking points** | 1) Post from a photo and get on with the day. 2) Matching built around age and need. 3) Some kit stays new-only for safety — Ember won’t pretend otherwise. |
@@ -297,20 +297,20 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 
 ---
 
-### 5.6 Pip Proximity *(was: Nearby)*
+### 5.6 Pip’s Patch Finds *(was: Proximity / Nearby)*
 
 | | |
 |--|--|
 | **Tier** | Plus |
 | **Status** | partial / vision on top of Marketplace |
-| **WHAT** | Neighbourhood matches — the right kit, for this age, nearby — brought to you when it fits. |
-| **WHAT talking points** | 1) Local families, age-aware matches. 2) Borrow or buy pre-loved when new isn’t needed. 3) Built on Smart Marketplace, with Pip watching for fit. |
+| **WHAT** | Neighbourhood finds — the right kit, for this age, nearby — brought to you when it fits. |
+| **WHAT talking points** | 1) Local families, age-aware matches. 2) Borrow or buy pre-loved when new isn’t needed. 3) Built on Smart Marketplace, with Pip scouting for fit. |
 | **WHY** | Sustainable local finding without drowning in group chats. |
-| **WHY talking points** | 1) Pip has been monitoring what fits this age locally. 2) You’ll know when a neighbour has a nearby match. 3) Borrow or buy pre-loved when new isn’t needed. |
+| **WHY talking points** | 1) Pip has been scouting what fits this age locally. 2) You’ll know when a neighbour has a nearby match. 3) Borrow or buy pre-loved when new isn’t needed. |
 | **PROOF ANGLE** | Marketplace + child age context. |
-| **PARENT LINES** | “Pip Proximity”; “local toy recommendations for your child’s age.” |
-| **AVOID** | “Not living in the listings”; guaranteeing density in every postcode; naming other marketplaces as foils. |
-| **PAGE NOTES** | Free = Marketplace you open; Plus = matches that find you. |
+| **PARENT LINES** | “Pip’s Patch Finds”; “local finds for your child’s age.” |
+| **AVOID** | “Proximity”; creepy “watching local baby…”; guaranteeing density in every postcode; naming other marketplaces as foils. |
+| **PAGE NOTES** | Free = Marketplace you open; Plus = finds that come to you. |
 
 ---
 
@@ -331,24 +331,24 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 
 ---
 
-### 5.8 Pip’s Moments
+### 5.8 Pip’s Chapters *(was: Moments)*
 
 | | |
 |--|--|
 | **Tier** | Plus |
 | **Status** | vision |
-| **WHAT** | Guidance for big life occasions: new sibling, nursery, travel, settling weeks — specific, practical suggestions. |
+| **WHAT** | Guidance for big life chapters: new sibling, nursery, travel, settling weeks — specific, practical suggestions. |
 | **WHAT talking points** | 1) Nursery-start packs that cover the awkward weeks. 2) New-sibling practicalities, not vague bonding tips. 3) Travel / change routines sized to their age. |
-| **WHY** | Help for the moment you’re *in* — not a generic month label. |
+| **WHY** | Help for the chapter you’re *in* — not a generic month label. |
 | **WHY talking points** | 1) Nursery doesn’t catch you with empty spare-clothes drawer energy. 2) Big transitions feel less like flying blind. 3) Practical steps you can do this week. |
-| **PROOF ANGLE** | Age + parent-declared moment. |
-| **PARENT LINES** | “Pip’s Moments”; “nursery / new sibling / travel packs.” |
+| **PROOF ANGLE** | Age + parent-declared chapter / occasion. |
+| **PARENT LINES** | “Pip’s Chapters”; “nursery / new sibling / travel packs.” |
 | **AVOID** | Medical claims; overconfident guarantees. Prefer concrete “here are five personalised ideas…” |
-| **PAGE NOTES** | Card format can be a short milestone checklist. |
+| **PAGE NOTES** | Card format can be a short checklist for that chapter. |
 
 ---
 
-### 5.9 Pip Move-On
+### 5.9 Pip’s Pass-On *(was: Move-On)*
 
 | | |
 |--|--|
@@ -357,11 +357,11 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | **WHAT** | Heads-up when something’s done its job — and easy paths to list, donate, or pass to a local family. |
 | **WHAT talking points** | 1) Ember / Pip notice kit that’s done its job. 2) Path into Smart Marketplace listing. 3) Free up space for what they need *now*. |
 | **WHY** | Pass useful kit to local babies who would love it — and reclaim cupboard space. |
-| **WHY talking points** | 1) Ember has been watching how long you’ve had it. 2) Local families who would love it, nearby. 3) Move-on is part of Ember’s loop — not an afterthought. |
+| **WHY talking points** | 1) Ember has noticed how long you’ve had it. 2) Local families who would love it, nearby. 3) Pass-on is part of Ember’s loop — not an afterthought. |
 | **PROOF ANGLE** | Inventory / Marketplace spine. |
-| **PARENT LINES** | “Pip Move-On”; “ready to pass on?” |
+| **PARENT LINES** | “Pip’s Pass-On”; “ready to pass on?” |
 | **AVOID** | Declutter shame; nagging tone. |
-| **PAGE NOTES** | Pairs with Marketplace / Proximity on pricing. |
+| **PAGE NOTES** | Pairs with Marketplace / Patch Finds on pricing. |
 
 ---
 
@@ -389,7 +389,7 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | Internal foil (for writers) | Say this instead (public) |
 |-----------------------------|---------------------------|
 | Expensive box subscriptions | Confidence that respects what you already own — buy only when it earns its place |
-| Endless local scroll / chat groups | Smart Marketplace + Proximity: need-first matches, photo listing, age sense |
+| Endless local scroll / chat groups | Smart Marketplace + Patch Finds: need-first matches, photo listing, age sense |
 | Forum + shop-tab evenings | Know what matters this age — Ember has already been watching |
 | Generic parenting content apps | UK parent reality: buy / borrow / bring back out / pass on |
 
@@ -409,14 +409,17 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 
 ---
 
-## 8. Naming decisions (founder — still open)
+## 8. Naming decisions (founder — confirmed 2026-07-14)
 
-| Draft name | Working assumption for v2 | Confirm? |
-|------------|---------------------------|----------|
-| Pip’s Pathway | Replaces Trail | ☐ |
-| Pip Proximity | Replaces Nearby | ☐ |
+| Name | Notes | Confirm? |
+|------|-------|----------|
+| Pip’s Pathway | Keep | ☑ |
+| Pip’s Picks | Keep | ☑ |
+| Pip’s Patch Finds | Replaces Proximity / Nearby | ☑ |
+| Pip’s Seasons | Keep | ☑ |
+| Pip’s Chapters | Replaces Moments | ☑ |
+| Pip’s Pass-On | Replaces Move-On | ☑ |
 | Pip Preferences | Vision only; no pricing yet | ☐ |
-| Pip Move-On | Keep named (with Marketplace) | ☐ |
 | Ember Smart Marketplace | Free USP wording | ☐ |
 
 ---
@@ -430,6 +433,7 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | 2026-07-14 | **v2.1** — founder V3 pricing + wife feedback: ban AI red flags (“spiral”, “endless tabs”, “stage ideas”, “landing the short list”); never frame pain negatively; Ember/Pip proactive voice; pricing rules updated |
 | 2026-07-14 | Pricing page flow: short hero → Meet Pip before plans; slim profile so prices peek on mobile |
 | 2026-07-14 | **v2.2** — ban “forever”, “stage/stage-based”, “research-backed”; no internal debris; personalised spikes visually weighted; Marketplace always linked |
+| 2026-07-14 | **v2.3** — feature names: Patch Finds, Chapters, Pass-On (drop Proximity / Moments / Move-On) |
 
 ---
 

@@ -1,3 +1,8 @@
+## 2026-07-14 — feat(pricing): feature rename — Patch Finds / Chapters / Pass-On
+
+- Proximity → Pip’s Patch Finds; Moments → Pip’s Chapters; Move-On → Pip’s Pass-On
+- PMF Draft v2.3 naming confirmed
+
 ## 2026-07-14 — fix(pricing): stacking cups + Proximity “scouting” wording
 
 - Pathway spike: “stacking cups and pouring” (nesting wasn’t clear)

@@ -99,9 +99,9 @@ export default function PricingPageFigmaClient() {
               features={[
                 'Pip’s Pathway — nudges on what’s next, so you stay one step ahead',
                 'Pip’s Picks — a short list we’ve already weighed up, and why',
-                'Pip Proximity — local matches for this age, when they fit',
-                'Seasons & Moments — Christmas, birthdays, nursery and more',
-                'Pip Move-On — when toys are done, help them find a new home',
+                'Pip’s Patch Finds — local matches for this age, when they fit',
+                'Pip’s Seasons & Chapters — Christmas, birthdays, nursery and more',
+                'Pip’s Pass-On — when toys are done, help them find a new home',
                 'More than one child',
               ]}
               ctaText="Start Plus"
@@ -150,8 +150,8 @@ export default function PricingPageFigmaClient() {
                 <>
                   Free is a full product: 600+ play ideas, saves, gift lists and the{' '}
                   <MarketplaceLink>Smart Marketplace</MarketplaceLink> — in your own time. Ember Plus
-                  adds your assistant Pip: Pathway nudges, Picks, Proximity matches, Seasons, Moments
-                  and Move-On — so Ember works for you between visits.
+                  adds your assistant Pip: Pathway, Picks, Patch Finds, Seasons, Chapters and Pass-On
+                  — so Ember works for you between visits.
                 </>
               }
             />
