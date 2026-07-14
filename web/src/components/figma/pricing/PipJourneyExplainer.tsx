@@ -10,6 +10,8 @@ import {
   Package,
   Plus,
   Route,
+  Star,
+  Sun,
   type LucideIcon,
 } from 'lucide-react';
 import styles from './pip-journey-explainer.module.css';
@@ -28,65 +30,99 @@ type JourneyStep = {
   cardTitle: string;
   cardSub: string;
   cardImage: string;
-  /** Optional destination for the concept card (e.g. Discover). */
   cardHref?: string;
+  miniList?: [string, string][];
+  pills?: string[];
 };
 
 const JOURNEY_STEPS: JourneyStep[] = [
   {
     id: 'free',
-    title: 'Browse Ember free',
-    desc: 'Ideas, saves and gift lists — look round in your own time.',
+    title: 'Discover + Smart Marketplace',
+    desc: '600+ stage ideas, saves, gift lists and local matching — whenever you open Ember.',
     isFree: true,
     Icon: LayoutList,
     cardTag: 'Free',
-    cardTitle: 'Explore the catalogue',
-    cardSub: 'Hundreds of ideas by age. Open Discover and have a poke about.',
+    cardTitle: 'Explore 600+ stage ideas',
+    cardSub:
+      'Personalised by age. Guidance that assumes your cupboards aren’t empty — and a Smart Marketplace when you’re listing or looking locally.',
     cardImage: PRICING_JOURNEY_IMAGES.catalogue,
     cardHref: '/discover',
   },
   {
-    id: 'trail',
-    title: "Pip's Trail",
-    desc: 'A nudge when they’re moving into something new.',
+    id: 'pathway',
+    title: "Pip’s Pathway",
+    desc: 'A nudge when they’re moving into something new — before you feel six months behind.',
     isFree: false,
     Icon: Route,
-    cardTag: 'Pip’s Trail',
+    cardTag: 'Pip’s Pathway',
     cardTitle: 'Bring the cups back out',
-    cardSub: 'If you’ve already got stacking cups, this stage is pouring and nesting — not buying another set.',
-    cardImage: PRICING_JOURNEY_IMAGES.trail,
+    cardSub:
+      'If you’ve already got stacking cups, this stage is pouring and nesting — not another set cluttering the shelf.',
+    cardImage: PRICING_JOURNEY_IMAGES.pathway,
   },
   {
     id: 'picks',
-    title: 'Pip Picks',
-    desc: 'A few buying options when you actually need them.',
+    title: "Pip’s Picks",
+    desc: 'A short research-backed list for this age — already sorted.',
     isFree: false,
     Icon: Gift,
-    cardTag: 'Pip Picks',
-    cardTitle: 'A few first puzzles to look at',
-    cardSub: 'Not every puzzle on the internet. A small list that fits this age, and why.',
+    cardTag: 'Pip’s Picks',
+    cardTitle: 'First puzzles for this stage',
+    cardSub: 'Ember does the sorting; you keep the evening.',
     cardImage: PRICING_JOURNEY_IMAGES.picks,
+    miniList: [
+      ['Chunky 2-piece starter', 'why now'],
+      ['Simple knob puzzle', 'why now'],
+      ['Skip if you’ve got one', 'reuse'],
+    ],
   },
   {
-    id: 'nearby',
-    title: 'Pip Nearby',
-    desc: 'Local finds when borrowing or pre-loved makes more sense.',
+    id: 'proximity',
+    title: 'Pip Proximity',
+    desc: 'Local matches for this age — when they fit — so you’re not living in the listings.',
     isFree: false,
     Icon: MapPin,
-    cardTag: 'Pip Nearby',
-    cardTitle: 'Balance gear near you',
-    cardSub: 'See what’s listed locally for this age before you buy new.',
-    cardImage: PRICING_JOURNEY_IMAGES.nearby,
+    cardTag: 'Pip Proximity',
+    cardTitle: 'Balance gear two streets away',
+    cardSub:
+      'Need-first matching on the Smart Marketplace. Borrow or buy pre-loved when new isn’t needed.',
+    cardImage: PRICING_JOURNEY_IMAGES.proximity,
+  },
+  {
+    id: 'seasons',
+    title: "Pip’s Seasons",
+    desc: 'Christmas, birthdays, summer — timed early enough to act, tuned to their age.',
+    isFree: false,
+    Icon: Sun,
+    cardTag: 'Pip’s Seasons',
+    cardTitle: 'Christmas list before December hits',
+    cardSub: 'Useful ideas relatives can follow — so you’re not still deciding on the 22nd.',
+    cardImage: PRICING_JOURNEY_IMAGES.seasons,
+    pills: ['Christmas', 'Birthdays', 'Summer'],
+  },
+  {
+    id: 'moments',
+    title: "Pip’s Moments",
+    desc: 'Practical help for the moment you’re in — not a generic month label.',
+    isFree: false,
+    Icon: Star,
+    cardTag: 'Pip’s Moments',
+    cardTitle: 'Nursery starts next month',
+    cardSub: 'Spare clothes, comfort kit, settling weeks — sized to their age, for this week.',
+    cardImage: PRICING_JOURNEY_IMAGES.moments,
+    pills: ['Nursery', 'New sibling', 'Travel'],
   },
   {
     id: 'moveon',
     title: 'Pip Move-On',
-    desc: 'A heads-up when something’s done its job.',
+    desc: 'A heads-up when something’s done its job — and a path to pass it on.',
     isFree: false,
     Icon: Package,
     cardTag: 'Pip Move-On',
     cardTitle: 'Ready to pass on?',
-    cardSub: 'Stuff you might be finished with — and whether someone nearby wants it.',
+    cardSub:
+      'Kit that’s aging out of use — list on the Smart Marketplace, donate, or find a family nearby.',
     cardImage: PRICING_JOURNEY_IMAGES.moveOn,
   },
 ];
@@ -182,6 +218,7 @@ export function PipJourneyExplainer() {
   const StepIcon = step.Icon;
   const freeSteps = JOURNEY_STEPS.filter((s) => s.isFree);
   const plusSteps = JOURNEY_STEPS.filter((s) => !s.isFree);
+  const hasExtras = Boolean(step.miniList?.length || step.pills?.length);
 
   const renderNode = (journeyStep: JourneyStep, globalIndex: number) => {
     const Icon = journeyStep.Icon;
@@ -234,8 +271,12 @@ export function PipJourneyExplainer() {
           </span>
         )}
       </div>
-      <div className={styles.conceptBody}>
-        <div>
+      <div
+        className={[styles.conceptBody, hasExtras || !step.cardHref ? styles.conceptBodyStack : '']
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <div className={styles.conceptText}>
           <div
             className={[styles.conceptTag, step.isFree ? '' : styles.conceptTagPlus]
               .filter(Boolean)
@@ -246,8 +287,32 @@ export function PipJourneyExplainer() {
           </div>
           <div className={styles.conceptTitle}>{step.cardTitle}</div>
           <div className={styles.conceptSub}>{step.cardSub}</div>
+          {step.miniList ? (
+            <ul className={styles.miniList}>
+              {step.miniList.map(([label, meta]) => (
+                <li key={label}>
+                  <span>{label}</span>
+                  <span className={styles.miniListMeta}>{meta}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          {step.pills ? (
+            <div className={styles.momentRow}>
+              {step.pills.map((pill) => (
+                <span key={pill} className={styles.momentPill}>
+                  {pill}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          {step.cardHref ? (
+            <span className={styles.conceptLink}>→ Open Discover</span>
+          ) : null}
         </div>
-        <ChevronRight className={styles.conceptChevron} strokeWidth={2} aria-hidden />
+        {!hasExtras && step.cardHref ? (
+          <ChevronRight className={styles.conceptChevron} strokeWidth={2} aria-hidden />
+        ) : null}
       </div>
     </>
   );

@@ -37,9 +37,11 @@ export function MeetPipSection() {
                 The bit of Ember that does the homework with you
               </h2>
               <p className="text-[1.0625rem] leading-relaxed text-[#66717D]">
-                Free Ember is what you browse when you&apos;ve got a minute. Pip is who you get with
-                Plus — a nudge when something&apos;s changing, a few options when you might buy, and a
-                prod when it&apos;s time to clear space. Less scrolling. Fewer 90-minute rabbit holes.
+                Free Ember is what you open when you&apos;ve got a minute — stage ideas and a Smart
+                Marketplace, forever. Pip is who you get with Plus: watching what&apos;s changing,
+                landing what to get next, and tapping you when something local, seasonal or
+                life-sized needs a decision. So you spend the evening with them — not another
+                spiral.
               </p>
             </div>
           </div>

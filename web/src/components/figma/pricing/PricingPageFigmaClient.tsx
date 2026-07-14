@@ -30,7 +30,7 @@ export default function PricingPageFigmaClient() {
       id="ember-pricing-prototype"
       className="homepage-discover-brand min-h-screen bg-[var(--ember-bg-canvas)]"
     >
-      {/* 1. Hero — outcome, not product tour */}
+      {/* 1. Hero */}
       <section className="pt-16 pb-10 lg:pt-20 lg:pb-12">
         <div className={EMBER_MARKETING_CONTAINER}>
           <div className="mx-auto max-w-3xl text-center">
@@ -40,28 +40,29 @@ export default function PricingPageFigmaClient() {
             >
               Browse for free.
               <br />
-              <span className="text-[#FF5C34]">Get Pip to help with what to buy.</span>
+              <span className="text-[#FF5C34]">Plus puts Pip on the path with you.</span>
             </h1>
             <p className="mx-auto max-w-xl text-[1.125rem] leading-relaxed text-[#66717D]">
-              Free Ember shows what fits this age. Plus adds Pip — so you&apos;re not left to figure
-              every purchase out on your own.
+              Free Ember: 600+ stage ideas and a Smart Marketplace you can use forever. Plus adds
+              Pip — watching what&apos;s next, landing the short list, and tapping you for local
+              matches, seasons and life&apos;s big moments.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 2. Plans — the conversion core */}
+      {/* 2. Plans */}
       <section id="plans" className="pb-4 lg:pb-6">
         <div className={EMBER_MARKETING_CONTAINER}>
           <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 lg:grid-cols-2">
             <PricingCard
               name="Free"
               price="£0"
-              label="Have a look round yourself"
+              label="The full catalogue and Marketplace — in your own time"
               features={[
-                'Ideas for what they’re into at this age',
-                'Save things and share a gift list',
-                'Browse local listings',
+                '600+ stage ideas, personalised by age',
+                'Save ideas and share a gift list with family',
+                'Smart Marketplace — list from a photo, matched to need',
                 '1 child profile',
               ]}
               ctaText="Start free"
@@ -72,26 +73,28 @@ export default function PricingPageFigmaClient() {
               price="£3.99"
               period="/month"
               annualPrice="or £29 for your first year"
-              label="Pip helps with what to do next"
+              label="Pip brings Ember to you — so you’re ahead, not catching up"
               recommended={true}
               badge="Recommended"
               features={[
-                'Pip’s Trail — what’s changing next',
-                'Pip Picks — a few options, not 40 tabs',
-                'Local finds, and when to pass stuff on',
+                'Pip’s Pathway — stage nudges before you feel behind',
+                'Pip’s Picks — a short research-backed list, and why',
+                'Pip Proximity — local matches for this age, when they fit',
+                'Seasons & Moments — Christmas, birthdays, nursery and more',
+                'Pip Move-On — when kit’s done, help it find a new home',
                 'More than one child',
               ]}
               ctaText="Start Plus"
-              ctaHref="#plans"
+              ctaHref="#meet-pip"
             />
           </div>
         </div>
       </section>
 
-      {/* 3. Meet Pip — who Plus is */}
+      {/* 3. Meet Pip */}
       <MeetPipSection />
 
-      {/* 4. Journey — what Plus does (one differentiator) */}
+      {/* 4. Journey */}
       <section id="compare" className="pb-16 pt-4 lg:pb-20 lg:pt-6">
         <div className={EMBER_MARKETING_CONTAINER}>
           <div className="mb-8 text-center">
@@ -101,12 +104,15 @@ export default function PricingPageFigmaClient() {
             >
               Know it. Buy it. Move it on.
             </h2>
+            <p className="mx-auto mt-3 max-w-xl text-[1.0625rem] text-[#66717D]">
+              Free is the map. Plus puts Pip on the path.
+            </p>
           </div>
           <PipJourneyExplainer />
         </div>
       </section>
 
-      {/* 5. Short FAQ — objections only */}
+      {/* 5. FAQ */}
       <section id="faq" className="border-t border-[#E7E2DC] bg-white py-14 lg:py-16">
         <div className={EMBER_MARKETING_CONTAINER}>
           <h2
@@ -122,7 +128,7 @@ export default function PricingPageFigmaClient() {
             />
             <FAQItem
               question="What’s the difference between Free and Plus?"
-              answer="Free is for browsing: ideas for their age, saves, gift lists, and local listings. Plus adds Pip — a nudge when something’s changing, a few buying options when you need them, and a heads-up when kit might be ready to pass on."
+              answer="Free is a full product: 600+ stage ideas, saves, gift lists and the Smart Marketplace — forever, in your own time. Plus adds Pip: Pathway nudges, Picks, Proximity matches, Seasons, Moments and Move-On — so Ember works for you between visits."
             />
             <FAQItem
               question="How does Ember make money?"
@@ -130,7 +136,7 @@ export default function PricingPageFigmaClient() {
             />
             <FAQItem
               question="Can I use Ember for more than one child?"
-              answer="Free covers one child. Plus covers more than one, so you can keep siblings on different stages without juggling accounts."
+              answer="Free covers one child. Plus covers more than one, so siblings can sit on different stages without juggling accounts."
             />
           </div>
           <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-[#66717D]">

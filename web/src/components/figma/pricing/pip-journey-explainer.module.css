@@ -363,6 +363,64 @@
   gap: 1rem;
 }
 
+.conceptBodyStack {
+  align-items: flex-start;
+}
+
+.conceptText {
+  flex: 1;
+  min-width: 0;
+}
+
+.conceptLink {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--pip-accent);
+}
+
+.miniList {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.miniList li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0.65rem;
+  margin-bottom: 0.35rem;
+  background: var(--pip-canvas);
+  border: 1px solid var(--pip-border);
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--pip-ink);
+}
+
+.miniListMeta {
+  color: var(--pip-muted);
+  flex-shrink: 0;
+}
+
+.momentRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.momentPill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: var(--pip-soft-blush);
+  border: 1px solid var(--pip-cream-border);
+  color: var(--pip-ink);
+}
+
 .conceptTag {
   font-size: 0.75rem;
   font-weight: 700;
