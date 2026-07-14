@@ -1,3 +1,10 @@
+## 2026-07-15 — fix(pricing + home): copy follow-ups after merge
+
+- Hero 3-line split; Ember Plus + Pip lead; Free label “browse in your own time”; £29 for 12 months
+- Free card: Marketplace link only in bullet (not label)
+- FAQ: drop “make money”; add card/cancel/post-cancel questions
+- Homepage How it works: Buy it → Find it
+
 ## 2026-07-14 — fix(pricing): spacing breathe + swipe hint
 
 - “Ember Plus features:”; swipe hint → “Swipe to discover >”

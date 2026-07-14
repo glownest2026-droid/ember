@@ -123,11 +123,11 @@ Ember helps you stay ahead of toddlerhood — knowing what matters now, what to 
 
 1. Unknown unknowns (kitchen stool) — hear about useful kit before the WhatsApp group catches you out.  
 2. Less research spiral, more “that’s exactly where we are.”  
-3. Know it / find it / move it on — the full loop of family kit (buy, borrow, inherit, pass on).
+3. Know it / find it / move it on — the full loop of family kit (buy, borrow, gift, inherit, pass on).
 
 ### Ember Free
 
-The full play library and Smart Marketplace — browse, save, gift-list, list and match — in your own time.
+The full play library and Smart Marketplace — browse in your own time.
 
 **Talking points:**
 
