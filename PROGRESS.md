@@ -1,3 +1,9 @@
+## 2026-07-14 — fix(pricing): Meet Pip before plans, slim hero
+
+- Order: short hero → Meet Pip → Free/Plus → journey → FAQ
+- Dropped unexplained hero Pip badge + long Plus paragraph (Meet Pip owns that story)
+- Compact Meet Pip profile so price cards still peek on mobile
+
 ## 2026-07-14 — feat(pricing): founder V3 human voice + PMF 2.1
 
 - Live `/pricing` copy replaced with founder dad edit (post–real-mum AI-language feedback)

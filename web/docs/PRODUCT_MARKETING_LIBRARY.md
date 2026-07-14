@@ -392,10 +392,10 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 
 ## 7. Pricing page rules
 
-1. Hero: Free promise first; Plus beat is aspirational and **proactive** (Pip / Ember already watching).  
-2. Free box: GOOD product — catalogue depth, Smart Marketplace, gift list. Prefer “play / developmental ideas”, not “stage ideas.”  
-3. Plus box: GREAT product — one specific line per Pip feature (what — why), **optimistic framing**.  
-4. Meet Pip: “doing the homework for you”; end on leave-the-research / sit-back relief — not “another spiral.”  
+1. Hero: short Free promise + Plus beat only — no unexplained Pip badge, no long Plus paragraph.  
+2. Meet Pip **before** price cards — who Pip is, then what Free/Plus cost. Compact enough that plans peek on mobile.  
+3. Free box: GOOD product — catalogue depth, Smart Marketplace, gift list. Prefer “play / developmental ideas”, not “stage ideas.”  
+4. Plus box: GREAT product — one specific line per Pip feature (what — why), **optimistic framing**. Plus CTA can jump to journey (`#compare`).  
 5. Journey cards: concrete sample moments (nesting/pouring; nursery in 1 month; Christmas gift list ready). Put Ember/Pip on the front foot in card copy.  
 6. Never weaken Free to prop up Plus.  
 7. No competitor foils. No negative pink-elephant openers.  
@@ -422,6 +422,7 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | 2026-07-14 | v1.0 — first draft |
 | 2026-07-14 | **v2.0** — founder TW feedback: kitchen-stool aheadness; Free=good / Plus=great; no competitor digs; no pink elephants; tech-averse (imply smarts); 2–3 talking points per WHAT/WHY; stronger brand + Plus positioning; FOMO reframed as unknown unknowns |
 | 2026-07-14 | **v2.1** — founder V3 pricing + wife feedback: ban AI red flags (“spiral”, “endless tabs”, “stage ideas”, “landing the short list”); never frame pain negatively; Ember/Pip proactive voice; pricing rules updated |
+| 2026-07-14 | Pricing page flow: short hero → Meet Pip before plans; slim profile so prices peek on mobile |
 
 ---
 

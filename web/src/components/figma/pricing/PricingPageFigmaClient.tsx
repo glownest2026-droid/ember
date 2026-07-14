@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
@@ -9,7 +8,6 @@ import { FAQItem } from './faq';
 import { PricingCard } from './pricing-card';
 import { PipJourneyExplainer } from './PipJourneyExplainer';
 import { MeetPipSection } from './MeetPipSection';
-import { PIP_LOGO_URL } from './pricingImages';
 
 export default function PricingPageFigmaClient() {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
@@ -32,65 +30,40 @@ export default function PricingPageFigmaClient() {
       id="ember-pricing-prototype"
       className="homepage-discover-brand min-h-screen bg-[var(--ember-bg-canvas)]"
     >
-      {/* 1. Hero — founder V3 voice */}
-      <section className="pt-10 pb-10 lg:pt-16 lg:pb-12">
+      {/*
+        Flow: short hero → Meet Pip (who is Pip?) → plans → journey → FAQ
+        Hero drops the unexplained Pip badge + long Plus paragraph (that lives in Meet Pip).
+      */}
+      <section className="pt-8 pb-4 lg:pt-12 lg:pb-2">
         <div className={EMBER_MARKETING_CONTAINER}>
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-5 flex justify-center">
-              <div className="relative">
-                <div className="flex h-[4.75rem] w-[4.75rem] items-center justify-center rounded-full border-2 border-[#F1DED3] bg-[#FFF6F3] shadow-[0_12px_28px_-8px_rgba(255,92,52,0.28)] sm:h-[5.5rem] sm:w-[5.5rem]">
-                  <Image
-                    src={PIP_LOGO_URL}
-                    alt="Pip"
-                    width={88}
-                    height={88}
-                    className="h-14 w-auto sm:h-[4.25rem]"
-                    unoptimized
-                    priority
-                  />
-                </div>
-                <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#FF5C34] px-2.5 py-0.5 text-[0.6875rem] font-semibold text-white shadow-sm">
-                  Pip
-                </span>
-              </div>
-            </div>
+          <div className="mx-auto max-w-2xl text-center">
             <h1
               className="mb-3 font-semibold tracking-[-0.01em] text-[#253044]"
-              style={{ fontSize: 'clamp(2rem, 4.5vw, 3.25rem)', lineHeight: 1.15 }}
+              style={{ fontSize: 'clamp(1.875rem, 4.5vw, 3rem)', lineHeight: 1.15 }}
             >
               Browse for free.
               <br />
-              <span className="text-[#FF5C34]">
-                Ember Plus guides
-                <br />
-                your way.
-              </span>
+              <span className="text-[#FF5C34]">Ember Plus guides your way.</span>
             </h1>
-            <p className="mx-auto mb-4 max-w-xl text-[1.0625rem] leading-relaxed text-[#66717D] sm:text-[1.125rem]">
-              Ember provides 600+ free developmental ideas and toy suggestions throughout
-              toddlerhood, and a{' '}
+            <p className="mx-auto max-w-lg text-[1rem] leading-relaxed text-[#66717D] sm:text-[1.0625rem]">
+              600+ free play ideas and a{' '}
               <Link
                 href="/marketplace"
                 className="font-medium text-[#FF5C34] underline-offset-2 hover:underline"
               >
                 Smart Marketplace
               </Link>{' '}
-              for local parents to match the right toys at the right time.
-            </p>
-            <p className="mx-auto max-w-xl text-[1.0625rem] leading-relaxed text-[#66717D] sm:text-[1.125rem]">
-              Looking to accelerate your child&apos;s development? Ember Plus introduces your{' '}
-              <strong className="font-semibold text-[#253044]">Pip the play assistant</strong> who
-              provides <strong className="font-semibold text-[#253044]">seven exclusive features</strong>{' '}
-              for proactive parenting customised for your child. These include best buys, seasonal
-              expertise, and milestone preparation to navigate through new nursery feelings, and
-              beyond.
+              — forever. Plus brings Pip.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 2. Plans */}
-      <section id="plans" className="pb-4 lg:pb-6">
+      {/* Who Pip is — before anyone looks at price */}
+      <MeetPipSection />
+
+      {/* Plans */}
+      <section id="plans" className="pb-4 pt-2 lg:pb-6 lg:pt-4">
         <div className={EMBER_MARKETING_CONTAINER}>
           <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 lg:grid-cols-2">
             <PricingCard
@@ -122,17 +95,14 @@ export default function PricingPageFigmaClient() {
                 'More than one child',
               ]}
               ctaText="Start Plus"
-              ctaHref="#meet-pip"
+              ctaHref="#compare"
             />
           </div>
         </div>
       </section>
 
-      {/* 3. Meet Pip */}
-      <MeetPipSection />
-
-      {/* 4. Journey */}
-      <section id="compare" className="pb-16 pt-4 lg:pb-20 lg:pt-6">
+      {/* Journey — what Pip’s seven features feel like */}
+      <section id="compare" className="pb-16 pt-6 lg:pb-20 lg:pt-10">
         <div className={EMBER_MARKETING_CONTAINER}>
           <div className="mb-8 text-center">
             <h2
@@ -152,7 +122,7 @@ export default function PricingPageFigmaClient() {
         </div>
       </section>
 
-      {/* 5. FAQ */}
+      {/* FAQ */}
       <section id="faq" className="border-t border-[#E7E2DC] bg-white py-14 lg:py-16">
         <div className={EMBER_MARKETING_CONTAINER}>
           <h2
