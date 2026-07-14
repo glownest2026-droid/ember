@@ -25,7 +25,7 @@ export function HomeFinalCTA() {
               Never behind the curve.
             </h2>
             <p className="home-section-lead mb-8">
-              Over 600 free ideas. Know what&apos;s next. Buy smart. Move it on.
+              Over 600 free ideas. Know what&apos;s next. Find what fits. Move it on.
             </p>
             <Link href="/discover" passHref legacyBehavior>
               <motion.a

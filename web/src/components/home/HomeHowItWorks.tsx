@@ -19,8 +19,8 @@ const CARDS: { icon: LucideIcon; title: string; body: ReactNode }[] = [
   },
   {
     icon: ShoppingBag,
-    title: 'Buy it',
-    body: 'A short set of ideas that fit this stage. The latest retailer offers that pass our review tests. Buy what you need, or add to your gift list for helpful family purchases.',
+    title: 'Find it',
+    body: 'A short set of ideas that fit this age. Retailer options that pass our review tests — buy, borrow or gift what you need, when you need it.',
   },
   {
     icon: RefreshCw,
@@ -100,7 +100,7 @@ export function HomeHowItWorks() {
               )}
 
               <NodeBox icon={Lightbulb} label="Know it" delay={0.2} reducedMotion={!!reducedMotion} position="top" />
-              <NodeBox icon={ShoppingBag} label="Buy it" delay={0.4} reducedMotion={!!reducedMotion} position="bottomRight" />
+              <NodeBox icon={ShoppingBag} label="Find it" delay={0.4} reducedMotion={!!reducedMotion} position="bottomRight" />
               <NodeBox icon={RefreshCw} label="Move it" delay={0.6} reducedMotion={!!reducedMotion} position="bottomLeft" />
 
               <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 500 500">
@@ -152,7 +152,7 @@ export function HomeHowItWorks() {
                 <div className="text-center">
                   <Image src={EMBER_LOGO} alt="" className="h-14 sm:h-20 lg:h-24 w-auto mx-auto mb-1 sm:mb-2 opacity-30" width={96} height={96} />
                   <p className="home-body text-[var(--ember-text-low)]" style={{ fontWeight: 500 }}>
-                    One calm loop
+                    Developmental Play
                   </p>
                 </div>
               </div>

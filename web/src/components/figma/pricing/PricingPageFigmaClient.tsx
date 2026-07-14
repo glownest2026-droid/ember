@@ -53,11 +53,15 @@ export default function PricingPageFigmaClient() {
             >
               Browse for free.
               <br />
-              <span className="text-[#FF5C34]">Ember Plus guides your way.</span>
+              <span className="text-[#FF5C34]">
+                Ember Plus
+                <br />
+                guides your way.
+              </span>
             </h1>
             <p className="mx-auto max-w-lg text-[1rem] leading-relaxed text-[#66717D] sm:text-[1.0625rem]">
               600+ free play ideas and a <MarketplaceLink>Smart Marketplace</MarketplaceLink>. Get
-              more from Ember with Pip, your play coach.
+              more with Ember Plus including Pip — your play coach.
             </p>
           </div>
         </div>
@@ -70,12 +74,7 @@ export default function PricingPageFigmaClient() {
           <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
             <PricingCard
               name="Free"
-              label={
-                <>
-                  The full play library and <MarketplaceLink>Smart Marketplace</MarketplaceLink> — in
-                  your own time
-                </>
-              }
+              label="The full play library and Smart Marketplace — browse in your own time"
               features={[
                 '600+ play ideas, personalised by age',
                 'Save favourites, and share a gift list with family — for age-appropriate buying',
@@ -92,7 +91,7 @@ export default function PricingPageFigmaClient() {
               name="Ember Plus"
               price="£3.99"
               period="/month"
-              annualPrice="or £29 for your first year"
+              annualPrice="or £29 for 12 months"
               label="Pip brings Ember to you — so you stay one step ahead"
               recommended={true}
               badge="Recommended"
@@ -147,27 +146,31 @@ export default function PricingPageFigmaClient() {
           </h2>
           <div className="mx-auto max-w-2xl">
             <FAQItem
-              question="Can I cancel anytime?"
-              answer="Yes. Ember Plus is £3.99 a month. Cancel whenever you like — you keep it until the end of the month you’ve paid for."
+              question="Do I need a card for Free?"
+              answer="No. Start Free with no card. The play library and Smart Marketplace are yours to browse whenever you want."
+            />
+            <FAQItem
+              question="Can I cancel Ember Plus anytime?"
+              answer="Yes. Ember Plus is £3.99 a month (or £29 for 12 months). Cancel whenever you like — you keep it until the end of the period you’ve paid for."
             />
             <FAQItem
               question="What’s the difference between Free and Ember Plus?"
               answer={
                 <>
                   Free is a full product: 600+ play ideas, saves, gift lists and the{' '}
-                  <MarketplaceLink>Smart Marketplace</MarketplaceLink> — in your own time. Ember Plus
-                  adds your assistant Pip: Pathway, Picks, Patch Finds, Seasons, Chapters and Pass-On
-                  — so Ember works for you between visits.
+                  <MarketplaceLink>Smart Marketplace</MarketplaceLink> — browse in your own time.
+                  Ember Plus adds your assistant Pip: Pathway, Picks, Patch Finds, Seasons, Chapters
+                  and Pass-On — so Ember works for you between visits.
                 </>
               }
             />
             <FAQItem
-              question="How does Ember make money?"
-              answer="Some shop links may earn Ember a commission, and Ember Plus is £3.99 a month. That doesn’t change what we recommend."
-            />
-            <FAQItem
               question="Can I use Ember for more than one child?"
               answer="Free covers one child. Ember Plus covers more than one, so siblings can sit at different ages without juggling accounts."
+            />
+            <FAQItem
+              question="What happens if I cancel Ember Plus?"
+              answer="You keep Ember Plus until the end of the month (or 12-month period) you’ve paid for. After that you stay on Free — your account, saves and gift lists don’t disappear."
             />
           </div>
           <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-[#66717D]">
