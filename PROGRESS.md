@@ -1,3 +1,8 @@
+## 2026-07-14 — fix(pricing): Find it + shortlist + Make journey art input
+
+- Copy: Find it (not Buy it); shortlist; pocket play coach; Pass-On “right local family”; drop “Cups back out”; six exclusive features line
+- Make input (5 images, keep Pathway/Picks): `agent-tools/exports/ABI_Image_Creation_Template_pricing_journey_INPUT.csv`
+
 ## 2026-07-14 — feat(pricing): feature rename — Patch Finds / Chapters / Pass-On
 
 - Proximity → Pip’s Patch Finds; Moments → Pip’s Chapters; Move-On → Pip’s Pass-On

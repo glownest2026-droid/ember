@@ -75,7 +75,6 @@ const JOURNEY_STEPS: JourneyStep[] = [
     isFree: false,
     Icon: Route,
     cardTag: 'Pip’s Pathway',
-    cardFootnote: 'Cups back out',
     cardBody: (
       <div className={styles.conceptLines}>
         <p className={styles.conceptLine}>
@@ -90,7 +89,7 @@ const JOURNEY_STEPS: JourneyStep[] = [
   {
     id: 'picks',
     title: "Pip’s Picks",
-    desc: 'A short list we’ve already weighed up for this age — and why each one fits.',
+    desc: 'A shortlist we’ve already weighed up for this age — and why each one fits.',
     isFree: false,
     Icon: Gift,
     cardTag: 'Pip’s Picks',
@@ -174,7 +173,7 @@ const JOURNEY_STEPS: JourneyStep[] = [
   {
     id: 'moveon',
     title: "Pip’s Pass-On",
-    desc: 'A heads-up when something’s done its job — and a path to pass it on.',
+    desc: 'A heads-up when something’s done its job — and the right local family to pass it on.',
     isFree: false,
     Icon: Package,
     cardTag: "Pip’s Pass-On",

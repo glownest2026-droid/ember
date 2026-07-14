@@ -37,8 +37,8 @@ Read this **before** drafting pricing, homepage, emails, or ads. A real mum flag
 | “another spiral”, “research spiral”, “endless tabs”, “40 tabs” | Infers every parent lives in chaos; sounds like a growth blog | Concrete upside: leave the research to Ember; sit back; decide tonight |
 | “forever” | Sounds odd / overclaimy to parents | “in your own time”, “whenever you need Ember”, “no paywall on Free” |
 | “stage”, “stage-based”, “stage ideas”, “stage nudges” | Opaque product jargon — not how parents talk | “by age”, “what’s next”, “where they are now”, “play ideas” |
-| “research-backed” | Not intuitive; textbook | “a short list we’ve already weighed up, and why” / name the concrete benefit |
-| “landing the short list”, “tight shortlist”, “worth considering” | Meaningless SaaS filler | “a short list, and why”; name the thing |
+| “research-backed” | Not intuitive; textbook | “a shortlist we’ve already weighed up, and why” / name the concrete benefit |
+| “landing the short list”, “tight shortlist”, “worth considering” | Meaningless SaaS filler | “a shortlist, and why”; name the thing |
 | Soft panic mirrors: “not catching up”, “before you feel behind” | Negative framing dressed as benefit | Stay one step ahead; know what they’ll need next |
 | Internal debris (“Catalogue example”, “Sample shortlist”) | Reads like a prototype | Parent-facing footnotes only, or none |
 
@@ -94,7 +94,7 @@ Parents should *feel* intelligence. Infer it, don’t badge it:
 - “List something from a photo”  
 - “Matched to what children this age actually need”  
 - “Pip watches what’s next”  
-- “A short list, already sorted”  
+- “A shortlist, already sorted”  
 
 ---
 
@@ -123,7 +123,7 @@ Ember helps you stay ahead of toddlerhood — knowing what matters now, what to 
 
 1. Unknown unknowns (kitchen stool) — hear about useful kit before the WhatsApp group catches you out.  
 2. Less research spiral, more “that’s exactly where we are.”  
-3. Know it / buy it / move it on — the full loop of family kit, not only shopping.
+3. Know it / find it / move it on — the full loop of family kit (buy, borrow, inherit, pass on).
 
 ### Ember Free
 
@@ -143,7 +143,7 @@ Pip is your play assistant with Ember Plus — proactive parenting help customis
 
 1. Free is solid self-serve; Plus introduces Pip and seven exclusive features.  
 2. Ember / Pip have already been watching what’s next — you’re not starting the research from scratch.  
-3. Know it / buy it / move it on — stay ahead with Pip’s help.
+3. Know it / find it / move it on — stay ahead with Pip’s help.
 
 ---
 
@@ -287,11 +287,11 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | **Tier** | Plus |
 | **Status** | live as capability / Plus promise |
 | **WHAT** | Short product lists for this age — a few solid options, already sorted, with why each fits. |
-| **WHAT talking points** | 1) A short list for *this* age, not the whole shop floor. 2) Why each option fits, in plain English. 3) Aligned to Ember’s how-we-choose standards. |
+| **WHAT talking points** | 1) A shortlist for *this* age, not the whole shop floor. 2) Why each option fits, in plain English. 3) Aligned to Ember’s how-we-choose standards. |
 | **WHY** | Ember does the sorting; you keep the evening. More playing, less comparing. |
-| **WHY talking points** | 1) Ember has already done the sorting — you decide. 2) A short list for *this* interest or age. 3) Time back with them, not with reviews. |
+| **WHY talking points** | 1) Ember has already done the sorting — you decide. 2) A shortlist for *this* interest or age. 3) Time back with them, not with reviews. |
 | **PROOF ANGLE** | How-we-choose standards; transparent commercial model. |
-| **PARENT LINES** | “Pip’s Picks”; “a short list we’ve already weighed up, and why.” |
+| **PARENT LINES** | “Pip’s Picks”; “a shortlist we’ve already weighed up, and why.” |
 | **AVOID** | “Research-backed”; “landing the short list”; “unlock”; “another research spiral”; “worth considering.” |
 | **PAGE NOTES** | Plus one-liner; card can look like a shortlist. |
 

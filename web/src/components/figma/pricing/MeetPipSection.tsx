@@ -32,7 +32,7 @@ export function MeetPipSection() {
             </div>
             <div className="min-w-0">
               <p className="mb-1 text-[0.8125rem] font-semibold uppercase tracking-[0.06em] text-[#FF5C34]">
-                Your play assistant
+                Your pocket play coach
               </p>
               <h2
                 className="mb-1.5 font-semibold tracking-[-0.02em] text-[#253044]"

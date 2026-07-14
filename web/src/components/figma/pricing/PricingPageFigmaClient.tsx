@@ -98,7 +98,7 @@ export default function PricingPageFigmaClient() {
               badge="Recommended"
               features={[
                 'Pip’s Pathway — nudges on what’s next, so you stay one step ahead',
-                'Pip’s Picks — a short list we’ve already weighed up, and why',
+                'Pip’s Picks — a shortlist we’ve already weighed up, and why',
                 'Pip’s Patch Finds — local matches for this age, when they fit',
                 'Pip’s Seasons & Chapters — Christmas, birthdays, nursery and more',
                 'Pip’s Pass-On — when toys are done, help them find a new home',
@@ -118,13 +118,13 @@ export default function PricingPageFigmaClient() {
               className="font-semibold tracking-[-0.01em] text-[#253044]"
               style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)', lineHeight: 1.15 }}
             >
-              Know it. Buy it. Move it on.
+              Know it. Find it. Move it on.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-[1.0625rem] text-[#66717D]">
               That’s Ember in three steps.
               <br />
               With <strong className="font-semibold text-[#253044]">Plus</strong>, Pip helps you stay
-              ahead.
+              ahead through six exclusive features.
             </p>
           </div>
           <PipJourneyExplainer />
