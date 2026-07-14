@@ -80,7 +80,7 @@ const JOURNEY_STEPS: JourneyStep[] = [
       <div className={styles.conceptLines}>
         <p className={styles.conceptLine}>
           In the next 3 months, they’re likely to try{' '}
-          <span className={styles.spike}>nesting and pouring</span>.
+          <span className={styles.spike}>stacking cups and pouring</span>.
         </p>
         <p className={styles.conceptLine}>Learn why — and check the best buys →</p>
       </div>
@@ -120,8 +120,8 @@ const JOURNEY_STEPS: JourneyStep[] = [
     cardBody: (
       <div className={styles.conceptLines}>
         <p className={styles.conceptLine}>
-          Pip has been watching local <span className={styles.spike}>baby walkers</span> for first
-          steps.
+          Pip has been scouting for local <span className={styles.spike}>walkers</span> to help with
+          first steps.
         </p>
         <p className={styles.conceptLine}>
           You have <span className={styles.spike}>1 new perfect match</span> within a mile.

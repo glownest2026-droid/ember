@@ -63,7 +63,7 @@ Wherever possible, put **Ember / Pip on the front foot** — watching, preparing
 
 | Don’t | Do |
 |-------|----|
-| “You’ve been watching walkers…” | “Pip has been monitoring local baby walkers to prepare for first steps” |
+| “You’ve been watching walkers…” / creepy “watching local baby…” | “Pip has been scouting for local walkers to help with first steps” |
 | “You might want to look at…” | “Ember has been watching X — here’s what’s ready” |
 | Passive catalogue voice | Active: gift list is ready; nursery pack is ready; match is waiting |
 
@@ -270,7 +270,7 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | **Tier** | Plus |
 | **Status** | vision / partial (prefs exist; delivery pipeline TBD) |
 | **WHAT** | Pocket play coach: parent-controlled notes and guidance ahead of the curve, tailored to their age. |
-| **WHAT talking points** | 1) Pathway updates when they’re really moving on. 2) You choose whether Ember can reach out. 3) Example: in the next months they’ll likely try nesting and pouring — learn why, check best buys, bring cups back out. |
+| **WHAT talking points** | 1) Pathway updates when they’re really moving on. 2) You choose whether Ember can reach out. 3) Example: in the next months they’ll likely try stacking cups and pouring — learn why, check best buys, bring cups back out. |
 | **WHY** | Stay one step ahead — know what they’ll need when they’re on the verge of something new. |
 | **WHY talking points** | 1) Kitchen-stool energy: unknown unknowns, earlier. 2) Ember shows what’s coming so you can get ready. 3) What’s-next notes land with you, not only when you remember to check. |
 | **PROOF ANGLE** | Driven by real age-band change; parent-controlled reach-out. |

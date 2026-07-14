@@ -1,3 +1,8 @@
+## 2026-07-14 — fix(pricing): stacking cups + Proximity “scouting” wording
+
+- Pathway spike: “stacking cups and pouring” (nesting wasn’t clear)
+- Proximity: “Pip has been scouting for local walkers…” (watching local baby = creepy)
+
 ## 2026-07-14 — fix(pricing): plain language, spike formatting, Marketplace links
 
 - Ban forever / stage / research-backed on `/pricing` + PMF v2.2
