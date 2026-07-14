@@ -1,3 +1,9 @@
+## 2026-07-14 — feat(pricing): map custom journey images (HEAD 200)
+
+- Wired 5 Make uploads into `pricingImages.ts` (Free, Patch, Seasons, Chapters, Pass-On)
+- Pathway + Picks unchanged (stacking cups / first puzzles)
+- Storage verified HEAD 200 for each `ember_pricing_journey_*_category.png`
+
 ## 2026-07-14 — fix(pricing): Find it + shortlist + Make journey art input
 
 - Copy: Find it (not Buy it); shortlist; pocket play coach; Pass-On “right local family”; drop “Cups back out”; six exclusive features line
