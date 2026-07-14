@@ -1,3 +1,7 @@
+## 2026-07-15 — fix(home): Developmental Play heading
+
+- Homepage How it works: “One calm loop” → “Developmental Play”
+
 ## 2026-07-15 — fix(pricing + home): copy follow-ups after merge
 
 - Hero 3-line split; Ember Plus + Pip lead; Free label “browse in your own time”; £29 for 12 months

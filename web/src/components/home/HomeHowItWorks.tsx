@@ -152,7 +152,7 @@ export function HomeHowItWorks() {
                 <div className="text-center">
                   <Image src={EMBER_LOGO} alt="" className="h-14 sm:h-20 lg:h-24 w-auto mx-auto mb-1 sm:mb-2 opacity-30" width={96} height={96} />
                   <p className="home-body text-[var(--ember-text-low)]" style={{ fontWeight: 500 }}>
-                    One calm loop
+                    Developmental Play
                   </p>
                 </div>
               </div>
