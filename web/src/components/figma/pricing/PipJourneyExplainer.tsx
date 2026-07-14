@@ -44,9 +44,9 @@ const JOURNEY_STEPS: JourneyStep[] = [
     isFree: true,
     Icon: LayoutList,
     cardTag: 'Free',
-    cardTitle: 'Explore 600+ stage ideas',
+    cardTitle: 'Catalogue example',
     cardSub:
-      'Personalised by age. Guidance that assumes your cupboards aren’t empty — and a Smart Marketplace when you’re listing or looking locally.',
+      'Browse stage ideas by age when you’ve got a minute — and list or look on the Smart Marketplace without living in endless tabs.',
     cardImage: PRICING_JOURNEY_IMAGES.catalogue,
     cardHref: '/discover',
   },
@@ -57,7 +57,7 @@ const JOURNEY_STEPS: JourneyStep[] = [
     isFree: false,
     Icon: Route,
     cardTag: 'Pip’s Pathway',
-    cardTitle: 'Bring the cups back out',
+    cardTitle: 'Cups back out',
     cardSub:
       'If you’ve already got stacking cups, this stage is pouring and nesting — not another set cluttering the shelf.',
     cardImage: PRICING_JOURNEY_IMAGES.pathway,
@@ -69,13 +69,14 @@ const JOURNEY_STEPS: JourneyStep[] = [
     isFree: false,
     Icon: Gift,
     cardTag: 'Pip’s Picks',
-    cardTitle: 'First puzzles for this stage',
-    cardSub: 'Ember does the sorting; you keep the evening.',
+    cardTitle: 'Sample shortlist',
+    cardSub:
+      'A few stage-fit options with why they matter now — so you can decide tonight without another research spiral.',
     cardImage: PRICING_JOURNEY_IMAGES.picks,
     miniList: [
-      ['Chunky 2-piece starter', 'why now'],
-      ['Simple knob puzzle', 'why now'],
-      ['Skip if you’ve got one', 'reuse'],
+      ['Argos', 'chunky starter puzzle'],
+      ['Amazon', 'simple knob puzzle'],
+      ['Ergobaby', 'carrier — if you need one'],
     ],
   },
   {
@@ -85,9 +86,9 @@ const JOURNEY_STEPS: JourneyStep[] = [
     isFree: false,
     Icon: MapPin,
     cardTag: 'Pip Proximity',
-    cardTitle: 'Balance gear two streets away',
+    cardTitle: 'Local match',
     cardSub:
-      'Need-first matching on the Smart Marketplace. Borrow or buy pre-loved when new isn’t needed.',
+      'Need-first matching on the Smart Marketplace — borrow or buy pre-loved nearby when new isn’t needed.',
     cardImage: PRICING_JOURNEY_IMAGES.proximity,
   },
   {
@@ -97,8 +98,9 @@ const JOURNEY_STEPS: JourneyStep[] = [
     isFree: false,
     Icon: Sun,
     cardTag: 'Pip’s Seasons',
-    cardTitle: 'Christmas list before December hits',
-    cardSub: 'Useful ideas relatives can follow — so you’re not still deciding on the 22nd.',
+    cardTitle: 'Season nudge',
+    cardSub:
+      'Useful gift and kit ideas relatives can follow — so you’re not still deciding on the 22nd of December.',
     cardImage: PRICING_JOURNEY_IMAGES.seasons,
     pills: ['Christmas', 'Birthdays', 'Summer'],
   },
@@ -109,8 +111,9 @@ const JOURNEY_STEPS: JourneyStep[] = [
     isFree: false,
     Icon: Star,
     cardTag: 'Pip’s Moments',
-    cardTitle: 'Nursery starts next month',
-    cardSub: 'Spare clothes, comfort kit, settling weeks — sized to their age, for this week.',
+    cardTitle: 'Life moment',
+    cardSub:
+      'Spare clothes, comfort kit and settling weeks for nursery — sized to their age, for the week you’re in.',
     cardImage: PRICING_JOURNEY_IMAGES.moments,
     pills: ['Nursery', 'New sibling', 'Travel'],
   },
@@ -121,7 +124,7 @@ const JOURNEY_STEPS: JourneyStep[] = [
     isFree: false,
     Icon: Package,
     cardTag: 'Pip Move-On',
-    cardTitle: 'Ready to pass on?',
+    cardTitle: 'Pass-on nudge',
     cardSub:
       'Kit that’s aging out of use — list on the Smart Marketplace, donate, or find a family nearby.',
     cardImage: PRICING_JOURNEY_IMAGES.moveOn,
@@ -162,8 +165,8 @@ function ConceptCard({ step }: { step: JourneyStep }) {
             <StepIcon className={styles.conceptTagIcon} strokeWidth={2} aria-hidden />
             {step.cardTag}
           </div>
-          <div className={styles.conceptTitle}>{step.cardTitle}</div>
-          <div className={styles.conceptSub}>{step.cardSub}</div>
+          <p className={styles.conceptExplainer}>{step.cardSub}</p>
+          <div className={styles.conceptSampleTitle}>{step.cardTitle}</div>
           {step.miniList ? (
             <ul className={styles.miniList}>
               {step.miniList.map(([label, meta]) => (
@@ -380,7 +383,7 @@ export function PipJourneyExplainer() {
     <div id="pip-world" className={styles.root}>
       {/* Mobile: one feature + one card per horizontal snap slide */}
       <div className={styles.mobileJourney} aria-hidden={!isMobile}>
-        <p className={styles.mobileSwipeHint}>Swipe to walk the path with Pip</p>
+        <p className={styles.mobileSwipeHint}>Swipe to discover each feature</p>
         <div
           ref={mobileScrollerRef}
           className={styles.mobileScroller}

@@ -61,15 +61,15 @@ export default function PricingPageFigmaClient() {
               Browse for free.
               <br />
               <span className="text-[#FF5C34]">
-                Ember Plus puts
+                Ember Plus
                 <br />
-                Pip on the path with you.
+                guides your pathway
               </span>
             </h1>
             <p className="mx-auto max-w-xl text-[1.0625rem] leading-relaxed text-[#66717D] sm:text-[1.125rem]">
-              Free Ember: 600+ stage ideas and a Smart Marketplace you can use forever. Plus adds
-              Pip — watching what&apos;s next, landing the short list, and tapping you for local
-              matches, seasons and life&apos;s big moments.
+              Free Ember: 600+ stage ideas and a Smart Marketplace you can use forever. Ember Plus
+              adds your assistant Pip — watching what&apos;s next, landing the short list, and
+              tapping you for local matches, seasons and life&apos;s big moments.
             </p>
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function PricingPageFigmaClient() {
               Know it. Buy it. Move it on.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-[1.0625rem] text-[#66717D]">
-              Free is the map. Plus puts Pip on the path.
+              A free play map. Ember Plus guides your smart path, with Pip.
             </p>
           </div>
           <PipJourneyExplainer />
@@ -151,7 +151,7 @@ export default function PricingPageFigmaClient() {
             />
             <FAQItem
               question="What’s the difference between Free and Plus?"
-              answer="Free is a full product: 600+ stage ideas, saves, gift lists and the Smart Marketplace — forever, in your own time. Plus adds Pip: Pathway nudges, Picks, Proximity matches, Seasons, Moments and Move-On — so Ember works for you between visits."
+              answer="Free is a full product: 600+ stage ideas, saves, gift lists and the Smart Marketplace — forever, in your own time. Ember Plus adds your assistant Pip: Pathway nudges, Picks, Proximity matches, Seasons, Moments and Move-On — so Ember works for you between visits."
             />
             <FAQItem
               question="How does Ember make money?"
