@@ -107,15 +107,15 @@ const JOURNEY_STEPS: JourneyStep[] = [
   {
     id: 'moments',
     title: "Pip’s Moments",
-    desc: 'Practical help for the moment you’re in — not a generic month label.',
+    desc: 'First day at nursery, a new sibling, travel — help for the moment you’re actually in.',
     isFree: false,
     Icon: Star,
     cardTag: 'Pip’s Moments',
-    cardTitle: 'Life moment',
+    cardTitle: 'First day at nursery',
     cardSub:
-      'Spare clothes, comfort kit and settling weeks for nursery — sized to their age, for the week you’re in.',
+      'Spare clothes, comfort toy and settling weeks for their first days — concrete help for this week, not a generic month label.',
     cardImage: PRICING_JOURNEY_IMAGES.moments,
-    pills: ['Nursery', 'New sibling', 'Travel'],
+    pills: ['First day at nursery', 'New sibling', 'Travel'],
   },
   {
     id: 'moveon',
@@ -126,7 +126,7 @@ const JOURNEY_STEPS: JourneyStep[] = [
     cardTag: 'Pip Move-On',
     cardTitle: 'Pass-on nudge',
     cardSub:
-      'Kit that’s aging out of use — list on the Smart Marketplace, donate, or find a family nearby.',
+      'Toys they’ve outgrown — list on the Smart Marketplace, donate, or pass them on locally to another family.',
     cardImage: PRICING_JOURNEY_IMAGES.moveOn,
   },
 ];
@@ -243,10 +243,10 @@ export function PipJourneyExplainer() {
 
     const step = JOURNEY_STEPS[index];
     const nodeCenterY = targetNode.offsetTop + targetNode.offsetHeight / 2;
-    const pipCenterOffset = 40;
+    const pipCenterOffset = 60;
 
     if (step.isFree) {
-      const restY = firstPlusNode ? firstPlusNode.offsetTop - 56 : 110;
+      const restY = firstPlusNode ? firstPlusNode.offsetTop - 72 : 110;
       setPipTransform(`translateY(${restY}px) scale(0.85)`);
       setFillHeight(0);
     } else {
@@ -418,7 +418,7 @@ export function PipJourneyExplainer() {
                       journeyStep.isFree ? styles.mobilePipMarkFree : styles.mobilePipMarkPlus,
                     ].join(' ')}
                   >
-                    <img src={PIP_LOGO_URL} alt="" width={36} height={36} />
+                    <img src={PIP_LOGO_URL} alt="" width={64} height={64} />
                   </div>
                   <div className={styles.mobileFeatureCopy}>
                     <div
@@ -494,7 +494,7 @@ export function PipJourneyExplainer() {
               onClick={() => activateStep(currentIndex === 0 ? 1 : currentIndex, true)}
               aria-label="Pip along the journey"
             >
-              <img src={PIP_LOGO_URL} alt="Pip" width={50} height={50} />
+              <img src={PIP_LOGO_URL} alt="Pip" width={100} height={100} />
             </button>
 
             <div>{freeSteps.map((s) => renderNode(s, JOURNEY_STEPS.indexOf(s)))}</div>

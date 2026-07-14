@@ -61,9 +61,9 @@ export default function PricingPageFigmaClient() {
               Browse for free.
               <br />
               <span className="text-[#FF5C34]">
-                Ember Plus
+                Ember Plus guides
                 <br />
-                guides your pathway
+                your pathway
               </span>
             </h1>
             <p className="mx-auto max-w-xl text-[1.0625rem] leading-relaxed text-[#66717D] sm:text-[1.125rem]">
@@ -104,7 +104,7 @@ export default function PricingPageFigmaClient() {
                 'Pip’s Picks — a short research-backed list, and why',
                 'Pip Proximity — local matches for this age, when they fit',
                 'Seasons & Moments — Christmas, birthdays, nursery and more',
-                'Pip Move-On — when kit’s done, help it find a new home',
+                'Pip Move-On — when toys are done, help them find a new home',
                 'More than one child',
               ]}
               ctaText="Start Plus"
