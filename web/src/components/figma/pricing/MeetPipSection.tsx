@@ -45,7 +45,7 @@ export function MeetPipSection() {
               </p>
               <p className="text-[0.9375rem] leading-relaxed text-[#66717D] sm:text-[1.0625rem]">
                 With Ember Plus, Pip keeps watch for what&apos;s changing, what to get next, great
-                local toys, Christmas gifts, and big moments like nursery. Leave the research to
+                local toys, Christmas gifts, and big moments like nursery. Leave the homework to
                 Ember — stop scrolling, and sit back.
               </p>
             </div>

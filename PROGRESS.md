@@ -1,3 +1,10 @@
+## 2026-07-14 — fix(pricing): plain language, spike formatting, Marketplace links
+
+- Ban forever / stage / research-backed on `/pricing` + PMF v2.2
+- Journey cards: split lines + bold/underline personalised spikes; drop “Catalogue example”
+- Picks: child-specific animal-play notice (no “spark up”)
+- Hyperlink Marketplace everywhere it appears
+
 ## 2026-07-14 — fix(pricing): Meet Pip before plans, slim hero
 
 - Order: short hero → Meet Pip → Free/Plus → journey → FAQ

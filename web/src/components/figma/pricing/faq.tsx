@@ -1,11 +1,11 @@
 'use client';
 
 import { ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 interface FAQItemProps {
   question: string;
-  answer: string;
+  answer: ReactNode;
 }
 
 export function FAQItem({ question, answer }: FAQItemProps) {

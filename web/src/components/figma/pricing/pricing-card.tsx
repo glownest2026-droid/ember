@@ -2,14 +2,15 @@
 
 import { Check } from 'lucide-react';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 
 interface PricingCardProps {
   name: string;
   /** Omit or pass empty to hide the big price (e.g. Free — “£0” is redundant). */
   price?: string;
   period?: string;
-  label: string;
-  features: string[];
+  label: ReactNode;
+  features: ReactNode[];
   ctaText: string;
   recommended?: boolean;
   badge?: string;

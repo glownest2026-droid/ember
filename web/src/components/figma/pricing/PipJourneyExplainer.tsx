@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import {
   ChevronRight,
@@ -21,6 +21,14 @@ const AUTO_DURATION_MS = 5000;
 const UPDATE_RATE_MS = 50;
 const MOBILE_MQ = '(max-width: 767px)';
 
+function MarketplaceLink({ children = 'Marketplace' }: { children?: ReactNode }) {
+  return (
+    <Link href="/marketplace" className={styles.inlineLink} onClick={(e) => e.stopPropagation()}>
+      {children}
+    </Link>
+  );
+}
+
 type JourneyStep = {
   id: string;
   title: string;
@@ -28,50 +36,73 @@ type JourneyStep = {
   isFree: boolean;
   Icon: LucideIcon;
   cardTag: string;
-  cardTitle: string;
-  cardSub: string;
+  /** Parent-facing foot note only — never internal labels like “Catalogue example”. */
+  cardFootnote?: string;
+  cardBody: ReactNode;
   cardImage: string;
   cardHref?: string;
   miniList?: [string, string][];
   pills?: string[];
+  footLinks?: { href: string; label: string }[];
 };
 
 const JOURNEY_STEPS: JourneyStep[] = [
   {
     id: 'free',
-    title: 'Free: Ember Discover + Smart Marketplace',
+    title: 'Free: Discover + Smart Marketplace',
     desc: '600+ play ideas, saves, gift lists and local matching — whenever you need Ember.',
     isFree: true,
     Icon: LayoutList,
     cardTag: 'Free',
-    cardTitle: 'Catalogue example',
-    cardSub:
-      'Browse play ideas by age — and find local matches via our Smart Marketplace.',
+    cardBody: (
+      <div className={styles.conceptLines}>
+        <p className={styles.conceptLine}>
+          Browse play ideas by age — and find local matches on the{' '}
+          <MarketplaceLink>Smart Marketplace</MarketplaceLink>.
+        </p>
+      </div>
+    ),
     cardImage: PRICING_JOURNEY_IMAGES.catalogue,
-    cardHref: '/discover',
+    footLinks: [
+      { href: '/discover', label: '→ Open Discover' },
+      { href: '/marketplace', label: '→ Marketplace' },
+    ],
   },
   {
     id: 'pathway',
     title: "Pip’s Pathway",
-    desc: "A nudge when your child is on the verge of something new — know what they’ll need, to stay one step ahead.",
+    desc: 'A nudge when your child is on the verge of something new — know what they’ll need, to stay one step ahead.',
     isFree: false,
     Icon: Route,
     cardTag: 'Pip’s Pathway',
-    cardTitle: 'Cups back out',
-    cardSub:
-      'In the next 3 months your child will likely experiment with nesting and pouring. Learn why, and check out the best buys →',
+    cardFootnote: 'Cups back out',
+    cardBody: (
+      <div className={styles.conceptLines}>
+        <p className={styles.conceptLine}>
+          In the next 3 months, they’re likely to try{' '}
+          <span className={styles.spike}>nesting and pouring</span>.
+        </p>
+        <p className={styles.conceptLine}>Learn why — and check the best buys →</p>
+      </div>
+    ),
     cardImage: PRICING_JOURNEY_IMAGES.pathway,
   },
   {
     id: 'picks',
     title: "Pip’s Picks",
-    desc: 'A short research-backed list for this age — already sorted.',
+    desc: 'A short list we’ve already weighed up for this age — and why each one fits.',
     isFree: false,
     Icon: Gift,
     cardTag: 'Pip’s Picks',
-    cardTitle: 'Top-rated picks',
-    cardSub:
-      'Ember has been watching animal play spark up. Here are some top-rated new releases:',
+    cardBody: (
+      <div className={styles.conceptLines}>
+        <p className={styles.conceptLine}>
+          Ember has noticed they keep coming back to{' '}
+          <span className={styles.spike}>animal play</span>.
+        </p>
+        <p className={styles.conceptLine}>A few solid options for right now:</p>
+      </div>
+    ),
     cardImage: PRICING_JOURNEY_IMAGES.picks,
     miniList: [
       ['Argos', 'chunky animal set'],
@@ -82,13 +113,21 @@ const JOURNEY_STEPS: JourneyStep[] = [
   {
     id: 'proximity',
     title: 'Pip Proximity',
-    desc: "Local toy recommendations for your child’s age — the moment they fit. You’ll know instantly when your neighbour has a nearby match.",
+    desc: "Local toy recommendations for your child’s age — the moment they fit. You’ll know when a neighbour has a nearby match.",
     isFree: false,
     Icon: MapPin,
     cardTag: 'Pip Proximity',
-    cardTitle: 'Local match',
-    cardSub:
-      'Pip was monitoring local baby walkers to prepare for first steps — you have 1 new perfect match within a mile.',
+    cardBody: (
+      <div className={styles.conceptLines}>
+        <p className={styles.conceptLine}>
+          Pip has been watching local <span className={styles.spike}>baby walkers</span> for first
+          steps.
+        </p>
+        <p className={styles.conceptLine}>
+          You have <span className={styles.spike}>1 new perfect match</span> within a mile.
+        </p>
+      </div>
+    ),
     cardImage: PRICING_JOURNEY_IMAGES.proximity,
   },
   {
@@ -98,9 +137,15 @@ const JOURNEY_STEPS: JourneyStep[] = [
     isFree: false,
     Icon: Sun,
     cardTag: 'Pip’s Seasons',
-    cardTitle: 'Season nudge',
-    cardSub:
-      'Your personalised child gift list is ready for Christmas 2026. Share with family →',
+    cardBody: (
+      <div className={styles.conceptLines}>
+        <p className={styles.conceptLine}>
+          Your <span className={styles.spike}>personalised gift list</span> is ready for Christmas
+          2026.
+        </p>
+        <p className={styles.conceptLine}>Share with family →</p>
+      </div>
+    ),
     cardImage: PRICING_JOURNEY_IMAGES.seasons,
     pills: ['Christmas', 'Birthdays', 'Summer'],
   },
@@ -111,9 +156,18 @@ const JOURNEY_STEPS: JourneyStep[] = [
     isFree: false,
     Icon: Star,
     cardTag: 'Pip’s Moments',
-    cardTitle: 'First day at nursery',
-    cardSub:
-      'Nursery is starting in 1 month. Here are five personalised ideas to settle with success →',
+    cardFootnote: 'First day at nursery',
+    cardBody: (
+      <div className={styles.conceptLines}>
+        <p className={styles.conceptLine}>
+          Nursery starts in <span className={styles.spike}>1 month</span>.
+        </p>
+        <p className={styles.conceptLine}>
+          Here are <span className={styles.spike}>five personalised ideas</span> to help them settle
+          →
+        </p>
+      </div>
+    ),
     cardImage: PRICING_JOURNEY_IMAGES.moments,
     pills: ['First day at nursery', 'New sibling', 'Travel'],
   },
@@ -124,16 +178,25 @@ const JOURNEY_STEPS: JourneyStep[] = [
     isFree: false,
     Icon: Package,
     cardTag: 'Pip Move-On',
-    cardTitle: 'Pass-on nudge',
-    cardSub:
-      'Ember has noticed you’ve had a white noise machine for 6 months. There are 2 new local babies who would love this within a mile. Free up space →',
+    cardBody: (
+      <div className={styles.conceptLines}>
+        <p className={styles.conceptLine}>
+          Ember has noticed your <span className={styles.spike}>white noise machine</span> — 6
+          months on.
+        </p>
+        <p className={styles.conceptLine}>
+          <span className={styles.spike}>2 local babies</span> within a mile would love it.
+        </p>
+        <p className={styles.conceptLine}>Free up space →</p>
+      </div>
+    ),
     cardImage: PRICING_JOURNEY_IMAGES.moveOn,
   },
 ];
 
 function ConceptCard({ step }: { step: JourneyStep }) {
   const StepIcon = step.Icon;
-  const hasExtras = Boolean(step.miniList?.length || step.pills?.length);
+  const hasExtras = Boolean(step.miniList?.length || step.pills?.length || step.footLinks?.length);
 
   const inner = (
     <>
@@ -142,7 +205,7 @@ function ConceptCard({ step }: { step: JourneyStep }) {
           className={styles.conceptImage}
           style={{ backgroundImage: step.cardImage ? `url('${step.cardImage}')` : undefined }}
           role="img"
-          aria-label={step.cardTitle}
+          aria-label={step.cardTag}
         />
         {!step.isFree && (
           <span className={styles.pipChip}>
@@ -165,8 +228,10 @@ function ConceptCard({ step }: { step: JourneyStep }) {
             <StepIcon className={styles.conceptTagIcon} strokeWidth={2} aria-hidden />
             {step.cardTag}
           </div>
-          <p className={styles.conceptExplainer}>{step.cardSub}</p>
-          <div className={styles.conceptSampleTitle}>{step.cardTitle}</div>
+          {step.cardBody}
+          {step.cardFootnote ? (
+            <div className={styles.conceptSampleTitle}>{step.cardFootnote}</div>
+          ) : null}
           {step.miniList ? (
             <ul className={styles.miniList}>
               {step.miniList.map(([label, meta]) => (
@@ -183,6 +248,15 @@ function ConceptCard({ step }: { step: JourneyStep }) {
                 <span key={pill} className={styles.momentPill}>
                   {pill}
                 </span>
+              ))}
+            </div>
+          ) : null}
+          {step.footLinks ? (
+            <div className={styles.conceptFootLinks}>
+              {step.footLinks.map((link) => (
+                <Link key={link.href} href={link.href} className={styles.inlineLink}>
+                  {link.label}
+                </Link>
               ))}
             </div>
           ) : null}

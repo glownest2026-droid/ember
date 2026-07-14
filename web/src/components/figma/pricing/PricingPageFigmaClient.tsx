@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
@@ -8,6 +8,17 @@ import { FAQItem } from './faq';
 import { PricingCard } from './pricing-card';
 import { PipJourneyExplainer } from './PipJourneyExplainer';
 import { MeetPipSection } from './MeetPipSection';
+
+function MarketplaceLink({ children = 'Marketplace' }: { children?: ReactNode }) {
+  return (
+    <Link
+      href="/marketplace"
+      className="font-medium text-[#FF5C34] underline-offset-2 hover:underline"
+    >
+      {children}
+    </Link>
+  );
+}
 
 export default function PricingPageFigmaClient() {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
@@ -32,7 +43,6 @@ export default function PricingPageFigmaClient() {
     >
       {/*
         Flow: short hero → Meet Pip (who is Pip?) → plans → journey → FAQ
-        Hero drops the unexplained Pip badge + long Plus paragraph (that lives in Meet Pip).
       */}
       <section className="pt-8 pb-4 lg:pt-12 lg:pb-2">
         <div className={EMBER_MARKETING_CONTAINER}>
@@ -46,33 +56,33 @@ export default function PricingPageFigmaClient() {
               <span className="text-[#FF5C34]">Ember Plus guides your way.</span>
             </h1>
             <p className="mx-auto max-w-lg text-[1rem] leading-relaxed text-[#66717D] sm:text-[1.0625rem]">
-              600+ free play ideas and a{' '}
-              <Link
-                href="/marketplace"
-                className="font-medium text-[#FF5C34] underline-offset-2 hover:underline"
-              >
-                Smart Marketplace
-              </Link>{' '}
-              — forever. Plus brings Pip.
+              600+ free play ideas and a <MarketplaceLink>Smart Marketplace</MarketplaceLink>. Plus
+              brings Pip.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Who Pip is — before anyone looks at price */}
       <MeetPipSection />
 
-      {/* Plans */}
       <section id="plans" className="pb-4 pt-2 lg:pb-6 lg:pt-4">
         <div className={EMBER_MARKETING_CONTAINER}>
           <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 lg:grid-cols-2">
             <PricingCard
               name="Free"
-              label="The full Ember catalogue and Smart Marketplace — in your own time"
+              label={
+                <>
+                  The full play library and <MarketplaceLink>Smart Marketplace</MarketplaceLink> — in
+                  your own time
+                </>
+              }
               features={[
                 '600+ play ideas, personalised by age',
-                'Save your favourites, and share an automated gift list with family — for age-appropriate buying',
-                'Smart Marketplace — easy listing from a single photo, match to the right local families',
+                'Save favourites, and share a gift list with family — for age-appropriate buying',
+                <>
+                  <MarketplaceLink>Smart Marketplace</MarketplaceLink> — list from a photo, match to
+                  the right local families
+                </>,
                 '1 child profile',
               ]}
               ctaText="Start free"
@@ -87,8 +97,8 @@ export default function PricingPageFigmaClient() {
               recommended={true}
               badge="Recommended"
               features={[
-                'Pip’s Pathway — stage nudges so you stay one step ahead',
-                'Pip’s Picks — a short research-backed list, and why',
+                'Pip’s Pathway — nudges on what’s next, so you stay one step ahead',
+                'Pip’s Picks — a short list we’ve already weighed up, and why',
                 'Pip Proximity — local matches for this age, when they fit',
                 'Seasons & Moments — Christmas, birthdays, nursery and more',
                 'Pip Move-On — when toys are done, help them find a new home',
@@ -101,7 +111,6 @@ export default function PricingPageFigmaClient() {
         </div>
       </section>
 
-      {/* Journey — what Pip’s seven features feel like */}
       <section id="compare" className="pb-16 pt-6 lg:pb-20 lg:pt-10">
         <div className={EMBER_MARKETING_CONTAINER}>
           <div className="mb-8 text-center">
@@ -112,17 +121,16 @@ export default function PricingPageFigmaClient() {
               Know it. Buy it. Move it on.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-[1.0625rem] text-[#66717D]">
-              That is the essence of the Ember journey.
+              That’s Ember in three steps.
               <br />
-              With a <strong className="font-semibold text-[#253044]">Plus membership</strong>, stay
-              ahead with Pip&apos;s assistance.
+              With <strong className="font-semibold text-[#253044]">Plus</strong>, Pip helps you stay
+              ahead.
             </p>
           </div>
           <PipJourneyExplainer />
         </div>
       </section>
 
-      {/* FAQ */}
       <section id="faq" className="border-t border-[#E7E2DC] bg-white py-14 lg:py-16">
         <div className={EMBER_MARKETING_CONTAINER}>
           <h2
@@ -138,7 +146,14 @@ export default function PricingPageFigmaClient() {
             />
             <FAQItem
               question="What’s the difference between Free and Plus?"
-              answer="Free is a full product: 600+ play ideas, saves, gift lists and the Smart Marketplace — forever, in your own time. Ember Plus adds your assistant Pip: Pathway nudges, Picks, Proximity matches, Seasons, Moments and Move-On — so Ember works for you between visits."
+              answer={
+                <>
+                  Free is a full product: 600+ play ideas, saves, gift lists and the{' '}
+                  <MarketplaceLink>Smart Marketplace</MarketplaceLink> — in your own time. Ember Plus
+                  adds your assistant Pip: Pathway nudges, Picks, Proximity matches, Seasons, Moments
+                  and Move-On — so Ember works for you between visits.
+                </>
+              }
             />
             <FAQItem
               question="How does Ember make money?"
@@ -146,7 +161,7 @@ export default function PricingPageFigmaClient() {
             />
             <FAQItem
               question="Can I use Ember for more than one child?"
-              answer="Free covers one child. Plus covers more than one, so siblings can sit on different stages without juggling accounts."
+              answer="Free covers one child. Plus covers more than one, so siblings can sit at different ages without juggling accounts."
             />
           </div>
           <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-[#66717D]">
