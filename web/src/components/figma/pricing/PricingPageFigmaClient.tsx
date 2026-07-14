@@ -32,7 +32,7 @@ export default function PricingPageFigmaClient() {
       id="ember-pricing-prototype"
       className="homepage-discover-brand min-h-screen bg-[var(--ember-bg-canvas)]"
     >
-      {/* 1. Hero — Pip visible above the fold so “puts Pip on the path” lands */}
+      {/* 1. Hero — founder V3 voice */}
       <section className="pt-10 pb-10 lg:pt-16 lg:pb-12">
         <div className={EMBER_MARKETING_CONTAINER}>
           <div className="mx-auto max-w-3xl text-center">
@@ -63,13 +63,27 @@ export default function PricingPageFigmaClient() {
               <span className="text-[#FF5C34]">
                 Ember Plus guides
                 <br />
-                your pathway
+                your way.
               </span>
             </h1>
+            <p className="mx-auto mb-4 max-w-xl text-[1.0625rem] leading-relaxed text-[#66717D] sm:text-[1.125rem]">
+              Ember provides 600+ free developmental ideas and toy suggestions throughout
+              toddlerhood, and a{' '}
+              <Link
+                href="/marketplace"
+                className="font-medium text-[#FF5C34] underline-offset-2 hover:underline"
+              >
+                Smart Marketplace
+              </Link>{' '}
+              for local parents to match the right toys at the right time.
+            </p>
             <p className="mx-auto max-w-xl text-[1.0625rem] leading-relaxed text-[#66717D] sm:text-[1.125rem]">
-              Free Ember: 600+ stage ideas and a Smart Marketplace you can use forever. Ember Plus
-              adds your assistant Pip — watching what&apos;s next, landing the short list, and
-              tapping you for local matches, seasons and life&apos;s big moments.
+              Looking to accelerate your child&apos;s development? Ember Plus introduces your{' '}
+              <strong className="font-semibold text-[#253044]">Pip the play assistant</strong> who
+              provides <strong className="font-semibold text-[#253044]">seven exclusive features</strong>{' '}
+              for proactive parenting customised for your child. These include best buys, seasonal
+              expertise, and milestone preparation to navigate through new nursery feelings, and
+              beyond.
             </p>
           </div>
         </div>
@@ -81,11 +95,11 @@ export default function PricingPageFigmaClient() {
           <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 lg:grid-cols-2">
             <PricingCard
               name="Free"
-              label="The full catalogue and Marketplace — in your own time"
+              label="The full Ember catalogue and Smart Marketplace — in your own time"
               features={[
-                '600+ stage ideas, personalised by age',
-                'Save ideas and share a gift list with family',
-                'Smart Marketplace — list from a photo, matched to need',
+                '600+ play ideas, personalised by age',
+                'Save your favourites, and share an automated gift list with family — for age-appropriate buying',
+                'Smart Marketplace — easy listing from a single photo, match to the right local families',
                 '1 child profile',
               ]}
               ctaText="Start free"
@@ -96,11 +110,11 @@ export default function PricingPageFigmaClient() {
               price="£3.99"
               period="/month"
               annualPrice="or £29 for your first year"
-              label="Pip brings Ember to you — so you’re ahead, not catching up"
+              label="Pip brings Ember to you — so you stay one step ahead"
               recommended={true}
               badge="Recommended"
               features={[
-                'Pip’s Pathway — stage nudges before you feel behind',
+                'Pip’s Pathway — stage nudges so you stay one step ahead',
                 'Pip’s Picks — a short research-backed list, and why',
                 'Pip Proximity — local matches for this age, when they fit',
                 'Seasons & Moments — Christmas, birthdays, nursery and more',
@@ -128,7 +142,10 @@ export default function PricingPageFigmaClient() {
               Know it. Buy it. Move it on.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-[1.0625rem] text-[#66717D]">
-              A free play map. Ember Plus guides your smart path, with Pip.
+              That is the essence of the Ember journey.
+              <br />
+              With a <strong className="font-semibold text-[#253044]">Plus membership</strong>, stay
+              ahead with Pip&apos;s assistance.
             </p>
           </div>
           <PipJourneyExplainer />
@@ -151,7 +168,7 @@ export default function PricingPageFigmaClient() {
             />
             <FAQItem
               question="What’s the difference between Free and Plus?"
-              answer="Free is a full product: 600+ stage ideas, saves, gift lists and the Smart Marketplace — forever, in your own time. Ember Plus adds your assistant Pip: Pathway nudges, Picks, Proximity matches, Seasons, Moments and Move-On — so Ember works for you between visits."
+              answer="Free is a full product: 600+ play ideas, saves, gift lists and the Smart Marketplace — forever, in your own time. Ember Plus adds your assistant Pip: Pathway nudges, Picks, Proximity matches, Seasons, Moments and Move-On — so Ember works for you between visits."
             />
             <FAQItem
               question="How does Ember make money?"

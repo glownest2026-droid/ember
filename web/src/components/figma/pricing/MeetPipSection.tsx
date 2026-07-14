@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 import { PIP_LOGO_URL } from './pricingImages';
 
-/** Meet Pip — critical orientation block; title must read from a glance. */
+/** Meet Pip — founder V3 voice: homework for you, leave the research to Ember. */
 export function MeetPipSection() {
   return (
     <section id="meet-pip" className="py-12 lg:py-16">
@@ -37,14 +37,15 @@ export function MeetPipSection() {
                 className="mb-3 font-medium text-[#FF5C34]"
                 style={{ fontSize: 'clamp(1.0625rem, 2.5vw, 1.25rem)', lineHeight: 1.35 }}
               >
-                The bit of Ember that does the homework with you
+                Doing the homework for you
               </p>
               <p className="text-[1.0625rem] leading-relaxed text-[#66717D]">
-                Free Ember is what you open when you&apos;ve got a minute — stage ideas and a Smart
-                Marketplace, forever. Pip is who you get with Plus: watching what&apos;s changing,
-                landing what to get next, and tapping you when something local, seasonal or
-                life-sized needs a decision. So you spend the evening with them — not another
-                spiral.
+                Ember guidance is free to all — providing science-backed toy suggestions and a Smart
+                Marketplace to trade the right toys. Pip is your personal assistant with an Ember Plus
+                membership: keeping daily watch for what&apos;s changing, what to get next, notifying
+                great local toys, getting you and the family ready for Christmas gifts, or helping
+                with major milestones like a new nursery. Pip allows you to leave the research to
+                Ember — stop scrolling, and sit back.
               </p>
             </div>
           </div>

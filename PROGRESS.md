@@ -1,3 +1,10 @@
+## 2026-07-14 — feat(pricing): founder V3 human voice + PMF 2.1
+
+- Live `/pricing` copy replaced with founder dad edit (post–real-mum AI-language feedback)
+- PMF → Draft v2.1: ban AI red flags; optimistic pain framing; Ember/Pip proactive voice
+- Conor rule: pointer to marketing AI red flags
+- Light overlays of founder learnings on leftover negatives (“feel behind”, “stage ideas”, spirals)
+
 ## 2026-07-14 — fix(pricing): card hierarchy, Picks retailers, hero/path copy
 
 - Concept cards lead with ~20-word explainer; sample titles demoted

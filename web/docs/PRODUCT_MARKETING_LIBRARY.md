@@ -1,6 +1,6 @@
 # Ember Product Marketing Library
 
-**Status:** Draft v2.0 — founder review (2026-07-14)  
+**Status:** Draft v2.1 — founder voice pass (2026-07-14)  
 **Owner:** Founder + product marketing  
 **Audience:** Humans writing homepage, pricing, emails, App Store, ads — and agents generating parent-facing copy.
 
@@ -9,6 +9,7 @@
 - Voice / Conor bar: `web/docs/CONSCIENTIOUS_CONOR.md`
 - Visual brand: `web/docs/EMBER_BRAND_BOOK.md`
 - Cursor: do not invent product claims that contradict this file without founder sign-off
+- Pricing tone source of truth (founding edit): founder V3 pricing copy (Jul 2026) — prefer that human register over prior AI drafts
 
 ---
 
@@ -25,13 +26,52 @@ Every strong line should do three things:
 **Best-in-class example:**  
 “Stop relatives guessing — and stop duplicate night lights.”
 
+### Founder lesson (2026-07) — AI vs human parent copy
+
+Read this **before** drafting pricing, homepage, emails, or ads. A real mum flagged earlier AI pricing copy as “a lot of AI language.” Founder-rewrote `/pricing` as a dad. Agents must match **that** register.
+
+#### 1) AI red-flag phrases (ban)
+
+| Ban | Why it fails | Prefer |
+|-----|--------------|--------|
+| “another spiral”, “research spiral”, “endless tabs”, “40 tabs” | Infers every parent lives in chaos; sounds like a growth blog | Concrete upside: leave the research to Ember; sit back; decide tonight |
+| “stage ideas” (as a product slogan) | Empty product-speak — screams AI | “play ideas”, “ideas by age”, “developmental ideas and toy suggestions” |
+| “landing the short list”, “tight shortlist”, “worth considering” | Meaningless SaaS filler | “a short research-backed list, and why”; name the thing |
+| Soft panic mirrors: “not catching up”, “before you feel behind” | Negative framing dressed as benefit | Stay one step ahead; know what they’ll need next |
+
+#### 2) Tone — never frame the pain negatively
+
+**Never** lead with shame, lag, clutter, or failure:
+
+| Don’t | Do |
+|-------|----|
+| “six months behind” | “stay one step ahead” / “know what they’ll need next” |
+| “not another set cluttering the shelf” | “bring the cups back out for pouring” / “learn why, and check the best buys” |
+| “not living in the listings” | “you’ll know when there’s a nearby match” |
+| “not still deciding” / “not another spiral” | “your gift list is ready — share with family” / “leave the research to Ember” |
+
+State the **good outcome**. Parents already know the hard day; don’t narrate their failure.
+
+#### 3) Ember proactive positioning
+
+Wherever possible, put **Ember / Pip on the front foot** — watching, preparing, ready — not the parent as the exhausted researcher.
+
+| Don’t | Do |
+|-------|----|
+| “You’ve been watching walkers…” | “Pip has been monitoring local baby walkers to prepare for first steps” |
+| “You might want to look at…” | “Ember has been watching X — here’s what’s ready” |
+| Passive catalogue voice | Active: gift list is ready; nursery pack is ready; match is waiting |
+
+Pip = play assistant with Plus (customer copy). Do **not** say “Pip the robin.”
+
 ### Anti-patterns (ban in public copy)
 
 | Don’t | Why | Do instead |
 |-------|-----|------------|
-| “Calm”, “worth buying”, “might be”, “tight shortlist” | AI / soft waffle | Concrete verb + specific thing |
+| AI red flags in §0 founder lesson | Mum / dad reject as fake | Human parent register above |
+| “Calm”, “worth buying”, “might be”, “tight shortlist” | Soft waffle | Concrete verb + specific thing |
 | “AI”, “flows”, “engine”, “algorithm” | UK parents often wary of tech-speak | Imply smarts via outcome (“list from a photo”, “matched to their age”) |
-| Naming competitors (Facebook Marketplace, Lovevery, Amazon…) | Pink-elephant + sour | Paint Ember’s upside; let the contrast hang unspoken |
+| Naming competitors (Facebook Marketplace, Lovevery, Amazon…) as foils | Pink-elephant + sour | Paint Ember’s upside; retailers OK as *examples* in Picks mini-lists |
 | Pink elephants (“not spam”, “not a feed”, “not 40 tabs” as lead) | Plants the fear | Lead with the good; only contrast when needed, briefly |
 | Underselling Free / overhyping Plus as “unlock” SaaS | Either weakens Free or sounds US growth-hack | **Free = good.** **Plus = great.** Same product family. |
 | FOMO panic (“never miss out”) | Pushy | Positive aheadness: kitchen-stool story (see §1) |
@@ -87,18 +127,18 @@ The full stage catalogue and Smart Marketplace you can use forever — browse, s
 **Talking points:**
 
 1. Forever is fine — Free is a real product if you prefer self-serve.  
-2. Groundbreaking depth for £0: stage ideas + Marketplace, not a teaser.  
+2. Groundbreaking depth for £0: play ideas + Marketplace, not a teaser.  
 3. You stay in the driving seat; Ember’s there when you open it.
 
 ### Ember Plus (Pip)
 
-Pip is when Ember starts working for you — watching what’s next, landing the short list, and tapping you when something local or seasonal or life-sized actually needs a decision.
+Pip is your play assistant with Ember Plus — proactive parenting help customised for your child: best buys, seasonal expertise, and milestone prep (nursery and beyond), so Ember works between visits.
 
 **Talking points:**
 
-1. Free is the map; Plus is Pip on the path with you.  
-2. The catalogue comes to *you* (Pathway, seasons, moments) instead of you always hunting.  
-3. Buy / gift / local / clear-out — covered without another evening lost to tabs.
+1. Free is solid self-serve; Plus introduces Pip and seven exclusive features.  
+2. Ember / Pip have already been watching what’s next — you’re not starting the research from scratch.  
+3. Know it / buy it / move it on — stay ahead with Pip’s help.
 
 ---
 
@@ -129,6 +169,7 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 - US spelling (**personalised**)  
 - Licensed character IPs as preference examples unless legal-cleared  
 - Pink elephants that plant the complaint we’re denying  
+- AI red-flag phrases and negative pain framing (founder lesson in §0)  
 
 ---
 
@@ -175,10 +216,10 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | **WHAT** | Stage-personalised ideas and categories — what they’re into now, what helps next, with buy / borrow / bring-back judgement in the copy. |
 | **WHAT talking points** | 1) Ideas organised by age and what they’re actually practising. 2) Guidance that assumes your cupboards aren’t empty. 3) Science-backed Ember standards, written for tired parents. |
 | **WHY** | Know what matters this age without crawling forums and shop sites for an hour. |
-| **WHY talking points** | 1) Hear about useful kit *before* your friend group — stool story energy. 2) Leave the spiral; keep bedtime with them. 3) Feel “that’s exactly where we are” in a scroll, not a research project. |
+| **WHY talking points** | 1) Hear about useful kit *before* your friend group — stool story energy. 2) Leave the research to Ember when you want to. 3) Feel “that’s exactly where we are” — without an evening of tabs. |
 | **PROOF ANGLE** | Ember research standards; safety rules; deep age-band catalogue (600+ Stage 2 ideas). |
-| **PARENT LINES** | “600+ stage ideas”; “personalised by age”; “what they’re into now — and what to get next.” |
-| **AVOID** | “Ideas for babies”; “developmental activities”; “worth buying” waffle; painting Free as a blog. |
+| **PARENT LINES** | “600+ free developmental ideas and toy suggestions”; “ideas by age”; “what they’re into now — and what to get next.” |
+| **AVOID** | “Stage ideas” as slogan; “ideas for babies”; “worth buying” waffle; painting Free as a blog. |
 | **PAGE NOTES** | Free box lead benefit. Journey Free stop. |
 
 ---
@@ -224,12 +265,12 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | **Tier** | Plus |
 | **Status** | vision / partial (prefs exist; delivery pipeline TBD) |
 | **WHAT** | Pocket play coach: parent-controlled nurture notes and stage guidance ahead of the curve, tailored to their age. |
-| **WHAT talking points** | 1) Pathway updates when their stage really moves on. 2) You choose whether Ember can reach out. 3) Example energy: bring the cups back out for pouring — not another set. |
-| **WHY** | Stay ahead of the development curve — learn what’s next (and what to get or reuse) before you feel behind. |
-| **WHY talking points** | 1) Kitchen-stool energy: unknown unknowns, earlier. 2) Less “I wish I’d known six months ago.” 3) Embers of next stage land with you, not only when you remember to check. |
+| **WHAT talking points** | 1) Pathway updates when their stage really moves on. 2) You choose whether Ember can reach out. 3) Example: in the next months they’ll likely try nesting and pouring — learn why, check best buys, bring cups back out. |
+| **WHY** | Stay one step ahead — know what they’ll need when they’re on the verge of something new. |
+| **WHY talking points** | 1) Kitchen-stool energy: unknown unknowns, earlier. 2) Ember shows what’s coming so you can get ready. 3) Next-stage notes land with you, not only when you remember to check. |
 | **PROOF ANGLE** | Driven by real age-band / stage change; parent-controlled reach-out. |
-| **PARENT LINES** | “Pip’s Pathway”; “what’s changing next”; “a nudge when they’re moving on.” |
-| **AVOID** | “Calm cues”; “not spam”; “never miss out”; fake daily freshness. |
+| **PARENT LINES** | “Pip’s Pathway”; “what’s changing next”; “a nudge when they’re on the verge of something new.” |
+| **AVOID** | “Before you feel behind”; “six months behind”; “not another set on the shelf”; “calm cues”; “never miss out”. |
 | **PAGE NOTES** | Plus one-liner + journey card (cups / bring-back-out judgement). |
 
 ---
@@ -243,10 +284,10 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | **WHAT** | Research-backed product shortlists for this stage — a few solid options, already sorted. |
 | **WHAT talking points** | 1) A short list for *this* age, not the whole shop floor. 2) Why each option fits, in plain English. 3) Aligned to Ember’s how-we-choose standards. |
 | **WHY** | Ember does the sorting; you keep the evening. More playing, less comparing. |
-| **WHY talking points** | 1) Close the 40-tab night without saying “40 tabs” as the headline. 2) Trust the short list enough to decide. 3) Time back with them, not with reviews. |
+| **WHY talking points** | 1) Ember has already done the sorting — you decide. 2) A short research-backed list for *this* interest or age. 3) Time back with them, not with reviews. |
 | **PROOF ANGLE** | How-we-choose standards; transparent commercial model. |
-| **PARENT LINES** | “Pip’s Picks”; “a short list, and why.” |
-| **AVOID** | “Unlock”; “pro parenting”; “corroborated by the industry”; “worth considering.” |
+| **PARENT LINES** | “Pip’s Picks”; “a short research-backed list, and why.” |
+| **AVOID** | “Landing the short list”; “unlock”; “another research spiral”; “worth considering.” |
 | **PAGE NOTES** | Plus one-liner; card can look like a shortlist. |
 
 ---
@@ -260,10 +301,10 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | **WHAT** | Neighbourhood matches — the right kit, for this age, nearby — brought to you when it fits. |
 | **WHAT talking points** | 1) Local families, stage-aware matches. 2) Borrow or buy pre-loved when new isn’t needed. 3) Built on Smart Marketplace, with Pip watching for fit. |
 | **WHY** | Sustainable local finding without drowning in group chats. |
-| **WHY talking points** | 1) The useful thing may already be two streets away. 2) Less “shall I just buy new?” default. 3) Proximity = Pip tapping you when a match appears — you don’t live in the listings. |
+| **WHY talking points** | 1) Pip has been monitoring what fits this age locally. 2) You’ll know when a neighbour has a nearby match. 3) Borrow or buy pre-loved when new isn’t needed. |
 | **PROOF ANGLE** | Marketplace + child stage context. |
-| **PARENT LINES** | “Pip Proximity”; “local matches for this age.” |
-| **AVOID** | Guaranteeing density in every postcode; naming other apps. |
+| **PARENT LINES** | “Pip Proximity”; “local toy recommendations for your child’s age.” |
+| **AVOID** | “Not living in the listings”; guaranteeing density in every postcode; naming other marketplaces as foils. |
 | **PAGE NOTES** | Free = Marketplace you open; Plus = matches that find you. |
 
 ---
@@ -277,7 +318,7 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | **WHAT** | Seasonal guidance: Christmas, birthdays, summer — timed early enough to act, tuned to age. |
 | **WHAT talking points** | 1) Christmas / birthday lists that fit *this* year of their life. 2) Summer play and outings guidance before the rush. 3) Gift ideas relatives can follow without guessing. |
 | **WHY** | Be ready with useful ideas before the season gets loud. |
-| **WHY talking points** | 1) Christmas prep starts while you’re still sane. 2) Birthday gifts that land — not duplicates. 3) Summer kit thought-through before half-term chaos. |
+| **WHY talking points** | 1) Your personalised gift list is ready — share with family. 2) Birthday gifts that fit this year of their life. 3) Summer ideas early enough to act. |
 | **PROOF ANGLE** | Editorial packs × age band. |
 | **PARENT LINES** | “Pip’s Seasons”; “Christmas / birthday / summer, sorted earlier.” |
 | **AVOID** | “Latest and greatest”; “secrets before the world finds them.” |
@@ -297,7 +338,7 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | **WHY talking points** | 1) Nursery doesn’t catch you with empty spare-clothes drawer energy. 2) Big transitions feel less like flying blind. 3) Practical steps you can do this week. |
 | **PROOF ANGLE** | Age + parent-declared moment. |
 | **PARENT LINES** | “Pip’s Moments”; “nursery / new sibling / travel packs.” |
-| **AVOID** | Medical claims; “you’ll succeed”; overconfident life-coach tone. Prefer “practical help for…” |
+| **AVOID** | Medical claims; overconfident guarantees. Prefer concrete “here are five personalised ideas…” |
 | **PAGE NOTES** | Card format can be a short milestone checklist. |
 
 ---
@@ -309,9 +350,9 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 | **Tier** | Plus |
 | **Status** | partial / vision (garage + Marketplace foundations) |
 | **WHAT** | Heads-up when something’s done its job — and easy paths to list, donate, or pass to a local family. |
-| **WHAT talking points** | 1) Pip notices kit that’s aging out of use. 2) One-tap path into Smart Marketplace listing. 3) Room for what they need *now*. |
-| **WHY** | Clear space without the guilt spiral; help another family; reclaim cupboard (and a bit of cash). |
-| **WHY talking points** | 1) The bouncer can leave without a row. 2) Someone local may want exactly what you’re done with. 3) Move-on is part of Ember’s loop — not an afterthought. |
+| **WHAT talking points** | 1) Ember / Pip notice kit that’s done its job. 2) Path into Smart Marketplace listing. 3) Free up space for what they need *now*. |
+| **WHY** | Pass useful kit to local babies who would love it — and reclaim cupboard space. |
+| **WHY talking points** | 1) Ember has been watching how long you’ve had it. 2) Local families who would love it, nearby. 3) Move-on is part of Ember’s loop — not an afterthought. |
 | **PROOF ANGLE** | Inventory / Marketplace spine. |
 | **PARENT LINES** | “Pip Move-On”; “ready to pass on?” |
 | **AVOID** | Declutter shame; nagging tone. |
@@ -344,20 +385,21 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 |-----------------------------|---------------------------|
 | Expensive stage boxes | Stage confidence that respects what you already own — buy only when it earns its place |
 | Endless local scroll / chat groups | Smart Marketplace + Proximity: need-first matches, photo listing, age sense |
-| Forum + shop-tab spirals | Know what matters this age in minutes — judgment included |
+| Forum + shop-tab evenings | Know what matters this age — Ember has already been watching |
 | Generic parenting content apps | UK parent reality: buy / borrow / bring back out / pass on |
 
 ---
 
-## 7. Pricing page rules (for when we rewrite)
+## 7. Pricing page rules
 
-1. Hero: Free promise + bold Pip/Plus beat (aspiration without SaaS clichés).  
-2. Free box: GOOD product — Discover depth, Smart Marketplace, gift list.  
-3. Plus box: GREAT product — one specific line per Pip feature (what — why).  
-4. Meet Pip: parenting metaphor OK; end on a strong relief / aheadness line.  
-5. Journey cards: formats may differ by concept.  
+1. Hero: Free promise first; Plus beat is aspirational and **proactive** (Pip / Ember already watching).  
+2. Free box: GOOD product — catalogue depth, Smart Marketplace, gift list. Prefer “play / developmental ideas”, not “stage ideas.”  
+3. Plus box: GREAT product — one specific line per Pip feature (what — why), **optimistic framing**.  
+4. Meet Pip: “doing the homework for you”; end on leave-the-research / sit-back relief — not “another spiral.”  
+5. Journey cards: concrete sample moments (nesting/pouring; nursery in 1 month; Christmas gift list ready). Put Ember/Pip on the front foot in card copy.  
 6. Never weaken Free to prop up Plus.  
-7. No competitor names. No pink elephants as opening lines.
+7. No competitor foils. No negative pink-elephant openers.  
+8. Run every line through §0 founder lesson (AI red flags / optimistic tone / proactive Ember).
 
 ---
 
@@ -379,6 +421,7 @@ The **logo** does “robin.” Copy may use: watching what’s next, landing an 
 |------|--------|
 | 2026-07-14 | v1.0 — first draft |
 | 2026-07-14 | **v2.0** — founder TW feedback: kitchen-stool aheadness; Free=good / Plus=great; no competitor digs; no pink elephants; tech-averse (imply smarts); 2–3 talking points per WHAT/WHY; stronger brand + Plus positioning; FOMO reframed as unknown unknowns |
+| 2026-07-14 | **v2.1** — founder V3 pricing + wife feedback: ban AI red flags (“spiral”, “endless tabs”, “stage ideas”, “landing the short list”); never frame pain negatively; Ember/Pip proactive voice; pricing rules updated |
 
 ---
 

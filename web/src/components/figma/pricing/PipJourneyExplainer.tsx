@@ -39,27 +39,27 @@ type JourneyStep = {
 const JOURNEY_STEPS: JourneyStep[] = [
   {
     id: 'free',
-    title: 'Discover + Smart Marketplace',
-    desc: '600+ stage ideas, saves, gift lists and local matching — whenever you open Ember.',
+    title: 'Free: Ember Discover + Smart Marketplace',
+    desc: '600+ play ideas, saves, gift lists and local matching — whenever you need Ember.',
     isFree: true,
     Icon: LayoutList,
     cardTag: 'Free',
     cardTitle: 'Catalogue example',
     cardSub:
-      'Browse stage ideas by age when you’ve got a minute — and list or look on the Smart Marketplace without living in endless tabs.',
+      'Browse play ideas by age — and find local matches via our Smart Marketplace.',
     cardImage: PRICING_JOURNEY_IMAGES.catalogue,
     cardHref: '/discover',
   },
   {
     id: 'pathway',
     title: "Pip’s Pathway",
-    desc: 'A nudge when they’re moving into something new — before you feel six months behind.',
+    desc: "A nudge when your child is on the verge of something new — know what they’ll need, to stay one step ahead.",
     isFree: false,
     Icon: Route,
     cardTag: 'Pip’s Pathway',
     cardTitle: 'Cups back out',
     cardSub:
-      'If you’ve already got stacking cups, this stage is pouring and nesting — not another set cluttering the shelf.',
+      'In the next 3 months your child will likely experiment with nesting and pouring. Learn why, and check out the best buys →',
     cardImage: PRICING_JOURNEY_IMAGES.pathway,
   },
   {
@@ -69,26 +69,26 @@ const JOURNEY_STEPS: JourneyStep[] = [
     isFree: false,
     Icon: Gift,
     cardTag: 'Pip’s Picks',
-    cardTitle: 'Sample shortlist',
+    cardTitle: 'Top-rated picks',
     cardSub:
-      'A few stage-fit options with why they matter now — so you can decide tonight without another research spiral.',
+      'Ember has been watching animal play spark up. Here are some top-rated new releases:',
     cardImage: PRICING_JOURNEY_IMAGES.picks,
     miniList: [
-      ['Argos', 'chunky starter puzzle'],
-      ['Amazon', 'simple knob puzzle'],
-      ['Ergobaby', 'carrier — if you need one'],
+      ['Argos', 'chunky animal set'],
+      ['Amazon', 'soft farm pals'],
+      ['VTech', 'talking animal book'],
     ],
   },
   {
     id: 'proximity',
     title: 'Pip Proximity',
-    desc: 'Local matches for this age — when they fit — so you’re not living in the listings.',
+    desc: "Local toy recommendations for your child’s age — the moment they fit. You’ll know instantly when your neighbour has a nearby match.",
     isFree: false,
     Icon: MapPin,
     cardTag: 'Pip Proximity',
     cardTitle: 'Local match',
     cardSub:
-      'Need-first matching on the Smart Marketplace — borrow or buy pre-loved nearby when new isn’t needed.',
+      'Pip was monitoring local baby walkers to prepare for first steps — you have 1 new perfect match within a mile.',
     cardImage: PRICING_JOURNEY_IMAGES.proximity,
   },
   {
@@ -100,7 +100,7 @@ const JOURNEY_STEPS: JourneyStep[] = [
     cardTag: 'Pip’s Seasons',
     cardTitle: 'Season nudge',
     cardSub:
-      'Useful gift and kit ideas relatives can follow — so you’re not still deciding on the 22nd of December.',
+      'Your personalised child gift list is ready for Christmas 2026. Share with family →',
     cardImage: PRICING_JOURNEY_IMAGES.seasons,
     pills: ['Christmas', 'Birthdays', 'Summer'],
   },
@@ -113,7 +113,7 @@ const JOURNEY_STEPS: JourneyStep[] = [
     cardTag: 'Pip’s Moments',
     cardTitle: 'First day at nursery',
     cardSub:
-      'Spare clothes, comfort toy and settling weeks for their first days — concrete help for this week, not a generic month label.',
+      'Nursery is starting in 1 month. Here are five personalised ideas to settle with success →',
     cardImage: PRICING_JOURNEY_IMAGES.moments,
     pills: ['First day at nursery', 'New sibling', 'Travel'],
   },
@@ -126,7 +126,7 @@ const JOURNEY_STEPS: JourneyStep[] = [
     cardTag: 'Pip Move-On',
     cardTitle: 'Pass-on nudge',
     cardSub:
-      'Toys they’ve outgrown — list on the Smart Marketplace, donate, or pass them on locally to another family.',
+      'Ember has noticed you’ve had a white noise machine for 6 months. There are 2 new local babies who would love this within a mile. Free up space →',
     cardImage: PRICING_JOURNEY_IMAGES.moveOn,
   },
 ];
