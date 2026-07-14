@@ -1,3 +1,9 @@
+## 2026-07-14 — fix(pricing): card hierarchy, Picks retailers, hero/path copy
+
+- Concept cards lead with ~20-word explainer; sample titles demoted
+- Picks mini-list: Argos / Amazon / Ergobaby dummies
+- Mobile hint: “Swipe to discover each feature”; journey subcopy + hero + “Ember Plus adds your assistant Pip”
+
 ## 2026-07-14 — fix(pricing): mobile horizontal journey + Ember Plus hero
 
 - Mobile journey: horizontal snap carousel (one feature + one card); desktop keeps vertical Pip track
