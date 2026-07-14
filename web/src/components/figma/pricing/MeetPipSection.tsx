@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 import { PIP_LOGO_URL } from './pricingImages';
 
-/** Compact Meet Pip profile. */
+/** Meet Pip — critical orientation block; title must read from a glance. */
 export function MeetPipSection() {
   return (
     <section id="meet-pip" className="py-12 lg:py-16">
@@ -27,19 +27,24 @@ export function MeetPipSection() {
               </span>
             </div>
             <div>
-              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.08em] text-[#FF5C34]">
-                Meet Pip
-              </p>
               <h2
-                className="mb-3 font-semibold tracking-[-0.01em] text-[#253044]"
-                style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', lineHeight: 1.2 }}
+                className="mb-3 font-semibold tracking-[-0.02em] text-[#253044]"
+                style={{ fontSize: 'clamp(2rem, 5vw, 2.75rem)', lineHeight: 1.1 }}
+              >
+                Meet Pip
+              </h2>
+              <p
+                className="mb-3 font-medium text-[#FF5C34]"
+                style={{ fontSize: 'clamp(1.0625rem, 2.5vw, 1.25rem)', lineHeight: 1.35 }}
               >
                 The bit of Ember that does the homework with you
-              </h2>
+              </p>
               <p className="text-[1.0625rem] leading-relaxed text-[#66717D]">
-                Free Ember is what you browse when you&apos;ve got a minute. Pip is who you get with
-                Plus — a nudge when something&apos;s changing, a few options when you might buy, and a
-                prod when it&apos;s time to clear space. Less scrolling. Fewer 90-minute rabbit holes.
+                Free Ember is what you open when you&apos;ve got a minute — stage ideas and a Smart
+                Marketplace, forever. Pip is who you get with Plus: watching what&apos;s changing,
+                landing what to get next, and tapping you when something local, seasonal or
+                life-sized needs a decision. So you spend the evening with them — not another
+                spiral.
               </p>
             </div>
           </div>

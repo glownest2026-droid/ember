@@ -1,3 +1,34 @@
+## 2026-07-14 — fix(pricing): card hierarchy, Picks retailers, hero/path copy
+
+- Concept cards lead with ~20-word explainer; sample titles demoted
+- Picks mini-list: Argos / Amazon / Ergobaby dummies
+- Mobile hint: “Swipe to discover each feature”; journey subcopy + hero + “Ember Plus adds your assistant Pip”
+
+## 2026-07-14 — fix(pricing): mobile horizontal journey + Ember Plus hero
+
+- Mobile journey: horizontal snap carousel (one feature + one card); desktop keeps vertical Pip track
+- Hero: “Ember Plus puts / Pip on the path with you.”
+
+## 2026-07-14 — fix(pricing): mobile UX feedback on PMF v2 page
+
+- Hero: Pip logo above the fold so “puts Pip on the path” has a face
+- Journey: concept card first + sticky on mobile; shorter card image; drop per-node robin marks
+- Free card: no redundant £0; Meet Pip title enlarged as the section headline
+
+## 2026-07-14 — feat(pricing): PMF 2.0 page replace (live `/pricing`)
+
+- Replaces live `/pricing` copy with Product Marketing Library v2.0: Free = good / Plus = great
+- Naming: Pathway, Picks, Proximity, Seasons, Moments, Move-On, Smart Marketplace
+- Journey adds Seasons + Moments stops; Picks/Seasons/Moments use varied card formats (mini-list / pills)
+- Ships draft `web/docs/PRODUCT_MARKETING_LIBRARY.md` alongside
+
+## 2026-07-14 — docs(pricing): Pricing Page v2 HTML from PMF 2.0
+
+- Static branded HTML for founder copy edit (preceded live port)
+- Grounded in `PRODUCT_MARKETING_LIBRARY.md` Draft v2.0
+- Journey: Gemini linear UI + PMF copy + Stage 2 `category_images`
+- Files: `agent-tools/exports/ember_pricing_v2_pmf.html` · Google Drive `Ember_Pricing_v2.html`
+
 ## 2026-07-13 — feat(pricing): haircut — lean SaaS structure
 
 - Page reduced to: hero → plans → Meet Pip → journey → short FAQ

@@ -5,7 +5,8 @@ import Link from 'next/link';
 
 interface PricingCardProps {
   name: string;
-  price: string;
+  /** Omit or pass empty to hide the big price (e.g. Free — “£0” is redundant). */
+  price?: string;
   period?: string;
   label: string;
   features: string[];
@@ -75,31 +76,33 @@ export function PricingCard({
         >
           {name}
         </h3>
-        <div className="mb-1">
-          <span
-            className="inline-block"
-            style={{
-              fontSize: '2.5rem',
-              fontWeight: 400,
-              color: 'var(--ember-gray-900)',
-              letterSpacing: '-0.02em',
-              lineHeight: 1,
-            }}
-          >
-            {price}
-          </span>
-          {period && (
+        {price ? (
+          <div className="mb-1">
             <span
-              className="ml-1"
+              className="inline-block"
               style={{
-                color: 'var(--ember-gray-600)',
-                fontSize: '0.875rem',
+                fontSize: '2.5rem',
+                fontWeight: 400,
+                color: 'var(--ember-gray-900)',
+                letterSpacing: '-0.02em',
+                lineHeight: 1,
               }}
             >
-              {period}
+              {price}
             </span>
-          )}
-        </div>
+            {period && (
+              <span
+                className="ml-1"
+                style={{
+                  color: 'var(--ember-gray-600)',
+                  fontSize: '0.875rem',
+                }}
+              >
+                {period}
+              </span>
+            )}
+          </div>
+        ) : null}
         {annualPrice && (
           <p
             className="mb-1"

@@ -14,9 +14,9 @@ export const PIP_LOGO_URL =
 
 export const PRICING_JOURNEY_IMAGES = {
   catalogue: categoryImage('ember_cat_low_shelf_tidy_category.png'),
-  trail: categoryImage('ember_cat_stacking_nesting_cups_category.png'),
+  pathway: categoryImage('ember_cat_stacking_nesting_cups_category.png'),
   picks: categoryImage('ember_cat_first_puzzles_category.png'),
-  nearby: categoryImage('ember_cat_balance_paths_and_stepping_stones_category.png'),
+  proximity: categoryImage('ember_cat_balance_paths_and_stepping_stones_category.png'),
   seasons: categoryImage('ember_cat_out_and_about_kit_category.png'),
   moments: categoryImage('ember_cat_transition_basket_category.png'),
   moveOn: categoryImage('ember_cat_tip_out_baskets_category.png'),
