@@ -60,7 +60,7 @@
 }
 
 .mobileSwipeHint {
-  margin: 0 0 0.85rem;
+  margin: 0 0 1.25rem;
   text-align: center;
   font-size: 0.8125rem;
   font-weight: 600;
@@ -102,7 +102,7 @@
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  margin-bottom: 0.85rem;
+  margin-bottom: 1.15rem;
   padding: 0 0.15rem;
 }
 
@@ -277,7 +277,7 @@
 }
 
 .trackDivider {
-  margin: 1.5rem 0 2rem 5.5rem;
+  margin: 2rem 0 2.5rem 5.5rem;
   position: relative;
   z-index: 5;
 }
@@ -313,19 +313,19 @@
 .journeyNode {
   position: relative;
   padding-left: 6rem;
-  min-height: 5rem;
+  min-height: 5.5rem;
   display: flex;
   align-items: center;
   cursor: pointer;
   z-index: 5;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.75rem;
   background: transparent;
   border: none;
   text-align: left;
   width: 100%;
   font-family: inherit;
-  padding-top: 0;
-  padding-bottom: 0;
+  padding-top: 0.15rem;
+  padding-bottom: 0.15rem;
   padding-right: 0;
 }
 
@@ -381,7 +381,7 @@
   font-size: 1.125rem;
   font-weight: 700;
   color: var(--pip-ink);
-  margin-bottom: 0.125rem;
+  margin-bottom: 0.35rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -682,7 +682,7 @@
   height: 4px;
   background: var(--pip-border);
   border-radius: 2px;
-  margin: 2rem auto 0;
+  margin: 2.5rem auto 0;
   max-width: 100px;
   overflow: hidden;
 }

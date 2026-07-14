@@ -18,7 +18,7 @@ export function FAQItem({ question, answer }: FAQItemProps) {
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-6 flex items-center justify-between text-left transition-colors duration-300"
+        className="w-full py-7 flex items-center justify-between text-left transition-colors duration-300"
         style={{ color: 'var(--ember-gray-900)' }}
       >
         <span

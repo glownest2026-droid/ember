@@ -33,7 +33,7 @@ export function PricingCard({
 }: PricingCardProps) {
   return (
     <div
-      className="relative flex flex-col rounded-3xl p-5 lg:p-6 transition-all duration-300"
+      className="relative flex flex-col rounded-3xl p-6 lg:p-8 transition-all duration-300"
       style={{
         backgroundColor: recommended ? 'white' : 'var(--ember-gray-200)',
         border: recommended ? '2px solid var(--ember-primary)' : '1px solid var(--ember-gray-300)',
@@ -126,7 +126,7 @@ export function PricingCard({
         </p>
       </div>
 
-      <ul className="flex-1 mb-4 space-y-1.5">
+      <ul className="flex-1 mb-6 space-y-2.5">
         {features.map((feature, index) => (
           <li key={index} className="flex items-start gap-2">
             <Check

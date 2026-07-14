@@ -1,3 +1,8 @@
+## 2026-07-14 — fix(pricing): spacing breathe + swipe hint
+
+- “Ember Plus features:”; swipe hint → “Swipe to discover >”
+- More section/card/FAQ/journey-node whitespace (SaaS breathing room)
+
 ## 2026-07-14 — fix(pricing): Ember Plus wording, features intro, Seasons v2
 
 - Hero: “Get more from Ember with Pip, your play coach”; always “Ember Plus” in UI copy

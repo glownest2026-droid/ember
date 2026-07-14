@@ -456,7 +456,7 @@ export function PipJourneyExplainer() {
     <div id="pip-world" className={styles.root}>
       {/* Mobile: one feature + one card per horizontal snap slide */}
       <div className={styles.mobileJourney} aria-hidden={!isMobile}>
-        <p className={styles.mobileSwipeHint}>Swipe to discover each feature</p>
+        <p className={styles.mobileSwipeHint}>Swipe to discover &gt;</p>
         <div
           ref={mobileScrollerRef}
           className={styles.mobileScroller}

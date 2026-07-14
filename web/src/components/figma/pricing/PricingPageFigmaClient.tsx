@@ -44,11 +44,11 @@ export default function PricingPageFigmaClient() {
       {/*
         Flow: short hero → Meet Pip (who is Pip?) → plans → journey → FAQ
       */}
-      <section className="pt-8 pb-4 lg:pt-12 lg:pb-2">
+      <section className="pt-12 pb-8 lg:pt-16 lg:pb-10">
         <div className={EMBER_MARKETING_CONTAINER}>
           <div className="mx-auto max-w-2xl text-center">
             <h1
-              className="mb-3 font-semibold tracking-[-0.01em] text-[#253044]"
+              className="mb-4 font-semibold tracking-[-0.01em] text-[#253044]"
               style={{ fontSize: 'clamp(1.875rem, 4.5vw, 3rem)', lineHeight: 1.15 }}
             >
               Browse for free.
@@ -65,9 +65,9 @@ export default function PricingPageFigmaClient() {
 
       <MeetPipSection />
 
-      <section id="plans" className="pb-4 pt-2 lg:pb-6 lg:pt-4">
+      <section id="plans" className="pb-14 pt-10 lg:pb-20 lg:pt-14">
         <div className={EMBER_MARKETING_CONTAINER}>
-          <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
             <PricingCard
               name="Free"
               label={
@@ -111,36 +111,36 @@ export default function PricingPageFigmaClient() {
         </div>
       </section>
 
-      <section id="compare" className="pb-16 pt-6 lg:pb-20 lg:pt-10">
+      <section id="compare" className="pb-20 pt-12 lg:pb-28 lg:pt-16">
         <div className={EMBER_MARKETING_CONTAINER}>
-          <div className="mb-8 text-center">
+          <div className="mb-12 text-center lg:mb-14">
             <h2
               className="font-semibold tracking-[-0.01em] text-[#253044]"
               style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)', lineHeight: 1.15 }}
             >
               Know it. Find it. Move it on.
             </h2>
-            <p className="mx-auto mt-3 max-w-xl text-[1.0625rem] text-[#66717D]">
+            <p className="mx-auto mt-4 max-w-xl text-[1.0625rem] leading-relaxed text-[#66717D]">
               That’s Ember in three steps.
               <br />
               With <strong className="font-semibold text-[#253044]">Ember Plus</strong>, Pip helps
               you stay ahead through six exclusive features.
             </p>
             <p
-              className="mx-auto mt-6 font-semibold tracking-[-0.01em] text-[#253044]"
+              className="mx-auto mt-10 font-semibold tracking-[-0.01em] text-[#253044]"
               style={{ fontSize: 'clamp(1.25rem, 2.5vw, 1.5rem)', lineHeight: 1.2 }}
             >
-              Ember Plus features
+              Ember Plus features:
             </p>
           </div>
           <PipJourneyExplainer />
         </div>
       </section>
 
-      <section id="faq" className="border-t border-[#E7E2DC] bg-white py-14 lg:py-16">
+      <section id="faq" className="border-t border-[#E7E2DC] bg-white py-20 lg:py-24">
         <div className={EMBER_MARKETING_CONTAINER}>
           <h2
-            className="mb-8 text-center font-semibold tracking-[-0.01em] text-[#253044]"
+            className="mb-10 text-center font-semibold tracking-[-0.01em] text-[#253044]"
             style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', lineHeight: 1.2 }}
           >
             Questions
@@ -170,7 +170,7 @@ export default function PricingPageFigmaClient() {
               answer="Free covers one child. Ember Plus covers more than one, so siblings can sit at different ages without juggling accounts."
             />
           </div>
-          <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-[#66717D]">
+          <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-[#66717D]">
             <Link
               href="/how-ember-makes-money"
               className="font-medium text-[#FF5C34] underline-offset-2 hover:underline"

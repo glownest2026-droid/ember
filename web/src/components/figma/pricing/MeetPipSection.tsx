@@ -10,10 +10,10 @@ import { PIP_LOGO_URL } from './pricingImages';
  */
 export function MeetPipSection() {
   return (
-    <section id="meet-pip" className="pb-8 pt-2 lg:pb-10 lg:pt-4">
+    <section id="meet-pip" className="pb-10 pt-6 lg:pb-14 lg:pt-8">
       <div className={EMBER_MARKETING_CONTAINER}>
         <div className="mx-auto max-w-3xl overflow-hidden rounded-3xl border border-[#E7E2DC] bg-white shadow-[0_12px_40px_-16px_rgba(37,48,68,0.12)]">
-          <div className="flex flex-col items-center gap-5 p-6 text-center sm:flex-row sm:items-center sm:gap-8 sm:p-8 sm:text-left">
+          <div className="flex flex-col items-center gap-6 p-8 text-center sm:flex-row sm:items-center sm:gap-10 sm:p-10 sm:text-left">
             <div className="relative shrink-0">
               <div className="flex h-28 w-28 items-center justify-center rounded-full border-2 border-[#F1DED3] bg-[#FFF6F3] shadow-[0_16px_32px_-12px_rgba(255,92,52,0.25)] sm:h-32 sm:w-32">
                 <Image
