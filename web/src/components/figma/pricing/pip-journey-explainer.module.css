@@ -29,7 +29,22 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 1.5rem;
+}
+
+/* Mobile: concept card first + sticky so taps update something on-screen */
+.journeyDisplayPanel {
+  flex: 1;
+  position: sticky;
+  top: 4.75rem;
+  z-index: 20;
+  order: -1;
+  padding-bottom: 0.25rem;
+  background: linear-gradient(
+    to bottom,
+    var(--pip-canvas) 70%,
+    rgba(251, 250, 247, 0)
+  );
 }
 
 @media (min-width: 768px) {
@@ -37,6 +52,14 @@
     flex-direction: row;
     gap: 5rem;
     align-items: flex-start;
+  }
+
+  .journeyDisplayPanel {
+    order: 0;
+    position: sticky;
+    top: 6rem;
+    background: transparent;
+    padding-bottom: 0;
   }
 }
 
@@ -267,12 +290,6 @@
   font-weight: 400;
 }
 
-.journeyDisplayPanel {
-  flex: 1;
-  position: sticky;
-  top: 6rem;
-}
-
 .conceptViewer {
   width: 100%;
   max-width: 28rem;
@@ -318,11 +335,17 @@
 }
 
 .conceptImage {
-  height: 200px;
+  height: 140px;
   width: 100%;
   background-size: cover;
   background-position: center;
   background-color: var(--pip-soft-blush);
+}
+
+@media (min-width: 768px) {
+  .conceptImage {
+    height: 240px;
+  }
 }
 
 .pipChip {
@@ -349,18 +372,18 @@
   border-radius: 50%;
 }
 
-@media (min-width: 768px) {
-  .conceptImage {
-    height: 240px;
-  }
-}
-
 .conceptBody {
-  padding: 1.5rem 2rem;
+  padding: 1rem 1.25rem 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .conceptBody {
+    padding: 1.5rem 2rem;
+  }
 }
 
 .conceptBodyStack {

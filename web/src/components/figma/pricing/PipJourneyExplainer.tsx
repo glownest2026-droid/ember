@@ -243,9 +243,6 @@ export function PipJourneyExplainer() {
         <span className={styles.nodeDot} aria-hidden />
         <span className={styles.nodeContent}>
           <span className={styles.nodeTitle}>
-            {!journeyStep.isFree && (
-              <img src={PIP_LOGO_URL} alt="" className={styles.nodePipMark} width={18} height={18} />
-            )}
             {journeyStep.title}
             <Icon className={styles.nodeInlineIcon} strokeWidth={2} aria-hidden />
           </span>

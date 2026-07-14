@@ -1,3 +1,9 @@
+## 2026-07-14 — fix(pricing): mobile UX feedback on PMF v2 page
+
+- Hero: Pip logo above the fold so “puts Pip on the path” has a face
+- Journey: concept card first + sticky on mobile; shorter card image; drop per-node robin marks
+- Free card: no redundant £0; Meet Pip title enlarged as the section headline
+
 ## 2026-07-14 — feat(pricing): PMF 2.0 page replace (live `/pricing`)
 
 - Replaces live `/pricing` copy with Product Marketing Library v2.0: Free = good / Plus = great
