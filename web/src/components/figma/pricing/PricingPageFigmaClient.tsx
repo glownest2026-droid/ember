@@ -60,7 +60,11 @@ export default function PricingPageFigmaClient() {
             >
               Browse for free.
               <br />
-              <span className="text-[#FF5C34]">Plus puts Pip on the path with you.</span>
+              <span className="text-[#FF5C34]">
+                Ember Plus puts
+                <br />
+                Pip on the path with you.
+              </span>
             </h1>
             <p className="mx-auto max-w-xl text-[1.0625rem] leading-relaxed text-[#66717D] sm:text-[1.125rem]">
               Free Ember: 600+ stage ideas and a Smart Marketplace you can use forever. Plus adds

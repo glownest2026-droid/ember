@@ -1,3 +1,8 @@
+## 2026-07-14 — fix(pricing): mobile horizontal journey + Ember Plus hero
+
+- Mobile journey: horizontal snap carousel (one feature + one card); desktop keeps vertical Pip track
+- Hero: “Ember Plus puts / Pip on the path with you.”
+
 ## 2026-07-14 — fix(pricing): mobile UX feedback on PMF v2 page
 
 - Hero: Pip logo above the fold so “puts Pip on the path” has a face

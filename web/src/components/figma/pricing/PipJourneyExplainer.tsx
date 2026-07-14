@@ -19,6 +19,7 @@ import { PIP_LOGO_URL, PRICING_JOURNEY_IMAGES } from './pricingImages';
 
 const AUTO_DURATION_MS = 5000;
 const UPDATE_RATE_MS = 50;
+const MOBILE_MQ = '(max-width: 767px)';
 
 type JourneyStep = {
   id: string;
@@ -127,132 +128,11 @@ const JOURNEY_STEPS: JourneyStep[] = [
   },
 ];
 
-export function PipJourneyExplainer() {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const nodeRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(1);
-  const [isFading, setIsFading] = useState(false);
-  const [displayIndex, setDisplayIndex] = useState(1);
-  const [pipTransform, setPipTransform] = useState('translateY(0) scale(1)');
-  const [fillHeight, setFillHeight] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReducedMotion(mq.matches);
-    const onChange = () => setReducedMotion(mq.matches);
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, []);
-
-  const layoutPip = useCallback((index: number) => {
-    const targetNode = nodeRefs.current[index];
-    const firstPlusNode = nodeRefs.current[1];
-    if (!targetNode) return;
-
-    const step = JOURNEY_STEPS[index];
-    const nodeCenterY = targetNode.offsetTop + targetNode.offsetHeight / 2;
-    const pipCenterOffset = 40;
-
-    if (step.isFree) {
-      const restY = firstPlusNode ? firstPlusNode.offsetTop - 56 : 110;
-      setPipTransform(`translateY(${restY}px) scale(0.85)`);
-      setFillHeight(0);
-    } else {
-      const activeY = nodeCenterY - pipCenterOffset;
-      setPipTransform(`translateY(${activeY}px) scale(1)`);
-      setFillHeight(activeY + pipCenterOffset - 32);
-    }
-  }, []);
-
-  useLayoutEffect(() => {
-    layoutPip(currentIndex);
-  }, [currentIndex, layoutPip]);
-
-  useEffect(() => {
-    const onResize = () => layoutPip(currentIndex);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [currentIndex, layoutPip]);
-
-  const activateStep = useCallback(
-    (index: number, isManual = false) => {
-      if (isManual) {
-        setPaused(true);
-        setProgress(0);
-      }
-
-      setCurrentIndex(index);
-      setIsFading(true);
-
-      const fadeMs = reducedMotion ? 0 : 300;
-      window.setTimeout(() => {
-        setDisplayIndex(index);
-        setIsFading(false);
-      }, fadeMs);
-    },
-    [reducedMotion],
-  );
-
-  useEffect(() => {
-    if (paused || reducedMotion) return;
-
-    const id = window.setInterval(() => {
-      setProgress((prev) => {
-        const next = prev + (UPDATE_RATE_MS / AUTO_DURATION_MS) * 100;
-        if (next >= 100) {
-          const nextIndex = (currentIndex + 1) % JOURNEY_STEPS.length;
-          activateStep(nextIndex);
-          return 0;
-        }
-        return next;
-      });
-    }, UPDATE_RATE_MS);
-
-    return () => window.clearInterval(id);
-  }, [paused, reducedMotion, currentIndex, activateStep]);
-
-  const step = JOURNEY_STEPS[displayIndex];
+function ConceptCard({ step }: { step: JourneyStep }) {
   const StepIcon = step.Icon;
-  const freeSteps = JOURNEY_STEPS.filter((s) => s.isFree);
-  const plusSteps = JOURNEY_STEPS.filter((s) => !s.isFree);
   const hasExtras = Boolean(step.miniList?.length || step.pills?.length);
 
-  const renderNode = (journeyStep: JourneyStep, globalIndex: number) => {
-    const Icon = journeyStep.Icon;
-    const isActive = currentIndex === globalIndex;
-    return (
-      <button
-        key={journeyStep.id}
-        type="button"
-        ref={(el) => {
-          nodeRefs.current[globalIndex] = el;
-        }}
-        className={[
-          styles.journeyNode,
-          journeyStep.isFree ? styles.journeyNodeFree : '',
-          isActive ? styles.journeyNodeActive : '',
-        ]
-          .filter(Boolean)
-          .join(' ')}
-        onClick={() => activateStep(globalIndex, true)}
-        aria-pressed={isActive}
-      >
-        <span className={styles.nodeDot} aria-hidden />
-        <span className={styles.nodeContent}>
-          <span className={styles.nodeTitle}>
-            {journeyStep.title}
-            <Icon className={styles.nodeInlineIcon} strokeWidth={2} aria-hidden />
-          </span>
-          <span className={styles.nodeDesc}>{journeyStep.desc}</span>
-        </span>
-      </button>
-    );
-  };
-
-  const cardInner = (
+  const inner = (
     <>
       <div className={styles.conceptImageWrap}>
         <div
@@ -303,9 +183,7 @@ export function PipJourneyExplainer() {
               ))}
             </div>
           ) : null}
-          {step.cardHref ? (
-            <span className={styles.conceptLink}>→ Open Discover</span>
-          ) : null}
+          {step.cardHref ? <span className={styles.conceptLink}>→ Open Discover</span> : null}
         </div>
         {!hasExtras && step.cardHref ? (
           <ChevronRight className={styles.conceptChevron} strokeWidth={2} aria-hidden />
@@ -314,67 +192,337 @@ export function PipJourneyExplainer() {
     </>
   );
 
+  if (step.cardHref) {
+    return (
+      <Link href={step.cardHref} className={styles.conceptCardLink}>
+        <div className={styles.conceptCard}>{inner}</div>
+      </Link>
+    );
+  }
+
+  return <div className={styles.conceptCard}>{inner}</div>;
+}
+
+export function PipJourneyExplainer() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const nodeRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const mobileScrollerRef = useRef<HTMLDivElement>(null);
+  const scrollSyncLock = useRef(false);
+  const [currentIndex, setCurrentIndex] = useState(1);
+  const [isFading, setIsFading] = useState(false);
+  const [displayIndex, setDisplayIndex] = useState(1);
+  const [pipTransform, setPipTransform] = useState('translateY(0) scale(1)');
+  const [fillHeight, setFillHeight] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mobileMq = window.matchMedia(MOBILE_MQ);
+    setReducedMotion(motionMq.matches);
+    setIsMobile(mobileMq.matches);
+    const onMotion = () => setReducedMotion(motionMq.matches);
+    const onMobile = () => setIsMobile(mobileMq.matches);
+    motionMq.addEventListener('change', onMotion);
+    mobileMq.addEventListener('change', onMobile);
+    return () => {
+      motionMq.removeEventListener('change', onMotion);
+      mobileMq.removeEventListener('change', onMobile);
+    };
+  }, []);
+
+  const layoutPip = useCallback((index: number) => {
+    const targetNode = nodeRefs.current[index];
+    const firstPlusNode = nodeRefs.current[1];
+    if (!targetNode) return;
+
+    const step = JOURNEY_STEPS[index];
+    const nodeCenterY = targetNode.offsetTop + targetNode.offsetHeight / 2;
+    const pipCenterOffset = 40;
+
+    if (step.isFree) {
+      const restY = firstPlusNode ? firstPlusNode.offsetTop - 56 : 110;
+      setPipTransform(`translateY(${restY}px) scale(0.85)`);
+      setFillHeight(0);
+    } else {
+      const activeY = nodeCenterY - pipCenterOffset;
+      setPipTransform(`translateY(${activeY}px) scale(1)`);
+      setFillHeight(activeY + pipCenterOffset - 32);
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!isMobile) layoutPip(currentIndex);
+  }, [currentIndex, layoutPip, isMobile]);
+
+  useEffect(() => {
+    if (isMobile) return;
+    const onResize = () => layoutPip(currentIndex);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [currentIndex, layoutPip, isMobile]);
+
+  const activateStep = useCallback(
+    (index: number, isManual = false) => {
+      if (isManual) {
+        setPaused(true);
+        setProgress(0);
+      }
+
+      setCurrentIndex(index);
+
+      if (isMobile) {
+        setDisplayIndex(index);
+        setIsFading(false);
+        return;
+      }
+
+      setIsFading(true);
+      const fadeMs = reducedMotion ? 0 : 300;
+      window.setTimeout(() => {
+        setDisplayIndex(index);
+        setIsFading(false);
+      }, fadeMs);
+    },
+    [reducedMotion, isMobile],
+  );
+
+  // Mobile: scroll active slide into view when index changes (autoplay / dots)
+  useEffect(() => {
+    if (!isMobile) return;
+    const scroller = mobileScrollerRef.current;
+    if (!scroller) return;
+
+    scrollSyncLock.current = true;
+    scroller.scrollTo({
+      left: currentIndex * scroller.clientWidth,
+      behavior: reducedMotion ? 'auto' : 'smooth',
+    });
+    const t = window.setTimeout(() => {
+      scrollSyncLock.current = false;
+    }, reducedMotion ? 50 : 450);
+    return () => window.clearTimeout(t);
+  }, [currentIndex, isMobile, reducedMotion]);
+
+  useEffect(() => {
+    if (paused || reducedMotion) return;
+
+    const id = window.setInterval(() => {
+      setProgress((prev) => {
+        const next = prev + (UPDATE_RATE_MS / AUTO_DURATION_MS) * 100;
+        if (next >= 100) {
+          const nextIndex = (currentIndex + 1) % JOURNEY_STEPS.length;
+          activateStep(nextIndex);
+          return 0;
+        }
+        return next;
+      });
+    }, UPDATE_RATE_MS);
+
+    return () => window.clearInterval(id);
+  }, [paused, reducedMotion, currentIndex, activateStep]);
+
+  const onMobileScroll = useCallback(() => {
+    if (scrollSyncLock.current) return;
+    const scroller = mobileScrollerRef.current;
+    if (!scroller) return;
+    const width = scroller.clientWidth;
+    if (!width) return;
+    const index = Math.round(scroller.scrollLeft / width);
+    const clamped = Math.max(0, Math.min(JOURNEY_STEPS.length - 1, index));
+    if (clamped !== currentIndex) {
+      setPaused(true);
+      setProgress(0);
+      setCurrentIndex(clamped);
+      setDisplayIndex(clamped);
+    }
+  }, [currentIndex]);
+
+  const step = JOURNEY_STEPS[displayIndex];
+  const freeSteps = JOURNEY_STEPS.filter((s) => s.isFree);
+  const plusSteps = JOURNEY_STEPS.filter((s) => !s.isFree);
+
+  const renderNode = (journeyStep: JourneyStep, globalIndex: number) => {
+    const Icon = journeyStep.Icon;
+    const isActive = currentIndex === globalIndex;
+    return (
+      <button
+        key={journeyStep.id}
+        type="button"
+        ref={(el) => {
+          nodeRefs.current[globalIndex] = el;
+        }}
+        className={[
+          styles.journeyNode,
+          journeyStep.isFree ? styles.journeyNodeFree : '',
+          isActive ? styles.journeyNodeActive : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        onClick={() => activateStep(globalIndex, true)}
+        aria-pressed={isActive}
+      >
+        <span className={styles.nodeDot} aria-hidden />
+        <span className={styles.nodeContent}>
+          <span className={styles.nodeTitle}>
+            {journeyStep.title}
+            <Icon className={styles.nodeInlineIcon} strokeWidth={2} aria-hidden />
+          </span>
+          <span className={styles.nodeDesc}>{journeyStep.desc}</span>
+        </span>
+      </button>
+    );
+  };
+
   return (
     <div id="pip-world" className={styles.root}>
-      <div className={styles.journeyContainer}>
-        <div className={styles.journeyTrackPanel} ref={trackRef}>
-          <div className={styles.trackLineBg} aria-hidden />
-          <div className={styles.trackLinePlusBg} aria-hidden />
-          <div
-            className={styles.trackLineFill}
-            style={{ height: `${Math.max(0, fillHeight)}px` }}
-            aria-hidden
-          />
-
-          <button
-            type="button"
-            className={[
-              styles.pipTraveler,
-              JOURNEY_STEPS[currentIndex]?.isFree
-                ? styles.pipTravelerSleeping
-                : styles.pipTravelerActive,
-            ].join(' ')}
-            style={{ transform: pipTransform }}
-            onClick={() => activateStep(currentIndex === 0 ? 1 : currentIndex, true)}
-            aria-label="Pip along the journey"
-          >
-            <img src={PIP_LOGO_URL} alt="Pip" width={50} height={50} />
-          </button>
-
-          <div>{freeSteps.map((s) => renderNode(s, JOURNEY_STEPS.indexOf(s)))}</div>
-
-          <div className={styles.trackDivider}>
-            <span className={styles.trackDividerBadge}>
-              <img src={PIP_LOGO_URL} alt="" width={16} height={16} />
-              <Plus size={12} strokeWidth={2.5} aria-hidden />
-              Plus starts here
-            </span>
-          </div>
-
-          <div>{plusSteps.map((s) => renderNode(s, JOURNEY_STEPS.indexOf(s)))}</div>
+      {/* Mobile: one feature + one card per horizontal snap slide */}
+      <div className={styles.mobileJourney} aria-hidden={!isMobile}>
+        <p className={styles.mobileSwipeHint}>Swipe to walk the path with Pip</p>
+        <div
+          ref={mobileScrollerRef}
+          className={styles.mobileScroller}
+          onScroll={onMobileScroll}
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Pip journey"
+        >
+          {JOURNEY_STEPS.map((journeyStep, index) => {
+            const Icon = journeyStep.Icon;
+            const showPlusGate = index === 1;
+            return (
+              <article
+                key={journeyStep.id}
+                className={styles.mobileSlide}
+                aria-roledescription="slide"
+                aria-label={`${index + 1} of ${JOURNEY_STEPS.length}: ${journeyStep.title}`}
+              >
+                {showPlusGate ? (
+                  <div className={styles.mobilePlusGate}>
+                    <span className={styles.trackDividerBadge}>
+                      <img src={PIP_LOGO_URL} alt="" width={16} height={16} />
+                      <Plus size={12} strokeWidth={2.5} aria-hidden />
+                      Plus starts here
+                    </span>
+                  </div>
+                ) : null}
+                <div className={styles.mobileFeatureHead}>
+                  <div
+                    className={[
+                      styles.mobilePipMark,
+                      journeyStep.isFree ? styles.mobilePipMarkFree : styles.mobilePipMarkPlus,
+                    ].join(' ')}
+                  >
+                    <img src={PIP_LOGO_URL} alt="" width={36} height={36} />
+                  </div>
+                  <div className={styles.mobileFeatureCopy}>
+                    <div
+                      className={[
+                        styles.mobileFeatureTitle,
+                        journeyStep.isFree ? '' : styles.mobileFeatureTitlePlus,
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                    >
+                      {journeyStep.title}
+                      <Icon className={styles.mobileFeatureIcon} strokeWidth={2} aria-hidden />
+                    </div>
+                    <p className={styles.mobileFeatureDesc}>{journeyStep.desc}</p>
+                  </div>
+                </div>
+                <ConceptCard step={journeyStep} />
+              </article>
+            );
+          })}
         </div>
 
-        <div className={styles.journeyDisplayPanel}>
-          <div
-            className={[styles.conceptViewer, isFading ? styles.conceptViewerFading : '']
-              .filter(Boolean)
-              .join(' ')}
-          >
-            {step.cardHref ? (
-              <Link href={step.cardHref} className={styles.conceptCardLink}>
-                <div className={styles.conceptCard}>{cardInner}</div>
-              </Link>
-            ) : (
-              <div className={styles.conceptCard}>{cardInner}</div>
-            )}
-          </div>
-          <div className={styles.progressBar} aria-hidden>
-            <div
-              className={[styles.progressFill, step.isFree ? styles.progressFillFree : '']
+        <div className={styles.mobileDots} role="tablist" aria-label="Journey stops">
+          {JOURNEY_STEPS.map((s, i) => (
+            <button
+              key={s.id}
+              type="button"
+              role="tab"
+              aria-selected={currentIndex === i}
+              aria-label={s.title}
+              className={[styles.mobileDot, currentIndex === i ? styles.mobileDotActive : '']
                 .filter(Boolean)
                 .join(' ')}
-              style={{ width: `${paused || reducedMotion ? 0 : Math.min(progress, 100)}%` }}
+              onClick={() => activateStep(i, true)}
             />
+          ))}
+        </div>
+
+        <div className={styles.progressBar} aria-hidden>
+          <div
+            className={[
+              styles.progressFill,
+              JOURNEY_STEPS[currentIndex]?.isFree ? styles.progressFillFree : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            style={{ width: `${paused || reducedMotion ? 0 : Math.min(progress, 100)}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Desktop: vertical track + sticky concept card */}
+      <div className={styles.desktopJourney} aria-hidden={isMobile}>
+        <div className={styles.journeyContainer}>
+          <div className={styles.journeyTrackPanel} ref={trackRef}>
+            <div className={styles.trackLineBg} aria-hidden />
+            <div className={styles.trackLinePlusBg} aria-hidden />
+            <div
+              className={styles.trackLineFill}
+              style={{ height: `${Math.max(0, fillHeight)}px` }}
+              aria-hidden
+            />
+
+            <button
+              type="button"
+              className={[
+                styles.pipTraveler,
+                JOURNEY_STEPS[currentIndex]?.isFree
+                  ? styles.pipTravelerSleeping
+                  : styles.pipTravelerActive,
+              ].join(' ')}
+              style={{ transform: pipTransform }}
+              onClick={() => activateStep(currentIndex === 0 ? 1 : currentIndex, true)}
+              aria-label="Pip along the journey"
+            >
+              <img src={PIP_LOGO_URL} alt="Pip" width={50} height={50} />
+            </button>
+
+            <div>{freeSteps.map((s) => renderNode(s, JOURNEY_STEPS.indexOf(s)))}</div>
+
+            <div className={styles.trackDivider}>
+              <span className={styles.trackDividerBadge}>
+                <img src={PIP_LOGO_URL} alt="" width={16} height={16} />
+                <Plus size={12} strokeWidth={2.5} aria-hidden />
+                Plus starts here
+              </span>
+            </div>
+
+            <div>{plusSteps.map((s) => renderNode(s, JOURNEY_STEPS.indexOf(s)))}</div>
+          </div>
+
+          <div className={styles.journeyDisplayPanel}>
+            <div
+              className={[styles.conceptViewer, isFading ? styles.conceptViewerFading : '']
+                .filter(Boolean)
+                .join(' ')}
+            >
+              <ConceptCard step={step} />
+            </div>
+            <div className={styles.progressBar} aria-hidden>
+              <div
+                className={[styles.progressFill, step.isFree ? styles.progressFillFree : '']
+                  .filter(Boolean)
+                  .join(' ')}
+                style={{ width: `${paused || reducedMotion ? 0 : Math.min(progress, 100)}%` }}
+              />
+            </div>
           </div>
         </div>
       </div>
