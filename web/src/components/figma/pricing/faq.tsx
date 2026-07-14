@@ -1,11 +1,11 @@
 'use client';
 
 import { ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 interface FAQItemProps {
   question: string;
-  answer: string;
+  answer: ReactNode;
 }
 
 export function FAQItem({ question, answer }: FAQItemProps) {
@@ -18,7 +18,7 @@ export function FAQItem({ question, answer }: FAQItemProps) {
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-6 flex items-center justify-between text-left transition-colors duration-300"
+        className="w-full py-7 flex items-center justify-between text-left transition-colors duration-300"
         style={{ color: 'var(--ember-gray-900)' }}
       >
         <span

@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Image from 'next/image';
+import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
@@ -9,7 +8,17 @@ import { FAQItem } from './faq';
 import { PricingCard } from './pricing-card';
 import { PipJourneyExplainer } from './PipJourneyExplainer';
 import { MeetPipSection } from './MeetPipSection';
-import { PIP_LOGO_URL } from './pricingImages';
+
+function MarketplaceLink({ children = 'Marketplace' }: { children?: ReactNode }) {
+  return (
+    <Link
+      href="/marketplace"
+      className="font-medium text-[#FF5C34] underline-offset-2 hover:underline"
+    >
+      {children}
+    </Link>
+  );
+}
 
 export default function PricingPageFigmaClient() {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
@@ -32,60 +41,48 @@ export default function PricingPageFigmaClient() {
       id="ember-pricing-prototype"
       className="homepage-discover-brand min-h-screen bg-[var(--ember-bg-canvas)]"
     >
-      {/* 1. Hero — Pip visible above the fold so “puts Pip on the path” lands */}
-      <section className="pt-10 pb-10 lg:pt-16 lg:pb-12">
+      {/*
+        Flow: short hero → Meet Pip (who is Pip?) → plans → journey → FAQ
+      */}
+      <section className="pt-12 pb-8 lg:pt-16 lg:pb-10">
         <div className={EMBER_MARKETING_CONTAINER}>
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-5 flex justify-center">
-              <div className="relative">
-                <div className="flex h-[4.75rem] w-[4.75rem] items-center justify-center rounded-full border-2 border-[#F1DED3] bg-[#FFF6F3] shadow-[0_12px_28px_-8px_rgba(255,92,52,0.28)] sm:h-[5.5rem] sm:w-[5.5rem]">
-                  <Image
-                    src={PIP_LOGO_URL}
-                    alt="Pip"
-                    width={88}
-                    height={88}
-                    className="h-14 w-auto sm:h-[4.25rem]"
-                    unoptimized
-                    priority
-                  />
-                </div>
-                <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#FF5C34] px-2.5 py-0.5 text-[0.6875rem] font-semibold text-white shadow-sm">
-                  Pip
-                </span>
-              </div>
-            </div>
+          <div className="mx-auto max-w-2xl text-center">
             <h1
-              className="mb-3 font-semibold tracking-[-0.01em] text-[#253044]"
-              style={{ fontSize: 'clamp(2rem, 4.5vw, 3.25rem)', lineHeight: 1.15 }}
+              className="mb-4 font-semibold tracking-[-0.01em] text-[#253044]"
+              style={{ fontSize: 'clamp(1.875rem, 4.5vw, 3rem)', lineHeight: 1.15 }}
             >
               Browse for free.
               <br />
-              <span className="text-[#FF5C34]">
-                Ember Plus guides
-                <br />
-                your pathway
-              </span>
+              <span className="text-[#FF5C34]">Ember Plus guides your way.</span>
             </h1>
-            <p className="mx-auto max-w-xl text-[1.0625rem] leading-relaxed text-[#66717D] sm:text-[1.125rem]">
-              Free Ember: 600+ stage ideas and a Smart Marketplace you can use forever. Ember Plus
-              adds your assistant Pip — watching what&apos;s next, landing the short list, and
-              tapping you for local matches, seasons and life&apos;s big moments.
+            <p className="mx-auto max-w-lg text-[1rem] leading-relaxed text-[#66717D] sm:text-[1.0625rem]">
+              600+ free play ideas and a <MarketplaceLink>Smart Marketplace</MarketplaceLink>. Get
+              more from Ember with Pip, your play coach.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 2. Plans */}
-      <section id="plans" className="pb-4 lg:pb-6">
+      <MeetPipSection />
+
+      <section id="plans" className="pb-14 pt-10 lg:pb-20 lg:pt-14">
         <div className={EMBER_MARKETING_CONTAINER}>
-          <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
             <PricingCard
               name="Free"
-              label="The full catalogue and Marketplace — in your own time"
+              label={
+                <>
+                  The full play library and <MarketplaceLink>Smart Marketplace</MarketplaceLink> — in
+                  your own time
+                </>
+              }
               features={[
-                '600+ stage ideas, personalised by age',
-                'Save ideas and share a gift list with family',
-                'Smart Marketplace — list from a photo, matched to need',
+                '600+ play ideas, personalised by age',
+                'Save favourites, and share a gift list with family — for age-appropriate buying',
+                <>
+                  <MarketplaceLink>Smart Marketplace</MarketplaceLink> — list from a photo, match to
+                  the right local families
+                </>,
                 '1 child profile',
               ]}
               ctaText="Start free"
@@ -96,50 +93,54 @@ export default function PricingPageFigmaClient() {
               price="£3.99"
               period="/month"
               annualPrice="or £29 for your first year"
-              label="Pip brings Ember to you — so you’re ahead, not catching up"
+              label="Pip brings Ember to you — so you stay one step ahead"
               recommended={true}
               badge="Recommended"
               features={[
-                'Pip’s Pathway — stage nudges before you feel behind',
-                'Pip’s Picks — a short research-backed list, and why',
-                'Pip Proximity — local matches for this age, when they fit',
-                'Seasons & Moments — Christmas, birthdays, nursery and more',
-                'Pip Move-On — when toys are done, help them find a new home',
+                'Pip’s Pathway — nudges on what’s next, so you stay one step ahead',
+                'Pip’s Picks — a shortlist we’ve already weighed up, and why',
+                'Pip’s Patch Finds — local matches for this age, when they fit',
+                'Pip’s Seasons & Chapters — Christmas, birthdays, nursery and more',
+                'Pip’s Pass-On — when toys are done, help them find a new home',
                 'More than one child',
               ]}
-              ctaText="Start Plus"
-              ctaHref="#meet-pip"
+              ctaText="Start Ember Plus"
+              ctaHref="#compare"
             />
           </div>
         </div>
       </section>
 
-      {/* 3. Meet Pip */}
-      <MeetPipSection />
-
-      {/* 4. Journey */}
-      <section id="compare" className="pb-16 pt-4 lg:pb-20 lg:pt-6">
+      <section id="compare" className="pb-20 pt-12 lg:pb-28 lg:pt-16">
         <div className={EMBER_MARKETING_CONTAINER}>
-          <div className="mb-8 text-center">
+          <div className="mb-12 text-center lg:mb-14">
             <h2
               className="font-semibold tracking-[-0.01em] text-[#253044]"
               style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)', lineHeight: 1.15 }}
             >
-              Know it. Buy it. Move it on.
+              Know it. Find it. Move it on.
             </h2>
-            <p className="mx-auto mt-3 max-w-xl text-[1.0625rem] text-[#66717D]">
-              A free play map. Ember Plus guides your smart path, with Pip.
+            <p className="mx-auto mt-4 max-w-xl text-[1.0625rem] leading-relaxed text-[#66717D]">
+              That’s Ember in three steps.
+              <br />
+              With <strong className="font-semibold text-[#253044]">Ember Plus</strong>, Pip helps
+              you stay ahead through six exclusive features.
+            </p>
+            <p
+              className="mx-auto mt-10 font-semibold tracking-[-0.01em] text-[#253044]"
+              style={{ fontSize: 'clamp(1.25rem, 2.5vw, 1.5rem)', lineHeight: 1.2 }}
+            >
+              Ember Plus features:
             </p>
           </div>
           <PipJourneyExplainer />
         </div>
       </section>
 
-      {/* 5. FAQ */}
-      <section id="faq" className="border-t border-[#E7E2DC] bg-white py-14 lg:py-16">
+      <section id="faq" className="border-t border-[#E7E2DC] bg-white py-20 lg:py-24">
         <div className={EMBER_MARKETING_CONTAINER}>
           <h2
-            className="mb-8 text-center font-semibold tracking-[-0.01em] text-[#253044]"
+            className="mb-10 text-center font-semibold tracking-[-0.01em] text-[#253044]"
             style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', lineHeight: 1.2 }}
           >
             Questions
@@ -147,22 +148,29 @@ export default function PricingPageFigmaClient() {
           <div className="mx-auto max-w-2xl">
             <FAQItem
               question="Can I cancel anytime?"
-              answer="Yes. Plus is £3.99 a month. Cancel whenever you like — you keep it until the end of the month you’ve paid for."
+              answer="Yes. Ember Plus is £3.99 a month. Cancel whenever you like — you keep it until the end of the month you’ve paid for."
             />
             <FAQItem
-              question="What’s the difference between Free and Plus?"
-              answer="Free is a full product: 600+ stage ideas, saves, gift lists and the Smart Marketplace — forever, in your own time. Ember Plus adds your assistant Pip: Pathway nudges, Picks, Proximity matches, Seasons, Moments and Move-On — so Ember works for you between visits."
+              question="What’s the difference between Free and Ember Plus?"
+              answer={
+                <>
+                  Free is a full product: 600+ play ideas, saves, gift lists and the{' '}
+                  <MarketplaceLink>Smart Marketplace</MarketplaceLink> — in your own time. Ember Plus
+                  adds your assistant Pip: Pathway, Picks, Patch Finds, Seasons, Chapters and Pass-On
+                  — so Ember works for you between visits.
+                </>
+              }
             />
             <FAQItem
               question="How does Ember make money?"
-              answer="Some shop links may earn Ember a commission, and Plus is £3.99 a month. That doesn’t change what we recommend."
+              answer="Some shop links may earn Ember a commission, and Ember Plus is £3.99 a month. That doesn’t change what we recommend."
             />
             <FAQItem
               question="Can I use Ember for more than one child?"
-              answer="Free covers one child. Plus covers more than one, so siblings can sit on different stages without juggling accounts."
+              answer="Free covers one child. Ember Plus covers more than one, so siblings can sit at different ages without juggling accounts."
             />
           </div>
-          <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-[#66717D]">
+          <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-[#66717D]">
             <Link
               href="/how-ember-makes-money"
               className="font-medium text-[#FF5C34] underline-offset-2 hover:underline"

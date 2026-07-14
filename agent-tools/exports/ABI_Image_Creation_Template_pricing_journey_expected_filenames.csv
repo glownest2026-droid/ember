@@ -1,0 +1,6 @@
+stage2_category_type_slug,age_band_id,expected_upload_filename,pricing_image_key,notes
+pricing_journey_free_discover,13-15m,ember_pricing_journey_free_discover_category.png,catalogue,Free Discover + Marketplace card (replace current low_shelf_tidy borrow)
+pricing_journey_patch_walkers,10-12m,ember_pricing_journey_patch_walkers_category.png,proximity,Patch Finds walkers card
+pricing_journey_seasons_christmas,13-15m,ember_pricing_journey_seasons_christmas_category.png,seasons,Seasons Christmas sparkle card
+pricing_journey_chapters_nursery,13-15m,ember_pricing_journey_chapters_nursery_category.png,moments,Chapters nursery card
+pricing_journey_pass_on_white_noise,7-9m,ember_pricing_journey_pass_on_white_noise_category.png,moveOn,Pass-On white noise card

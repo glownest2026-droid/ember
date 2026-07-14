@@ -1,3 +1,55 @@
+## 2026-07-14 — fix(pricing): spacing breathe + swipe hint
+
+- “Ember Plus features:”; swipe hint → “Swipe to discover >”
+- More section/card/FAQ/journey-node whitespace (SaaS breathing room)
+
+## 2026-07-14 — fix(pricing): Ember Plus wording, features intro, Seasons v2
+
+- Hero: “Get more from Ember with Pip, your play coach”; always “Ember Plus” in UI copy
+- Journey intro: “Ember Plus features”
+- Uploaded + mapped `ember_pricing_journey_seasons_christmas_v2_category.png` (HEAD 200)
+
+## 2026-07-14 — feat(pricing): map custom journey images (HEAD 200)
+
+- Wired 5 Make uploads into `pricingImages.ts` (Free, Patch, Seasons, Chapters, Pass-On)
+- Pathway + Picks unchanged (stacking cups / first puzzles)
+- Storage verified HEAD 200 for each `ember_pricing_journey_*_category.png`
+
+## 2026-07-14 — fix(pricing): Find it + shortlist + Make journey art input
+
+- Copy: Find it (not Buy it); shortlist; pocket play coach; Pass-On “right local family”; drop “Cups back out”; six exclusive features line
+- Make input (5 images, keep Pathway/Picks): `agent-tools/exports/ABI_Image_Creation_Template_pricing_journey_INPUT.csv`
+
+## 2026-07-14 — feat(pricing): feature rename — Patch Finds / Chapters / Pass-On
+
+- Proximity → Pip’s Patch Finds; Moments → Pip’s Chapters; Move-On → Pip’s Pass-On
+- PMF Draft v2.3 naming confirmed
+
+## 2026-07-14 — fix(pricing): stacking cups + Proximity “scouting” wording
+
+- Pathway spike: “stacking cups and pouring” (nesting wasn’t clear)
+- Proximity: “Pip has been scouting for local walkers…” (watching local baby = creepy)
+
+## 2026-07-14 — fix(pricing): plain language, spike formatting, Marketplace links
+
+- Ban forever / stage / research-backed on `/pricing` + PMF v2.2
+- Journey cards: split lines + bold/underline personalised spikes; drop “Catalogue example”
+- Picks: child-specific animal-play notice (no “spark up”)
+- Hyperlink Marketplace everywhere it appears
+
+## 2026-07-14 — fix(pricing): Meet Pip before plans, slim hero
+
+- Order: short hero → Meet Pip → Free/Plus → journey → FAQ
+- Dropped unexplained hero Pip badge + long Plus paragraph (Meet Pip owns that story)
+- Compact Meet Pip profile so price cards still peek on mobile
+
+## 2026-07-14 — feat(pricing): founder V3 human voice + PMF 2.1
+
+- Live `/pricing` copy replaced with founder dad edit (post–real-mum AI-language feedback)
+- PMF → Draft v2.1: ban AI red flags; optimistic pain framing; Ember/Pip proactive voice
+- Conor rule: pointer to marketing AI red flags
+- Light overlays of founder learnings on leftover negatives (“feel behind”, “stage ideas”, spirals)
+
 ## 2026-07-14 — fix(pricing): card hierarchy, Picks retailers, hero/path copy
 
 - Concept cards lead with ~20-word explainer; sample titles demoted
