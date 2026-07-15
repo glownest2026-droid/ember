@@ -8,6 +8,7 @@ import { FAQItem } from './faq';
 import { PricingCard } from './pricing-card';
 import { PipJourneyExplainer } from './PipJourneyExplainer';
 import { MeetPipSection } from './MeetPipSection';
+import { WaitlistJoinModal } from './WaitlistJoinModal';
 
 function MarketplaceLink({ children = 'Marketplace' }: { children?: ReactNode }) {
   return (
@@ -22,6 +23,7 @@ function MarketplaceLink({ children = 'Marketplace' }: { children?: ReactNode })
 
 export default function PricingPageFigmaClient() {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -103,12 +105,15 @@ export default function PricingPageFigmaClient() {
                 'Pip’s Pass-On — when toys are done, help them find a new home',
                 'More than one child',
               ]}
-              ctaText="Start Ember Plus"
-              ctaHref="#compare"
+              ctaText="Join the waitlist"
+              onCtaClick={() => setWaitlistOpen(true)}
+              ctaHint="No payment yet — we’ll email when Ember Plus is ready"
             />
           </div>
         </div>
       </section>
+
+      <WaitlistJoinModal open={waitlistOpen} onClose={() => setWaitlistOpen(false)} source="pricing" />
 
       <section id="compare" className="pb-20 pt-12 lg:pb-28 lg:pt-16">
         <div className={EMBER_MARKETING_CONTAINER}>
@@ -150,8 +155,8 @@ export default function PricingPageFigmaClient() {
               answer="No. Start Free with no card. The play library and Smart Marketplace are yours to browse whenever you want."
             />
             <FAQItem
-              question="Can I cancel Ember Plus anytime?"
-              answer="Yes. Ember Plus is £3.99 a month (or £29 for 12 months). Cancel whenever you like — you keep it until the end of the period you’ve paid for."
+              question="Can I join Ember Plus now?"
+              answer="Not yet — join the waitlist and we’ll email you when it’s ready. There’s no payment to join the list. Free remains available with no card."
             />
             <FAQItem
               question="What’s the difference between Free and Ember Plus?"
@@ -159,18 +164,18 @@ export default function PricingPageFigmaClient() {
                 <>
                   Free is a full product: 600+ play ideas, saves, gift lists and the{' '}
                   <MarketplaceLink>Smart Marketplace</MarketplaceLink> — browse in your own time.
-                  Ember Plus adds your assistant Pip: Pathway, Picks, Patch Finds, Seasons, Chapters
-                  and Pass-On — so Ember works for you between visits.
+                  Ember Plus will add your assistant Pip: Pathway, Picks, Patch Finds, Seasons,
+                  Chapters and Pass-On — so Ember works for you between visits.
                 </>
               }
             />
             <FAQItem
               question="Can I use Ember for more than one child?"
-              answer="Free covers one child. Ember Plus covers more than one, so siblings can sit at different ages without juggling accounts."
+              answer="Free covers one child. Ember Plus is planned to cover more than one, so siblings can sit at different ages without juggling accounts."
             />
             <FAQItem
-              question="What happens if I cancel Ember Plus?"
-              answer="You keep Ember Plus until the end of the month (or 12-month period) you’ve paid for. After that you stay on Free — your account, saves and gift lists don’t disappear."
+              question="What will Ember Plus cost?"
+              answer="We’re planning £3.99 a month or £29 for 12 months when it launches. Join the waitlist for an email when paid membership opens — cancel anytime once you’re a member."
             />
           </div>
           <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-[#66717D]">
