@@ -2,7 +2,8 @@
 
 - Parent name **At home**; route `/family/at-home` under Family
 - Discover Have syncs into `garage_items` via `sync_at_home_from_discover_have` (+ backfill)
-- List it → `/app/listings?new=1&household_item=…` (same Marketplace photo workflow)
+- **Add item** from Family + At home → `/app/listings?intent=at-home` (photo → confirm only; not listed yet)
+- List it → `/app/listings?new=1&household_item=…` (full Marketplace publish flow)
 - Migrations applied: `20260715134457` + `20260715134927`
 - Garage parent-facing language removed from Family UI
 
