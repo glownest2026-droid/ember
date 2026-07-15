@@ -206,6 +206,9 @@ function AppListingsPhotoDraftPage() {
   const [publishedListingId, setPublishedListingId] = useState<string | null>(null);
   const [defaultAreaLabel, setDefaultAreaLabel] = useState<string | null>(null);
   const [defaultPostcode, setDefaultPostcode] = useState<string | null>(null);
+  const [householdItemId, setHouseholdItemId] = useState<string | null>(null);
+  const [householdItemLabel, setHouseholdItemLabel] = useState<string | null>(null);
+  const [householdProductTypeId, setHouseholdProductTypeId] = useState<string | null>(null);
   const debugMode = useListingDebugMode();
 
   const brandCharacterHint = useMemo(() => {
@@ -338,6 +341,13 @@ function AppListingsPhotoDraftPage() {
     setOpportunityLoaded(false);
     setPublishedBeta(false);
     setPublishedListingId(null);
+    // Keep household item context when starting a fresh listing from At home.
+  }, []);
+
+  const clearHouseholdItemContext = useCallback(() => {
+    setHouseholdItemId(null);
+    setHouseholdItemLabel(null);
+    setHouseholdProductTypeId(null);
   }, []);
 
   const hydratePublishedListingForEdit = useCallback(
@@ -478,9 +488,10 @@ function AppListingsPhotoDraftPage() {
 
   const handleStartNewListing = useCallback(() => {
     resetToNewListingState();
+    clearHouseholdItemContext();
     router.replace("/app/listings?new=1");
     setSuccess("Add a photo to start your next listing.");
-  }, [resetToNewListingState, router]);
+  }, [resetToNewListingState, clearHouseholdItemContext, router]);
 
   useEffect(() => {
     let active = true;
@@ -511,6 +522,48 @@ function AppListingsPhotoDraftPage() {
 
       const forceNew = searchParams.get("new") === "1";
       const editListingId = searchParams.get("edit")?.trim() || null;
+      const fromHouseholdItem = searchParams.get("household_item")?.trim() || null;
+
+      if (fromHouseholdItem) {
+        const { data: owned } = await supabase
+          .from("garage_items")
+          .select(
+            `
+            id,
+            product_type_id,
+            raw_query,
+            product_types ( label ),
+            pl_category_types ( label )
+          `
+          )
+          .eq("id", fromHouseholdItem)
+          .eq("user_id", authUser.id)
+          .maybeSingle();
+
+        if (!active) return;
+
+        if (owned?.id) {
+          const pt = owned.product_types as { label?: string | null } | null;
+          const ct = owned.pl_category_types as { label?: string | null } | null;
+          const label =
+            ct?.label?.trim() ||
+            pt?.label?.trim() ||
+            (owned.raw_query as string | null)?.trim() ||
+            "Item at home";
+          setHouseholdItemId(owned.id);
+          setHouseholdItemLabel(label);
+          setHouseholdProductTypeId((owned.product_type_id as string | null) ?? null);
+          resetToNewListingState();
+          setSuccess(`Listing from At home: ${label}. Add a photo to continue.`);
+          if (active) setLoading(false);
+          return;
+        }
+
+        clearHouseholdItemContext();
+        setError("That At home item could not be found.");
+      } else {
+        clearHouseholdItemContext();
+      }
 
       if (forceNew) {
         resetToNewListingState();
@@ -621,6 +674,7 @@ function AppListingsPhotoDraftPage() {
     searchParams,
     refreshSignedPreview,
     resetToNewListingState,
+    clearHouseholdItemContext,
     hydrateDraftRow,
     hydratePublishedListingForEdit,
     loadMarketplacePrefs,
@@ -670,6 +724,12 @@ function AppListingsPhotoDraftPage() {
           .insert({
             user_id: user.id,
             status: "draft",
+            ...(householdItemId
+              ? {
+                  household_item_id: householdItemId,
+                  product_type_id: householdProductTypeId,
+                }
+              : {}),
           })
           .select("id")
           .single();
@@ -696,7 +756,8 @@ function AppListingsPhotoDraftPage() {
         .from("marketplace_listing_drafts")
         .update({
           image_storage_path: path,
-          product_type_id: null,
+          product_type_id: householdItemId ? householdProductTypeId : null,
+          ...(householdItemId ? { household_item_id: householdItemId } : {}),
           status: "draft",
           title_draft: null,
           description_draft: null,

@@ -14,6 +14,7 @@ type DraftRow = {
   id: string;
   user_id: string;
   product_type_id: string | null;
+  household_item_id?: string | null;
   status: string;
   image_storage_path: string | null;
   title_draft: string | null;
@@ -133,6 +134,14 @@ export async function publishBetaListingFromDraft(
     .update({ listing_id: listing.id })
     .eq("draft_id", draft.id)
     .eq("seller_user_id", draft.user_id);
+
+  if (draft.household_item_id) {
+    await supabase
+      .from("garage_items")
+      .update({ status: "listed" })
+      .eq("id", draft.household_item_id)
+      .eq("user_id", draft.user_id);
+  }
 
   await saveMarketplacePreferencesForUser(supabase, draft.user_id, {
     postcode: storedPostcode,

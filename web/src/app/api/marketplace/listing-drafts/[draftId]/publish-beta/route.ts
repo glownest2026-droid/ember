@@ -33,7 +33,7 @@ export async function POST(
   const { data: draft, error: draftError } = await supabase
     .from("marketplace_listing_drafts")
     .select(
-      "id, user_id, product_type_id, status, image_storage_path, title_draft, description_draft, condition_confirmed_by_user, listing_draft_details_json, ai_raw_response_json"
+      "id, user_id, product_type_id, household_item_id, status, image_storage_path, title_draft, description_draft, condition_confirmed_by_user, listing_draft_details_json, ai_raw_response_json"
     )
     .eq("id", draftId)
     .eq("user_id", user.id)

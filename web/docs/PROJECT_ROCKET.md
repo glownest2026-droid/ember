@@ -28,7 +28,7 @@ Ship the **Pip feature set** to an agreed `$MVP_Threshold`, collect demand via w
 | Pip’s Patch Finds | Marketplace pull; **no “comes to you” push** on developmental match |
 | Pip’s Seasons / Chapters | Marketing vision; content not productised |
 | Pip’s Pass-On | Garage / list path partial; **no outgrown nudge** |
-| Inventory | Closely related to Marketplace; **Discover “Have it” is session-scoped**, not full household inventory |
+| Inventory | **At home** at `/family/at-home`; Discover Have feeds `garage_items`; List it → Marketplace photo flow |
 | OneSignal | Opt-in + prefs + dashboard test; **not automated Pip programs** |
 
 ---
@@ -62,6 +62,8 @@ Ship public paid membership only when these are true (or explicitly waived in wr
 ### Pip’s Picks
 
 1. For the parent’s age band, Ember Plus Picks are viewable for all **high-priority Stage 2 cards**.
+
+**MVP launch principle (founder 2026-07):** minimum **one Stage 2 card with Stage 3 product recommendations under every Stage 1 parent card** (where a valid product row exists). Safety / check-only Stage 1 cards may have no product pick. Research triage: `web/scripts/export-stage3-research-shortlist.mjs` → `agent-tools/exports/stage3_shortlist_*.md`.
 
 **How “high priority” is defined (Spine 3.0 — answered):**  
 Use Ember Bible attributes, **not** `01 Source Captures`.
@@ -161,7 +163,7 @@ Founder HTML roadmap (v2) is the single project-plan view: **Founder Jobs** ‖ 
 
 **Goal:** Free still excellent; Plus promise becomes partially true in-app.
 
-1. Persist **Have** + household **Inventory** (sister to Marketplace UI/data).
+1. Persist **Have** + household **At home** inventory (sister to Marketplace; `/family/at-home`) — **first ship landed 2026-07-15** (photo add still = Marketplace flow).
 2. Stage 3 shortlists for **`show_ember_picks = TRUE`** on Launch Band Set (import via Spine / ABI, not ad-hoc UI hacks).
 3. Surface Pip’s Picks on those cards (Plus badge ok; hard gate can wait until checkout).
 4. First **Seasons** pack: Summer 2026 babies vs toddlers (editorial).
@@ -318,6 +320,14 @@ IDs are **F1–F9 in order** (no gaps). Waitlist is a Cursor build with optional
 - `POST /api/waitlist/ember-plus` (anon/authenticated insert)
 - `/pricing` Ember Plus CTA → Join the waitlist modal (signed-in prefills account email)
 - Founder decision: **no confirmation email for now** (modal success sufficient); Resend/transactional later if needed
+
+### 2026-07-15 — Phase 1 At home (Inventory first ship)
+
+- Parent name: **At home** (Garage deprecated in UI; `garage_items` table kept)
+- Route: `/family/at-home` — owned list + **List it** → Marketplace photo flow (`household_item_id`)
+- Discover Have → `sync_at_home_from_discover_have` writes/archives At home rows; backfill from existing `user_list_items.have`
+- Migrations: `20260715134457_at_home_discover_have_bridge` + `20260715134927_at_home_discover_have_sync_rpc`
+- Photo add later: same Marketplace listing workflow (no separate add path)
 
 ---
 
