@@ -1,3 +1,46 @@
+## 2026-07-15 — Project Rocket Phase 0 waitlist
+
+- Migrations applied: `20260715003133_ember_plus_waitlist` + `…_anon_insert` (RLS INSERT for anon/authenticated)
+- API `POST /api/waitlist/ember-plus`; pricing CTA + modal; FAQ waitlist-honest
+- Anon insert smoke-tested (unique email dedupe OK)
+- View rows: Supabase → Table Editor → `ember_plus_waitlist`
+
+## 2026-07-15 — Project Rocket founder IDs renumbered F1–F9
+
+- No gap: F1 bands · F2 Picks rules · F3 shortlist rows · F4–F9 unchanged roles
+- Waitlist is Cursor-owned (not a missing F1)
+
+## 2026-07-15 — Project Rocket HTML v3 founder briefs
+
+- Abundant founder deliverables: copy-paste templates, examples, done-when per F1–F8
+- Dual-track board points at briefs; Inventory still Cursor-owned
+- Drive + Knowledge + `agent-tools/exports/Ember_Project_Rocket_Roadmap.html`
+
+## 2026-07-15 — Project Rocket dual-track HTML v2
+
+- Rebuilt Drive HTML: Founder Jobs ‖ Cursor Builds; blockers; Inventory = Cursor-owned
+- Waitlist: Supabase-native interest only; founding offer dropped
+- Mirrors: Knowledge folder + `agent-tools/exports/Ember_Project_Rocket_Roadmap.html`
+
+## 2026-07-15 — Project Rocket founder HTML roadmap
+
+- Branded HTML for marketing founder: phases, what goes live, parent examples, F1–F9 deps
+- Drive: `Project Leaf/Project Rocket/Ember_Project_Rocket_Roadmap.html` (+ Knowledge mirror)
+- Repo mirror: `agent-tools/exports/Ember_Project_Rocket_Roadmap.html`
+
+## 2026-07-15 — Project Rocket kickoff
+
+- Formalised `web/docs/PROJECT_ROCKET.md` + always-on `.cursor/rules/project-rocket.mdc`
+- `$MVP_Threshold` BRD, waitlist-first GTM, phased roadmap, founder dependency checklist
+- Spine 3.0 finding: Pip’s Picks “high priority” = Bible `show_ember_picks` (not Source Captures)
+
+## 2026-07-15 — docs: privacy promise — optional child call-names
+
+- Policy flip: parents may optionally share a call-name; Ember may personalise product + marketing/push; name never required
+- Added `.cursor/rules/privacy-promise.mdc` (alwaysApply)
+- Updated OneSignal runbook privacy boundary, analytics §F (vendor telemetry ban retained), Leaf image-mapping hard requirement, FamilyDashboardClient comment
+- Founder still needs to replace Cursor **User Rules** line that says “Never collect a child’s name”
+
 ## 2026-07-15 — fix(home): Developmental Play heading
 
 - Homepage How it works: “One calm loop” → “Developmental Play”

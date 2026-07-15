@@ -17,6 +17,10 @@ interface PricingCardProps {
   annualPrice?: string;
   /** When set, the CTA renders as a link to this destination. */
   ctaHref?: string;
+  /** When set (and no ctaHref), CTA runs this instead of a no-op button. */
+  onCtaClick?: () => void;
+  /** Quiet line under the CTA (e.g. waitlist reassurance). */
+  ctaHint?: string;
 }
 
 export function PricingCard({
@@ -30,6 +34,8 @@ export function PricingCard({
   badge,
   annualPrice,
   ctaHref,
+  onCtaClick,
+  ctaHint,
 }: PricingCardProps) {
   return (
     <div
@@ -166,6 +172,8 @@ export function PricingCard({
         </Link>
       ) : (
         <button
+          type="button"
+          onClick={onCtaClick}
           className="w-full rounded-xl px-6 py-3 transition-all duration-300"
           style={{
             backgroundColor: recommended ? 'var(--ember-primary)' : 'transparent',
@@ -196,6 +204,18 @@ export function PricingCard({
           {ctaText}
         </button>
       )}
+      {ctaHint ? (
+        <p
+          className="mt-2.5 text-center"
+          style={{
+            color: 'var(--ember-gray-600)',
+            fontSize: '0.75rem',
+            lineHeight: 1.35,
+          }}
+        >
+          {ctaHint}
+        </p>
+      ) : null}
     </div>
   );
 }

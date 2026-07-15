@@ -1,0 +1,31 @@
+---
+description: Project Rocket — public Ember Plus membership readiness, Pip MVP threshold, waitlist-first GTM
+alwaysApply: true
+---
+
+# Project Rocket
+
+Living source of truth: `web/docs/PROJECT_ROCKET.md`  
+Founder briefs (templates): Drive `Project Rocket/Ember_Project_Rocket_Roadmap.html` (v3+)  
+Marketing names / PMF: `web/docs/PRODUCT_MARKETING_LIBRARY.md`
+
+## When this applies
+
+Any work on Ember Plus, Pip features (Pathway, Picks, Patch Finds, Seasons, Chapters, Pass-On), membership checkout, waitlist/pricing CTAs, Inventory ↔ Marketplace, Stage 3 shortlists, or Plus notification programs.
+
+## Non-negotiables
+
+1. **Do not imply paid checkout is live** until `$MVP_Threshold` in `PROJECT_ROCKET.md` is met (or founder waives in writing). Prefer **Join the waitlist** (Supabase-native interest collection; **no founding offer**).
+2. **Pip feature names are locked** — Pathway / Picks / Patch Finds / Seasons / Chapters / Pass-On. Always say **Ember Plus**.
+3. **Picks priority** = Ember Bible `show_ember_picks = TRUE` (and typically `things_that_can_help` / `product_category`). Do **not** invent priority from Source Captures alone.
+4. **Inventory and Marketplace are sisters** — shared listing/match data; Discover Have must become durable and feed Patch / Pass-On.
+5. **Stage 3:** curated shortlists with Conor five tests; scrapers are research aids, not auto-publish.
+6. After Rocket milestones, **update** `web/docs/PROJECT_ROCKET.md` progress log (+ `PROGRESS.md`).
+7. **Always open a PR** for Rocket app builds (waitlist, Inventory, Pathway, etc.) and hand off a **green Vercel preview** — see `pr-handoff.mdc`. Never ask whether to open a PR.
+
+## Do not
+
+- Rename Pip features for “clarity”
+- Gate core Free Discover behind Plus
+- Ship OneSignal spam without Pathway/Patch acceptance criteria
+- Silently skip updating the Rocket log when scope or BRD decisions change
