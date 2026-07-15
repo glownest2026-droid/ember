@@ -21,6 +21,9 @@ interface PricingCardProps {
   onCtaClick?: () => void;
   /** Quiet line under the CTA (e.g. waitlist reassurance). */
   ctaHint?: string;
+  /** Optional in-page link centred above the CTA (e.g. Learn more → features). */
+  learnMoreHref?: string;
+  learnMoreLabel?: string;
 }
 
 export function PricingCard({
@@ -36,6 +39,8 @@ export function PricingCard({
   ctaHref,
   onCtaClick,
   ctaHint,
+  learnMoreHref,
+  learnMoreLabel = 'Learn more',
 }: PricingCardProps) {
   return (
     <div
@@ -156,6 +161,15 @@ export function PricingCard({
         ))}
       </ul>
 
+      {learnMoreHref ? (
+        <a
+          href={learnMoreHref}
+          className="mb-3 block text-center font-medium text-[#FF5C34] underline underline-offset-2 hover:opacity-90"
+          style={{ fontSize: '0.875rem' }}
+        >
+          {learnMoreLabel}
+        </a>
+      ) : null}
       {ctaHref ? (
         <Link
           href={ctaHref}
