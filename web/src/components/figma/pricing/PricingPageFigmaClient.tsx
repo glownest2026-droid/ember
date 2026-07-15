@@ -108,6 +108,7 @@ export default function PricingPageFigmaClient() {
               ctaText="Join the waitlist"
               onCtaClick={() => setWaitlistOpen(true)}
               ctaHint="No payment yet — we’ll email when Ember Plus is ready"
+              learnMoreHref="#ember-plus-features"
             />
           </div>
         </div>
@@ -131,7 +132,8 @@ export default function PricingPageFigmaClient() {
               you stay ahead through six exclusive features.
             </p>
             <p
-              className="mx-auto mt-10 font-semibold tracking-[-0.01em] text-[#253044]"
+              id="ember-plus-features"
+              className="mx-auto mt-10 scroll-mt-24 font-semibold tracking-[-0.01em] text-[#253044]"
               style={{ fontSize: 'clamp(1.25rem, 2.5vw, 1.5rem)', lineHeight: 1.2 }}
             >
               Ember Plus features:

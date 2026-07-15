@@ -1,3 +1,8 @@
+## 2026-07-15 — pricing: Learn more → Ember Plus features
+
+- Orange centred “Learn more” above Ember Plus “Join the waitlist” CTA
+- Anchors to `#ember-plus-features` on the features block
+
 ## 2026-07-15 — Project Rocket Phase 0 waitlist
 
 - Migrations applied: `20260715003133_ember_plus_waitlist` + `…_anon_insert` (RLS INSERT for anon/authenticated)
