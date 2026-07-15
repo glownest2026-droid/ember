@@ -102,6 +102,52 @@ export function atHomeListItHref(itemId: string): string {
   return `/app/listings?new=1&household_item=${encodeURIComponent(itemId)}`;
 }
 
+/** Photo → confirm flow that saves to At home (does not list on Marketplace). */
+export function atHomeAddHref(childId?: string | null): string {
+  const params = new URLSearchParams({ new: '1', intent: 'at-home' });
+  if (childId) params.set('child', childId);
+  return `/app/listings?${params.toString()}`;
+}
+
+/** After Marketplace photo+confirm, persist an owned At home row and link the draft. */
+export async function saveAtHomeFromPhotoDraft(args: {
+  userId: string;
+  draftId: string;
+  productTypeId: string;
+  childId?: string | null;
+  displayLabel?: string | null;
+}): Promise<{ itemId: string | null; error: string | null }> {
+  const supabase = createClient();
+  const childId = args.childId?.trim() || null;
+  const label = args.displayLabel?.trim() || null;
+
+  const { data, error } = await supabase
+    .from('garage_items')
+    .insert({
+      user_id: args.userId,
+      product_type_id: args.productTypeId,
+      child_scope_type: childId ? 'single_child' : 'unknown',
+      child_id: childId,
+      raw_query: label,
+      source: 'photo_assisted',
+      status: 'owned',
+    })
+    .select('id')
+    .single();
+
+  if (error || !data?.id) {
+    return { itemId: null, error: error?.message ?? 'Could not save to At home.' };
+  }
+
+  await supabase
+    .from('marketplace_listing_drafts')
+    .update({ household_item_id: data.id, product_type_id: args.productTypeId })
+    .eq('id', args.draftId)
+    .eq('user_id', args.userId);
+
+  return { itemId: data.id, error: null };
+}
+
 export function statusLabel(status: AtHomeItemStatus): string {
   switch (status) {
     case 'ready_to_move_on':

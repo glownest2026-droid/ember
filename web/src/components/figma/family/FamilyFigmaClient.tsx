@@ -222,11 +222,11 @@ export function FamilyFigmaClient({
   const atHomeHref = scopedChildId
     ? `/family/at-home?child=${encodeURIComponent(scopedChildId)}`
     : '/family/at-home';
+  const addAtHomeHref = scopedChildId
+    ? `/app/listings?new=1&intent=at-home&child=${encodeURIComponent(scopedChildId)}`
+    : '/app/listings?new=1&intent=at-home';
   const marketplaceHref = scopedChildId ? `/marketplace?child=${encodeURIComponent(scopedChildId)}` : '/marketplace';
-  // Snag: "Quick add" opens the marketplace listing flow (same photo → confirm path).
-  const addProductHref = scopedChildId
-    ? `/marketplace?prelist=1&child=${encodeURIComponent(scopedChildId)}`
-    : '/marketplace?prelist=1';
+  // Snag: Add to At home reuses Marketplace photo → confirm (no publish).
 
   const childLabel = (() => {
     if (!scopedChild) return 'your household';
@@ -596,7 +596,7 @@ export function FamilyFigmaClient({
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Link
-                  href={addProductHref}
+                  href={addAtHomeHref}
                   className="group text-left rounded-2xl px-5 py-5 lg:px-6 lg:py-6 min-h-[168px] bg-gradient-to-br from-[#FF6347] to-[#FF8870] text-white shadow-[0_8px_24px_rgba(255,99,71,0.22)] hover:shadow-[0_10px_28px_rgba(255,99,71,0.26)] transition-all block"
                 >
                   <div className="flex items-center gap-3 mb-4">
@@ -604,12 +604,16 @@ export function FamilyFigmaClient({
                       <Plus className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-base sm:text-lg font-medium m-0 leading-tight">Move on {childLabel}&apos;s items locally</h3>
-                      <p className="text-sm text-white/90 mt-1 leading-snug">List for free in seconds. We&apos;ll matchmake a local family.</p>
+                      <h3 className="text-base sm:text-lg font-medium m-0 leading-tight">
+                        Add what you own
+                      </h3>
+                      <p className="text-sm text-white/90 mt-1 leading-snug">
+                        Photo and confirm — same as Marketplace — then keep it At home until you are ready to pass it on.
+                      </p>
                     </div>
                   </div>
                   <div className="inline-flex items-center gap-2 text-sm font-medium mt-1">
-                    Quick add
+                    Add to At home
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </Link>

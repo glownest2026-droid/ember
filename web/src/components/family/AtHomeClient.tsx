@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Home, ArrowRight } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { ArrowLeft, Home, ArrowRight, Plus, Camera } from 'lucide-react';
 import {
+  atHomeAddHref,
   atHomeListItHref,
   fetchAtHomeItems,
   statusLabel,
@@ -15,6 +17,8 @@ export function AtHomeClient({
 }: {
   initialChildId?: string;
 }) {
+  const searchParams = useSearchParams();
+  const justAdded = searchParams.get('added') === '1';
   const [items, setItems] = useState<AtHomeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +44,7 @@ export function AtHomeClient({
   const discoverHref = initialChildId
     ? `/discover?child=${encodeURIComponent(initialChildId)}`
     : '/discover';
+  const addHref = atHomeAddHref(initialChildId ?? null);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -51,18 +56,33 @@ export function AtHomeClient({
         Back to Family
       </Link>
 
-      <div className="flex items-start gap-3 mb-2">
-        <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-[#FF5C34]/10 shrink-0">
-          <Home className="w-5 h-5 text-[#FF5C34]" />
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <div className="flex items-start gap-3 min-w-0">
+          <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-[#FF5C34]/10 shrink-0">
+            <Home className="w-5 h-5 text-[#FF5C34]" />
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-2xl font-semibold tracking-[-0.02em] text-[#253044] m-0">At home</h1>
+            <p className="text-sm text-[#66717D] mt-1 mb-0">
+              Things you already own — from Discover Have, or added with a photo. List on Marketplace only
+              when you are ready to pass something on.
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-semibold tracking-[-0.02em] text-[#253044] m-0">At home</h1>
-          <p className="text-sm text-[#66717D] mt-1 mb-0">
-            Things you already own — marked Have on Discover, or logged here. List one on Marketplace when
-            you are ready to pass it on.
-          </p>
-        </div>
+        <Link
+          href={addHref}
+          className="shrink-0 inline-flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-xl text-sm font-medium text-white bg-[#FF5C34] hover:opacity-95"
+        >
+          <Plus className="w-4 h-4" />
+          Add item
+        </Link>
       </div>
+
+      {justAdded && (
+        <p className="mt-4 text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl px-3.5 py-2.5">
+          Saved At home. List it later whenever you are ready — no rush.
+        </p>
+      )}
 
       {loading && (
         <p className="text-sm text-[#66717D] mt-8">Loading what you have…</p>
@@ -75,19 +95,30 @@ export function AtHomeClient({
       )}
 
       {!loading && !error && items.length === 0 && (
-        <div className="mt-8 rounded-2xl border border-[#E7E2DC] bg-white p-6">
-          <p className="text-base font-medium text-[#253044] m-0">Nothing logged yet</p>
-          <p className="text-sm text-[#66717D] mt-2 mb-4">
-            On Discover, tap Have on ideas you already own. They will show up here, ready to list when the
-            time is right.
-          </p>
-          <Link
-            href={discoverHref}
-            className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#FF5C34] hover:opacity-95"
-          >
-            Browse Discover
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+        <div className="mt-8 rounded-2xl border border-[#E7E2DC] bg-white p-6 space-y-4">
+          <div>
+            <p className="text-base font-medium text-[#253044] m-0">Nothing logged yet</p>
+            <p className="text-sm text-[#66717D] mt-2 mb-0">
+              Add something you already own with a photo (same check as Marketplace), or tap Have on Discover
+              ideas.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={addHref}
+              className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#FF5C34] hover:opacity-95"
+            >
+              <Camera className="w-4 h-4" />
+              Add with photo
+            </Link>
+            <Link
+              href={discoverHref}
+              className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-xl text-sm font-medium text-[#253044] border border-[#E7E2DC] hover:border-[#FF5C34]/50"
+            >
+              Browse Discover
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       )}
 

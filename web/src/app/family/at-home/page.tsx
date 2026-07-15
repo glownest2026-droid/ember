@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 
+import { Suspense } from 'react';
 import { createClient } from '@/utils/supabase/server';
 import { FamilySignInRequired } from '@/components/family/FamilySignInRequired';
 import { AtHomeClient } from '@/components/family/AtHomeClient';
@@ -26,7 +27,9 @@ export default async function AtHomePage({
 
   return (
     <div className="container-wrap min-h-screen py-6">
-      <AtHomeClient initialChildId={params.child ?? undefined} />
+      <Suspense fallback={<p className="text-sm text-[#66717D]">Loading At home…</p>}>
+        <AtHomeClient initialChildId={params.child ?? undefined} />
+      </Suspense>
     </div>
   );
 }

@@ -12,6 +12,7 @@ import {
 import { useListingDebugMode } from "@/components/marketplace/listing-flow/useListingDebugMode";
 import { createClient } from "@/utils/supabase/client";
 import { CreateListingFlowView } from "@/components/marketplace/listing-flow/CreateListingFlowView";
+import { saveAtHomeFromPhotoDraft } from "@/lib/inventory/atHome";
 
 const RAW_LISTING_BUCKET = "marketplace-raw-listing-photos";
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -209,6 +210,8 @@ function AppListingsPhotoDraftPage() {
   const [householdItemId, setHouseholdItemId] = useState<string | null>(null);
   const [householdItemLabel, setHouseholdItemLabel] = useState<string | null>(null);
   const [householdProductTypeId, setHouseholdProductTypeId] = useState<string | null>(null);
+  const [atHomeIntent, setAtHomeIntent] = useState(false);
+  const [atHomeChildId, setAtHomeChildId] = useState<string | null>(null);
   const debugMode = useListingDebugMode();
 
   const brandCharacterHint = useMemo(() => {
@@ -350,6 +353,11 @@ function AppListingsPhotoDraftPage() {
     setHouseholdProductTypeId(null);
   }, []);
 
+  const clearAtHomeIntent = useCallback(() => {
+    setAtHomeIntent(false);
+    setAtHomeChildId(null);
+  }, []);
+
   const hydratePublishedListingForEdit = useCallback(
     async (
       supabase: ReturnType<typeof createClient>,
@@ -489,9 +497,10 @@ function AppListingsPhotoDraftPage() {
   const handleStartNewListing = useCallback(() => {
     resetToNewListingState();
     clearHouseholdItemContext();
+    clearAtHomeIntent();
     router.replace("/app/listings?new=1");
     setSuccess("Add a photo to start your next listing.");
-  }, [resetToNewListingState, clearHouseholdItemContext, router]);
+  }, [resetToNewListingState, clearHouseholdItemContext, clearAtHomeIntent, router]);
 
   useEffect(() => {
     let active = true;
@@ -523,6 +532,20 @@ function AppListingsPhotoDraftPage() {
       const forceNew = searchParams.get("new") === "1";
       const editListingId = searchParams.get("edit")?.trim() || null;
       const fromHouseholdItem = searchParams.get("household_item")?.trim() || null;
+      const intentAtHome = searchParams.get("intent") === "at-home";
+      const childFromQuery = searchParams.get("child")?.trim() || null;
+
+      if (intentAtHome) {
+        clearHouseholdItemContext();
+        setAtHomeIntent(true);
+        setAtHomeChildId(childFromQuery);
+        resetToNewListingState();
+        setSuccess("Add a photo of something you already own. Nothing goes live on Marketplace yet.");
+        if (active) setLoading(false);
+        return;
+      }
+
+      clearAtHomeIntent();
 
       if (fromHouseholdItem) {
         const { data: owned } = await supabase
@@ -675,6 +698,7 @@ function AppListingsPhotoDraftPage() {
     refreshSignedPreview,
     resetToNewListingState,
     clearHouseholdItemContext,
+    clearAtHomeIntent,
     hydrateDraftRow,
     hydratePublishedListingForEdit,
     loadMarketplacePrefs,
@@ -856,6 +880,12 @@ function AppListingsPhotoDraftPage() {
   ) => {
     if (savingSelection) return;
     if (!draftId) return;
+
+    if (atHomeIntent && !productTypeId) {
+      setAnalysisError("Pick the closest match so Ember can save this At home.");
+      return;
+    }
+
     setSavingSelection(true);
     setAnalysisError(null);
     setSelectionMessage(null);
@@ -882,15 +912,16 @@ function AppListingsPhotoDraftPage() {
       }
       const draft = payload?.draft;
       if (draft?.status === "confirmed" && draft.product_type_id) {
+        const resolvedLabel =
+          payload?.selected_product_type?.display_label?.trim() ||
+          displayLabel?.trim() ||
+          analysisResult?.detected_item_label?.trim() ||
+          null;
         setConfirmedDraft({
           status: draft.status,
           productTypeId: draft.product_type_id,
           label: payload?.selected_product_type?.label ?? null,
-          displayLabel:
-            payload?.selected_product_type?.display_label?.trim() ||
-            displayLabel?.trim() ||
-            analysisResult?.detected_item_label?.trim() ||
-            null,
+          displayLabel: resolvedLabel,
           categoryLabel:
             payload?.selected_product_type?.category_label?.trim() ||
             payload?.selected_product_type?.subtitle?.trim() ||
@@ -905,6 +936,25 @@ function AppListingsPhotoDraftPage() {
         });
         setDraftReview(null);
         setDetailsSavedOnce(false);
+
+        if (atHomeIntent && user) {
+          const saved = await saveAtHomeFromPhotoDraft({
+            userId: user.id,
+            draftId,
+            productTypeId: draft.product_type_id,
+            childId: atHomeChildId,
+            displayLabel: resolvedLabel,
+          });
+          if (saved.error || !saved.itemId) {
+            throw new Error(saved.error ?? "Could not save to At home.");
+          }
+          setSelectionMessage("Saved to At home.");
+          setSuccess("Saved to At home. You can list it later when you are ready.");
+          const params = new URLSearchParams({ added: "1" });
+          if (atHomeChildId) params.set("child", atHomeChildId);
+          router.replace(`/family/at-home?${params.toString()}`);
+          return;
+        }
       } else {
         setConfirmedDraft({
           status: draft?.status ?? "draft",
@@ -934,6 +984,7 @@ function AppListingsPhotoDraftPage() {
   }
 
   if (!user) {
+    const intentFromUrl = searchParams.get("intent") === "at-home";
     return (
       <div className="p-6">
         <p className="text-[#5C646D]">
@@ -941,7 +992,7 @@ function AppListingsPhotoDraftPage() {
           <Link className="underline text-primary" href="/signin">
             sign in
           </Link>{" "}
-          to upload a listing photo.
+          {intentFromUrl ? "to add something At home." : "to upload a listing photo."}
         </p>
       </div>
     );
@@ -949,6 +1000,7 @@ function AppListingsPhotoDraftPage() {
 
   return (
     <CreateListingFlowView
+      purpose={atHomeIntent ? "at-home" : "marketplace"}
       debugMode={debugMode}
       draftId={draftId}
       imageStoragePath={imageStoragePath}

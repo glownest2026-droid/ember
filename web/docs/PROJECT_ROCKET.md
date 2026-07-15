@@ -327,7 +327,7 @@ IDs are **F1–F9 in order** (no gaps). Waitlist is a Cursor build with optional
 - Route: `/family/at-home` — owned list + **List it** → Marketplace photo flow (`household_item_id`)
 - Discover Have → `sync_at_home_from_discover_have` writes/archives At home rows; backfill from existing `user_list_items.have`
 - Migrations: `20260715134457_at_home_discover_have_bridge` + `20260715134927_at_home_discover_have_sync_rpc`
-- Photo add later: same Marketplace listing workflow (no separate add path)
+- **Add to At home** (photo → confirm, no publish): `/app/listings?intent=at-home` from `/family` + `/family/at-home` — same Marketplace identify steps, saves `photo_assisted` owned row
 
 ---
 
