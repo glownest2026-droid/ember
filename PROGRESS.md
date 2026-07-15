@@ -4,6 +4,9 @@
 - API `POST /api/waitlist/ember-plus`; pricing CTA + modal; FAQ waitlist-honest
 - Anon insert smoke-tested (unique email dedupe OK)
 - View rows: Supabase → Table Editor → `ember_plus_waitlist`
+- PR #259 green preview: https://ember-git-feat-ember-plus-waitlist-tims-projects-cd69a894.vercel.app
+- Standing rule: always open PR + green Vercel for app builds (never ask) — `pr-handoff.mdc` / `project-rocket.mdc`
+- Founder: waitlist **confirmation email deferred** (modal sufficient for Phase 0)
 
 ## 2026-07-15 — Project Rocket founder IDs renumbered F1–F9
 

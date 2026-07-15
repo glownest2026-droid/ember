@@ -15,7 +15,7 @@ Any work on Ember Plus, Pip features (Pathway, Picks, Patch Finds, Seasons, Chap
 
 ## Non-negotiables
 
-1. **Do not imply paid checkout is live** until `$MVP_Threshold` in `PROJECT_ROCKET.md` is met (or founder waives in writing). Prefer **Join the waitlist** (Supabase-native interest collection; **no founding offer**).
+1. **Do not imply paid checkout is live** until `$MVP_Threshold` in `PROJECT_ROCKET.md` is met (or founder waives in writing). Prefer **Join the waitlist** (Supabase-native interest collection; **no founding offer**). Waitlist **confirmation email is deferred** — in-modal success is enough for Phase 0.
 2. **Pip feature names are locked** — Pathway / Picks / Patch Finds / Seasons / Chapters / Pass-On. Always say **Ember Plus**.
 3. **Picks priority** = Ember Bible `show_ember_picks = TRUE` (and typically `things_that_can_help` / `product_category`). Do **not** invent priority from Source Captures alone.
 4. **Inventory and Marketplace are sisters** — shared listing/match data; Discover Have must become durable and feed Patch / Pass-On.

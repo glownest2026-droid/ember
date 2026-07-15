@@ -12,7 +12,7 @@
 
 ## One-line definition
 
-Ship the **Pip feature set** to an agreed `$MVP_Threshold`, collect demand via waitlist + founding price, then turn on paid checkout when core value is real — not when the pricing page looks ready.
+Ship the **Pip feature set** to an agreed `$MVP_Threshold`, collect demand via waitlist, then turn on paid checkout when core value is real — not when the pricing page looks ready.
 
 ---
 
@@ -104,7 +104,8 @@ Across Conor-depth Bibles, Picks flags typically land ~20–40 categories per ba
 1. **Checkout deferred** until `$MVP_Threshold` (or founder waiver).
 2. **Public CTAs:** “Join the waitlist” until threshold — **interest only** (no founding £2.99 offer).
 3. **Waitlist storage:** native **Supabase** table (email + optional `user_id` for signed-in users; source; created_at). Covers net-new and already signed-in. No third-party ESP required for collection; export from dashboard.
-4. Free remains real; Plus must feel like unlock of Pip layer, not paywall of Discover.
+4. **Waitlist confirmation email: deferred.** Phase 0 success = row saved + in-modal confirmation. No Resend/SMTP transactional send required now (stack note: Supabase Auth email exists; Resend account exists but unwired; OneSignal = push). Revisit before converting the waitlist at Phase 6.
+5. Free remains real; Plus must feel like unlock of Pip layer, not paywall of Discover.
 
 ## Dual-track operating model
 
@@ -153,6 +154,7 @@ Founder HTML roadmap (v2) is the single project-plan view: **Founder Jobs** ‖ 
 - [x] Formal log + Cursor rule (`web/docs/PROJECT_ROCKET.md`, `.cursor/rules/project-rocket.mdc`)
 - [x] Founder HTML dual-track roadmap (Drive + exports)
 - [x] Supabase waitlist table + “Join the waitlist” CTAs (signed-in + net-new; no founding offer) — `ember_plus_waitlist` + `/api/waitlist/ember-plus` + `/pricing` modal (2026-07-15)
+- [x] **Out of scope for now:** waitlist confirmation email (in-app success only) — revisit Phase 6 / when converting the list
 - [ ] Founder confirms Launch Band Set for MVP (recommendation: **1–3m through 13–15m** first) — **F1**
 
 ### Phase 1 — Trust base (content + ownership)
@@ -313,8 +315,9 @@ IDs are **F1–F9 in order** (no gaps). Waitlist is a Cursor build with optional
 ### 2026-07-15 — Phase 0 waitlist shipped (code + db)
 
 - Table `public.ember_plus_waitlist` (email, optional user_id, source, created_at); RLS; unique on lower(email)
-- `POST /api/waitlist/ember-plus` (service role insert)
+- `POST /api/waitlist/ember-plus` (anon/authenticated insert)
 - `/pricing` Ember Plus CTA → Join the waitlist modal (signed-in prefills account email)
+- Founder decision: **no confirmation email for now** (modal success sufficient); Resend/transactional later if needed
 
 ---
 
