@@ -2,6 +2,7 @@
 
 - Orange centred “Learn more” above Ember Plus “Join the waitlist” CTA
 - Anchors to `#ember-plus-features` on the features block
+- Desktop scroll offset: `scroll-mt-[calc(var(--header-height)+24px)]` so heading clears sticky nav
 
 ## 2026-07-15 — Project Rocket Phase 0 waitlist
 

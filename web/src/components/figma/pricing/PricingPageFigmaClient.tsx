@@ -133,7 +133,7 @@ export default function PricingPageFigmaClient() {
             </p>
             <p
               id="ember-plus-features"
-              className="mx-auto mt-10 scroll-mt-24 font-semibold tracking-[-0.01em] text-[#253044]"
+              className="mx-auto mt-10 scroll-mt-[calc(var(--header-height,112px)+24px)] font-semibold tracking-[-0.01em] text-[#253044]"
               style={{ fontSize: 'clamp(1.25rem, 2.5vw, 1.5rem)', lineHeight: 1.2 }}
             >
               Ember Plus features:
