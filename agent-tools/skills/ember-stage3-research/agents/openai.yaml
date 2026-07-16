@@ -1,0 +1,7 @@
+interface:
+  display_name: "Ember Stage 3 Research"
+  short_description: "Evidence-backed Ember product research"
+  default_prompt: "Use $ember-stage3-research to create Pip's Picks for this Stage 2 card."
+
+policy:
+  allow_implicit_invocation: true
