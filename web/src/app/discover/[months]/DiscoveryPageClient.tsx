@@ -156,6 +156,7 @@ export default function DiscoveryPageClient({
   const fallbackHaveChildIdRef = useRef<string | null>(null);
   const basePath = '/discover';
   const { user, loading: subnavLoading, refetch: refetchSubnavStats } = useSubnavStats();
+  const viewerAccessKey = user?.email?.toLowerCase() ?? 'signed-out';
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { params: clientParams, replace: replaceClientParams } = useDiscoverClientSearchParams(pathname);
@@ -237,7 +238,7 @@ export default function DiscoveryPageClient({
   const fetchPicksForCategory = useCallback(
     async (categoryId: string) => {
       if (!ageBand?.id) return;
-      const key = `${ageBand.id}|${categoryId}`;
+      const key = `${ageBand.id}|${categoryId}|${viewerAccessKey}`;
       if (picksFetchKeyRef.current === key) return;
       picksFetchKeyRef.current = key;
       setPicksLoading(true);
@@ -253,7 +254,7 @@ export default function DiscoveryPageClient({
         setPicksLoading(false);
       }
     },
-    [ageBand?.id]
+    [ageBand?.id, viewerAccessKey]
   );
 
   // Pre-dim Stage 2 cards the user has already marked as "have".
@@ -949,6 +950,7 @@ export default function DiscoveryPageClient({
 
   const displayIdeas =
     showingExamples && fetchedPicks.length > 0 ? fetchedPicks : exampleProducts;
+  const displayHasPipsPicks = displayIdeas.some((p) => p.product.is_stage3_pick);
 
   const shortlistTrackKeyRef = useRef<string | null>(null);
   useEffect(() => {
@@ -1245,6 +1247,10 @@ export default function DiscoveryPageClient({
   const ideasSectionLoading = Boolean(selectedWrapper) && playIdeaItems.length === 0;
 
   const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
+  const productSectionTitle = displayHasPipsPicks ? "Pip's Picks" : 'Product examples for this stage';
+  const productSectionIntro = displayHasPipsPicks
+    ? "Pip has sorted five options for this card. Pick 1 is open; picks 2-5 are included with Ember Plus."
+    : 'These examples are selected for stage-fit and usefulness. Retailer links, where shown, may be affiliate links.';
   const scienceTitle = 'Why this matters now';
   const ideasDevelopmentName = (() => {
     const lower = selectedWrapperLabel.trim().toLowerCase();
@@ -1584,7 +1590,7 @@ export default function DiscoveryPageClient({
                 <div id="examplesProgressBar" className="mb-5 lg:mb-8">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
-                      Product examples for this stage
+                      {productSectionTitle}
                     </h2>
                     {displayIdeas.length > 0 ? (
                       <button
@@ -1597,8 +1603,7 @@ export default function DiscoveryPageClient({
                     ) : null}
                   </div>
                   <p className="text-sm text-[var(--ember-text-low)] mt-2">
-                    These examples are selected for stage-fit and usefulness. Retailer links, where shown, may be
-                    affiliate links.
+                    {productSectionIntro}
                   </p>
                   <AffiliateDisclosureNotice
                     hasRetailerLinks={examplesHaveRetailerLinks}
@@ -1616,14 +1621,15 @@ export default function DiscoveryPageClient({
                   </div>
                 ) : (
                   <DiscoverFigmaProductCarousel
-                    key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}`}
-                    picks={displayIdeas.slice(0, 12)}
+                    key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}-${viewerAccessKey}`}
+                    picks={displayIdeas.slice(0, displayHasPipsPicks ? 5 : 12)}
                     ageRangeLabel={formatBandLabel(selectedBand)}
-                    whyWorksHeading={whyWorksHeading}
+                    whyWorksHeading={displayHasPipsPicks ? 'Why Pip picked this' : whyWorksHeading}
                     onSave={handleSaveToList}
                     onHave={handleHaveItAlready}
                     getProductUrl={getProductUrl}
                     showHaveAction={!!user}
+                    isPipsPicks={displayHasPipsPicks}
                   />
                 )}
               </section>

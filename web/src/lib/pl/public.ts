@@ -1,4 +1,5 @@
 import { createPublicCatalogueClient } from '../../utils/supabase/public-catalogue';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 const CATEGORY_TYPE_SELECT =
   'age_band_id, development_need_id, rank, rationale, audience_lens, content_type, ui_lane, ui_section_title, lane_rank, show_ember_picks, show_gift_action, gift_friendly, buyer_mode_label, gift_note, ownership_note, product_family_label, primary_persona, card_cta_label, render_rule, id, slug, label, name, description, image_url, safety_notes';
@@ -134,11 +135,55 @@ export type GatewayProductPublic = {
   amazon_uk_url: string | null;
   affiliate_url: string | null;
   affiliate_deeplink: string | null;
+  is_stage3_pick?: boolean;
+  is_locked?: boolean;
+  stage3_rank?: number;
+  best_for_tag?: string | null;
+  retailer?: string | null;
+  price_text?: string | null;
+  product_description?: string | null;
+  ember_verdict?: string | null;
+  why_it_fits?: string | null;
+  caveats?: string | null;
+  buy_borrow_hold_off?: string | null;
+  gift_suitable?: boolean | null;
+  gift_note?: string | null;
+  ownership_note?: string | null;
+  safety_notes?: string | null;
+  evidence_tier?: string | null;
+  founder_qa_flag?: string | null;
+  locked_reason?: string | null;
 };
 
 export type GatewayPick = {
   product: GatewayProductPublic;
   categoryType: Pick<GatewayCategoryTypePublic, 'id' | 'slug' | 'label' | 'name'>;
+};
+
+type GatewayStage3PickRow = {
+  id: string;
+  age_band_id: string;
+  category_type_id: string;
+  pick_rank: number;
+  is_locked: boolean;
+  best_for_tag: string | null;
+  product_name: string;
+  brand: string | null;
+  retailer: string | null;
+  product_url: string | null;
+  image_url: string | null;
+  price_text: string | null;
+  product_description: string | null;
+  ember_verdict: string | null;
+  why_it_fits: string | null;
+  caveats: string | null;
+  buy_borrow_hold_off: string | null;
+  gift_suitable: boolean | null;
+  gift_note: string | null;
+  ownership_note: string | null;
+  safety_notes: string | null;
+  evidence_tier: string | null;
+  founder_qa_flag: string | null;
 };
 
 /**
@@ -539,6 +584,139 @@ export async function getGatewayTopPicksForAgeBandAndCategoryType(
     product: p,
     categoryType: { id: category.id, slug: category.slug, label: category.label, name: category.name },
   }));
+}
+
+function stage3PlaceholderProduct(
+  ageBandId: string,
+  categoryTypeId: string,
+  rank: number
+): GatewayProductPublic {
+  return {
+    age_band_id: ageBandId,
+    category_type_id: categoryTypeId,
+    rank,
+    rationale: "Included with Ember Plus.",
+    id: `stage3_locked_${ageBandId}_${categoryTypeId}_${rank}`,
+    name: `Pip's Pick ${rank}`,
+    brand: null,
+    image_url: null,
+    canonical_url: null,
+    amazon_uk_url: null,
+    affiliate_url: null,
+    affiliate_deeplink: null,
+    is_stage3_pick: true,
+    is_locked: true,
+    stage3_rank: rank,
+    best_for_tag: 'Ember Plus',
+    retailer: null,
+    price_text: null,
+    product_description: null,
+    ember_verdict: 'Pip has another pick ready for Ember Plus.',
+    why_it_fits: null,
+    caveats: null,
+    buy_borrow_hold_off: null,
+    gift_suitable: null,
+    gift_note: null,
+    ownership_note: null,
+    safety_notes: null,
+    evidence_tier: null,
+    founder_qa_flag: null,
+    locked_reason: "Sign in with the founder account to preview picks 2-5.",
+  };
+}
+
+function stage3RowToProduct(row: GatewayStage3PickRow): GatewayProductPublic {
+  return {
+    age_band_id: row.age_band_id,
+    category_type_id: row.category_type_id,
+    rank: row.pick_rank,
+    rationale: row.ember_verdict,
+    id: row.id,
+    name: row.product_name,
+    brand: row.brand,
+    image_url: row.image_url,
+    canonical_url: row.product_url,
+    amazon_uk_url: null,
+    affiliate_url: null,
+    affiliate_deeplink: null,
+    is_stage3_pick: true,
+    is_locked: row.is_locked,
+    stage3_rank: row.pick_rank,
+    best_for_tag: row.best_for_tag,
+    retailer: row.retailer,
+    price_text: row.price_text,
+    product_description: row.product_description,
+    ember_verdict: row.ember_verdict,
+    why_it_fits: row.why_it_fits,
+    caveats: row.caveats,
+    buy_borrow_hold_off: row.buy_borrow_hold_off,
+    gift_suitable: row.gift_suitable,
+    gift_note: row.gift_note,
+    ownership_note: row.ownership_note,
+    safety_notes: row.safety_notes,
+    evidence_tier: row.evidence_tier,
+    founder_qa_flag: row.founder_qa_flag,
+    locked_reason: null,
+  };
+}
+
+/**
+ * Fetch Pip's Picks for one Stage 2 card.
+ *
+ * RLS returns all five only for the founder proxy (`timwd23@gmail.com`).
+ * Everyone else receives public pick 1 from Supabase; ranks 2-5 are generated
+ * as locked placeholders so gated product details are not sent to the client.
+ */
+export async function getGatewayStage3PicksForAgeBandAndCategoryType(
+  ageBandId: string,
+  categoryTypeId: string,
+  limit: number = 5,
+  options: { supabase?: SupabaseClient; canSeeLocked?: boolean } = {}
+): Promise<GatewayPick[]> {
+  const supabase = options.supabase ?? createPublicCatalogueClient();
+
+  const { data: categoryRow, error: categoryError } = await supabase
+    .from('v_gateway_category_types_public')
+    .select('id, slug, label, name')
+    .eq('age_band_id', ageBandId)
+    .eq('id', categoryTypeId)
+    .limit(1)
+    .maybeSingle();
+
+  if (categoryError || !categoryRow) return [];
+
+  const category = categoryRow as Pick<GatewayCategoryTypePublic, 'id' | 'slug' | 'label' | 'name'>;
+
+  const { data: stage3Rows, error: stage3Error } = await supabase
+    .from('pl_stage3_picks')
+    .select(
+      'id, age_band_id, category_type_id, pick_rank, is_locked, best_for_tag, product_name, brand, retailer, product_url, image_url, price_text, product_description, ember_verdict, why_it_fits, caveats, buy_borrow_hold_off, gift_suitable, gift_note, ownership_note, safety_notes, evidence_tier, founder_qa_flag'
+    )
+    .eq('age_band_id', ageBandId)
+    .eq('category_type_id', categoryTypeId)
+    .eq('status', 'visible')
+    .eq('is_visible', true)
+    .order('pick_rank', { ascending: true })
+    .limit(limit);
+
+  if (stage3Error || !stage3Rows || stage3Rows.length === 0) return [];
+
+  const rowsByRank = new Map(
+    (stage3Rows as GatewayStage3PickRow[]).map((row) => [row.pick_rank, row])
+  );
+  const picks: GatewayPick[] = [];
+  for (let rank = 1; rank <= limit; rank += 1) {
+    const row = rowsByRank.get(rank);
+    const product = row
+      ? stage3RowToProduct(row)
+      : stage3PlaceholderProduct(ageBandId, categoryTypeId, rank);
+    picks.push({
+      product,
+      categoryType: { id: category.id, slug: category.slug, label: category.label, name: category.name },
+    });
+  }
+
+  return picks;
 }
 
 /**
