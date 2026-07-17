@@ -1,3 +1,43 @@
+## 2026-07-17: At home add UX (text-first + Stage 2 confirm)
+
+- Dedicated `/family/at-home/add`: one hero image, text-first, photo optional
+- Stage 2 match: `inventory_match_stage2_categories` + `GET /api/inventory/match-stage2`
+- Parent confirms Discover category card; Marketplace copy scrubbed from entry points
+- Founder follow-up: one hero image; strongest three matches only; confidence labels removed
+- No-match is non-blocking: save parent-entered text now; classify before Marketplace listing
+- Context-aware return link from Family or At home; no em dashes in this parent flow
+- Migration applied: `20260717054756_at_home_unmatched_and_match_quality`
+- Old `/app/listings?intent=at-home` redirects to the new add page
+- List it still uses full Marketplace publish flow
+
+## 2026-07-15: Project Rocket: At home (Inventory first ship)
+
+- Parent name **At home**; route `/family/at-home` under Family
+- Discover Have syncs into `garage_items` via `sync_at_home_from_discover_have` (+ backfill)
+- **Add item** → `/family/at-home/add` (supersedes listings intent path)
+- List it → `/app/listings?new=1&household_item=…` (full Marketplace publish flow)
+- Migrations applied: `20260715134457` + `20260715134927` + `20260717060500`
+- Garage parent-facing language removed from Family UI
+
+## 2026-07-15 — Manus research brief (jigsaws 34–36m)
+
+- `agent-tools/exports/manus_stage3_research_brief_34-36m_jigsaws.md` — single-card brief; **top 5** Ember Picks
+- Required return: `ember_picks_research_v1` JSON + CSV (`research_date`, URL + `url_checked_date` / `price_checked_date`) for later ingest
+
+## 2026-07-15 — Manus research brief (Pip’s Picks 34–36m)
+
+- Brief: `agent-tools/exports/manus_stage3_research_brief_34-36m.md`
+- 7 research rows with Spine educational objectives + age nuance; Conor guardrails; methodology left to Manus
+- Safety Stage 1 excluded (Quick Check only)
+
+## 2026-07-15 — Pip’s Picks MVP shortlist (34–36m)
+
+- **Launch principle:** ≥1 Stage 2 card with Stage 3 recs under every Stage 1 card (product rows only; safety clusters may skip).
+- **Script:** `web/scripts/export-stage3-research-shortlist.mjs`
+- **Source:** `02_Ember_Bible_34_36m_v1_1.xlsx` (`discover_projection`)
+- **Output:** `agent-tools/exports/stage3_shortlist_34-36m.md` + `.csv`
+- **Result:** 8 Stage 1 clusters → **7 research candidates**; 1 no-pick (`The safety reset…` → Keep as Quick Check)
+
 ## 2026-07-15 — pricing: Learn more → Ember Plus features
 
 - Orange centred “Learn more” above Ember Plus “Join the waitlist” CTA

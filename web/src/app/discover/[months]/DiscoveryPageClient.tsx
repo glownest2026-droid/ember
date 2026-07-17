@@ -50,6 +50,7 @@ import {
 } from '@/lib/auth/requireAuthThen';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
 import { mergeHaveCategoryIds, readHaveCategoryIds, writeHaveCategoryId } from '@/lib/discover/discoverHaveIt';
+import { syncAtHomeFromDiscoverHave } from '@/lib/inventory/atHome';
 import { saveDiscoverSession } from '@/lib/discover/discoverSession';
 import { useDiscoverClientSearchParams } from '@/lib/discover/discoverClientNav';
 
@@ -681,6 +682,11 @@ export default function DiscoveryPageClient({
             p_child_id: childId,
           });
           if (!error) {
+            await syncAtHomeFromDiscoverHave({
+              categoryTypeId: categoryId,
+              childId,
+              have,
+            });
             await refetchSubnavStats(selectedChildId ?? childId);
             writeHaveCategoryId(user.id, selectedChildId, categoryId, have);
             setDimmedCategoryIds((prev) => {
@@ -801,6 +807,11 @@ export default function DiscoveryPageClient({
             p_child_id: childId,
           });
           if (error) throw error;
+          await syncAtHomeFromDiscoverHave({
+            categoryTypeId: categoryId,
+            childId,
+            have: nextHave,
+          });
           const authedUser = user ?? (await supabase.auth.getUser()).data.user;
           if (authedUser) writeHaveCategoryId(authedUser.id, selectedChildId, categoryId, nextHave);
           await refetchSubnavStats(selectedChildId ?? childId);
