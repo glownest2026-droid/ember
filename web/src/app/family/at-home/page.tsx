@@ -5,7 +5,7 @@ import { createClient } from '@/utils/supabase/server';
 import { FamilySignInRequired } from '@/components/family/FamilySignInRequired';
 import { AtHomeClient } from '@/components/family/AtHomeClient';
 
-/** /family/at-home — household owned items (At home). */
+/** /family/at-home: household owned items (At home). */
 export default async function AtHomePage({
   searchParams,
 }: {

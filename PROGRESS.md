@@ -1,12 +1,16 @@
-## 2026-07-17 — At home add UX (text-first + Stage 2 confirm)
+## 2026-07-17: At home add UX (text-first + Stage 2 confirm)
 
-- Dedicated `/family/at-home/add` — fun hero art, text-first, photo optional
+- Dedicated `/family/at-home/add`: one hero image, text-first, photo optional
 - Stage 2 match: `inventory_match_stage2_categories` + `GET /api/inventory/match-stage2`
 - Parent confirms Discover category card; Marketplace copy scrubbed from entry points
+- Founder follow-up: one hero image; strongest three matches only; confidence labels removed
+- No-match is non-blocking: save parent-entered text now; classify before Marketplace listing
+- Context-aware return link from Family or At home; no em dashes in this parent flow
+- Migration applied: `20260717054756_at_home_unmatched_and_match_quality`
 - Old `/app/listings?intent=at-home` redirects to the new add page
 - List it still uses full Marketplace publish flow
 
-## 2026-07-15 — Project Rocket: At home (Inventory first ship)
+## 2026-07-15: Project Rocket: At home (Inventory first ship)
 
 - Parent name **At home**; route `/family/at-home` under Family
 - Discover Have syncs into `garage_items` via `sync_at_home_from_discover_have` (+ backfill)

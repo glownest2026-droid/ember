@@ -3,12 +3,9 @@ import { createClient } from '@/utils/supabase/client';
 const CATEGORY_IMG =
   'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images';
 
-/** Catalogue art for At home add hero (tidying / playroom kit). */
-export const AT_HOME_HERO_IMAGES = [
-  `${CATEGORY_IMG}/ember_cat_low_shelf_tidy_category.png`,
-  `${CATEGORY_IMG}/ember_cat_tip_out_baskets_category.png`,
-  `${CATEGORY_IMG}/ember_cat_transition_basket_category.png`,
-] as const;
+/** Catalogue art for the At home add hero. */
+export const AT_HOME_HERO_IMAGE =
+  `${CATEGORY_IMG}/ember_cat_low_shelf_tidy_category.png`;
 
 /** Sync Discover Stage 2 Have into At home (garage_items). Best-effort — never blocks Have UX. */
 export async function syncAtHomeFromDiscoverHave(args: {
@@ -123,11 +120,13 @@ export function atHomeListItHref(itemId: string): string {
 }
 
 /** Dedicated At home add flow (text-first, optional photo, Stage 2 confirm). */
-export function atHomeAddHref(childId?: string | null): string {
-  const params = new URLSearchParams();
+export function atHomeAddHref(
+  childId?: string | null,
+  from: 'family' | 'at-home' = 'at-home'
+): string {
+  const params = new URLSearchParams({ from });
   if (childId) params.set('child', childId);
-  const q = params.toString();
-  return q ? `/family/at-home/add?${q}` : '/family/at-home/add';
+  return `/family/at-home/add?${params.toString()}`;
 }
 
 export async function matchStage2Categories(args: {
@@ -139,7 +138,7 @@ export async function matchStage2Categories(args: {
   const q = args.query.trim();
   if (!q) return { candidates: [], error: null };
 
-  const params = new URLSearchParams({ q, limit: String(args.limit ?? 6) });
+  const params = new URLSearchParams({ q, limit: String(args.limit ?? 3) });
   if (args.childId) params.set('childId', args.childId);
   if (args.ageBandId) params.set('ageBandId', args.ageBandId);
 
@@ -208,7 +207,7 @@ async function resolveProductTypeId(
 /** Save At home from Stage 2 parent confirm (text and/or photo path). */
 export async function saveAtHomeFromStage2Match(args: {
   userId: string;
-  categoryTypeId: string;
+  categoryTypeId?: string | null;
   childId?: string | null;
   rawQuery?: string | null;
   hasPhoto?: boolean;
@@ -217,14 +216,16 @@ export async function saveAtHomeFromStage2Match(args: {
   const supabase = createClient();
   const childId = args.childId?.trim() || null;
   const label = args.rawQuery?.trim() || null;
-  const productTypeId = await resolveProductTypeId(supabase, args.categoryTypeId, label);
+  const productTypeId = args.categoryTypeId
+    ? await resolveProductTypeId(supabase, args.categoryTypeId, label)
+    : null;
 
   const { data, error } = await supabase
     .from('garage_items')
     .insert({
       user_id: args.userId,
       product_type_id: productTypeId,
-      category_type_id: args.categoryTypeId,
+      category_type_id: args.categoryTypeId ?? null,
       child_scope_type: childId ? 'single_child' : 'unknown',
       child_id: childId,
       raw_query: label,
@@ -303,16 +304,5 @@ export function statusLabel(status: AtHomeItemStatus): string {
       return 'Removed';
     default:
       return 'At home';
-  }
-}
-
-export function confidenceLabel(bucket: 'high' | 'medium' | 'low'): string {
-  switch (bucket) {
-    case 'high':
-      return 'Looks likely';
-    case 'medium':
-      return 'Possible match';
-    default:
-      return 'Worth a look';
   }
 }

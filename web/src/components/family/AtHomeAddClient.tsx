@@ -1,13 +1,12 @@
 'use client';
 
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Camera, Check, Home, Search, Sparkles } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import {
-  AT_HOME_HERO_IMAGES,
-  confidenceLabel,
+  AT_HOME_HERO_IMAGE,
   matchStage2Categories,
   saveAtHomeFromStage2Match,
   type Stage2MatchCandidate,
@@ -28,8 +27,10 @@ function getFileExtension(file: File): string {
 
 export function AtHomeAddClient({
   initialChildId,
+  initialFrom,
 }: {
   initialChildId?: string;
+  initialFrom?: 'family' | 'at-home';
 }) {
   const router = useRouter();
   const [query, setQuery] = useState('');
@@ -45,9 +46,15 @@ export function AtHomeAddClient({
   const [savingId, setSavingId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const backHref = initialChildId
-    ? `/family/at-home?child=${encodeURIComponent(initialChildId)}`
-    : '/family/at-home';
+  const cameFromFamily = initialFrom === 'family';
+  const backHref = cameFromFamily
+    ? initialChildId
+      ? `/family?child=${encodeURIComponent(initialChildId)}`
+      : '/family'
+    : initialChildId
+      ? `/family/at-home?child=${encodeURIComponent(initialChildId)}`
+      : '/family/at-home';
+  const backLabel = cameFromFamily ? 'Back to Family' : 'Back to At home';
 
   const runMatch = useCallback(
     async (text: string) => {
@@ -62,9 +69,9 @@ export function AtHomeAddClient({
       const { candidates: next, error } = await matchStage2Categories({
         query: q,
         childId: initialChildId ?? null,
-        limit: 6,
+        limit: 3,
       });
-      setCandidates(next);
+      setCandidates(next.slice(0, 3));
       setMatchError(error);
       setMatchLoading(false);
     },
@@ -95,7 +102,7 @@ export function AtHomeAddClient({
       return;
     }
     if (file.size > MAX_IMAGE_BYTES) {
-      setPhotoError('That photo is a bit large — try under 10MB.');
+      setPhotoError('That photo is a bit large. Try one under 10MB.');
       return;
     }
 
@@ -175,8 +182,9 @@ export function AtHomeAddClient({
     }
   };
 
-  const handleConfirm = async (candidate: Stage2MatchCandidate) => {
-    setSavingId(candidate.category_type_id);
+  const handleSave = async (candidate?: Stage2MatchCandidate) => {
+    const saveKey = candidate?.category_type_id ?? '__typed__';
+    setSavingId(saveKey);
     setSaveError(null);
     try {
       const supabase = createClient();
@@ -190,9 +198,9 @@ export function AtHomeAddClient({
 
       const saved = await saveAtHomeFromStage2Match({
         userId: user.id,
-        categoryTypeId: candidate.category_type_id,
+        categoryTypeId: candidate?.category_type_id ?? null,
         childId: initialChildId ?? null,
-        rawQuery: query.trim() || candidate.label,
+        rawQuery: query.trim() || candidate?.label,
         hasPhoto: Boolean(draftId && previewUrl),
         draftId,
       });
@@ -211,27 +219,6 @@ export function AtHomeAddClient({
     }
   };
 
-  const heroStrip = useMemo(
-    () => (
-      <div className="grid grid-cols-3 gap-2 mb-5">
-        {AT_HOME_HERO_IMAGES.map((src, i) => (
-          <div
-            key={src}
-            className="aspect-[4/3] rounded-2xl overflow-hidden border border-[#E7E2DC] bg-[#FBFAF7]"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={src}
-              alt=""
-              className={`w-full h-full object-cover ${i === 1 ? 'scale-105' : ''}`}
-            />
-          </div>
-        ))}
-      </div>
-    ),
-    []
-  );
-
   return (
     <div className="max-w-xl mx-auto">
       <Link
@@ -239,10 +226,17 @@ export function AtHomeAddClient({
         className="inline-flex items-center gap-1.5 text-sm font-medium text-[#FF5C34] hover:underline mb-4"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to At home
+        {backLabel}
       </Link>
 
-      {heroStrip}
+      <div className="aspect-[16/6] rounded-2xl overflow-hidden border border-[#E7E2DC] bg-[#FBFAF7] mb-5">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={AT_HOME_HERO_IMAGE}
+          alt=""
+          className="w-full h-full object-cover object-center"
+        />
+      </div>
 
       <div className="flex items-start gap-3 mb-1">
         <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-[#FF5C34]/10 shrink-0">
@@ -253,7 +247,7 @@ export function AtHomeAddClient({
             Add to At home
           </h1>
           <p className="text-sm text-[#66717D] mt-1 mb-0">
-            Log what is already in the playroom. Ember will guess the closest Discover idea — you confirm.
+            Add toys and family kit now, then find them quickly when you need them.
           </p>
         </div>
       </div>
@@ -267,7 +261,7 @@ export function AtHomeAddClient({
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Helmet, white noise machine, kitchen stool…"
+              placeholder="Helmet, white noise machine, kitchen stool..."
               className="w-full min-h-[48px] rounded-xl border border-[#E7E2DC] bg-[#FBFAF7] pl-10 pr-3 text-[0.9375rem] text-[#253044] outline-none focus:ring-2 focus:ring-[#FF5C34]/35"
               autoComplete="off"
               autoFocus
@@ -281,14 +275,14 @@ export function AtHomeAddClient({
             <div>
               <p className="text-sm font-medium text-[#253044] m-0">Add a photo (optional)</p>
               <p className="text-xs text-[#66717D] mt-0.5 mb-0">
-                Often sharper — Ember reads the item for you. Also handy if you pass it on later.
+                Faster and more accurate. It also saves time if you pass it on later.
               </p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <label className="inline-flex min-h-[40px] cursor-pointer items-center gap-2 rounded-xl bg-[#FF5C34] px-3.5 py-2 text-sm font-medium text-white">
               <Camera className="w-4 h-4" />
-              {uploading || analysing ? 'Checking…' : 'Take photo'}
+              {uploading || analysing ? 'Checking...' : 'Take photo'}
               <input
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
@@ -332,13 +326,13 @@ export function AtHomeAddClient({
 
       <div className="mt-6">
         <div className="flex items-center justify-between gap-2 mb-3">
-          <h2 className="text-base font-medium text-[#253044] m-0">Closest Discover ideas</h2>
-          {matchLoading && <span className="text-xs text-[#66717D]">Guessing…</span>}
+          <h2 className="text-base font-medium text-[#253044] m-0">Best matches</h2>
+          {matchLoading && <span className="text-xs text-[#66717D]">Checking...</span>}
         </div>
 
         {query.trim().length < MATCH_MIN_CHARS && (
           <p className="text-sm text-[#66717D]">
-            Type a couple of letters — or add a photo — and Ember will suggest where this sits in the catalogue.
+            Type a product or add a photo to get started.
           </p>
         )}
 
@@ -352,9 +346,11 @@ export function AtHomeAddClient({
           query.trim().length >= MATCH_MIN_CHARS &&
           !matchError &&
           candidates.length === 0 && (
-            <p className="text-sm text-[#66717D]">
-              No close match yet. Try a plainer name (e.g. “dress up”, “scooter”, “white noise”) or add a photo.
-            </p>
+            <div className="rounded-2xl border border-[#E7E2DC] bg-white p-4">
+              <p className="text-sm text-[#66717D] m-0">
+                No close match yet. You can still save this At home.
+              </p>
+            </div>
           )}
 
         <ul className="space-y-3 list-none p-0 m-0">
@@ -375,23 +371,33 @@ export function AtHomeAddClient({
                 <p className="text-[0.9375rem] font-medium text-[#253044] m-0 leading-snug">
                   {c.label}
                 </p>
-                <p className="text-xs text-[#66717D] mt-1 mb-0">
-                  {confidenceLabel(c.confidence_bucket)}
-                  {c.age_band_id ? ` · ${c.age_band_id}` : ''}
-                </p>
+                {c.age_band_id && (
+                  <p className="text-xs text-[#66717D] mt-1 mb-0">{c.age_band_id}</p>
+                )}
               </div>
               <button
                 type="button"
                 disabled={Boolean(savingId)}
-                onClick={() => void handleConfirm(c)}
+                onClick={() => void handleSave(c)}
                 className="shrink-0 inline-flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-xl text-sm font-medium text-white bg-[#FF5C34] hover:opacity-95 disabled:opacity-60"
               >
                 <Check className="w-4 h-4" />
-                {savingId === c.category_type_id ? 'Saving…' : 'This one'}
+                {savingId === c.category_type_id ? 'Saving...' : 'This one'}
               </button>
             </li>
           ))}
         </ul>
+
+        {query.trim().length >= MATCH_MIN_CHARS && !matchLoading && (
+          <button
+            type="button"
+            disabled={Boolean(savingId)}
+            onClick={() => void handleSave()}
+            className="mt-3 inline-flex min-h-[42px] items-center rounded-xl border border-[#E7E2DC] bg-white px-4 py-2 text-sm font-medium text-[#253044] hover:border-[#FF5C34]/50 disabled:opacity-60"
+          >
+            {savingId === '__typed__' ? 'Saving...' : `Add “${query.trim()}” anyway`}
+          </button>
+        )}
 
         {saveError && (
           <p className="text-sm text-[#B42318] mt-3" role="alert">

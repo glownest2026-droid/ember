@@ -328,12 +328,14 @@ IDs are **F1–F9 in order** (no gaps). Waitlist is a Cursor build with optional
 - Discover Have → `sync_at_home_from_discover_have` writes/archives At home rows; backfill from existing `user_list_items.have`
 - Migrations: `20260715134457_at_home_discover_have_bridge` + `20260715134927_at_home_discover_have_sync_rpc`
 
-### 2026-07-17 — At home add UX (text-first + Stage 2)
+### 2026-07-17: At home add UX (text-first + Stage 2)
 
-- `/family/at-home/add` — brand visuals, text-first, photo optional (sharper guess)
-- Match: `inventory_match_stage2_categories` + `/api/inventory/match-stage2` → parent confirms Stage 2 card
+- `/family/at-home/add`: one brand image, text-first, photo optional
+- Match: `inventory_match_stage2_categories` + `/api/inventory/match-stage2`; parent can confirm up to three strong Stage 2 cards
+- No catalogue match is not a blocker: save the parent-entered product now and require classification before Marketplace listing
+- Confidence labels removed; return link respects whether the parent arrived from Family or At home
 - Entry CTAs scrubbed of Marketplace positioning; `intent=at-home` redirects here
-- Migration: `20260717060500_inventory_match_stage2_categories`
+- Migrations: `20260717060500_inventory_match_stage2_categories` + `20260717054756_at_home_unmatched_and_match_quality`
 
 ---
 

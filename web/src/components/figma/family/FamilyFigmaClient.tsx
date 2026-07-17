@@ -29,14 +29,14 @@ interface InventoryMatchCandidate {
   confidence_bucket: 'high' | 'medium' | 'low';
 }
 
-/** Manage My Family page – Figma Make layout exact. Data: children table + get_my_subnav_stats(p_child_id). */
+/** Manage My Family page. Data: children table + get_my_subnav_stats(p_child_id). */
 export function FamilyFigmaClient({
   serverUserId,
   saved = false,
   deleted = false,
   initialChildId,
 }: {
-  /** User id from server auth – used to fetch children immediately without waiting for client context. */
+  /** User id from server auth, used to fetch children immediately without waiting for client context. */
   serverUserId?: string;
   saved?: boolean;
   deleted?: boolean;
@@ -223,8 +223,8 @@ export function FamilyFigmaClient({
     ? `/family/at-home?child=${encodeURIComponent(scopedChildId)}`
     : '/family/at-home';
   const addAtHomeHref = scopedChildId
-    ? `/family/at-home/add?child=${encodeURIComponent(scopedChildId)}`
-    : '/family/at-home/add';
+    ? `/family/at-home/add?from=family&child=${encodeURIComponent(scopedChildId)}`
+    : '/family/at-home/add?from=family';
   const marketplaceHref = scopedChildId ? `/marketplace?child=${encodeURIComponent(scopedChildId)}` : '/marketplace';
 
   const childLabel = (() => {
@@ -607,7 +607,7 @@ export function FamilyFigmaClient({
                         Add what you own
                       </h3>
                       <p className="text-sm text-white/90 mt-1 leading-snug">
-                        Type a name or add a photo. Ember guesses the Discover idea — you confirm. List later if you want.
+                        Ember gets smarter about new ideas and faster pass-on matches.
                       </p>
                     </div>
                   </div>
@@ -706,7 +706,7 @@ export function FamilyFigmaClient({
                     <h3 className="text-base font-medium text-[#1A1E23] m-0">At home</h3>
                   </div>
                   <p className="text-sm text-[#5C646D]">
-                    {atHomeCount} items logged — what you already own
+                    {atHomeCount} items logged. What you already own
                   </p>
                 </Link>
 
