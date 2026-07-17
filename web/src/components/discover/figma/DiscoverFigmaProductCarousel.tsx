@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Bookmark, CircleX, ExternalLink, ChevronLeft, ChevronRight, Lock } from 'lucide-react';
-import { motion, AnimatePresence, type PanInfo } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
 import type { GatewayPick } from '@/lib/pl/public';
 import { retailerLinkRel } from '@/lib/compliance/externalRetailerLink';
@@ -67,13 +67,10 @@ export function DiscoverFigmaProductCarousel({
     }
   };
 
-  const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    if (info.offset.x > 50 && currentIndex > 0) handlePrevious();
-    else if (info.offset.x < -50 && currentIndex < products.length - 1) handleNext();
-  };
-
   const url = getProductUrl(current.pick);
   const canVisit = !current.isLocked && url && url !== '#';
+  const isComparisonSearch = /(^https?:\/\/)?(www\.)?google\.[^/]+\/search/i.test(url);
+  const visitLabel = isComparisonSearch ? 'Compare options' : 'View at retailer';
   const hideSaveActions = isPipsPicks || current.isStage3Pick;
 
   return (
@@ -107,10 +104,6 @@ export function DiscoverFigmaProductCarousel({
               exit={{ opacity: 0, x: direction === 'right' ? -60 : 60, scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
               className="bg-white rounded-3xl shadow-2xl overflow-hidden"
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.5}
-              onDragEnd={handleDragEnd}
             >
               <div className="relative h-56 lg:h-80 bg-[var(--ember-surface-soft)]">
                 <div className={current.isLocked ? 'h-full w-full blur-md opacity-70' : 'h-full w-full'}>
@@ -199,7 +192,7 @@ export function DiscoverFigmaProductCarousel({
                       className="flex items-center justify-center gap-1.5 lg:gap-2 px-4 lg:px-5 py-2.5 lg:py-3 rounded-xl border-2 border-[var(--ember-border-subtle)] text-[var(--ember-text-high)] hover:border-[var(--ember-accent-base)] font-medium text-xs lg:text-sm flex-1 min-w-[100px]"
                     >
                       <ExternalLink className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
-                      View at retailer
+                      {visitLabel}
                     </a>
                   ) : current.isLocked ? (
                     <span className="flex-1 min-w-[100px] text-center text-xs font-medium text-[var(--ember-text-low)] py-2">

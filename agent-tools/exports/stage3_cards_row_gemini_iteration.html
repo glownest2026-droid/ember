@@ -458,7 +458,6 @@
     body[data-member="free"] .product-card[data-locked="true"] .body {
       filter: blur(6px);
       opacity: 0.72;
-      pointer-events: none;
       user-select: none;
     }
 
@@ -622,41 +621,41 @@
           tag: "Best big open-ended scene",
           name: "LEGO DUPLO 3in1 Tree House",
           brand: "LEGO DUPLO",
-          price: "LEGO Official Shop GB · GBP 79.99",
+          price: "Google Shopping · Compare current prices",
           description: "Large DUPLO tree-house set with people, animals, slide, garden and rebuildable scenes.",
           verdict: "The richest story world here: several people, animals and places. Best where the family wants one bigger shared pretend-play set.",
           caveat: "Big footprint and higher price; borrow or buy pre-loved if unsure.",
-          url: "#"
+          url: "https://www.google.com/search?q=LEGO+DUPLO+3in1+Tree+House+10993&udm=28"
         },
         {
           tag: "Best animal story add-on",
           name: "Schleich Farm World Starter Set",
           brand: "Schleich",
-          price: "Price not verified",
+          price: "Google Shopping · Price not verified",
           description: "Farm figures that can be added to blocks, vehicles or a play mat to make stories happen.",
           verdict: "Best when the family already has blocks, vehicles or a play mat and needs characters to make stories happen.",
           caveat: "Check the current age mark and small-parts guidance before buying.",
-          url: "#"
+          url: "https://www.google.com/search?q=Schleich+Farm+World+Starter+Set&udm=28"
         },
         {
           tag: "Best simple vehicle role play",
           name: "PLAYMOBIL 1.2.3 Recycling Truck",
           brand: "PLAYMOBIL 1.2.3",
-          price: "Price not verified",
+          price: "Google Shopping · Price not verified",
           description: "A toddler-friendly vehicle scene with one person, one job and one familiar routine.",
           verdict: "A good low-frustration vehicle scene: one person, one job, one truck. It suits children who build stories from everyday routines.",
           caveat: "Verify current UK stock and price before recommending.",
-          url: "#"
+          url: "https://www.google.com/search?q=PLAYMOBIL+1.2.3+Recycling+Truck&udm=28"
         },
         {
           tag: "Best cosy town setup",
           name: "ELC Happyland Village Set",
           brand: "Early Learning Centre Happyland",
-          price: "Price not verified",
+          price: "Google Shopping · Price not verified",
           description: "A ready-made little town for moving people through familiar everyday places.",
           verdict: "A classic if you want whole little-world play without building. Best for children who like moving people through everyday places.",
           caveat: "High duplicate risk if they already have Happyland or similar.",
-          url: "#"
+          url: "https://www.google.com/search?q=ELC+Happyland+Village+Set&udm=28"
         }
       ],
       books: [
@@ -750,7 +749,7 @@
       fields.verdict.textContent = pick.verdict;
       fields.caveat.textContent = pick.caveat;
       fields.visit.href = pick.url;
-      fields.visit.textContent = pick.url === "#" ? "Link soon" : "View at retailer";
+      fields.visit.textContent = pick.url.includes("google.com/search") ? "Compare options" : pick.url === "#" ? "Link soon" : "View at retailer";
       fields.prevTitle.textContent = prev ? prev.name : "";
       fields.nextTitle.textContent = next ? next.name : "";
       document.querySelector(".ghost-card.left").style.visibility = prev ? "visible" : "hidden";
