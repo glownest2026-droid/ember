@@ -625,7 +625,7 @@ function stage3PlaceholderProduct(
   };
 }
 
-function stage3RowToProduct(row: GatewayStage3PickRow): GatewayProductPublic {
+function stage3RowToProduct(row: GatewayStage3PickRow, canSeeLocked: boolean = false): GatewayProductPublic {
   return {
     age_band_id: row.age_band_id,
     category_type_id: row.category_type_id,
@@ -640,7 +640,7 @@ function stage3RowToProduct(row: GatewayStage3PickRow): GatewayProductPublic {
     affiliate_url: null,
     affiliate_deeplink: null,
     is_stage3_pick: true,
-    is_locked: row.is_locked,
+    is_locked: row.is_locked && !canSeeLocked,
     stage3_rank: row.pick_rank,
     best_for_tag: row.best_for_tag,
     retailer: row.retailer,
@@ -656,7 +656,7 @@ function stage3RowToProduct(row: GatewayStage3PickRow): GatewayProductPublic {
     safety_notes: row.safety_notes,
     evidence_tier: row.evidence_tier,
     founder_qa_flag: row.founder_qa_flag,
-    locked_reason: null,
+    locked_reason: row.is_locked && !canSeeLocked ? "Pip's Picks 2-5 are included with Ember Plus." : null,
   };
 }
 
@@ -708,7 +708,7 @@ export async function getGatewayStage3PicksForAgeBandAndCategoryType(
   for (let rank = 1; rank <= limit; rank += 1) {
     const row = rowsByRank.get(rank);
     const product = row
-      ? stage3RowToProduct(row)
+      ? stage3RowToProduct(row, Boolean(options.canSeeLocked))
       : stage3PlaceholderProduct(ageBandId, categoryTypeId, rank);
     picks.push({
       product,

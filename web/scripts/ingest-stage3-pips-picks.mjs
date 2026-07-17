@@ -319,6 +319,7 @@ CREATE POLICY "pl_stage3_picks_public_read" ON public.pl_stage3_picks
     AND (
       is_locked = false
       OR lower(coalesce(auth.jwt() ->> 'email', '')) = 'timwd23@gmail.com'
+      OR lower(coalesce(auth.jwt() -> 'app_metadata' ->> 'membership_type', '')) = 'ember_plus'
     )
   );
 

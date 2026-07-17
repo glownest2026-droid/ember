@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/route-handler';
 import { getAgeBandForAge, getGatewayStage3PicksForAgeBandAndCategoryType } from '@/lib/pl/public';
+import { resolveEmberMembershipAccess } from '@/lib/membership/access';
 import {
   getGatewayTopPicksForAgeBandAndCategoryTypeCached,
   getGatewayTopPicksForAgeBandAndWrapperSlugCached,
@@ -40,18 +41,19 @@ export async function GET(req: NextRequest) {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      const canSeeLocked = user?.email?.toLowerCase() === 'timwd23@gmail.com';
+      const membership = resolveEmberMembershipAccess(user);
       const stage3Picks = await getGatewayStage3PicksForAgeBandAndCategoryType(ageBandId, categoryTypeId, 5, {
         supabase,
-        canSeeLocked,
+        canSeeLocked: membership.canSeeLockedPicks,
       });
       if (stage3Picks.length > 0) {
         return json(
           {
             picks: stage3Picks,
             access: {
-              canSeeLocked,
-              lockedFromRank: canSeeLocked ? null : 2,
+              canSeeLocked: membership.canSeeLockedPicks,
+              membershipType: membership.membershipType,
+              lockedFromRank: membership.canSeeLockedPicks ? null : 2,
             },
           },
           { headers: PRIVATE_HEADERS }
