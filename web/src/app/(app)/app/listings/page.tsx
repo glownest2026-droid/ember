@@ -536,12 +536,10 @@ function AppListingsPhotoDraftPage() {
       const childFromQuery = searchParams.get("child")?.trim() || null;
 
       if (intentAtHome) {
-        clearHouseholdItemContext();
-        setAtHomeIntent(true);
-        setAtHomeChildId(childFromQuery);
-        resetToNewListingState();
-        setSuccess("Add a photo of something you already own. Nothing goes live on Marketplace yet.");
-        if (active) setLoading(false);
+        const params = new URLSearchParams();
+        if (childFromQuery) params.set("child", childFromQuery);
+        const q = params.toString();
+        router.replace(q ? `/family/at-home/add?${q}` : "/family/at-home/add");
         return;
       }
 

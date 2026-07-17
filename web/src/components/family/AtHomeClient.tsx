@@ -64,8 +64,8 @@ export function AtHomeClient({
           <div className="min-w-0">
             <h1 className="text-2xl font-semibold tracking-[-0.02em] text-[#253044] m-0">At home</h1>
             <p className="text-sm text-[#66717D] mt-1 mb-0">
-              Things you already own — from Discover Have, or added with a photo. List on Marketplace only
-              when you are ready to pass something on.
+              Toys and kit you already own — from Discover Have, or logged here. Pass something on when you
+              are ready.
             </p>
           </div>
         </div>
@@ -99,8 +99,7 @@ export function AtHomeClient({
           <div>
             <p className="text-base font-medium text-[#253044] m-0">Nothing logged yet</p>
             <p className="text-sm text-[#66717D] mt-2 mb-0">
-              Add something you already own with a photo (same check as Marketplace), or tap Have on Discover
-              ideas.
+              Type a name or add a photo to log what you own — or tap Have on Discover ideas.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -109,7 +108,7 @@ export function AtHomeClient({
               className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#FF5C34] hover:opacity-95"
             >
               <Camera className="w-4 h-4" />
-              Add with photo
+              Add something
             </Link>
             <Link
               href={discoverHref}

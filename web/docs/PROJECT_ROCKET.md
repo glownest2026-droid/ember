@@ -28,7 +28,7 @@ Ship the **Pip feature set** to an agreed `$MVP_Threshold`, collect demand via w
 | Pip’s Patch Finds | Marketplace pull; **no “comes to you” push** on developmental match |
 | Pip’s Seasons / Chapters | Marketing vision; content not productised |
 | Pip’s Pass-On | Garage / list path partial; **no outgrown nudge** |
-| Inventory | **At home** at `/family/at-home`; Discover Have feeds `garage_items`; List it → Marketplace photo flow |
+| Inventory | **At home** at `/family/at-home`; add via `/family/at-home/add` (text + optional photo → Stage 2 confirm); List it → Marketplace |
 | OneSignal | Opt-in + prefs + dashboard test; **not automated Pip programs** |
 
 ---
@@ -163,7 +163,7 @@ Founder HTML roadmap (v2) is the single project-plan view: **Founder Jobs** ‖ 
 
 **Goal:** Free still excellent; Plus promise becomes partially true in-app.
 
-1. Persist **Have** + household **At home** inventory (sister to Marketplace; `/family/at-home`) — **first ship landed 2026-07-15** (photo add still = Marketplace flow).
+1. Persist **Have** + household **At home** inventory (sister to Marketplace; `/family/at-home`) — **first ship landed 2026-07-15**; **add UX (text-first + Stage 2) landed 2026-07-17**.
 2. Stage 3 shortlists for **`show_ember_picks = TRUE`** on Launch Band Set (import via Spine / ABI, not ad-hoc UI hacks).
 3. Surface Pip’s Picks on those cards (Plus badge ok; hard gate can wait until checkout).
 4. First **Seasons** pack: Summer 2026 babies vs toddlers (editorial).
@@ -327,7 +327,13 @@ IDs are **F1–F9 in order** (no gaps). Waitlist is a Cursor build with optional
 - Route: `/family/at-home` — owned list + **List it** → Marketplace photo flow (`household_item_id`)
 - Discover Have → `sync_at_home_from_discover_have` writes/archives At home rows; backfill from existing `user_list_items.have`
 - Migrations: `20260715134457_at_home_discover_have_bridge` + `20260715134927_at_home_discover_have_sync_rpc`
-- **Add to At home** (photo → confirm, no publish): `/app/listings?intent=at-home` from `/family` + `/family/at-home` — same Marketplace identify steps, saves `photo_assisted` owned row
+
+### 2026-07-17 — At home add UX (text-first + Stage 2)
+
+- `/family/at-home/add` — brand visuals, text-first, photo optional (sharper guess)
+- Match: `inventory_match_stage2_categories` + `/api/inventory/match-stage2` → parent confirms Stage 2 card
+- Entry CTAs scrubbed of Marketplace positioning; `intent=at-home` redirects here
+- Migration: `20260717060500_inventory_match_stage2_categories`
 
 ---
 

@@ -1,5 +1,15 @@
 import { createClient } from '@/utils/supabase/client';
 
+const CATEGORY_IMG =
+  'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images';
+
+/** Catalogue art for At home add hero (tidying / playroom kit). */
+export const AT_HOME_HERO_IMAGES = [
+  `${CATEGORY_IMG}/ember_cat_low_shelf_tidy_category.png`,
+  `${CATEGORY_IMG}/ember_cat_tip_out_baskets_category.png`,
+  `${CATEGORY_IMG}/ember_cat_transition_basket_category.png`,
+] as const;
+
 /** Sync Discover Stage 2 Have into At home (garage_items). Best-effort — never blocks Have UX. */
 export async function syncAtHomeFromDiscoverHave(args: {
   categoryTypeId: string;
@@ -32,6 +42,16 @@ export type AtHomeItem = {
   label: string;
   imageUrl: string | null;
   addedAt: string;
+};
+
+export type Stage2MatchCandidate = {
+  category_type_id: string;
+  slug: string;
+  label: string;
+  age_band_id: string | null;
+  image_url: string | null;
+  confidence_bucket: 'high' | 'medium' | 'low';
+  score?: number | null;
 };
 
 type GarageRow = {
@@ -102,11 +122,134 @@ export function atHomeListItHref(itemId: string): string {
   return `/app/listings?new=1&household_item=${encodeURIComponent(itemId)}`;
 }
 
-/** Photo → confirm flow that saves to At home (does not list on Marketplace). */
+/** Dedicated At home add flow (text-first, optional photo, Stage 2 confirm). */
 export function atHomeAddHref(childId?: string | null): string {
-  const params = new URLSearchParams({ new: '1', intent: 'at-home' });
+  const params = new URLSearchParams();
   if (childId) params.set('child', childId);
-  return `/app/listings?${params.toString()}`;
+  const q = params.toString();
+  return q ? `/family/at-home/add?${q}` : '/family/at-home/add';
+}
+
+export async function matchStage2Categories(args: {
+  query: string;
+  childId?: string | null;
+  ageBandId?: string | null;
+  limit?: number;
+}): Promise<{ candidates: Stage2MatchCandidate[]; error: string | null }> {
+  const q = args.query.trim();
+  if (!q) return { candidates: [], error: null };
+
+  const params = new URLSearchParams({ q, limit: String(args.limit ?? 6) });
+  if (args.childId) params.set('childId', args.childId);
+  if (args.ageBandId) params.set('ageBandId', args.ageBandId);
+
+  try {
+    const res = await fetch(`/api/inventory/match-stage2?${params.toString()}`);
+    const payload = (await res.json()) as {
+      candidates?: Stage2MatchCandidate[];
+      error?: string;
+    };
+    if (!res.ok) {
+      return { candidates: [], error: payload.error ?? 'Could not find matches.' };
+    }
+    return { candidates: payload.candidates ?? [], error: null };
+  } catch {
+    return { candidates: [], error: 'Could not reach match service.' };
+  }
+}
+
+async function resolveProductTypeId(
+  supabase: ReturnType<typeof createClient>,
+  categoryTypeId: string,
+  rawQuery: string | null
+): Promise<string | null> {
+  const { data: ct } = await supabase
+    .from('pl_category_types')
+    .select('slug, label')
+    .eq('id', categoryTypeId)
+    .maybeSingle();
+
+  const slug = (ct as { slug?: string } | null)?.slug;
+  const label = (ct as { label?: string } | null)?.label;
+
+  if (slug) {
+    const stripped = slug.replace(/^cat_/, '');
+    const { data: bySlug } = await supabase
+      .from('product_types')
+      .select('id')
+      .eq('is_active', true)
+      .eq('slug', slug)
+      .maybeSingle();
+    if (bySlug?.id) return bySlug.id as string;
+    if (stripped !== slug) {
+      const { data: byStripped } = await supabase
+        .from('product_types')
+        .select('id')
+        .eq('is_active', true)
+        .eq('slug', stripped)
+        .maybeSingle();
+      if (byStripped?.id) return byStripped.id as string;
+    }
+  }
+
+  const matchQuery = rawQuery?.trim() || label?.trim();
+  if (matchQuery) {
+    const { data: matched } = await supabase.rpc('inventory_match_product_types', {
+      query_text: matchQuery,
+      p_limit: 1,
+    });
+    const first = (matched as { id?: string }[] | null)?.[0];
+    if (first?.id) return first.id;
+  }
+
+  return null;
+}
+
+/** Save At home from Stage 2 parent confirm (text and/or photo path). */
+export async function saveAtHomeFromStage2Match(args: {
+  userId: string;
+  categoryTypeId: string;
+  childId?: string | null;
+  rawQuery?: string | null;
+  hasPhoto?: boolean;
+  draftId?: string | null;
+}): Promise<{ itemId: string | null; error: string | null }> {
+  const supabase = createClient();
+  const childId = args.childId?.trim() || null;
+  const label = args.rawQuery?.trim() || null;
+  const productTypeId = await resolveProductTypeId(supabase, args.categoryTypeId, label);
+
+  const { data, error } = await supabase
+    .from('garage_items')
+    .insert({
+      user_id: args.userId,
+      product_type_id: productTypeId,
+      category_type_id: args.categoryTypeId,
+      child_scope_type: childId ? 'single_child' : 'unknown',
+      child_id: childId,
+      raw_query: label,
+      source: args.hasPhoto ? 'photo_assisted' : 'manual_match',
+      status: 'owned',
+    })
+    .select('id')
+    .single();
+
+  if (error || !data?.id) {
+    return { itemId: null, error: error?.message ?? 'Could not save to At home.' };
+  }
+
+  if (args.draftId) {
+    await supabase
+      .from('marketplace_listing_drafts')
+      .update({
+        household_item_id: data.id,
+        ...(productTypeId ? { product_type_id: productTypeId } : {}),
+      })
+      .eq('id', args.draftId)
+      .eq('user_id', args.userId);
+  }
+
+  return { itemId: data.id, error: null };
 }
 
 /** After Marketplace photo+confirm, persist an owned At home row and link the draft. */
@@ -160,5 +303,16 @@ export function statusLabel(status: AtHomeItemStatus): string {
       return 'Removed';
     default:
       return 'At home';
+  }
+}
+
+export function confidenceLabel(bucket: 'high' | 'medium' | 'low'): string {
+  switch (bucket) {
+    case 'high':
+      return 'Looks likely';
+    case 'medium':
+      return 'Possible match';
+    default:
+      return 'Worth a look';
   }
 }

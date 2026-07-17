@@ -223,10 +223,9 @@ export function FamilyFigmaClient({
     ? `/family/at-home?child=${encodeURIComponent(scopedChildId)}`
     : '/family/at-home';
   const addAtHomeHref = scopedChildId
-    ? `/app/listings?new=1&intent=at-home&child=${encodeURIComponent(scopedChildId)}`
-    : '/app/listings?new=1&intent=at-home';
+    ? `/family/at-home/add?child=${encodeURIComponent(scopedChildId)}`
+    : '/family/at-home/add';
   const marketplaceHref = scopedChildId ? `/marketplace?child=${encodeURIComponent(scopedChildId)}` : '/marketplace';
-  // Snag: Add to At home reuses Marketplace photo → confirm (no publish).
 
   const childLabel = (() => {
     if (!scopedChild) return 'your household';
@@ -608,7 +607,7 @@ export function FamilyFigmaClient({
                         Add what you own
                       </h3>
                       <p className="text-sm text-white/90 mt-1 leading-snug">
-                        Photo and confirm — same as Marketplace — then keep it At home until you are ready to pass it on.
+                        Type a name or add a photo. Ember guesses the Discover idea — you confirm. List later if you want.
                       </p>
                     </div>
                   </div>

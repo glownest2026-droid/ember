@@ -1,10 +1,18 @@
+## 2026-07-17 — At home add UX (text-first + Stage 2 confirm)
+
+- Dedicated `/family/at-home/add` — fun hero art, text-first, photo optional
+- Stage 2 match: `inventory_match_stage2_categories` + `GET /api/inventory/match-stage2`
+- Parent confirms Discover category card; Marketplace copy scrubbed from entry points
+- Old `/app/listings?intent=at-home` redirects to the new add page
+- List it still uses full Marketplace publish flow
+
 ## 2026-07-15 — Project Rocket: At home (Inventory first ship)
 
 - Parent name **At home**; route `/family/at-home` under Family
 - Discover Have syncs into `garage_items` via `sync_at_home_from_discover_have` (+ backfill)
-- **Add item** from Family + At home → `/app/listings?intent=at-home` (photo → confirm only; not listed yet)
+- **Add item** → `/family/at-home/add` (supersedes listings intent path)
 - List it → `/app/listings?new=1&household_item=…` (full Marketplace publish flow)
-- Migrations applied: `20260715134457` + `20260715134927`
+- Migrations applied: `20260715134457` + `20260715134927` + `20260717060500`
 - Garage parent-facing language removed from Family UI
 
 ## 2026-07-15 — Manus research brief (jigsaws 34–36m)
