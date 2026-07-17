@@ -156,6 +156,7 @@ export default function DiscoveryPageClient({
   const fallbackHaveChildIdRef = useRef<string | null>(null);
   const basePath = '/discover';
   const { user, loading: subnavLoading, refetch: refetchSubnavStats } = useSubnavStats();
+  const viewerAccessKey = user?.email?.toLowerCase() ?? 'signed-out';
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { params: clientParams, replace: replaceClientParams } = useDiscoverClientSearchParams(pathname);
@@ -237,7 +238,7 @@ export default function DiscoveryPageClient({
   const fetchPicksForCategory = useCallback(
     async (categoryId: string) => {
       if (!ageBand?.id) return;
-      const key = `${ageBand.id}|${categoryId}`;
+      const key = `${ageBand.id}|${categoryId}|${viewerAccessKey}`;
       if (picksFetchKeyRef.current === key) return;
       picksFetchKeyRef.current = key;
       setPicksLoading(true);
@@ -253,7 +254,7 @@ export default function DiscoveryPageClient({
         setPicksLoading(false);
       }
     },
-    [ageBand?.id]
+    [ageBand?.id, viewerAccessKey]
   );
 
   // Pre-dim Stage 2 cards the user has already marked as "have".
@@ -949,6 +950,7 @@ export default function DiscoveryPageClient({
 
   const displayIdeas =
     showingExamples && fetchedPicks.length > 0 ? fetchedPicks : exampleProducts;
+  const displayHasPipsPicks = displayIdeas.some((p) => p.product.is_stage3_pick);
 
   const shortlistTrackKeyRef = useRef<string | null>(null);
   useEffect(() => {
@@ -1242,9 +1244,11 @@ export default function DiscoveryPageClient({
     [thingsThatCanHelp]
   );
 
-  const ideasSectionLoading = Boolean(selectedWrapper) && playIdeaItems.length === 0;
-
   const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
+  const productSectionTitle = displayHasPipsPicks ? "Pip's Picks" : 'Product examples for this stage';
+  const productSectionIntro = displayHasPipsPicks
+    ? "Pip has sorted five options for this card. Pick 1 is open; picks 2-5 are included with Ember Plus."
+    : 'These examples are selected for stage-fit and usefulness. Retailer links, where shown, may be affiliate links.';
   const scienceTitle = 'Why this matters now';
   const ideasDevelopmentName = (() => {
     const lower = selectedWrapperLabel.trim().toLowerCase();
@@ -1466,25 +1470,7 @@ export default function DiscoveryPageClient({
                 id="discover-figma-ideas"
                 className="scroll-mt-[calc(var(--header-height,88px)+12px)] mt-4 md:mt-0 md:scroll-mt-2 md:-mt-1"
               >
-                {ideasSectionLoading ? (
-                  <div className="flex flex-col gap-4" aria-busy="true" aria-label="Loading ideas">
-                    <div className="h-9 w-2/3 max-w-md rounded-lg bg-[#E7E2DC]/60 animate-pulse" />
-                    <div className="flex gap-4 overflow-hidden">
-                      {[0, 1].map((i) => (
-                        <div
-                          key={i}
-                          className="flex-[0_0_94%] md:flex-[0_0_58%] rounded-[24px] border border-[#E7E2DC] overflow-hidden bg-white"
-                        >
-                          <div className="aspect-[16/9] max-h-[150px] bg-[#E7E2DC]/50 animate-pulse" />
-                          <div className="p-4 space-y-2">
-                            <div className="h-5 w-3/4 rounded bg-[#E7E2DC]/60 animate-pulse" />
-                            <div className="h-4 w-full rounded bg-[#E7E2DC]/40 animate-pulse" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (audienceMode === 'gift' ? giftIdeas.length > 0 : usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
+                {(audienceMode === 'gift' ? giftIdeas.length > 0 : usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
                   <div className="flex flex-col gap-6">
                     <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">{ideasSectionTitle}</h2>
                     {audienceMode === 'gift' ? (
@@ -1584,7 +1570,7 @@ export default function DiscoveryPageClient({
                 <div id="examplesProgressBar" className="mb-5 lg:mb-8">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
-                      Product examples for this stage
+                      {productSectionTitle}
                     </h2>
                     {displayIdeas.length > 0 ? (
                       <button
@@ -1597,8 +1583,7 @@ export default function DiscoveryPageClient({
                     ) : null}
                   </div>
                   <p className="text-sm text-[var(--ember-text-low)] mt-2">
-                    These examples are selected for stage-fit and usefulness. Retailer links, where shown, may be
-                    affiliate links.
+                    {productSectionIntro}
                   </p>
                   <AffiliateDisclosureNotice
                     hasRetailerLinks={examplesHaveRetailerLinks}
@@ -1616,14 +1601,15 @@ export default function DiscoveryPageClient({
                   </div>
                 ) : (
                   <DiscoverFigmaProductCarousel
-                    key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}`}
-                    picks={displayIdeas.slice(0, 12)}
+                    key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}-${viewerAccessKey}`}
+                    picks={displayIdeas.slice(0, displayHasPipsPicks ? 5 : 12)}
                     ageRangeLabel={formatBandLabel(selectedBand)}
-                    whyWorksHeading={whyWorksHeading}
+                    whyWorksHeading={displayHasPipsPicks ? 'Why Pip picked this' : whyWorksHeading}
                     onSave={handleSaveToList}
                     onHave={handleHaveItAlready}
                     getProductUrl={getProductUrl}
                     showHaveAction={!!user}
+                    isPipsPicks={displayHasPipsPicks}
                   />
                 )}
               </section>
