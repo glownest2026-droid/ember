@@ -212,6 +212,39 @@ export type GatewayCategoryTypeImage = {
 
 type CategoryImageRow = GatewayCategoryTypeImage;
 
+const AGE_BAND_WRAPPER_NEED_SLUG_OVERRIDES: Record<string, Record<string, string[]>> = {
+  '34-36m': {
+    // The 34-36m Spine 3.0 import uses refreshed need slugs while the legacy
+    // global wrapper mapping still points these wrappers at old empty needs.
+    ent_cluster_talk_stories_questions: ['need_language_story'],
+    ent_cluster_feelings_turn_taking: ['need_social_emotional'],
+  },
+};
+
+function getNeedSlugOverrides(ageBandId: string, wrapperSlug: string): string[] {
+  const bandOverrides = AGE_BAND_WRAPPER_NEED_SLUG_OVERRIDES[ageBandId];
+  if (!bandOverrides) return [];
+  return bandOverrides[wrapperSlug] ?? bandOverrides[wrapperSlug.toLowerCase()] ?? [];
+}
+
+async function getDevelopmentNeedIdsForSlugOverrides(
+  ageBandId: string,
+  wrapperSlug: string
+): Promise<string[]> {
+  const needSlugs = getNeedSlugOverrides(ageBandId, wrapperSlug);
+  if (needSlugs.length === 0) return [];
+
+  const supabase = createPublicCatalogueClient();
+  const { data, error } = await supabase
+    .from('pl_development_needs')
+    .select('id, slug')
+    .in('slug', needSlugs);
+
+  if (error || !data) return [];
+  const idsBySlug = new Map((data as Array<{ id: string; slug: string }>).map((row) => [row.slug, row.id]));
+  return needSlugs.map((slug) => idsBySlug.get(slug)).filter((id): id is string => Boolean(id));
+}
+
 function pickBestCategoryImages(
   rows: CategoryImageRow[],
   ageBandId?: string | null
@@ -300,6 +333,9 @@ async function getDevelopmentNeedIdsForAgeBandAndWrapper(
   ageBandId: string,
   wrapperSlug: string
 ): Promise<string[]> {
+  const overrideNeedIds = await getDevelopmentNeedIdsForSlugOverrides(ageBandId, wrapperSlug);
+  if (overrideNeedIds.length > 0) return overrideNeedIds;
+
   const supabase = createPublicCatalogueClient();
 
   const { data: bandNeedRows, error: bandNeedError } = await supabase
@@ -395,6 +431,34 @@ export async function getGatewayCategoryTypesByWrapperForAgeBand(
   const slugLookup = new Set(wrapperSlugs.map((s) => s.toLowerCase()));
   const needIdsByWrapper = new Map<string, string[]>();
 
+  const overrideNeedSlugs = [
+    ...new Set(
+      wrapperSlugs.flatMap((slug) => getNeedSlugOverrides(ageBandId, slug))
+    ),
+  ];
+  const overrideNeedIdsBySlug = new Map<string, string>();
+  if (overrideNeedSlugs.length > 0) {
+    const { data: overrideRows, error: overrideError } = await supabase
+      .from('pl_development_needs')
+      .select('id, slug')
+      .in('slug', overrideNeedSlugs);
+
+    if (!overrideError && overrideRows) {
+      for (const row of overrideRows as Array<{ id: string; slug: string }>) {
+        overrideNeedIdsBySlug.set(row.slug, row.id);
+      }
+    }
+  }
+
+  for (const wrapperSlug of wrapperSlugs) {
+    const overrideIds = getNeedSlugOverrides(ageBandId, wrapperSlug)
+      .map((needSlug) => overrideNeedIdsBySlug.get(needSlug))
+      .filter((id): id is string => Boolean(id));
+    if (overrideIds.length > 0) {
+      needIdsByWrapper.set(wrapperSlug, overrideIds);
+    }
+  }
+
   const { data: bandNeedRows, error: bandNeedError } = await supabase
     .from('v_gateway_age_band_wrapper_needs_public')
     .select('wrapper_slug, development_need_id, need_rank')
@@ -406,6 +470,7 @@ export async function getGatewayCategoryTypesByWrapperForAgeBand(
       const dbSlug = row.wrapper_slug as string;
       if (!slugLookup.has(dbSlug.toLowerCase())) continue;
       const slug = canonicalWrapperSlug(wrapperSlugs, dbSlug);
+      if ((needIdsByWrapper.get(slug) ?? []).length > 0) continue;
       const needId = row.development_need_id as string;
       const list = needIdsByWrapper.get(slug) ?? [];
       if (!list.includes(needId)) list.push(needId);

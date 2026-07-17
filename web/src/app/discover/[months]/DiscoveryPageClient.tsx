@@ -1244,8 +1244,6 @@ export default function DiscoveryPageClient({
     [thingsThatCanHelp]
   );
 
-  const ideasSectionLoading = Boolean(selectedWrapper) && playIdeaItems.length === 0;
-
   const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
   const productSectionTitle = displayHasPipsPicks ? "Pip's Picks" : 'Product examples for this stage';
   const productSectionIntro = displayHasPipsPicks
@@ -1472,25 +1470,7 @@ export default function DiscoveryPageClient({
                 id="discover-figma-ideas"
                 className="scroll-mt-[calc(var(--header-height,88px)+12px)] mt-4 md:mt-0 md:scroll-mt-2 md:-mt-1"
               >
-                {ideasSectionLoading ? (
-                  <div className="flex flex-col gap-4" aria-busy="true" aria-label="Loading ideas">
-                    <div className="h-9 w-2/3 max-w-md rounded-lg bg-[#E7E2DC]/60 animate-pulse" />
-                    <div className="flex gap-4 overflow-hidden">
-                      {[0, 1].map((i) => (
-                        <div
-                          key={i}
-                          className="flex-[0_0_94%] md:flex-[0_0_58%] rounded-[24px] border border-[#E7E2DC] overflow-hidden bg-white"
-                        >
-                          <div className="aspect-[16/9] max-h-[150px] bg-[#E7E2DC]/50 animate-pulse" />
-                          <div className="p-4 space-y-2">
-                            <div className="h-5 w-3/4 rounded bg-[#E7E2DC]/60 animate-pulse" />
-                            <div className="h-4 w-full rounded bg-[#E7E2DC]/40 animate-pulse" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (audienceMode === 'gift' ? giftIdeas.length > 0 : usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
+                {(audienceMode === 'gift' ? giftIdeas.length > 0 : usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
                   <div className="flex flex-col gap-6">
                     <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">{ideasSectionTitle}</h2>
                     {audienceMode === 'gift' ? (
