@@ -15,8 +15,6 @@ import {
 } from '@/lib/discover/doorways';
 import { getEffectiveAgeBandRange } from '@/lib/discover/pilotAgeBandRange';
 import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
-import { AffiliateDisclosureNotice } from '@/components/compliance/AffiliateDisclosureNotice';
-import { hasOutboundRetailerUrl } from '@/lib/compliance/externalRetailerLink';
 import { DiscoverFigmaChildHero } from '@/components/discover/figma/DiscoverFigmaChildHero';
 import { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigmaNeedCard';
 import { DiscoverFigmaScienceSection } from '@/components/discover/figma/DiscoverFigmaScienceSection';
@@ -1008,6 +1006,16 @@ export default function DiscoveryPageClient({
     });
   }, [discoverState, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, selectedChildId, user?.id, pathname]);
 
+  const stage3MobileAnchorKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (discoverState !== 'ShowingExamples' || picksLoading || displayIdeas.length <= 0) return;
+    if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+    const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedCategoryId ?? 'none'}|${displayIdeas.length}`;
+    if (stage3MobileAnchorKeyRef.current === key) return;
+    stage3MobileAnchorKeyRef.current = key;
+    requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'smooth'));
+  }, [discoverState, picksLoading, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, scrollToSection]);
+
   const handleSaveCategory = (categoryId: string, triggerEl: HTMLButtonElement | null) => {
     saveModalFocusRef.current = triggerEl;
     requireAuthThen({
@@ -1165,11 +1173,6 @@ export default function DiscoveryPageClient({
   const bandLabel = formatBandLabel(selectedBand);
   const bandRange = getBandRange(selectedBand);
   const isExpecting = isExpectingRange(bandRange);
-  const examplesHaveRetailerLinks = useMemo(
-    () => displayIdeas.some((p) => hasOutboundRetailerUrl(p.product)),
-    [displayIdeas]
-  );
-
   return (
     <div
       className="min-h-screen w-full bg-[#FBFAF7]"
@@ -1479,33 +1482,8 @@ export default function DiscoveryPageClient({
             ) : null}
 
             {discoverState === 'ShowingExamples' ? (
-              <section id="discover-figma-products" className="scroll-mt-6">
-                <div id="examplesProgressBar" className="mb-5 lg:mb-8">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
-                      Pip&apos;s Picks
-                    </h2>
-                    {displayIdeas.length > 0 ? (
-                      <button
-                        type="button"
-                        className="text-sm text-[var(--ember-text-low)] hover:underline"
-                        onClick={() => setHowWeChooseOpen(true)}
-                      >
-                        Why these?
-                      </button>
-                    ) : null}
-                  </div>
-                  <p className="text-sm text-[var(--ember-text-low)] mt-2">
-                    {isEmberPlusMember
-                      ? "A shortlist we've already weighed up, with the full reasoning behind each pick."
-                      : "A shortlist we've already weighed up. Pick 1 is free; picks 2-5 are for Ember Plus."}
-                  </p>
-                  <AffiliateDisclosureNotice
-                    hasRetailerLinks={examplesHaveRetailerLinks}
-                    className="mt-2"
-                  />
-                  <p className="text-xs text-[var(--ember-text-low)] mt-2">Chosen for {chosenForLabel}</p>
-                </div>
+              <section id="discover-figma-products" className="scroll-mt-[calc(var(--header-height,88px)+4px)] md:scroll-mt-6">
+                <div id="examplesProgressBar" className="h-1" aria-hidden />
                 {picksLoading ? (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]" aria-busy="true">
                     Loading examples…

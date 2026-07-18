@@ -206,12 +206,15 @@ export function PipsPicksPersimmonCarousel({
         </p>
       </div>
 
-      <div className="relative min-h-[620px] overflow-hidden md:min-h-[610px]" style={{ perspective: '1200px' }}>
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#FBFAF7] to-transparent md:block" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-20 hidden w-28 bg-gradient-to-l from-[#FBFAF7] to-transparent md:block" />
+      <div
+        className="relative min-h-[545px] overflow-hidden rounded-[28px] bg-[#FF5C34] shadow-[0_24px_56px_rgba(255,92,52,0.22)] md:min-h-[610px]"
+        style={{ perspective: '1200px' }}
+      >
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#FF5C34] to-transparent md:block" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-20 hidden w-28 bg-gradient-to-l from-[#FF5C34] to-transparent md:block" />
         <div
           ref={trackRef}
-          className="absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_165px)] py-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)]"
+          className="absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] py-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)]"
           style={{ transformStyle: 'preserve-3d' }}
         >
           {renderedPicks.map((pick, index) => {
@@ -227,12 +230,12 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex h-full max-h-[570px] w-[330px] flex-[0_0_330px] snap-center items-center justify-center md:w-[370px] md:flex-[0_0_370px]"
+                className="relative flex h-full max-h-[500px] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[570px] md:w-[370px] md:flex-[0_0_370px]"
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 <article
                   data-pips-card
-                  className="absolute flex h-full w-full flex-col overflow-hidden rounded-[32px] border-[10px] border-[#FF5C34] bg-[#161D2B] text-white shadow-[0_28px_52px_rgba(22,29,43,0.22)] transition-transform duration-150"
+                  className="absolute flex h-full w-full flex-col overflow-hidden rounded-[28px] bg-[#161D2B] text-white shadow-[0_28px_52px_rgba(22,29,43,0.22)] transition-transform duration-150 md:rounded-[32px]"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- decorative brand watermark */}
@@ -243,7 +246,7 @@ export function PipsPicksPersimmonCarousel({
                   />
 
                   <div className="relative z-10 flex h-full flex-col p-5 md:p-7">
-                    <span className="mb-5 inline-flex self-start rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
+                    <span className="mb-4 inline-flex self-start rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white md:mb-5">
                       {rank} / {renderedPicks.length}
                     </span>
 
@@ -255,24 +258,24 @@ export function PipsPicksPersimmonCarousel({
                       <p className="m-0 mb-1.5 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8]">
                         {fields.tag}
                       </p>
-                      <h3 className="m-0 mb-2 flex items-start gap-2.5 text-[21px] font-extrabold leading-tight tracking-normal text-white md:text-[22px]">
+                      <h3 className="m-0 mb-2 flex items-start gap-2.5 text-[20px] font-extrabold leading-tight tracking-normal text-white md:text-[22px]">
                         <Icon className="h-6 w-6 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
                         {fields.title}
                       </h3>
                       {fields.brand ? (
-                        <p className="m-0 mb-4 text-[13px] font-bold uppercase tracking-wider text-white/80">
+                        <p className="m-0 mb-3 text-[12px] font-bold uppercase tracking-wider text-white/80 md:mb-4 md:text-[13px]">
                           {fields.brand}
                         </p>
                       ) : null}
-                      <p className="m-0 mb-4 text-[15px] font-medium leading-relaxed text-white/95">
+                      <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 md:mb-4 md:text-[15px]">
                         {fields.description}
                       </p>
 
-                      <div className="mt-auto rounded-2xl border border-white/10 bg-white/[0.08] p-4">
+                      <div className="mt-auto rounded-2xl border border-white/10 bg-white/[0.08] p-3 md:p-4">
                         <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
                           Why Pip picked this
                         </strong>
-                        <p className="m-0 text-[14px] font-semibold leading-relaxed text-white/95">
+                        <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 md:text-[14px]">
                           {fields.verdict}
                         </p>
                       </div>
@@ -282,12 +285,12 @@ export function PipsPicksPersimmonCarousel({
                           href={url}
                           target="_blank"
                           rel={retailerLinkRel(url)}
-                          className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[15px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97]"
+                          className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[14px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97] md:mt-4 md:min-h-12 md:text-[15px]"
                         >
                           View retailer
                         </a>
                       ) : (
-                        <span className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-white/10 px-4 py-3 text-[15px] font-extrabold text-white/75">
+                        <span className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-white/10 px-4 py-3 text-[14px] font-extrabold text-white/75 md:mt-4 md:min-h-12 md:text-[15px]">
                           Link soon
                         </span>
                       )}
@@ -295,7 +298,7 @@ export function PipsPicksPersimmonCarousel({
                   </div>
 
                   {locked ? (
-                    <div className="absolute inset-[10px] z-30 flex flex-col items-center justify-center rounded-[22px] bg-[#161D2B] p-8 text-center">
+                    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center rounded-[28px] bg-[#161D2B] p-8 text-center md:rounded-[32px]">
                       <strong className="mb-3 text-[20px] font-extrabold leading-tight text-white">
                         Discover Pip&apos;s Picks with Ember Plus
                       </strong>
