@@ -152,6 +152,23 @@ export function PipsPicksPersimmonCarousel({
   const [enable3d, setEnable3d] = useState(false);
   const renderedPicks = useMemo(() => picks.slice(0, 5) as PipsPick[], [picks]);
 
+  const lockedFlags = useMemo(
+    () =>
+      renderedPicks.map(
+        (pick, index) =>
+          Boolean(pick.product.is_locked ?? pick.product.locked_for_non_members ?? index > 0) &&
+          !isEmberPlusMember
+      ),
+    [renderedPicks, isEmberPlusMember]
+  );
+  const lockedCount = lockedFlags.filter(Boolean).length;
+  // Non-members see one locked upsell card instead of four identical ones;
+  // the counter on it signals how many picks they are missing.
+  const displayPicks = useMemo(() => {
+    const firstLockedIndex = lockedFlags.indexOf(true);
+    return firstLockedIndex === -1 ? renderedPicks : renderedPicks.slice(0, firstLockedIndex + 1);
+  }, [renderedPicks, lockedFlags]);
+
   useEffect(() => {
     const query = window.matchMedia('(hover: hover) and (pointer: fine)');
     const update = () => setEnable3d(query.matches);
@@ -186,9 +203,9 @@ export function PipsPicksPersimmonCarousel({
   }, []);
 
   const scrollByCard = useCallback((direction: -1 | 1) => {
-    const next = Math.max(0, Math.min(renderedPicks.length - 1, activeIndex + direction));
+    const next = Math.max(0, Math.min(displayPicks.length - 1, activeIndex + direction));
     scrollToIndex(next);
-  }, [activeIndex, renderedPicks.length, scrollToIndex]);
+  }, [activeIndex, displayPicks.length, scrollToIndex]);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -204,9 +221,9 @@ export function PipsPicksPersimmonCarousel({
       track.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
     };
-  }, [renderedPicks.length, updateActiveIndex, enable3d]);
+  }, [displayPicks.length, updateActiveIndex, enable3d]);
 
-  if (!renderedPicks.length) return null;
+  if (!displayPicks.length) return null;
 
   return (
     <section className="relative overflow-hidden text-[#253044]">
@@ -226,7 +243,7 @@ export function PipsPicksPersimmonCarousel({
       </div>
 
       <div
-        className="relative min-h-[545px] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[610px]"
+        className="relative min-h-[560px] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[610px]"
         style={enable3d ? { perspective: '1200px' } : undefined}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#E4E9E6] to-transparent md:block" />
@@ -236,10 +253,9 @@ export function PipsPicksPersimmonCarousel({
           className="absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] py-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)]"
           style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
         >
-          {renderedPicks.map((pick, index) => {
+          {displayPicks.map((pick, index) => {
             const rank = index + 1;
-            const productLocked = Boolean(pick.product.is_locked ?? pick.product.locked_for_non_members ?? index > 0);
-            const locked = productLocked && !isEmberPlusMember;
+            const locked = lockedFlags[index];
             const url = getProductUrl(pick);
             const canVisit = url && url !== '#';
             const fields = getDisplayFields(pick, rank, childDisplayLabel);
@@ -249,7 +265,7 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex h-full max-h-[500px] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[570px] md:w-[370px] md:flex-[0_0_370px]"
+                className="relative flex h-full max-h-[520px] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[570px] md:w-[370px] md:flex-[0_0_370px]"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
@@ -267,7 +283,7 @@ export function PipsPicksPersimmonCarousel({
                   <img
                     src={ROBIN_LOGO_URL}
                     alt=""
-                    className="pointer-events-none absolute right-5 top-5 z-20 h-[88px] w-[88px] object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-24 md:w-24"
+                    className="pointer-events-none absolute right-2.5 top-2.5 z-20 h-12 w-12 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-14 md:w-14"
                   />
 
                   <div className="relative z-10 flex h-full flex-col p-5 md:p-7">
@@ -280,10 +296,10 @@ export function PipsPicksPersimmonCarousel({
                         locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
                       }`}
                     >
-                      <p className="m-0 mb-1.5 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8]">
+                      <p className="m-0 mb-1.5 pr-10 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] md:pr-12">
                         {fields.tag}
                       </p>
-                      <h3 className="m-0 mb-2 flex items-start gap-2.5 text-[20px] font-extrabold leading-tight tracking-normal text-white md:text-[22px]">
+                      <h3 className="m-0 mb-2 flex items-start gap-2.5 pr-6 text-[20px] font-extrabold leading-tight tracking-normal text-white md:pr-8 md:text-[22px]">
                         <Icon className="h-6 w-6 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
                         {fields.title}
                       </h3>
@@ -292,7 +308,7 @@ export function PipsPicksPersimmonCarousel({
                           {fields.brand}
                         </p>
                       ) : null}
-                      <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 md:mb-4 md:text-[15px]">
+                      <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-3 md:mb-4 md:text-[15px] md:line-clamp-4">
                         {fields.description}
                       </p>
 
@@ -300,7 +316,7 @@ export function PipsPicksPersimmonCarousel({
                         <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
                           Why Pip picked this
                         </strong>
-                        <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 md:text-[14px]">
+                        <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-5 md:text-[14px] md:line-clamp-6">
                           {fields.verdict}
                         </p>
                       </div>
@@ -328,8 +344,13 @@ export function PipsPicksPersimmonCarousel({
                       <img
                         src={ROBIN_LOGO_URL}
                         alt=""
-                        className="pointer-events-none absolute right-5 top-5 h-[88px] w-[88px] object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-24 md:w-24"
+                        className="pointer-events-none absolute right-2.5 top-2.5 h-12 w-12 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-14 md:w-14"
                       />
+                      {lockedCount > 0 ? (
+                        <span className="mb-4 inline-flex items-center rounded-full border border-[#FF5C34]/40 bg-[#FF5C34]/15 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-[#FFE0D8]">
+                          {lockedCount} more {lockedCount === 1 ? 'pick' : 'picks'} available
+                        </span>
+                      ) : null}
                       <strong className="mb-3 text-[20px] font-extrabold leading-tight text-white">
                         Discover Pip&apos;s Picks with Ember Plus
                       </strong>
@@ -364,7 +385,7 @@ export function PipsPicksPersimmonCarousel({
           <button
             type="button"
             onClick={() => scrollByCard(1)}
-            disabled={activeIndex >= renderedPicks.length - 1}
+            disabled={activeIndex >= displayPicks.length - 1}
             className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#E7E2DC] bg-white text-[#253044] shadow-lg transition hover:bg-[#FBFAF7] disabled:opacity-30"
             aria-label="Next Pip's Pick"
           >
@@ -372,7 +393,7 @@ export function PipsPicksPersimmonCarousel({
           </button>
         </div>
         <div className="absolute bottom-2 left-0 right-0 z-30 flex justify-center gap-2">
-          {renderedPicks.map((pick, index) => (
+          {displayPicks.map((pick, index) => (
             <button
               key={pick.product.id}
               type="button"

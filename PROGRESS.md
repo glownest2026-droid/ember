@@ -1,3 +1,11 @@
+## 2026-07-18: Pip's Picks card polish (mobile) — PR #266 follow-up
+
+Founder review of the preview on a phone flagged three issues, fixed in `PipsPicksPersimmonCarousel.tsx`:
+
+1. **Truncation:** card content could overflow the fixed card height, cutting off the View retailer button. Description now clamps to 3 lines (4 on desktop), "Why Pip picked this" to 5 lines (6 on desktop); mobile card height +20px.
+2. **Robin mark:** shrunk from 88px to 48px and tucked into the top-right corner (2.5 inset); tag and title rows get right padding so text never runs underneath.
+3. **Non-member locked cards:** instead of four identical locked cards, non-members now see pick 1 plus a single locked upsell card with a "4 more picks available" counter pill (count = hidden picks). Members still see all five. Rank badge keeps "n / 5" so the full shortlist size stays visible.
+
 ## 2026-07-18: Stage 3 1-3m repair — re-land lost PR #265 fixes properly (Cursor)
 
 **Why:** PR #265 was merged into the already-merged feature branch `codex/stage3-ui-persimmon-pop` instead of `main`, so none of its fixes reached production. This PR re-lands the good parts on a clean branch from `main`, removes the band-aid patterns, and repairs the database properly.
