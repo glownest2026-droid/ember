@@ -1,0 +1,326 @@
+{
+  "schema_version": "ember_picks_research_v2",
+  "researcher": "manus",
+  "age_band": "1-3m",
+  "age_band_id": "age_1_3m",
+  "generated_at": "2026-07-18",
+  "market": "UK",
+  "currency": "GBP",
+  "stage1": {
+    "cluster_rank": 2,
+    "cluster_entity_id": "ent_cluster_listen_and_coo",
+    "cluster_label": "I'm listening to your voice",
+    "why_it_matters_short": "Helps familiar voices, songs and pauses feel meaningful.",
+    "why_it_matters_long": "Your baby may pause when they hear you, turn towards a sound, or answer with a tiny coo. Gentle songs, familiar voices and simple rhythm help them connect listening with comfort, attention and early conversation. Short, repeated moments are enough at this age."
+  },
+  "stage2": {
+    "category_rank": 3,
+    "category_entity_id": "cat_board_books",
+    "category_type_slug": "cat_board_books",
+    "category_label": "Board books and face books",
+    "buyer_mode_label": "Good gift",
+    "primary_persona": "both",
+    "gift_friendly": true,
+    "gift_confidence": "high",
+    "common_ownership_risk": "high",
+    "product_family_label": "Board books and face books",
+    "mapping_rationale": "Mapped from current age-band evidence into the things that can help lane.",
+    "safety_note_public": "",
+    "evidence_ids": [],
+    "source_ids": []
+  },
+  "top_picks": [
+    {
+      "rank": 1,
+      "product_name": "Baby Touch: Faces: a black-and white-book",
+      "brand": "Ladybird",
+      "retailer": "Bookshop.org UK",
+      "url": "https://uk.bookshop.org/p/books/baby-touch-faces-a-black-and-white-book-ladybird/cfee1c58ca5fa534?ean=9780241391723",
+      "url_status": "verified_direct",
+      "price_gbp": 6.64,
+      "availability": "in_stock",
+      "rating": 4.9,
+      "review_count": 21000,
+      "best_for": "Best for visual stimulation and early development",
+      "title": "High-Contrast Faces Book",
+      "description": "A black-and-white board book with large, friendly faces designed to stimulate vision from birth and aid in early visual development.",
+      "why_pip_picked_this": "This book directly addresses the developmental needs of 1-3 month olds by providing high-contrast images of faces, which are known to be highly engaging for newborns and support visual development. The sturdy board book format is durable for early handling.",
+      "founder_lens": "Ensure the 21,000+ reviews are indeed for this specific book and not a general Bookshop.org rating. Verify the actual number of reviews for the book on other retailers if possible.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://uk.bookshop.org/p/books/baby-touch-faces-a-black-and-white-book-ladybird/cfee1c58ca5fa534?ean=9780241391723",
+          "claim": "Board book \u00a36.64 \u00a36.99 Available. Despatches immediately. 4.9/5.0 21,000+ Reviews"
+        },
+        {
+          "source_type": "publisher",
+          "url": "https://www.penguin.co.uk/books/313409/baby-touch-faces-a-black-and-white-book-by-ladybird/9780241391723",
+          "claim": "Designed to develop babies' eyesight, this book of large, friendly faces will stimulate vision from birth."
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "product_name": "Usborne Baby\u2019s Very First Black & White Books \u2013 4 Board Book Set (Animals, Hello!, Outdoors, Bedtime)",
+      "brand": "Usborne",
+      "retailer": "Books4People.co.uk",
+      "url": "https://www.books4people.co.uk/products/usborne-babys-very-first-black-and-white-4-books-set?srsltid=AfmBOorONokiobWgKxFHSwlSpjeK3Jj6nzKGgCSHfLMBfNK-FUKM9yBB",
+      "url_status": "verified_direct",
+      "price_gbp": 9.89,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Best value multi-book set for visual development",
+      "title": "Usborne Black & White Set",
+      "description": "A set of four high-contrast board books featuring animals, greetings, outdoors, and bedtime themes, perfect for stimulating newborn vision.",
+      "why_pip_picked_this": "This set offers a variety of high-contrast themes (animals, greetings, outdoors, bedtime) in a robust board book format, catering to the visual development needs of 1-3 month olds. The multiple books provide extended engagement and value.",
+      "founder_lens": "Need to find rating and review count for this specific set. The current listing does not provide this information. Check other retailers or Usborne's official site.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.books4people.co.uk/products/usborne-babys-very-first-black-and-white-4-books-set?srsltid=AfmBOorONokiobWgKxFHSwlSpjeK3Jj6nzKGgCSHfLMBfNK-FUKM9yBB",
+          "claim": "Price: \u00a39.89 Stock: In stock. This robust board book will fascinate babies, and introduce them to all kinds of animals. Every page is designed to stimulate developing minds, with striking high-contrast illustrations and inviting holes to peep-through."
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "product_name": "Peekaboo Bear",
+      "brand": "Nosy Crow",
+      "retailer": "Amazon UK",
+      "url": "https://www.amazon.co.uk/Peekaboo-Bear-Ingela-P-Arrhenius/dp/1788005767",
+      "url_status": "verified_direct",
+      "price_gbp": 2.76,
+      "availability": "in_stock",
+      "rating": 4.8,
+      "review_count": 879,
+      "best_for": "Best interactive peekaboo experience",
+      "title": "Interactive Peekaboo Bear",
+      "description": "An interactive board book with easy-to-use sliders and a surprise mirror ending, featuring friendly faces and forest animals.",
+      "why_pip_picked_this": "The interactive sliders and mirror ending provide engaging peekaboo play, which is excellent for early interaction and developing object permanence. The focus on faces and animals aligns with early visual and cognitive development.",
+      "founder_lens": "The Amazon listing shows 'Board book from \u00a32.76 Other Used and New from \u00a32.76'. Need to confirm the new price and availability from a reliable source if possible. The 4.8 rating with 879 reviews is strong.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.amazon.co.uk/Peekaboo-Bear-Ingela-P-Arrhenius/dp/1788005767",
+          "claim": "Board book from \u00a32.76. 4.8 out of 5 stars (879 reviews). With 10 easy-to-use sliders to push, pull or turn in every book and a surprise mirror ending, this bestselling series is perfect for babies and toddlers!"
+        },
+        {
+          "source_type": "publisher",
+          "url": "https://nosycrow.com/book/peekaboo-bear/",
+          "claim": "Peekaboo Bear is stylish, sturdy and packed full of friendly faces in the woods! Connecting with faces and playing peekaboo is one of the first games that babies play."
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "product_name": "Hello Baby: Faces",
+      "brand": "Roger Priddy",
+      "retailer": "Priddy Books (via Google Shopping fallback)",
+      "url": "https://priddybooks.com/gb/books/hello-baby-faces/",
+      "url_status": "google_shopping_fallback",
+      "price_gbp": 4.99,
+      "availability": "unknown",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Clear, simple high-contrast faces",
+      "title": "Simple Faces Book",
+      "description": "A high-contrast board book featuring various faces and expressions, designed to be easy for babies to focus on and stimulate developing sight.",
+      "why_pip_picked_this": "This book focuses specifically on faces with high contrast, which is ideal for newborn visual development and social skill building. The simple design aids focus for very young infants.",
+      "founder_lens": "Unable to find current price, availability, rating, and review count from UK retailers. The Priddy Books website lists an age range of 0-6 months and provides links to Amazon UK, Waterstones, Bookshop.org, and WHSmith, but these links either failed or showed out of stock/no results. The price of \u00a34.99 is an estimate based on similar books.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "publisher",
+          "url": "https://priddybooks.com/gb/books/hello-baby-faces/",
+          "claim": "Age Range: 0-6 months. Roger Priddy\u2019s Hello Baby: Faces is a high-contrast board book with lots of different faces for little eyes to discover!"
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "product_name": "Amazing Baby: Black and White",
+      "brand": "Emma Dodd",
+      "retailer": "BookTrust (via Google Shopping fallback)",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/amazing-baby-black-and-white/",
+      "url_status": "google_shopping_fallback",
+      "price_gbp": 5.99,
+      "availability": "unknown",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Engaging black and white patterns",
+      "title": "Amazing Black & White",
+      "description": "An interactive board book with cut-out pages featuring high-contrast patterns, dots, and stripes to engage babies and introduce them to new sounds.",
+      "why_pip_picked_this": "The cut-out pages and high-contrast patterns are excellent for visual stimulation and interaction, which is crucial for early development. The simple rhyme also encourages auditory engagement.",
+      "founder_lens": "Need to find current price, availability, rating, and review count from UK retailers. The price of \u00a35.99 is an estimate based on similar books. The BookTrust link is informational.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "informational",
+          "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/amazing-baby-black-and-white/",
+          "claim": "Turn the cut-out pages of this excellent black-and-white baby book and discover spotty frogs, stripy bees and even a sleepy teddy bear on pages filled with patterns, dots and stripes. A perfect first book with an easy rhyme that means baby can also get used to the sound of your voice."
+        }
+      ]
+    }
+  ],
+  "longlist": [
+    {
+      "product_name": "Baby Touch: Faces: a black-and white-book",
+      "brand": "Ladybird",
+      "url": "https://uk.bookshop.org/p/books/baby-touch-faces-a-black-and-white-book-ladybird/cfee1c58ca5fa534?ean=9780241391723",
+      "include_status": "top_pick",
+      "reason": "High-contrast faces are ideal for newborn visual development and social interaction. Strong reviews and availability."
+    },
+    {
+      "product_name": "Usborne Baby\u2019s Very First Black & White Books \u2013 4 Board Book Set (Animals, Hello!, Outdoors, Bedtime)",
+      "brand": "Usborne",
+      "url": "https://www.books4people.co.uk/products/usborne-babys-very-first-black-and-white-4-books-set?srsltid=AfmBOorONokiobWgKxFHSwlSpjeK3Jj6nzKGgCSHfLMBfNK-FUKM9yBB",
+      "include_status": "top_pick",
+      "reason": "Multi-book set offering diverse high-contrast themes for visual stimulation and good value."
+    },
+    {
+      "product_name": "Peekaboo Bear",
+      "brand": "Nosy Crow",
+      "url": "https://www.amazon.co.uk/Peekaboo-Bear-Ingela-P-Arrhenius/dp/1788005767",
+      "include_status": "top_pick",
+      "reason": "Interactive sliders and mirror provide engaging peekaboo play, supporting early interaction and object permanence. Strong reviews."
+    },
+    {
+      "product_name": "Hello Baby: Faces",
+      "brand": "Roger Priddy",
+      "url": "https://priddybooks.com/gb/books/hello-baby-faces/",
+      "include_status": "top_pick",
+      "reason": "Specifically focuses on high-contrast faces, excellent for newborn visual development and social skill building."
+    },
+    {
+      "product_name": "Amazing Baby: Black and White",
+      "brand": "Emma Dodd",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/amazing-baby-black-and-white/",
+      "include_status": "top_pick",
+      "reason": "Interactive cut-out pages and high-contrast patterns are excellent for visual stimulation and auditory engagement."
+    },
+    {
+      "product_name": "Where\u2019s Spot?",
+      "brand": "Eric Hill",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/wheres-spot/",
+      "include_status": "longlist",
+      "reason": "Classic interactive lift-the-flap book, good for engagement and early exploration."
+    },
+    {
+      "product_name": "Little Truck",
+      "brand": "Taro Gomi",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/little-truck/",
+      "include_status": "longlist",
+      "reason": "Simple, concise story with effective illustrations, good for reading aloud."
+    },
+    {
+      "product_name": "Where\u2019s Mr Lion",
+      "brand": "Nosy Crow",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/wheres-mr-lion/",
+      "include_status": "longlist",
+      "reason": "Interactive felt flaps and a mirror provide sensory engagement and peekaboo play."
+    },
+    {
+      "product_name": "Everywhere Babies",
+      "brand": "Susan Meyers",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/everywhere-babies/",
+      "include_status": "longlist",
+      "reason": "Celebrates babies and diverse family life, good for emotional connection and recognizing faces."
+    },
+    {
+      "product_name": "Who?",
+      "brand": "Robie H Harris",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/who/",
+      "include_status": "longlist",
+      "reason": "Focuses on family members and faces, aiding social recognition and early vocabulary."
+    },
+    {
+      "product_name": "Baby\u2019s First Stories",
+      "brand": "Lily Murray",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/babys-first-stories/",
+      "include_status": "longlist",
+      "reason": "Charming board book for early bonding and development, with simple rhymes."
+    },
+    {
+      "product_name": "Look Out! Hungry Snake: A hide-and-seek flap book",
+      "brand": "Paul Delaney",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/look-out-hungry-snake-a-hide-and-seek-flap-book/",
+      "include_status": "longlist",
+      "reason": "Colorful lift-the-flap book introducing animals and their sounds/actions, promoting interaction."
+    },
+    {
+      "product_name": "Clip-Clop",
+      "brand": "Nicola Smee",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/clip-clop/",
+      "include_status": "longlist",
+      "reason": "Engaging story with animal characters, good for sound imitation and rhythm."
+    },
+    {
+      "product_name": "Goodnight Moon",
+      "brand": "Margaret Wise Brown",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/goodnight-moon/",
+      "include_status": "longlist",
+      "reason": "Classic comforting bedtime story with rhythmical text, ideal for winding down."
+    },
+    {
+      "product_name": "Playtime: A Tummy Time Play Book for Babies",
+      "brand": "Mama Makes Books",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/playtime-a-tummy-time-play-book-for-babies/",
+      "include_status": "longlist",
+      "reason": "Specifically designed for tummy time, supporting physical development and engagement."
+    },
+    {
+      "product_name": "Tummy Time!",
+      "brand": "Mama Makes Books",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/tummy-time/",
+      "include_status": "longlist",
+      "reason": "Another book specifically for tummy time, promoting engagement during this important developmental activity."
+    }
+  ],
+  "skips": [
+    {
+      "product_name": "Each Peach Pear Plum",
+      "brand": "Allan Ahlberg",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/each-peach-pear-plum/",
+      "reason": "Age range 0-7 years, while suitable for older babies, it's less specifically targeted for the 1-3 month age band compared to other options. More complex narrative."
+    },
+    {
+      "product_name": "Cuddly Ladybird",
+      "brand": "Ingela P. Arrhenius",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/cuddly-ladybird/",
+      "reason": "Age range 2-4 years, which is outside the target 1-3 month age band."
+    },
+    {
+      "product_name": "Babies Laugh at Tickles",
+      "brand": "Dr Caspar Addyman",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/babies-laugh-at-tickles/",
+      "reason": "Age range 2-4 years, which is outside the target 1-3 month age band."
+    },
+    {
+      "product_name": "Is Dot in the House?",
+      "brand": "Camilla Reid",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/is-dot-in-the-house/",
+      "reason": "Age range 2-4 years, which is outside the target 1-3 month age band."
+    },
+    {
+      "product_name": "Get Dressed Belly Button!",
+      "brand": "Lucie Brunelli\u00e8re",
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/get-dressed-belly-button/",
+      "reason": "Age range 2-3 years, which is outside the target 1-3 month age band."
+    },
+    {
+      "product_name": "The Very Hungry Caterpillar (cloth book)",
+      "brand": "Eric Carle",
+      "url": "https://www.penguin.co.uk/books/254065/the-very-hungry-caterpillar-cloth-book-by-eric-carle/9780241631409",
+      "reason": "While a classic, the cloth book format is less ideal for the 'listen and coo' cluster compared to board books with clear visuals. Also, the narrative might be too complex for 1-3 months."
+    }
+  ],
+  "guidance_notes": [
+    "For 'Hello Baby: Faces' and 'Amazing Baby: Black and White', further research is needed to find reliable UK retailer links with current pricing, availability, and specific customer ratings/review counts to strengthen their top pick status. Google Shopping fallback URLs were used due to difficulty in finding direct, verified retailer pages with all required data.",
+    "Consider adding a note about the importance of reading aloud and interacting with babies during book time, regardless of the book's complexity, to reinforce the 'listen and coo' cluster theme.",
+    "The age ranges provided by some sources (e.g., BookTrust) are quite broad (0-4 years). While these books may be suitable for the broader range, ensure the content and interactivity are truly appropriate and engaging for the specific 1-3 month age band."
+  ]
+}

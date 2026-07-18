@@ -7,7 +7,6 @@ import {
   getGatewayTopPicksForAgeBandAndWrapperSlugCached,
 } from '@/lib/pl/gateway-cache';
 
-export const revalidate = 1800;
 export const dynamic = 'force-dynamic';
 
 const CACHE_HEADERS = {
@@ -60,7 +59,7 @@ export async function GET(req: NextRequest) {
         );
       }
       const picks = await getGatewayTopPicksForAgeBandAndCategoryTypeCached(ageBandId, categoryTypeId, 12);
-      return NextResponse.json({ picks }, { headers: CACHE_HEADERS });
+      return NextResponse.json({ picks }, { headers: PRIVATE_HEADERS });
     }
     return NextResponse.json({ error: 'categoryTypeId or wrapperSlug required' }, { status: 400 });
   } catch (err) {

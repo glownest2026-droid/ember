@@ -105,6 +105,7 @@ export type GatewayCategoryTypePublic = {
   lane_rank: number | null;
   show_ember_picks: boolean | null;
   show_gift_action: boolean | null;
+  has_stage3_picks?: boolean | null;
   gift_friendly: boolean | null;
   buyer_mode_label: string | null;
   gift_note: string | null;
@@ -145,6 +146,7 @@ export type GatewayProductPublic = {
   price_text?: string | null;
   product_description_under_30_words?: string | null;
   product_description?: string | null;
+  product_url?: string | null;
   ember_verdict?: string | null;
   why_pip_picked_this?: string | null;
   why_it_fits?: string | null;
@@ -216,39 +218,6 @@ export type GatewayCategoryTypeImage = {
 };
 
 type CategoryImageRow = GatewayCategoryTypeImage;
-
-const AGE_BAND_WRAPPER_NEED_SLUG_OVERRIDES: Record<string, Record<string, string[]>> = {
-  '34-36m': {
-    // The 34-36m Spine 3.0 import uses refreshed need slugs while the legacy
-    // global wrapper mapping still points these wrappers at old empty needs.
-    ent_cluster_talk_stories_questions: ['need_language_story'],
-    ent_cluster_feelings_turn_taking: ['need_social_emotional'],
-  },
-};
-
-function getNeedSlugOverrides(ageBandId: string, wrapperSlug: string): string[] {
-  const bandOverrides = AGE_BAND_WRAPPER_NEED_SLUG_OVERRIDES[ageBandId];
-  if (!bandOverrides) return [];
-  return bandOverrides[wrapperSlug] ?? bandOverrides[wrapperSlug.toLowerCase()] ?? [];
-}
-
-async function getDevelopmentNeedIdsForSlugOverrides(
-  ageBandId: string,
-  wrapperSlug: string
-): Promise<string[]> {
-  const needSlugs = getNeedSlugOverrides(ageBandId, wrapperSlug);
-  if (needSlugs.length === 0) return [];
-
-  const supabase = createPublicCatalogueClient();
-  const { data, error } = await supabase
-    .from('pl_development_needs')
-    .select('id, slug')
-    .in('slug', needSlugs);
-
-  if (error || !data) return [];
-  const idsBySlug = new Map((data as Array<{ id: string; slug: string }>).map((row) => [row.slug, row.id]));
-  return needSlugs.map((slug) => idsBySlug.get(slug)).filter((id): id is string => Boolean(id));
-}
 
 function pickBestCategoryImages(
   rows: CategoryImageRow[],
@@ -332,107 +301,14 @@ export async function getGatewayHeroImageForAgeBand(ageBandId: string): Promise<
 
 /**
  * Resolve development_need_id(s) for an age band + wrapper.
- * Spine v2 bands use age-band-specific mappings; older bands fall back to the global wrapper→need link.
+ * Spine v2 bands use age-band-specific mappings (v_gateway_age_band_wrapper_needs_public);
+ * older bands fall back to the global wrapper→need link. Missing mappings are a data bug —
+ * fix them in the mapping view migration, not with code-side guessing.
  */
-function tokeniseForNeedMatch(value: string | null | undefined): Set<string> {
-  const stop = new Set([
-    'and', 'are', 'for', 'from', 'into', 'little', 'with', 'your', 'you',
-    'the', 'this', 'that', 'them', 'they', 'their', 'now', 'cluster',
-    'need', 'ent', 'cat', 'card', 'cards', 'games', 'play', 'ideas',
-  ]);
-  const normalized = (value ?? '')
-    .toLowerCase()
-    .replace(/['’]/g, '')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
-  return new Set(
-    normalized
-      .split(/\s+/)
-      .map((token) => token.trim())
-      .filter((token) => token.length >= 3 && !stop.has(token))
-  );
-}
-
-function scoreNeedMatch(wrapperTokens: Set<string>, categoryTokens: Set<string>): number {
-  let score = 0;
-  for (const token of wrapperTokens) {
-    if (categoryTokens.has(token)) score += 4;
-  }
-  const wrapperList = [...wrapperTokens];
-  for (const token of categoryTokens) {
-    if (wrapperList.some((w) => token.includes(w) || w.includes(token))) score += 1;
-  }
-  return score;
-}
-
-async function hasCategoriesForNeedIds(ageBandId: string, needIds: string[]): Promise<boolean> {
-  if (needIds.length === 0) return false;
-  const supabase = createPublicCatalogueClient();
-  const { data, error } = await supabase
-    .from('v_gateway_category_types_public')
-    .select('development_need_id')
-    .eq('age_band_id', ageBandId)
-    .in('development_need_id', needIds)
-    .limit(1);
-  return !error && !!data && data.length > 0;
-}
-
-async function recoverDevelopmentNeedIdsForWrapper(ageBandId: string, wrapperSlug: string): Promise<string[]> {
-  const supabase = createPublicCatalogueClient();
-  const { data: wrapperRow, error: wrapperError } = await supabase
-    .from('v_gateway_wrappers_public')
-    .select('ux_slug, ux_label, ux_description')
-    .eq('age_band_id', ageBandId)
-    .eq('ux_slug', wrapperSlug)
-    .limit(1)
-    .maybeSingle();
-
-  if (wrapperError || !wrapperRow) return [];
-
-  const { data: categories, error: categoryError } = await supabase
-    .from('v_gateway_category_types_public')
-    .select('development_need_id, slug, label, name, rationale, ui_lane')
-    .eq('age_band_id', ageBandId);
-
-  if (categoryError || !categories || categories.length === 0) return [];
-
-  const wrapperTokens = tokeniseForNeedMatch(
-    `${wrapperRow.ux_slug ?? ''} ${wrapperRow.ux_label ?? ''} ${wrapperRow.ux_description ?? ''}`
-  );
-  const grouped = new Map<string, Set<string>>();
-
-  for (const category of categories as Array<{
-    development_need_id: string;
-    slug: string | null;
-    label: string | null;
-    name: string | null;
-    rationale: string | null;
-    ui_lane: string | null;
-  }>) {
-    const tokens = grouped.get(category.development_need_id) ?? new Set<string>();
-    for (const token of tokeniseForNeedMatch(
-      `${category.slug ?? ''} ${category.label ?? ''} ${category.name ?? ''} ${category.rationale ?? ''} ${category.ui_lane ?? ''}`
-    )) {
-      tokens.add(token);
-    }
-    grouped.set(category.development_need_id, tokens);
-  }
-
-  const ranked = [...grouped.entries()]
-    .map(([needId, tokens]) => ({ needId, score: scoreNeedMatch(wrapperTokens, tokens) }))
-    .filter((row) => row.score >= 8)
-    .sort((a, b) => b.score - a.score);
-
-  return ranked[0] ? [ranked[0].needId] : [];
-}
-
 async function getDevelopmentNeedIdsForAgeBandAndWrapper(
   ageBandId: string,
   wrapperSlug: string
 ): Promise<string[]> {
-  const overrideNeedIds = await getDevelopmentNeedIdsForSlugOverrides(ageBandId, wrapperSlug);
-  if (overrideNeedIds.length > 0) return overrideNeedIds;
-
   const supabase = createPublicCatalogueClient();
 
   const { data: bandNeedRows, error: bandNeedError } = await supabase
@@ -454,12 +330,8 @@ async function getDevelopmentNeedIdsForAgeBandAndWrapper(
     .limit(1)
     .maybeSingle();
 
-  if (!wrapperError && wrapperDetail?.development_need_id) {
-    const legacyNeedIds = [wrapperDetail.development_need_id as string];
-    if (await hasCategoriesForNeedIds(ageBandId, legacyNeedIds)) return legacyNeedIds;
-  }
-
-  return recoverDevelopmentNeedIdsForWrapper(ageBandId, wrapperSlug);
+  if (wrapperError || !wrapperDetail?.development_need_id) return [];
+  return [wrapperDetail.development_need_id as string];
 }
 
 function sortCategoriesByNeedOrder(
@@ -473,6 +345,48 @@ function sortCategoriesByNeedOrder(
     if (needA !== needB) return needA - needB;
     return a.rank - b.rank;
   });
+}
+
+async function getStage3AvailableCategoryIds(
+  supabase: SupabaseClient,
+  ageBandId: string,
+  categoryTypeIds: string[]
+): Promise<Set<string>> {
+  if (categoryTypeIds.length === 0) return new Set();
+
+  const { data, error } = await supabase
+    .from('pl_stage3_picks')
+    .select('category_type_id')
+    .eq('age_band_id', ageBandId)
+    .eq('status', 'visible')
+    .eq('is_visible', true)
+    .eq('pick_rank', 1)
+    .in('category_type_id', categoryTypeIds);
+
+  if (error || !data) return new Set();
+  return new Set(
+    (data as Array<{ category_type_id?: string | null }>)
+      .map((row) => row.category_type_id)
+      .filter((id): id is string => Boolean(id))
+  );
+}
+
+async function withStage3Availability(
+  supabase: SupabaseClient,
+  ageBandId: string,
+  categories: GatewayCategoryTypePublic[]
+): Promise<GatewayCategoryTypePublic[]> {
+  const availableIds = await getStage3AvailableCategoryIds(
+    supabase,
+    ageBandId,
+    categories.map((c) => c.id)
+  );
+  return categories.map((c) => ({
+    ...c,
+    has_stage3_picks: availableIds.has(c.id),
+    show_ember_picks: availableIds.has(c.id),
+    card_cta_label: availableIds.has(c.id) ? 'See Our Picks' : null,
+  }));
 }
 
 /**
@@ -505,10 +419,11 @@ export async function getGatewayCategoryTypesForAgeBandAndWrapper(
     categories.map((c) => c.id),
     ageBandId
   );
-  return categories.map((c) => {
+  const withImages = categories.map((c) => {
     const img = imageMap.get(c.id);
     return img ? { ...c, image_url: img.image_url } : c;
   });
+  return withStage3Availability(supabase, ageBandId, withImages);
 }
 
 export type GatewayCategoryTypesByWrapper = Record<string, GatewayCategoryTypePublic[]>;
@@ -531,34 +446,6 @@ export async function getGatewayCategoryTypesByWrapperForAgeBand(
   const supabase = createPublicCatalogueClient();
   const slugLookup = new Set(wrapperSlugs.map((s) => s.toLowerCase()));
   const needIdsByWrapper = new Map<string, string[]>();
-
-  const overrideNeedSlugs = [
-    ...new Set(
-      wrapperSlugs.flatMap((slug) => getNeedSlugOverrides(ageBandId, slug))
-    ),
-  ];
-  const overrideNeedIdsBySlug = new Map<string, string>();
-  if (overrideNeedSlugs.length > 0) {
-    const { data: overrideRows, error: overrideError } = await supabase
-      .from('pl_development_needs')
-      .select('id, slug')
-      .in('slug', overrideNeedSlugs);
-
-    if (!overrideError && overrideRows) {
-      for (const row of overrideRows as Array<{ id: string; slug: string }>) {
-        overrideNeedIdsBySlug.set(row.slug, row.id);
-      }
-    }
-  }
-
-  for (const wrapperSlug of wrapperSlugs) {
-    const overrideIds = getNeedSlugOverrides(ageBandId, wrapperSlug)
-      .map((needSlug) => overrideNeedIdsBySlug.get(needSlug))
-      .filter((id): id is string => Boolean(id));
-    if (overrideIds.length > 0) {
-      needIdsByWrapper.set(wrapperSlug, overrideIds);
-    }
-  }
 
   const { data: bandNeedRows, error: bandNeedError } = await supabase
     .from('v_gateway_age_band_wrapper_needs_public')
@@ -593,17 +480,9 @@ export async function getGatewayCategoryTypesByWrapperForAgeBand(
         const needId = row.development_need_id as string | null;
         if (!needId) continue;
         const slug = canonicalWrapperSlug(wrapperSlugs, dbSlug);
-        if (await hasCategoriesForNeedIds(ageBandId, [needId])) {
-          needIdsByWrapper.set(slug, [needId]);
-        }
+        needIdsByWrapper.set(slug, [needId]);
       }
     }
-  }
-
-  const stillMissingSlugs = wrapperSlugs.filter((slug) => (needIdsByWrapper.get(slug) ?? []).length === 0);
-  for (const slug of stillMissingSlugs) {
-    const recoveredNeedIds = await recoverDevelopmentNeedIdsForWrapper(ageBandId, slug);
-    if (recoveredNeedIds.length > 0) needIdsByWrapper.set(slug, recoveredNeedIds);
   }
 
   const allNeedIds = [...new Set([...needIdsByWrapper.values()].flat())];
@@ -625,13 +504,14 @@ export async function getGatewayCategoryTypesByWrapperForAgeBand(
     const img = imageMap.get(c.id);
     return img ? { ...c, image_url: img.image_url } : c;
   });
+  const withStage3 = await withStage3Availability(supabase, ageBandId, withImages);
 
   const result = { ...empty };
   for (const slug of wrapperSlugs) {
     const needIds = needIdsByWrapper.get(slug) ?? [];
     if (needIds.length === 0) continue;
     const needSet = new Set(needIds);
-    const filtered = withImages.filter((c) => needSet.has(c.development_need_id));
+    const filtered = withStage3.filter((c) => needSet.has(c.development_need_id));
     result[slug] = sortCategoriesByNeedOrder(filtered, needIds);
   }
   return result;
@@ -810,6 +690,7 @@ function stage3RowToProduct(row: GatewayStage3PickRow, canSeeLocked: boolean = f
     brand: row.brand,
     image_url: row.image_url,
     canonical_url: row.product_url,
+    product_url: row.product_url,
     amazon_uk_url: null,
     affiliate_url: null,
     affiliate_deeplink: null,

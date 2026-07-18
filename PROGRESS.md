@@ -1,3 +1,44 @@
+## 2026-07-18: Pip's Picks expand pop-up + guaranteed card fit — PR #266 follow-up 2
+
+Founder still saw cut-off CTAs and wanted the Stage 2 pattern: compact cards that always fit, with a pop-up for the full text.
+
+- Every text block on the compact card is now clamped (tag 2 lines, title 2, brand 1, description 3/4, verdict 5/6) so the View retailer button is guaranteed visible within the fixed card height.
+- New full-screen expanded view (`PipsPickExpanded` in `PipsPicksPersimmonCarousel.tsx`), mirroring `DiscoverFigmaPlayIdeaExpanded`: unclamped text, same dark card styling, View retailer CTA, Escape/close button, body scroll lock, reduced-motion aware. Opened via a `Maximize2` button next to the rank pill (unlocked cards only).
+- Robin mark enlarged from 48px to 64px (72px desktop), still tucked in the corner; tag/title right padding increased to keep clear.
+
+## 2026-07-18: Pip's Picks card polish (mobile) — PR #266 follow-up
+
+Founder review of the preview on a phone flagged three issues, fixed in `PipsPicksPersimmonCarousel.tsx`:
+
+1. **Truncation:** card content could overflow the fixed card height, cutting off the View retailer button. Description now clamps to 3 lines (4 on desktop), "Why Pip picked this" to 5 lines (6 on desktop); mobile card height +20px.
+2. **Robin mark:** shrunk from 88px to 48px and tucked into the top-right corner (2.5 inset); tag and title rows get right padding so text never runs underneath.
+3. **Non-member locked cards:** instead of four identical locked cards, non-members now see pick 1 plus a single locked upsell card with a "4 more picks available" counter pill (count = hidden picks). Members still see all five. Rank badge keeps "n / 5" so the full shortlist size stays visible.
+
+## 2026-07-18: Stage 3 1-3m repair — re-land lost PR #265 fixes properly (Cursor)
+
+**Why:** PR #265 was merged into the already-merged feature branch `codex/stage3-ui-persimmon-pop` instead of `main`, so none of its fixes reached production. This PR re-lands the good parts on a clean branch from `main`, removes the band-aid patterns, and repairs the database properly.
+
+**Re-landed from #265:**
+- `20260718101000_ingest_stage3_pips_picks_1_3m.sql` — corrected join via `pl_age_band_development_need_category_types` (+ new `::boolean` cast fix for the all-NULL backup `gift_suitable` column, also fixed in the generator `web/scripts/ingest-stage3-pips-picks.mjs`)
+- `DiscoverFigmaImage` fix — image no longer hides at `opacity:0` waiting for `onLoad`; placeholder renders underneath
+- Stage 3 gating (`withStage3Availability`) — "See Our Picks" only where visible Stage 3 picks exist
+- Private no-store caching on `/api/discover/picks` category path; `force-dynamic` on both discover API routes (removed contradictory `revalidate` exports)
+
+**Band-aids removed (new in this repair):**
+- Deleted fuzzy wrapper-recovery (keyword scoring) and the hardcoded 34-36m need-slug override from `web/src/lib/pl/public.ts`. Root cause fixed in data: `20260718160000_fix_wrapper_need_mappings_6_9m_25_27m_34_36m.sql` adds the missing wrapper→need rows (6-9m first-foods/mouth-sensory, all 25-27m clusters from the 2026-07-03 v2 reimport, 34-36m talk-stories/feelings) to `v_gateway_age_band_wrapper_needs_public`. Verified: every wrapper on every band now resolves ≥1 category without code-side guessing.
+- Ember Plus state on `/discover` now comes from the server-resolved `access.canSeeLocked` returned by `/api/discover/picks` (`resolveEmberMembershipAccess`), not inferred from lock flags in the payload.
+
+**New fixes:**
+- Mobile dead "View retailer" CTA: 3D transforms (`rotateY`/`translateZ`/`preserve-3d`) break tap hit-testing inside a scroll-snap track on mobile browsers. `PipsPicksPersimmonCarousel` now applies 3D physics only on hover/fine-pointer devices; touch gets a flat snap carousel.
+- Affiliate disclosure restored under the Pip's Picks section (removed in #264; compliance).
+
+**Database (live, via Supabase CLI after history repair):**
+- `supabase migration repair` — reverted orphan history rows `20260716163641`/`20260717050143` (Codex MCP duplicates), marked `20260716143000`/`20260717090000`/`20260717093000` as applied. Migration history now matches the repo.
+- `supabase db push` applied `20260718101000` + `20260718160000`. Verified: 1-3m Stage 3 = 45 visible + 83 backup across all 9 categories (was 10 rows / 2 categories of manual drift).
+- Cache version bumped to `20260718-stage3-repair-v2`.
+
+**Verification:** `tsc --noEmit` clean, `npm run build` clean. PR [#266](https://github.com/glownest2026-droid/ember/pull/266) — Vercel checks green, `MERGEABLE`/`CLEAN`. Preview smoke checks passed: 1-3m `ent_cluster_listen_and_coo` shows `See Our Picks` on exactly the 3 pilot categories (all others hidden); anon picks API returns rank 1 unlocked with real retailer URL + `access.canSeeLocked=false`; previously broken wrappers (25-27m ×2, 6-9m first foods, 34-36m ×2) all return 5–9 categories. Preview: https://ember-git-fix-stage3-1-3m-repair-tims-projects-cd69a894.vercel.app
+
 ## 2026-07-17: At home add UX (text-first + Stage 2 confirm)
 
 - Dedicated `/family/at-home/add`: one hero image, text-first, photo optional

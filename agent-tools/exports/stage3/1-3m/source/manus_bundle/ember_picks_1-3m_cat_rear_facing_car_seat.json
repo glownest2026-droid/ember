@@ -1,0 +1,340 @@
+{
+  "schema_version": "ember_picks_research_v2",
+  "researcher": "manus",
+  "age_band": "1-3m",
+  "age_band_id": "age_1_3m",
+  "generated_at": "2026-07-18",
+  "market": "UK",
+  "currency": "GBP",
+  "stage1": {
+    "cluster_rank": 10,
+    "cluster_entity_id": "ent_cluster_health_first_trips",
+    "cluster_label": "Keep first trips simpler",
+    "why_it_matters_short": "Helps check-ups, changes and early outings feel more prepared.",
+    "why_it_matters_long": "By 1 to 3 months, check-ups, jabs, nappy changes and first outings can all start to stack up. A few prepared basics make it easier to leave the house or handle a change quickly, while keeping safety jobs like car seats and small objects in view."
+  },
+  "stage2": {
+    "category_rank": 2,
+    "category_entity_id": "cat_rear_facing_car_seat",
+    "category_type_slug": "cat_rear_facing_car_seat",
+    "category_label": "Rear-facing infant car seat",
+    "buyer_mode_label": "Parent buy",
+    "primary_persona": "both",
+    "gift_friendly": false,
+    "gift_confidence": null,
+    "common_ownership_risk": null,
+    "product_family_label": "Rear-facing infant car seat",
+    "mapping_rationale": "Mapped from current age-band evidence into the things that can help lane.",
+    "safety_note_public": "Use an approved, correctly fitted seat. Avoid unknown-history second-hand car seats.",
+    "evidence_ids": [],
+    "source_ids": []
+  },
+  "top_picks": [
+    {
+      "rank": 1,
+      "product_name": "Pebble 360 Pro2",
+      "brand": "Maxi-Cosi",
+      "retailer": "John Lewis",
+      "url": "https://www.johnlewis.com/maxi-cosi-pebble-360-pro2-car-seat/twillic-black/p112093409",
+      "url_status": "verified_direct",
+      "price_gbp": 207.99,
+      "availability": "in_stock",
+      "rating": 4.9,
+      "review_count": 28,
+      "best_for": "Overall safety, comfort, and ease of use with lie-flat and SlideTech features.",
+      "title": "Maxi-Cosi Pebble 360 Pro2",
+      "description": "A premium i-Size infant car seat offering a full lie-flat position for maximum sleep comfort, 360-degree rotation, and SlideTech for easy access. Suitable from birth to approximately 15 months.",
+      "why_pip_picked_this": "This seat excels in safety (Good ADAC rating), comfort (lie-flat), and user-friendliness (SlideTech, 360 rotation), directly addressing the need for safe and prepared early outings.",
+      "founder_lens": "The ISOFIX base is sold separately, which can significantly increase the overall cost. Ensure this is highlighted to avoid unexpected expenses for parents.",
+      "safety_notes": [
+        "ISOFIX base sold separately",
+        "Always check car seat compatibility with your vehicle before purchase."
+      ],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.johnlewis.com/maxi-cosi-pebble-360-pro2-car-seat/twillic-black/p112093409",
+          "claim": "Product review details,this product has received, on average, 4.90 out of 5 star rating. (28)"
+        },
+        {
+          "source_type": "article",
+          "url": "https://www.mumsnet.com/reviews/baby-car-seats",
+          "claim": "Good (2.2) ADAC rating"
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "product_name": "Cloud T i-Size Rotating Baby Car Seat",
+      "brand": "Cybex",
+      "retailer": "John Lewis",
+      "url": "https://www.johnlewis.com/cybex-cloud-t-i-size-rotating-baby-car-seat/p110535706",
+      "url_status": "verified_direct",
+      "price_gbp": 199.95,
+      "availability": "in_stock",
+      "rating": 4.6,
+      "review_count": 41,
+      "best_for": "Ergonomic lie-flat position and superior side-impact protection.",
+      "title": "Cybex Cloud T i-Size",
+      "description": "An i-Size infant car seat with an innovative lie-flat recline for use in and out of the car, 180-degree rotation (with Base T), and enhanced side-impact protection. Suitable from birth to approximately 24 months.",
+      "why_pip_picked_this": "Its lie-flat technology and ADAC Test Winner status provide excellent comfort and safety for newborns, making early journeys more comfortable and secure.",
+      "founder_lens": "The ISOFIX Base T is sold separately. Clarify that the lie-flat feature in the car requires the Base T.",
+      "safety_notes": [
+        "ISOFIX Base T sold separately",
+        "Always check car seat compatibility with your vehicle before purchase."
+      ],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.johnlewis.com/cybex-cloud-t-i-size-rotating-baby-car-seat/p110535706",
+          "claim": "Product review details,this product has received, on average, 4.60 out of 5 star rating. (41)"
+        },
+        {
+          "source_type": "manufacturer",
+          "url": "https://www.cybex-online.com/en/gb/p/cs-pl-cloud-t-i-size.html",
+          "claim": "ADAC Test Winner (Oct 2023, award shared with another product)"
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "product_name": "PIPA URBN R129 Baby Car Seat",
+      "brand": "Nuna",
+      "retailer": "John Lewis",
+      "url": "https://www.johnlewis.com/nuna-pipa-urbn-r129-baby-car-seat-caviar/p110165707",
+      "url_status": "verified_direct",
+      "price_gbp": 300.0,
+      "availability": "in_stock",
+      "rating": 5.0,
+      "review_count": 7,
+      "best_for": "Ultra-lightweight and baseless ISOFIX installation for easy transfers.",
+      "title": "Nuna Pipa Urbn",
+      "description": "An ultra-lightweight infant car seat (3.3kg) with integrated baseless ISOFIX installation, allowing for quick and secure fitting without a separate base. Ideal for urban parents and frequent car changes.",
+      "why_pip_picked_this": "Its unique baseless ISOFIX and ultra-lightweight design make it exceptionally convenient for parents needing to frequently move the car seat between vehicles or use ride-shares, simplifying early outings.",
+      "founder_lens": "While highly convenient, the baseless ISOFIX might not be compatible with all vehicles. Emphasize checking the vehicle fitting list.",
+      "safety_notes": [
+        "Always check car seat compatibility with your vehicle before purchase."
+      ],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.johnlewis.com/nuna-pipa-urbn-r129-baby-car-seat-caviar/p110165707",
+          "claim": "Product review details,this product has received, on average, 5.00 out of 5 star rating. (7)"
+        },
+        {
+          "source_type": "manufacturer",
+          "url": "https://nunababy.com/usa/pipa-urbn",
+          "claim": "weighs only 3.3 kg (without canopy and insert) and installs using an advanced, built-in ISOFIX system."
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "product_name": "Pixel PRO 2.0 C Infant Carrier",
+      "brand": "Avionaut",
+      "retailer": "Pramworld",
+      "url": "https://www.pramworld.co.uk/avionaut-pixel-pro-2-0-c-infant-carrier-black/",
+      "url_status": "verified_direct",
+      "price_gbp": 209.0,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Extreme lightness, ergonomic design, and suitability for premature babies.",
+      "title": "Avionaut Pixel Pro 2.0 C",
+      "description": "The lightest i-Size infant car seat on the market (2.5kg) featuring a modular insert with Cloud Care System for ergonomic positioning and superior safety, even for premature babies.",
+      "why_pip_picked_this": "Its ultra-lightweight design and ergonomic insert specifically cater to the delicate needs of newborns and premature babies, ensuring optimal comfort and safety during early travels.",
+      "founder_lens": "While highly praised for lightness and ergonomics, direct retail ratings/review counts were not readily available on the primary retailer site. Rely on expert reviews for quality proof.",
+      "safety_notes": [
+        "ISOFIX base sold separately",
+        "Always check car seat compatibility with your vehicle before purchase."
+      ],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.pramworld.co.uk/avionaut-pixel-pro-2-0-c-infant-carrier-black/",
+          "claim": "Weighing in at just 2.5kg, the Pixel PRO 2.0 C stands out as one of the lightest options available on the market."
+        },
+        {
+          "source_type": "article",
+          "url": "https://www.motherandbaby.com/reviews/car-seats/avionaut-pixel-pro-2-0-car-seat-review/",
+          "claim": "The Pixel PRO 2.0 C is the lightest car seat on the market at just 2.5kg, making it great for parents recovering from birth and also a breeze to carry around."
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "product_name": "Turn2Me DLX i-Size R129 360\u00b0 Rotating Car Seat",
+      "brand": "Graco",
+      "retailer": "Amazon UK",
+      "url": "https://www.amazon.co.uk/Graco-Rotating-Rearward-40-105cm-76-105cm/dp/B0D2LMQR5F",
+      "url_status": "verified_direct",
+      "price_gbp": 125.99,
+      "availability": "in_stock",
+      "rating": 4.5,
+      "review_count": 65,
+      "best_for": "Budget-friendly extended rear-facing with 360-degree rotation.",
+      "title": "Graco Turn2Me DLX i-Size",
+      "description": "An affordable i-Size car seat offering 360-degree rotation and extended rear-facing capability from birth up to approximately 4 years. Features easy installation and multiple recline positions.",
+      "why_pip_picked_this": "Provides excellent value as a budget-friendly option that doesn't compromise on key features like 360-degree rotation and extended rear-facing, making it accessible for more families.",
+      "founder_lens": "The side-impact protection pod needs to be fitted separately each time, which could be a minor inconvenience for parents.",
+      "safety_notes": [
+        "Side-impact protection pod needs to be fitted separately each time",
+        "Always check car seat compatibility with your vehicle before purchase."
+      ],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.amazon.co.uk/Graco-Rotating-Rearward-40-105cm-76-105cm/dp/B0D2LMQR5F",
+          "claim": "4.5 out of 5 stars (65)"
+        },
+        {
+          "source_type": "article",
+          "url": "https://www.mumsnet.com/reviews/graco-turn2me-dlx-review",
+          "claim": "Scoring an impressive 86 out of 100 in our in-depth testing, the Graco Turn2Me DLX i-Size stands out as the best budget baby car seat you can buy."
+        }
+      ]
+    }
+  ],
+  "longlist": [
+    {
+      "product_name": "Pebble 360 Pro2",
+      "brand": "Maxi-Cosi",
+      "url": "https://www.johnlewis.com/maxi-cosi-pebble-360-pro2-car-seat/twillic-black/p112093409",
+      "include_status": "top_pick",
+      "reason": "Best overall baby car seat, full lie-flat position, SlideTech, 360 rotation, good ADAC rating."
+    },
+    {
+      "product_name": "Turn2Me DLX i-Size",
+      "brand": "Graco",
+      "url": "https://www.amazon.co.uk/Graco-Rotating-Rearward-40-105cm-76-105cm/dp/B0D2LMQR5F",
+      "include_status": "top_pick",
+      "reason": "Best budget option, 360 rotation, extended rear-facing, good value."
+    },
+    {
+      "product_name": "Cloud T i-Size",
+      "brand": "Cybex",
+      "url": "https://www.johnlewis.com/cybex-cloud-t-i-size-rotating-baby-car-seat/p110535706",
+      "include_status": "top_pick",
+      "reason": "Lie-flat position, ADAC Test Winner, 180\u00b0 rotation, good for travel systems."
+    },
+    {
+      "product_name": "Pipa Urbn",
+      "brand": "Nuna",
+      "url": "https://www.johnlewis.com/nuna-pipa-urbn-r129-baby-car-seat-caviar/p110165707",
+      "include_status": "top_pick",
+      "reason": "Lightweight, baseless ISOFIX installation, good for frequent car changes."
+    },
+    {
+      "product_name": "Pixel PRO 2.0 C",
+      "brand": "Avionaut",
+      "url": "https://www.pramworld.co.uk/avionaut-pixel-pro-2-0-c-infant-carrier-black/",
+      "include_status": "top_pick",
+      "reason": "Lightest car seat, ergonomic position, high safety standards, suitable for premature babies."
+    },
+    {
+      "product_name": "Dualfix Plus i-Size",
+      "brand": "Britax R\u00f6mer",
+      "url": "https://www.argos.co.uk/product/6246985",
+      "include_status": "longlist",
+      "reason": "Extended rear-facing, 360 swivel, good safety features, but less focused on infant-specific portability than top picks."
+    },
+    {
+      "product_name": "Coral 360 i-Size",
+      "brand": "Maxi-Cosi",
+      "url": "https://www.maxi-cosi.co.uk/car-seats/coral-360",
+      "include_status": "longlist",
+      "reason": "Modular design with lightweight soft carrier, 360 rotation, good for travel systems."
+    },
+    {
+      "product_name": "Dream i-Size",
+      "brand": "Silver Cross",
+      "url": "https://www.kiddies-kingdom.com/birth-15m/59218-silver-cross-dream-i-size-group-0-car-seat-with-isofix-base-lunar.html",
+      "include_status": "longlist",
+      "reason": "Awarded best-ever rating by ADAC (with base), good safety, but less unique features than top picks."
+    },
+    {
+      "product_name": "i-Spin 360 i-Size",
+      "brand": "Joie",
+      "url": "https://www.mamasandpapas.com/products/joie-i-spin-360-car-seat-56071j400",
+      "include_status": "longlist",
+      "reason": "360 rotation, i-Size certified, good value, but slightly heavier than some infant-specific carriers."
+    },
+    {
+      "product_name": "Cloud G i-Size +",
+      "brand": "Cybex",
+      "url": "https://www.johnlewis.com/cybex-cloud-t-i-size-rotating-baby-car-seat/p110535706",
+      "include_status": "longlist",
+      "reason": "Traditional infant carrier, 180-degree rotation, good padding, but newer T model has more advanced lie-flat."
+    },
+    {
+      "product_name": "Pipa Lite",
+      "brand": "Nuna",
+      "url": "https://www.johnlewis.com/nuna-pipa-lite-i-size-baby-car-seat-caviar/p111608731",
+      "include_status": "longlist",
+      "reason": "Very lightweight (2.5kg), good ADAC rating, but Pipa Urbn offers baseless ISOFIX which is a stronger differentiator."
+    },
+    {
+      "product_name": "All in All Ultra 360 Rotate i-Size",
+      "brand": "Cosatto",
+      "url": "https://www.amazon.co.uk/Cosatto-Ultra-Swivel-Stage-iSize/dp/B0D37LTDB1",
+      "include_status": "longlist",
+      "reason": "Multi-stage seat (birth to 12 years), 360 rotation, good for long-term use."
+    },
+    {
+      "product_name": "Motion 3 All Size 360",
+      "brand": "Silver Cross",
+      "url": "https://www.amazon.co.uk/Silver-Cross-Newborn-Harness-Rotation/dp/B0GRWTZGP2",
+      "include_status": "longlist",
+      "reason": "All-size seat, 360 rotation, good for long-term use."
+    },
+    {
+      "product_name": "Acorn 2",
+      "brand": "Cosatto",
+      "url": "https://www.cosatto.com/products/acorn-i-size-0-car-seat-masquerade",
+      "include_status": "longlist",
+      "reason": "Good for long journeys, i-Size, travel system compatible."
+    },
+    {
+      "product_name": "Pebble S i-Size",
+      "brand": "Maxi-Cosi",
+      "url": "https://www.amazon.co.uk/dp/B0D35W3PLM",
+      "include_status": "longlist",
+      "reason": "Budget-friendly i-Size option, good for basic infant carrier needs."
+    }
+  ],
+  "skips": [
+    {
+      "product_name": "Cabriofix",
+      "brand": "Maxi Cosi",
+      "url": "https://csftl.org/recommended-seats-eu/",
+      "reason": "Older model (R44/04 standard), base sold separately, rethread harness, less advanced features compared to newer i-Size models."
+    },
+    {
+      "product_name": "Baby Safe Plus SHR II",
+      "brand": "Britax",
+      "url": "https://csftl.org/recommended-seats-eu/",
+      "reason": "Older model (R44/04 standard), heavy, base sold separately, less advanced features compared to newer i-Size models."
+    },
+    {
+      "product_name": "Pebble",
+      "brand": "Maxi Cosi",
+      "url": "https://csftl.org/recommended-seats-eu/",
+      "reason": "Older model (R44/04 standard), base sold separately, less advanced features compared to newer i-Size models."
+    },
+    {
+      "product_name": "Gemm",
+      "brand": "Joie",
+      "url": "https://csftl.org/recommended-seats-eu/",
+      "reason": "Older model (R44/04 standard), base sold separately, prone to buckle crunch, less advanced features compared to newer i-Size models."
+    },
+    {
+      "product_name": "Tilt",
+      "brand": "Joie",
+      "url": "https://csftl.org/recommended-seats-eu/",
+      "reason": "Older model (R44/04 standard), prone to buckle crunch, less advanced features compared to newer i-Size models."
+    }
+  ],
+  "guidance_notes": [
+    "Many high-quality infant car seats require a separate ISOFIX base for optimal safety and ease of use, which can significantly increase the overall cost. It is crucial to clearly communicate this to parents to manage expectations and ensure they factor in the full expense. Additionally, emphasize the importance of checking car seat compatibility with their specific vehicle model before purchase, as not all seats fit all cars, even with ISOFIX. This prevents potential safety issues and returns. Ensure all URLs provided are direct product pages or reliable Google Shopping fallbacks, and verify their status regularly."
+  ]
+}

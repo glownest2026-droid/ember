@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
   Baby,
   BookOpen,
@@ -11,12 +12,14 @@ import {
   Circle,
   Hand,
   Home,
+  Maximize2,
   Moon,
   Package,
   Plane,
   Shirt,
   TreePine,
   Truck,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 import type { GatewayPick } from '@/lib/pl/public';
@@ -29,6 +32,8 @@ type PipsPickProduct = GatewayPick['product'] & {
   best_for_tag?: string | null;
   title?: string | null;
   product_description_under_30_words?: string | null;
+  product_description?: string | null;
+  product_url?: string | null;
   why_pip_picked_this?: string | null;
   ember_verdict?: string | null;
   personalization_hint?: string | null;
@@ -90,6 +95,7 @@ function getDisplayFields(pick: PipsPick, rank: number, childName?: string | nul
   const bestFor = product.best_for_tag || `Pick ${rank}`;
   const description =
     product.product_description_under_30_words ||
+    product.product_description ||
     product.title ||
     product.name;
   const verdict =
@@ -109,7 +115,127 @@ function getDisplayFields(pick: PipsPick, rank: number, childName?: string | nul
   };
 }
 
-function updateTrackPhysics(track: HTMLDivElement | null) {
+type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
+  url: string;
+  canVisit: boolean;
+  rank: number;
+  total: number;
+};
+
+/** Full-screen reader for one pick, mirroring the Stage 2 expanded-card pattern. */
+function PipsPickExpanded({
+  fields,
+  onClose,
+}: {
+  fields: ExpandedPickFields;
+  onClose: () => void;
+}) {
+  const shouldReduceMotion = useReducedMotion() ?? false;
+  const Icon = fields.Icon;
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[70] flex flex-col bg-[#FBFAF7]"
+      initial={shouldReduceMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={shouldReduceMotion ? undefined : { opacity: 0 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="expanded-pick-title"
+    >
+      <div className="flex items-center justify-end px-4 pt-4 pb-2 shrink-0">
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-[#E7E2DC] bg-white text-[#253044] shadow-sm transition-colors hover:bg-[#FBFAF7]"
+          aria-label="Close expanded pick"
+        >
+          <X size={22} strokeWidth={2.5} />
+        </button>
+      </div>
+
+      <motion.div
+        className="flex-1 overflow-y-auto px-4 pb-8 md:flex md:items-center md:justify-center md:py-8"
+        initial={shouldReduceMotion ? false : { y: 24, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <article className="relative mx-auto w-full max-w-2xl overflow-hidden rounded-[28px] bg-[#253044] text-white shadow-lg md:rounded-[32px]">
+          {/* eslint-disable-next-line @next/next/no-img-element -- visible brand mark */}
+          <img
+            src={ROBIN_LOGO_URL}
+            alt=""
+            className="pointer-events-none absolute right-4 top-4 h-16 w-16 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-20 md:w-20"
+          />
+          <div className="flex flex-col gap-4 p-6 md:p-8">
+            <span className="inline-flex self-start rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
+              {fields.rank} / {fields.total}
+            </span>
+            <p className="m-0 pr-16 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] md:pr-20">
+              {fields.tag}
+            </p>
+            <h2
+              id="expanded-pick-title"
+              className="m-0 flex items-start gap-2.5 text-[24px] font-extrabold leading-tight text-white md:text-[28px]"
+            >
+              <Icon className="mt-1 h-7 w-7 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
+              {fields.title}
+            </h2>
+            {fields.brand ? (
+              <p className="m-0 text-[13px] font-bold uppercase tracking-wider text-white/80 md:text-[14px]">
+                {fields.brand}
+              </p>
+            ) : null}
+            <p className="m-0 text-[15px] font-medium leading-relaxed text-white/95 md:text-[16px]">
+              {fields.description}
+            </p>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4 md:p-5">
+              <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
+                Why Pip picked this
+              </strong>
+              <p className="m-0 text-[14px] font-semibold leading-relaxed text-white/95 md:text-[15px]">
+                {fields.verdict}
+              </p>
+            </div>
+            {fields.canVisit ? (
+              <a
+                href={fields.url}
+                target="_blank"
+                rel={retailerLinkRel(fields.url)}
+                className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[15px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97]"
+              >
+                View retailer
+              </a>
+            ) : (
+              <span className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-white/10 px-4 py-3 text-[15px] font-extrabold text-white/75">
+                Link soon
+              </span>
+            )}
+          </div>
+        </article>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function updateTrackPhysics(track: HTMLDivElement | null, enable3d: boolean) {
   if (!track) return;
   const trackCenter = track.scrollLeft + track.clientWidth / 2;
   const wrappers = track.querySelectorAll<HTMLElement>('[data-pips-card-wrapper]');
@@ -121,7 +247,13 @@ function updateTrackPhysics(track: HTMLDivElement | null) {
     const rawOffset = (wrapperCenter - trackCenter) / wrapper.clientWidth;
     const offset = Math.max(-2.5, Math.min(2.5, rawOffset));
     const abs = Math.abs(offset);
-    card.style.transform = `rotateY(${offset * -35}deg) scale(${1 - abs * 0.15}) translateZ(${abs * -100}px)`;
+    if (enable3d) {
+      card.style.transform = `rotateY(${offset * -35}deg) scale(${1 - abs * 0.15}) translateZ(${abs * -100}px)`;
+    } else {
+      // Touch devices: flat scale only. rotateY/translateZ inside a scroll-snap track
+      // breaks tap hit-testing on mobile browsers (dead CTAs).
+      card.style.transform = `scale(${1 - abs * 0.08})`;
+    }
     card.style.zIndex = String(Math.round(100 - abs * 10));
   });
 }
@@ -139,7 +271,39 @@ export function PipsPicksPersimmonCarousel({
 }) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  // 3D card physics only on hover/fine-pointer devices; touch gets a flat snap carousel.
+  const [enable3d, setEnable3d] = useState(false);
   const renderedPicks = useMemo(() => picks.slice(0, 5) as PipsPick[], [picks]);
+
+  const lockedFlags = useMemo(
+    () =>
+      renderedPicks.map(
+        (pick, index) =>
+          Boolean(pick.product.is_locked ?? pick.product.locked_for_non_members ?? index > 0) &&
+          !isEmberPlusMember
+      ),
+    [renderedPicks, isEmberPlusMember]
+  );
+  const lockedCount = lockedFlags.filter(Boolean).length;
+  // Non-members see one locked upsell card instead of four identical ones;
+  // the counter on it signals how many picks they are missing.
+  const displayPicks = useMemo(() => {
+    const firstLockedIndex = lockedFlags.indexOf(true);
+    return firstLockedIndex === -1 ? renderedPicks : renderedPicks.slice(0, firstLockedIndex + 1);
+  }, [renderedPicks, lockedFlags]);
+
+  useEffect(() => {
+    setExpandedIndex(null);
+  }, [displayPicks]);
+
+  useEffect(() => {
+    const query = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const update = () => setEnable3d(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
 
   const updateActiveIndex = useCallback(() => {
     const track = trackRef.current;
@@ -167,15 +331,15 @@ export function PipsPicksPersimmonCarousel({
   }, []);
 
   const scrollByCard = useCallback((direction: -1 | 1) => {
-    const next = Math.max(0, Math.min(renderedPicks.length - 1, activeIndex + direction));
+    const next = Math.max(0, Math.min(displayPicks.length - 1, activeIndex + direction));
     scrollToIndex(next);
-  }, [activeIndex, renderedPicks.length, scrollToIndex]);
+  }, [activeIndex, displayPicks.length, scrollToIndex]);
 
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
     const update = () => window.requestAnimationFrame(() => {
-      updateTrackPhysics(track);
+      updateTrackPhysics(track, enable3d);
       updateActiveIndex();
     });
     update();
@@ -185,9 +349,9 @@ export function PipsPicksPersimmonCarousel({
       track.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
     };
-  }, [renderedPicks.length, updateActiveIndex]);
+  }, [displayPicks.length, updateActiveIndex, enable3d]);
 
-  if (!renderedPicks.length) return null;
+  if (!displayPicks.length) return null;
 
   return (
     <section className="relative overflow-hidden text-[#253044]">
@@ -207,20 +371,19 @@ export function PipsPicksPersimmonCarousel({
       </div>
 
       <div
-        className="relative min-h-[545px] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[610px]"
-        style={{ perspective: '1200px' }}
+        className="relative min-h-[560px] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[610px]"
+        style={enable3d ? { perspective: '1200px' } : undefined}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#E4E9E6] to-transparent md:block" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-20 hidden w-28 bg-gradient-to-l from-[#E4E9E6] to-transparent md:block" />
         <div
           ref={trackRef}
           className="absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] py-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)]"
-          style={{ transformStyle: 'preserve-3d' }}
+          style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
         >
-          {renderedPicks.map((pick, index) => {
+          {displayPicks.map((pick, index) => {
             const rank = index + 1;
-            const productLocked = Boolean(pick.product.is_locked ?? pick.product.locked_for_non_members ?? index > 0);
-            const locked = productLocked && !isEmberPlusMember;
+            const locked = lockedFlags[index];
             const url = getProductUrl(pick);
             const canVisit = url && url !== '#';
             const fields = getDisplayFields(pick, rank, childDisplayLabel);
@@ -230,13 +393,13 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex h-full max-h-[500px] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[570px] md:w-[370px] md:flex-[0_0_370px]"
-                style={{ transformStyle: 'preserve-3d' }}
+                className="relative flex h-full max-h-[520px] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[570px] md:w-[370px] md:flex-[0_0_370px]"
+                style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
                   data-pips-card
                   className="absolute flex h-full w-full flex-col overflow-hidden rounded-[28px] bg-[#253044] text-white shadow-[0_28px_52px_rgba(37,48,68,0.22)] transition-transform duration-150 md:rounded-[32px]"
-                  style={{ transformStyle: 'preserve-3d' }}
+                  style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- decorative brand watermark */}
                   <img
@@ -248,32 +411,44 @@ export function PipsPicksPersimmonCarousel({
                   <img
                     src={ROBIN_LOGO_URL}
                     alt=""
-                    className="pointer-events-none absolute right-5 top-5 z-20 h-[88px] w-[88px] object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-24 md:w-24"
+                    className="pointer-events-none absolute right-3 top-3 z-20 h-16 w-16 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-[72px] md:w-[72px]"
                   />
 
                   <div className="relative z-10 flex h-full flex-col p-5 md:p-7">
-                    <span className="mb-4 inline-flex self-start rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white md:mb-5">
-                      {rank} / {renderedPicks.length}
-                    </span>
+                    <div className="mb-4 flex items-center gap-2 self-start md:mb-5">
+                      <span className="inline-flex rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
+                        {rank} / {renderedPicks.length}
+                      </span>
+                      {!locked ? (
+                        <button
+                          type="button"
+                          onClick={() => setExpandedIndex(index)}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white transition-colors hover:bg-black/60"
+                          aria-label={`Read full details for ${fields.title}`}
+                        >
+                          <Maximize2 size={15} strokeWidth={2.5} aria-hidden />
+                        </button>
+                      ) : null}
+                    </div>
 
                     <div
                       className={`flex flex-1 flex-col transition duration-300 ${
                         locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
                       }`}
                     >
-                      <p className="m-0 mb-1.5 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8]">
+                      <p className="m-0 mb-1.5 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-2 md:pr-16">
                         {fields.tag}
                       </p>
-                      <h3 className="m-0 mb-2 flex items-start gap-2.5 text-[20px] font-extrabold leading-tight tracking-normal text-white md:text-[22px]">
+                      <h3 className="m-0 mb-2 flex items-start gap-2.5 pr-10 text-[20px] font-extrabold leading-tight tracking-normal text-white md:pr-12 md:text-[22px]">
                         <Icon className="h-6 w-6 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
-                        {fields.title}
+                        <span className="line-clamp-2">{fields.title}</span>
                       </h3>
                       {fields.brand ? (
-                        <p className="m-0 mb-3 text-[12px] font-bold uppercase tracking-wider text-white/80 md:mb-4 md:text-[13px]">
+                        <p className="m-0 mb-3 text-[12px] font-bold uppercase tracking-wider text-white/80 line-clamp-1 md:mb-4 md:text-[13px]">
                           {fields.brand}
                         </p>
                       ) : null}
-                      <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 md:mb-4 md:text-[15px]">
+                      <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-3 md:mb-4 md:text-[15px] md:line-clamp-4">
                         {fields.description}
                       </p>
 
@@ -281,7 +456,7 @@ export function PipsPicksPersimmonCarousel({
                         <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
                           Why Pip picked this
                         </strong>
-                        <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 md:text-[14px]">
+                        <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-5 md:text-[14px] md:line-clamp-6">
                           {fields.verdict}
                         </p>
                       </div>
@@ -309,8 +484,13 @@ export function PipsPicksPersimmonCarousel({
                       <img
                         src={ROBIN_LOGO_URL}
                         alt=""
-                        className="pointer-events-none absolute right-5 top-5 h-[88px] w-[88px] object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-24 md:w-24"
+                        className="pointer-events-none absolute right-3 top-3 h-16 w-16 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-[72px] md:w-[72px]"
                       />
+                      {lockedCount > 0 ? (
+                        <span className="mb-4 inline-flex items-center rounded-full border border-[#FF5C34]/40 bg-[#FF5C34]/15 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-[#FFE0D8]">
+                          {lockedCount} more {lockedCount === 1 ? 'pick' : 'picks'} available
+                        </span>
+                      ) : null}
                       <strong className="mb-3 text-[20px] font-extrabold leading-tight text-white">
                         Discover Pip&apos;s Picks with Ember Plus
                       </strong>
@@ -345,7 +525,7 @@ export function PipsPicksPersimmonCarousel({
           <button
             type="button"
             onClick={() => scrollByCard(1)}
-            disabled={activeIndex >= renderedPicks.length - 1}
+            disabled={activeIndex >= displayPicks.length - 1}
             className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#E7E2DC] bg-white text-[#253044] shadow-lg transition hover:bg-[#FBFAF7] disabled:opacity-30"
             aria-label="Next Pip's Pick"
           >
@@ -353,7 +533,7 @@ export function PipsPicksPersimmonCarousel({
           </button>
         </div>
         <div className="absolute bottom-2 left-0 right-0 z-30 flex justify-center gap-2">
-          {renderedPicks.map((pick, index) => (
+          {displayPicks.map((pick, index) => (
             <button
               key={pick.product.id}
               type="button"
@@ -364,6 +544,26 @@ export function PipsPicksPersimmonCarousel({
           ))}
         </div>
       </div>
+
+      <AnimatePresence>
+        {expandedIndex !== null && displayPicks[expandedIndex] ? (() => {
+          const pick = displayPicks[expandedIndex];
+          const url = getProductUrl(pick);
+          return (
+            <PipsPickExpanded
+              key={`${pick.product.id}-expanded`}
+              fields={{
+                ...getDisplayFields(pick, expandedIndex + 1, childDisplayLabel),
+                url,
+                canVisit: Boolean(url && url !== '#'),
+                rank: expandedIndex + 1,
+                total: renderedPicks.length,
+              }}
+              onClose={() => setExpandedIndex(null)}
+            />
+          );
+        })() : null}
+      </AnimatePresence>
     </section>
   );
 }

@@ -15,6 +15,8 @@ import {
 } from '@/lib/discover/doorways';
 import { getEffectiveAgeBandRange } from '@/lib/discover/pilotAgeBandRange';
 import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
+import { AffiliateDisclosureNotice } from '@/components/compliance/AffiliateDisclosureNotice';
+import { hasOutboundRetailerUrl } from '@/lib/compliance/externalRetailerLink';
 import { DiscoverFigmaChildHero } from '@/components/discover/figma/DiscoverFigmaChildHero';
 import { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigmaNeedCard';
 import { DiscoverFigmaScienceSection } from '@/components/discover/figma/DiscoverFigmaScienceSection';
@@ -146,6 +148,8 @@ export default function DiscoveryPageClient({
   const [ideasSectionInView, setIdeasSectionInView] = useState(false);
   const [fetchedPicks, setFetchedPicks] = useState<PickItem[]>([]);
   const [picksLoading, setPicksLoading] = useState(false);
+  // Server-resolved membership from /api/discover/picks (auth + RLS), not inferred from data shape.
+  const [picksAccess, setPicksAccess] = useState<{ canSeeLocked: boolean } | null>(null);
   const picksFetchKeyRef = useRef<string | null>(null);
   // Default parent view — most users are the parent; gift mode is opt-in only.
   const [audienceMode, setAudienceMode] = useState<DiscoverAudienceMode>('parent');
@@ -250,10 +254,15 @@ export default function DiscoveryPageClient({
         const res = await fetch(
           `/api/discover/picks?ageBandId=${encodeURIComponent(ageBand.id)}&categoryTypeId=${encodeURIComponent(categoryId)}`
         );
-        const payload = (await res.json()) as { picks?: PickItem[] };
+        const payload = (await res.json()) as {
+          picks?: PickItem[];
+          access?: { canSeeLocked?: boolean };
+        };
         setFetchedPicks(payload.picks ?? []);
+        setPicksAccess(payload.access ? { canSeeLocked: Boolean(payload.access.canSeeLocked) } : null);
       } catch {
         setFetchedPicks([]);
+        setPicksAccess(null);
       } finally {
         setPicksLoading(false);
       }
@@ -326,6 +335,40 @@ export default function DiscoveryPageClient({
       const rect = el.getBoundingClientRect();
       const targetTop = Math.max(0, rect.top + window.scrollY - headerOffset);
       const behavior = behaviorOverride ?? (shouldReduceMotion ? 'auto' : 'smooth');
+      window.scrollTo({ top: targetTop, behavior });
+    },
+    [shouldReduceMotion]
+  );
+
+  const scrollToStage3Picks = useCallback(
+    (behaviorOverride?: ScrollBehavior) => {
+      const section = document.getElementById('discover-figma-products');
+      if (!section) return;
+      const headerVar = getComputedStyle(document.documentElement).getPropertyValue('--header-height').trim();
+      const headerOffset = (headerVar ? parseInt(headerVar, 10) : 88) + 12;
+      const bottomChromeOffset = window.innerWidth < 768 ? 96 : 32;
+      const card =
+        section.querySelector<HTMLElement>('[data-pips-card-wrapper]') ??
+        section.querySelector<HTMLElement>('[data-pips-card]');
+      const behavior = behaviorOverride ?? (shouldReduceMotion ? 'auto' : 'smooth');
+
+      if (!card) {
+        const sectionRect = section.getBoundingClientRect();
+        window.scrollTo({ top: Math.max(0, sectionRect.top + window.scrollY - headerOffset), behavior });
+        return;
+      }
+
+      const cardRect = card.getBoundingClientRect();
+      const cardTop = cardRect.top + window.scrollY;
+      const cardBottom = cardRect.bottom + window.scrollY;
+      const highestScrollForTop = Math.max(0, cardTop - headerOffset);
+      const lowestScrollForBottom = Math.max(0, cardBottom - (window.innerHeight - bottomChromeOffset));
+      const sectionTop = Math.max(0, section.getBoundingClientRect().top + window.scrollY - headerOffset);
+      const targetTop =
+        lowestScrollForBottom <= highestScrollForTop
+          ? Math.max(sectionTop, lowestScrollForBottom)
+          : highestScrollForTop;
+
       window.scrollTo({ top: targetTop, behavior });
     },
     [shouldReduceMotion]
@@ -456,9 +499,9 @@ export default function DiscoveryPageClient({
   useEffect(() => {
     if (!showFromUrl) return;
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'auto'));
+      requestAnimationFrame(() => scrollToStage3Picks('auto'));
     });
-  }, [showFromUrl, scrollToSection]);
+  }, [showFromUrl, scrollToStage3Picks]);
 
   const selectedBand = ageBands[selectedBandIndex] ?? ageBand;
   const currentMonth = monthParam ?? 25;
@@ -586,7 +629,7 @@ export default function DiscoveryPageClient({
     });
     void fetchPicksForCategory(categoryId);
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'auto'));
+      requestAnimationFrame(() => scrollToStage3Picks('auto'));
     });
   };
 
@@ -894,7 +937,7 @@ export default function DiscoveryPageClient({
   };
 
   const getProductUrl = (p: PickItem) =>
-    p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
+    p.product.canonical_url || p.product.product_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
 
   const doorwayMetaBySlug = useMemo(() => {
     const map = new Map<string, { key: string; helper: string; icon: (typeof ALL_DOORWAYS)[number]['icon'] }>();
@@ -989,8 +1032,7 @@ export default function DiscoveryPageClient({
   const displayIdeas =
     showingExamples && fetchedPicks.length > 0 ? fetchedPicks : exampleProducts;
   const displayHasPipsPicks = displayIdeas.some((p) => p.product.is_stage3_pick);
-  const isEmberPlusMember =
-    displayHasPipsPicks && displayIdeas.some((p) => p.product.is_stage3_pick) && !displayIdeas.some((p) => p.product.is_locked);
+  const isEmberPlusMember = picksAccess?.canSeeLocked ?? false;
 
   const shortlistTrackKeyRef = useRef<string | null>(null);
   useEffect(() => {
@@ -1013,12 +1055,12 @@ export default function DiscoveryPageClient({
   const stage3MobileAnchorKeyRef = useRef<string | null>(null);
   useEffect(() => {
     if (discoverState !== 'ShowingExamples' || picksLoading || displayIdeas.length <= 0) return;
-    if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+    if (typeof window === 'undefined') return;
     const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedCategoryId ?? 'none'}|${displayIdeas.length}`;
     if (stage3MobileAnchorKeyRef.current === key) return;
     stage3MobileAnchorKeyRef.current = key;
-    requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'smooth'));
-  }, [discoverState, picksLoading, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, scrollToSection]);
+    requestAnimationFrame(() => scrollToStage3Picks('smooth'));
+  }, [discoverState, picksLoading, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, scrollToStage3Picks]);
 
   const handleSaveCategory = (categoryId: string, triggerEl: HTMLButtonElement | null) => {
     saveModalFocusRef.current = triggerEl;
@@ -1176,6 +1218,10 @@ export default function DiscoveryPageClient({
   const bandLabel = formatBandLabel(selectedBand);
   const bandRange = getBandRange(selectedBand);
   const isExpecting = isExpectingRange(bandRange);
+  const examplesHaveRetailerLinks = useMemo(
+    () => displayIdeas.some((p) => hasOutboundRetailerUrl(p.product)),
+    [displayIdeas]
+  );
   return (
     <div
       className="min-h-screen w-full bg-[#FBFAF7]"
@@ -1478,13 +1524,19 @@ export default function DiscoveryPageClient({
                     Examples coming soon
                   </div>
                 ) : (
-                  <PipsPicksPersimmonCarousel
-                    key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}-${viewerAccessKey}`}
-                    picks={displayIdeas.slice(0, displayHasPipsPicks ? 5 : 12)}
-                    childDisplayLabel={childProfile.displayLabel}
-                    isEmberPlusMember={isEmberPlusMember}
-                    getProductUrl={getProductUrl}
-                  />
+                  <>
+                    <PipsPicksPersimmonCarousel
+                      key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}-${viewerAccessKey}`}
+                      picks={displayIdeas.slice(0, displayHasPipsPicks ? 5 : 12)}
+                      childDisplayLabel={childProfile.displayLabel}
+                      isEmberPlusMember={isEmberPlusMember}
+                      getProductUrl={getProductUrl}
+                    />
+                    <AffiliateDisclosureNotice
+                      hasRetailerLinks={examplesHaveRetailerLinks}
+                      className="mt-3 text-center"
+                    />
+                  </>
                 )}
               </section>
             ) : null}
