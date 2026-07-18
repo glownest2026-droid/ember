@@ -550,7 +550,13 @@ SELECT
 FROM stage3_rows r
 JOIN public.pl_category_types ct
   ON ct.slug = r.source_category_entity_id
- AND ct.age_band_id = ${sqlString(ageBandId)};
+WHERE EXISTS (
+  SELECT 1
+  FROM public.pl_age_band_development_need_category_types abdnct
+  WHERE abdnct.age_band_id = ${sqlString(ageBandId)}
+    AND abdnct.category_type_id = ct.id
+    AND abdnct.is_active = true
+);
 
 WITH backup_rows AS (
   SELECT *
@@ -613,7 +619,13 @@ SELECT
 FROM backup_rows r
 JOIN public.pl_category_types ct
   ON ct.slug = r.source_category_entity_id
- AND ct.age_band_id = ${sqlString(ageBandId)};
+WHERE EXISTS (
+  SELECT 1
+  FROM public.pl_age_band_development_need_category_types abdnct
+  WHERE abdnct.age_band_id = ${sqlString(ageBandId)}
+    AND abdnct.category_type_id = ct.id
+    AND abdnct.is_active = true
+);
 
 DO $$
 DECLARE

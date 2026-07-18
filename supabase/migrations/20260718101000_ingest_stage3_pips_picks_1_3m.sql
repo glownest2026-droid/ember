@@ -235,14 +235,20 @@ SELECT
   r.founder_qa_flag,
   jsonb_build_object(
     'bundle_schema_version', 'stage3_ingestion_bundle_v1',
-    'bundle_generated_at', '2026-07-18T09:27:32.244Z',
+    'bundle_generated_at', '2026-07-18T09:49:09.534Z',
     'research_schema_version', 'ember_picks_research_v2',
     'source_category_entity_id', r.source_category_entity_id
   )
 FROM stage3_rows r
 JOIN public.pl_category_types ct
   ON ct.slug = r.source_category_entity_id
- AND ct.age_band_id = '1-3m';
+WHERE EXISTS (
+  SELECT 1
+  FROM public.pl_age_band_development_need_category_types abdnct
+  WHERE abdnct.age_band_id = '1-3m'
+    AND abdnct.category_type_id = ct.id
+    AND abdnct.is_active = true
+);
 
 WITH backup_rows AS (
   SELECT *
@@ -380,14 +386,20 @@ SELECT
   'backup_not_card_ready',
   jsonb_build_object(
     'bundle_schema_version', 'stage3_ingestion_bundle_v1',
-    'bundle_generated_at', '2026-07-18T09:27:32.244Z',
+    'bundle_generated_at', '2026-07-18T09:49:09.534Z',
     'status', 'dormant_backup',
     'source_category_entity_id', r.source_category_entity_id
   )
 FROM backup_rows r
 JOIN public.pl_category_types ct
   ON ct.slug = r.source_category_entity_id
- AND ct.age_band_id = '1-3m';
+WHERE EXISTS (
+  SELECT 1
+  FROM public.pl_age_band_development_need_category_types abdnct
+  WHERE abdnct.age_band_id = '1-3m'
+    AND abdnct.category_type_id = ct.id
+    AND abdnct.is_active = true
+);
 
 DO $$
 DECLARE
