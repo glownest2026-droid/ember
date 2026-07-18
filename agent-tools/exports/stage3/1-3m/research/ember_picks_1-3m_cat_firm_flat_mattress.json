@@ -1,0 +1,311 @@
+{
+  "schema_version": "ember_picks_research_v2",
+  "researcher": "manus",
+  "age_band": "1-3m",
+  "age_band_id": "age_1_3m",
+  "generated_at": "2026-07-18",
+  "market": "UK",
+  "currency": "GBP",
+  "stage1": {
+    "cluster_rank": 9,
+    "cluster_entity_id": "ent_cluster_safe_sleep_setup",
+    "cluster_label": "Help sleep stay safe",
+    "why_it_matters_short": "Keeps the sleep space simple, clear and easier to check.",
+    "why_it_matters_long": "Safer sleep is one place where simple rules really help. A clear cot, firm flat mattress, room sharing and sensible layers make the sleep space easier to check, especially when you are tired and doing the same routine many times."
+  },
+  "stage2": {
+    "category_rank": 2,
+    "category_entity_id": "cat_firm_flat_mattress",
+    "category_type_slug": "cat_firm_flat_mattress",
+    "category_label": "Firm, flat, waterproof mattress",
+    "buyer_mode_label": "Parent buy",
+    "primary_persona": "both",
+    "gift_friendly": false,
+    "gift_confidence": "none",
+    "common_ownership_risk": "none",
+    "product_family_label": "Firm flat baby mattress",
+    "mapping_rationale": "Mapped from current age-band evidence into the things that can help lane.",
+    "safety_note_public": "A new mattress is preferred where possible. Avoid soft, uneven or poorly fitting surfaces.",
+    "evidence_ids": [],
+    "source_ids": []
+  },
+  "top_picks": [
+    {
+      "rank": 1,
+      "product_name": "CuddleCo Lullaby Hypo-Allergenic Firm Baby Cot Bed Mattress (140x70cm)",
+      "brand": "CuddleCo",
+      "retailer": "Amazon UK",
+      "url": "https://www.amazon.co.uk/CuddleCo-Lullaby-Hypo-Allergenic-Bamboo-Mattress/dp/B07TKJMD9Q",
+      "url_status": "verified_direct",
+      "price_gbp": 69.99,
+      "availability": "in_stock",
+      "rating": 4.6,
+      "review_count": 68,
+      "best_for": "Best budget-friendly option with integrated waterproofing",
+      "title": "CuddleCo Lullaby Mattress",
+      "description": "A firm, hypoallergenic, and anti-microbial cot bed mattress with a waterproof side, designed for safe and comfortable sleep from birth.",
+      "why_pip_picked_this": "This mattress offers excellent value for money while meeting key safety and comfort criteria. The integrated waterproof side is a significant advantage for new parents, and the positive reviews confirm its quality and suitability for newborns.",
+      "founder_lens": "Good budget option, but ensure the firmness is consistently maintained over time given the price point.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.amazon.co.uk/CuddleCo-Lullaby-Hypo-Allergenic-Bamboo-Mattress/dp/B07TKJMD9Q",
+          "claim": "4.6 out of 5 stars with 68 reviews, hypoallergenic, anti-microbial, waterproof side, firm."
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "product_name": "SnuzSurface Duo Dual Sided Cot Bed Mattress SnuzKot",
+      "brand": "Sn\u00fcz",
+      "retailer": "Sn\u00fcz Official Website",
+      "url": "https://www.snuz.co.uk/products/snuzsurface-duo-dual-sided-cot-bed-mattress-snuzkot",
+      "url_status": "verified_direct",
+      "price_gbp": 155.0,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Best dual-sided mattress for extended use",
+      "title": "Sn\u00fczSurface Duo Mattress",
+      "description": "A versatile dual-sided cot bed mattress with a firm side for babies and a softer side for toddlers, featuring a waterproof surface and washable cover.",
+      "why_pip_picked_this": "The dual-sided design provides longevity and adaptability as the child grows, offering optimal firmness for newborns and a softer option for toddlers. The waterproof surface and washable cover enhance practicality and hygiene.",
+      "founder_lens": "Confirm expert rating source and details, as no customer reviews were found on the official site. The dual-sided feature is excellent for longevity.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.snuz.co.uk/products/snuzsurface-duo-dual-sided-cot-bed-mattress-snuzkot",
+          "claim": "Dual-sided (two levels of firmness), pocket sprung with waterproof surface, removable/machine washable cover, suitable from baby to 4 years of age, Award Winner."
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "product_name": "Mother & Baby Pure Gold Anti Allergy Coir Pocket Sprung Cot Bed Mattress",
+      "brand": "Mother&Baby",
+      "retailer": "Boots",
+      "url": "https://www.boots.com/mother-baby-pure-gold-anti-allergy-coir-pocket-sprung-cot-bed-mattress10317013",
+      "url_status": "verified_direct",
+      "price_gbp": 129.99,
+      "availability": "in_stock",
+      "rating": 4.8,
+      "review_count": 6,
+      "best_for": "Best for allergy sufferers with integrated waterproofing",
+      "title": "Mother&Baby Pure Gold Mattress",
+      "description": "An anti-allergy pocket sprung cot bed mattress with Purotex\u00ae technology and a moveable waterproof membrane, ensuring a clean and dry sleep environment.",
+      "why_pip_picked_this": "This mattress stands out for its anti-allergy properties and the innovative moveable waterproof membrane, which provides excellent protection without compromising breathability. The pocket springs offer good support, and the washable cover adds to its practicality.",
+      "founder_lens": "The review count is low, but the features align well with safe sleep and hygiene requirements. Investigate the expert rating source.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.boots.com/mother-baby-pure-gold-anti-allergy-coir-pocket-sprung-cot-bed-mattress10317013",
+          "claim": "Anti-allergy with Purotex\u00ae technology, moveable waterproof membrane, removable/washable cover, 4.8 stars with 6 reviews."
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "product_name": "Obaby Moisture Management Dual Core Mattress -140x70cm",
+      "brand": "Obaby",
+      "retailer": "Obaby Official Website",
+      "url": "https://www.obaby.co.uk/products/moisture-management-dual-core-mattress",
+      "url_status": "verified_direct",
+      "price_gbp": 180.0,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Best for advanced moisture and temperature regulation",
+      "title": "Obaby Moisture Management Mattress",
+      "description": "A dual-core mattress with a coir side for babies and pocket springs for toddlers, featuring a Tencel top panel for superior moisture and humidity management.",
+      "why_pip_picked_this": "This mattress offers advanced features for moisture and temperature regulation, which are crucial for infant comfort and safety. The dual-core design provides appropriate support for both newborns and toddlers, making it a long-term investment. The Made For Mums Gold award adds credibility.",
+      "founder_lens": "Verify the specific firmness levels for the baby side and ensure it meets safe sleep guidelines. The price is higher, so the benefits need to be clearly articulated.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.obaby.co.uk/products/moisture-management-dual-core-mattress",
+          "claim": "Dual-core (coir side for babies, pocket sprung side for toddlers), Tencel top panel for moisture/humidity management, removable/washable cover, water-resistant, air permeable PU panel. Made For Mums Gold 2023 award."
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "product_name": "Simba Hybrid Cot Bed Mattress",
+      "brand": "Simba",
+      "retailer": "Simba Sleep Official Website",
+      "url": "https://simbasleep.com/products/cot-bed-mattress",
+      "url_status": "verified_direct",
+      "price_gbp": 249.0,
+      "availability": "in_stock",
+      "rating": 4.6,
+      "review_count": 97,
+      "best_for": "Best premium hybrid mattress with excellent support",
+      "title": "Simba Hybrid Cot Bed Mattress",
+      "description": "A premium dual-sided hybrid mattress with 8 layers, offering firm support for babies and a softer side for toddlers, along with superior breathability and a washable cover.",
+      "why_pip_picked_this": "The Simba Hybrid mattress provides a high-quality, multi-layered construction designed for optimal support and comfort. Its dual-sided nature ensures suitability from birth through toddlerhood, and the breathability and washable cover are key practical benefits. The strong customer reviews and awards reinforce its premium positioning.",
+      "founder_lens": "This is a high-end option; ensure the benefits justify the price point for the target audience. Confirm the specific firmness for the baby side aligns with safe sleep recommendations.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://simbasleep.com/products/cot-bed-mattress",
+          "claim": "Dual-sided (firmer for babies, softer for toddlers), 8-layer design, breathable, water-resistant inner lining, machine-washable cover. Rated 4.6 stars with 97 reviews."
+        }
+      ]
+    }
+  ],
+  "longlist": [
+    {
+      "product_name": "CuddleCo Lullaby Hypo-Allergenic Firm Baby Cot Bed Mattress (140x70cm)",
+      "brand": "CuddleCo",
+      "url": "https://www.amazon.co.uk/CuddleCo-Lullaby-Hypo-Allergenic-Bamboo-Mattress/dp/B07TKJMD9Q",
+      "include_status": "top_pick",
+      "reason": "Hypoallergenic, anti-microbial, waterproof side, firm, 4.6 stars with 68 reviews, suitable for newborns."
+    },
+    {
+      "product_name": "The Little Green Sheep Twist Cot Bed Mattress, Breathable Mattress for Babies and Toddlers, 70 x 140 cm",
+      "brand": "The Little Green Sheep",
+      "url": "https://www.amazon.co.uk/gp/product/B008G025WM",
+      "include_status": "skipped",
+      "reason": "Dual-sided with a firm side for 0-12 months, 100% natural materials, 4.8 stars with 197 reviews. *Note: Requires separate waterproof protector.*"
+    },
+    {
+      "product_name": "Tutti Bambini Sprung Cot Bed Mattress (70 x 140 cm)",
+      "brand": "Tutti Bambini",
+      "url": "https://www.tuttibambini.com/products/sprung-cot-bed-mattress-70-x-140-cm",
+      "include_status": "skipped",
+      "reason": "High-tensile spring core, breathable, anti-bacterial, anti-fungal, anti-dust mite, removable washable cover. Expert rating 5.0 (Mother&Baby)."
+    },
+    {
+      "product_name": "Mother & Baby Pure Gold Anti Allergy Coir Pocket Sprung Cot Bed Mattress",
+      "brand": "Mother&Baby",
+      "url": "https://www.boots.com/mother-baby-pure-gold-anti-allergy-coir-pocket-sprung-cot-bed-mattress10317013",
+      "include_status": "top_pick",
+      "reason": "Anti-allergy with Purotex\u00ae technology, moveable waterproof membrane, removable/washable cover, 4.8 stars with 6 reviews."
+    },
+    {
+      "product_name": "SnuzSurface Duo Dual Sided Cot Bed Mattress SnuzKot",
+      "brand": "Sn\u00fcz",
+      "url": "https://www.snuz.co.uk/products/snuzsurface-duo-dual-sided-cot-bed-mattress-snuzkot",
+      "include_status": "top_pick",
+      "reason": "Dual-sided (two levels of firmness), pocket sprung with waterproof surface, removable/machine washable cover, suitable from baby to 4 years of age, Award Winner."
+    },
+    {
+      "product_name": "Naturalmat The Latex Mat (Cotbed size)",
+      "brand": "Naturalmat",
+      "url": "https://naturalmat.co.uk/products/latex-mat",
+      "include_status": "skipped",
+      "reason": "Natural latex, organic coir, organic lambswool, chemical-free, hypoallergenic, removable/washable cotton cover, firm and flat. Rated 4.6 stars with 22 reviews. *Note: Waterproof mattress protector recommended by manufacturer.*"
+    },
+    {
+      "product_name": "Babymore Eco Fibre Cot Mattress \u2013 140 x 70 cm",
+      "brand": "Babymore",
+      "url": "https://babymore.co.uk/shop/baby-mattresses/cot-bed-mattresses/eco-fibre-cot-mattress-140-x-70-cm/",
+      "include_status": "skipped",
+      "reason": "Chemical-free, eco-friendly, water-resistant, breathable, removable/washable hypoallergenic cover, dent-resistant fibre pad, complies to BS EN 16890:2017."
+    },
+    {
+      "product_name": "Clevamama ClevaFoam Support Cot Bed Mattress 140 x 70cm",
+      "brand": "Clevamama",
+      "url": "https://www.hellobabydirect.com/products/clevamama-clevafoam-support-mattress?srsltid=AfmBOoo3bHbKLvrBNJUVhCizdCu5QQ1cCcmlxfZ2N8CCqbMYlLv1cOz2",
+      "include_status": "longlist",
+      "reason": "ClevaFoam\u00ae technology, scientifically proven to reduce pressure on baby's head, breathable, lightweight, hypoallergenic, pH balanced, toxin-free, removable/machine washable cover. Suitable from birth."
+    },
+    {
+      "product_name": "CuddleCo Signature Hypo Allergenic Bamboo Pocket Sprung Cot Bed Mattress",
+      "brand": "CuddleCo",
+      "url": "https://www.littlewoods.com/cuddleco-signature-hypo-allergenic-bamboo-pocket-sprung-cot-bed-mattress/1600673825.prd",
+      "include_status": "longlist",
+      "reason": "Pocket springs, dual-sided (bamboo hypoallergenic and waterproof training layer), anti-allergy, breathable, removable/machine washable cover. Rated 5 out of 5 stars with 3 reviews."
+    },
+    {
+      "product_name": "Obaby Moisture Management Dual Core Mattress -140x70cm",
+      "brand": "Obaby",
+      "url": "https://www.obaby.co.uk/products/moisture-management-dual-core-mattress",
+      "include_status": "top_pick",
+      "reason": "Dual-core (coir for babies, pocket sprung for toddlers), Tencel top panel for moisture/humidity management, removable/washable cover, water-resistant, air permeable PU panel. Made For Mums Gold 2023 award."
+    },
+    {
+      "product_name": "Simba Hybrid Cot Bed Mattress",
+      "brand": "Simba",
+      "url": "https://simbasleep.com/products/cot-bed-mattress",
+      "include_status": "top_pick",
+      "reason": "Dual-sided (firmer for babies, softer for toddlers), 8-layer design, breathable, water-resistant inner lining, machine-washable cover. Rated 4.6 stars with 97 reviews."
+    },
+    {
+      "product_name": "John Lewis Basic Fibre Cot Mattress, 120 x 60cm",
+      "brand": "John Lewis",
+      "url": "https://www.johnlewis.com/john-lewis-basic-fibre-cot-mattress-120-x-60cm/p6410037",
+      "include_status": "skipped",
+      "reason": "Firm mattress, fibre core, suitable from birth, removable and washable cover. Originally \u00a330.00."
+    },
+    {
+      "product_name": "Obaby Fibre Mattress - 140 x 70cm",
+      "brand": "Obaby",
+      "url": "https://www.obaby.co.uk/products/fibre-mattress-140-x-40-cm",
+      "include_status": "skipped",
+      "reason": "Breathable, hypoallergenic, 100% recyclable polyester fibre pad, removable/washable cover. Suitable from birth. Complies with UK fire safety regulations and standards for nursery mattresses."
+    },
+    {
+      "product_name": "MHG Textiles Baby Cot Mattress 140 x 70 x 15 cm",
+      "brand": "MHG Textiles",
+      "url": "https://www.amazon.co.uk/MHG-Textiles-Baby-Mattress-140x70x15cm/dp/B0FLLQ8P2F",
+      "include_status": "longlist",
+      "reason": "Firm, breathable & hypoallergenic, waterproof with removable zipped cover, washable, fits standard UK cot beds. Rated 4.3 stars with 79 reviews."
+    },
+    {
+      "product_name": "Mamas & Papas Essential Airflow Fibre Cotbed Mattress",
+      "brand": "Mamas & Papas",
+      "url": "https://www.mamasandpapas.com/products/essential-fibre-cotbed-mattress-esfbmcb04",
+      "include_status": "longlist",
+      "reason": "Fibre core for superior airflow, wipe-clean fixed inner protector, airmesh outer top cover, toxin-free, all-round zip-off washable cover."
+    }
+  ],
+  "skips": [
+    {
+      "product_name": "The Little Green Sheep Twist Cot Bed Mattress, Breathable Mattress for Babies and Toddlers, 70 x 140 cm",
+      "brand": "The Little Green Sheep",
+      "url": "https://www.amazon.co.uk/gp/product/B008G025WM",
+      "reason": "Requires a separate waterproof protector, which adds an extra purchase and a potential point of failure for waterproofing. The task specifically asks for a 'waterproof mattress'."
+    },
+    {
+      "product_name": "Tutti Bambini Sprung Cot Bed Mattress (70 x 140 cm)",
+      "brand": "Tutti Bambini",
+      "url": "https://www.tuttibambini.com/products/sprung-cot-bed-mattress-70-x-140-cm",
+      "reason": "While it has a washable cover, it doesn't explicitly state 'waterproof' or 'water-resistant' for the mattress itself or an integrated layer. The task specifies a 'waterproof mattress'."
+    },
+    {
+      "product_name": "Naturalmat The Latex Mat (Cotbed size)",
+      "brand": "Naturalmat",
+      "url": "https://naturalmat.co.uk/products/latex-mat",
+      "reason": "The manufacturer recommends a separate waterproof protector, indicating it's not inherently waterproof. High price point for a non-integrated waterproof solution."
+    },
+    {
+      "product_name": "Babymore Eco Fibre Cot Mattress \u2013 140 x 70 cm",
+      "brand": "Babymore",
+      "url": "https://babymore.co.uk/shop/baby-mattresses/cot-bed-mattresses/eco-fibre-cot-mattress-140-x-70-cm/",
+      "reason": "The product description states 'water resistant and wipe clean surface' for the cover, but not explicitly for the core mattress itself, which is a key requirement for a truly waterproof mattress."
+    },
+    {
+      "product_name": "John Lewis Basic Fibre Cot Mattress, 120 x 60cm",
+      "brand": "John Lewis",
+      "url": "https://www.johnlewis.com/john-lewis-basic-fibre-cot-mattress-120-x-60cm/p6410037",
+      "reason": "While it states 'firm mattress' and mentions a 'Waterproof Mattress Protector' in the search snippet, the product description itself does not confirm integrated waterproofing for the mattress, and the protector is a separate item. The task requires a waterproof mattress."
+    },
+    {
+      "product_name": "Obaby Fibre Mattress - 140 x 70cm",
+      "brand": "Obaby",
+      "url": "https://www.obaby.co.uk/products/fibre-mattress-140-x-40-cm",
+      "reason": "The product description states 'water-resistant' for the cover, but not explicitly for the core mattress itself, which is a key requirement for a truly waterproof mattress. Also, the material is 100% plain polypropylene unbound cover and 100% Foam core, which might not be as durable or firm as other options."
+    }
+  ],
+  "guidance_notes": [
+    "Clarity on Waterproofing: Many products market 'water-resistant covers' or 'waterproof protectors' rather than an inherently waterproof mattress. For safe sleep, the distinction between a waterproof mattress core and a waterproof cover/protector needs to be clear. Ensure our recommendations explicitly meet the 'waterproof mattress' criteria.",
+    "Firmness Assessment: While all selected mattresses claim to be firm, the subjective nature of 'firmness' can vary. For the 1-3 month age band, a consistently firm and flat sleep surface is critical. Consider if a more objective measure or independent verification of firmness is feasible or necessary for top recommendations.",
+    "Balancing Reviews and Expert Endorsements: Some highly-rated products by experts (e.g., Mother&Baby, Made For Mums) have fewer customer reviews. When selecting top picks, we should consider the weight given to expert awards versus a high volume of customer reviews, especially for newer or specialist products.",
+    "Value Proposition of Dual-Sided Mattresses: Dual-sided mattresses offer extended use from baby to toddler, which is a strong selling point. However, it's crucial to ensure the 'baby side' unequivocally meets the firm and flat requirements for newborns without compromise.",
+    "Price vs. Integrated Features: The research shows that some budget-friendly options offer integrated waterproofing, while more expensive natural options often require separate waterproof protectors. This highlights that a higher price doesn't always guarantee all desired features, and the integrated waterproofing is a key differentiator for value."
+  ]
+}

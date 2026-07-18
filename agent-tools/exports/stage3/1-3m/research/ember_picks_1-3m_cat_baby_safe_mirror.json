@@ -1,0 +1,266 @@
+{
+  "schema_version": "ember_picks_research_v2",
+  "researcher": "manus",
+  "age_band": "1-3m",
+  "age_band_id": "age_1_3m",
+  "generated_at": "2026-07-18",
+  "market": "UK",
+  "currency": "GBP",
+  "stage1": {
+    "cluster_rank": 1,
+    "cluster_entity_id": "ent_cluster_faces_smiles_chats",
+    "cluster_label": "I'm finding your face",
+    "why_it_matters_short": "Turns faces, smiles and little sounds into shared moments.",
+    "why_it_matters_long": "Your baby may be watching your face, softening when you speak and trying tiny coos or smiles. These back-and-forth moments make everyday cuddles, changes and floor play feel shared, while supporting connection, attention and early communication. Your voice, face and pauses are enough."
+  },
+  "stage2": {
+    "category_rank": 3,
+    "category_entity_id": "cat_baby_safe_mirror",
+    "category_type_slug": "cat_baby_safe_mirror",
+    "category_label": "Baby-safe mirror for faces",
+    "buyer_mode_label": "Good gift",
+    "primary_persona": "both",
+    "gift_friendly": true,
+    "gift_confidence": "medium",
+    "common_ownership_risk": "medium",
+    "product_family_label": "Baby-safe floor mirror",
+    "mapping_rationale": "Mapped from current age-band evidence into the things that can help lane.",
+    "safety_note_public": "Use only during supervised awake play; do not place loose mirrors or toys in the sleep space.",
+    "evidence_ids": [],
+    "source_ids": []
+  },
+  "top_picks": [
+    {
+      "rank": 1,
+      "product_name": "Activity Floor Mirror - Pigee Colour Mix",
+      "brand": "Done by Deer",
+      "retailer": "Natural Baby Shower",
+      "url": "https://www.naturalbabyshower.co.uk/products/done-by-deer-activity-floor-mirror-pigee-colour-mix",
+      "url_status": "verified_direct",
+      "price_gbp": 34.95,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Engaging floor play and visual stimulation",
+      "title": "Floor Mirror Fun",
+      "description": "A vibrant floor mirror designed to encourage self-recognition and visual engagement during tummy time and supervised play.",
+      "why_pip_picked_this": "This mirror is specifically designed for floor play, promoting visual focus and interaction. Its engaging design aligns with the Stage 1 need for shared moments and early communication.",
+      "founder_lens": "Consider adding a note about the mirror's stability for active babies.",
+      "safety_notes": []
+    },
+    {
+      "rank": 2,
+      "product_name": "Tummy-Time Baby Mirror Book",
+      "brand": "Taf Toys",
+      "retailer": "Halilit",
+      "url": "https://halilit.co.uk/products/taf-toys-tummy-time-baby-mirror-book",
+      "url_status": "verified_direct",
+      "price_gbp": 14.99,
+      "availability": "in_stock",
+      "rating": 5.0,
+      "review_count": 1,
+      "best_for": "Versatile tummy time and sensory play",
+      "title": "Mirror Book Adventures",
+      "description": "A double-sided fabric book with a large baby-safe mirror, high-contrast patterns, and colorful illustrations to stimulate developing senses.",
+      "why_pip_picked_this": "The mirror book offers dual-stage development with high-contrast for newborns and a mirror for older infants, supporting visual development and self-awareness, directly addressing the 'finding your face' cluster.",
+      "founder_lens": "Review the single review for potential bias, but the product concept is strong.",
+      "safety_notes": []
+    },
+    {
+      "rank": 3,
+      "product_name": "Activity Floor Mirror - Wally - Powder",
+      "brand": "Done by Deer",
+      "retailer": "Done by Deer UK",
+      "url": "https://donebydeer.com/en-gb/products/activity-floor-mirror-wally-powder",
+      "url_status": "verified_direct",
+      "price_gbp": 19.3,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Budget-friendly and stimulating floor mirror",
+      "title": "Wally's Reflection",
+      "description": "An engaging floor mirror with a friendly Wally design, perfect for encouraging babies to lift their heads and explore their reflections during tummy time.",
+      "why_pip_picked_this": "This mirror provides a good value option for encouraging visual engagement and self-discovery during tummy time, aligning with the core need at an accessible price point.",
+      "founder_lens": "No reviews available, so consider this a potential risk for customer satisfaction. Monitor for future reviews.",
+      "safety_notes": []
+    },
+    {
+      "rank": 4,
+      "product_name": "To Go Activity Mirror - Happy Clouds - Blue",
+      "brand": "Done by Deer",
+      "retailer": "Done by Deer UK",
+      "url": "https://donebydeer.com/en-gb/products/to-go-activity-mirror-happy-clouds-blue",
+      "url_status": "verified_direct",
+      "price_gbp": 26.0,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Portable and engaging on-the-go play",
+      "title": "Cloudy Day Mirror",
+      "description": "A portable activity mirror with a cheerful cloud design, ideal for attaching to prams or car seats for entertainment and self-discovery during outings.",
+      "why_pip_picked_this": "Its portability makes it suitable for stimulating visual interaction and self-awareness beyond the home environment, supporting continuous engagement with faces and expressions.",
+      "founder_lens": "Ensure this is clearly marketed as a 'to-go' mirror and not a primary floor mirror, to manage expectations.",
+      "safety_notes": []
+    },
+    {
+      "rank": 5,
+      "product_name": "Activity Mirror w/Clip - Tiny Farm - Green",
+      "brand": "Done by Deer",
+      "retailer": "Done by Deer UK",
+      "url": "https://donebydeer.com/en-gb/products/activity-mirror-w-clip-tiny-farm-green",
+      "url_status": "verified_direct",
+      "price_gbp": 26.95,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Clip-on versatility for various play settings",
+      "title": "Clip-On Farm Mirror",
+      "description": "A versatile activity mirror with a convenient clip, allowing it to be attached to playmats, car seats, or cots for interactive play and self-discovery.",
+      "why_pip_picked_this": "The clip-on feature provides flexibility for parents to position the mirror in various locations, maximizing opportunities for the baby to engage with their reflection and fostering early communication.",
+      "founder_lens": "Confirm the clip mechanism is robust and safe for infant use in various settings.",
+      "safety_notes": []
+    }
+  ],
+  "longlist": [
+    {
+      "product_name": "Activity Floor Mirror - Pigee Colour Mix",
+      "brand": "Done by Deer",
+      "url": "https://www.naturalbabyshower.co.uk/products/done-by-deer-activity-floor-mirror-pigee-colour-mix",
+      "include_status": "top_pick",
+      "reason": "Visually appealing, floor mirror for tummy time."
+    },
+    {
+      "product_name": "Activity Floor Mirror - Dotti Sand",
+      "brand": "Done by Deer",
+      "url": "https://www.naturalbabyshower.co.uk/products/done-by-deer-activity-floor-mirror-dotti-sand",
+      "include_status": "included",
+      "reason": "Visually appealing, floor mirror for tummy time."
+    },
+    {
+      "product_name": "Fold-Out Sensory Mirror - Tiny Farm",
+      "brand": "Done by Deer",
+      "url": "https://www.naturalbabyshower.co.uk/products/done-by-deer-fold-out-sensory-mirror-tiny-farm",
+      "include_status": "included",
+      "reason": "Fold-out design for versatility, sensory features."
+    },
+    {
+      "product_name": "Activity Floor Mirror - Wally - Powder",
+      "brand": "Done by Deer",
+      "url": "https://donebydeer.com/en-gb/products/activity-floor-mirror-wally-powder",
+      "include_status": "top_pick",
+      "reason": "Good price point, floor mirror."
+    },
+    {
+      "product_name": "Activity Floor Mirror - Lalee - Sand",
+      "brand": "Done by Deer",
+      "url": "https://donebydeer.com/en-gb/products/activity-floor-mirror-lalee-sand",
+      "include_status": "included",
+      "reason": "Good price point, floor mirror."
+    },
+    {
+      "product_name": "To Go Activity Mirror - Happy Clouds - Blue",
+      "brand": "Done by Deer",
+      "url": "https://donebydeer.com/en-gb/products/to-go-activity-mirror-happy-clouds-blue",
+      "include_status": "top_pick",
+      "reason": "Portable, activity mirror."
+    },
+    {
+      "product_name": "To Go Activity Mirror - Happy Clouds - Papaya",
+      "brand": "Done by Deer",
+      "url": "https://donebydeer.com/en-gb/products/to-go-activity-mirror-happy-clouds-papaya",
+      "include_status": "included",
+      "reason": "Portable, activity mirror."
+    },
+    {
+      "product_name": "Activity Floor Mirror - Wally - Blue",
+      "brand": "Done by Deer",
+      "url": "https://donebydeer.com/en-gb/products/activity-floor-mirror-wally-blue",
+      "include_status": "included",
+      "reason": "Floor mirror, good for tummy time."
+    },
+    {
+      "product_name": "Activity Floor Mirror - Croco - Green",
+      "brand": "Done by Deer",
+      "url": "https://donebydeer.com/en-gb/products/activity-floor-mirror-croco-green",
+      "include_status": "included",
+      "reason": "Floor mirror, good for tummy time."
+    },
+    {
+      "product_name": "Sensory Rattle Mirror - Jelly - Powder",
+      "brand": "Done by Deer",
+      "url": "https://donebydeer.com/en-gb/products/sensory-rattle-mirror-jelly-powder",
+      "include_status": "included",
+      "reason": "Affordable, sensory features, rattle."
+    },
+    {
+      "product_name": "Activity Mirror w/Clip - Tiny Farm - Green",
+      "brand": "Done by Deer",
+      "url": "https://donebydeer.com/en-gb/products/activity-mirror-w-clip-tiny-farm-green",
+      "include_status": "top_pick",
+      "reason": "Clip for versatility, activity mirror."
+    },
+    {
+      "product_name": "Sensory Rattle Mirror Set - Celebration - Colour Mix",
+      "brand": "Done by Deer",
+      "url": "https://donebydeer.com/en-gb/products/sensory-rattle-mirror-set-celebration-colour-mix",
+      "include_status": "included",
+      "reason": "Set with sensory features."
+    },
+    {
+      "product_name": "Tummy-Time Baby Mirror Book",
+      "brand": "Taf Toys",
+      "url": "https://halilit.co.uk/products/taf-toys-tummy-time-baby-mirror-book",
+      "include_status": "top_pick",
+      "reason": "Interactive book with mirror, good for tummy time."
+    },
+    {
+      "product_name": "Vicloon Tummy Time Mirror Toys for Babies",
+      "brand": "Vicloon",
+      "url": "https://www.amazon.co.uk/Vicloon-Newborn-Development-Crinkle-Contrast/dp/B09BJW2GQN",
+      "include_status": "included",
+      "reason": "Foldable, high contrast patterns, good reviews on Amazon."
+    },
+    {
+      "product_name": "Sassy Crib & Floor Mirror",
+      "brand": "Sassy",
+      "url": "https://www.amazon.co.uk/Sassy-Crib-Floor-Mirror-Black/dp/B00005BMLD",
+      "include_status": "included",
+      "reason": "Versatile for crib or floor use, soft frame."
+    }
+  ],
+  "skips": [
+    {
+      "product_name": "Penguin Tummy Time Mirror",
+      "brand": "Nuby",
+      "url": "https://uk.nuby.com/products/penguin-tummy-time-mirror",
+      "reason": "Product is currently sold out on the retailer's website."
+    },
+    {
+      "product_name": "Tummy Time Sensory Mirror - Tiny Farm Colour Mix",
+      "brand": "Done by Deer",
+      "url": "https://www.naturalbabyshower.co.uk/products/done-by-deer-tummy-time-sensory-mirror-tiny-farm-colour-mix",
+      "reason": "Product is currently out of stock on the retailer's website."
+    },
+    {
+      "product_name": "Rolling Activity Mirror - Colour mix - Birdee",
+      "brand": "Done by Deer",
+      "url": "https://www.naturalbabyshower.co.uk/products/done-by-deer-rolling-activity-mirror-colour-mix-birdee",
+      "reason": "Product is currently out of stock on the retailer's website."
+    },
+    {
+      "product_name": "Baby Car Mirror for Back Seat",
+      "brand": "URMYWO",
+      "url": "https://www.amazon.co.uk/sspa/click?ie=UTF8&spc=MTo2MjgwNTMzODI0MzU4MTM3OjE3ODQyNjg3OTY6c3BfYXRmOjMwMTAxODg4MDAzNDMzMjo6MDo6&url=%2FNewborn-Essentials-Shatterproof-Adjustable-Infants%2Fdp%2FB0876HMQMY%2Fref%3Dsr_1_2_sspa%3Fdib%3DeyJ2IjoiMSJ9.IISTFCIGbp8urbirTuyva4kSWMKiVzYBMxjx1p7Y7ZLrNuVzyAA8JNWrDwtTxCv1QqqWA9vraPAsG5F4xduyflu5i79bYKUgvc3jU6C9tOl0dOdtmJJCnPY8eovj0MbjasFlZ0g9rcbx2AzQZvF5kpirOnEKCHBLesscMu0pCw5w4-rUFvVLTXG_avms7sAZfISesGckJlad7bycqLavV9MRFmdtRFMvIA2CPUcCPC7U4o5sv-XAh61t-t2_RpQ5KsaSsnIdPljTsemUpaOMXx8q3WqY1TKamabX1qrEZZk.BeGeuh_2Au21YUvvHID8SyEAWt8HdV-mKAAVWerhrT8%26dib_tag%3Dse%26keywords%3Dbaby%2Bsafe%2Bmirror%26qid%3D1784268795%26sr%3D8-2-spons%26aref%3DmtDLiKqSZq%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9hdGY%26psc%3D1&aref=mtDLiKqSZq&sp_cr=ZAZ",
+      "reason": "This is a car mirror, not a floor or activity mirror for direct baby interaction as per the category definition."
+    },
+    {
+      "product_name": "Baby Einstein Sea Dreams Soother",
+      "brand": "Baby Einstein",
+      "url": "https://www.amazon.co.uk/sspa/click?ie=UTF8&spc=MTo1MTQ2NDMzMTE1NTI3NTEwOjE3ODQyNjg4MDc6c3BfYXRmOjMwMDE2NjA3ODQwMzgzMjo6MDo6&url=%2FDreams-Soother-Remote-Melodies-Newborns%2Fdp%2FB07DM86Z43%2Fref%3Dsr_1_1_sspa%3Fc%3Dts%26dib%3DeyJ2IjoiMSJ9.emtPCMEIV2HfwiHfmp7IE6l_KLOHWEqFYkZRh-qsd_gz3atLmqc9wvHylKG_ygx0Z6sLjy1xdFNZQOslrTwkkPYbv6QWIlbdWu5g78bmW70gWUt4y6_hDrL2dhKvaDlT3wa1-vX1N1kEc14E1JZv47xKIwQF5dvSsLgnC5ddh-aK0uqNBrmzNBGG8f6Qa9dyZE5CmTyV3ZvqxPW-24SMLg8_PWAv1cr5hnJGHx-CgEs2dJ64iQY2Q1Q2GSHWbE6jfpG_tmXyvy2CtuJ4Ov8Lx-KGufrF4DaxI2MjgNCGUXk.Pl_SW7dqHwhY9CiLHX7LNeFz5DECWd5GUvjV66O-W_k%26dib_tag%3Dse%26keywords%3DBaby%2BMirror%2BToys%26qid%3D1784268807%26s%3Dkids%26sr%3D1-1-spons%26ts_id%3D14520172031%26aref%3Duw1ozXyuEA%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9hdGY%26psc%3D1&aref=uw1ozXyuEA&sp_cr=ZAZ",
+      "reason": "This is a crib soother with a mirror, not primarily a baby-safe mirror for faces as a standalone product."
+    }
+  ],
+  "guidance_notes": [
+    "Prioritize mirrors that are specifically designed for floor play or tummy time, as these directly support the 'finding your face' cluster. Ensure any portable mirrors have secure attachment mechanisms."
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": "ember_picks_manifest_v2",
+  "age_band": "1-3m",
+  "generated_at": "2026-07-18",
+  "categories": [
+    {
+      "category_entity_id": "cat_baby_safe_mirror",
+      "category_label": "Baby-safe mirror for faces",
+      "top_picks_count": 5,
+      "longlist_count": 15
+    },
+    {
+      "category_entity_id": "cat_board_books",
+      "category_label": "Board books and face books",
+      "top_picks_count": 5,
+      "longlist_count": 16
+    },
+    {
+      "category_entity_id": "cat_high_contrast_cards",
+      "category_label": "High-contrast cards and simple patterns",
+      "top_picks_count": 5,
+      "longlist_count": 15
+    },
+    {
+      "category_entity_id": "cat_reach_grab_toys",
+      "category_label": "Reach-and-grab toys",
+      "top_picks_count": 5,
+      "longlist_count": 15
+    },
+    {
+      "category_entity_id": "cat_washable_floor_play_mat",
+      "category_label": "Washable Floor Play Mat",
+      "top_picks_count": 5,
+      "longlist_count": 15
+    },
+    {
+      "category_entity_id": "cat_reach_grab_toys",
+      "category_label": "Reach-and-grab toys",
+      "top_picks_count": 5,
+      "longlist_count": 15
+    },
+    {
+      "category_entity_id": "cat_soft_carrier_sling",
+      "category_label": "Soft Carrier Sling",
+      "top_picks_count": 5,
+      "longlist_count": 15
+    },
+    {
+      "category_entity_id": "cat_burp_cloths_muslins",
+      "category_label": "Muslins and burp cloths",
+      "top_picks_count": 5,
+      "longlist_count": 15
+    },
+    {
+      "category_entity_id": "cat_firm_flat_mattress",
+      "category_label": "Firm, flat, waterproof mattress",
+      "top_picks_count": 5,
+      "longlist_count": 15
+    },
+    {
+      "category_entity_id": "cat_rear_facing_car_seat",
+      "category_label": "Rear-facing infant car seat",
+      "top_picks_count": 5,
+      "longlist_count": 15
+    }
+  ]
+}

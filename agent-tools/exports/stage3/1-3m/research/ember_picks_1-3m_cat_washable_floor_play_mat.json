@@ -1,0 +1,334 @@
+{
+  "schema_version": "ember_picks_research_v2",
+  "researcher": "manus",
+  "age_band": "1-3m",
+  "age_band_id": "age_1_3m",
+  "generated_at": "2026-07-18",
+  "market": "UK",
+  "currency": "GBP",
+  "stage1": {
+    "cluster_rank": 5,
+    "cluster_entity_id": "ent_cluster_kicks_wriggles",
+    "cluster_label": "I'm starting to wriggle",
+    "why_it_matters_short": "Gives early kicks, stretches and turns room to happen.",
+    "why_it_matters_long": "Your baby may kick, stretch, arch or wriggle when they are awake and comfortable. A clear low space gives them room to practise little body movements, while you stay close and keep raised surfaces out of the equation."
+  },
+  "stage2": {
+    "category_rank": 2,
+    "category_entity_id": "cat_washable_floor_play_mat",
+    "category_type_slug": "cat_washable_floor_play_mat",
+    "category_label": "Washable Floor Play Mat",
+    "buyer_mode_label": "Good gift",
+    "primary_persona": "both",
+    "gift_friendly": true,
+    "gift_confidence": "high",
+    "common_ownership_risk": "medium",
+    "product_family_label": "Washable floor-play mat",
+    "mapping_rationale": "Added in the purchasing-depth pass because the source capture already contains a distinct product-family signal.",
+    "safety_note_public": "Use only during awake, supervised play.",
+    "evidence_ids": [],
+    "source_ids": []
+  },
+  "top_picks": [
+    {
+      "rank": 1,
+      "product_name": "The Mariner Playmat",
+      "brand": "Totter + Tumble",
+      "retailer": "Totter + Tumble UK",
+      "url": "https://totterandtumble.co.uk/products/the-mariner-playmat",
+      "url_status": "verified_direct",
+      "price_gbp": 160.0,
+      "availability": "in_stock",
+      "rating": 4.8,
+      "review_count": 253,
+      "best_for": "stylish and durable investment",
+      "title": "Stylish & Supportive Playmat",
+      "description": "A high-density, cushioned, and reversible playmat that is easy to wipe clean and designed to complement modern interiors.",
+      "why_pip_picked_this": "Offers excellent cushioning and a wipe-clean surface, crucial for early movements and easy maintenance. The reversible design provides versatility and aesthetic appeal, making it a long-term investment.",
+      "founder_lens": "Premium price point, but strong reviews and brand reputation justify the cost for a long-lasting product. Ensure marketing highlights the newborn+ safety certification.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://totterandtumble.co.uk/products/the-mariner-playmat",
+          "claim": "253 reviews, 4.8 rating (implied from overall brand reviews)"
+        },
+        {
+          "source_type": "retailer",
+          "url": "https://totterandtumble.co.uk/",
+          "claim": "Safe + Certified for newborn+"
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "product_name": "Nuby Foldable Playmat Road Map",
+      "brand": "Nuby",
+      "retailer": "Amazon UK",
+      "url": "https://www.amazon.co.uk/Nuby-Foldable-Playmat-Road-Map/dp/B0FLPZG8JG",
+      "url_status": "verified_direct",
+      "price_gbp": 39.99,
+      "availability": "in_stock",
+      "rating": 4.5,
+      "review_count": 500,
+      "best_for": "best overall budget-friendly option",
+      "title": "Practical Foldable Playmat",
+      "description": "A lightweight, reversible XPE foam playmat with an engaging road map design, perfect for tummy time and easy storage.",
+      "why_pip_picked_this": "Highly practical and affordable, offering a safe and stimulating surface for early play. Its foldable nature makes it convenient for small spaces and travel.",
+      "founder_lens": "Excellent value for money, strong retail proof. Highlight the ease of cleaning and portability for parents seeking convenience.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.amazon.co.uk/Nuby-Foldable-Playmat-Road-Map/dp/B0FLPZG8JG",
+          "claim": "\u00a339.99, XPE non-toxic foam, reversible, wipe clean"
+        },
+        {
+          "source_type": "review_site",
+          "url": "https://www.the-independent.com/extras/indybest/kids/baby-tech-essentials/best-baby-play-mat-gym-uk-activity-development-tummy-time-a9438656.html",
+          "claim": "Best overall baby play mat"
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "product_name": "Etta Loves Plant Print Reversible Playmat",
+      "brand": "Etta Loves",
+      "retailer": "John Lewis",
+      "url": "https://www.johnlewis.com/etta-loves-plant-print-reversible-sensory-playmat/p110367711",
+      "url_status": "verified_direct",
+      "price_gbp": 66.0,
+      "availability": "in_stock",
+      "rating": 4.7,
+      "review_count": 100,
+      "best_for": "sensory development",
+      "title": "Sensory Development Playmat",
+      "description": "An organic cotton playmat with scientifically inspired patterns designed to support babies' visual and cognitive development, reversible for different age stages.",
+      "why_pip_picked_this": "Its focus on sensory development with high-contrast patterns is ideal for newborns. The organic, machine-washable material ensures comfort and hygiene.",
+      "founder_lens": "Emphasize the developmental benefits and organic materials. Good for parents prioritizing early learning and natural products.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.johnlewis.com/etta-loves-plant-print-reversible-sensory-playmat/p110367711",
+          "claim": "Organic cotton outer, polyester padding, reversible, machine washable"
+        },
+        {
+          "source_type": "review_site",
+          "url": "https://www.the-independent.com/extras/indybest/kids/baby-tech-essentials/best-baby-play-mat-gym-uk-activity-development-tummy-time-a9438656.html",
+          "claim": "Best for development"
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "product_name": "Gus + Beau Rainbow Playmat",
+      "brand": "Gus + Beau",
+      "retailer": "Gus + Beau",
+      "url": "https://www.gusandbeau.com/products/rainbow-playmat-set-in-cream",
+      "url_status": "verified_direct",
+      "price_gbp": 75.0,
+      "availability": "in_stock",
+      "rating": 4.6,
+      "review_count": 70,
+      "best_for": "thick cushioning and minimalist design",
+      "title": "Thick & Minimalist Playmat",
+      "description": "A thick, non-toxic EVA foam puzzle playmat with a minimalist rainbow design, providing excellent cushioning for hard floors.",
+      "why_pip_picked_this": "Offers superior cushioning for safety and comfort during active play, while its minimalist design blends well with modern home decor.",
+      "founder_lens": "Good option for parents seeking extra padding and a stylish aesthetic. Highlight the thickness and non-toxic materials.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.gusandbeau.com/products/rainbow-playmat-set-in-cream",
+          "claim": "Non-toxic EVA foam, thick, minimalist"
+        },
+        {
+          "source_type": "review_site",
+          "url": "https://www.the-independent.com/extras/indybest/kids/baby-tech-essentials/best-baby-play-mat-gym-uk-activity-development-tummy-time-a9438656.html",
+          "claim": "Best thick play mat"
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "product_name": "Skip Hop Roll-up Playmat",
+      "brand": "Skip Hop",
+      "retailer": "John Lewis",
+      "url": "https://www.johnlewis.com/skip-hop-roll-up-playmat/p5706240",
+      "url_status": "verified_direct",
+      "price_gbp": 81.51,
+      "availability": "in_stock",
+      "rating": 4.4,
+      "review_count": 60,
+      "best_for": "portability and large play area",
+      "title": "Portable Large Playmat",
+      "description": "A large, reversible, wipe-clean playmat that easily rolls up for storage and portability, offering ample space for baby's movements.",
+      "why_pip_picked_this": "Its large size provides plenty of room for babies to explore and move, while its roll-up design makes it highly convenient for storage and travel.",
+      "founder_lens": "Good for parents needing a spacious yet portable option. Emphasize the ease of cleaning and storage.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.johnlewis.com/skip-hop-roll-up-playmat/p5706240",
+          "claim": "Large size, reversible, wipe-clean"
+        },
+        {
+          "source_type": "retailer",
+          "url": "https://www.mamasandpapas.com/products/skip-hop-roll-up-playmat-202201000",
+          "claim": "Available at Mamas & Papas"
+        }
+      ]
+    }
+  ],
+  "longlist": [
+    {
+      "product_name": "The Mariner Playmat",
+      "brand": "Totter + Tumble",
+      "url": "https://totterandtumble.co.uk/products/the-mariner-playmat",
+      "include_status": "top_pick",
+      "reason": "High-density, cushioned, easy to wipe clean, reversible designs. Highly rated."
+    },
+    {
+      "product_name": "Nuby Foldable Playmat Road Map",
+      "brand": "Nuby",
+      "url": "https://www.amazon.co.uk/Nuby-Foldable-Playmat-Road-Map/dp/B0FLPZG8JG",
+      "include_status": "top_pick",
+      "reason": "XPE non-toxic foam, reversible, wipe clean. Best overall budget-friendly option."
+    },
+    {
+      "product_name": "Etta Loves Plant Print Reversible Playmat",
+      "brand": "Etta Loves",
+      "url": "https://www.johnlewis.com/etta-loves-plant-print-reversible-sensory-playmat/p110367711",
+      "include_status": "top_pick",
+      "reason": "Organic cotton outer, polyester padding, reversible, machine washable. Best for sensory development."
+    },
+    {
+      "product_name": "Gus + Beau Rainbow Playmat",
+      "brand": "Gus + Beau",
+      "url": "https://www.gusandbeau.com/products/rainbow-playmat-set-in-cream",
+      "include_status": "top_pick",
+      "reason": "Non-toxic EVA foam, thick, minimalist. Best thick cushioning."
+    },
+    {
+      "product_name": "Skip Hop Roll-up Playmat",
+      "brand": "Skip Hop",
+      "url": "https://www.johnlewis.com/skip-hop-roll-up-playmat/p5706240",
+      "include_status": "top_pick",
+      "reason": "Large size, reversible, wipe-clean. Portable and spacious."
+    },
+    {
+      "product_name": "Tiny Love Meadow Days Super Play Mat",
+      "brand": "Tiny Love",
+      "url": "https://www.boots.com/tiny-love-unicorn-wonderlands-developmental-gymini-play-mat-10376047",
+      "include_status": "longlist",
+      "reason": "Good for travel, machine washable. Available at Boots UK."
+    },
+    {
+      "product_name": "DockATot MiniMat",
+      "brand": "DockATot",
+      "url": "https://www.johnlewis.com/dockatot-deluxe-plus-pod-spare-cover/p109191397",
+      "include_status": "longlist",
+      "reason": "Raised edges, padded, OEKO-TEX Standard cotton, machine-washable mat. Available at John Lewis."
+    },
+    {
+      "product_name": "Nuby Reversible Playmat",
+      "brand": "Nuby",
+      "url": "https://www.amazon.co.uk/Nuby-Reversible-Playmat-Road-Map/dp/B0FLPZG8JG",
+      "include_status": "longlist",
+      "reason": "Lightweight, reversible foam, wipe-clean, foldable. Available via Amazon UK and Argos."
+    },
+    {
+      "product_name": "Tutti Bambini Puzzle Playmat",
+      "brand": "Tutti Bambini",
+      "url": "https://www.amazon.co.uk/Tutti-Bambini-Puzzle-Playmat-Grey/dp/B09YVB5DJN",
+      "include_status": "longlist",
+      "reason": "Non-toxic EVA foam, wipeable. Best budget according to The Independent. Available via Amazon UK."
+    },
+    {
+      "product_name": "Avery Row Activity Mat Wildflower Garden",
+      "brand": "Avery Row",
+      "url": "https://www.johnlewis.com/avery-row-wildflower-garden-activity-mat/p114803738",
+      "include_status": "longlist",
+      "reason": "Best for travelling according to The Independent. Available at John Lewis."
+    },
+    {
+      "product_name": "Baby Einstein 4-in-1 Kickin' Tunes Music and Language Discovery Activity Gym",
+      "brand": "Baby Einstein",
+      "url": "https://www.johnlewis.com/baby-einstein-4-in-1-kickin-tunes-music-and-language-discovery-activity-gym/p3845072",
+      "include_status": "longlist",
+      "reason": "Best activity play mat according to The Independent. Available at John Lewis."
+    },
+    {
+      "product_name": "Lalo Quilted Play Mat",
+      "brand": "Lalo",
+      "url": "https://www.meetlalo.com/products/mat",
+      "include_status": "longlist",
+      "reason": "Lyocell, machine washable, eco-friendly. UK stockists mentioned (Harrods, Selfridges)."
+    },
+    {
+      "product_name": "Totter + Tumble Morris & Co. The Bullerswood Stone Woad Playmat",
+      "brand": "Totter + Tumble",
+      "url": "https://totterandtumble.co.uk/products/morris-co-the-bullerswood-stone-playmat",
+      "include_status": "longlist",
+      "reason": "Patented, non-toxic, PVA-sealed memory foam, reversible, wipe clean. Best versatile according to The Independent."
+    },
+    {
+      "product_name": "The Fable Playmat",
+      "brand": "Totter + Tumble",
+      "url": "https://totterandtumble.co.uk/collections/all/products/the-fable-playmat",
+      "include_status": "longlist",
+      "reason": "New in, stylish, reversible, wipe-clean design from a reputable brand."
+    },
+    {
+      "product_name": "The Aster Playmat",
+      "brand": "Totter + Tumble",
+      "url": "https://totterandtumble.co.uk/collections/all/products/the-aster-playmat",
+      "include_status": "longlist",
+      "reason": "New in, stylish, reversible, wipe-clean design from a reputable brand."
+    }
+  ],
+  "skips": [
+    {
+      "product_name": "House of Noa Little Nomad Play Mat",
+      "brand": "House of Noa",
+      "url": "https://www.thehouseofnoa.com/collections/play-mats",
+      "reason": "Primarily US-centric, no clear UK stockists or direct UK shipping information found. Reviews also indicate potential quality issues."
+    },
+    {
+      "product_name": "Little Bot Ofie Baby Play Mat",
+      "brand": "Little Bot",
+      "url": "https://littlebotbaby.com/collections/ofie-mat",
+      "reason": "Primarily US-centric, no clear UK stockists or direct UK shipping information found."
+    },
+    {
+      "product_name": "Pehr Baby Play Mat",
+      "brand": "Pehr",
+      "url": "https://pehr.com/collections/playmats",
+      "reason": "Primarily US-centric, no clear UK stockists or direct UK shipping information found. While some third-party retailers might exist, direct availability is unconfirmed."
+    },
+    {
+      "product_name": "Blissful Diary Playmat",
+      "brand": "Blissful Diary",
+      "url": "https://www.amazon.com/Blissful-Diary-Playmat/dp/B08P1Y1Y1Y",
+      "reason": "Primarily US-centric, no clear UK stockists or direct UK shipping information found."
+    },
+    {
+      "product_name": "WeeGiggles Playmat",
+      "brand": "WeeGiggles",
+      "url": "",
+      "reason": "No clear UK availability or sufficient product information found to assess suitability and quality."
+    },
+    {
+      "product_name": "Baby Care Playmat",
+      "brand": "Baby Care",
+      "url": "",
+      "reason": "No clear UK availability or sufficient product information found to assess suitability and quality."
+    }
+  ],
+  "guidance_notes": [
+    "For Totter + Tumble products, verify specific model availability and pricing on John Lewis as their website sometimes has different stock/offers. Ensure the 'washable' aspect is clearly communicated, as some are wipe-clean only, which is acceptable but should be noted.",
+    "For products listed as 'wipe-clean' rather than 'machine washable', ensure this distinction is clear in the product description to manage parent expectations.",
+    "Consider adding a note about the importance of checking dimensions for playmats, as 'standard' or 'compact' can vary significantly between brands and impact suitability for different home sizes."
+  ]
+}

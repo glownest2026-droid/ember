@@ -1,0 +1,271 @@
+{
+  "schema_version": "ember_picks_research_v2",
+  "researcher": "manus",
+  "age_band": "1-3m",
+  "age_band_id": "age_1_3m",
+  "generated_at": "2026-07-18",
+  "market": "UK",
+  "currency": "GBP",
+  "stage1": {
+    "cluster_rank": 8,
+    "cluster_entity_id": "ent_cluster_feeding_clean_kit",
+    "cluster_label": "Make feeds feel easier",
+    "why_it_matters_short": "Keeps feeding cues, leaks and kit easier to manage.",
+    "why_it_matters_long": "Feeds can feel constant at this age, with cues, winding, leaking, bottles or breast comfort all happening at once. Small bits of setup can reduce faff around feeds, so you can notice your baby's signals and keep the practical jobs manageable."
+  },
+  "stage2": {
+    "category_rank": 2,
+    "category_entity_id": "cat_burp_cloths_muslins",
+    "category_type_slug": "cat_burp_cloths_muslins",
+    "category_label": "Muslins and burp cloths",
+    "buyer_mode_label": "Parent buy",
+    "primary_persona": "both",
+    "gift_friendly": false,
+    "gift_confidence": "none",
+    "common_ownership_risk": "none",
+    "product_family_label": "Muslins and burp cloths",
+    "mapping_rationale": "Mapped from current age-band evidence into the things that can help lane.",
+    "safety_note_public": "",
+    "evidence_ids": [],
+    "source_ids": []
+  },
+  "top_picks": [
+    {
+      "rank": 1,
+      "product_name": "Essentials Cotton Muslin Squares - 5 Pack - Blushing Bunnies",
+      "brand": "aden + anais",
+      "retailer": "Natural Baby Shower",
+      "url": "https://www.naturalbabyshower.co.uk/products/aden-anais-essentials-5-pack-cotton-muslin-squares-blushing-bunnies",
+      "url_status": "verified_direct",
+      "price_gbp": 22.95,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Versatile everyday use and stylish designs",
+      "title": "aden + anais Muslin Squares",
+      "description": "Soft, breathable, and absorbent 100% cotton muslin squares, perfect for burping, feeding, and quick clean-ups. Comes in a pack of five with charming designs.",
+      "why_pip_picked_this": "A well-known and trusted brand for baby essentials, offering versatile and durable muslin squares that are soft and breathable. The 5-pack provides good value for everyday use.",
+      "founder_lens": "While the product page mentions '23K+ service reviews' for Natural Baby Shower, specific product ratings and review counts for this item are not readily available. This should be noted for QA.",
+      "safety_notes": [],
+      "evidence": []
+    },
+    {
+      "rank": 2,
+      "product_name": "Cotton Muslin Burp Cloths (3 Pack)",
+      "brand": "MuslinZ",
+      "retailer": "MuslinZ",
+      "url": "https://muslinz.co.uk/products/cotton-muslin-burp-cloths",
+      "url_status": "verified_direct",
+      "price_gbp": 9.99,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Highly absorbent and NICU trusted",
+      "title": "MuslinZ Burp Cloths",
+      "description": "Soft, breathable, and highly absorbent 100% cotton muslin burp cloths, trusted by NICUs across the UK.",
+      "why_pip_picked_this": "Excellent absorbency with 6 layers of cotton muslin, Oeko-Tex certified, and trusted by medical professionals.",
+      "founder_lens": "No reviews found on product page, but the brand states 'Trusted by NICUs across the UK' which is a strong indicator of quality and safety.",
+      "safety_notes": [],
+      "evidence": []
+    },
+    {
+      "rank": 3,
+      "product_name": "5 Pack Pure Cotton Muslin Squares",
+      "brand": "M&S",
+      "retailer": "Marks & Spencer",
+      "url": "https://www.marksandspencer.com/5pk-pure-cotton-muslin-squares/p/clp60616744",
+      "url_status": "verified_direct",
+      "price_gbp": 8.0,
+      "availability": "in_stock",
+      "rating": 4.7,
+      "review_count": 39,
+      "best_for": "Good value and everyday use",
+      "title": "M&S Muslin Squares",
+      "description": "A practical 5-pack of pure cotton muslin squares, soft and gentle for baby's delicate skin, ideal for everyday spills and clean-ups.",
+      "why_pip_picked_this": "Excellent value for a 5-pack of pure cotton muslins with a strong customer rating and review count, indicating good quality and parent satisfaction.",
+      "founder_lens": "The product has a solid rating of 4.7 from 39 reviews, meeting the 'strong retail proof' criteria.",
+      "safety_notes": [],
+      "evidence": []
+    },
+    {
+      "rank": 4,
+      "product_name": "Muslin Squares, Pack of 6, White",
+      "brand": "John Lewis",
+      "retailer": "John Lewis",
+      "url": "https://www.johnlewis.com/john-lewis-muslin-squares-pack-of-6-white/p230650111",
+      "url_status": "verified_direct",
+      "price_gbp": 8.0,
+      "availability": "in_stock",
+      "rating": 4.7,
+      "review_count": 275,
+      "best_for": "Essential basic, excellent value",
+      "title": "John Lewis White Muslins",
+      "description": "A practical 6-pack of pure cotton muslin squares, gentle on baby's skin and ideal for everyday spills and feeding. An essential for any new parent.",
+      "why_pip_picked_this": "Highly rated with a significant number of reviews, offering excellent value for a 6-pack of pure cotton muslins. A reliable and affordable option from a trusted retailer.",
+      "founder_lens": "Strong retail proof with a 4.7 rating from 275 reviews. This is a solid basic option.",
+      "safety_notes": [],
+      "evidence": []
+    },
+    {
+      "rank": 5,
+      "product_name": "Bamboo Muslin Squares",
+      "brand": "Panda London",
+      "retailer": "Panda London",
+      "url": "https://pandalondon.com/products/bamboo-muslin-squares",
+      "url_status": "verified_direct",
+      "price_gbp": 24.0,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Hypoallergenic, ultra-absorbent, and eco-friendly",
+      "title": "Panda London Bamboo Muslins",
+      "description": "Dual-layer 100% bamboo muslin squares, super soft, naturally antibacterial, and ultra-absorbent for all baby spills and messes. Comes in a gift box.",
+      "why_pip_picked_this": "Made from 100% bamboo, offering superior softness, absorbency, and natural antibacterial properties. Ideal for sensitive skin and eco-conscious parents. Gift-boxed and pre-washed for convenience.",
+      "founder_lens": "The product page mentions a 'Reviews' section, but no aggregate rating or review count is displayed directly. Further investigation might be needed to confirm retail proof if this is a critical requirement.",
+      "safety_notes": [],
+      "evidence": []
+    }
+  ],
+  "longlist": [
+    {
+      "product_name": "Essentials Cotton Muslin Squares - 5 Pack - Blushing Bunnies",
+      "brand": "aden + anais",
+      "url": "https://www.naturalbabyshower.co.uk/products/aden-anais-essentials-5-pack-cotton-muslin-squares-blushing-bunnies",
+      "include_status": "top_pick",
+      "reason": "Popular brand, good for everyday use."
+    },
+    {
+      "product_name": "Cotton Muslin Burp Cloths (3 Pack)",
+      "brand": "MuslinZ",
+      "url": "https://muslinz.co.uk/products/cotton-muslin-burp-cloths",
+      "include_status": "top_pick",
+      "reason": "Highly absorbent, trusted by NICUs, Oeko-Tex certified."
+    },
+    {
+      "product_name": "5 Pack Pure Cotton Muslin Squares",
+      "brand": "M&S",
+      "url": "https://www.marksandspencer.com/5pk-pure-cotton-muslin-squares/p/clp60616744",
+      "include_status": "top_pick",
+      "reason": "Good value, high rating (4.7 with 39 reviews)."
+    },
+    {
+      "product_name": "Muslin Squares, Pack of 6, White",
+      "brand": "John Lewis",
+      "url": "https://www.johnlewis.com/john-lewis-muslin-squares-pack-of-6-white/p230650111",
+      "include_status": "top_pick",
+      "reason": "Essential basic, very affordable."
+    },
+    {
+      "product_name": "Bamboo Muslin Squares",
+      "brand": "Panda London",
+      "url": "https://pandalondon.com/products/bamboo-muslin-squares",
+      "include_status": "top_pick",
+      "reason": "Ultra-absorbent, antibacterial, bamboo material."
+    },
+    {
+      "product_name": "Lewis Muslin Cloth 2-Pack - Mini Panda / Sandy Mix",
+      "brand": "Liewood",
+      "url": "https://www.naturalbabyshower.co.uk/products/liewood-lewis-muslin-cloth-2-pack-mini-panda-sandy-mix",
+      "include_status": "longlist",
+      "reason": "Stylish design, organic cotton, currently on sale."
+    },
+    {
+      "product_name": "Daydream Bear Breakfast Print Muslin Squares, Pack of 6",
+      "brand": "John Lewis",
+      "url": "https://www.johnlewis.com/john-lewis-daydream-bear-breakfast-print-muslin-squares-pack-of-6/p114887910",
+      "include_status": "longlist",
+      "reason": "Good value, cute design, John Lewis own brand."
+    },
+    {
+      "product_name": "3 Pack Pure Cotton Paddington\u2122 Muslins",
+      "brand": "M&S",
+      "url": "https://www.marksandspencer.com/3-pack-pure-cotton-paddington-muslins/p/clp60914918",
+      "include_status": "longlist",
+      "reason": "Popular character, good for gifting."
+    },
+    {
+      "product_name": "Burp Cloth 2 Pack - Playground Powder",
+      "brand": "Done By Deer",
+      "url": "https://www.naturalbabyshower.co.uk/products/done-by-deer-burp-cloth-2-pack-playground-powder",
+      "include_status": "longlist",
+      "reason": "Practical, cute design, good for burping."
+    },
+    {
+      "product_name": "100% bamboo muslins, White, pack of 3",
+      "brand": "Bambuu Baby",
+      "url": "https://www.bambuubaby.co.uk/milk-muslins/p/basic-package-mjd2d",
+      "include_status": "longlist",
+      "reason": "Bamboo for extra softness and absorbency."
+    },
+    {
+      "product_name": "Essentials Cotton Muslin Squares - 5 Pack - Tanzania",
+      "brand": "aden + anais",
+      "url": "https://www.naturalbabyshower.co.uk/products/aden-anais-essentials-5-pack-cotton-muslin-squares-tanzania",
+      "include_status": "longlist",
+      "reason": "Popular brand, different design option."
+    },
+    {
+      "product_name": "Muslin Cloth (3pack) - Bloomy",
+      "brand": "Jollein",
+      "url": "https://www.naturalbabyshower.co.uk/products/jollein-muslin-cloth-3pack-bloomy",
+      "include_status": "longlist",
+      "reason": "Affordable and practical."
+    },
+    {
+      "product_name": "Muslin Squares - 3 Pack - Wild Chamomile",
+      "brand": "Avery Row",
+      "url": "https://www.naturalbabyshower.co.uk/products/avery-row-muslin-squares-3-pack-wild-chamomile",
+      "include_status": "longlist",
+      "reason": "Organic cotton, stylish design."
+    },
+    {
+      "product_name": "Daydream Moon Large Muslin Squares, Pack of 3",
+      "brand": "John Lewis",
+      "url": "https://www.johnlewis.com/john-lewis-daydream-moon-large-muslin-squares-pack-of-3/p114887908",
+      "include_status": "longlist",
+      "reason": "Larger size for more coverage."
+    },
+    {
+      "product_name": "Baby Muslin Squares, Pack of 6, Grey Star",
+      "brand": "John Lewis",
+      "url": "https://www.johnlewis.com/john-lewis-baby-muslin-squares-pack-of-6-grey-star/p429429",
+      "include_status": "longlist",
+      "reason": "Very affordable, good basic option."
+    }
+  ],
+  "skips": [
+    {
+      "product_name": "Muslins - Plants - 3 Pack",
+      "brand": "Etta Loves",
+      "url": "https://www.naturalbabyshower.co.uk/products/etta-loves-muslins-plants-3-pack",
+      "reason": "Higher price point without clear additional benefits for the 1-3 month age band."
+    },
+    {
+      "product_name": "Mouth Cloth Muslin 3 Pack - Animal Friends",
+      "brand": "Jollein",
+      "url": "https://www.naturalbabyshower.co.uk/products/jollein-mouth-cloth-muslin-3-pack-animal-friends",
+      "reason": "Primarily for small spills, less versatile or absorbent for burping compared to other options."
+    },
+    {
+      "product_name": "Pre-Washed Large Muslin Swaddle - Grey",
+      "brand": "MORI",
+      "url": "https://www.naturalbabyshower.co.uk/products/mori-pre-washed-large-muslin-swaddle-grey",
+      "reason": "Primarily marketed as a swaddle, which is not the primary focus of this category (burp cloths/muslins for feeding)."
+    },
+    {
+      "product_name": "3 Pack Pure Cotton Heart Muslins",
+      "brand": "M&S",
+      "url": "https://www.marksandspencer.com/3-pack-pure-cotton-heart-muslins/p/clp61231073",
+      "reason": "While a new arrival and cute, it lacks sufficient reviews to meet the 'strong retail proof' criteria for a top pick, and other M&S options offer better value/reviews."
+    },
+    {
+      "product_name": "Muslin Wrap 2 Pack - Wheat Wattle Bee",
+      "brand": "Purebaby",
+      "url": "https://www.naturalbabyshower.co.uk/products/purebaby-muslin-wrap-2-pack-wheat-wattle-bee",
+      "reason": "Marketed as a wrap, which is a broader use case than the specific burp cloth/muslin need for feeding, and other options are more directly suited."
+    }
+  ],
+  "guidance_notes": [
+    "Retail Proof for Niche/Specialist Products: For products like MuslinZ Cotton Muslin Burp Cloths and Panda London Bamboo Muslin Squares, which have strong claims (e.g., NICU trusted, naturally antibacterial) but lack explicit aggregate product ratings and review counts on their direct product pages, consider alternative methods to verify 'strong retail proof'. This could involve searching for third-party reviews, industry certifications, or direct engagement with the brands to understand their customer feedback mechanisms. This ensures we don't overlook high-quality products that might not fit the standard review metric criteria."
+  ]
+}
