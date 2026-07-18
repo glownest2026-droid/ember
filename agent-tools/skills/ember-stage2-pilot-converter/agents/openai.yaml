@@ -1,0 +1,7 @@
+interface:
+  display_name: "Ember Stage 2 Pilot Converter"
+  short_description: "Choose Stage 2 pilots for Stage 3"
+  default_prompt: "Use $ember-stage2-pilot-converter to choose the Stage 2 cards to pilot next for Stage 3 Ember Picks."
+
+policy:
+  allow_implicit_invocation: true

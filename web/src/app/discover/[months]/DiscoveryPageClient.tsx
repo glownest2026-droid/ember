@@ -153,7 +153,7 @@ export default function DiscoveryPageClient({
   const fallbackHaveChildIdRef = useRef<string | null>(null);
   const basePath = '/discover';
   const { user, loading: subnavLoading, refetch: refetchSubnavStats } = useSubnavStats();
-  const isEmberPlusMember = user?.email?.trim().toLowerCase() === 'timwd23@gmail.com';
+  const viewerAccessKey = user?.email?.toLowerCase() ?? 'signed-out';
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { params: clientParams, replace: replaceClientParams } = useDiscoverClientSearchParams(pathname);
@@ -242,7 +242,7 @@ export default function DiscoveryPageClient({
   const fetchPicksForCategory = useCallback(
     async (categoryId: string) => {
       if (!ageBand?.id) return;
-      const key = `${ageBand.id}|${categoryId}`;
+      const key = `${ageBand.id}|${categoryId}|${viewerAccessKey}`;
       if (picksFetchKeyRef.current === key) return;
       picksFetchKeyRef.current = key;
       setPicksLoading(true);
@@ -258,7 +258,7 @@ export default function DiscoveryPageClient({
         setPicksLoading(false);
       }
     },
-    [ageBand?.id]
+    [ageBand?.id, viewerAccessKey]
   );
 
   // Pre-dim Stage 2 cards the user has already marked as "have".
@@ -986,7 +986,11 @@ export default function DiscoveryPageClient({
 
   const sliderProgress = ageBands.length > 0 ? (selectedBandIndex / Math.max(1, ageBands.length - 1)) * 100 : 0;
 
-  const displayIdeas = showingExamples ? fetchedPicks : exampleProducts;
+  const displayIdeas =
+    showingExamples && fetchedPicks.length > 0 ? fetchedPicks : exampleProducts;
+  const displayHasPipsPicks = displayIdeas.some((p) => p.product.is_stage3_pick);
+  const isEmberPlusMember =
+    displayHasPipsPicks && displayIdeas.some((p) => p.product.is_stage3_pick) && !displayIdeas.some((p) => p.product.is_locked);
 
   const shortlistTrackKeyRef = useRef<string | null>(null);
   useEffect(() => {
@@ -1151,7 +1155,6 @@ export default function DiscoveryPageClient({
     selectedWrapper
       ? localCategoriesByWrapper[selectedWrapper]?.length === undefined && playIdeaItems.length === 0
       : false;
-
   const scienceTitle = 'Why this matters now';
   const ideasDevelopmentName = (() => {
     const lower = selectedWrapperLabel.trim().toLowerCase();
@@ -1368,25 +1371,7 @@ export default function DiscoveryPageClient({
                 id="discover-figma-ideas"
                 className="scroll-mt-[calc(var(--header-height,88px)+12px)] mt-4 md:mt-0 md:scroll-mt-2 md:-mt-1"
               >
-                {ideasSectionLoading ? (
-                  <div className="flex flex-col gap-4" aria-busy="true" aria-label="Loading ideas">
-                    <div className="h-9 w-2/3 max-w-md rounded-lg bg-[#E7E2DC]/60 animate-pulse" />
-                    <div className="flex gap-4 overflow-hidden">
-                      {[0, 1].map((i) => (
-                        <div
-                          key={i}
-                          className="flex-[0_0_94%] md:flex-[0_0_58%] rounded-[24px] border border-[#E7E2DC] overflow-hidden bg-white"
-                        >
-                          <div className="aspect-[16/9] max-h-[150px] bg-[#E7E2DC]/50 animate-pulse" />
-                          <div className="p-4 space-y-2">
-                            <div className="h-5 w-3/4 rounded bg-[#E7E2DC]/60 animate-pulse" />
-                            <div className="h-4 w-full rounded bg-[#E7E2DC]/40 animate-pulse" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (audienceMode === 'gift' ? giftIdeas.length > 0 : usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
+                {(audienceMode === 'gift' ? giftIdeas.length > 0 : usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
                   <div className="flex flex-col gap-6">
                     <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">{ideasSectionTitle}</h2>
                     {audienceMode === 'gift' ? (
@@ -1494,8 +1479,8 @@ export default function DiscoveryPageClient({
                   </div>
                 ) : (
                   <PipsPicksPersimmonCarousel
-                    key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}`}
-                    picks={displayIdeas.slice(0, 12)}
+                    key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}-${viewerAccessKey}`}
+                    picks={displayIdeas.slice(0, displayHasPipsPicks ? 5 : 12)}
                     childDisplayLabel={childProfile.displayLabel}
                     isEmberPlusMember={isEmberPlusMember}
                     getProductUrl={getProductUrl}
