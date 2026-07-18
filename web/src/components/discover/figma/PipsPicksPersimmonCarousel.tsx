@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Baby,
   BookOpen,
   Car,
+  ChevronLeft,
+  ChevronRight,
   Circle,
   Hand,
   Home,
@@ -53,7 +55,7 @@ function personalizePickCopy(copy: string, childName?: string | null) {
   if (!copy?.trim() || !name) return copy;
   if (new RegExp(`\\b${escapeRegExp(name)}\\b`, 'i').test(copy)) return copy;
 
-  let out = copy
+  const out = copy
     .replace(/\bIt suits children who are likely to be\b/i, `It is suitable for ${name}, who is likely to be`)
     .replace(/\bIt suits children who\b/i, `It is suitable for ${name}, who is likely to`)
     .replace(/\bIt suits children\b/i, `It is suitable for ${name}`)
@@ -62,15 +64,10 @@ function personalizePickCopy(copy: string, childName?: string | null) {
     .replace(/\bsuits children\b/i, `suitable for ${name}`);
 
   if (out !== copy) return out;
-  return `For ${name}, this is likely to fit because ${lowerFirst(copy)}`;
-}
-
-function personalizeFromHint(hint: string | null | undefined, childName?: string | null) {
-  const name = childName?.trim();
-  const cleanHint = hint?.trim();
-  if (!name || !cleanHint) return null;
-  const normalized = cleanHint.replace(/^is\s+/i, '').replace(/^likely to\s+/i, 'likely to ');
-  return `Suitable for ${name}, who is ${normalized}`;
+  if (/^(this|it)\s+(supports|helps|gives|offers|adds|lets|makes)\b/i.test(copy)) {
+    return `For ${name}, this is likely to fit because ${lowerFirst(copy)}`;
+  }
+  return copy;
 }
 
 function pickIcon(productName: string, categoryLabel: string): LucideIcon {
@@ -96,7 +93,6 @@ function getDisplayFields(pick: PipsPick, rank: number, childName?: string | nul
     product.title ||
     product.name;
   const verdict =
-    personalizeFromHint(product.personalization_hint, childName) ||
     product.ember_verdict ||
     product.why_pip_picked_this ||
     product.rationale ||
@@ -142,12 +138,46 @@ export function PipsPicksPersimmonCarousel({
   getProductUrl: (pick: GatewayPick) => string;
 }) {
   const trackRef = useRef<HTMLDivElement | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const renderedPicks = useMemo(() => picks.slice(0, 5) as PipsPick[], [picks]);
+
+  const updateActiveIndex = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const trackCenter = track.scrollLeft + track.clientWidth / 2;
+    let nextIndex = 0;
+    let closest = Number.POSITIVE_INFINITY;
+    track.querySelectorAll<HTMLElement>('[data-pips-card-wrapper]').forEach((wrapper, index) => {
+      const center = wrapper.offsetLeft + wrapper.clientWidth / 2;
+      const distance = Math.abs(center - trackCenter);
+      if (distance < closest) {
+        closest = distance;
+        nextIndex = index;
+      }
+    });
+    setActiveIndex(nextIndex);
+  }, []);
+
+  const scrollToIndex = useCallback((index: number) => {
+    const track = trackRef.current;
+    const wrapper = track?.querySelectorAll<HTMLElement>('[data-pips-card-wrapper]')[index];
+    if (!track || !wrapper) return;
+    const left = wrapper.offsetLeft - (track.clientWidth - wrapper.clientWidth) / 2;
+    track.scrollTo({ left, behavior: 'smooth' });
+  }, []);
+
+  const scrollByCard = useCallback((direction: -1 | 1) => {
+    const next = Math.max(0, Math.min(renderedPicks.length - 1, activeIndex + direction));
+    scrollToIndex(next);
+  }, [activeIndex, renderedPicks.length, scrollToIndex]);
 
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
-    const update = () => window.requestAnimationFrame(() => updateTrackPhysics(track));
+    const update = () => window.requestAnimationFrame(() => {
+      updateTrackPhysics(track);
+      updateActiveIndex();
+    });
     update();
     track.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
@@ -155,29 +185,33 @@ export function PipsPicksPersimmonCarousel({
       track.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
     };
-  }, [renderedPicks.length]);
+  }, [renderedPicks.length, updateActiveIndex]);
 
   if (!renderedPicks.length) return null;
 
   return (
-    <section className="relative overflow-hidden rounded-[28px] bg-[#FF5C34] text-white shadow-[0_24px_56px_rgba(255,92,52,0.22)]">
-      <div className="relative z-20 px-5 pt-5 text-center md:px-7 md:pt-7">
-        <div className="inline-flex items-center justify-center gap-2">
+    <section className="relative overflow-hidden text-[#253044]">
+      <div className="relative z-20 px-2 pb-5 text-center md:px-0">
+        <div className="inline-flex items-center justify-center gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- brand mark is a stable public asset */}
-          <img src={ROBIN_LOGO_URL} alt="" className="h-9 w-9 object-contain" />
-          <h2 className="m-0 text-[26px] font-extrabold leading-tight tracking-normal text-white md:text-[32px]">
+          <img src={ROBIN_LOGO_URL} alt="" className="h-16 w-16 object-contain md:h-20 md:w-20" />
+          <h2 className="m-0 text-[30px] font-extrabold leading-tight tracking-normal text-[#253044] md:text-[40px]">
             Pip&apos;s Picks
           </h2>
         </div>
-        <p className="mx-auto mt-2 max-w-md text-[13px] font-semibold leading-relaxed text-white/85 md:text-sm">
-          A shortlist we&apos;ve already weighed up, and why. Picks 2-5 are for Ember Plus members.
+        <p className="mx-auto mt-1 max-w-lg text-[14px] font-semibold leading-relaxed text-[#66717D] md:text-base">
+          {isEmberPlusMember
+            ? "A shortlist we've already weighed up, with the full reasoning behind each pick."
+            : "A shortlist we've already weighed up. Pick 1 is free; picks 2-5 are for Ember Plus."}
         </p>
       </div>
 
-      <div className="relative min-h-[540px] overflow-hidden md:min-h-[580px]" style={{ perspective: '1200px' }}>
+      <div className="relative min-h-[620px] overflow-hidden md:min-h-[610px]" style={{ perspective: '1200px' }}>
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#FBFAF7] to-transparent md:block" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-20 hidden w-28 bg-gradient-to-l from-[#FBFAF7] to-transparent md:block" />
         <div
           ref={trackRef}
-          className="absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_165px)] py-5 [scrollbar-width:none] md:px-[calc(50%_-_185px)]"
+          className="absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_165px)] py-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)]"
           style={{ transformStyle: 'preserve-3d' }}
         >
           {renderedPicks.map((pick, index) => {
@@ -193,23 +227,23 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex h-full max-h-[520px] w-[330px] flex-[0_0_330px] snap-center items-center justify-center md:w-[370px] md:flex-[0_0_370px]"
+                className="relative flex h-full max-h-[570px] w-[330px] flex-[0_0_330px] snap-center items-center justify-center md:w-[370px] md:flex-[0_0_370px]"
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 <article
                   data-pips-card
-                  className="absolute flex h-full w-full flex-col overflow-hidden rounded-[32px] border border-white/10 bg-[#161D2B] text-white shadow-[0_32px_64px_rgba(0,0,0,0.25)] transition-transform duration-150"
+                  className="absolute flex h-full w-full flex-col overflow-hidden rounded-[32px] border-[10px] border-[#FF5C34] bg-[#161D2B] text-white shadow-[0_28px_52px_rgba(22,29,43,0.22)] transition-transform duration-150"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- decorative brand watermark */}
                   <img
                     src={ROBIN_LOGO_URL}
                     alt=""
-                    className="pointer-events-none absolute -right-24 -top-8 z-0 h-[380px] w-[380px] rotate-[15deg] object-contain opacity-25 mix-blend-overlay invert"
+                    className="pointer-events-none absolute -right-24 -top-8 z-0 h-[380px] w-[380px] rotate-[15deg] object-contain opacity-12 mix-blend-overlay invert"
                   />
 
-                  <div className="relative z-10 flex h-full flex-col p-7">
-                    <span className="mb-6 inline-flex self-start rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
+                  <div className="relative z-10 flex h-full flex-col p-5 md:p-7">
+                    <span className="mb-5 inline-flex self-start rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
                       {rank} / {renderedPicks.length}
                     </span>
 
@@ -221,7 +255,7 @@ export function PipsPicksPersimmonCarousel({
                       <p className="m-0 mb-1.5 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8]">
                         {fields.tag}
                       </p>
-                      <h3 className="m-0 mb-2 flex items-center gap-2.5 text-[22px] font-extrabold leading-tight tracking-normal text-white">
+                      <h3 className="m-0 mb-2 flex items-start gap-2.5 text-[21px] font-extrabold leading-tight tracking-normal text-white md:text-[22px]">
                         <Icon className="h-6 w-6 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
                         {fields.title}
                       </h3>
@@ -230,7 +264,7 @@ export function PipsPicksPersimmonCarousel({
                           {fields.brand}
                         </p>
                       ) : null}
-                      <p className="m-0 mb-5 text-[15px] font-medium leading-relaxed text-white/95">
+                      <p className="m-0 mb-4 text-[15px] font-medium leading-relaxed text-white/95">
                         {fields.description}
                       </p>
 
@@ -248,12 +282,12 @@ export function PipsPicksPersimmonCarousel({
                           href={url}
                           target="_blank"
                           rel={retailerLinkRel(url)}
-                          className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-[#FF5C34] px-4 py-4 text-[15px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97]"
+                          className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[15px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97]"
                         >
                           View retailer
                         </a>
                       ) : (
-                        <span className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-white/10 px-4 py-4 text-[15px] font-extrabold text-white/75">
+                        <span className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-white/10 px-4 py-3 text-[15px] font-extrabold text-white/75">
                           Link soon
                         </span>
                       )}
@@ -261,7 +295,7 @@ export function PipsPicksPersimmonCarousel({
                   </div>
 
                   {locked ? (
-                    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#253044]/70 p-8 text-center backdrop-blur-2xl">
+                    <div className="absolute inset-[10px] z-30 flex flex-col items-center justify-center rounded-[22px] bg-[#161D2B] p-8 text-center">
                       <strong className="mb-3 text-[20px] font-extrabold leading-tight text-white">
                         Discover Pip&apos;s Picks with Ember Plus
                       </strong>
@@ -280,6 +314,39 @@ export function PipsPicksPersimmonCarousel({
               </div>
             );
           })}
+        </div>
+        <div className="absolute inset-y-0 left-3 z-30 hidden items-center md:flex">
+          <button
+            type="button"
+            onClick={() => scrollByCard(-1)}
+            disabled={activeIndex === 0}
+            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#E7E2DC] bg-white text-[#253044] shadow-lg transition hover:bg-[#FBFAF7] disabled:opacity-30"
+            aria-label="Previous Pip's Pick"
+          >
+            <ChevronLeft className="h-6 w-6" aria-hidden />
+          </button>
+        </div>
+        <div className="absolute inset-y-0 right-3 z-30 hidden items-center md:flex">
+          <button
+            type="button"
+            onClick={() => scrollByCard(1)}
+            disabled={activeIndex >= renderedPicks.length - 1}
+            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#E7E2DC] bg-white text-[#253044] shadow-lg transition hover:bg-[#FBFAF7] disabled:opacity-30"
+            aria-label="Next Pip's Pick"
+          >
+            <ChevronRight className="h-6 w-6" aria-hidden />
+          </button>
+        </div>
+        <div className="absolute bottom-2 left-0 right-0 z-30 flex justify-center gap-2">
+          {renderedPicks.map((pick, index) => (
+            <button
+              key={pick.product.id}
+              type="button"
+              onClick={() => scrollToIndex(index)}
+              className={`h-2 rounded-full transition-all ${activeIndex === index ? 'w-5 bg-[#FF5C34]' : 'w-2 bg-[#D8D1CA]'}`}
+              aria-label={`Go to Pip's Pick ${index + 1}`}
+            />
+          ))}
         </div>
       </div>
     </section>

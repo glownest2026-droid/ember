@@ -132,7 +132,7 @@ async function getStage3PicksForCategory(
       product_description_under_30_words: row.product_description,
       why_pip_picked_this: row.why_it_fits,
       ember_verdict: row.ember_verdict,
-      personalization_hint: row.why_it_fits,
+      personalization_hint: null,
       is_locked: row.is_locked,
       locked_for_non_members: row.is_locked,
       price_text: row.price_text,

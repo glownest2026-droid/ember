@@ -159,6 +159,8 @@ export default function DiscoveryPageClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { params: clientParams, replace: replaceClientParams } = useDiscoverClientSearchParams(pathname);
+  const [localCategoriesByWrapper, setLocalCategoriesByWrapper] = useState(categoriesByWrapper);
+  const categoryFetchKeyRef = useRef<Set<string>>(new Set());
   const selectedChildId = clientParams.get('child') ?? searchParams.get('child') ?? initialChildId ?? undefined;
   const withChildParam = (url: string) =>
     selectedChildId ? `${url}${url.includes('?') ? '&' : '?'}child=${encodeURIComponent(selectedChildId)}` : url;
@@ -183,6 +185,11 @@ export default function DiscoveryPageClient({
   );
 
   const childIdForPersonalization = selectedChildId?.trim() || initialChildId?.trim() || undefined;
+
+  useEffect(() => {
+    setLocalCategoriesByWrapper(categoriesByWrapper);
+    categoryFetchKeyRef.current = new Set();
+  }, [categoriesByWrapper]);
 
   useEffect(() => {
     if (!childIdForPersonalization) {
@@ -406,13 +413,47 @@ export default function DiscoveryPageClient({
   const showFromUrl = clientParams.get('show') === '1';
 
   useEffect(() => {
+    if (!selectedWrapper || !ageBand?.id) return;
+    if ((localCategoriesByWrapper[selectedWrapper] ?? []).length > 0) return;
+    const key = `${ageBand.id}|${selectedWrapper}`;
+    if (categoryFetchKeyRef.current.has(key)) return;
+    categoryFetchKeyRef.current.add(key);
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch(
+          `/api/discover/category-types?ageBandId=${encodeURIComponent(ageBand.id)}&wrapperSlug=${encodeURIComponent(selectedWrapper)}`,
+          { cache: 'no-store' }
+        );
+        const payload = (await res.json()) as { categories?: GatewayCategoryTypePublic[] };
+        if (cancelled) return;
+        setLocalCategoriesByWrapper((prev) => ({
+          ...prev,
+          [selectedWrapper]: payload.categories ?? [],
+        }));
+      } catch {
+        if (cancelled) return;
+        setLocalCategoriesByWrapper((prev) => ({
+          ...prev,
+          [selectedWrapper]: prev[selectedWrapper] ?? [],
+        }));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ageBand?.id, selectedWrapper, localCategoriesByWrapper]);
+
+  useEffect(() => {
     if (!showFromUrl || !categoryFromUrl || !wrapperFromUrl) return;
-    const types = categoriesByWrapper[wrapperFromUrl] ?? [];
+    const types = localCategoriesByWrapper[wrapperFromUrl] ?? [];
     if (!types.some((c) => c.id === categoryFromUrl)) return;
     setSelectedCategoryId(categoryFromUrl);
     setShowingExamples(true);
     void fetchPicksForCategory(categoryFromUrl);
-  }, [showFromUrl, categoryFromUrl, wrapperFromUrl, categoriesByWrapper, fetchPicksForCategory]);
+  }, [showFromUrl, categoryFromUrl, wrapperFromUrl, localCategoriesByWrapper, fetchPicksForCategory]);
 
   useEffect(() => {
     if (!showFromUrl) return;
@@ -496,7 +537,7 @@ export default function DiscoveryPageClient({
     setFetchedPicks([]);
     picksFetchKeyRef.current = null;
     setPendingScrollToNextSteps(true);
-    const types = categoriesByWrapper[wrapperSlug] ?? [];
+    const types = localCategoriesByWrapper[wrapperSlug] ?? [];
     if (types.length > 0) {
       const items = categoryTypesToPlayIdeaItems(types, formatBandLabel(selectedBand));
       prefetchDiscoverImageUrls(items.map((item) => item.imageUrl), 'card');
@@ -511,13 +552,13 @@ export default function DiscoveryPageClient({
 
   const prefetchWrapper = useCallback(
     (wrapperSlug: string) => {
-      const types = categoriesByWrapper[wrapperSlug] ?? [];
+      const types = localCategoriesByWrapper[wrapperSlug] ?? [];
       if (types.length > 0) {
         const items = categoryTypesToPlayIdeaItems(types, formatBandLabel(selectedBand));
         prefetchDiscoverImageUrls(items.map((item) => item.imageUrl), 'card');
       }
     },
-    [categoriesByWrapper, selectedBand]
+    [localCategoriesByWrapper, selectedBand]
   );
 
   const handleDiscoverStartOver = useCallback(() => {
@@ -1050,14 +1091,14 @@ export default function DiscoveryPageClient({
 
   const playIdeaItems = useMemo(() => {
     if (!selectedWrapper) return [];
-    const types = categoriesByWrapper[selectedWrapper] ?? [];
+    const types = localCategoriesByWrapper[selectedWrapper] ?? [];
     return categoryTypesToPlayIdeaItems(types, bandLabelForIdeas).map((item) => ({
       ...item,
       description: personalizeCopy(item.description),
       ownershipNote: item.ownershipNote ? personalizeCopy(item.ownershipNote) : item.ownershipNote,
       giftNote: item.giftNote ? personalizeCopy(item.giftNote) : item.giftNote,
     }));
-  }, [selectedWrapper, categoriesByWrapper, bandLabelForIdeas, personalizeCopy]);
+  }, [selectedWrapper, localCategoriesByWrapper, bandLabelForIdeas, personalizeCopy]);
 
   const laneForItem = useCallback((item: PlayIdeaItem): 'useful_ideas' | 'quick_checks' | 'things_that_can_help' => {
     if (item.uiLane === 'useful_ideas' || item.uiLane === 'quick_checks' || item.uiLane === 'things_that_can_help') {
@@ -1098,7 +1139,10 @@ export default function DiscoveryPageClient({
     [thingsThatCanHelp]
   );
 
-  const ideasSectionLoading = Boolean(selectedWrapper) && playIdeaItems.length === 0;
+  const ideasSectionLoading =
+    selectedWrapper
+      ? localCategoriesByWrapper[selectedWrapper]?.length === undefined && playIdeaItems.length === 0
+      : false;
 
   const scienceTitle = 'Why this matters now';
   const ideasDevelopmentName = (() => {
@@ -1169,7 +1213,7 @@ export default function DiscoveryPageClient({
           bandRange={bandRange}
           isExpecting={isExpecting}
           heroImageUrl={
-            (selectedWrapper ? categoriesByWrapper[selectedWrapper]?.[0]?.image_url : null) ??
+            (selectedWrapper ? localCategoriesByWrapper[selectedWrapper]?.[0]?.image_url : null) ??
             bandHeroImageUrl ??
             exampleProducts[0]?.product?.image_url ??
             null
@@ -1452,7 +1496,9 @@ export default function DiscoveryPageClient({
                     ) : null}
                   </div>
                   <p className="text-sm text-[var(--ember-text-low)] mt-2">
-                    A shortlist we&apos;ve already weighed up, and why. Pick 1 is free; picks 2-5 are for Ember Plus.
+                    {isEmberPlusMember
+                      ? "A shortlist we've already weighed up, with the full reasoning behind each pick."
+                      : "A shortlist we've already weighed up. Pick 1 is free; picks 2-5 are for Ember Plus."}
                   </p>
                   <AffiliateDisclosureNotice
                     hasRetailerLinks={examplesHaveRetailerLinks}

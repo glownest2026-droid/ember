@@ -261,6 +261,98 @@ export async function getGatewayHeroImageForAgeBand(ageBandId: string): Promise<
  * Resolve development_need_id(s) for an age band + wrapper.
  * Spine v2 bands use age-band-specific mappings; older bands fall back to the global wrapper→need link.
  */
+function tokeniseForNeedMatch(value: string | null | undefined): Set<string> {
+  const stop = new Set([
+    'and', 'are', 'for', 'from', 'into', 'little', 'with', 'your', 'you',
+    'the', 'this', 'that', 'them', 'they', 'their', 'now', 'cluster',
+    'need', 'ent', 'cat', 'card', 'cards', 'games', 'play', 'ideas',
+  ]);
+  const normalized = (value ?? '')
+    .toLowerCase()
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+  return new Set(
+    normalized
+      .split(/\s+/)
+      .map((token) => token.trim())
+      .filter((token) => token.length >= 3 && !stop.has(token))
+  );
+}
+
+function scoreNeedMatch(wrapperTokens: Set<string>, categoryTokens: Set<string>): number {
+  let score = 0;
+  for (const token of wrapperTokens) {
+    if (categoryTokens.has(token)) score += 4;
+  }
+  const wrapperList = [...wrapperTokens];
+  for (const token of categoryTokens) {
+    if (wrapperList.some((w) => token.includes(w) || w.includes(token))) score += 1;
+  }
+  return score;
+}
+
+async function hasCategoriesForNeedIds(ageBandId: string, needIds: string[]): Promise<boolean> {
+  if (needIds.length === 0) return false;
+  const supabase = createPublicCatalogueClient();
+  const { data, error } = await supabase
+    .from('v_gateway_category_types_public')
+    .select('development_need_id')
+    .eq('age_band_id', ageBandId)
+    .in('development_need_id', needIds)
+    .limit(1);
+  return !error && !!data && data.length > 0;
+}
+
+async function recoverDevelopmentNeedIdsForWrapper(ageBandId: string, wrapperSlug: string): Promise<string[]> {
+  const supabase = createPublicCatalogueClient();
+  const { data: wrapperRow, error: wrapperError } = await supabase
+    .from('v_gateway_wrappers_public')
+    .select('ux_slug, ux_label, ux_description')
+    .eq('age_band_id', ageBandId)
+    .eq('ux_slug', wrapperSlug)
+    .limit(1)
+    .maybeSingle();
+
+  if (wrapperError || !wrapperRow) return [];
+
+  const { data: categories, error: categoryError } = await supabase
+    .from('v_gateway_category_types_public')
+    .select('development_need_id, slug, label, name, rationale, ui_lane')
+    .eq('age_band_id', ageBandId);
+
+  if (categoryError || !categories || categories.length === 0) return [];
+
+  const wrapperTokens = tokeniseForNeedMatch(
+    `${wrapperRow.ux_slug ?? ''} ${wrapperRow.ux_label ?? ''} ${wrapperRow.ux_description ?? ''}`
+  );
+  const grouped = new Map<string, Set<string>>();
+
+  for (const category of categories as Array<{
+    development_need_id: string;
+    slug: string | null;
+    label: string | null;
+    name: string | null;
+    rationale: string | null;
+    ui_lane: string | null;
+  }>) {
+    const tokens = grouped.get(category.development_need_id) ?? new Set<string>();
+    for (const token of tokeniseForNeedMatch(
+      `${category.slug ?? ''} ${category.label ?? ''} ${category.name ?? ''} ${category.rationale ?? ''} ${category.ui_lane ?? ''}`
+    )) {
+      tokens.add(token);
+    }
+    grouped.set(category.development_need_id, tokens);
+  }
+
+  const ranked = [...grouped.entries()]
+    .map(([needId, tokens]) => ({ needId, score: scoreNeedMatch(wrapperTokens, tokens) }))
+    .filter((row) => row.score >= 8)
+    .sort((a, b) => b.score - a.score);
+
+  return ranked[0] ? [ranked[0].needId] : [];
+}
+
 async function getDevelopmentNeedIdsForAgeBandAndWrapper(
   ageBandId: string,
   wrapperSlug: string
@@ -286,8 +378,12 @@ async function getDevelopmentNeedIdsForAgeBandAndWrapper(
     .limit(1)
     .maybeSingle();
 
-  if (wrapperError || !wrapperDetail?.development_need_id) return [];
-  return [wrapperDetail.development_need_id as string];
+  if (!wrapperError && wrapperDetail?.development_need_id) {
+    const legacyNeedIds = [wrapperDetail.development_need_id as string];
+    if (await hasCategoriesForNeedIds(ageBandId, legacyNeedIds)) return legacyNeedIds;
+  }
+
+  return recoverDevelopmentNeedIdsForWrapper(ageBandId, wrapperSlug);
 }
 
 function sortCategoriesByNeedOrder(
@@ -392,9 +488,17 @@ export async function getGatewayCategoryTypesByWrapperForAgeBand(
         const needId = row.development_need_id as string | null;
         if (!needId) continue;
         const slug = canonicalWrapperSlug(wrapperSlugs, dbSlug);
-        needIdsByWrapper.set(slug, [needId]);
+        if (await hasCategoriesForNeedIds(ageBandId, [needId])) {
+          needIdsByWrapper.set(slug, [needId]);
+        }
       }
     }
+  }
+
+  const stillMissingSlugs = wrapperSlugs.filter((slug) => (needIdsByWrapper.get(slug) ?? []).length === 0);
+  for (const slug of stillMissingSlugs) {
+    const recoveredNeedIds = await recoverDevelopmentNeedIdsForWrapper(ageBandId, slug);
+    if (recoveredNeedIds.length > 0) needIdsByWrapper.set(slug, recoveredNeedIds);
   }
 
   const allNeedIds = [...new Set([...needIdsByWrapper.values()].flat())];
