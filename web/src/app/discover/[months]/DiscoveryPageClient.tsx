@@ -15,8 +15,6 @@ import {
 } from '@/lib/discover/doorways';
 import { getEffectiveAgeBandRange } from '@/lib/discover/pilotAgeBandRange';
 import { HowWeChooseSheet } from '@/components/discover/HowWeChooseSheet';
-import { AffiliateDisclosureNotice } from '@/components/compliance/AffiliateDisclosureNotice';
-import { hasOutboundRetailerUrl } from '@/lib/compliance/externalRetailerLink';
 import { DiscoverFigmaChildHero } from '@/components/discover/figma/DiscoverFigmaChildHero';
 import { DiscoverFigmaNeedCard } from '@/components/discover/figma/DiscoverFigmaNeedCard';
 import { DiscoverFigmaScienceSection } from '@/components/discover/figma/DiscoverFigmaScienceSection';
@@ -26,14 +24,13 @@ import {
 } from '@/components/discover/figma/DiscoverAudienceToggle';
 import { DiscoverFigmaPlayCarousel } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
 import type { PlayIdeaItem } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
-import { DiscoverFigmaProductCarousel } from '@/components/discover/figma/DiscoverFigmaProductCarousel';
+import { PipsPicksPersimmonCarousel } from '@/components/discover/figma/PipsPicksPersimmonCarousel';
 import { prefetchDiscoverImageUrls } from '@/lib/discover/discoverImageUrl';
 import {
   categoryTypesToPlayIdeaItems,
 } from '@/lib/discover/playIdeaItems';
 import { getWrapperIcon } from './_lib/wrapperIcons';
 import {
-  displayChildName,
   personalizationFromChildrenRow,
   personalizeDiscoverCopy,
   type DiscoverChildPersonalization,
@@ -160,6 +157,8 @@ export default function DiscoveryPageClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { params: clientParams, replace: replaceClientParams } = useDiscoverClientSearchParams(pathname);
+  const [localCategoriesByWrapper, setLocalCategoriesByWrapper] = useState(categoriesByWrapper);
+  const categoryFetchKeyRef = useRef<Set<string>>(new Set());
   const selectedChildId = clientParams.get('child') ?? searchParams.get('child') ?? initialChildId ?? undefined;
   const withChildParam = (url: string) =>
     selectedChildId ? `${url}${url.includes('?') ? '&' : '?'}child=${encodeURIComponent(selectedChildId)}` : url;
@@ -184,6 +183,11 @@ export default function DiscoveryPageClient({
   );
 
   const childIdForPersonalization = selectedChildId?.trim() || initialChildId?.trim() || undefined;
+
+  useEffect(() => {
+    setLocalCategoriesByWrapper(categoriesByWrapper);
+    categoryFetchKeyRef.current = new Set();
+  }, [categoriesByWrapper]);
 
   useEffect(() => {
     if (!childIdForPersonalization) {
@@ -407,13 +411,47 @@ export default function DiscoveryPageClient({
   const showFromUrl = clientParams.get('show') === '1';
 
   useEffect(() => {
+    if (!selectedWrapper || !ageBand?.id) return;
+    if ((localCategoriesByWrapper[selectedWrapper] ?? []).length > 0) return;
+    const key = `${ageBand.id}|${selectedWrapper}`;
+    if (categoryFetchKeyRef.current.has(key)) return;
+    categoryFetchKeyRef.current.add(key);
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch(
+          `/api/discover/category-types?ageBandId=${encodeURIComponent(ageBand.id)}&wrapperSlug=${encodeURIComponent(selectedWrapper)}`,
+          { cache: 'no-store' }
+        );
+        const payload = (await res.json()) as { categories?: GatewayCategoryTypePublic[] };
+        if (cancelled) return;
+        setLocalCategoriesByWrapper((prev) => ({
+          ...prev,
+          [selectedWrapper]: payload.categories ?? [],
+        }));
+      } catch {
+        if (cancelled) return;
+        setLocalCategoriesByWrapper((prev) => ({
+          ...prev,
+          [selectedWrapper]: prev[selectedWrapper] ?? [],
+        }));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ageBand?.id, selectedWrapper, localCategoriesByWrapper]);
+
+  useEffect(() => {
     if (!showFromUrl || !categoryFromUrl || !wrapperFromUrl) return;
-    const types = categoriesByWrapper[wrapperFromUrl] ?? [];
+    const types = localCategoriesByWrapper[wrapperFromUrl] ?? [];
     if (!types.some((c) => c.id === categoryFromUrl)) return;
     setSelectedCategoryId(categoryFromUrl);
     setShowingExamples(true);
     void fetchPicksForCategory(categoryFromUrl);
-  }, [showFromUrl, categoryFromUrl, wrapperFromUrl, categoriesByWrapper, fetchPicksForCategory]);
+  }, [showFromUrl, categoryFromUrl, wrapperFromUrl, localCategoriesByWrapper, fetchPicksForCategory]);
 
   useEffect(() => {
     if (!showFromUrl) return;
@@ -497,7 +535,7 @@ export default function DiscoveryPageClient({
     setFetchedPicks([]);
     picksFetchKeyRef.current = null;
     setPendingScrollToNextSteps(true);
-    const types = categoriesByWrapper[wrapperSlug] ?? [];
+    const types = localCategoriesByWrapper[wrapperSlug] ?? [];
     if (types.length > 0) {
       const items = categoryTypesToPlayIdeaItems(types, formatBandLabel(selectedBand));
       prefetchDiscoverImageUrls(items.map((item) => item.imageUrl), 'card');
@@ -512,13 +550,13 @@ export default function DiscoveryPageClient({
 
   const prefetchWrapper = useCallback(
     (wrapperSlug: string) => {
-      const types = categoriesByWrapper[wrapperSlug] ?? [];
+      const types = localCategoriesByWrapper[wrapperSlug] ?? [];
       if (types.length > 0) {
         const items = categoryTypesToPlayIdeaItems(types, formatBandLabel(selectedBand));
         prefetchDiscoverImageUrls(items.map((item) => item.imageUrl), 'card');
       }
     },
-    [categoriesByWrapper, selectedBand]
+    [localCategoriesByWrapper, selectedBand]
   );
 
   const handleDiscoverStartOver = useCallback(() => {
@@ -951,12 +989,14 @@ export default function DiscoveryPageClient({
   const displayIdeas =
     showingExamples && fetchedPicks.length > 0 ? fetchedPicks : exampleProducts;
   const displayHasPipsPicks = displayIdeas.some((p) => p.product.is_stage3_pick);
+  const isEmberPlusMember =
+    displayHasPipsPicks && displayIdeas.some((p) => p.product.is_stage3_pick) && !displayIdeas.some((p) => p.product.is_locked);
 
   const shortlistTrackKeyRef = useRef<string | null>(null);
   useEffect(() => {
     if (discoverState !== 'ShowingExamples') return;
     if (displayIdeas.length <= 0) return;
-    const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedChildId ?? 'none'}`;
+    const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedCategoryId ?? 'none'}|${selectedChildId ?? 'none'}`;
     if (shortlistTrackKeyRef.current === key) return;
     shortlistTrackKeyRef.current = key;
 
@@ -968,63 +1008,17 @@ export default function DiscoveryPageClient({
       wrapper_slug: selectedWrapper ?? null,
       result_count: displayIdeas.length,
     });
-  }, [discoverState, displayIdeas.length, ageBand?.id, selectedWrapper, selectedChildId, user?.id, pathname]);
+  }, [discoverState, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, selectedChildId, user?.id, pathname]);
 
-  const handleHaveItAlready = (productId: string) => {
-    requireAuthThen({
-      actionId: 'have_product',
-      payload: { productId, childId: selectedChildId },
-      run: async () => {
-        const supabase = createClient();
-        const { error } = await supabase.rpc('upsert_user_list_item', {
-          p_kind: 'product',
-          p_product_id: productId,
-          p_want: true,
-          p_have: true,
-          p_gift: false,
-          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
-        });
-        if (!error) await refetchSubnavStats(selectedChildId);
-        try {
-          trackEvent(EVENTS.RETAILER_OUTBOUND_CLICKED, {
-            product_id: productId,
-            source_surface: 'discover',
-            source: 'discover_owned',
-            click_path_type: 'api_click',
-            retailer_host: getRetailerHostFromProductId(productId),
-            child_id: selectedChildId ?? null,
-          });
-          await fetch('/api/click', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              product_id: productId,
-              age_band: selectedBand?.id ?? undefined,
-              source: 'discover_owned',
-            }),
-          });
-        } catch {
-          // Best-effort
-        }
-        setActionToast({ productId, message: 'Marked as have it already.' });
-      },
-      openAuthModal: ({ signinUrl }) => {
-        saveModalFocusRef.current = null;
-        setSaveModal({ open: true, signedIn: false, signinUrl });
-        setActionToast({ productId, message: 'Sign in to record that you have this.' });
-      },
-      isAuthenticated: async () => {
-        const { data: { user } } = await createClient().auth.getUser();
-        return !!user;
-      },
-      getReturnUrl: () =>
-        withChildParam(
-          selectedWrapper
-            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
-            : `${basePath}/${currentMonth}`,
-        ),
-    });
-  };
+  const stage3MobileAnchorKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (discoverState !== 'ShowingExamples' || picksLoading || displayIdeas.length <= 0) return;
+    if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+    const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedCategoryId ?? 'none'}|${displayIdeas.length}`;
+    if (stage3MobileAnchorKeyRef.current === key) return;
+    stage3MobileAnchorKeyRef.current = key;
+    requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'smooth'));
+  }, [discoverState, picksLoading, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, scrollToSection]);
 
   const handleSaveCategory = (categoryId: string, triggerEl: HTMLButtonElement | null) => {
     saveModalFocusRef.current = triggerEl;
@@ -1089,93 +1083,6 @@ export default function DiscoveryPageClient({
     });
   };
 
-  const handleSaveToList = (productId: string, triggerEl: HTMLButtonElement | null) => {
-    saveModalFocusRef.current = triggerEl;
-    requireAuthThen({
-      actionId: 'save_product',
-      payload: { productId, childId: selectedChildId },
-      run: async () => {
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        let ok = false;
-        const { error: rpcError } = await supabase.rpc('upsert_user_list_item', {
-          p_kind: 'product',
-          p_product_id: productId,
-          p_want: true,
-          p_have: false,
-          p_gift: false,
-          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
-        });
-        if (!rpcError) {
-          ok = true;
-        } else {
-          const fallback = rpcError.code === '42883' || rpcError.message?.includes('does not exist') || rpcError.message?.includes('function');
-          if (fallback) {
-            const { error: legacyError } = await supabase.from('user_saved_products').upsert(
-              { user_id: user.id, product_id: productId },
-              { onConflict: 'user_id,product_id' }
-            );
-            if (!legacyError) ok = true;
-          }
-        }
-        if (!ok) {
-          setActionToast({ productId, message: 'Could not save. Please try again.' });
-          return;
-        }
-        setActionToast({ productId, message: 'Saved.' });
-
-        trackEvent(EVENTS.PRODUCT_SAVED, {
-          user_id: user.id,
-          kind: 'product',
-          product_id: productId,
-          source_surface: 'discover_save',
-          child_id: selectedChildId ?? null,
-        });
-
-        trackEvent(EVENTS.RETAILER_OUTBOUND_CLICKED, {
-          user_id: user.id,
-          product_id: productId,
-          source_surface: 'discover',
-          source: 'discover_save',
-          click_path_type: 'api_click',
-          retailer_host: getRetailerHostFromProductId(productId),
-          child_id: selectedChildId ?? null,
-        });
-
-        await fetch('/api/click', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            product_id: productId,
-            age_band: selectedBand?.id ?? undefined,
-            source: 'discover_save',
-          }),
-        });
-        await refetchSubnavStats(selectedChildId);
-        setSaveModal({
-          open: true,
-          signedIn: true,
-          signinUrl: getSigninUrl(productId),
-          viewMyListHref: withChildParam('/my-ideas?tab=products'),
-          ...saveModalPersonalization,
-        });
-      },
-      openAuthModal: ({ signinUrl }) =>
-        setSaveModal({ open: true, signedIn: false, signinUrl }),
-      isAuthenticated: async () => {
-        const { data: { user } } = await createClient().auth.getUser();
-        return !!user;
-      },
-      getReturnUrl: () =>
-        withChildParam(
-          selectedWrapper
-            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
-            : `${basePath}/${currentMonth}`,
-        ),
-    });
-  };
-
   const handleAuthSuccess = useCallback(async () => {
     try {
       const supabase = createClient();
@@ -1196,14 +1103,14 @@ export default function DiscoveryPageClient({
 
   const playIdeaItems = useMemo(() => {
     if (!selectedWrapper) return [];
-    const types = categoriesByWrapper[selectedWrapper] ?? [];
+    const types = localCategoriesByWrapper[selectedWrapper] ?? [];
     return categoryTypesToPlayIdeaItems(types, bandLabelForIdeas).map((item) => ({
       ...item,
       description: personalizeCopy(item.description),
       ownershipNote: item.ownershipNote ? personalizeCopy(item.ownershipNote) : item.ownershipNote,
       giftNote: item.giftNote ? personalizeCopy(item.giftNote) : item.giftNote,
     }));
-  }, [selectedWrapper, categoriesByWrapper, bandLabelForIdeas, personalizeCopy]);
+  }, [selectedWrapper, localCategoriesByWrapper, bandLabelForIdeas, personalizeCopy]);
 
   const laneForItem = useCallback((item: PlayIdeaItem): 'useful_ideas' | 'quick_checks' | 'things_that_can_help' => {
     if (item.uiLane === 'useful_ideas' || item.uiLane === 'quick_checks' || item.uiLane === 'things_that_can_help') {
@@ -1244,11 +1151,10 @@ export default function DiscoveryPageClient({
     [thingsThatCanHelp]
   );
 
-  const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
-  const productSectionTitle = displayHasPipsPicks ? "Pip's Picks" : 'Product examples for this stage';
-  const productSectionIntro = displayHasPipsPicks
-    ? "Pip has sorted five options for this card. Pick 1 is open; picks 2-5 are included with Ember Plus."
-    : 'These examples are selected for stage-fit and usefulness. Retailer links, where shown, may be affiliate links.';
+  const ideasSectionLoading =
+    selectedWrapper
+      ? localCategoriesByWrapper[selectedWrapper]?.length === undefined && playIdeaItems.length === 0
+      : false;
   const scienceTitle = 'Why this matters now';
   const ideasDevelopmentName = (() => {
     const lower = selectedWrapperLabel.trim().toLowerCase();
@@ -1270,11 +1176,6 @@ export default function DiscoveryPageClient({
   const bandLabel = formatBandLabel(selectedBand);
   const bandRange = getBandRange(selectedBand);
   const isExpecting = isExpectingRange(bandRange);
-  const examplesHaveRetailerLinks = useMemo(
-    () => displayIdeas.some((p) => hasOutboundRetailerUrl(p.product)),
-    [displayIdeas]
-  );
-
   return (
     <div
       className="min-h-screen w-full bg-[#FBFAF7]"
@@ -1318,7 +1219,7 @@ export default function DiscoveryPageClient({
           bandRange={bandRange}
           isExpecting={isExpecting}
           heroImageUrl={
-            (selectedWrapper ? categoriesByWrapper[selectedWrapper]?.[0]?.image_url : null) ??
+            (selectedWrapper ? localCategoriesByWrapper[selectedWrapper]?.[0]?.image_url : null) ??
             bandHeroImageUrl ??
             exampleProducts[0]?.product?.image_url ??
             null
@@ -1566,31 +1467,8 @@ export default function DiscoveryPageClient({
             ) : null}
 
             {discoverState === 'ShowingExamples' ? (
-              <section id="discover-figma-products" className="scroll-mt-6">
-                <div id="examplesProgressBar" className="mb-5 lg:mb-8">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
-                      {productSectionTitle}
-                    </h2>
-                    {displayIdeas.length > 0 ? (
-                      <button
-                        type="button"
-                        className="text-sm text-[var(--ember-text-low)] hover:underline"
-                        onClick={() => setHowWeChooseOpen(true)}
-                      >
-                        Why these?
-                      </button>
-                    ) : null}
-                  </div>
-                  <p className="text-sm text-[var(--ember-text-low)] mt-2">
-                    {productSectionIntro}
-                  </p>
-                  <AffiliateDisclosureNotice
-                    hasRetailerLinks={examplesHaveRetailerLinks}
-                    className="mt-2"
-                  />
-                  <p className="text-xs text-[var(--ember-text-low)] mt-2">Chosen for {chosenForLabel}</p>
-                </div>
+              <section id="discover-figma-products" className="scroll-mt-[calc(var(--header-height,88px)+4px)] md:scroll-mt-6">
+                <div id="examplesProgressBar" className="h-1" aria-hidden />
                 {picksLoading ? (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]" aria-busy="true">
                     Loading examples…
@@ -1600,16 +1478,12 @@ export default function DiscoveryPageClient({
                     Examples coming soon
                   </div>
                 ) : (
-                  <DiscoverFigmaProductCarousel
+                  <PipsPicksPersimmonCarousel
                     key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}-${viewerAccessKey}`}
                     picks={displayIdeas.slice(0, displayHasPipsPicks ? 5 : 12)}
-                    ageRangeLabel={formatBandLabel(selectedBand)}
-                    whyWorksHeading={displayHasPipsPicks ? 'Why Pip picked this' : whyWorksHeading}
-                    onSave={handleSaveToList}
-                    onHave={handleHaveItAlready}
+                    childDisplayLabel={childProfile.displayLabel}
+                    isEmberPlusMember={isEmberPlusMember}
                     getProductUrl={getProductUrl}
-                    showHaveAction={!!user}
-                    isPipsPicks={displayHasPipsPicks}
                   />
                 )}
               </section>
