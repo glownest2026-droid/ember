@@ -207,11 +207,11 @@ export function PipsPicksPersimmonCarousel({
       </div>
 
       <div
-        className="relative min-h-[545px] overflow-hidden rounded-[28px] bg-[#FF5C34] shadow-[0_24px_56px_rgba(255,92,52,0.22)] md:min-h-[610px]"
+        className="relative min-h-[545px] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[610px]"
         style={{ perspective: '1200px' }}
       >
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#FF5C34] to-transparent md:block" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-20 hidden w-28 bg-gradient-to-l from-[#FF5C34] to-transparent md:block" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#E4E9E6] to-transparent md:block" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-20 hidden w-28 bg-gradient-to-l from-[#E4E9E6] to-transparent md:block" />
         <div
           ref={trackRef}
           className="absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] py-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)]"
@@ -235,14 +235,20 @@ export function PipsPicksPersimmonCarousel({
               >
                 <article
                   data-pips-card
-                  className="absolute flex h-full w-full flex-col overflow-hidden rounded-[28px] bg-[#161D2B] text-white shadow-[0_28px_52px_rgba(22,29,43,0.22)] transition-transform duration-150 md:rounded-[32px]"
+                  className="absolute flex h-full w-full flex-col overflow-hidden rounded-[28px] bg-[#253044] text-white shadow-[0_28px_52px_rgba(37,48,68,0.22)] transition-transform duration-150 md:rounded-[32px]"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- decorative brand watermark */}
                   <img
                     src={ROBIN_LOGO_URL}
                     alt=""
-                    className="pointer-events-none absolute -right-24 -top-8 z-0 h-[380px] w-[380px] rotate-[15deg] object-contain opacity-12 mix-blend-overlay invert"
+                    className="pointer-events-none absolute -right-24 top-10 z-0 h-[360px] w-[360px] rotate-[15deg] object-contain opacity-10 mix-blend-overlay invert"
+                  />
+                  {/* eslint-disable-next-line @next/next/no-img-element -- visible brand mark for each pick card */}
+                  <img
+                    src={ROBIN_LOGO_URL}
+                    alt=""
+                    className="pointer-events-none absolute right-5 top-5 z-20 h-11 w-11 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-12 md:w-12"
                   />
 
                   <div className="relative z-10 flex h-full flex-col p-5 md:p-7">
@@ -298,7 +304,13 @@ export function PipsPicksPersimmonCarousel({
                   </div>
 
                   {locked ? (
-                    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center rounded-[28px] bg-[#161D2B] p-8 text-center md:rounded-[32px]">
+                    <div className="absolute inset-0 z-30 flex flex-col items-center justify-center rounded-[28px] bg-[#253044] p-8 text-center md:rounded-[32px]">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- visible brand mark for locked pick cards */}
+                      <img
+                        src={ROBIN_LOGO_URL}
+                        alt=""
+                        className="pointer-events-none absolute right-5 top-5 h-11 w-11 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-12 md:w-12"
+                      />
                       <strong className="mb-3 text-[20px] font-extrabold leading-tight text-white">
                         Discover Pip&apos;s Picks with Ember Plus
                       </strong>
