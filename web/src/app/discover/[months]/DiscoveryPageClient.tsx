@@ -331,6 +331,40 @@ export default function DiscoveryPageClient({
     [shouldReduceMotion]
   );
 
+  const scrollToStage3Picks = useCallback(
+    (behaviorOverride?: ScrollBehavior) => {
+      const section = document.getElementById('discover-figma-products');
+      if (!section) return;
+      const headerVar = getComputedStyle(document.documentElement).getPropertyValue('--header-height').trim();
+      const headerOffset = (headerVar ? parseInt(headerVar, 10) : 88) + 12;
+      const bottomChromeOffset = window.innerWidth < 768 ? 96 : 32;
+      const card =
+        section.querySelector<HTMLElement>('[data-pips-card-wrapper]') ??
+        section.querySelector<HTMLElement>('[data-pips-card]');
+      const behavior = behaviorOverride ?? (shouldReduceMotion ? 'auto' : 'smooth');
+
+      if (!card) {
+        const sectionRect = section.getBoundingClientRect();
+        window.scrollTo({ top: Math.max(0, sectionRect.top + window.scrollY - headerOffset), behavior });
+        return;
+      }
+
+      const cardRect = card.getBoundingClientRect();
+      const cardTop = cardRect.top + window.scrollY;
+      const cardBottom = cardRect.bottom + window.scrollY;
+      const highestScrollForTop = Math.max(0, cardTop - headerOffset);
+      const lowestScrollForBottom = Math.max(0, cardBottom - (window.innerHeight - bottomChromeOffset));
+      const sectionTop = Math.max(0, section.getBoundingClientRect().top + window.scrollY - headerOffset);
+      const targetTop =
+        lowestScrollForBottom <= highestScrollForTop
+          ? Math.max(sectionTop, lowestScrollForBottom)
+          : highestScrollForTop;
+
+      window.scrollTo({ top: targetTop, behavior });
+    },
+    [shouldReduceMotion]
+  );
+
   const scrollToWhyMatters = useCallback(() => {
     const headerOffset = 72;
     const run = () => {
@@ -456,9 +490,9 @@ export default function DiscoveryPageClient({
   useEffect(() => {
     if (!showFromUrl) return;
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'auto'));
+      requestAnimationFrame(() => scrollToStage3Picks('auto'));
     });
-  }, [showFromUrl, scrollToSection]);
+  }, [showFromUrl, scrollToStage3Picks]);
 
   const selectedBand = ageBands[selectedBandIndex] ?? ageBand;
   const currentMonth = monthParam ?? 25;
@@ -586,7 +620,7 @@ export default function DiscoveryPageClient({
     });
     void fetchPicksForCategory(categoryId);
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'auto'));
+      requestAnimationFrame(() => scrollToStage3Picks('auto'));
     });
   };
 
@@ -1013,12 +1047,12 @@ export default function DiscoveryPageClient({
   const stage3MobileAnchorKeyRef = useRef<string | null>(null);
   useEffect(() => {
     if (discoverState !== 'ShowingExamples' || picksLoading || displayIdeas.length <= 0) return;
-    if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+    if (typeof window === 'undefined') return;
     const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedCategoryId ?? 'none'}|${displayIdeas.length}`;
     if (stage3MobileAnchorKeyRef.current === key) return;
     stage3MobileAnchorKeyRef.current = key;
-    requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'smooth'));
-  }, [discoverState, picksLoading, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, scrollToSection]);
+    requestAnimationFrame(() => scrollToStage3Picks('smooth'));
+  }, [discoverState, picksLoading, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, scrollToStage3Picks]);
 
   const handleSaveCategory = (categoryId: string, triggerEl: HTMLButtonElement | null) => {
     saveModalFocusRef.current = triggerEl;
