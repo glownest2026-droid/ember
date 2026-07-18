@@ -5,6 +5,7 @@ import {
 } from '@/lib/discover/categoryImageOverrides';
 
 export const revalidate = 1800;
+export const dynamic = 'force-dynamic';
 
 const CACHE_HEADERS = {
   'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600',

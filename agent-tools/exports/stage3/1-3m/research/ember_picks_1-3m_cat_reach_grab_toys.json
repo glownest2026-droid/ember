@@ -1,0 +1,312 @@
+{
+  "schema_version": "ember_picks_research_v2",
+  "researcher": "manus",
+  "age_band": "1-3m",
+  "age_band_id": "age_1_3m",
+  "generated_at": "2026-07-18",
+  "market": "UK",
+  "currency": "GBP",
+  "stage1": {
+    "cluster_rank": 6,
+    "cluster_entity_id": "ent_cluster_first_grasps",
+    "cluster_label": "My hands are waking up",
+    "why_it_matters_short": "Helps opening hands, brushing and early grabs feel playful.",
+    "why_it_matters_long": "Your baby's hands may be opening more often, brushing objects, watching fingers and starting the first accidental grabs. Soft textures, easy holds and clean objects give them something simple to notice with their hands, eyes and mouth."
+  },
+  "stage2": {
+    "category_rank": 1,
+    "category_entity_id": "cat_reach_grab_toys",
+    "category_type_slug": "cat_reach_grab_toys",
+    "category_label": "Reach-and-grab toys",
+    "buyer_mode_label": "Good gift",
+    "primary_persona": "both",
+    "gift_friendly": true,
+    "gift_confidence": "medium",
+    "common_ownership_risk": "low",
+    "product_family_label": "Reach-and-grab toy",
+    "mapping_rationale": "Mapped from current age-band evidence into the things that can help lane.",
+    "safety_note_public": "",
+    "evidence_ids": [],
+    "source_ids": []
+  },
+  "top_picks": [
+    {
+      "rank": 1,
+      "product_name": "Oball Classic\u2122 Easy-Grasp Toy",
+      "brand": "Bright Starts",
+      "retailer": "Boots",
+      "url": "https://www.boots.com/baby-einstein-oball-classic-easy-grasp-toy-10307276",
+      "url_status": "verified_direct",
+      "price_gbp": 3.99,
+      "availability": "in_stock",
+      "rating": 4.9,
+      "review_count": 72,
+      "best_for": "Early grasping and sensory exploration",
+      "title": "Easy-Grasp Oball",
+      "description": "A flexible, lightweight ball with 32 finger holes, perfect for tiny hands to grip, roll, and throw. Its soft construction and easy-care material make it ideal for early playtime.",
+      "why_pip_picked_this": "Excellent design for early grasping with numerous finger holes, promoting fine motor skills and sensory development. High rating and review count indicate strong retail proof.",
+      "founder_lens": "",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.boots.com/baby-einstein-oball-classic-easy-grasp-toy-10307276",
+          "claim": "4.9 rating, 72 reviews, \u00a33.99 price, suitable from birth"
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "product_name": "Winkel Rattle & Sensory Teether Toy",
+      "brand": "Manhattan Toy",
+      "retailer": "Jojo Maman B\u00e9b\u00e9",
+      "url": "https://www.manhattantoy.com/products/winkel",
+      "url_status": "verified_direct",
+      "price_gbp": 14.0,
+      "availability": "in_stock",
+      "rating": 4.9,
+      "review_count": 36,
+      "best_for": "Teething and grasping development",
+      "title": "Multi-sensory Teether",
+      "description": "An award-winning teether and rattle with a mesmerizing maze of soft, continuous, BPA-free loops that are easy for tiny hands to grasp, hold, and chew. Can be refrigerated for added soothing.",
+      "why_pip_picked_this": "Unique design with bendable loops makes it exceptionally easy for infants to grasp and manipulate, supporting fine motor skills and providing teething relief.",
+      "founder_lens": "Price is based on US site, approximate UK price from search. Need to verify exact UK price and retailer.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.manhattantoy.com/products/winkel",
+          "claim": "Product details, suitable from 0+"
+        },
+        {
+          "source_type": "retailer",
+          "url": "https://www.jojomamanbebe.co.uk/style/st538335/348530",
+          "claim": "UK availability and approximate price \u00a311-\u00a314"
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "product_name": "Freddie the Firefly Activity Toy",
+      "brand": "Lamaze",
+      "retailer": "John Lewis",
+      "url": "https://www.johnlewis.com/lamaze-freddie-the-firefly-activity-toy/p109915929",
+      "url_status": "verified_direct",
+      "price_gbp": 14.99,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Sensory stimulation and fine motor skills",
+      "title": "Freddie the Firefly",
+      "description": "A friendly firefly with a soft velour body, bright colors, patterns, and textures. Features a peek-a-boo mirror, squeaker, clinking rings, and a tethered ladybug teether. Easily clips to strollers and carriers.",
+      "why_pip_picked_this": "Multi-sensory features (crinkle, squeaker, teether, mirror, varied textures) engage multiple senses and encourage reaching, grasping, and tactile exploration. Clip-on design adds versatility.",
+      "founder_lens": "Rating and review count not found on John Lewis page. Need to confirm if available elsewhere.",
+      "safety_notes": [
+        "Remove all packaging and tags before giving to a child"
+      ],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.johnlewis.com/lamaze-freddie-the-firefly-activity-toy/p109915929",
+          "claim": "Product details, \u00a314.99 price, suitable from birth"
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "product_name": "Hello Baby Newborn Kit",
+      "brand": "Taf Toys",
+      "retailer": "John Lewis",
+      "url": "https://www.johnlewis.com/taf-toys-hello-baby-newborn-kit/p111759988",
+      "url_status": "verified_direct",
+      "price_gbp": 32.99,
+      "availability": "in_stock",
+      "rating": 5.0,
+      "review_count": 5,
+      "best_for": "Comprehensive sensory and motor development",
+      "title": "Newborn Activity Kit",
+      "description": "A 12-piece kit designed to meet newborns' developmental needs, encouraging sensory exploration and tummy time. Includes flash cards, a baby-safe mirror, tummy time pillow, rattle ring, crinkling lion cub, and a soft lion blankie.",
+      "why_pip_picked_this": "Offers a comprehensive set of developmental toys for newborns, covering visual, auditory, and tactile stimulation, as well as supporting tummy time and early grasping.",
+      "founder_lens": "Review count is low (5 reviews). Need to check if more reviews are available on other retailers.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.johnlewis.com/taf-toys-hello-baby-newborn-kit/p111759988",
+          "claim": "5.0 rating, 5 reviews, \u00a332.99 price, suitable from birth"
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "product_name": "Grasping Ball - Newborn Naturals",
+      "brand": "Little Dutch",
+      "retailer": "Scandiborn",
+      "url": "https://www.scandiborn.co.uk/products/little-dutch-grasping-ball-newborn-naturals",
+      "url_status": "verified_direct",
+      "price_gbp": 12.71,
+      "availability": "in_stock",
+      "rating": null,
+      "review_count": null,
+      "best_for": "Tactile exploration and motor skill development",
+      "title": "Soft Grasping Ball",
+      "description": "A beautifully soft grasping ball with varied textures and subtle colors, designed to support sensory exploration and motor skills from birth. Easy for little hands to grab, roll, and explore.",
+      "why_pip_picked_this": "Soft fabric and varied textures provide gentle tactile stimulation, while its design encourages grasping, rolling, and motor skill development.",
+      "founder_lens": "Rating and review count not found on Scandiborn page. Need to confirm if available elsewhere.",
+      "safety_notes": [],
+      "evidence": [
+        {
+          "source_type": "retailer",
+          "url": "https://www.scandiborn.co.uk/products/little-dutch-grasping-ball-newborn-naturals",
+          "claim": "Product details, \u00a312.71 price, suitable from 0+"
+        }
+      ]
+    }
+  ],
+  "longlist": [
+    {
+      "product_name": "Oball Classic\u2122 Easy-Grasp Toy",
+      "brand": "Bright Starts",
+      "url": "https://www.boots.com/baby-einstein-oball-classic-easy-grasp-toy-10307276",
+      "include_status": "top_pick",
+      "reason": "Lightweight, 32 finger holes, easy to grip for small hands, excellent for early grasping."
+    },
+    {
+      "product_name": "PeekaPets Bunny",
+      "brand": "PeekaPets",
+      "url": "",
+      "include_status": "longlist",
+      "reason": "Movement and surprise appearance engage baby, encourages reaching."
+    },
+    {
+      "product_name": "Hello Baby Newborn Kit",
+      "brand": "Taf Toys",
+      "url": "https://www.johnlewis.com/taf-toys-hello-baby-newborn-kit/p111759988",
+      "include_status": "top_pick",
+      "reason": "Includes rattle ring and teether, good for early grasping and sensory exploration."
+    },
+    {
+      "product_name": "Playgro Clip Clop Activity Rattle",
+      "brand": "Playgro",
+      "url": "",
+      "include_status": "longlist",
+      "reason": "Easy-to-grasp ring, varied textures and sounds for sensory development."
+    },
+    {
+      "product_name": "Freddie the Firefly Activity Toy",
+      "brand": "Lamaze",
+      "url": "https://www.johnlewis.com/lamaze-freddie-the-firefly-activity-toy/p109915929",
+      "include_status": "top_pick",
+      "reason": "Soft plush with crinkly legs, varied textures, rattle, and clip for attachment, encouraging reaching and grasping."
+    },
+    {
+      "product_name": "Sophie La Girafe Teether",
+      "brand": "Sophie La Girafe",
+      "url": "",
+      "include_status": "longlist",
+      "reason": "Popular teether, often used for grasping and mouthing."
+    },
+    {
+      "product_name": "Winkel Rattle & Sensory Teether Toy",
+      "brand": "Manhattan Toy",
+      "url": "https://www.manhattantoy.com/products/winkel",
+      "include_status": "top_pick",
+      "reason": "Easy for small hands to grasp, multi-sensory."
+    },
+    {
+      "product_name": "Mini Mizzie Kangaroo Teether",
+      "brand": "Mini Mizzie",
+      "url": "",
+      "include_status": "longlist",
+      "reason": "Good for grasping and mouthing, suitable for early development."
+    },
+    {
+      "product_name": "Grasping Ball - Newborn Naturals",
+      "brand": "Little Dutch",
+      "url": "https://www.scandiborn.co.uk/products/little-dutch-grasping-ball-newborn-naturals",
+      "include_status": "top_pick",
+      "reason": "Soft Montessori ball, easy to grasp and move, encourages hand-to-hand transfer."
+    },
+    {
+      "product_name": "Ring Rattle Deer - Fairy Garden",
+      "brand": "Little Dutch",
+      "url": "",
+      "include_status": "longlist",
+      "reason": "Easy to grasp, provides auditory stimulation."
+    },
+    {
+      "product_name": "Rain Rattle - Fairy Garden",
+      "brand": "Little Dutch",
+      "url": "",
+      "include_status": "longlist",
+      "reason": "Provides gentle auditory and visual stimulation, easy to grasp."
+    },
+    {
+      "product_name": "Flower Rattle - Fairy Garden",
+      "brand": "Little Dutch",
+      "url": "",
+      "include_status": "longlist",
+      "reason": "Easy to grasp, soft textures, gentle rattle sound."
+    },
+    {
+      "product_name": "Rattle Toy - Flower",
+      "brand": "Little Dutch",
+      "url": "",
+      "include_status": "longlist",
+      "reason": "Soft plush, easy to grasp, gentle sensory sounds."
+    },
+    {
+      "product_name": "My First Gift Set New Baby Toys",
+      "brand": "VTech",
+      "url": "",
+      "include_status": "longlist",
+      "reason": "Likely includes graspable items for newborns, good for early development."
+    },
+    {
+      "product_name": "Spiral Activity Toy Raccoon",
+      "brand": "Infantino",
+      "url": "",
+      "include_status": "longlist",
+      "reason": "Encourages reaching and grasping, versatile for attachment to various baby gear."
+    }
+  ],
+  "skips": [
+    {
+      "product_name": "The Lovevery Play Kits",
+      "brand": "Lovevery",
+      "url": "",
+      "reason": "Too expensive and subscription-based, also not a single 'reach-and-grab' toy but a kit."
+    },
+    {
+      "product_name": "3-in-1 Starry Skies Sheep Soother",
+      "brand": "VTech",
+      "url": "",
+      "reason": "Primarily a soother, not a reach-and-grab toy."
+    },
+    {
+      "product_name": "Rock-a-Stack",
+      "brand": "Fisher-Price",
+      "url": "",
+      "reason": "More suitable for 6 months+ for stacking, not ideal for 1-3 month old grasping."
+    },
+    {
+      "product_name": "4-in-1 Tummy Time Fawn",
+      "brand": "VTech",
+      "url": "",
+      "reason": "Primarily a tummy time toy, not focused on reach and grab."
+    },
+    {
+      "product_name": "Tendresse dolls",
+      "brand": "Kaloo",
+      "url": "",
+      "reason": "More of a soft doll, not specifically designed for early grasping or sensory exploration for 1-3 months."
+    },
+    {
+      "product_name": "Stackables",
+      "brand": "Infantino",
+      "url": "",
+      "reason": "More suitable for 6 months+ for stacking, not ideal for 1-3 month old grasping."
+    }
+  ],
+  "guidance_notes": []
+}

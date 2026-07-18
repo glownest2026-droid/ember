@@ -1,3 +1,32 @@
+## 2026-07-18 — Founder locked F1/F2/F8; F6 draft samples; Seasons/Chapters homes
+
+- F1 locked: Wave 1 = **all age bands**, ≥1 Stage 3 under every Stage 1 (product rows)
+- F2 locked: 5 picks; any UK retailer; Amazon ≥4.5★/10 reviews; affiliate later (Awin); stock or Google Shopping; AI→founder review; avoid never in Picks UI; required fields = name, price_band, why
+- F8 locked via F2 Q6 (B/C)
+- F3 in progress with ChatGPT (founder, 18 Jul)
+- F6: channels = push + in-app; Cursor proposed 1 nudge/week, quiet 20:00–08:00, ban list from brand/PMF, sample lines for review
+- F4/F5: proposed Family Pip hub (`/family/seasons`, `/family/chapters`) + light Discover strips — awaiting content + “yes to Family home”
+- Docs: `web/docs/PROJECT_ROCKET.md` founder-decisions section; status HTML v5 (+ Drive mirrors)
+
+## 2026-07-18 — Project Rocket status HTML v4 (founder feedback)
+
+- Rewrote `agent-tools/exports/Ember_Project_Rocket_Status_2026-07-18.html` (Drive mirrors updated)
+- Added Vision + `$MVP_Threshold` BRD at top (what parents get / what must be true before checkout)
+- F1–F9 rewritten as fill-in briefs: what you do · done when · copy-paste template (correct numbering: F1=bands, F2=rules, F3=rows)
+- New “Who does what” split: green = Cursor can proceed · yellow = blocked on brief
+- Pathway section: in-app “what’s next” now vs OneSignal after F6 (why not push yet)
+- Phase board colour fix: green cards = done · blue = Cursor building · yellow = blocked · grey = later
+
+## 2026-07-18 — Project Rocket status HTML for founder (v1)
+
+- First status snapshot; superseded same day by v4 above
+
+## 2026-07-17: Progress logging project rule
+
+- Added `.cursor/rules/progress-log.mdc` as an always-on rule.
+- Rule requires root `PROGRESS.md` updates at the clear end of every task and whenever a new PR is created.
+- Entry guidance now covers task summary, key files/migrations/commands, verification, PR/preview state, and blockers.
+
 ## 2026-07-17: At home add UX (text-first + Stage 2 confirm)
 
 - Dedicated `/family/at-home/add`: one hero image, text-first, photo optional
@@ -4337,3 +4366,15 @@ Category-only cards remain publishable.
 - `/discover/10` — **10–12 months**
 - `/discover/32` parent mode — Feeling faces card: no “High chance the family owns…”
 - Sign in → Things that can help → Have it → refresh: card stays greyed
+## 2026-07-18 — PR #265 Stage 3 1-3m regression repair + anchor follow-up
+
+- PR: `codex/stage3-ingest-1-3m` / #265, stacked after Stage 3 UI PR #264.
+- Founder regression report: signed-in 1-3m preview looked like signed-out/generic Stage 2, category images showed blank panels, and Stage 2 `See Our Picks` anchor landed too high so the Pip's Picks card CTA was below the viewport.
+- Root cause found: remote Supabase preview had no usable `1-3m` `pl_stage3_picks` rows; the generated migration also joined `pl_category_types` on a non-existent `age_band_id` column. Correct resolution is through `pl_age_band_development_need_category_types` for the relevant age band.
+- Data repair: used Supabase MCP direct SQL to prove `1-3m` was empty, then repaired the preview DB for the failing founder path (`cat_baby_safe_mirror`, `cat_board_books`) and verified API output shows `show_ember_picks: true`, `card_cta_label: "See Our Picks"`, and Stage 3 rank 1 with a real retailer URL and non-duplicate description.
+- Migration/generator fix: updated `web/scripts/ingest-stage3-pips-picks.mjs` and regenerated `supabase/migrations/20260718101000_ingest_stage3_pips_picks_1_3m.sql` so future/full 1-3m ingestion uses the age-band mapping table, not a category-table age column.
+- Cache/API fix: bumped `GATEWAY_CATALOGUE_CACHE_VERSION`; made category-specific `/api/discover/picks` fallback private/no-store; marked `/api/discover/category-types` dynamic to avoid static build probing/noisy dynamic-route logs.
+- Image fix: `DiscoverFigmaImage` no longer keeps images hidden at `opacity: 0` until `onLoad`; it renders the image over a placeholder immediately and only falls back on `onError`.
+- Anchor fix: Stage 2 -> Stage 3 now uses a card-aware `scrollToStage3Picks()` helper in `DiscoveryPageClient.tsx`; it targets the first Pip's Pick card and calculates a viewport-aware scroll position so the card and CTA are visible, accounting for sticky header and mobile bottom chrome.
+- Verification run: `npm run check:conflicts`, `tsc --noEmit`, `npm run build` from `web/`; Vercel PR checks passed; PR merge state clean.
+- Founder verification path: open preview `/discover/2`, select `I'm listening to your voice`, confirm `A baby-safe mirror for faces` and `Board books and face books` show `See Our Picks`, click through, confirm Pip's Picks card/CTA are visible and `View retailer` opens Natural Baby Shower for `Floor Mirror Fun`.

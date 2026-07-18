@@ -105,6 +105,7 @@ export type GatewayCategoryTypePublic = {
   lane_rank: number | null;
   show_ember_picks: boolean | null;
   show_gift_action: boolean | null;
+  has_stage3_picks?: boolean | null;
   gift_friendly: boolean | null;
   buyer_mode_label: string | null;
   gift_note: string | null;
@@ -145,6 +146,7 @@ export type GatewayProductPublic = {
   price_text?: string | null;
   product_description_under_30_words?: string | null;
   product_description?: string | null;
+  product_url?: string | null;
   ember_verdict?: string | null;
   why_pip_picked_this?: string | null;
   why_it_fits?: string | null;
@@ -475,6 +477,48 @@ function sortCategoriesByNeedOrder(
   });
 }
 
+async function getStage3AvailableCategoryIds(
+  supabase: SupabaseClient,
+  ageBandId: string,
+  categoryTypeIds: string[]
+): Promise<Set<string>> {
+  if (categoryTypeIds.length === 0) return new Set();
+
+  const { data, error } = await supabase
+    .from('pl_stage3_picks')
+    .select('category_type_id')
+    .eq('age_band_id', ageBandId)
+    .eq('status', 'visible')
+    .eq('is_visible', true)
+    .eq('pick_rank', 1)
+    .in('category_type_id', categoryTypeIds);
+
+  if (error || !data) return new Set();
+  return new Set(
+    (data as Array<{ category_type_id?: string | null }>)
+      .map((row) => row.category_type_id)
+      .filter((id): id is string => Boolean(id))
+  );
+}
+
+async function withStage3Availability(
+  supabase: SupabaseClient,
+  ageBandId: string,
+  categories: GatewayCategoryTypePublic[]
+): Promise<GatewayCategoryTypePublic[]> {
+  const availableIds = await getStage3AvailableCategoryIds(
+    supabase,
+    ageBandId,
+    categories.map((c) => c.id)
+  );
+  return categories.map((c) => ({
+    ...c,
+    has_stage3_picks: availableIds.has(c.id),
+    show_ember_picks: availableIds.has(c.id),
+    card_cta_label: availableIds.has(c.id) ? 'See Our Picks' : null,
+  }));
+}
+
 /**
  * Fetch category types for an age band + wrapper (Layer B).
  * Uses v_gateway_category_types_public via wrapper → development_need resolution.
@@ -505,10 +549,11 @@ export async function getGatewayCategoryTypesForAgeBandAndWrapper(
     categories.map((c) => c.id),
     ageBandId
   );
-  return categories.map((c) => {
+  const withImages = categories.map((c) => {
     const img = imageMap.get(c.id);
     return img ? { ...c, image_url: img.image_url } : c;
   });
+  return withStage3Availability(supabase, ageBandId, withImages);
 }
 
 export type GatewayCategoryTypesByWrapper = Record<string, GatewayCategoryTypePublic[]>;
@@ -625,13 +670,14 @@ export async function getGatewayCategoryTypesByWrapperForAgeBand(
     const img = imageMap.get(c.id);
     return img ? { ...c, image_url: img.image_url } : c;
   });
+  const withStage3 = await withStage3Availability(supabase, ageBandId, withImages);
 
   const result = { ...empty };
   for (const slug of wrapperSlugs) {
     const needIds = needIdsByWrapper.get(slug) ?? [];
     if (needIds.length === 0) continue;
     const needSet = new Set(needIds);
-    const filtered = withImages.filter((c) => needSet.has(c.development_need_id));
+    const filtered = withStage3.filter((c) => needSet.has(c.development_need_id));
     result[slug] = sortCategoriesByNeedOrder(filtered, needIds);
   }
   return result;
@@ -810,6 +856,7 @@ function stage3RowToProduct(row: GatewayStage3PickRow, canSeeLocked: boolean = f
     brand: row.brand,
     image_url: row.image_url,
     canonical_url: row.product_url,
+    product_url: row.product_url,
     amazon_uk_url: null,
     affiliate_url: null,
     affiliate_deeplink: null,
