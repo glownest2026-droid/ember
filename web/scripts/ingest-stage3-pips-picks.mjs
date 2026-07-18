@@ -111,6 +111,35 @@ function field(obj, key, fallback = '') {
   return v === null || v === undefined ? fallback : v;
 }
 
+function firstField(obj, keys, fallback = '') {
+  for (const key of keys) {
+    const v = obj?.[key];
+    if (v !== null && v !== undefined && String(v).trim() !== '') return v;
+  }
+  return fallback;
+}
+
+function compactText(value) {
+  if (Array.isArray(value)) return value.filter(Boolean).join('; ');
+  return value === null || value === undefined ? '' : String(value);
+}
+
+function priceText(item) {
+  const explicit = firstField(item, ['price_text', 'price']);
+  if (explicit) return explicit;
+  const gbp = item?.price_gbp;
+  return typeof gbp === 'number' ? `GBP ${gbp.toFixed(2)}` : '';
+}
+
+function sanitizeParentCopy(value) {
+  return compactText(value)
+    .replace(/\bbaby essentials\b/gi, 'baby kit')
+    .replace(/\ban essential\b/gi, 'a useful basic')
+    .replace(/\bessential basic\b/gi, 'useful basic')
+    .replace(/\bessentials\b/gi, 'useful basics')
+    .replace(/\bessential\b/gi, 'useful');
+}
+
 function founderQaFlag(item) {
   const flag = String(item?.founder_qa_flag ?? '').trim();
   return flag || 'none';
@@ -128,10 +157,15 @@ function asArray(value) {
 function normalizeResearch(filePath, forcedAgeBand) {
   const raw = fs.readFileSync(filePath, 'utf8');
   const doc = JSON.parse(raw);
-  const ageBandId = forcedAgeBand || doc.age_band_id;
-  const categoryEntityId = doc.category_entity_id;
-  const topPicks = asArray(doc.top_picks);
-  const longlist = asArray(doc.longlist);
+  const ageBandId = forcedAgeBand || doc.age_band || doc.age_band_id;
+  const stage1 = doc.stage1 ?? {};
+  const stage2 = doc.stage2 ?? {};
+  const categoryEntityId = firstField(doc, ['category_entity_id'], firstField(stage2, ['category_entity_id', 'category_type_slug']));
+  const categoryLabel = firstField(doc, ['category_label'], firstField(stage2, ['category_label']));
+  const clusterEntityId = firstField(doc, ['cluster_entity_id'], firstField(stage1, ['cluster_entity_id']));
+  const clusterLabel = firstField(doc, ['cluster_label'], firstField(stage1, ['cluster_label']));
+  const topPicks = asArray(doc.top_picks).map((pick) => normalizeTopPick(pick, stage2));
+  const longlist = normalizeLonglist(asArray(doc.longlist), topPicks);
   const skips = asArray(doc.skips);
 
   const errors = [];
@@ -190,9 +224,9 @@ function normalizeResearch(filePath, forcedAgeBand) {
     researcher: doc.researcher,
     age_band_id: ageBandId,
     category_entity_id: categoryEntityId,
-    category_label: doc.category_label,
-    cluster_entity_id: doc.cluster_entity_id,
-    cluster_label: doc.cluster_label,
+    category_label: categoryLabel,
+    cluster_entity_id: clusterEntityId,
+    cluster_label: clusterLabel,
     qa_summary: doc.qa_summary ?? {},
     top_picks: [...topPicks].sort((a, b) => Number(a.rank) - Number(b.rank)),
     backup_picks: backups,
@@ -201,6 +235,57 @@ function normalizeResearch(filePath, forcedAgeBand) {
     warnings,
     ingestion_ready: errors.length === 0 ? 'pass' : 'fail',
   };
+}
+
+function normalizeTopPick(pick, stage2) {
+  const rank = Number(pick.rank);
+  const safetyNotes = compactText(firstField(pick, ['safety_notes'], firstField(stage2, ['safety_note_public'])));
+  const description = sanitizeParentCopy(firstField(pick, ['product_description_under_30_words', 'description', 'ui_description']));
+  const verdict = sanitizeParentCopy(firstField(pick, ['ember_verdict', 'why_pip_picked_this']));
+  return {
+    ...pick,
+    rank,
+    longlist_rank: Number(pick.longlist_rank || pick.rank),
+    product_name: firstField(pick, ['product_name', 'name']),
+    best_for_tag: firstField(pick, ['best_for_tag', 'best_for']),
+    product_url: firstField(pick, ['product_url', 'url']),
+    price_text: priceText(pick),
+    stock_status: firstField(pick, ['stock_status', 'availability']),
+    description,
+    product_description_under_30_words: description,
+    why_pip_picked_this: verdict,
+    ember_verdict: verdict,
+    why_it_fits: sanitizeParentCopy(firstField(pick, ['why_it_fits'], verdict)),
+    safety_notes: safetyNotes,
+    gift_suitable: pick.gift_suitable ?? stage2.gift_friendly ?? null,
+    gift_note: firstField(pick, ['gift_note'], firstField(stage2, ['buyer_mode_label'])),
+    founder_qa_flag: firstField(pick, ['founder_qa_flag', 'qa_flag'], pick.url_status === 'verified_direct' ? 'none' : firstField(pick, ['url_status', 'qa_note'], 'none')),
+  };
+}
+
+function normalizeLonglist(longlist, topPicks) {
+  const topNames = new Set(topPicks.map((pick) => String(pick.product_name || '').toLowerCase()));
+  return longlist.map((item, index) => {
+    const longlistRank = Number(item.longlist_rank || index + 1);
+    const productName = firstField(item, ['product_name', 'name']);
+    const isTopPick =
+      item.included_in_top_5 === true ||
+      item.status === 'pick' ||
+      item.include_status === 'top_pick' ||
+      Number(item.top_pick_rank) > 0 ||
+      topNames.has(String(productName).toLowerCase());
+    return {
+      ...item,
+      longlist_rank: longlistRank,
+      product_name: productName,
+      product_url: firstField(item, ['product_url', 'url']),
+      best_for_tag: firstField(item, ['best_for_tag', 'best_for']),
+      price_text: priceText(item),
+      stock_status: firstField(item, ['stock_status', 'availability']),
+      included_in_top_5: isTopPick,
+      summary_reason: firstField(item, ['summary_reason', 'reason']),
+    };
+  });
 }
 
 function visibleTuple(category, pick) {
@@ -263,7 +348,7 @@ function buildMigration(bundle, timestamp) {
   const visibleRows = categories.flatMap((c) => c.top_picks.map((pick) => `    (${visibleTuple(c, pick)})`));
   const backupRows = categories.flatMap((c) => c.backup_picks.map((item) => `    (${backupTuple(c, item)})`));
   const expectedVisible = categories.length * 5;
-  const expectedBackups = categories.length * 10;
+  const expectedBackups = backupRows.length;
 
   return `-- Generated by web/scripts/ingest-stage3-pips-picks.mjs
 -- Bundle: agent-tools/exports/stage3_ingestion_bundle_${bandToken(ageBandId)}.json
@@ -463,7 +548,15 @@ SELECT
     'source_category_entity_id', r.source_category_entity_id
   )
 FROM stage3_rows r
-JOIN public.pl_category_types ct ON ct.slug = r.source_category_entity_id;
+JOIN public.pl_category_types ct
+  ON ct.slug = r.source_category_entity_id
+WHERE EXISTS (
+  SELECT 1
+  FROM public.pl_age_band_development_need_category_types abdnct
+  WHERE abdnct.age_band_id = ${sqlString(ageBandId)}
+    AND abdnct.category_type_id = ct.id
+    AND abdnct.is_active = true
+);
 
 WITH backup_rows AS (
   SELECT *
@@ -514,7 +607,8 @@ SELECT
   r.age_mark_on_listing,
   r.caveat_short,
   r.buy_borrow_hold_off,
-  r.gift_suitable,
+  -- All-NULL VALUES columns are inferred as text; cast for the boolean target column.
+  r.gift_suitable::boolean,
   r.evidence_tier,
   'backup_not_card_ready',
   jsonb_build_object(
@@ -524,7 +618,15 @@ SELECT
     'source_category_entity_id', r.source_category_entity_id
   )
 FROM backup_rows r
-JOIN public.pl_category_types ct ON ct.slug = r.source_category_entity_id;
+JOIN public.pl_category_types ct
+  ON ct.slug = r.source_category_entity_id
+WHERE EXISTS (
+  SELECT 1
+  FROM public.pl_age_band_development_need_category_types abdnct
+  WHERE abdnct.age_band_id = ${sqlString(ageBandId)}
+    AND abdnct.category_type_id = ct.id
+    AND abdnct.is_active = true
+);
 
 DO $$
 DECLARE

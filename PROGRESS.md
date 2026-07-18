@@ -1,3 +1,28 @@
+## 2026-07-18: Stage 3 1-3m repair — re-land lost PR #265 fixes properly (Cursor)
+
+**Why:** PR #265 was merged into the already-merged feature branch `codex/stage3-ui-persimmon-pop` instead of `main`, so none of its fixes reached production. This PR re-lands the good parts on a clean branch from `main`, removes the band-aid patterns, and repairs the database properly.
+
+**Re-landed from #265:**
+- `20260718101000_ingest_stage3_pips_picks_1_3m.sql` — corrected join via `pl_age_band_development_need_category_types` (+ new `::boolean` cast fix for the all-NULL backup `gift_suitable` column, also fixed in the generator `web/scripts/ingest-stage3-pips-picks.mjs`)
+- `DiscoverFigmaImage` fix — image no longer hides at `opacity:0` waiting for `onLoad`; placeholder renders underneath
+- Stage 3 gating (`withStage3Availability`) — "See Our Picks" only where visible Stage 3 picks exist
+- Private no-store caching on `/api/discover/picks` category path; `force-dynamic` on both discover API routes (removed contradictory `revalidate` exports)
+
+**Band-aids removed (new in this repair):**
+- Deleted fuzzy wrapper-recovery (keyword scoring) and the hardcoded 34-36m need-slug override from `web/src/lib/pl/public.ts`. Root cause fixed in data: `20260718160000_fix_wrapper_need_mappings_6_9m_25_27m_34_36m.sql` adds the missing wrapper→need rows (6-9m first-foods/mouth-sensory, all 25-27m clusters from the 2026-07-03 v2 reimport, 34-36m talk-stories/feelings) to `v_gateway_age_band_wrapper_needs_public`. Verified: every wrapper on every band now resolves ≥1 category without code-side guessing.
+- Ember Plus state on `/discover` now comes from the server-resolved `access.canSeeLocked` returned by `/api/discover/picks` (`resolveEmberMembershipAccess`), not inferred from lock flags in the payload.
+
+**New fixes:**
+- Mobile dead "View retailer" CTA: 3D transforms (`rotateY`/`translateZ`/`preserve-3d`) break tap hit-testing inside a scroll-snap track on mobile browsers. `PipsPicksPersimmonCarousel` now applies 3D physics only on hover/fine-pointer devices; touch gets a flat snap carousel.
+- Affiliate disclosure restored under the Pip's Picks section (removed in #264; compliance).
+
+**Database (live, via Supabase CLI after history repair):**
+- `supabase migration repair` — reverted orphan history rows `20260716163641`/`20260717050143` (Codex MCP duplicates), marked `20260716143000`/`20260717090000`/`20260717093000` as applied. Migration history now matches the repo.
+- `supabase db push` applied `20260718101000` + `20260718160000`. Verified: 1-3m Stage 3 = 45 visible + 83 backup across all 9 categories (was 10 rows / 2 categories of manual drift).
+- Cache version bumped to `20260718-stage3-repair-v2`.
+
+**Verification:** `tsc --noEmit` clean, `npm run build` clean. PR + green Vercel preview: see PR entry below.
+
 ## 2026-07-17: At home add UX (text-first + Stage 2 confirm)
 
 - Dedicated `/family/at-home/add`: one hero image, text-first, photo optional

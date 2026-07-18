@@ -29,6 +29,8 @@ type PipsPickProduct = GatewayPick['product'] & {
   best_for_tag?: string | null;
   title?: string | null;
   product_description_under_30_words?: string | null;
+  product_description?: string | null;
+  product_url?: string | null;
   why_pip_picked_this?: string | null;
   ember_verdict?: string | null;
   personalization_hint?: string | null;
@@ -90,6 +92,7 @@ function getDisplayFields(pick: PipsPick, rank: number, childName?: string | nul
   const bestFor = product.best_for_tag || `Pick ${rank}`;
   const description =
     product.product_description_under_30_words ||
+    product.product_description ||
     product.title ||
     product.name;
   const verdict =
@@ -109,7 +112,7 @@ function getDisplayFields(pick: PipsPick, rank: number, childName?: string | nul
   };
 }
 
-function updateTrackPhysics(track: HTMLDivElement | null) {
+function updateTrackPhysics(track: HTMLDivElement | null, enable3d: boolean) {
   if (!track) return;
   const trackCenter = track.scrollLeft + track.clientWidth / 2;
   const wrappers = track.querySelectorAll<HTMLElement>('[data-pips-card-wrapper]');
@@ -121,7 +124,13 @@ function updateTrackPhysics(track: HTMLDivElement | null) {
     const rawOffset = (wrapperCenter - trackCenter) / wrapper.clientWidth;
     const offset = Math.max(-2.5, Math.min(2.5, rawOffset));
     const abs = Math.abs(offset);
-    card.style.transform = `rotateY(${offset * -35}deg) scale(${1 - abs * 0.15}) translateZ(${abs * -100}px)`;
+    if (enable3d) {
+      card.style.transform = `rotateY(${offset * -35}deg) scale(${1 - abs * 0.15}) translateZ(${abs * -100}px)`;
+    } else {
+      // Touch devices: flat scale only. rotateY/translateZ inside a scroll-snap track
+      // breaks tap hit-testing on mobile browsers (dead CTAs).
+      card.style.transform = `scale(${1 - abs * 0.08})`;
+    }
     card.style.zIndex = String(Math.round(100 - abs * 10));
   });
 }
@@ -139,7 +148,17 @@ export function PipsPicksPersimmonCarousel({
 }) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  // 3D card physics only on hover/fine-pointer devices; touch gets a flat snap carousel.
+  const [enable3d, setEnable3d] = useState(false);
   const renderedPicks = useMemo(() => picks.slice(0, 5) as PipsPick[], [picks]);
+
+  useEffect(() => {
+    const query = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const update = () => setEnable3d(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
 
   const updateActiveIndex = useCallback(() => {
     const track = trackRef.current;
@@ -175,7 +194,7 @@ export function PipsPicksPersimmonCarousel({
     const track = trackRef.current;
     if (!track) return;
     const update = () => window.requestAnimationFrame(() => {
-      updateTrackPhysics(track);
+      updateTrackPhysics(track, enable3d);
       updateActiveIndex();
     });
     update();
@@ -185,7 +204,7 @@ export function PipsPicksPersimmonCarousel({
       track.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
     };
-  }, [renderedPicks.length, updateActiveIndex]);
+  }, [renderedPicks.length, updateActiveIndex, enable3d]);
 
   if (!renderedPicks.length) return null;
 
@@ -208,14 +227,14 @@ export function PipsPicksPersimmonCarousel({
 
       <div
         className="relative min-h-[545px] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[610px]"
-        style={{ perspective: '1200px' }}
+        style={enable3d ? { perspective: '1200px' } : undefined}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#E4E9E6] to-transparent md:block" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-20 hidden w-28 bg-gradient-to-l from-[#E4E9E6] to-transparent md:block" />
         <div
           ref={trackRef}
           className="absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] py-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)]"
-          style={{ transformStyle: 'preserve-3d' }}
+          style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
         >
           {renderedPicks.map((pick, index) => {
             const rank = index + 1;
@@ -231,12 +250,12 @@ export function PipsPicksPersimmonCarousel({
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
                 className="relative flex h-full max-h-[500px] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[570px] md:w-[370px] md:flex-[0_0_370px]"
-                style={{ transformStyle: 'preserve-3d' }}
+                style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
                   data-pips-card
                   className="absolute flex h-full w-full flex-col overflow-hidden rounded-[28px] bg-[#253044] text-white shadow-[0_28px_52px_rgba(37,48,68,0.22)] transition-transform duration-150 md:rounded-[32px]"
-                  style={{ transformStyle: 'preserve-3d' }}
+                  style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- decorative brand watermark */}
                   <img

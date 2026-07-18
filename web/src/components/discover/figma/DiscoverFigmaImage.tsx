@@ -32,15 +32,11 @@ export function DiscoverFigmaImage({
   priority?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
-  const [loaded, setLoaded] = useState(false);
   const optimizedSrc = optimizeDiscoverImageUrl(src, variant);
 
   useEffect(() => {
     setFailed(false);
-    setLoaded(false);
   }, [optimizedSrc]);
-
-  const opacityClass = `transition-opacity duration-150 ${loaded ? 'opacity-100' : 'opacity-0'}`;
 
   if (!optimizedSrc || failed) {
     return (
@@ -59,16 +55,18 @@ export function DiscoverFigmaImage({
   // Src is already WebP + width-capped via Supabase render — no Vercel re-encode needed.
   if (variant === 'card') {
     return (
-      // eslint-disable-next-line @next/next/no-img-element -- must match production cover behaviour
-      <img
-        src={optimizedSrc}
-        alt={alt}
-        loading={priority ? 'eager' : 'lazy'}
-        decoding="async"
-        className={`absolute inset-0 w-full h-full object-cover ${opacityClass} ${className}`}
-        onLoad={() => setLoaded(true)}
-        onError={() => setFailed(true)}
-      />
+      <>
+        <div className="absolute inset-0" style={{ background: PLACEHOLDER_BG }} aria-hidden />
+        {/* eslint-disable-next-line @next/next/no-img-element -- must match production cover behaviour */}
+        <img
+          src={optimizedSrc}
+          alt={alt}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          className={`absolute inset-0 w-full h-full object-cover ${className}`}
+          onError={() => setFailed(true)}
+        />
+      </>
     );
   }
 
@@ -85,8 +83,7 @@ export function DiscoverFigmaImage({
         priority={priority}
         loading={priority ? 'eager' : 'lazy'}
         quality={variant === 'hero' ? 80 : 75}
-        className={`object-cover ${opacityClass} ${className}`}
-        onLoad={() => setLoaded(true)}
+        className={`object-cover ${className}`}
         onError={() => setFailed(true)}
       />
     </>
