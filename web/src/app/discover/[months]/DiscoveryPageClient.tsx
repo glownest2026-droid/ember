@@ -26,14 +26,13 @@ import {
 } from '@/components/discover/figma/DiscoverAudienceToggle';
 import { DiscoverFigmaPlayCarousel } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
 import type { PlayIdeaItem } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
-import { DiscoverFigmaProductCarousel } from '@/components/discover/figma/DiscoverFigmaProductCarousel';
+import { PipsPicksPersimmonCarousel } from '@/components/discover/figma/PipsPicksPersimmonCarousel';
 import { prefetchDiscoverImageUrls } from '@/lib/discover/discoverImageUrl';
 import {
   categoryTypesToPlayIdeaItems,
 } from '@/lib/discover/playIdeaItems';
 import { getWrapperIcon } from './_lib/wrapperIcons';
 import {
-  displayChildName,
   personalizationFromChildrenRow,
   personalizeDiscoverCopy,
   type DiscoverChildPersonalization,
@@ -156,6 +155,7 @@ export default function DiscoveryPageClient({
   const fallbackHaveChildIdRef = useRef<string | null>(null);
   const basePath = '/discover';
   const { user, loading: subnavLoading, refetch: refetchSubnavStats } = useSubnavStats();
+  const isEmberPlusMember = user?.email?.trim().toLowerCase() === 'timwd23@gmail.com';
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { params: clientParams, replace: replaceClientParams } = useDiscoverClientSearchParams(pathname);
@@ -968,62 +968,6 @@ export default function DiscoveryPageClient({
     });
   }, [discoverState, displayIdeas.length, ageBand?.id, selectedWrapper, selectedChildId, user?.id, pathname]);
 
-  const handleHaveItAlready = (productId: string) => {
-    requireAuthThen({
-      actionId: 'have_product',
-      payload: { productId, childId: selectedChildId },
-      run: async () => {
-        const supabase = createClient();
-        const { error } = await supabase.rpc('upsert_user_list_item', {
-          p_kind: 'product',
-          p_product_id: productId,
-          p_want: true,
-          p_have: true,
-          p_gift: false,
-          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
-        });
-        if (!error) await refetchSubnavStats(selectedChildId);
-        try {
-          trackEvent(EVENTS.RETAILER_OUTBOUND_CLICKED, {
-            product_id: productId,
-            source_surface: 'discover',
-            source: 'discover_owned',
-            click_path_type: 'api_click',
-            retailer_host: getRetailerHostFromProductId(productId),
-            child_id: selectedChildId ?? null,
-          });
-          await fetch('/api/click', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              product_id: productId,
-              age_band: selectedBand?.id ?? undefined,
-              source: 'discover_owned',
-            }),
-          });
-        } catch {
-          // Best-effort
-        }
-        setActionToast({ productId, message: 'Marked as have it already.' });
-      },
-      openAuthModal: ({ signinUrl }) => {
-        saveModalFocusRef.current = null;
-        setSaveModal({ open: true, signedIn: false, signinUrl });
-        setActionToast({ productId, message: 'Sign in to record that you have this.' });
-      },
-      isAuthenticated: async () => {
-        const { data: { user } } = await createClient().auth.getUser();
-        return !!user;
-      },
-      getReturnUrl: () =>
-        withChildParam(
-          selectedWrapper
-            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
-            : `${basePath}/${currentMonth}`,
-        ),
-    });
-  };
-
   const handleSaveCategory = (categoryId: string, triggerEl: HTMLButtonElement | null) => {
     saveModalFocusRef.current = triggerEl;
     requireAuthThen({
@@ -1082,93 +1026,6 @@ export default function DiscoveryPageClient({
         withChildParam(
           selectedWrapper
             ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1&category=${encodeURIComponent(categoryId)}`
-            : `${basePath}/${currentMonth}`,
-        ),
-    });
-  };
-
-  const handleSaveToList = (productId: string, triggerEl: HTMLButtonElement | null) => {
-    saveModalFocusRef.current = triggerEl;
-    requireAuthThen({
-      actionId: 'save_product',
-      payload: { productId, childId: selectedChildId },
-      run: async () => {
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        let ok = false;
-        const { error: rpcError } = await supabase.rpc('upsert_user_list_item', {
-          p_kind: 'product',
-          p_product_id: productId,
-          p_want: true,
-          p_have: false,
-          p_gift: false,
-          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
-        });
-        if (!rpcError) {
-          ok = true;
-        } else {
-          const fallback = rpcError.code === '42883' || rpcError.message?.includes('does not exist') || rpcError.message?.includes('function');
-          if (fallback) {
-            const { error: legacyError } = await supabase.from('user_saved_products').upsert(
-              { user_id: user.id, product_id: productId },
-              { onConflict: 'user_id,product_id' }
-            );
-            if (!legacyError) ok = true;
-          }
-        }
-        if (!ok) {
-          setActionToast({ productId, message: 'Could not save. Please try again.' });
-          return;
-        }
-        setActionToast({ productId, message: 'Saved.' });
-
-        trackEvent(EVENTS.PRODUCT_SAVED, {
-          user_id: user.id,
-          kind: 'product',
-          product_id: productId,
-          source_surface: 'discover_save',
-          child_id: selectedChildId ?? null,
-        });
-
-        trackEvent(EVENTS.RETAILER_OUTBOUND_CLICKED, {
-          user_id: user.id,
-          product_id: productId,
-          source_surface: 'discover',
-          source: 'discover_save',
-          click_path_type: 'api_click',
-          retailer_host: getRetailerHostFromProductId(productId),
-          child_id: selectedChildId ?? null,
-        });
-
-        await fetch('/api/click', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            product_id: productId,
-            age_band: selectedBand?.id ?? undefined,
-            source: 'discover_save',
-          }),
-        });
-        await refetchSubnavStats(selectedChildId);
-        setSaveModal({
-          open: true,
-          signedIn: true,
-          signinUrl: getSigninUrl(productId),
-          viewMyListHref: withChildParam('/my-ideas?tab=products'),
-          ...saveModalPersonalization,
-        });
-      },
-      openAuthModal: ({ signinUrl }) =>
-        setSaveModal({ open: true, signedIn: false, signinUrl }),
-      isAuthenticated: async () => {
-        const { data: { user } } = await createClient().auth.getUser();
-        return !!user;
-      },
-      getReturnUrl: () =>
-        withChildParam(
-          selectedWrapper
-            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
             : `${basePath}/${currentMonth}`,
         ),
     });
@@ -1244,7 +1101,6 @@ export default function DiscoveryPageClient({
 
   const ideasSectionLoading = Boolean(selectedWrapper) && playIdeaItems.length === 0;
 
-  const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
   const scienceTitle = 'Why this matters now';
   const ideasDevelopmentName = (() => {
     const lower = selectedWrapperLabel.trim().toLowerCase();
@@ -1584,7 +1440,7 @@ export default function DiscoveryPageClient({
                 <div id="examplesProgressBar" className="mb-5 lg:mb-8">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
-                      Product examples for this stage
+                      Pip&apos;s Picks
                     </h2>
                     {displayIdeas.length > 0 ? (
                       <button
@@ -1597,8 +1453,7 @@ export default function DiscoveryPageClient({
                     ) : null}
                   </div>
                   <p className="text-sm text-[var(--ember-text-low)] mt-2">
-                    These examples are selected for stage-fit and usefulness. Retailer links, where shown, may be
-                    affiliate links.
+                    A shortlist we&apos;ve already weighed up, and why. Pick 1 is free; picks 2-5 are for Ember Plus.
                   </p>
                   <AffiliateDisclosureNotice
                     hasRetailerLinks={examplesHaveRetailerLinks}
@@ -1615,15 +1470,12 @@ export default function DiscoveryPageClient({
                     Examples coming soon
                   </div>
                 ) : (
-                  <DiscoverFigmaProductCarousel
+                  <PipsPicksPersimmonCarousel
                     key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}`}
                     picks={displayIdeas.slice(0, 12)}
-                    ageRangeLabel={formatBandLabel(selectedBand)}
-                    whyWorksHeading={whyWorksHeading}
-                    onSave={handleSaveToList}
-                    onHave={handleHaveItAlready}
+                    childDisplayLabel={childProfile.displayLabel}
+                    isEmberPlusMember={isEmberPlusMember}
                     getProductUrl={getProductUrl}
-                    showHaveAction={!!user}
                   />
                 )}
               </section>
