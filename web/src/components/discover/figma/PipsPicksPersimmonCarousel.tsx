@@ -248,7 +248,7 @@ export function PipsPicksPersimmonCarousel({
                   <img
                     src={ROBIN_LOGO_URL}
                     alt=""
-                    className="pointer-events-none absolute right-5 top-5 z-20 h-11 w-11 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-12 md:w-12"
+                    className="pointer-events-none absolute right-5 top-5 z-20 h-44 w-44 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-48 md:w-48"
                   />
 
                   <div className="relative z-10 flex h-full flex-col p-5 md:p-7">
@@ -309,7 +309,7 @@ export function PipsPicksPersimmonCarousel({
                       <img
                         src={ROBIN_LOGO_URL}
                         alt=""
-                        className="pointer-events-none absolute right-5 top-5 h-11 w-11 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-12 md:w-12"
+                        className="pointer-events-none absolute right-5 top-5 h-44 w-44 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-48 md:w-48"
                       />
                       <strong className="mb-3 text-[20px] font-extrabold leading-tight text-white">
                         Discover Pip&apos;s Picks with Ember Plus
