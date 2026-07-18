@@ -21,7 +21,7 @@
 - `supabase db push` applied `20260718101000` + `20260718160000`. Verified: 1-3m Stage 3 = 45 visible + 83 backup across all 9 categories (was 10 rows / 2 categories of manual drift).
 - Cache version bumped to `20260718-stage3-repair-v2`.
 
-**Verification:** `tsc --noEmit` clean, `npm run build` clean. PR + green Vercel preview: see PR entry below.
+**Verification:** `tsc --noEmit` clean, `npm run build` clean. PR [#266](https://github.com/glownest2026-droid/ember/pull/266) — Vercel checks green, `MERGEABLE`/`CLEAN`. Preview smoke checks passed: 1-3m `ent_cluster_listen_and_coo` shows `See Our Picks` on exactly the 3 pilot categories (all others hidden); anon picks API returns rank 1 unlocked with real retailer URL + `access.canSeeLocked=false`; previously broken wrappers (25-27m ×2, 6-9m first foods, 34-36m ×2) all return 5–9 categories. Preview: https://ember-git-fix-stage3-1-3m-repair-tims-projects-cd69a894.vercel.app
 
 ## 2026-07-17: At home add UX (text-first + Stage 2 confirm)
 
