@@ -1,3 +1,11 @@
+## 2026-07-18: Pip's Picks expand pop-up + guaranteed card fit — PR #266 follow-up 2
+
+Founder still saw cut-off CTAs and wanted the Stage 2 pattern: compact cards that always fit, with a pop-up for the full text.
+
+- Every text block on the compact card is now clamped (tag 2 lines, title 2, brand 1, description 3/4, verdict 5/6) so the View retailer button is guaranteed visible within the fixed card height.
+- New full-screen expanded view (`PipsPickExpanded` in `PipsPicksPersimmonCarousel.tsx`), mirroring `DiscoverFigmaPlayIdeaExpanded`: unclamped text, same dark card styling, View retailer CTA, Escape/close button, body scroll lock, reduced-motion aware. Opened via a `Maximize2` button next to the rank pill (unlocked cards only).
+- Robin mark enlarged from 48px to 64px (72px desktop), still tucked in the corner; tag/title right padding increased to keep clear.
+
 ## 2026-07-18: Pip's Picks card polish (mobile) — PR #266 follow-up
 
 Founder review of the preview on a phone flagged three issues, fixed in `PipsPicksPersimmonCarousel.tsx`:
