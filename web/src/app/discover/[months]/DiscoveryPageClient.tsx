@@ -947,14 +947,13 @@ export default function DiscoveryPageClient({
 
   const sliderProgress = ageBands.length > 0 ? (selectedBandIndex / Math.max(1, ageBands.length - 1)) * 100 : 0;
 
-  const displayIdeas =
-    showingExamples && fetchedPicks.length > 0 ? fetchedPicks : exampleProducts;
+  const displayIdeas = showingExamples ? fetchedPicks : exampleProducts;
 
   const shortlistTrackKeyRef = useRef<string | null>(null);
   useEffect(() => {
     if (discoverState !== 'ShowingExamples') return;
     if (displayIdeas.length <= 0) return;
-    const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedChildId ?? 'none'}`;
+    const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedCategoryId ?? 'none'}|${selectedChildId ?? 'none'}`;
     if (shortlistTrackKeyRef.current === key) return;
     shortlistTrackKeyRef.current = key;
 
@@ -966,7 +965,7 @@ export default function DiscoveryPageClient({
       wrapper_slug: selectedWrapper ?? null,
       result_count: displayIdeas.length,
     });
-  }, [discoverState, displayIdeas.length, ageBand?.id, selectedWrapper, selectedChildId, user?.id, pathname]);
+  }, [discoverState, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, selectedChildId, user?.id, pathname]);
 
   const handleSaveCategory = (categoryId: string, triggerEl: HTMLButtonElement | null) => {
     saveModalFocusRef.current = triggerEl;

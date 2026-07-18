@@ -134,6 +134,16 @@ export type GatewayProductPublic = {
   amazon_uk_url: string | null;
   affiliate_url: string | null;
   affiliate_deeplink: string | null;
+  best_for_tag?: string | null;
+  title?: string | null;
+  product_description_under_30_words?: string | null;
+  why_pip_picked_this?: string | null;
+  ember_verdict?: string | null;
+  personalization_hint?: string | null;
+  is_locked?: boolean | null;
+  locked_for_non_members?: boolean | null;
+  price_text?: string | null;
+  retailer?: string | null;
 };
 
 export type GatewayPick = {
