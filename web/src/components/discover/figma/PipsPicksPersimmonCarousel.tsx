@@ -29,6 +29,8 @@ type PipsPickProduct = GatewayPick['product'] & {
   best_for_tag?: string | null;
   title?: string | null;
   product_description_under_30_words?: string | null;
+  product_description?: string | null;
+  product_url?: string | null;
   why_pip_picked_this?: string | null;
   ember_verdict?: string | null;
   personalization_hint?: string | null;
@@ -90,6 +92,7 @@ function getDisplayFields(pick: PipsPick, rank: number, childName?: string | nul
   const bestFor = product.best_for_tag || `Pick ${rank}`;
   const description =
     product.product_description_under_30_words ||
+    product.product_description ||
     product.title ||
     product.name;
   const verdict =

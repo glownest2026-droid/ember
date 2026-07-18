@@ -155,8 +155,8 @@
       "product_name": "Skip Hop Roll-up Playmat",
       "brand": "Skip Hop",
       "retailer": "John Lewis",
-      "url": "https://www.johnlewis.com/skip-hop-roll-up-playmat/p5706240",
-      "url_status": "verified_direct",
+      "url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK",
+      "url_status": "google_shopping",
       "price_gbp": 81.51,
       "availability": "in_stock",
       "rating": 4.4,
@@ -170,7 +170,7 @@
       "evidence": [
         {
           "source_type": "retailer",
-          "url": "https://www.johnlewis.com/skip-hop-roll-up-playmat/p5706240",
+          "url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK",
           "claim": "Large size, reversible, wipe-clean"
         },
         {
@@ -213,7 +213,7 @@
     {
       "product_name": "Skip Hop Roll-up Playmat",
       "brand": "Skip Hop",
-      "url": "https://www.johnlewis.com/skip-hop-roll-up-playmat/p5706240",
+      "url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK",
       "include_status": "top_pick",
       "reason": "Large size, reversible, wipe-clean. Portable and spacious."
     },

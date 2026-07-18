@@ -894,7 +894,7 @@ export default function DiscoveryPageClient({
   };
 
   const getProductUrl = (p: PickItem) =>
-    p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
+    p.product.canonical_url || p.product.product_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
 
   const doorwayMetaBySlug = useMemo(() => {
     const map = new Map<string, { key: string; helper: string; icon: (typeof ALL_DOORWAYS)[number]['icon'] }>();

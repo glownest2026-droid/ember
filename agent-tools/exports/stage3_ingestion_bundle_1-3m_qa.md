@@ -1,6 +1,6 @@
 # Stage 3 ingestion bundle QA - 1-3m
 
-Generated: 2026-07-18T09:07:30.231Z
+Generated: 2026-07-18T09:27:32.244Z
 Migration: `supabase/migrations/20260718101000_ingest_stage3_pips_picks_1_3m.sql`
 
 ## Summary

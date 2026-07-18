@@ -1,6 +1,6 @@
 {
   "schema_version": "stage3_ingestion_bundle_v1",
-  "generated_at": "2026-07-18T09:07:30.231Z",
+  "generated_at": "2026-07-18T09:27:32.244Z",
   "age_band_id": "1-3m",
   "locked_from_rank": 2,
   "founder_paid_proxy_email": "timwd23@gmail.com",
@@ -1114,8 +1114,8 @@
           "product_name": "Mother & Baby Pure Gold Anti Allergy Coir Pocket Sprung Cot Bed Mattress",
           "brand": "Mother&Baby",
           "retailer": "Boots",
-          "url": "https://www.boots.com/mother-baby-pure-gold-anti-allergy-coir-pocket-sprung-cot-bed-mattress10317013",
-          "url_status": "verified_direct",
+          "url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK",
+          "url_status": "google_shopping",
           "price_gbp": 129.99,
           "availability": "in_stock",
           "rating": 4.8,
@@ -1129,13 +1129,13 @@
           "evidence": [
             {
               "source_type": "retailer",
-              "url": "https://www.boots.com/mother-baby-pure-gold-anti-allergy-coir-pocket-sprung-cot-bed-mattress10317013",
+              "url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK",
               "claim": "Anti-allergy with Purotex® technology, moveable waterproof membrane, removable/washable cover, 4.8 stars with 6 reviews."
             }
           ],
           "longlist_rank": 3,
           "best_for_tag": "Best for allergy sufferers with integrated waterproofing",
-          "product_url": "https://www.boots.com/mother-baby-pure-gold-anti-allergy-coir-pocket-sprung-cot-bed-mattress10317013",
+          "product_url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK",
           "price_text": "GBP 129.99",
           "stock_status": "in_stock",
           "product_description_under_30_words": "An anti-allergy pocket sprung cot bed mattress with Purotex® technology and a moveable waterproof membrane, ensuring a clean and dry sleep environment.",
@@ -1143,7 +1143,7 @@
           "why_it_fits": "This mattress stands out for its anti-allergy properties and the innovative moveable waterproof membrane, which provides excellent protection without compromising breathability. The pocket springs offer good support, and the washable cover adds to its practicality.",
           "gift_suitable": false,
           "gift_note": "Parent buy",
-          "founder_qa_flag": "none"
+          "founder_qa_flag": "google_shopping"
         },
         {
           "rank": 4,
@@ -3052,8 +3052,8 @@
           "product_name": "Skip Hop Roll-up Playmat",
           "brand": "Skip Hop",
           "retailer": "John Lewis",
-          "url": "https://www.johnlewis.com/skip-hop-roll-up-playmat/p5706240",
-          "url_status": "verified_direct",
+          "url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK",
+          "url_status": "google_shopping",
           "price_gbp": 81.51,
           "availability": "in_stock",
           "rating": 4.4,
@@ -3067,7 +3067,7 @@
           "evidence": [
             {
               "source_type": "retailer",
-              "url": "https://www.johnlewis.com/skip-hop-roll-up-playmat/p5706240",
+              "url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK",
               "claim": "Large size, reversible, wipe-clean"
             },
             {
@@ -3078,7 +3078,7 @@
           ],
           "longlist_rank": 5,
           "best_for_tag": "portability and large play area",
-          "product_url": "https://www.johnlewis.com/skip-hop-roll-up-playmat/p5706240",
+          "product_url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK",
           "price_text": "GBP 81.51",
           "stock_status": "in_stock",
           "product_description_under_30_words": "A large, reversible, wipe-clean playmat that easily rolls up for storage and portability, offering ample space for baby's movements.",
@@ -3086,7 +3086,7 @@
           "why_it_fits": "Its large size provides plenty of room for babies to explore and move, while its roll-up design makes it highly convenient for storage and travel.",
           "gift_suitable": true,
           "gift_note": "Good gift",
-          "founder_qa_flag": "none"
+          "founder_qa_flag": "google_shopping"
         }
       ],
       "backup_picks": [

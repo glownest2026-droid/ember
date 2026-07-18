@@ -85,8 +85,8 @@
       "product_name": "Mother & Baby Pure Gold Anti Allergy Coir Pocket Sprung Cot Bed Mattress",
       "brand": "Mother&Baby",
       "retailer": "Boots",
-      "url": "https://www.boots.com/mother-baby-pure-gold-anti-allergy-coir-pocket-sprung-cot-bed-mattress10317013",
-      "url_status": "verified_direct",
+      "url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK",
+      "url_status": "google_shopping",
       "price_gbp": 129.99,
       "availability": "in_stock",
       "rating": 4.8,
@@ -100,7 +100,7 @@
       "evidence": [
         {
           "source_type": "retailer",
-          "url": "https://www.boots.com/mother-baby-pure-gold-anti-allergy-coir-pocket-sprung-cot-bed-mattress10317013",
+          "url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK",
           "claim": "Anti-allergy with Purotex\u00ae technology, moveable waterproof membrane, removable/washable cover, 4.8 stars with 6 reviews."
         }
       ]
@@ -181,7 +181,7 @@
     {
       "product_name": "Mother & Baby Pure Gold Anti Allergy Coir Pocket Sprung Cot Bed Mattress",
       "brand": "Mother&Baby",
-      "url": "https://www.boots.com/mother-baby-pure-gold-anti-allergy-coir-pocket-sprung-cot-bed-mattress10317013",
+      "url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK",
       "include_status": "top_pick",
       "reason": "Anti-allergy with Purotex\u00ae technology, moveable waterproof membrane, removable/washable cover, 4.8 stars with 6 reviews."
     },
