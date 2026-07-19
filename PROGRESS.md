@@ -11,6 +11,8 @@
 
 Verified: `tsc --noEmit` and `pnpm build` pass in the worktree. Outstanding from the bug bash: item 2 (Tummy Time Stage 3 picks) — blocked on the Manus research files, which were not attached.
 
+**2026-07-19 follow-up:** #270 was merged into its stacked base branch after #269's merge commit was cut, so its changes never reached `main`. Re-landed on `main` via PR #271 (branch `fix/stage3-card-ux-mainland`).
+
 ## 2026-07-19: Stage 1→2 duplication root-cause fix — cluster context on Stage 2 mapping (bug bash item 1)
 
 Founder reported Stage 1 cards leading to the same Stage 2 cards (e.g. "I'm finding your face" and "I'm listening to your voice"). Validated against the offline source of truth (Spine 3.0 Bible `discover_projection` tab, 1–3m workbook): **confirmed a real bug, not content reality.** The Bible gives each cluster its own curated list (55 rows, only 2 intentional overlaps), but ingestion dropped the cluster column and keyed rows by shared development needs — clusters sharing a need rendered the union of each other's cards ("I'm starting to wriggle" showed 20 cards instead of 7; "I'm finding your face" was missing its high-contrast card), and per-cluster copy variants collapsed to one arbitrary winner.
