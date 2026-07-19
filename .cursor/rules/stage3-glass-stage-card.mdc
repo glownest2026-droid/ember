@@ -1,0 +1,22 @@
+---
+description: Stage 3 Pip's Picks cards use the Glass Stage template (founder-selected)
+globs:
+  - web/src/components/discover/figma/**PipsPicks*
+  - web/src/components/discover/figma/**Product*
+  - web/src/app/discover/**/*
+alwaysApply: false
+---
+
+# Stage 3 Glass Stage card
+
+When editing or shipping **Stage 3 / Pip’s Picks** card UI on Discover:
+
+1. Read and follow **`web/docs/ui/STAGE3_GLASS_STAGE_CARD.md`** (canonical template).
+2. Match the golden sample: **`web/docs/ui/artifacts/stage3-glass-stage-card.reference.html`**.
+3. **Required:** “Why Pip picked this” is a **closed-by-default drawer** (addictive tap), not a static always-open verdict box.
+4. Robin: upright **44px top-right** only — no tilt, no mid-card hero.
+5. Dark spatial track + frosted glass + per-pick accent orbs; Ember palette only (no purple SaaS).
+6. Browse offers → Google Shopping (never one retailer).
+
+Ingest / full production wiring: use prompt  
+`agent-tools/prompts/ingest-stage3-glass-stage-into-discover.md`.

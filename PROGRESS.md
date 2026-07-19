@@ -1,3 +1,14 @@
+## 2026-07-19 — Stage 3 Glass Stage card UI shipped to Discover
+
+Founder-selected **Glass Stage** visual language now live on Pip’s Picks / Stage 3 cards (UI only — no catalogue data change).
+
+- **What:** Dark spatial track + frosted glass cards + ambient orbs that recolour with the active pick; per-pick Ember warm accents; upright 44px corner robin only (tilted watermark removed); **“Why Pip picked this” closed-by-default drawer** (tap to open; description dims; `aria-expanded`; reduced-motion safe). Browse offers still → Google Shopping. Free pick-1 + locked upsell, expand, and save preserved.
+- **Files:** `web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx`, `web/src/components/discover/figma/PipsPicksGlassStage.module.css`
+- **Canonical docs (also in PR):** `web/docs/ui/STAGE3_GLASS_STAGE_CARD.md`, `web/docs/ui/artifacts/stage3-glass-stage-card.reference.html`, `.cursor/rules/stage3-glass-stage-card.mdc`
+- **Fallback:** solid navy/ink glass when `backdrop-filter` unsupported (`@supports not`)
+- **Verify:** `pnpm -C web` tsc + build pass; phone-width `/discover/2` → Stage 2 with Ember Picks → Pip’s Picks
+- **Conor chrome check:** drawer/CTA labels reuse existing parent-facing strings (“Why Pip picked this”, “Browse offers”) — five tests pass; no new banned marketing copy
+
 ## 2026-07-19: Stage 3 card text now self-measures — no more viewport-height guessing (round 6)
 
 Founder found DevTools device emulation did not match his real phone: viewport-height media queries (`@media (max-height: …)`) measure the browser window, which differs across real browser chrome / PWA standalone / DevTools for the same physical screen, so clamps tuned in emulation still clipped the "Why Pip picked this" box behind the thumb row on-device.
