@@ -542,7 +542,7 @@ export function PipsPicksPersimmonCarousel({
                     className="pointer-events-none absolute right-3 top-3 z-20 h-16 w-16 object-contain [filter:grayscale(1)_brightness(2.1)_drop-shadow(0_8px_18px_rgba(0,0,0,0.22))] md:h-[72px] md:w-[72px]"
                   />
 
-                  <div className="relative z-10 flex h-full flex-col p-4 [@media(min-height:881px)]:p-5 md:p-7">
+                  <div className="relative z-10 flex h-full min-h-0 flex-col p-4 [@media(min-height:881px)]:p-5 md:p-7">
                     <div className="mb-3 flex items-center gap-2 self-start md:mb-5">
                       <span className="inline-flex rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
                         {rank} / {renderedPicks.length}
@@ -550,43 +550,45 @@ export function PipsPicksPersimmonCarousel({
                     </div>
 
                     <div
-                      className={`flex flex-1 flex-col transition duration-300 ${
+                      className={`flex min-h-0 flex-1 flex-col transition duration-300 ${
                         locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
                       }`}
                     >
-                      {fields.tag ? (
-                        <p className="m-0 mb-1.5 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-1 md:pr-16">
-                          {fields.tag}
+                      <div className="min-h-0 overflow-hidden">
+                        {fields.tag ? (
+                          <p className="m-0 mb-1.5 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-1 md:pr-16">
+                            {fields.tag}
+                          </p>
+                        ) : null}
+                        <h3 className="m-0 mb-2 flex items-start gap-2.5 pr-10 text-[20px] font-extrabold leading-tight tracking-normal text-white md:pr-12 md:text-[22px]">
+                          <Icon className="h-6 w-6 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
+                          <span className="line-clamp-2">{fields.title}</span>
+                        </h3>
+                        {fields.brand ? (
+                          <p className="m-0 mb-3 text-[12px] font-bold uppercase tracking-wider text-white/80 line-clamp-1 md:mb-4 md:text-[13px]">
+                            {fields.brand}
+                          </p>
+                        ) : null}
+                        {/* Clamps step down with viewport height so the thumb row is always
+                            inside the card — the popup carries the full text. */}
+                        <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-3 [@media(min-height:821px)]:line-clamp-4 [@media(max-height:760px)]:line-clamp-2 md:mb-4 md:text-[15px] md:line-clamp-5">
+                          {fields.description}
                         </p>
-                      ) : null}
-                      <h3 className="m-0 mb-2 flex items-start gap-2.5 pr-10 text-[20px] font-extrabold leading-tight tracking-normal text-white md:pr-12 md:text-[22px]">
-                        <Icon className="h-6 w-6 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
-                        <span className="line-clamp-2">{fields.title}</span>
-                      </h3>
-                      {fields.brand ? (
-                        <p className="m-0 mb-3 text-[12px] font-bold uppercase tracking-wider text-white/80 line-clamp-1 md:mb-4 md:text-[13px]">
-                          {fields.brand}
-                        </p>
-                      ) : null}
-                      {/* Clamps step down with viewport height so the thumb row is always
-                          inside the card — the popup carries the full text. */}
-                      <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-4 [@media(min-height:761px)_and_(max-height:880px)]:line-clamp-3 [@media(max-height:760px)]:line-clamp-2 md:mb-4 md:text-[15px] md:line-clamp-5">
-                        {fields.description}
-                      </p>
 
-                      {/* Verdict follows the description directly — no dead space in the middle
-                          of the card (founder item 3); the thumb row anchors the bottom. */}
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3 md:p-4">
-                        <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
-                          Why Pip picked this
-                        </strong>
-                        <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-6 [@media(min-height:761px)_and_(max-height:880px)]:line-clamp-4 [@media(max-height:760px)]:line-clamp-3 md:text-[14px] md:line-clamp-[7]">
-                          {fields.verdict}
-                        </p>
+                        {/* Verdict follows the description directly — no dead space in the middle
+                            of the card (founder item 3); the thumb row anchors the bottom. */}
+                        <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3 md:p-4">
+                          <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
+                            Why Pip picked this
+                          </strong>
+                          <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-4 [@media(min-height:821px)]:line-clamp-5 [@media(max-height:760px)]:line-clamp-3 md:text-[14px] md:line-clamp-[7]">
+                            {fields.verdict}
+                          </p>
+                        </div>
                       </div>
 
                       {/* Thumb row: browse, expand, save — every action in reach on mobile. */}
-                      <div className="mt-auto flex items-center gap-2 pt-3 md:pt-4">
+                      <div className="mt-auto flex shrink-0 items-center gap-2 pt-3 md:pt-4">
                         <a
                           href={url}
                           target="_blank"
