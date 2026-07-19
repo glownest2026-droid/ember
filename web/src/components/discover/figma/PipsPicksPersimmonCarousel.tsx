@@ -482,8 +482,8 @@ export function PipsPicksPersimmonCarousel({
   if (!displayPicks.length) return null;
 
   return (
-    {/* Viewport-sized column: heading is the anchor target, carousel flexes to
-        fill the rest, ending just above the Start over FAB (bottom reserve). */}
+    // Viewport-sized column: heading is the anchor target, carousel flexes to
+    // fill the rest, ending just above the Start over FAB (bottom reserve).
     <section className="relative flex min-h-[calc(100dvh-var(--header-height,88px)-140px)] flex-col overflow-hidden text-[#253044] md:min-h-0">
       {/* Compact header on mobile so header + card + Start over share one viewport (item 7). */}
       <div className="relative z-20 -mt-1 shrink-0 px-2 pb-2 text-center md:mt-0 md:px-0 md:pb-5">
