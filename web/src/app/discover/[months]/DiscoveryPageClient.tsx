@@ -347,7 +347,9 @@ export default function DiscoveryPageClient({
       if (!section) return;
       const headerVar = getComputedStyle(document.documentElement).getPropertyValue('--header-height').trim();
       const headerOffset = (headerVar ? parseInt(headerVar, 10) : 88) + 12;
-      const bottomChromeOffset = window.innerWidth < 768 ? 96 : 32;
+      // Bottom chrome = mobile nav + the floating "Start over" button. The card
+      // must land fully above the FAB, never underneath it (items 2 + 7).
+      const bottomChromeOffset = window.innerWidth < 768 ? 148 : 88;
       const card =
         section.querySelector<HTMLElement>('[data-pips-card-wrapper]') ??
         section.querySelector<HTMLElement>('[data-pips-card]');
@@ -707,6 +709,28 @@ export default function DiscoveryPageClient({
             signedIn: true,
             signinUrl: getSigninUrlForCategory(categoryId),
             viewMyListHref: withChildParam('/my-ideas?tab=ideas'),
+            ...saveModalPersonalization,
+          });
+          break;
+        }
+        case 'save_stage3_pick': {
+          const stage3PickId = action.payload.stage3PickId as string | undefined;
+          const childId = action.payload.childId as string | undefined;
+          if (!stage3PickId) return;
+          const { error } = await supabase.rpc('upsert_user_list_item', {
+            p_kind: 'stage3_pick',
+            p_stage3_pick_id: stage3PickId,
+            p_want: true,
+            p_have: false,
+            p_gift: false,
+            ...(childId ? { p_child_id: childId } : {}),
+          });
+          if (!error) await refetchSubnavStats(selectedChildId);
+          setSaveModal({
+            open: true,
+            signedIn: true,
+            signinUrl: getSigninUrl(),
+            viewMyListHref: withChildParam('/my-ideas?tab=products'),
             ...saveModalPersonalization,
           });
           break;
@@ -1143,6 +1167,61 @@ export default function DiscoveryPageClient({
     });
   };
 
+  /**
+   * Save a Stage 3 pick itself (not its Stage 2 category) — lands in the
+   * Products tab of /my-ideas, mirroring the Stage 2 save flow (founder
+   * bug bash follow-up, item 1).
+   */
+  const handleSaveStage3Pick = (stage3PickId: string, triggerEl: HTMLButtonElement | null) => {
+    saveModalFocusRef.current = triggerEl;
+    requireAuthThen({
+      actionId: 'save_stage3_pick',
+      payload: { stage3PickId, childId: selectedChildId },
+      run: async () => {
+        try {
+          const supabase = createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+          const { error } = await supabase.rpc('upsert_user_list_item', {
+            p_kind: 'stage3_pick',
+            p_stage3_pick_id: stage3PickId,
+            p_want: true,
+            p_have: false,
+            p_gift: false,
+            ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
+          });
+          if (error) {
+            setActionToast({ productId: stage3PickId, message: 'Could not save. Please try again.' });
+            return;
+          }
+          await refetchSubnavStats(selectedChildId);
+          setActionToast({ productId: stage3PickId, message: 'Saved.' });
+          setSaveModal({
+            open: true,
+            signedIn: true,
+            signinUrl: getSigninUrl(),
+            viewMyListHref: withChildParam('/my-ideas?tab=products'),
+            ...saveModalPersonalization,
+          });
+        } catch {
+          setActionToast({ productId: stage3PickId, message: 'Could not save. Please try again.' });
+        }
+      },
+      openAuthModal: ({ signinUrl }) =>
+        setSaveModal({ open: true, signedIn: false, signinUrl }),
+      isAuthenticated: async () => {
+        const { data: { user } } = await createClient().auth.getUser();
+        return !!user;
+      },
+      getReturnUrl: () =>
+        withChildParam(
+          selectedWrapper
+            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1${selectedCategoryId ? `&category=${encodeURIComponent(selectedCategoryId)}` : ''}`
+            : `${basePath}/${currentMonth}`,
+        ),
+    });
+  };
+
   const handleAuthSuccess = useCallback(async () => {
     try {
       const supabase = createClient();
@@ -1462,23 +1541,8 @@ export default function DiscoveryPageClient({
                       />
                     ) : (
                       <>
-                        {usefulIdeas.length > 0 ? (
-                          <DiscoverFigmaPlayCarousel
-                            items={usefulIdeas}
-                            sectionTitle="Useful ideas"
-                            selectedId={selectedCategoryId}
-                            onSelect={setSelectedCategoryId}
-                            onSeeExamples={handleShowExamples}
-                            onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
-                            onHaveThem={handleHaveThemCategory}
-                            showHaveAction={false}
-                            showEmberPicks={false}
-                            showSaveAction
-                            showGiftAction={false}
-                            noteMode="parent"
-                            dimmedCategoryIds={dimmedCategoryIds}
-                          />
-                        ) : null}
+                        {/* Founder rule (bug bash follow-up, item 4): "Things that can
+                            help" leads — the lane carrying Ember Picks comes first. */}
                         {thingsThatCanHelp.length > 0 ? (
                           <DiscoverFigmaPlayCarousel
                             items={thingsThatCanHelp}
@@ -1493,6 +1557,23 @@ export default function DiscoveryPageClient({
                             showEmberPicks
                             showSaveAction
                             showGiftAction
+                            noteMode="parent"
+                            dimmedCategoryIds={dimmedCategoryIds}
+                          />
+                        ) : null}
+                        {usefulIdeas.length > 0 ? (
+                          <DiscoverFigmaPlayCarousel
+                            items={usefulIdeas}
+                            sectionTitle="Useful ideas"
+                            selectedId={selectedCategoryId}
+                            onSelect={setSelectedCategoryId}
+                            onSeeExamples={handleShowExamples}
+                            onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
+                            onHaveThem={handleHaveThemCategory}
+                            showHaveAction={false}
+                            showEmberPicks={false}
+                            showSaveAction
+                            showGiftAction={false}
                             noteMode="parent"
                             dimmedCategoryIds={dimmedCategoryIds}
                           />
@@ -1553,7 +1634,7 @@ export default function DiscoveryPageClient({
                       picks={displayIdeas.slice(0, displayHasPipsPicks ? 10 : 12)}
                       childDisplayLabel={childProfile.displayLabel}
                       isEmberPlusMember={isEmberPlusMember}
-                      onSavePick={(pick, el) => handleSaveCategory(pick.categoryType.id, el)}
+                      onSavePick={(pick, el) => handleSaveStage3Pick(pick.product.id, el)}
                     />
                     <AffiliateDisclosureNotice
                       hasRetailerLinks={examplesHaveRetailerLinks}

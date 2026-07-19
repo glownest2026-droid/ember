@@ -12,11 +12,14 @@ import {
   Circle,
   Hand,
   Home,
+  Images,
   Maximize2,
   Moon,
   Package,
   Plane,
+  RectangleHorizontal,
   Save,
+  ScanFace,
   Shirt,
   TreePine,
   Truck,
@@ -76,17 +79,31 @@ function personalizePickCopy(copy: string, childName?: string | null) {
   return copy;
 }
 
+/**
+ * Hard rule (founder, bug bash 2026-07-19 follow-up, item 9): every Stage 3 card
+ * title gets the lucide icon that best matches WHAT THE PRODUCT IS. Match the
+ * most specific product noun first (a "washable floor playmat" is a mat, not a
+ * tree). Word boundaries prevent substring accidents ("cards" is not a "car").
+ * When ingesting a new category, extend this map — never let picks fall through
+ * to Package silently if a better icon exists.
+ */
 function pickIcon(productName: string, categoryLabel: string): LucideIcon {
   const text = `${productName} ${categoryLabel}`.toLowerCase();
-  if (/(airport|plane|travel|trip|car seat|car|vehicle|outings|trips)/.test(text)) return text.includes('car') ? Car : Plane;
-  if (/(book|story|stories|reading|faces)/.test(text)) return BookOpen;
-  if (/(tree|garden|outdoor|floor|mat)/.test(text)) return TreePine;
-  if (/(truck|lorry|recycling|delivery)/.test(text)) return Truck;
-  if (/(home|village|house|town|cot|mattress|sleep)/.test(text)) return text.includes('sleep') || text.includes('mattress') ? Moon : Home;
-  if (/(hands|grab|grasp|reach|rattle)/.test(text)) return Hand;
-  if (/(muslin|cloth|burp|feed|bib)/.test(text)) return Shirt;
-  if (/(baby|mirror|tummy|sling|carrier)/.test(text)) return Baby;
-  if (/(shape|block|stack|card|contrast)/.test(text)) return Circle;
+  if (/\b(playmat|play mat|floor mat|activity mat|mat)\b/.test(text)) return RectangleHorizontal;
+  if (/\bmirror\b/.test(text)) return ScanFace;
+  if (/\b(flash ?cards?|sensory cards?|art cards?|cards?)\b/.test(text)) return Images;
+  if (/\b(book|books|story|stories|reading|library)\b/.test(text)) return BookOpen;
+  if (/\b(muslin|burp|cloth|cloths|bib|bibs|swaddle)\b/.test(text)) return Shirt;
+  if (/\b(car seat|carrier seat|isize|i-size)\b/.test(text) || (/\bcar\b/.test(text) && /\bseat\b/.test(text))) return Car;
+  if (/\b(mattress|cot|crib|sleep|bedtime|moses)\b/.test(text)) return Moon;
+  if (/\b(carrier|sling|wrap|babywearing)\b/.test(text)) return Baby;
+  if (/\b(rattle|teether|grasp|grasping|grab|reach|oball|ball|balls)\b/.test(text)) return Hand;
+  if (/\b(plane|airport|travel|trip|trips|outings)\b/.test(text)) return Plane;
+  if (/\b(truck|lorry|recycling|delivery|vehicle)\b/.test(text)) return Truck;
+  if (/\b(tree|garden|outdoor|nature)\b/.test(text)) return TreePine;
+  if (/\b(home|village|house|town)\b/.test(text)) return Home;
+  if (/\b(shape|shapes|block|blocks|stack|stacking|contrast)\b/.test(text)) return Circle;
+  if (/\b(face|faces|tummy)\b/.test(text)) return Baby;
   return Package;
 }
 
@@ -131,16 +148,33 @@ type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
   total: number;
 };
 
-/** Full-screen reader for one pick, mirroring the Stage 2 expanded-card pattern. */
+/**
+ * Full-screen reader for one pick, mirroring the Stage 2 expanded-card pattern.
+ * Swipeable/navigable (founder rule, item 5/11): the reader moves between every
+ * pick the member can see, so nobody has to close it just to keep browsing.
+ * The close button is anchored to the card, not the screen corner.
+ */
 function PipsPickExpanded({
   fields,
+  locked = false,
+  lockedCount = 0,
   onClose,
+  onNavigate,
+  hasPrev,
+  hasNext,
 }: {
   fields: ExpandedPickFields;
+  /** Locked upsell card: show the Ember Plus pitch instead of pick details. */
+  locked?: boolean;
+  lockedCount?: number;
   onClose: () => void;
+  onNavigate: (direction: -1 | 1) => void;
+  hasPrev: boolean;
+  hasNext: boolean;
 }) {
   const shouldReduceMotion = useReducedMotion() ?? false;
   const Icon = fields.Icon;
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -153,10 +187,25 @@ function PipsPickExpanded({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft' && hasPrev) onNavigate(-1);
+      if (e.key === 'ArrowRight' && hasNext) onNavigate(1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [onClose, onNavigate, hasPrev, hasNext]);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const startX = touchStartX.current;
+    touchStartX.current = null;
+    if (startX === null) return;
+    const delta = (e.changedTouches[0]?.clientX ?? startX) - startX;
+    if (Math.abs(delta) < 60) return;
+    if (delta > 0 && hasPrev) onNavigate(-1);
+    if (delta < 0 && hasNext) onNavigate(1);
+  };
 
   return (
     <motion.div
@@ -169,72 +218,144 @@ function PipsPickExpanded({
       aria-modal="true"
       aria-labelledby="expanded-pick-title"
     >
-      <div className="flex items-center justify-end px-4 pt-4 pb-2 shrink-0">
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-[#E7E2DC] bg-white text-[#253044] shadow-sm transition-colors hover:bg-[#FBFAF7]"
-          aria-label="Close expanded pick"
-        >
-          <X size={22} strokeWidth={2.5} />
-        </button>
-      </div>
-
       <motion.div
-        className="flex-1 overflow-y-auto px-4 pb-8 md:flex md:items-center md:justify-center md:py-8"
+        className="flex-1 overflow-y-auto px-4 py-6 [touch-action:pan-y] md:flex md:items-center md:justify-center md:py-8"
         initial={shouldReduceMotion ? false : { y: 24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
-        <article className="relative mx-auto w-full max-w-2xl overflow-hidden rounded-[28px] bg-[#253044] text-white shadow-lg md:rounded-[32px]">
-          {/* eslint-disable-next-line @next/next/no-img-element -- visible brand mark */}
-          <img
-            src={ROBIN_LOGO_URL}
-            alt=""
-            className="pointer-events-none absolute right-4 top-4 h-16 w-16 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-20 md:w-20"
-          />
-          <div className="flex flex-col gap-4 p-6 md:p-8">
-            <span className="inline-flex self-start rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
-              {fields.rank} / {fields.total}
-            </span>
-            {fields.tag ? (
-              <p className="m-0 pr-16 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] md:pr-20">
-                {fields.tag}
-              </p>
-            ) : null}
-            <h2
-              id="expanded-pick-title"
-              className="m-0 flex items-start gap-2.5 text-[24px] font-extrabold leading-tight text-white md:text-[28px]"
+        <div className="relative mx-auto w-full max-w-2xl">
+          {/* Desktop: previous/next just outside the card, thumb-height. */}
+          {hasPrev ? (
+            <button
+              type="button"
+              onClick={() => onNavigate(-1)}
+              className="absolute -left-16 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#E7E2DC] bg-white text-[#253044] shadow-lg transition hover:bg-[#FBFAF7] lg:inline-flex"
+              aria-label="Previous pick"
             >
-              <Icon className="mt-1 h-7 w-7 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
-              {fields.title}
-            </h2>
-            {fields.brand ? (
-              <p className="m-0 text-[13px] font-bold uppercase tracking-wider text-white/80 md:text-[14px]">
-                {fields.brand}
-              </p>
-            ) : null}
-            <p className="m-0 text-[15px] font-medium leading-relaxed text-white/95 md:text-[16px]">
-              {fields.description}
-            </p>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4 md:p-5">
-              <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
-                Why Pip picked this
-              </strong>
-              <p className="m-0 text-[14px] font-semibold leading-relaxed text-white/95 md:text-[15px]">
-                {fields.verdict}
-              </p>
+              <ChevronLeft className="h-6 w-6" aria-hidden />
+            </button>
+          ) : null}
+          {hasNext ? (
+            <button
+              type="button"
+              onClick={() => onNavigate(1)}
+              className="absolute -right-16 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-[#E7E2DC] bg-white text-[#253044] shadow-lg transition hover:bg-[#FBFAF7] lg:inline-flex"
+              aria-label="Next pick"
+            >
+              <ChevronRight className="h-6 w-6" aria-hidden />
+            </button>
+          ) : null}
+
+          <article className="relative w-full overflow-hidden rounded-[28px] bg-[#253044] text-white shadow-lg md:rounded-[32px]">
+            {/* Close sits on the card itself so it is always in reach. */}
+            <button
+              type="button"
+              onClick={onClose}
+              className="absolute right-3 top-3 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20"
+              aria-label="Close expanded pick"
+            >
+              <X size={20} strokeWidth={2.5} />
+            </button>
+            <div className="flex flex-col gap-4 p-6 md:p-8">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
+                  {fields.rank} / {fields.total}
+                </span>
+              </div>
+              {locked ? (
+                <div className="flex flex-col items-center gap-4 py-10 text-center">
+                  {lockedCount > 0 ? (
+                    <span className="inline-flex items-center rounded-full border border-[#FF5C34]/40 bg-[#FF5C34]/15 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-[#FFE0D8]">
+                      {lockedCount} more {lockedCount === 1 ? 'pick' : 'picks'} available
+                    </span>
+                  ) : null}
+                  <h2 id="expanded-pick-title" className="m-0 text-[22px] font-extrabold leading-tight text-white md:text-[26px]">
+                    Discover Pip&apos;s Picks with Ember Plus
+                  </h2>
+                  <p className="m-0 max-w-[300px] text-[14px] font-semibold leading-relaxed text-white/80">
+                    Pick 1 is free. Ember Plus shows the full shortlist and why each option fits.
+                  </p>
+                  <Link
+                    href="/pricing"
+                    className="mt-2 inline-flex w-full max-w-[280px] items-center justify-center rounded-full bg-[#FF5C34] px-6 py-4 text-[15px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)]"
+                  >
+                    Discover Ember Plus
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  {fields.tag ? (
+                    <p className="m-0 pr-12 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8]">
+                      {fields.tag}
+                    </p>
+                  ) : null}
+                  <h2
+                    id="expanded-pick-title"
+                    className="m-0 flex items-start gap-2.5 text-[24px] font-extrabold leading-tight text-white md:text-[28px]"
+                  >
+                    <Icon className="mt-1 h-7 w-7 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
+                    {fields.title}
+                  </h2>
+                  {fields.brand ? (
+                    <p className="m-0 text-[13px] font-bold uppercase tracking-wider text-white/80 md:text-[14px]">
+                      {fields.brand}
+                    </p>
+                  ) : null}
+                  <p className="m-0 text-[15px] font-medium leading-relaxed text-white/95 md:text-[16px]">
+                    {fields.description}
+                  </p>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-4 md:p-5">
+                    <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
+                      Why Pip picked this
+                    </strong>
+                    <p className="m-0 text-[14px] font-semibold leading-relaxed text-white/95 md:text-[15px]">
+                      {fields.verdict}
+                    </p>
+                  </div>
+                </>
+              )}
+              <div className="flex items-center gap-2">
+                {hasPrev ? (
+                  <button
+                    type="button"
+                    onClick={() => onNavigate(-1)}
+                    className="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 lg:hidden"
+                    aria-label="Previous pick"
+                  >
+                    <ChevronLeft size={20} strokeWidth={2.5} aria-hidden />
+                  </button>
+                ) : null}
+                {locked ? (
+                  <span className="inline-flex min-h-12 flex-1 items-center justify-center px-4 text-[13px] font-semibold text-white/50">
+                    Included with Ember Plus
+                  </span>
+                ) : (
+                  <a
+                    href={fields.url}
+                    target="_blank"
+                    rel={retailerLinkRel(fields.url)}
+                    className="inline-flex min-h-12 flex-1 items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[15px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97]"
+                  >
+                    Browse offers
+                  </a>
+                )}
+                {hasNext ? (
+                  <button
+                    type="button"
+                    onClick={() => onNavigate(1)}
+                    className="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 lg:hidden"
+                    aria-label="Next pick"
+                  >
+                    <ChevronRight size={20} strokeWidth={2.5} aria-hidden />
+                  </button>
+                ) : null}
+              </div>
             </div>
-            <a
-              href={fields.url}
-              target="_blank"
-              rel={retailerLinkRel(fields.url)}
-              className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[15px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97]"
-            >
-              Browse offers
-            </a>
-          </div>
-        </article>
+          </article>
+        </div>
       </motion.div>
     </motion.div>
   );
@@ -272,7 +393,7 @@ export function PipsPicksPersimmonCarousel({
   picks: GatewayPick[];
   childDisplayLabel?: string | null;
   isEmberPlusMember: boolean;
-  /** Save the pick's Stage 2 idea to the parent's list (thumb-row save icon). */
+  /** Save this Stage 3 pick to the parent's list — Products tab (thumb-row save icon). */
   onSavePick?: (pick: GatewayPick, triggerEl: HTMLButtonElement | null) => void;
 }) {
   const trackRef = useRef<HTMLDivElement | null>(null);
@@ -362,15 +483,16 @@ export function PipsPicksPersimmonCarousel({
 
   return (
     <section className="relative overflow-hidden text-[#253044]">
-      <div className="relative z-20 px-2 pb-5 text-center md:px-0">
-        <div className="inline-flex items-center justify-center gap-4">
+      {/* Compact header on mobile so header + card + Start over share one viewport (item 7). */}
+      <div className="relative z-20 px-2 pb-3 text-center md:px-0 md:pb-5">
+        <div className="inline-flex items-center justify-center gap-3 md:gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- brand mark is a stable public asset */}
-          <img src={ROBIN_LOGO_URL} alt="" className="h-16 w-16 object-contain md:h-20 md:w-20" />
-          <h2 className="m-0 text-[30px] font-extrabold leading-tight tracking-normal text-[#253044] md:text-[40px]">
+          <img src={ROBIN_LOGO_URL} alt="" className="h-12 w-12 object-contain md:h-20 md:w-20" />
+          <h2 className="m-0 text-[26px] font-extrabold leading-tight tracking-normal text-[#253044] md:text-[40px]">
             Pip&apos;s Picks
           </h2>
         </div>
-        <p className="mx-auto mt-1 max-w-lg text-[14px] font-semibold leading-relaxed text-[#66717D] md:text-base">
+        <p className="mx-auto mt-1 max-w-lg text-[13px] font-semibold leading-snug text-[#66717D] md:text-base md:leading-relaxed">
           {isEmberPlusMember
             ? "A shortlist we've already weighed up, with the full reasoning behind each pick."
             : "A shortlist we've already weighed up. Pick 1 is free; the rest is for Ember Plus."}
@@ -378,7 +500,7 @@ export function PipsPicksPersimmonCarousel({
       </div>
 
       <div
-        className="relative min-h-[min(620px,calc(100dvh-170px))] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[650px]"
+        className="relative min-h-[clamp(420px,calc(100dvh-340px),620px)] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[650px]"
         style={enable3d ? { perspective: '1200px' } : undefined}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#E4E9E6] to-transparent md:block" />
@@ -399,7 +521,7 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex h-full max-h-[min(580px,calc(100dvh-210px))] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px]"
+                className="relative flex h-full max-h-[clamp(380px,calc(100dvh-380px),580px)] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px]"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
@@ -417,11 +539,11 @@ export function PipsPicksPersimmonCarousel({
                   <img
                     src={ROBIN_LOGO_URL}
                     alt=""
-                    className="pointer-events-none absolute right-3 top-3 z-20 h-16 w-16 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-[72px] md:w-[72px]"
+                    className="pointer-events-none absolute right-3 top-3 z-20 h-16 w-16 object-contain [filter:grayscale(1)_brightness(2.1)_drop-shadow(0_8px_18px_rgba(0,0,0,0.22))] md:h-[72px] md:w-[72px]"
                   />
 
-                  <div className="relative z-10 flex h-full flex-col p-5 md:p-7">
-                    <div className="mb-4 flex items-center gap-2 self-start md:mb-5">
+                  <div className="relative z-10 flex h-full flex-col p-4 [@media(min-height:881px)]:p-5 md:p-7">
+                    <div className="mb-3 flex items-center gap-2 self-start md:mb-5">
                       <span className="inline-flex rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
                         {rank} / {renderedPicks.length}
                       </span>
@@ -433,7 +555,7 @@ export function PipsPicksPersimmonCarousel({
                       }`}
                     >
                       {fields.tag ? (
-                        <p className="m-0 mb-1.5 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-2 md:pr-16">
+                        <p className="m-0 mb-1.5 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-1 md:pr-16">
                           {fields.tag}
                         </p>
                       ) : null}
@@ -446,21 +568,25 @@ export function PipsPicksPersimmonCarousel({
                           {fields.brand}
                         </p>
                       ) : null}
-                      <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-3 [@media(max-height:720px)]:line-clamp-2 md:mb-4 md:text-[15px] md:line-clamp-4">
+                      {/* Clamps step down with viewport height so the thumb row is always
+                          inside the card — the popup carries the full text. */}
+                      <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-4 [@media(min-height:761px)_and_(max-height:880px)]:line-clamp-3 [@media(max-height:760px)]:line-clamp-2 md:mb-4 md:text-[15px] md:line-clamp-5">
                         {fields.description}
                       </p>
 
-                      <div className="mt-auto rounded-2xl border border-white/10 bg-white/[0.08] p-3 md:p-4">
+                      {/* Verdict follows the description directly — no dead space in the middle
+                          of the card (founder item 3); the thumb row anchors the bottom. */}
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3 md:p-4">
                         <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
                           Why Pip picked this
                         </strong>
-                        <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-5 [@media(max-height:720px)]:line-clamp-3 md:text-[14px] md:line-clamp-6">
+                        <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-6 [@media(min-height:761px)_and_(max-height:880px)]:line-clamp-4 [@media(max-height:760px)]:line-clamp-3 md:text-[14px] md:line-clamp-[7]">
                           {fields.verdict}
                         </p>
                       </div>
 
                       {/* Thumb row: browse, expand, save — every action in reach on mobile. */}
-                      <div className="mt-3 flex items-center gap-2 md:mt-4">
+                      <div className="mt-auto flex items-center gap-2 pt-3 md:pt-4">
                         <a
                           href={url}
                           target="_blank"
@@ -498,7 +624,7 @@ export function PipsPicksPersimmonCarousel({
                       <img
                         src={ROBIN_LOGO_URL}
                         alt=""
-                        className="pointer-events-none absolute right-3 top-3 h-16 w-16 object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.22)] md:h-[72px] md:w-[72px]"
+                        className="pointer-events-none absolute right-3 top-3 h-16 w-16 object-contain [filter:grayscale(1)_brightness(2.1)_drop-shadow(0_8px_18px_rgba(0,0,0,0.22))] md:h-[72px] md:w-[72px]"
                       />
                       {lockedCount > 0 ? (
                         <span className="mb-4 inline-flex items-center rounded-full border border-[#FF5C34]/40 bg-[#FF5C34]/15 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-[#FFE0D8]">
@@ -562,6 +688,15 @@ export function PipsPicksPersimmonCarousel({
       <AnimatePresence>
         {expandedIndex !== null && displayPicks[expandedIndex] ? (() => {
           const pick = displayPicks[expandedIndex];
+          // Reader navigation covers every card in the deck, including the
+          // locked upsell card — swiping there shows the Ember Plus pitch
+          // instead of dead-ending the gesture.
+          const navigate = (direction: -1 | 1) => {
+            const nextIndex = expandedIndex + direction;
+            if (nextIndex < 0 || nextIndex >= displayPicks.length) return;
+            setExpandedIndex(nextIndex);
+            scrollToIndex(nextIndex);
+          };
           return (
             <PipsPickExpanded
               key={`${pick.product.id}-expanded`}
@@ -571,7 +706,12 @@ export function PipsPicksPersimmonCarousel({
                 rank: expandedIndex + 1,
                 total: renderedPicks.length,
               }}
+              locked={lockedFlags[expandedIndex]}
+              lockedCount={lockedCount}
               onClose={() => setExpandedIndex(null)}
+              onNavigate={navigate}
+              hasPrev={expandedIndex > 0}
+              hasNext={expandedIndex < displayPicks.length - 1}
             />
           );
         })() : null}

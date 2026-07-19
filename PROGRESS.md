@@ -1,3 +1,20 @@
+## 2026-07-19: Stage 3 follow-up bug bash — save-to-Products, signed-out carousel repair, expanded-view navigation (11 items)
+
+Founder follow-up after merging #271. All 11 items shipped in one PR (branch `fix/stage3-followups`).
+
+- **Item 1 — Save works and lands in Products tab.** New `stage3_pick` kind on `user_list_items` (`supabase/migrations/20260719140000_stage3_pick_saves.sql`): FK to `pl_stage3_picks`, widened kind/ref constraints, unique index, `upsert_user_list_item` consolidated to one 9-arg function (the live DB had an ambiguous 7/8-arg overload pair), subnav stats + public gift list count/resolve stage3 picks. `DiscoveryPageClient` gets `handleSaveStage3Pick` (+ auth replay case `save_stage3_pick`), modal links to `/my-ideas?tab=products`. `MyIdeasClient` renders saved picks in Products with Google Shopping "Browse offers".
+- **Item 10 — desktop "1 / 1" broken arrows root cause.** RLS hides locked picks from non-members, so after the placeholder change the app couldn't tell 5 picks existed and rendered one card with dead arrows. New owner-privilege counts view `v_gateway_stage3_pick_counts_public` (`20260719141000`) exposes only counts; `public.ts` fills locked placeholders to the true researched count. Signed-out users get the 1-free + locked-upsell carousel back.
+- **Item 6 — "Best for…" tags standardised in data** (`20260719142000`): all 55 visible picks (1–3m + 34–36m) rewritten as `Best for <situation>`; verified 0 non-conforming. Format rule added to `ember-stage3-research` skill; QA gate added to `ember-stage3-card-ingestion` skill.
+- **Item 9 — icon hard rule**: `pickIcon()` rewritten most-specific-first with word boundaries (playmat → mat icon not tree; "cards" no longer matches "car"); rule documented in the ingestion skill.
+- **Items 5 + 11 — expanded view**: close button anchored to the card (not screen corner), swipe + arrow keys + on-card chevrons navigate all visible picks without closing; desktop chevrons sit beside the card.
+- **Item 3 — dead space**: verdict box follows description directly; thumb row anchors the card bottom; clamps loosened one line.
+- **Items 2 + 7 — anchor balance**: compact Pip's Picks header on mobile, card heights `clamp()`ed to viewport, scroll offset now reserves room for the Start over FAB (148px mobile / 88px desktop) so header + card + Start over share the viewport without overlap.
+- **Item 4 — lane swap**: "Things that can help" renders before "Useful ideas" in parent mode.
+- **Item 8 — robin silver**: card-corner robins get a grayscale/brightness filter (premium silver); header robin keeps brand colours.
+- Cache bump `20260719-stage3-followups`. Migrations applied via `supabase db push` and mirrored to `supabase/sql/`. `tsc` + `pnpm build` pass.
+
+**Round 2 (founder screenshots on preview):** (a) card still clipped on ~760–880px-tall phones — height floor lowered to 380px, text clamps now step down in exclusive viewport-height ranges (`>880` / `761–880` / `≤760`), tag clamped to 1 line, tighter mobile padding; (b) popup "not swipeable" for signed-out users was by design (only 1 unlocked pick) but wrong — expanded view now swipes onto the locked upsell card too (Ember Plus pitch inside the popup, `Discover Ember Plus` → `/pricing`), and the swipe surface covers the whole overlay with `touch-action: pan-y`.
+
 ## 2026-07-19: Stage 3 card UX cleanup + Start over + breadth (bug bash items 5–8)
 
 **PR #270** (stacked on the cluster-mapping branch, PR #269 — merge #269 first). All UI/plumbing, no DB changes. Vercel green, preview: `ember-git-fix-stage3-card-ux-tims-projects-cd69a894.vercel.app`.
