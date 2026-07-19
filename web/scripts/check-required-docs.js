@@ -4,6 +4,8 @@ const path = require('path');
 const repoRoot = path.resolve(__dirname, '..', '..');
 
 const requiredDocs = [
+  'AGENTS.md',
+  'web/docs/DEVELOPER_OPERATING_MODEL.md',
   'web/docs/EMBER_BRAND_BOOK.md',
   'web/docs/CONSCIENTIOUS_CONOR.md',
   'web/docs/PRODUCT_MARKETING_LIBRARY.md',

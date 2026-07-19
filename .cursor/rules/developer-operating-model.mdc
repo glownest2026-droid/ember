@@ -1,0 +1,24 @@
+---
+description: Developer Operating Model — read AGENTS.md + DEVELOPER_OPERATING_MODEL.md before dev work
+alwaysApply: true
+---
+
+# Developer Operating Model
+
+Before any product or development work in this repo, follow the Ember Developer Operating Model.
+
+- **Front door (read first):** `AGENTS.md` — the 10 non-negotiables and the map of canonical sources.
+- **Full doctrine + worked examples:** `web/docs/DEVELOPER_OPERATING_MODEL.md`.
+
+Non-negotiable highlights (see those docs for the reasoning and real #264/#265/#266 examples):
+
+1. Branch from `origin/main`; PR base must be `main` (re-target stacked children after the parent merges).
+2. A migration is not done until it has executed against a real DB; fix the generator, not just the generated SQL.
+3. Repair migration history (`supabase migration repair`) — never route around it. No partial hand-patched DB writes.
+4. Data bugs live in data (a migration), never in fuzzy lookup/keyword-scoring/hardcoded maps in app code.
+5. Entitlement comes from auth/RLS, never inferred from returned data shape.
+6. Verify every reported symptom on the deployed preview, on the platform it was reported (mobile bugs on mobile).
+7. Replacing a component preserves its compliance/analytics/a11y/actions/states, or declares each drop.
+8. Stop and ask when tooling is blocked, history is dirty, or a workaround is tempting.
+
+These do not replace `pr-handoff.mdc`, `progress-log.mdc`, `project-rocket.mdc`, or `conscientious-conor.mdc` — they sit alongside them.
