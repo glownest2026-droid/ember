@@ -603,8 +603,9 @@ WHERE ct_slug.id IS NULL
 ON CONFLICT (slug) DO NOTHING;
 
 CREATE TEMP TABLE tmp_discover_resolved_need_category AS
-SELECT DISTINCT ON (s.age_band_id, dn.id, ct.id)
+SELECT DISTINCT ON (s.age_band_id, uw.id, dn.id, ct.id)
   s.age_band_id,
+  uw.id AS ux_wrapper_id,
   dn.id AS development_need_id,
   ct.id AS category_type_id,
   s.stage2_play_ideas_rank AS rank,
@@ -626,6 +627,8 @@ SELECT DISTINCT ON (s.age_band_id, dn.id, ct.id)
   NULLIF(TRIM(COALESCE(s.card_cta_label, '')), '') AS card_cta_label,
   s.render_rule
 FROM tmp_discover_projection_stage s
+JOIN public.pl_ux_wrappers uw
+  ON LOWER(uw.ux_slug) = LOWER(s.stage1_wrapper_ux_slug)
 JOIN LATERAL (
   SELECT d.id
   FROM public.pl_development_needs d
@@ -653,6 +656,7 @@ JOIN LATERAL (
 ) ct ON true
 ORDER BY
   s.age_band_id,
+  uw.id,
   dn.id,
   ct.id,
   s.stage1_wrapper_rank_in_band DESC,
@@ -669,10 +673,12 @@ WHERE m.age_band_id IN (SELECT DISTINCT age_band_id FROM tmp_discover_projection
     WHERE r.age_band_id = m.age_band_id
       AND r.development_need_id = m.development_need_id
       AND r.category_type_id = m.category_type_id
+      AND r.ux_wrapper_id IS NOT DISTINCT FROM m.ux_wrapper_id
   );
 
 INSERT INTO public.pl_age_band_development_need_category_types (
   age_band_id,
+  ux_wrapper_id,
   development_need_id,
   category_type_id,
   rank,
@@ -697,6 +703,7 @@ INSERT INTO public.pl_age_band_development_need_category_types (
 )
 SELECT
   r.age_band_id,
+  r.ux_wrapper_id,
   r.development_need_id,
   r.category_type_id,
   r.rank,
@@ -719,7 +726,7 @@ SELECT
   r.render_rule,
   true
 FROM tmp_discover_resolved_need_category r
-ON CONFLICT (age_band_id, development_need_id, category_type_id) DO UPDATE
+ON CONFLICT (age_band_id, development_need_id, category_type_id, ux_wrapper_id) DO UPDATE
 SET
   rank = EXCLUDED.rank,
   rationale = EXCLUDED.rationale,
