@@ -1,3 +1,18 @@
+## 2026-07-19: Stage 3 card UX cleanup + Start over + breadth (bug bash items 5–8)
+
+**PR #270** (stacked on the cluster-mapping branch, PR #269 — merge #269 first). All UI/plumbing, no DB changes. Vercel green, preview: `ember-git-fix-stage3-card-ux-tims-projects-cd69a894.vercel.app`.
+
+- **Item 5 — card cleanup** (`web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx`): removed "Pick X" tag prefix and price; new thumb row at the card bottom with three controls — **Browse offers** (primary), expand, save (wired to the same save-to-my-ideas action as Stage 2 cards via `onSavePick`). Expand button moved out of the top corner. Card/carousel heights now scale with the viewport (`min(…, calc(100dvh - …))`) with tighter line clamps under 720px-tall screens, so content breathes without ever overflowing the device.
+- **Item 5v — retailer rule**: retailer CTAs never deep-link one retailer. `googleShoppingUrl()` sends every Browse offers / expanded-view CTA to Google Shopping (`brand + name` query). Rule documented in the component.
+- **Item 6 — Start over**: `DiscoveryPageClient.tsx` now observes the Stage 3 picks section too, so the floating Start over button stays visible through Stage 3; picks section got `pb-20` so the FAB never overlaps the last card.
+- **Item 7 — personalisation**: verified `personalizePickCopy` + `childDisplayLabel` already flow into the verdict copy; no code change needed (was not lost).
+- **Item 8 — breadth 5→10**: picks pipeline now supports up to 10 per category — API limit (`api/discover/picks/route.ts`), carousel slice, and `public.ts` placeholder logic (placeholders only fill gaps up to the highest researched rank, so 5-pick categories stay at 5 with no "coming soon" padding). **Judgement for 1–3m: stay at 5 visible picks** — the existing rank 6–15 longlist rows are `backup_not_card_ready` (no tags/short descriptions) and would dilute quality; board books is the natural first 10-pick candidate once research delivers card-ready depth.
+- **Item 8ii — research skill upgraded**: `~/.codex/skills/ember-stage3-research/SKILL.md` (mirrored at `agent-tools/skill-updates/ember-stage3-research/SKILL.md`) now takes `target_pick_count` (default 5, max 10), with a pick-depth test (does pick 10 help a different parent than picks 1–9?), category guidance (books yes; mirrors/safety no), and a hard rule that picks 6–10 must meet the same card-ready bar.
+
+Verified: `tsc --noEmit` and `pnpm build` pass in the worktree. Outstanding from the bug bash: item 2 (Tummy Time Stage 3 picks) — blocked on the Manus research files, which were not attached.
+
+**2026-07-19 follow-up:** #270 was merged into its stacked base branch after #269's merge commit was cut, so its changes never reached `main`. Re-landed on `main` via PR #271 (branch `fix/stage3-card-ux-mainland`).
+
 ## 2026-07-19: Stage 1→2 duplication root-cause fix — cluster context on Stage 2 mapping (bug bash item 1)
 
 Founder reported Stage 1 cards leading to the same Stage 2 cards (e.g. "I'm finding your face" and "I'm listening to your voice"). Validated against the offline source of truth (Spine 3.0 Bible `discover_projection` tab, 1–3m workbook): **confirmed a real bug, not content reality.** The Bible gives each cluster its own curated list (55 rows, only 2 intentional overlaps), but ingestion dropped the cluster column and keyed rows by shared development needs — clusters sharing a need rendered the union of each other's cards ("I'm starting to wriggle" showed 20 cards instead of 7; "I'm finding your face" was missing its high-contrast card), and per-cluster copy variants collapsed to one arbitrary winner.

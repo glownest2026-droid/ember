@@ -41,7 +41,8 @@ export async function GET(req: NextRequest) {
         data: { user },
       } = await supabase.auth.getUser();
       const membership = resolveEmberMembershipAccess(user);
-      const stage3Picks = await getGatewayStage3PicksForAgeBandAndCategoryType(ageBandId, categoryTypeId, 5, {
+      // Up to 10 picks per category (bug bash item 8); most categories publish 5.
+      const stage3Picks = await getGatewayStage3PicksForAgeBandAndCategoryType(ageBandId, categoryTypeId, 10, {
         supabase,
         canSeeLocked: membership.canSeeLockedPicks,
       });
