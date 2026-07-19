@@ -1,6 +1,6 @@
 ---
 name: ember-stage3-research
-description: Run or prepare Ember Stage 3 product research for any Stage 2 card, producing evidence-backed Top 5 picks, longlist, skips, and structured JSON/CSV outputs.
+description: Run or prepare Ember Stage 3 product research for any Stage 2 card, producing evidence-backed Top Picks (default 5, up to 10 for high-breadth categories), longlist, skips, and structured JSON/CSV outputs.
 ---
 
 # Ember Stage 3 Research Skill
@@ -60,7 +60,7 @@ For Manus handoff, the brief must be tool-agnostic and self-contained: include t
 
 Use when the user uploads or pastes an existing Stage 3 output and asks whether it is good enough.
 
-Assess against: source mix, educational fit, ranking quality, top-5 distinctness, review evidence, safety accuracy, URL validity, schema compliance, and MLP value.
+Assess against: source mix, educational fit, ranking quality, top-pick distinctness, review evidence, safety accuracy, URL validity, schema compliance, and MLP value.
 
 ---
 
@@ -128,6 +128,7 @@ If a value is missing but can be inferred safely from the brief, infer it and ma
 | `known_bad_examples` | Optional exclusions | Founder supplied |
 | `preferred_retailers` | Retailer preference set | Founder supplied or category default |
 | `excluded_retailers_or_sources` | Sources to avoid | Founder supplied plus default exclusions |
+| `target_pick_count` | Number of Top Picks to deliver (default 5, max 10) | Founder supplied, or judged from category breadth (see “Pick depth”) |
 
 ---
 
@@ -197,7 +198,7 @@ Do not force shopping picks onto every Stage 2 card.
 
 | Content type | Output behaviour |
 |---|---|
-| `product_category` | Produce Top 5 product picks, 15-item longlist, skips, guidance notes |
+| `product_category` | Produce `target_pick_count` product picks (default 5), 15-item longlist, skips, guidance notes |
 | `activity` | Produce Top 5 activity variants, suggested supplies if useful, and “don’t buy if…” guidance |
 | `setup` | Produce setup approaches and optional product categories, with space/storage/friction caveats |
 | `safety_check` | Produce safety guidance, official source checks, do/avoid steps, and no shopping-first CTAs |
@@ -222,7 +223,7 @@ Rank candidates by this order:
 7. Circularity, borrowability, and pre-loved suitability.
 8. Distinctness from other picks.
 
-Avoid five near-duplicates. A good Top 5 should help different parent situations.
+Avoid near-duplicates. A good Top Picks set should help different parent situations — this is also the test for whether a category deserves more than 5 picks.
 
 ---
 
@@ -231,10 +232,19 @@ Avoid five near-duplicates. A good Top 5 should help different parent situations
 For a product-category Stage 3 run, produce:
 
 - exactly 15 ranked longlist candidates;
-- exactly 5 Top Picks selected from the longlist;
+- `target_pick_count` Top Picks selected from the longlist (default 5, maximum 10);
 - at least 5 skips, unless fewer credible rejects exist;
 - at least 1 guidance note covering buy, borrow, bring back out, pre-loved, or hold off;
-- substitute recommendations from longlist ranks 6-15 for any Top Pick at risk of stock/price volatility.
+- substitute recommendations from remaining longlist ranks for any Top Pick at risk of stock/price volatility.
+
+### Pick depth (`target_pick_count`)
+
+Default is 5. Go deeper (up to 10) only when the category genuinely supports it — the test is whether pick 10 still helps a different parent situation than picks 1-9:
+
+- **10 justified**: huge-catalogue categories where variety is the point — books (board books, song/rhyme books, tummy-time books), story collections, flashcard sets.
+- **Stay at 5**: focused-object categories that dilute fast — baby mirror, play gym, room thermometer, mattress, carrier; and all safety-led categories, where a tight curated list preserves trust.
+
+Every Top Pick beyond rank 5 must meet the same card-ready bar as picks 1-5 (best_for_tag, under-30-words description, ember_verdict, personalization_hint, live URL). Do not pad with backup-grade rows: if only 5 picks are card-ready, deliver 5.
 
 If the category is non-product, preserve the same spirit but adapt the unit of recommendation.
 
@@ -543,7 +553,7 @@ Create a concise Markdown summary with:
 
 1. `# Pip’s Picks: {stage_2_card_label} ({age_band_label})`
 2. `## Educational shift`
-3. `## Top 5 Ember Picks`
+3. `## Top Ember Picks`
 4. `## Ranked longlist summary`
 5. `## Best substitutes if unavailable`
 6. `## What we skipped and why`
@@ -560,9 +570,9 @@ Before ingestion, run or update `$ember-stage3-founder-review` for the target ag
 
 For fast ingestion, make the JSON compatible with `web/scripts/ingest-stage3-pips-picks.mjs`:
 
-- `top_picks` must contain exactly 5 card-ready rows.
+- `top_picks` must contain exactly `target_pick_count` card-ready rows (default 5, max 10).
 - `longlist` must contain ranks 1-15.
-- Longlist ranks 6-15 must be usable as dormant backups.
+- Longlist ranks beyond the Top Picks must be usable as dormant backups.
 - `category_entity_id` must equal the Stage 2 category slug used in `pl_category_types.slug`.
 - `founder_qa_flag` must be explicit on every Top Pick.
 - `ingestion_ready.expected_stage2_mapping` must name the target Stage 2 card.
@@ -584,9 +594,9 @@ Before final delivery, self-check:
 
 - JSON parses.
 - `schema_version` is `ember_picks_research_v2`.
-- Top 5 count is exactly 5 for product categories.
+- Top Picks count equals `target_pick_count` (default 5, max 10) for product categories.
 - Longlist count is exactly 15 for product categories.
-- Top 5 are present in the longlist.
+- Top Picks are present in the longlist.
 - Longlist ranks have no gaps.
 - At least 5 skips are included, or a clear explanation is given.
 - Every product pick, backup and skip has a live `https://` URL.
@@ -624,7 +634,7 @@ Do not say work will be done later. Either run it now, generate a handoff brief,
 When reviewing an existing Stage 3 output, use this structure:
 
 - Verdict: production-ready / founder-review-ready / promising but not ready / reject.
-- Quantity: Top 5, longlist, skips, guidance notes.
+- Quantity: Top Picks (against `target_pick_count`), longlist, skips, guidance notes.
 - Quality: educational fit, source mix, evidence tiers, ranking logic.
 - MLP value: whether it justifies Ember Plus-style value when repeated across Stage 2 cards.
 - Fit to brief: does it solve the exact Stage 1 / Stage 2 objective?

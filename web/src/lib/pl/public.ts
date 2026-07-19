@@ -844,11 +844,13 @@ export async function getGatewayStage3PicksForAgeBandAndCategoryType(
 
   if (stage3Error || !stage3Rows || stage3Rows.length === 0) return [];
 
-  const rowsByRank = new Map(
-    (stage3Rows as GatewayStage3PickRow[]).map((row) => [row.pick_rank, row])
-  );
+  const rows = stage3Rows as GatewayStage3PickRow[];
+  const rowsByRank = new Map(rows.map((row) => [row.pick_rank, row]));
+  // Placeholders only fill gaps up to the highest researched rank — categories
+  // with 5 picks stay at 5 even when the requested limit is higher.
+  const maxRank = Math.min(limit, Math.max(...rows.map((row) => row.pick_rank)));
   const picks: GatewayPick[] = [];
-  for (let rank = 1; rank <= limit; rank += 1) {
+  for (let rank = 1; rank <= maxRank; rank += 1) {
     const row = rowsByRank.get(rank);
     const product = row
       ? stage3RowToProduct(row, Boolean(options.canSeeLocked))
