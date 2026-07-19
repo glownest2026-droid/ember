@@ -1,3 +1,11 @@
+## 2026-07-19: Stage 3 card text now self-measures — no more viewport-height guessing (round 6)
+
+Founder found DevTools device emulation did not match his real phone: viewport-height media queries (`@media (max-height: …)`) measure the browser window, which differs across real browser chrome / PWA standalone / DevTools for the same physical screen, so clamps tuned in emulation still clipped the "Why Pip picked this" box behind the thumb row on-device.
+
+- **Fix (branch `fix/stage3-adaptive-card-fit`)**: extracted the compact-card body into `PickCardBody` (`web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx`), which measures its own rendered height after layout (`ResizeObserver` + font-ready refit) and steps description/verdict line counts down (desc 5→2, verdict 6→1) until tag + title + brand + description + verdict + thumb row all fit inside the *actual* card. If space is extremely tight the verdict box collapses entirely instead of clipping mid-sentence. All `[@media(min-height/max-height:…)]` clamp variants removed. The expand popup still carries the full text, so the compact card is always just a teaser.
+- Behaviour is now device-truthful by construction: whatever height the card really gets — any phone, any browser chrome state, any DevTools profile — the text budget is computed from that height, not from a guessed viewport.
+- Verified: `tsc --noEmit` and `npm run build` pass.
+
 ## 2026-07-19: Stage 3 follow-up bug bash — save-to-Products, signed-out carousel repair, expanded-view navigation (11 items)
 
 Founder follow-up after merging #271. All 11 items shipped in one PR (branch `fix/stage3-followups`).

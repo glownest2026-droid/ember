@@ -149,6 +149,170 @@ type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
 };
 
 /**
+ * Compact-card body with self-measuring text (founder, round 5).
+ *
+ * Viewport-height media queries proved unreliable for sizing card text:
+ * browser chrome, PWA standalone mode and DevTools emulation all report
+ * different viewport heights for the same physical screen, so clamps tuned in
+ * DevTools clipped on real phones. Instead the card measures its own rendered
+ * height after layout and steps the description/verdict line counts down until
+ * everything — thumb row included — fits inside the real card. If space is
+ * extremely tight the verdict box collapses entirely rather than clipping
+ * mid-sentence. The expand popup always carries the full text, so the compact
+ * card only ever needs a teaser.
+ */
+const MAX_DESC_LINES = 5;
+const MAX_VERDICT_LINES = 6;
+const MIN_DESC_LINES = 2;
+
+function PickCardBody({
+  locked,
+  fields,
+  url,
+  onExpand,
+  onSave,
+}: {
+  locked: boolean;
+  fields: ReturnType<typeof getDisplayFields>;
+  url: string;
+  onExpand: () => void;
+  onSave?: (trigger: HTMLButtonElement) => void;
+}) {
+  const Icon = fields.Icon;
+  const textColRef = useRef<HTMLDivElement | null>(null);
+  const descRef = useRef<HTMLParagraphElement | null>(null);
+  const verdictBoxRef = useRef<HTMLDivElement | null>(null);
+  const verdictRef = useRef<HTMLParagraphElement | null>(null);
+
+  useEffect(() => {
+    const col = textColRef.current;
+    const desc = descRef.current;
+    if (!col || !desc) return;
+
+    const fit = () => {
+      const verdictBox = verdictBoxRef.current;
+      const verdictEl = verdictRef.current;
+      let descLines = MAX_DESC_LINES;
+      let verdictLines = verdictEl ? MAX_VERDICT_LINES : 0;
+
+      const apply = () => {
+        desc.style.setProperty('-webkit-line-clamp', String(descLines));
+        if (verdictBox && verdictEl) {
+          verdictBox.style.display = verdictLines === 0 ? 'none' : '';
+          if (verdictLines > 0) {
+            verdictEl.style.setProperty('-webkit-line-clamp', String(verdictLines));
+          }
+        }
+      };
+      // Overflow can show up in two places: the text column itself, or inside
+      // the verdict box (its min-h-0 lets flexbox shrink it instead of
+      // overflowing the column). Check both.
+      const overflowing = () =>
+        col.scrollHeight - col.clientHeight > 1 ||
+        (verdictLines > 0 && verdictBox
+          ? verdictBox.scrollHeight - verdictBox.clientHeight > 1
+          : false);
+
+      apply();
+      for (let i = 0; i < 16 && overflowing(); i += 1) {
+        if (verdictLines >= descLines && verdictLines > 1) verdictLines -= 1;
+        else if (descLines > MIN_DESC_LINES) descLines -= 1;
+        else if (verdictLines > 0) verdictLines -= 1;
+        else break;
+        apply();
+      }
+    };
+
+    fit();
+    const observer = new ResizeObserver(() => fit());
+    observer.observe(col);
+    // Web fonts change line heights after first paint; refit once they settle.
+    document.fonts?.ready.then(() => fit()).catch(() => {});
+    return () => observer.disconnect();
+  }, [fields.description, fields.verdict]);
+
+  return (
+    <div
+      className={`flex min-h-0 flex-1 flex-col transition duration-300 ${
+        locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
+      }`}
+    >
+      {/* justify-between spreads any spare height between the sections so it
+          never pools as one dark void above the thumb row (founder, round 3). */}
+      <div ref={textColRef} className="flex min-h-0 flex-1 flex-col justify-between overflow-hidden">
+        {fields.tag ? (
+          <p className="m-0 mb-1.5 shrink-0 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-1 md:pr-16">
+            {fields.tag}
+          </p>
+        ) : null}
+        <h3 className="m-0 mb-2 flex shrink-0 items-start gap-2.5 pr-10 text-[20px] font-extrabold leading-tight tracking-normal text-white md:pr-12 md:text-[22px]">
+          <Icon className="h-6 w-6 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
+          <span className="line-clamp-2">{fields.title}</span>
+        </h3>
+        {fields.brand ? (
+          <p className="m-0 mb-3 shrink-0 text-[12px] font-bold uppercase tracking-wider text-white/80 line-clamp-1 md:mb-4 md:text-[13px]">
+            {fields.brand}
+          </p>
+        ) : null}
+        {/* Base clamps are the no-JS fallback; the fit effect above overrides
+            the counts with whatever actually fits this card's real height. */}
+        <p
+          ref={descRef}
+          className="m-0 mb-3 shrink-0 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-4 md:mb-4 md:text-[15px]"
+        >
+          {fields.description}
+        </p>
+
+        {/* Verdict follows the description directly — no dead space in the middle
+            of the card (founder item 3); the thumb row anchors the bottom. */}
+        <div ref={verdictBoxRef} className="min-h-0 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.08] p-3 md:p-4">
+          <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
+            Why Pip picked this
+          </strong>
+          <p
+            ref={verdictRef}
+            className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-5 md:text-[14px]"
+          >
+            {fields.verdict}
+          </p>
+        </div>
+      </div>
+
+      {/* Thumb row: browse, expand, save — every action in reach on mobile. */}
+      <div className="mt-auto flex shrink-0 items-center gap-2 pt-3 md:pt-4">
+        <a
+          href={url}
+          target="_blank"
+          rel={retailerLinkRel(url)}
+          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[14px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97] md:min-h-12 md:text-[15px]"
+        >
+          Browse offers
+        </a>
+        <button
+          type="button"
+          onClick={onExpand}
+          className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 md:h-12 md:w-12"
+          aria-label={`Read full details for ${fields.title}`}
+        >
+          <Maximize2 size={18} strokeWidth={2.5} aria-hidden />
+        </button>
+        {onSave ? (
+          <button
+            type="button"
+            onClick={(e) => onSave(e.currentTarget)}
+            className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 md:h-12 md:w-12"
+            title="Save"
+            aria-label={`Save ${fields.title} to your list`}
+          >
+            <Save size={18} strokeWidth={2.5} aria-hidden />
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/**
  * Full-screen reader for one pick, mirroring the Stage 2 expanded-card pattern.
  * Swipeable/navigable (founder rule, item 5/11): the reader moves between every
  * pick the member can see, so nobody has to close it just to keep browsing.
@@ -522,7 +686,6 @@ export function PipsPicksPersimmonCarousel({
             const locked = lockedFlags[index];
             const url = googleShoppingUrl(pick.product);
             const fields = getDisplayFields(pick, childDisplayLabel);
-            const Icon = fields.Icon;
 
             return (
               <div
@@ -549,87 +712,20 @@ export function PipsPicksPersimmonCarousel({
                     className="pointer-events-none absolute right-3 top-3 z-20 h-16 w-16 object-contain [filter:grayscale(1)_brightness(2.1)_drop-shadow(0_8px_18px_rgba(0,0,0,0.22))] md:h-[72px] md:w-[72px]"
                   />
 
-                  <div className="relative z-10 flex h-full min-h-0 flex-col p-4 [@media(min-height:881px)]:p-5 md:p-7">
+                  <div className="relative z-10 flex h-full min-h-0 flex-col p-4 md:p-7">
                     <div className="mb-3 flex items-center gap-2 self-start md:mb-5">
                       <span className="inline-flex rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
                         {rank} / {renderedPicks.length}
                       </span>
                     </div>
 
-                    <div
-                      className={`flex min-h-0 flex-1 flex-col transition duration-300 ${
-                        locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
-                      }`}
-                    >
-                      {/* justify-between spreads any spare height between the
-                          sections so it never pools as one dark void above the
-                          thumb row (founder, round 3). */}
-                      <div className="flex min-h-0 flex-1 flex-col justify-between overflow-hidden">
-                        {fields.tag ? (
-                          <p className="m-0 mb-1.5 shrink-0 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-1 md:pr-16">
-                            {fields.tag}
-                          </p>
-                        ) : null}
-                        <h3 className="m-0 mb-2 flex shrink-0 items-start gap-2.5 pr-10 text-[20px] font-extrabold leading-tight tracking-normal text-white md:pr-12 md:text-[22px]">
-                          <Icon className="h-6 w-6 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
-                          <span className="line-clamp-2">{fields.title}</span>
-                        </h3>
-                        {fields.brand ? (
-                          <p className="m-0 mb-3 shrink-0 text-[12px] font-bold uppercase tracking-wider text-white/80 line-clamp-1 md:mb-4 md:text-[13px]">
-                            {fields.brand}
-                          </p>
-                        ) : null}
-                        {/* Clamps step down with viewport height so the thumb row is always
-                            inside the card — the popup carries the full text. shrink-0 stops
-                            flexbox squashing a text block mid-line (founder, round 4). */}
-                        <p className="m-0 mb-3 shrink-0 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-4 [@media(min-height:821px)]:line-clamp-5 [@media(max-height:760px)]:line-clamp-3 md:mb-4 md:text-[15px]">
-                          {fields.description}
-                        </p>
-
-                        {/* Verdict follows the description directly — no dead space in the middle
-                            of the card (founder item 3); the thumb row anchors the bottom. This is
-                            the only block allowed to shrink, clipping at its rounded edge. */}
-                        <div className="min-h-0 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.08] p-3 md:p-4">
-                          <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
-                            Why Pip picked this
-                          </strong>
-                          <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-5 [@media(min-height:821px)]:line-clamp-6 [@media(max-height:760px)]:line-clamp-3 md:text-[14px]">
-                            {fields.verdict}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Thumb row: browse, expand, save — every action in reach on mobile. */}
-                      <div className="mt-auto flex shrink-0 items-center gap-2 pt-3 md:pt-4">
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel={retailerLinkRel(url)}
-                          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[14px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97] md:min-h-12 md:text-[15px]"
-                        >
-                          Browse offers
-                        </a>
-                        <button
-                          type="button"
-                          onClick={() => setExpandedIndex(index)}
-                          className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 md:h-12 md:w-12"
-                          aria-label={`Read full details for ${fields.title}`}
-                        >
-                          <Maximize2 size={18} strokeWidth={2.5} aria-hidden />
-                        </button>
-                        {onSavePick ? (
-                          <button
-                            type="button"
-                            onClick={(e) => onSavePick(pick, e.currentTarget)}
-                            className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 md:h-12 md:w-12"
-                            title="Save"
-                            aria-label={`Save ${fields.title} to your list`}
-                          >
-                            <Save size={18} strokeWidth={2.5} aria-hidden />
-                          </button>
-                        ) : null}
-                      </div>
-                    </div>
+                    <PickCardBody
+                      locked={locked}
+                      fields={fields}
+                      url={url}
+                      onExpand={() => setExpandedIndex(index)}
+                      onSave={onSavePick ? (trigger) => onSavePick(pick, trigger) : undefined}
+                    />
                   </div>
 
                   {locked ? (
