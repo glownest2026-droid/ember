@@ -1,6 +1,6 @@
 ## 2026-07-19: Stage 3 card UX cleanup + Start over + breadth (bug bash items 5–8)
 
-Stacked on the cluster-mapping branch (PR #269). All UI/plumbing, no DB changes.
+**PR #270** (stacked on the cluster-mapping branch, PR #269 — merge #269 first). All UI/plumbing, no DB changes. Vercel green, preview: `ember-git-fix-stage3-card-ux-tims-projects-cd69a894.vercel.app`.
 
 - **Item 5 — card cleanup** (`web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx`): removed "Pick X" tag prefix and price; new thumb row at the card bottom with three controls — **Browse offers** (primary), expand, save (wired to the same save-to-my-ideas action as Stage 2 cards via `onSavePick`). Expand button moved out of the top corner. Card/carousel heights now scale with the viewport (`min(…, calc(100dvh - …))`) with tighter line clamps under 720px-tall screens, so content breathes without ever overflowing the device.
 - **Item 5v — retailer rule**: retailer CTAs never deep-link one retailer. `googleShoppingUrl()` sends every Browse offers / expanded-view CTA to Google Shopping (`brand + name` query). Rule documented in the component.
