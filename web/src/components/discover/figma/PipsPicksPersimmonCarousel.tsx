@@ -488,7 +488,7 @@ export function PipsPicksPersimmonCarousel({
     // Full-bleed viewport column (founder, round 4): the section runs to the very
     // bottom of the screen so the disclosure smallprint and the next section stay
     // below the fold. The Start over FAB hovers inside the card's bottom reserve.
-    <section className="relative flex min-h-[calc(100dvh-var(--header-height,88px)-4px)] flex-col overflow-hidden text-[#253044] md:min-h-0">
+    <section className="relative flex min-h-[calc(100dvh-var(--header-height,88px)-4px)] flex-col overflow-hidden text-[#253044]">
       {/* Compact header on mobile so header + card + Start over share one viewport (item 7). */}
       <div className="relative z-20 -mt-1 shrink-0 px-2 pb-2 text-center md:mt-0 md:px-0 md:pb-5">
         <div className="inline-flex items-center justify-center gap-3 md:gap-4">
@@ -499,21 +499,20 @@ export function PipsPicksPersimmonCarousel({
           </h2>
         </div>
         <p className="mx-auto mt-1 max-w-lg text-[13px] font-semibold leading-snug text-[#66717D] md:text-base md:leading-relaxed">
-          {isEmberPlusMember
-            ? "A shortlist we've already weighed up, with the full reasoning behind each pick."
-            : "A shortlist we've already weighed up. Pick 1 is free; the rest is for Ember Plus."}
+          Pip has foraged the industry for {childDisplayLabel?.trim() || 'your child'}, matching current
+          development needs to the best-suited, top-rated products available today.
         </p>
       </div>
 
       <div
-        className="relative min-h-[360px] flex-1 overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[max(650px,calc(100dvh-var(--header-height,88px)-60px))]"
+        className="relative min-h-[360px] flex-1 overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)]"
         style={enable3d ? { perspective: '1200px' } : undefined}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#E4E9E6] to-transparent md:block" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-20 hidden w-28 bg-gradient-to-l from-[#E4E9E6] to-transparent md:block" />
         <div
           ref={trackRef}
-          className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] pt-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)] md:py-4 ${
+          className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] pt-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)] md:pb-[88px] ${
             bottomNavVisible ? 'pb-[136px]' : 'pb-20'
           }`}
           style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
@@ -529,7 +528,7 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex h-full w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[max(610px,calc(100dvh-var(--header-height,88px)-100px))] md:w-[370px] md:flex-[0_0_370px]"
+                className="relative flex h-full w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px]"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
@@ -583,7 +582,7 @@ export function PipsPicksPersimmonCarousel({
                         {/* Clamps step down with viewport height so the thumb row is always
                             inside the card — the popup carries the full text. shrink-0 stops
                             flexbox squashing a text block mid-line (founder, round 4). */}
-                        <p className="m-0 mb-3 shrink-0 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-4 [@media(min-height:821px)]:line-clamp-5 [@media(max-height:760px)]:line-clamp-3 md:mb-4 md:text-[15px] md:line-clamp-5">
+                        <p className="m-0 mb-3 shrink-0 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-4 [@media(min-height:821px)]:line-clamp-5 [@media(max-height:760px)]:line-clamp-3 md:mb-4 md:text-[15px]">
                           {fields.description}
                         </p>
 
@@ -594,7 +593,7 @@ export function PipsPicksPersimmonCarousel({
                           <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
                             Why Pip picked this
                           </strong>
-                          <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-5 [@media(min-height:821px)]:line-clamp-6 [@media(max-height:760px)]:line-clamp-3 md:text-[14px] md:line-clamp-[7]">
+                          <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-5 [@media(min-height:821px)]:line-clamp-6 [@media(max-height:760px)]:line-clamp-3 md:text-[14px]">
                             {fields.verdict}
                           </p>
                         </div>

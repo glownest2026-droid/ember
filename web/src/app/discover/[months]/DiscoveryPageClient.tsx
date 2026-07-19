@@ -1659,7 +1659,7 @@ export default function DiscoveryPageClient({
       {showStartOverFab ? (
         // Signed-in mobile: sit above the fixed bottom tab bar. Signed-out: no
         // tab bar, so drop into the reserve at the bottom of the picks card.
-        <div className={`fixed ${user ? 'bottom-20' : 'bottom-6'} lg:bottom-6 left-0 right-0 z-30 pointer-events-none`}>
+        <div className={`fixed ${user ? 'bottom-20' : 'bottom-6'} md:bottom-6 left-0 right-0 z-30 pointer-events-none`}>
           <div className={`${EMBER_FIGMA_APP_CONTAINER} flex justify-center`}>
             <button
               type="button"
