@@ -167,7 +167,15 @@ type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
  *
  * "Why Pip picked this" is a closed-by-default drawer — earned by a tap —
  * not a permanently expanded verdict wall. Description dims while open.
+ *
+ * Layout rule (2026-07-19 feedback): never flex-shrink title/brand (mobile
+ * overlap). Description line-count is measured against the real card height so
+ * desktop fills spare space instead of truncating into an empty gap, and mobile
+ * (especially signed-in + bottom nav) clamps only as much as needed.
  */
+const MAX_DESC_LINES = 6;
+const MIN_DESC_LINES = 1;
+
 function PickCardBody({
   locked,
   fields,
@@ -187,18 +195,52 @@ function PickCardBody({
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const shouldReduceMotion = useReducedMotion() ?? false;
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const descRef = useRef<HTMLParagraphElement | null>(null);
 
   useEffect(() => {
     setDrawerOpen(false);
   }, [fields.title, fields.verdict]);
 
+  useEffect(() => {
+    const root = rootRef.current;
+    const desc = descRef.current;
+    if (!root || !desc) return;
+
+    const fit = () => {
+      let lines = MAX_DESC_LINES;
+      const apply = () => {
+        desc.style.display = lines === 0 ? 'none' : '-webkit-box';
+        if (lines > 0) {
+          desc.style.setProperty('-webkit-line-clamp', String(lines));
+        }
+      };
+      const overflowing = () => root.scrollHeight - root.clientHeight > 1;
+
+      apply();
+      for (let i = 0; i < 12 && overflowing(); i += 1) {
+        if (lines > MIN_DESC_LINES) lines -= 1;
+        else if (lines > 0) lines = 0;
+        else break;
+        apply();
+      }
+    };
+
+    fit();
+    const observer = new ResizeObserver(() => fit());
+    observer.observe(root);
+    document.fonts?.ready.then(() => fit()).catch(() => {});
+    return () => observer.disconnect();
+  }, [fields.description, fields.title, fields.brand, fields.tag, drawerOpen]);
+
   return (
     <div
-      className={`relative z-10 flex h-full min-h-0 flex-1 flex-col p-[18px] transition duration-300 ${
+      ref={rootRef}
+      className={`relative z-10 flex h-full min-h-0 flex-1 flex-col overflow-hidden px-4 py-3.5 transition duration-300 md:p-[18px] ${
         locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
       }`}
     >
-      <div className="mb-1 shrink-0 pr-[52px]">
+      <div className="mb-0.5 shrink-0 pr-[52px] md:mb-1">
         <div className={styles.rankGhost}>{rank}</div>
         <div className="text-[11px] font-bold uppercase tracking-[0.06em] text-white/50">
           of {total}
@@ -207,32 +249,34 @@ function PickCardBody({
 
       {fields.tag ? (
         <span
-          className={`${styles.tagPill} mb-2.5 mt-3 inline-flex max-w-[calc(100%-52px)] self-start overflow-hidden text-ellipsis whitespace-nowrap rounded-full px-3 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.1em]`}
+          className={`${styles.tagPill} mb-2 mt-2 shrink-0 self-start rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.08em] md:mt-3 md:mb-2.5 md:text-[10.5px] md:tracking-[0.1em]`}
         >
           {fields.tag}
         </span>
       ) : null}
 
-      <h3 className="m-0 mb-1 max-w-[78%] text-[22px] font-extrabold leading-[1.18] tracking-normal text-white line-clamp-2">
+      <h3 className="m-0 mb-1 shrink-0 text-[19px] font-extrabold leading-[1.2] tracking-normal text-white line-clamp-2 md:text-[22px] md:leading-[1.18]">
         {fields.title}
       </h3>
       {fields.brand ? (
-        <p className="m-0 mb-2.5 text-[12px] font-bold uppercase tracking-[0.06em] text-white/60 line-clamp-1">
+        <p className="m-0 mb-2 shrink-0 text-[11px] font-bold uppercase leading-normal tracking-[0.06em] text-white/60 line-clamp-1 md:mb-2.5 md:text-[12px]">
           {fields.brand}
         </p>
       ) : null}
       <p
-        className={`m-0 mb-3 max-w-[72%] text-[13.5px] font-medium leading-[1.55] text-white/90 line-clamp-3 ${styles.descBase} ${
+        ref={descRef}
+        className={`m-0 mb-2.5 min-h-0 shrink text-[13px] font-medium leading-[1.5] text-white/90 line-clamp-3 md:mb-3 md:text-[13.5px] md:leading-[1.55] md:line-clamp-6 ${styles.descBase} ${
           drawerOpen ? styles.descDim : ''
         }`}
+        style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical' as const }}
       >
         {fields.description}
       </p>
 
-      <div className={`mt-auto ${styles.drawer} ${drawerOpen ? styles.drawerOpen : ''}`}>
+      <div className={`mt-auto shrink-0 ${styles.drawer} ${drawerOpen ? styles.drawerOpen : ''}`}>
         <button
           type="button"
-          className={`${styles.drawerHead} flex min-h-[46px] w-full items-center justify-between gap-2.5 border-0 bg-transparent px-3.5 py-3 text-left text-[12px] font-extrabold uppercase tracking-[0.06em]`}
+          className={`${styles.drawerHead} flex min-h-11 w-full items-center justify-between gap-2.5 border-0 bg-transparent px-3.5 py-2.5 text-left text-[11px] font-extrabold uppercase tracking-[0.06em] md:min-h-[46px] md:py-3 md:text-[12px]`}
           aria-expanded={drawerOpen}
           onClick={() => setDrawerOpen((open) => !open)}
         >
@@ -257,12 +301,12 @@ function PickCardBody({
         </div>
       </div>
 
-      <div className="mt-3.5 flex shrink-0 items-center gap-2">
+      <div className="mt-2.5 flex shrink-0 items-center gap-2 md:mt-3.5">
         <a
           href={url}
           target="_blank"
           rel={retailerLinkRel(url)}
-          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[14px] font-extrabold text-white shadow-[0_14px_36px_rgba(255,92,52,0.4),inset_0_1px_0_rgba(255,255,255,0.35)] transition-transform active:scale-[0.97]"
+          className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-full bg-[#FF5C34] px-3 py-3 text-[13px] font-extrabold text-white shadow-[0_14px_36px_rgba(255,92,52,0.4),inset_0_1px_0_rgba(255,255,255,0.35)] transition-transform active:scale-[0.97] md:px-4 md:text-[14px]"
         >
           Browse offers
         </a>
@@ -634,22 +678,22 @@ export function PipsPicksPersimmonCarousel({
     // below the fold. The Start over FAB hovers inside the card's bottom reserve.
     <section className="relative flex min-h-[calc(100dvh-var(--header-height,88px)-4px)] flex-col overflow-hidden text-[#253044]">
       {/* Compact header on mobile so header + card + Start over share one viewport (item 7). */}
-      <div className="relative z-20 -mt-1 shrink-0 px-2 pb-2 text-center md:mt-0 md:px-0 md:pb-5">
-        <div className="inline-flex items-center justify-center gap-3 md:gap-4">
+      <div className="relative z-20 -mt-1 shrink-0 px-2 pb-1.5 text-center md:mt-0 md:px-0 md:pb-5">
+        <div className="inline-flex items-center justify-center gap-2.5 md:gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- brand mark is a stable public asset */}
-          <img src={ROBIN_LOGO_URL} alt="" className="h-12 w-12 object-contain md:h-20 md:w-20" />
-          <h2 className="m-0 text-[26px] font-extrabold leading-tight tracking-normal text-[#253044] md:text-[40px]">
+          <img src={ROBIN_LOGO_URL} alt="" className="h-9 w-9 object-contain md:h-20 md:w-20" />
+          <h2 className="m-0 text-[22px] font-extrabold leading-tight tracking-normal text-[#253044] md:text-[40px]">
             Pip&apos;s Picks
           </h2>
         </div>
-        <p className="mx-auto mt-1 max-w-lg text-[13px] font-semibold leading-snug text-[#66717D] md:text-base md:leading-relaxed">
+        <p className="mx-auto mt-0.5 max-w-lg text-[12px] font-semibold leading-snug text-[#66717D] line-clamp-2 md:mt-1 md:text-base md:leading-relaxed md:line-clamp-none">
           Pip has foraged the industry for {childDisplayLabel?.trim() || 'your child'}, matching current
           development needs to the best-suited, top-rated products available today.
         </p>
       </div>
 
       <div
-        className={`relative min-h-[max(452px,calc(100dvh-var(--header-height,88px)-140px))] flex-1 overflow-hidden rounded-[28px] md:min-h-[560px] ${styles.trackShell}`}
+        className={`relative min-h-0 flex-1 overflow-hidden rounded-[28px] ${styles.trackShell}`}
         style={enable3d ? { perspective: '1200px' } : undefined}
       >
         {/* Ambient orbs — recolour with the active pick's accent */}
@@ -670,8 +714,8 @@ export function PipsPicksPersimmonCarousel({
         />
         <div
           ref={trackRef}
-          className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] pt-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)] md:pb-[88px] ${
-            bottomNavVisible ? 'pb-[136px]' : 'pb-20'
+          className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-stretch overflow-x-auto px-[calc(50vw_-_150px)] [scrollbar-width:none] md:items-center md:px-[calc(50%_-_185px)] md:pb-[88px] md:pt-4 ${
+            bottomNavVisible ? 'pb-[148px] pt-3' : 'pb-[88px] pt-3'
           }`}
           style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
         >
@@ -686,12 +730,12 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex h-full w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px]"
+                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-stretch justify-center self-stretch py-0 md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px] md:self-center md:py-2"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
                   data-pips-card
-                  className={`absolute flex h-full w-full max-h-[500px] flex-col overflow-hidden rounded-[28px] text-white transition-transform duration-150 md:max-h-none md:rounded-[32px] ${styles.glassCard}`}
+                  className={`relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[28px] text-white transition-transform duration-150 md:rounded-[32px] ${styles.glassCard}`}
                   style={
                     {
                       '--accent': accent.accent,
@@ -773,7 +817,11 @@ export function PipsPicksPersimmonCarousel({
             <ChevronRight className="h-6 w-6" aria-hidden />
           </button>
         </div>
-        <div className={`absolute left-0 right-0 z-30 flex justify-center gap-2 md:bottom-2.5 ${bottomNavVisible ? 'bottom-[126px]' : 'bottom-2.5'}`}>
+        <div
+          className={`absolute left-0 right-0 z-30 flex justify-center gap-2 ${
+            bottomNavVisible ? 'bottom-[118px]' : 'bottom-4'
+          } md:bottom-2.5`}
+        >
           {displayPicks.map((pick, index) => (
             <button
               key={pick.product.id}

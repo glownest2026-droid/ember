@@ -1,3 +1,15 @@
+## 2026-07-19 — Stage 3 Glass Stage layout fix (desktop truncation + mobile crush)
+
+Founder preview feedback on PR #275:
+
+- **Desktop:** description was hard-clamped to 3 lines while `mt-auto` left a large empty gap — looked like unnecessary truncation
+- **Mobile (worse signed-in):** flex-shrink crushed brand into description; tag mid-word cut-off; Start over overlapped track
+
+**Fix:** adaptive description line-fit (`ResizeObserver`, up to 6 lines / down to hide); rank/tag/title/brand/drawer/thumbs are `shrink-0`; tags wrap to 2 lines; compact mobile header; cards stretch inside padded track (no absolute + fixed 500px cap); signed-in bottom reserve raised so dots/Start over clear the card.
+
+- **Files:** `PipsPicksPersimmonCarousel.tsx`, `PipsPicksGlassStage.module.css`
+- **PR:** https://github.com/glownest2026-droid/ember/pull/275
+
 ## 2026-07-19 — Stage 3 Glass Stage card UI shipped to Discover
 
 Founder-selected **Glass Stage** visual language now live on Pip’s Picks / Stage 3 cards (UI only — no catalogue data change).
