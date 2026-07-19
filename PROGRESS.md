@@ -1,3 +1,15 @@
+## 2026-07-19: Developer Operating Model — central knowledge base (docs-only)
+
+Created a cross-agent knowledge base so the #264/#265 learnings become standing rules for every agent (Cursor, Codex, etc.), not just Cursor rules.
+
+- **`AGENTS.md`** (repo root) — front door: 10 non-negotiables + map of canonical sources. First cross-agent entrypoint in the repo.
+- **`web/docs/DEVELOPER_OPERATING_MODEL.md`** — full doctrine with real #264/#265/#266 examples; references existing rules rather than duplicating them.
+- **`.cursor/rules/developer-operating-model.mdc`** — thin always-on pointer to both.
+- **Enforcement:** both new docs added to `web/docs/DOCS_MANIFEST.md` and `web/scripts/check-required-docs.js` (now 6 required docs; `node web/scripts/check-required-docs.js` passes).
+- **Codex handoff:** `agent-tools/feedback/CODEX_ONBOARDING_OPERATING_MODEL.md` — shareable brief to point Codex at the knowledge base; post-mortem source is `agent-tools/feedback/CODEX_STAGE3_FEEDBACK_2026-07.md`.
+
+Deliberately references (does not restate) `pr-handoff.mdc`, `progress-log.mdc`, `DEPLOY-CHECKLIST.md` to avoid doctrine drift.
+
 ## 2026-07-18: Pip's Picks expand pop-up + guaranteed card fit — PR #266 follow-up 2
 
 Founder still saw cut-off CTAs and wanted the Stage 2 pattern: compact cards that always fit, with a pop-up for the full text.
