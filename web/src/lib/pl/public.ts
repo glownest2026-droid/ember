@@ -846,9 +846,19 @@ export async function getGatewayStage3PicksForAgeBandAndCategoryType(
 
   const rows = stage3Rows as GatewayStage3PickRow[];
   const rowsByRank = new Map(rows.map((row) => [row.pick_rank, row]));
-  // Placeholders only fill gaps up to the highest researched rank — categories
-  // with 5 picks stay at 5 even when the requested limit is higher.
-  const maxRank = Math.min(limit, Math.max(...rows.map((row) => row.pick_rank)));
+  // RLS hides locked picks from non-members, so the rows above may only contain
+  // rank 1. The counts view (owner privileges, counts only — no details) tells us
+  // how many picks truly exist, so locked upsell placeholders render for exactly
+  // the researched count: 5-pick categories show 5, never padded to the limit.
+  const { data: countRow } = await supabase
+    .from('v_gateway_stage3_pick_counts_public')
+    .select('pick_count')
+    .eq('age_band_id', ageBandId)
+    .eq('category_type_id', categoryTypeId)
+    .maybeSingle();
+  const totalPicks = (countRow as { pick_count: number } | null)?.pick_count
+    ?? Math.max(...rows.map((row) => row.pick_rank));
+  const maxRank = Math.min(limit, totalPicks);
   const picks: GatewayPick[] = [];
   for (let rank = 1; rank <= maxRank; rank += 1) {
     const row = rowsByRank.get(rank);

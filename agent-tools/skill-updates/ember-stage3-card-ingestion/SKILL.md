@@ -28,6 +28,8 @@ This is the third step in the workflow:
 - When logged out, the founder must be able to test the locked state: pick 1 clear, picks 2-5 blurred.
 - Stage 3 cards should be branded as Pip's Picks and use the current Ember/Pip visual system, including the robin logo where the app has an established asset or component for it. Do not invent new brand assets without founder approval.
 - Default Stage 3 UI pattern: `Persimmon Pop` Pip's Picks carousel. Use a persimmon `#FF5C34` row, deep ink `#161D2B` cards, robin logo beside the `Pip's Picks` title, reflective Lucide icons in each card title, and a standard lock overlay for ranks 2-5.
+- **Icon hard rule (founder, 2026-07-19):** every card title must render a Lucide icon that matches what the product IS (a playmat gets a mat-like icon, never a tree). The mapping lives in `pickIcon()` in `web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx` — when ingesting a category whose product nouns are not covered there, extend the mapping in the same PR. Verify every ingested pick's icon on the preview before handoff.
+- **Tag hard rule (founder, 2026-07-19):** every `best_for_tag` must read `Best for <parent/child situation>` (see `$ember-stage3-research`). Reject or rewrite research rows that fail this before ingestion.
 - Locked-card CTA copy is `Discover Ember Plus` and must link to `/pricing`.
 - When the child name is known, personalize the card reasoning softly at render/ingestion time. Include the child name and likely-fit language, e.g. change `suits children who build stories` to `suitable for Lily, who is likely to be building stories from everyday routines`.
 

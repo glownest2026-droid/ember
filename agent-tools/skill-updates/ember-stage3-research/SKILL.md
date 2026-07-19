@@ -254,25 +254,23 @@ If the category is non-product, preserve the same spirit but adapt the unit of r
 
 Every Top Pick needs one specific parent-facing `best_for_tag`.
 
+**Hard format rule (founder, 2026-07-19): every tag starts with `Best for` and names a parent/child situation in 6 words or fewer after the prefix.** Never a feature list ("Highly absorbent and NICU trusted" fails), never bare adjectives ("sensory development" fails), never ALL CAPS in the data (the UI handles casing).
+
 Examples:
 
-- `Best low-frustration starter`
-- `Best proper first step-up`
-- `Best value pick`
-- `Best small-space option`
-- `Best premium pick`
-- `Best travel option`
-- `Best borrow-first option`
-- `Best gift`
 - `Best for cautious starters`
 - `Best for confident toddlers`
-- `Best if they already love characters`
-- `Best pre-loved buy`
-- `Best parent sanity saver`
-- `Best setup upgrade`
-- `Best quick check`
+- `Best for the newborn weeks`
+- `Best for budgets`
+- `Best for small spaces`
+- `Best for travel`
+- `Best for borrowing first`
+- `Best for gifting`
+- `Best for sensitive skin`
+- `Best for growing with your baby`
+- `Best for most families`
 
-Do not reuse generic tags across all picks. Tags must help a parent choose.
+Do not reuse generic tags across all picks. Tags must help a parent choose between the picks in one glance.
 
 ---
 
