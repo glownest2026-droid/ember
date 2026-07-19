@@ -482,9 +482,11 @@ export function PipsPicksPersimmonCarousel({
   if (!displayPicks.length) return null;
 
   return (
-    <section className="relative overflow-hidden text-[#253044]">
+    {/* Viewport-sized column: heading is the anchor target, carousel flexes to
+        fill the rest, ending just above the Start over FAB (bottom reserve). */}
+    <section className="relative flex min-h-[calc(100dvh-var(--header-height,88px)-140px)] flex-col overflow-hidden text-[#253044] md:min-h-0">
       {/* Compact header on mobile so header + card + Start over share one viewport (item 7). */}
-      <div className="relative z-20 -mt-1 px-2 pb-2 text-center md:mt-0 md:px-0 md:pb-5">
+      <div className="relative z-20 -mt-1 shrink-0 px-2 pb-2 text-center md:mt-0 md:px-0 md:pb-5">
         <div className="inline-flex items-center justify-center gap-3 md:gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- brand mark is a stable public asset */}
           <img src={ROBIN_LOGO_URL} alt="" className="h-12 w-12 object-contain md:h-20 md:w-20" />
@@ -500,7 +502,7 @@ export function PipsPicksPersimmonCarousel({
       </div>
 
       <div
-        className="relative min-h-[max(452px,calc(100dvh-var(--header-height,88px)-108px))] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[max(650px,calc(100dvh-var(--header-height,88px)-60px))]"
+        className="relative min-h-[360px] flex-1 overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[max(650px,calc(100dvh-var(--header-height,88px)-60px))]"
         style={enable3d ? { perspective: '1200px' } : undefined}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#E4E9E6] to-transparent md:block" />
@@ -521,7 +523,7 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex h-full max-h-[max(420px,calc(100dvh-var(--header-height,88px)-140px))] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[max(610px,calc(100dvh-var(--header-height,88px)-100px))] md:w-[370px] md:flex-[0_0_370px]"
+                className="relative flex h-full w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[max(610px,calc(100dvh-var(--header-height,88px)-100px))] md:w-[370px] md:flex-[0_0_370px]"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
@@ -554,7 +556,10 @@ export function PipsPicksPersimmonCarousel({
                         locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
                       }`}
                     >
-                      <div className="min-h-0 overflow-hidden">
+                      {/* justify-between spreads any spare height between the
+                          sections so it never pools as one dark void above the
+                          thumb row (founder, round 3). */}
+                      <div className="flex min-h-0 flex-1 flex-col justify-between overflow-hidden">
                         {fields.tag ? (
                           <p className="m-0 mb-1.5 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-1 md:pr-16">
                             {fields.tag}
@@ -571,7 +576,7 @@ export function PipsPicksPersimmonCarousel({
                         ) : null}
                         {/* Clamps step down with viewport height so the thumb row is always
                             inside the card — the popup carries the full text. */}
-                        <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-3 [@media(min-height:821px)]:line-clamp-4 [@media(max-height:760px)]:line-clamp-2 md:mb-4 md:text-[15px] md:line-clamp-5">
+                        <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-4 [@media(min-height:821px)]:line-clamp-5 [@media(max-height:760px)]:line-clamp-3 md:mb-4 md:text-[15px] md:line-clamp-5">
                           {fields.description}
                         </p>
 
@@ -581,7 +586,7 @@ export function PipsPicksPersimmonCarousel({
                           <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
                             Why Pip picked this
                           </strong>
-                          <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-4 [@media(min-height:821px)]:line-clamp-5 [@media(max-height:760px)]:line-clamp-3 md:text-[14px] md:line-clamp-[7]">
+                          <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-5 [@media(min-height:821px)]:line-clamp-6 [@media(max-height:760px)]:line-clamp-3 md:text-[14px] md:line-clamp-[7]">
                             {fields.verdict}
                           </p>
                         </div>
