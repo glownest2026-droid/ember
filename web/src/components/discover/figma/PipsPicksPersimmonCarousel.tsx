@@ -16,6 +16,7 @@ import {
   Moon,
   Package,
   Plane,
+  Save,
   Shirt,
   TreePine,
   Truck,
@@ -89,10 +90,19 @@ function pickIcon(productName: string, categoryLabel: string): LucideIcon {
   return Package;
 }
 
-function getDisplayFields(pick: PipsPick, rank: number, childName?: string | null) {
+/**
+ * Founder rule (bug bash 2026-07-19, item 5v): retailer CTAs never deep-link a
+ * single retailer. Always send parents to Google Shopping so the journey
+ * survives retailer stock/URL churn and shows live offers.
+ */
+function googleShoppingUrl(product: PipsPickProduct): string {
+  const query = [product.brand, product.name].filter(Boolean).join(' ');
+  return `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(query)}`;
+}
+
+function getDisplayFields(pick: PipsPick, childName?: string | null) {
   const product = pick.product;
   const categoryLabel = pick.categoryType.label || pick.categoryType.name || 'this age';
-  const bestFor = product.best_for_tag || `Pick ${rank}`;
   const description =
     product.product_description_under_30_words ||
     product.product_description ||
@@ -106,9 +116,9 @@ function getDisplayFields(pick: PipsPick, rank: number, childName?: string | nul
     'Chosen for this age and focus.';
 
   return {
-    tag: `Pick ${rank} • ${bestFor}`,
+    tag: product.best_for_tag || null,
     title: product.name,
-    brand: [product.brand, product.price_text].filter(Boolean).join(' • '),
+    brand: product.brand || '',
     description,
     verdict: personalizePickCopy(verdict, childName),
     Icon: pickIcon(product.name, categoryLabel),
@@ -117,7 +127,6 @@ function getDisplayFields(pick: PipsPick, rank: number, childName?: string | nul
 
 type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
   url: string;
-  canVisit: boolean;
   rank: number;
   total: number;
 };
@@ -188,9 +197,11 @@ function PipsPickExpanded({
             <span className="inline-flex self-start rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
               {fields.rank} / {fields.total}
             </span>
-            <p className="m-0 pr-16 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] md:pr-20">
-              {fields.tag}
-            </p>
+            {fields.tag ? (
+              <p className="m-0 pr-16 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] md:pr-20">
+                {fields.tag}
+              </p>
+            ) : null}
             <h2
               id="expanded-pick-title"
               className="m-0 flex items-start gap-2.5 text-[24px] font-extrabold leading-tight text-white md:text-[28px]"
@@ -214,20 +225,14 @@ function PipsPickExpanded({
                 {fields.verdict}
               </p>
             </div>
-            {fields.canVisit ? (
-              <a
-                href={fields.url}
-                target="_blank"
-                rel={retailerLinkRel(fields.url)}
-                className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[15px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97]"
-              >
-                View retailer
-              </a>
-            ) : (
-              <span className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-white/10 px-4 py-3 text-[15px] font-extrabold text-white/75">
-                Link soon
-              </span>
-            )}
+            <a
+              href={fields.url}
+              target="_blank"
+              rel={retailerLinkRel(fields.url)}
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[15px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97]"
+            >
+              Browse offers
+            </a>
           </div>
         </article>
       </motion.div>
@@ -262,19 +267,21 @@ export function PipsPicksPersimmonCarousel({
   picks,
   childDisplayLabel,
   isEmberPlusMember,
-  getProductUrl,
+  onSavePick,
 }: {
   picks: GatewayPick[];
   childDisplayLabel?: string | null;
   isEmberPlusMember: boolean;
-  getProductUrl: (pick: GatewayPick) => string;
+  /** Save the pick's Stage 2 idea to the parent's list (thumb-row save icon). */
+  onSavePick?: (pick: GatewayPick, triggerEl: HTMLButtonElement | null) => void;
 }) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   // 3D card physics only on hover/fine-pointer devices; touch gets a flat snap carousel.
   const [enable3d, setEnable3d] = useState(false);
-  const renderedPicks = useMemo(() => picks.slice(0, 5) as PipsPick[], [picks]);
+  // Up to 10 picks per category (bug bash item 8); the research decides depth.
+  const renderedPicks = useMemo(() => picks.slice(0, 10) as PipsPick[], [picks]);
 
   const lockedFlags = useMemo(
     () =>
@@ -366,12 +373,12 @@ export function PipsPicksPersimmonCarousel({
         <p className="mx-auto mt-1 max-w-lg text-[14px] font-semibold leading-relaxed text-[#66717D] md:text-base">
           {isEmberPlusMember
             ? "A shortlist we've already weighed up, with the full reasoning behind each pick."
-            : "A shortlist we've already weighed up. Pick 1 is free; picks 2-5 are for Ember Plus."}
+            : "A shortlist we've already weighed up. Pick 1 is free; the rest is for Ember Plus."}
         </p>
       </div>
 
       <div
-        className="relative min-h-[560px] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[610px]"
+        className="relative min-h-[min(620px,calc(100dvh-170px))] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[650px]"
         style={enable3d ? { perspective: '1200px' } : undefined}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#E4E9E6] to-transparent md:block" />
@@ -384,16 +391,15 @@ export function PipsPicksPersimmonCarousel({
           {displayPicks.map((pick, index) => {
             const rank = index + 1;
             const locked = lockedFlags[index];
-            const url = getProductUrl(pick);
-            const canVisit = url && url !== '#';
-            const fields = getDisplayFields(pick, rank, childDisplayLabel);
+            const url = googleShoppingUrl(pick.product);
+            const fields = getDisplayFields(pick, childDisplayLabel);
             const Icon = fields.Icon;
 
             return (
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex h-full max-h-[520px] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[570px] md:w-[370px] md:flex-[0_0_370px]"
+                className="relative flex h-full max-h-[min(580px,calc(100dvh-210px))] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px]"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
@@ -419,16 +425,6 @@ export function PipsPicksPersimmonCarousel({
                       <span className="inline-flex rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
                         {rank} / {renderedPicks.length}
                       </span>
-                      {!locked ? (
-                        <button
-                          type="button"
-                          onClick={() => setExpandedIndex(index)}
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white transition-colors hover:bg-black/60"
-                          aria-label={`Read full details for ${fields.title}`}
-                        >
-                          <Maximize2 size={15} strokeWidth={2.5} aria-hidden />
-                        </button>
-                      ) : null}
                     </div>
 
                     <div
@@ -436,9 +432,11 @@ export function PipsPicksPersimmonCarousel({
                         locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
                       }`}
                     >
-                      <p className="m-0 mb-1.5 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-2 md:pr-16">
-                        {fields.tag}
-                      </p>
+                      {fields.tag ? (
+                        <p className="m-0 mb-1.5 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-2 md:pr-16">
+                          {fields.tag}
+                        </p>
+                      ) : null}
                       <h3 className="m-0 mb-2 flex items-start gap-2.5 pr-10 text-[20px] font-extrabold leading-tight tracking-normal text-white md:pr-12 md:text-[22px]">
                         <Icon className="h-6 w-6 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
                         <span className="line-clamp-2">{fields.title}</span>
@@ -448,7 +446,7 @@ export function PipsPicksPersimmonCarousel({
                           {fields.brand}
                         </p>
                       ) : null}
-                      <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-3 md:mb-4 md:text-[15px] md:line-clamp-4">
+                      <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-3 [@media(max-height:720px)]:line-clamp-2 md:mb-4 md:text-[15px] md:line-clamp-4">
                         {fields.description}
                       </p>
 
@@ -456,25 +454,41 @@ export function PipsPicksPersimmonCarousel({
                         <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
                           Why Pip picked this
                         </strong>
-                        <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-5 md:text-[14px] md:line-clamp-6">
+                        <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-5 [@media(max-height:720px)]:line-clamp-3 md:text-[14px] md:line-clamp-6">
                           {fields.verdict}
                         </p>
                       </div>
 
-                      {canVisit ? (
+                      {/* Thumb row: browse, expand, save — every action in reach on mobile. */}
+                      <div className="mt-3 flex items-center gap-2 md:mt-4">
                         <a
                           href={url}
                           target="_blank"
                           rel={retailerLinkRel(url)}
-                          className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[14px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97] md:mt-4 md:min-h-12 md:text-[15px]"
+                          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[14px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97] md:min-h-12 md:text-[15px]"
                         >
-                          View retailer
+                          Browse offers
                         </a>
-                      ) : (
-                        <span className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-white/10 px-4 py-3 text-[14px] font-extrabold text-white/75 md:mt-4 md:min-h-12 md:text-[15px]">
-                          Link soon
-                        </span>
-                      )}
+                        <button
+                          type="button"
+                          onClick={() => setExpandedIndex(index)}
+                          className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 md:h-12 md:w-12"
+                          aria-label={`Read full details for ${fields.title}`}
+                        >
+                          <Maximize2 size={18} strokeWidth={2.5} aria-hidden />
+                        </button>
+                        {onSavePick ? (
+                          <button
+                            type="button"
+                            onClick={(e) => onSavePick(pick, e.currentTarget)}
+                            className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 md:h-12 md:w-12"
+                            title="Save"
+                            aria-label={`Save ${fields.title} to your list`}
+                          >
+                            <Save size={18} strokeWidth={2.5} aria-hidden />
+                          </button>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
 
@@ -548,14 +562,12 @@ export function PipsPicksPersimmonCarousel({
       <AnimatePresence>
         {expandedIndex !== null && displayPicks[expandedIndex] ? (() => {
           const pick = displayPicks[expandedIndex];
-          const url = getProductUrl(pick);
           return (
             <PipsPickExpanded
               key={`${pick.product.id}-expanded`}
               fields={{
-                ...getDisplayFields(pick, expandedIndex + 1, childDisplayLabel),
-                url,
-                canVisit: Boolean(url && url !== '#'),
+                ...getDisplayFields(pick, childDisplayLabel),
+                url: googleShoppingUrl(pick.product),
                 rank: expandedIndex + 1,
                 total: renderedPicks.length,
               }}

@@ -146,6 +146,7 @@ export default function DiscoveryPageClient({
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
   const [ideasSectionInView, setIdeasSectionInView] = useState(false);
+  const [picksSectionInView, setPicksSectionInView] = useState(false);
   const [fetchedPicks, setFetchedPicks] = useState<PickItem[]>([]);
   const [picksLoading, setPicksLoading] = useState(false);
   // Server-resolved membership from /api/discover/picks (auth + RLS), not inferred from data shape.
@@ -567,6 +568,26 @@ export default function DiscoveryPageClient({
     return () => observer.disconnect();
   }, [selectedWrapper]);
 
+  // Bug bash item 6: keep "Start over" available while the Stage 3 picks section
+  // is in view too (it previously vanished once ideas scrolled out of view).
+  useEffect(() => {
+    if (discoverState !== 'ShowingExamples' || typeof IntersectionObserver === 'undefined') {
+      setPicksSectionInView(false);
+      return;
+    }
+    const el = document.getElementById('discover-figma-products');
+    if (!el) {
+      setPicksSectionInView(false);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setPicksSectionInView(entry?.isIntersecting ?? false),
+      { rootMargin: '-72px 0px 0px 0px', threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [discoverState, selectedWrapper, selectedCategoryId]);
+
   const handleWrapperSelect = (wrapperSlug: string) => {
     if (selectedWrapper === wrapperSlug) {
       setPendingScrollToNextSteps(true);
@@ -936,9 +957,6 @@ export default function DiscoveryPageClient({
     });
   };
 
-  const getProductUrl = (p: PickItem) =>
-    p.product.canonical_url || p.product.product_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
-
   const doorwayMetaBySlug = useMemo(() => {
     const map = new Map<string, { key: string; helper: string; icon: (typeof ALL_DOORWAYS)[number]['icon'] }>();
     for (const doorway of ALL_DOORWAYS) {
@@ -1216,8 +1234,9 @@ export default function DiscoveryPageClient({
         : 'Ideas to try';
   // Show the Start over control only while ideas are available to reset.
   const startOverVisible = Boolean(selectedWrapper || (showingExamples && displayIdeas.length > 0));
-  // Snag #6: the floating FAB is gated on the "Ideas for…" section being in view.
-  const showStartOverFab = startOverVisible && ideasSectionInView;
+  // Snag #6 + bug bash item 6: the floating FAB stays while either the "Ideas for…"
+  // section or the Stage 3 picks section is in view.
+  const showStartOverFab = startOverVisible && (ideasSectionInView || picksSectionInView);
   const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
   const bandLabel = formatBandLabel(selectedBand);
   const bandRange = getBandRange(selectedBand);
@@ -1531,10 +1550,10 @@ export default function DiscoveryPageClient({
                   <>
                     <PipsPicksPersimmonCarousel
                       key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}-${viewerAccessKey}`}
-                      picks={displayIdeas.slice(0, displayHasPipsPicks ? 5 : 12)}
+                      picks={displayIdeas.slice(0, displayHasPipsPicks ? 10 : 12)}
                       childDisplayLabel={childProfile.displayLabel}
                       isEmberPlusMember={isEmberPlusMember}
-                      getProductUrl={getProductUrl}
+                      onSavePick={(pick, el) => handleSaveCategory(pick.categoryType.id, el)}
                     />
                     <AffiliateDisclosureNotice
                       hasRetailerLinks={examplesHaveRetailerLinks}
