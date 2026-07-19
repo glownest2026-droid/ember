@@ -389,12 +389,15 @@ export function PipsPicksPersimmonCarousel({
   childDisplayLabel,
   isEmberPlusMember,
   onSavePick,
+  bottomNavVisible = false,
 }: {
   picks: GatewayPick[];
   childDisplayLabel?: string | null;
   isEmberPlusMember: boolean;
   /** Save this Stage 3 pick to the parent's list — Products tab (thumb-row save icon). */
   onSavePick?: (pick: GatewayPick, triggerEl: HTMLButtonElement | null) => void;
+  /** Signed-in mobile shows the fixed bottom tab bar; the card's bottom reserve must clear it. */
+  bottomNavVisible?: boolean;
 }) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -482,9 +485,12 @@ export function PipsPicksPersimmonCarousel({
   if (!displayPicks.length) return null;
 
   return (
-    <section className="relative overflow-hidden text-[#253044]">
+    // Full-bleed viewport column (founder, round 4): the section runs to the very
+    // bottom of the screen so the disclosure smallprint and the next section stay
+    // below the fold. The Start over FAB hovers inside the card's bottom reserve.
+    <section className="relative flex min-h-[calc(100dvh-var(--header-height,88px)-4px)] flex-col overflow-hidden text-[#253044]">
       {/* Compact header on mobile so header + card + Start over share one viewport (item 7). */}
-      <div className="relative z-20 px-2 pb-3 text-center md:px-0 md:pb-5">
+      <div className="relative z-20 -mt-1 shrink-0 px-2 pb-2 text-center md:mt-0 md:px-0 md:pb-5">
         <div className="inline-flex items-center justify-center gap-3 md:gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- brand mark is a stable public asset */}
           <img src={ROBIN_LOGO_URL} alt="" className="h-12 w-12 object-contain md:h-20 md:w-20" />
@@ -493,21 +499,22 @@ export function PipsPicksPersimmonCarousel({
           </h2>
         </div>
         <p className="mx-auto mt-1 max-w-lg text-[13px] font-semibold leading-snug text-[#66717D] md:text-base md:leading-relaxed">
-          {isEmberPlusMember
-            ? "A shortlist we've already weighed up, with the full reasoning behind each pick."
-            : "A shortlist we've already weighed up. Pick 1 is free; the rest is for Ember Plus."}
+          Pip has foraged the industry for {childDisplayLabel?.trim() || 'your child'}, matching current
+          development needs to the best-suited, top-rated products available today.
         </p>
       </div>
 
       <div
-        className="relative min-h-[clamp(420px,calc(100dvh-340px),620px)] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[650px]"
+        className="relative min-h-[360px] flex-1 overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)]"
         style={enable3d ? { perspective: '1200px' } : undefined}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#E4E9E6] to-transparent md:block" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-20 hidden w-28 bg-gradient-to-l from-[#E4E9E6] to-transparent md:block" />
         <div
           ref={trackRef}
-          className="absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] py-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)]"
+          className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] pt-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)] md:pb-[88px] ${
+            bottomNavVisible ? 'pb-[136px]' : 'pb-20'
+          }`}
           style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
         >
           {displayPicks.map((pick, index) => {
@@ -521,7 +528,7 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex h-full max-h-[clamp(380px,calc(100dvh-380px),580px)] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px]"
+                className="relative flex h-full w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px]"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
@@ -542,7 +549,7 @@ export function PipsPicksPersimmonCarousel({
                     className="pointer-events-none absolute right-3 top-3 z-20 h-16 w-16 object-contain [filter:grayscale(1)_brightness(2.1)_drop-shadow(0_8px_18px_rgba(0,0,0,0.22))] md:h-[72px] md:w-[72px]"
                   />
 
-                  <div className="relative z-10 flex h-full flex-col p-4 [@media(min-height:881px)]:p-5 md:p-7">
+                  <div className="relative z-10 flex h-full min-h-0 flex-col p-4 [@media(min-height:881px)]:p-5 md:p-7">
                     <div className="mb-3 flex items-center gap-2 self-start md:mb-5">
                       <span className="inline-flex rounded-full border border-white/15 bg-black/40 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-white">
                         {rank} / {renderedPicks.length}
@@ -550,43 +557,50 @@ export function PipsPicksPersimmonCarousel({
                     </div>
 
                     <div
-                      className={`flex flex-1 flex-col transition duration-300 ${
+                      className={`flex min-h-0 flex-1 flex-col transition duration-300 ${
                         locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
                       }`}
                     >
-                      {fields.tag ? (
-                        <p className="m-0 mb-1.5 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-1 md:pr-16">
-                          {fields.tag}
+                      {/* justify-between spreads any spare height between the
+                          sections so it never pools as one dark void above the
+                          thumb row (founder, round 3). */}
+                      <div className="flex min-h-0 flex-1 flex-col justify-between overflow-hidden">
+                        {fields.tag ? (
+                          <p className="m-0 mb-1.5 shrink-0 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-1 md:pr-16">
+                            {fields.tag}
+                          </p>
+                        ) : null}
+                        <h3 className="m-0 mb-2 flex shrink-0 items-start gap-2.5 pr-10 text-[20px] font-extrabold leading-tight tracking-normal text-white md:pr-12 md:text-[22px]">
+                          <Icon className="h-6 w-6 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
+                          <span className="line-clamp-2">{fields.title}</span>
+                        </h3>
+                        {fields.brand ? (
+                          <p className="m-0 mb-3 shrink-0 text-[12px] font-bold uppercase tracking-wider text-white/80 line-clamp-1 md:mb-4 md:text-[13px]">
+                            {fields.brand}
+                          </p>
+                        ) : null}
+                        {/* Clamps step down with viewport height so the thumb row is always
+                            inside the card — the popup carries the full text. shrink-0 stops
+                            flexbox squashing a text block mid-line (founder, round 4). */}
+                        <p className="m-0 mb-3 shrink-0 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-4 [@media(min-height:821px)]:line-clamp-5 [@media(max-height:760px)]:line-clamp-3 md:mb-4 md:text-[15px]">
+                          {fields.description}
                         </p>
-                      ) : null}
-                      <h3 className="m-0 mb-2 flex items-start gap-2.5 pr-10 text-[20px] font-extrabold leading-tight tracking-normal text-white md:pr-12 md:text-[22px]">
-                        <Icon className="h-6 w-6 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
-                        <span className="line-clamp-2">{fields.title}</span>
-                      </h3>
-                      {fields.brand ? (
-                        <p className="m-0 mb-3 text-[12px] font-bold uppercase tracking-wider text-white/80 line-clamp-1 md:mb-4 md:text-[13px]">
-                          {fields.brand}
-                        </p>
-                      ) : null}
-                      {/* Clamps step down with viewport height so the thumb row is always
-                          inside the card — the popup carries the full text. */}
-                      <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-4 [@media(min-height:761px)_and_(max-height:880px)]:line-clamp-3 [@media(max-height:760px)]:line-clamp-2 md:mb-4 md:text-[15px] md:line-clamp-5">
-                        {fields.description}
-                      </p>
 
-                      {/* Verdict follows the description directly — no dead space in the middle
-                          of the card (founder item 3); the thumb row anchors the bottom. */}
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3 md:p-4">
-                        <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
-                          Why Pip picked this
-                        </strong>
-                        <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-6 [@media(min-height:761px)_and_(max-height:880px)]:line-clamp-4 [@media(max-height:760px)]:line-clamp-3 md:text-[14px] md:line-clamp-[7]">
-                          {fields.verdict}
-                        </p>
+                        {/* Verdict follows the description directly — no dead space in the middle
+                            of the card (founder item 3); the thumb row anchors the bottom. This is
+                            the only block allowed to shrink, clipping at its rounded edge. */}
+                        <div className="min-h-0 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.08] p-3 md:p-4">
+                          <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
+                            Why Pip picked this
+                          </strong>
+                          <p className="m-0 text-[13px] font-semibold leading-relaxed text-white/95 line-clamp-5 [@media(min-height:821px)]:line-clamp-6 [@media(max-height:760px)]:line-clamp-3 md:text-[14px]">
+                            {fields.verdict}
+                          </p>
+                        </div>
                       </div>
 
                       {/* Thumb row: browse, expand, save — every action in reach on mobile. */}
-                      <div className="mt-auto flex items-center gap-2 pt-3 md:pt-4">
+                      <div className="mt-auto flex shrink-0 items-center gap-2 pt-3 md:pt-4">
                         <a
                           href={url}
                           target="_blank"
@@ -672,7 +686,7 @@ export function PipsPicksPersimmonCarousel({
             <ChevronRight className="h-6 w-6" aria-hidden />
           </button>
         </div>
-        <div className="absolute bottom-2 left-0 right-0 z-30 flex justify-center gap-2">
+        <div className={`absolute left-0 right-0 z-30 flex justify-center gap-2 md:bottom-2 ${bottomNavVisible ? 'bottom-[126px]' : 'bottom-2'}`}>
           {displayPicks.map((pick, index) => (
             <button
               key={pick.product.id}

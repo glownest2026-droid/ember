@@ -346,33 +346,13 @@ export default function DiscoveryPageClient({
       const section = document.getElementById('discover-figma-products');
       if (!section) return;
       const headerVar = getComputedStyle(document.documentElement).getPropertyValue('--header-height').trim();
-      const headerOffset = (headerVar ? parseInt(headerVar, 10) : 88) + 12;
-      // Bottom chrome = mobile nav + the floating "Start over" button. The card
-      // must land fully above the FAB, never underneath it (items 2 + 7).
-      const bottomChromeOffset = window.innerWidth < 768 ? 148 : 88;
-      const card =
-        section.querySelector<HTMLElement>('[data-pips-card-wrapper]') ??
-        section.querySelector<HTMLElement>('[data-pips-card]');
+      // Anchor rule (founder): the "Pip's Picks" heading is the first thing under
+      // the sticky header. The carousel below is viewport-sized, so heading +
+      // card + Start over FAB share one screen without measuring the card.
+      const headerOffset = (headerVar ? parseInt(headerVar, 10) : 88) + 4;
       const behavior = behaviorOverride ?? (shouldReduceMotion ? 'auto' : 'smooth');
-
-      if (!card) {
-        const sectionRect = section.getBoundingClientRect();
-        window.scrollTo({ top: Math.max(0, sectionRect.top + window.scrollY - headerOffset), behavior });
-        return;
-      }
-
-      const cardRect = card.getBoundingClientRect();
-      const cardTop = cardRect.top + window.scrollY;
-      const cardBottom = cardRect.bottom + window.scrollY;
-      const highestScrollForTop = Math.max(0, cardTop - headerOffset);
-      const lowestScrollForBottom = Math.max(0, cardBottom - (window.innerHeight - bottomChromeOffset));
-      const sectionTop = Math.max(0, section.getBoundingClientRect().top + window.scrollY - headerOffset);
-      const targetTop =
-        lowestScrollForBottom <= highestScrollForTop
-          ? Math.max(sectionTop, lowestScrollForBottom)
-          : highestScrollForTop;
-
-      window.scrollTo({ top: targetTop, behavior });
+      const sectionRect = section.getBoundingClientRect();
+      window.scrollTo({ top: Math.max(0, sectionRect.top + window.scrollY - headerOffset), behavior });
     },
     [shouldReduceMotion]
   );
@@ -1635,10 +1615,11 @@ export default function DiscoveryPageClient({
                       childDisplayLabel={childProfile.displayLabel}
                       isEmberPlusMember={isEmberPlusMember}
                       onSavePick={(pick, el) => handleSaveStage3Pick(pick.product.id, el)}
+                      bottomNavVisible={!!user}
                     />
                     <AffiliateDisclosureNotice
                       hasRetailerLinks={examplesHaveRetailerLinks}
-                      className="mt-3 text-center"
+                      className="mt-2 text-center text-[11px] leading-snug md:mt-3 md:text-xs md:leading-relaxed"
                     />
                   </>
                 )}
@@ -1676,7 +1657,9 @@ export default function DiscoveryPageClient({
       </main>
 
       {showStartOverFab ? (
-        <div className="fixed bottom-20 lg:bottom-6 left-0 right-0 z-30 pointer-events-none">
+        // Signed-in mobile: sit above the fixed bottom tab bar. Signed-out: no
+        // tab bar, so drop into the reserve at the bottom of the picks card.
+        <div className={`fixed ${user ? 'bottom-20' : 'bottom-6'} md:bottom-6 left-0 right-0 z-30 pointer-events-none`}>
           <div className={`${EMBER_FIGMA_APP_CONTAINER} flex justify-center`}>
             <button
               type="button"
