@@ -4455,9 +4455,11 @@ Category-only cards remain publishable.
 - Fixed Stage 3 (Pip's Picks) card layout on constrained mobile/PWA heights so CTA/buttons are no longer pushed out of the visible card area.
 - Added `min-h-0` guards to the card content flex columns and `shrink-0` to the action row so the bottom controls keep their reserved space.
 - Tightened mobile-only line clamps for description/verdict copy to protect action visibility while preserving full detail in expanded view.
+- Follow-up tuning on founder QA: in anchored Stage 3 view, mobile now lands slightly higher (`scrollToStage3Picks` mobile header offset), card container/card max-height are increased, and the affiliate disclosure copy is rendered smaller on mobile to keep focus on the card.
 
 ### Files
 - `web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx`
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx`
 
 ### Verification
 - `pnpm -C web build` ✅

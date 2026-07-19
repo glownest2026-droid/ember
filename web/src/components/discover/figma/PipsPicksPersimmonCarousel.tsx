@@ -484,7 +484,7 @@ export function PipsPicksPersimmonCarousel({
   return (
     <section className="relative overflow-hidden text-[#253044]">
       {/* Compact header on mobile so header + card + Start over share one viewport (item 7). */}
-      <div className="relative z-20 px-2 pb-3 text-center md:px-0 md:pb-5">
+      <div className="relative z-20 -mt-1 px-2 pb-2 text-center md:mt-0 md:px-0 md:pb-5">
         <div className="inline-flex items-center justify-center gap-3 md:gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- brand mark is a stable public asset */}
           <img src={ROBIN_LOGO_URL} alt="" className="h-12 w-12 object-contain md:h-20 md:w-20" />
@@ -500,7 +500,7 @@ export function PipsPicksPersimmonCarousel({
       </div>
 
       <div
-        className="relative min-h-[clamp(420px,calc(100dvh-340px),620px)] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[650px]"
+        className="relative min-h-[clamp(455px,calc(100dvh-300px),640px)] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[650px]"
         style={enable3d ? { perspective: '1200px' } : undefined}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#E4E9E6] to-transparent md:block" />
@@ -521,7 +521,7 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex h-full max-h-[clamp(380px,calc(100dvh-380px),580px)] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px]"
+                className="relative flex h-full max-h-[clamp(420px,calc(100dvh-340px),600px)] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px]"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article

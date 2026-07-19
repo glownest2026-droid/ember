@@ -346,10 +346,13 @@ export default function DiscoveryPageClient({
       const section = document.getElementById('discover-figma-products');
       if (!section) return;
       const headerVar = getComputedStyle(document.documentElement).getPropertyValue('--header-height').trim();
-      const headerOffset = (headerVar ? parseInt(headerVar, 10) : 88) + 12;
+      const isMobile = window.innerWidth < 768;
+      // Mobile anchor view: land picks slightly higher so more of the Stage 3
+      // card is visible before the disclosure copy enters the viewport.
+      const headerOffset = (headerVar ? parseInt(headerVar, 10) : 88) + (isMobile ? 4 : 12);
       // Bottom chrome = mobile nav + the floating "Start over" button. The card
       // must land fully above the FAB, never underneath it (items 2 + 7).
-      const bottomChromeOffset = window.innerWidth < 768 ? 148 : 88;
+      const bottomChromeOffset = isMobile ? 148 : 88;
       const card =
         section.querySelector<HTMLElement>('[data-pips-card-wrapper]') ??
         section.querySelector<HTMLElement>('[data-pips-card]');
@@ -1638,7 +1641,7 @@ export default function DiscoveryPageClient({
                     />
                     <AffiliateDisclosureNotice
                       hasRetailerLinks={examplesHaveRetailerLinks}
-                      className="mt-3 text-center"
+                      className="mt-2 text-center text-[11px] leading-snug md:mt-3 md:text-xs md:leading-relaxed"
                     />
                   </>
                 )}
