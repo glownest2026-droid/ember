@@ -1,0 +1,9 @@
+fix(discover): Stage 1->2 cluster context - exact Bible mapping per cluster + picks-first ranking
+
+Bug bash items 1 and 4. The Bible (discover_projection) maps each Stage 1
+cluster to its own curated Stage 2 list, but ingestion keyed rows only by
+shared development needs, so clusters rendered the union of each other's
+cards. Adds ux_wrapper_id to the Stage 2 junction, carries the cluster
+through the generator, reimports 1-3m from the Bible (55 rows/10 clusters),
+resolves cards by cluster in the app, and leads each lane with cards that
+have Ember Picks.

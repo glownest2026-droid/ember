@@ -1,3 +1,21 @@
+## 2026-07-19: Stage 1→2 duplication root-cause fix — cluster context on Stage 2 mapping (bug bash item 1)
+
+Founder reported Stage 1 cards leading to the same Stage 2 cards (e.g. "I'm finding your face" and "I'm listening to your voice"). Validated against the offline source of truth (Spine 3.0 Bible `discover_projection` tab, 1–3m workbook): **confirmed a real bug, not content reality.** The Bible gives each cluster its own curated list (55 rows, only 2 intentional overlaps), but ingestion dropped the cluster column and keyed rows by shared development needs — clusters sharing a need rendered the union of each other's cards ("I'm starting to wriggle" showed 20 cards instead of 7; "I'm finding your face" was missing its high-contrast card), and per-cluster copy variants collapsed to one arbitrary winner.
+
+Fix (schema + data + app, no band-aids):
+
+- **`supabase/migrations/20260719110000_add_wrapper_context_stage2_junction.sql`** — adds `ux_wrapper_id` to `pl_age_band_development_need_category_types`, widens the unique key (`NULLS NOT DISTINCT`), exposes `wrapper_slug` on `v_gateway_category_types_public`.
+- **`scripts/generate-discover-projection-sql.mjs`** — generator now carries `cluster_entity_id` through to the junction (wrapper join, DISTINCT ON, conflict target, deactivation all wrapper-aware). Future band reimports get exact Bible fidelity automatically.
+- **`supabase/migrations/20260719112000_reimport_discover_1_3m_cluster_context.sql`** — regenerated 1–3m from the Bible (55 rows / 10 clusters, validation notices pass). Applied via `supabase db push` (also committed 16 previously-applied-but-uncommitted image-mapping migrations to sync history).
+- **`web/src/lib/pl/public.ts`** — cluster-tagged rows are now the source of truth: wrapper-scoped fetch per cluster; legacy need-based resolution kept only for bands not yet re-ingested (rows with NULL wrapper). No fuzzy logic.
+- **Cache bump:** `GATEWAY_CATALOGUE_CACHE_VERSION = '20260719-stage2-cluster-context'`.
+
+Verified in live DB: every 1–3m cluster now returns exactly the Bible's list; shared categories carry per-cluster copy ("Face books to look at together" rank 5 under faces vs "Board books and face books" rank 3 under listen). Note: 9–12m has the same latent duplication (shared needs: books/container/parent_day/bilateral) — fixed automatically when that band is re-ingested from its Bible.
+
+Same PR, bug bash item 4 — **picks-first Stage 2 ranking**: `sortedPlayIdeas` in `DiscoveryPageClient.tsx` now leads each lane with cards that have Ember Picks (9 categories have visible Stage 3 picks in 1–3m, incl. `cat_soft_carrier_sling` per the founder's example).
+
+Same PR, bug bash item 3 — **old-image audit** (read-only): `agent-tools/exports/old_images_audit_2026-07-19.md`. 41 card placements use pre-2026-06-26 images across two old generations (2026-04-22: 9 files/26 placements, mostly 19–36m; 2026-06-16: 5 files/15 placements incl. founder-reported reach-and-grab). Highest-impact replacement: `ember_cat_soft_graspable_balls_category.png` (10 bands). Replacements need founder-generated assets, then the standard image-mapping migration.
+
 ## 2026-07-19: Codified offline source of truth for Discover content (docs-only, PR #268)
 
 Founder rule made durable: the offline source of truth for Discover content and Stage 1→Stage 2 mapping is **always** the Spine 3.0 Bible workbook — `Spine 3.0 → Spine 3.0_02 Ember Bibles → 02_Ember_Bible_<band>_*.xlsx → discover_projection tab` (1–3m: `02_Ember_Bible_1_3m_Conor_Thea_Depth_v2_more_purchase_depth.xlsx`).

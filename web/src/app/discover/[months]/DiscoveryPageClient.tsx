@@ -1165,6 +1165,10 @@ export default function DiscoveryPageClient({
   const sortedPlayIdeas = useMemo(
     () =>
       [...playIdeaItems].sort((a, b) => {
+        // Cards with Ember Picks lead their lane (founder rule, bug bash 2026-07-19).
+        const picksA = a.showEmberPicks === true ? 0 : 1;
+        const picksB = b.showEmberPicks === true ? 0 : 1;
+        if (picksA !== picksB) return picksA - picksB;
         const laneA = a.laneRank ?? a.categoryRank ?? Number.MAX_SAFE_INTEGER;
         const laneB = b.laneRank ?? b.categoryRank ?? Number.MAX_SAFE_INTEGER;
         if (laneA !== laneB) return laneA - laneB;
