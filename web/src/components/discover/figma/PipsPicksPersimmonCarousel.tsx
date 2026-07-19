@@ -174,7 +174,7 @@ type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
  * (especially signed-in + bottom nav) clamps only as much as needed.
  */
 const MAX_DESC_LINES = 6;
-const MIN_DESC_LINES = 1;
+const MIN_DESC_LINES = 2;
 
 function PickCardBody({
   locked,
@@ -207,31 +207,45 @@ function PickCardBody({
     const desc = descRef.current;
     if (!root || !desc) return;
 
+    /**
+     * Fit description to spare height. Never hide it (founder bug: open→close
+     * drawer left display:none stuck). While the drawer is open we only dim —
+     * do not re-clamp, or the closing animation still looks "full" and the fit
+     * zeroes the text before the panel has finished collapsing.
+     */
     const fit = () => {
+      if (drawerOpen) return;
       let lines = MAX_DESC_LINES;
       const apply = () => {
-        desc.style.display = lines === 0 ? 'none' : '-webkit-box';
-        if (lines > 0) {
-          desc.style.setProperty('-webkit-line-clamp', String(lines));
-        }
+        desc.style.display = '-webkit-box';
+        desc.style.setProperty('-webkit-box-orient', 'vertical');
+        desc.style.overflow = 'hidden';
+        desc.style.setProperty('-webkit-line-clamp', String(lines));
       };
       const overflowing = () => root.scrollHeight - root.clientHeight > 1;
 
       apply();
       for (let i = 0; i < 12 && overflowing(); i += 1) {
-        if (lines > MIN_DESC_LINES) lines -= 1;
-        else if (lines > 0) lines = 0;
-        else break;
+        if (lines <= MIN_DESC_LINES) break;
+        lines -= 1;
         apply();
       }
     };
 
-    fit();
-    const observer = new ResizeObserver(() => fit());
+    const delay = drawerOpen || shouldReduceMotion ? 0 : 340;
+    const timer = window.setTimeout(fit, delay);
+    const observer = new ResizeObserver(() => {
+      if (!drawerOpen) fit();
+    });
     observer.observe(root);
-    document.fonts?.ready.then(() => fit()).catch(() => {});
-    return () => observer.disconnect();
-  }, [fields.description, fields.title, fields.brand, fields.tag, drawerOpen]);
+    document.fonts?.ready.then(() => {
+      if (!drawerOpen) fit();
+    }).catch(() => {});
+    return () => {
+      window.clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, [fields.description, fields.title, fields.brand, fields.tag, drawerOpen, shouldReduceMotion]);
 
   return (
     <div
@@ -240,7 +254,7 @@ function PickCardBody({
         locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
       }`}
     >
-      <div className="mb-0.5 shrink-0 pr-[52px] md:mb-1">
+      <div className="mb-0.5 shrink-0 pr-[96px] md:mb-1">
         <div className={styles.rankGhost}>{rank}</div>
         <div className="text-[11px] font-bold uppercase tracking-[0.06em] text-white/50">
           of {total}
@@ -255,7 +269,7 @@ function PickCardBody({
         </span>
       ) : null}
 
-      <h3 className="m-0 mb-1 shrink-0 text-[19px] font-extrabold leading-[1.2] tracking-normal text-white line-clamp-2 md:text-[22px] md:leading-[1.18]">
+      <h3 className="m-0 mb-1 shrink-0 pr-[96px] text-[19px] font-extrabold leading-[1.2] tracking-normal text-white line-clamp-2 md:text-[22px] md:leading-[1.18]">
         {fields.title}
       </h3>
       {fields.brand ? (
@@ -745,12 +759,12 @@ export function PipsPicksPersimmonCarousel({
                   }
                 >
                   <div className={styles.glassGrain} aria-hidden />
-                  {/* Corner robin only — upright 44px, top-right (Glass Stage rule) */}
+                  {/* Corner robin — upright, top-right; founder: ≥2× prior 44px → 88px */}
                   {/* eslint-disable-next-line @next/next/no-img-element -- brand mark is a stable public asset */}
                   <img
                     src={ROBIN_LOGO_URL}
                     alt=""
-                    className="pointer-events-none absolute right-2.5 top-2.5 z-40 h-11 w-11 object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.3)]"
+                    className="pointer-events-none absolute right-2 top-2 z-40 h-[88px] w-[88px] object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.3)]"
                   />
 
                   <PickCardBody
@@ -769,7 +783,7 @@ export function PipsPicksPersimmonCarousel({
                       <img
                         src={ROBIN_LOGO_URL}
                         alt=""
-                        className="pointer-events-none absolute right-2.5 top-2.5 h-11 w-11 object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.3)]"
+                        className="pointer-events-none absolute right-2 top-2 h-[88px] w-[88px] object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.3)]"
                       />
                       {lockedCount > 0 ? (
                         <span className="mb-4 inline-flex items-center rounded-full border border-[#FF5C34]/40 bg-[#FF5C34]/15 px-4 py-1.5 text-[13px] font-extrabold tracking-wide text-[#FFE0D8]">

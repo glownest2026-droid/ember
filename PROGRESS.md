@@ -1,3 +1,9 @@
+## 2026-07-19 — Glass Stage: larger corner robin + drawer description restore
+
+Founder preview follow-up on PR #275:
+- Corner robin **88×88px** (2× prior 44px); rank/tag/title padding cleared for it
+- Mobile bug: open→close “Why Pip picked this” left description gone — fit no longer sets `display:none`, never clamps below 2 lines, skips re-fit while drawer open, re-fits after close animation
+
 ## 2026-07-19 — Stage 3 Glass Stage layout fix (desktop truncation + mobile crush)
 
 Founder preview feedback on PR #275:

@@ -81,7 +81,7 @@
 }
 
 .tagPill {
-  max-width: calc(100% - 52px);
+  max-width: calc(100% - 96px);
   border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
   background: color-mix(in srgb, var(--accent) 14%, transparent);
   color: var(--accent-soft);

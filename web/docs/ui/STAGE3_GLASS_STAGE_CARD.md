@@ -94,7 +94,7 @@ Set as CSS variables on each card root: `--accent`, `--accent-soft`.
 |----------|--------|
 | Class | `.corner-robin` |
 | Position | `absolute; top: 10px; right: 10px;` |
-| Size | `44×44px` |
+| Size | `88×88px` (founder bump 2026-07-19; was 44px) |
 | Transform | **none** (upright only) |
 | z-index | `40` |
 | Asset | `brand-assets/logos/Ember_Logo_Robin1.png` |
