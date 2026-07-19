@@ -16,6 +16,14 @@ Same PR, bug bash item 4 — **picks-first Stage 2 ranking**: `sortedPlayIdeas` 
 
 Same PR, bug bash item 3 — **old-image audit** (read-only): `agent-tools/exports/old_images_audit_2026-07-19.md`. 41 card placements use pre-2026-06-26 images across two old generations (2026-04-22: 9 files/26 placements, mostly 19–36m; 2026-06-16: 5 files/15 placements incl. founder-reported reach-and-grab). Highest-impact replacement: `ember_cat_soft_graspable_balls_category.png` (10 bands). Replacements need founder-generated assets, then the standard image-mapping migration.
 
+## 2026-07-19: Codified offline source of truth for Discover content (docs-only, PR #268)
+
+Founder rule made durable: the offline source of truth for Discover content and Stage 1→Stage 2 mapping is **always** the Spine 3.0 Bible workbook — `Spine 3.0 → Spine 3.0_02 Ember Bibles → 02_Ember_Bible_<band>_*.xlsx → discover_projection tab` (1–3m: `02_Ember_Bible_1_3m_Conor_Thea_Depth_v2_more_purchase_depth.xlsx`).
+
+- New §0 in `.cursor/rules/conor-grade-catalogue-upload.mdc` (always-applied): path pattern, tab contents, and the rule that when live DB and workbook disagree, the workbook wins — fix via migration, never fuzzy lookups.
+- Cross-referenced in `AGENTS.md` topic map and `web/docs/DEVELOPER_OPERATING_MODEL.md` §3.
+- PR: https://github.com/glownest2026-droid/ember/pull/268 (docs-only).
+
 ## 2026-07-19: Developer Operating Model — central knowledge base (docs-only)
 
 Created a cross-agent knowledge base so the #264/#265 learnings become standing rules for every agent (Cursor, Codex, etc.), not just Cursor rules.

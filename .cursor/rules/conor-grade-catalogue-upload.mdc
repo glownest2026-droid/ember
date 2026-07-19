@@ -9,6 +9,19 @@ alwaysApply: true
 
 When the user says **"Upload this Conor-grade catalogue"** or similar (e.g. "ingest this Conor-grade band", "replace the discover catalogue for …", "upload the ABI for …"), run this workflow end-to-end — ingest, verify, **open a PR, and hand off a green Vercel preview**. Do not stop at SQL generation or `db push`.
 
+## 0) Offline source of truth (always)
+
+The canonical source of truth for Discover content and Stage 1→Stage 2 mapping is **always** the Spine 3.0 Bible workbook, `discover_projection` tab:
+
+```
+G:\My Drive\Project Leaf\Project Leaf - Database Builds\Spine Build 3.0\Spine 3.0_02 Ember Bibles\02_Ember_Bible_<band>_*.xlsx  →  tab: discover_projection
+```
+
+- Path pattern: **Spine 3.0 → `Spine 3.0_02 Ember Bibles` → the band's XLS → `discover_projection` tab.** (1–3m: `02_Ember_Bible_1_3m_Conor_Thea_Depth_v2_more_purchase_depth.xlsx`.)
+- The `discover_projection` tab maps each Stage 1 `cluster_entity_id` → its Stage 2 `category_entity_id` rows (with `category_rank`, `need_entity_ids`, lane/gift fields). This tab — not the live DB — decides what *should* be true.
+- **When validating or debugging Discover** (e.g. "why do two clusters show the same cards?"), diff the live DB against this tab before changing anything. If they disagree, the workbook wins and the DB/mapping is the bug — fix it in a migration, never with fuzzy lookups in app code.
+- Read the workbook directly with the `xlsx` package already used by `scripts/generate-discover-projection-sql.mjs`.
+
 ## 1) Replace catalogue data on `/discover`
 
 **Source:** attached Ember ABI workbook → **`discover_projection` tab only** (Spine 2.0). Full spec: `supabase/import_templates/Leaf_Cursor_Template_ABI_Spine_Age_Band_Ingestion_v2.txt`.

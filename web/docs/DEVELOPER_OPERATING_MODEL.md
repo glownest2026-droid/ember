@@ -107,6 +107,8 @@ function recoverDevelopmentNeedIdsForWrapper(ageBandId, wrapperSlug) {
 
 **Heuristic:** if you catch yourself writing a `recover*`, `guess*`, `fuzzy*`, or `score*` function for data resolution, stop — you have found a data bug to migrate, not a feature to build.
 
+**Offline source of truth for Discover content.** The database is the truth for the *running app*, but the database itself must reflect the **Spine 3.0 Bible workbook** — `Spine 3.0 → Spine 3.0_02 Ember Bibles → 02_Ember_Bible_<band>_*.xlsx → discover_projection tab`. When validating or debugging Discover (Stage 1→Stage 2 mapping, ranks, gift fields), diff the live DB against that tab first; if they disagree, the workbook wins and the DB is the bug. Full detail: `.cursor/rules/conor-grade-catalogue-upload.mdc` §0.
+
 ---
 
 ## 4. Entitlement comes from auth, not data shape
