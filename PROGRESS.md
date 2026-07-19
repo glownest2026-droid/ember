@@ -7,6 +7,7 @@ Founder-selected **Glass Stage** visual language now live on Pip’s Picks / Sta
 - **Canonical docs (also in PR):** `web/docs/ui/STAGE3_GLASS_STAGE_CARD.md`, `web/docs/ui/artifacts/stage3-glass-stage-card.reference.html`, `.cursor/rules/stage3-glass-stage-card.mdc`
 - **Fallback:** solid navy/ink glass when `backdrop-filter` unsupported (`@supports not`)
 - **Verify:** `pnpm -C web` tsc + build pass; phone-width `/discover/2` → Stage 2 with Ember Picks → Pip’s Picks
+- **PR:** https://github.com/glownest2026-droid/ember/pull/275
 - **Conor chrome check:** drawer/CTA labels reuse existing parent-facing strings (“Why Pip picked this”, “Browse offers”) — five tests pass; no new banned marketing copy
 
 ## 2026-07-19: Stage 3 card text now self-measures — no more viewport-height guessing (round 6)
