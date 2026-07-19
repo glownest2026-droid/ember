@@ -13,6 +13,8 @@ Founder follow-up after merging #271. All 11 items shipped in one PR (branch `fi
 - **Item 8 — robin silver**: card-corner robins get a grayscale/brightness filter (premium silver); header robin keeps brand colours.
 - Cache bump `20260719-stage3-followups`. Migrations applied via `supabase db push` and mirrored to `supabase/sql/`. `tsc` + `pnpm build` pass.
 
+**Round 3 (founder, PR #273):** Stage 3 card now fills the viewport almost to the bottom — carousel/card heights are `calc(100dvh - header - fixed offset)` (mobile offset 140px, desktop 100px) instead of capped clamps, leaving only a small gap for the floating Start over button (mobile FAB top ≈ 124px from bottom, card ends ≈ 136px; desktop ≈ 72px / 88px).
+
 **Round 2 (founder screenshots on preview):** (a) card still clipped on ~760–880px-tall phones — height floor lowered to 380px, text clamps now step down in exclusive viewport-height ranges (`>880` / `761–880` / `≤760`), tag clamped to 1 line, tighter mobile padding; (b) popup "not swipeable" for signed-out users was by design (only 1 unlocked pick) but wrong — expanded view now swipes onto the locked upsell card too (Ember Plus pitch inside the popup, `Discover Ember Plus` → `/pricing`), and the swipe surface covers the whole overlay with `touch-action: pan-y`.
 
 ## 2026-07-19: Stage 3 card UX cleanup + Start over + breadth (bug bash items 5–8)

@@ -500,7 +500,7 @@ export function PipsPicksPersimmonCarousel({
       </div>
 
       <div
-        className="relative min-h-[clamp(455px,calc(100dvh-300px),640px)] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[650px]"
+        className="relative min-h-[max(452px,calc(100dvh-var(--header-height,88px)-108px))] overflow-hidden rounded-[28px] bg-[#E4E9E6] shadow-[0_24px_56px_rgba(37,48,68,0.12)] md:min-h-[max(650px,calc(100dvh-var(--header-height,88px)-60px))]"
         style={enable3d ? { perspective: '1200px' } : undefined}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-28 bg-gradient-to-r from-[#E4E9E6] to-transparent md:block" />
@@ -521,7 +521,7 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex h-full max-h-[clamp(420px,calc(100dvh-340px),600px)] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px]"
+                className="relative flex h-full max-h-[max(420px,calc(100dvh-var(--header-height,88px)-140px))] w-[300px] flex-[0_0_300px] snap-center items-center justify-center md:max-h-[max(610px,calc(100dvh-var(--header-height,88px)-100px))] md:w-[370px] md:flex-[0_0_370px]"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
