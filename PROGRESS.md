@@ -14,6 +14,8 @@ Verified in live DB: every 1–3m cluster now returns exactly the Bible's list; 
 
 Same PR, bug bash item 4 — **picks-first Stage 2 ranking**: `sortedPlayIdeas` in `DiscoveryPageClient.tsx` now leads each lane with cards that have Ember Picks (9 categories have visible Stage 3 picks in 1–3m, incl. `cat_soft_carrier_sling` per the founder's example).
 
+Same PR, bug bash item 3 — **old-image audit** (read-only): `agent-tools/exports/old_images_audit_2026-07-19.md`. 41 card placements use pre-2026-06-26 images across two old generations (2026-04-22: 9 files/26 placements, mostly 19–36m; 2026-06-16: 5 files/15 placements incl. founder-reported reach-and-grab). Highest-impact replacement: `ember_cat_soft_graspable_balls_category.png` (10 bands). Replacements need founder-generated assets, then the standard image-mapping migration.
+
 ## 2026-07-19: Developer Operating Model — central knowledge base (docs-only)
 
 Created a cross-agent knowledge base so the #264/#265 learnings become standing rules for every agent (Cursor, Codex, etc.), not just Cursor rules.
