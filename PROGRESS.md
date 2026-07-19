@@ -4448,3 +4448,17 @@ Category-only cards remain publishable.
 - `/discover/10` — **10–12 months**
 - `/discover/32` parent mode — Feeling faces card: no “High chance the family owns…”
 - Sign in → Things that can help → Have it → refresh: card stays greyed
+
+## 2026-07-19 — Stage 3 mobile/PWA card actions clipped
+
+### Summary
+- Fixed Stage 3 (Pip's Picks) card layout on constrained mobile/PWA heights so CTA/buttons are no longer pushed out of the visible card area.
+- Added `min-h-0` guards to the card content flex columns and `shrink-0` to the action row so the bottom controls keep their reserved space.
+- Tightened mobile-only line clamps for description/verdict copy to protect action visibility while preserving full detail in expanded view.
+
+### Files
+- `web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx`
+
+### Verification
+- `pnpm -C web build` ✅
+- Manual spot check target: `/discover/<month>` in mobile viewport/PWA shell; confirm each Stage 3 card shows Browse offers + expand/save buttons without clipping.
