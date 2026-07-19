@@ -52,6 +52,7 @@ Full reasoning and worked examples: **`web/docs/DEVELOPER_OPERATING_MODEL.md`**.
 | Rocket scope, pricing, waitlist | `.cursor/rules/project-rocket.mdc` + `web/docs/PROJECT_ROCKET.md` |
 | Parent persona + copy bar | `.cursor/rules/conscientious-conor.mdc` + `web/docs/CONSCIENTIOUS_CONOR.md` |
 | Catalogue / Discover ingestion | `.cursor/rules/conor-grade-catalogue-upload.mdc` |
+| Offline source of truth (Discover content) | Spine 3.0 Bible workbook `discover_projection` tab — see `.cursor/rules/conor-grade-catalogue-upload.mdc` §0 |
 | Category image mapping | `.cursor/rules/ember-image-mapping.mdc` |
 | Marketing names / banned phrases | `web/docs/PRODUCT_MARKETING_LIBRARY.md` |
 | Brand / visual identity | `web/docs/EMBER_BRAND_BOOK.md` |
