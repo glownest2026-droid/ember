@@ -389,12 +389,15 @@ export function PipsPicksPersimmonCarousel({
   childDisplayLabel,
   isEmberPlusMember,
   onSavePick,
+  bottomNavVisible = false,
 }: {
   picks: GatewayPick[];
   childDisplayLabel?: string | null;
   isEmberPlusMember: boolean;
   /** Save this Stage 3 pick to the parent's list — Products tab (thumb-row save icon). */
   onSavePick?: (pick: GatewayPick, triggerEl: HTMLButtonElement | null) => void;
+  /** Signed-in mobile shows the fixed bottom tab bar; the card's bottom reserve must clear it. */
+  bottomNavVisible?: boolean;
 }) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -482,9 +485,10 @@ export function PipsPicksPersimmonCarousel({
   if (!displayPicks.length) return null;
 
   return (
-    // Viewport-sized column: heading is the anchor target, carousel flexes to
-    // fill the rest, ending just above the Start over FAB (bottom reserve).
-    <section className="relative flex min-h-[calc(100dvh-var(--header-height,88px)-140px)] flex-col overflow-hidden text-[#253044] md:min-h-0">
+    // Full-bleed viewport column (founder, round 4): the section runs to the very
+    // bottom of the screen so the disclosure smallprint and the next section stay
+    // below the fold. The Start over FAB hovers inside the card's bottom reserve.
+    <section className="relative flex min-h-[calc(100dvh-var(--header-height,88px)-4px)] flex-col overflow-hidden text-[#253044] md:min-h-0">
       {/* Compact header on mobile so header + card + Start over share one viewport (item 7). */}
       <div className="relative z-20 -mt-1 shrink-0 px-2 pb-2 text-center md:mt-0 md:px-0 md:pb-5">
         <div className="inline-flex items-center justify-center gap-3 md:gap-4">
@@ -509,7 +513,9 @@ export function PipsPicksPersimmonCarousel({
         <div className="pointer-events-none absolute inset-y-0 right-0 z-20 hidden w-28 bg-gradient-to-l from-[#E4E9E6] to-transparent md:block" />
         <div
           ref={trackRef}
-          className="absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] py-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)]"
+          className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] pt-4 [scrollbar-width:none] md:px-[calc(50%_-_185px)] md:py-4 ${
+            bottomNavVisible ? 'pb-[136px]' : 'pb-20'
+          }`}
           style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
         >
           {displayPicks.map((pick, index) => {
@@ -561,28 +567,30 @@ export function PipsPicksPersimmonCarousel({
                           thumb row (founder, round 3). */}
                       <div className="flex min-h-0 flex-1 flex-col justify-between overflow-hidden">
                         {fields.tag ? (
-                          <p className="m-0 mb-1.5 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-1 md:pr-16">
+                          <p className="m-0 mb-1.5 shrink-0 pr-14 text-[11px] font-extrabold uppercase tracking-widest text-[#FFE0D8] line-clamp-1 md:pr-16">
                             {fields.tag}
                           </p>
                         ) : null}
-                        <h3 className="m-0 mb-2 flex items-start gap-2.5 pr-10 text-[20px] font-extrabold leading-tight tracking-normal text-white md:pr-12 md:text-[22px]">
+                        <h3 className="m-0 mb-2 flex shrink-0 items-start gap-2.5 pr-10 text-[20px] font-extrabold leading-tight tracking-normal text-white md:pr-12 md:text-[22px]">
                           <Icon className="h-6 w-6 flex-shrink-0 text-white" strokeWidth={2.5} aria-hidden />
                           <span className="line-clamp-2">{fields.title}</span>
                         </h3>
                         {fields.brand ? (
-                          <p className="m-0 mb-3 text-[12px] font-bold uppercase tracking-wider text-white/80 line-clamp-1 md:mb-4 md:text-[13px]">
+                          <p className="m-0 mb-3 shrink-0 text-[12px] font-bold uppercase tracking-wider text-white/80 line-clamp-1 md:mb-4 md:text-[13px]">
                             {fields.brand}
                           </p>
                         ) : null}
                         {/* Clamps step down with viewport height so the thumb row is always
-                            inside the card — the popup carries the full text. */}
-                        <p className="m-0 mb-3 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-4 [@media(min-height:821px)]:line-clamp-5 [@media(max-height:760px)]:line-clamp-3 md:mb-4 md:text-[15px] md:line-clamp-5">
+                            inside the card — the popup carries the full text. shrink-0 stops
+                            flexbox squashing a text block mid-line (founder, round 4). */}
+                        <p className="m-0 mb-3 shrink-0 text-[14px] font-medium leading-relaxed text-white/95 line-clamp-4 [@media(min-height:821px)]:line-clamp-5 [@media(max-height:760px)]:line-clamp-3 md:mb-4 md:text-[15px] md:line-clamp-5">
                           {fields.description}
                         </p>
 
                         {/* Verdict follows the description directly — no dead space in the middle
-                            of the card (founder item 3); the thumb row anchors the bottom. */}
-                        <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3 md:p-4">
+                            of the card (founder item 3); the thumb row anchors the bottom. This is
+                            the only block allowed to shrink, clipping at its rounded edge. */}
+                        <div className="min-h-0 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.08] p-3 md:p-4">
                           <strong className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#FF5C34]">
                             Why Pip picked this
                           </strong>
@@ -679,7 +687,7 @@ export function PipsPicksPersimmonCarousel({
             <ChevronRight className="h-6 w-6" aria-hidden />
           </button>
         </div>
-        <div className="absolute bottom-2 left-0 right-0 z-30 flex justify-center gap-2">
+        <div className={`absolute left-0 right-0 z-30 flex justify-center gap-2 md:bottom-2 ${bottomNavVisible ? 'bottom-[126px]' : 'bottom-2'}`}>
           {displayPicks.map((pick, index) => (
             <button
               key={pick.product.id}
