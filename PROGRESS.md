@@ -1,3 +1,7 @@
+## 2026-07-19 — Glass Stage: stop mid-line description clip on mobile
+
+Description had `flex-shrink`, so the card “fitted” by crushing the last line of text. Now description is `shrink-0`, line count is measured sync, and `min-height` locks full line-boxes (mobile max 3 lines).
+
 ## 2026-07-19 — Glass Stage: larger corner robin + drawer description restore
 
 Founder preview follow-up on PR #275:

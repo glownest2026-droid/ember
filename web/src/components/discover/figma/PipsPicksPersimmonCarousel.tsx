@@ -174,6 +174,7 @@ type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
  * (especially signed-in + bottom nav) clamps only as much as needed.
  */
 const MAX_DESC_LINES = 6;
+const MAX_DESC_LINES_MOBILE = 3;
 const MIN_DESC_LINES = 2;
 
 function PickCardBody({
@@ -194,6 +195,7 @@ function PickCardBody({
   onSave?: (trigger: HTMLButtonElement) => void;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [descLines, setDescLines] = useState(MAX_DESC_LINES_MOBILE);
   const shouldReduceMotion = useReducedMotion() ?? false;
   const rootRef = useRef<HTMLDivElement | null>(null);
   const descRef = useRef<HTMLParagraphElement | null>(null);
@@ -208,28 +210,39 @@ function PickCardBody({
     if (!root || !desc) return;
 
     /**
-     * Fit description to spare height. Never hide it (founder bug: open→close
-     * drawer left display:none stuck). While the drawer is open we only dim —
-     * do not re-clamp, or the closing animation still looks "full" and the fit
-     * zeroes the text before the panel has finished collapsing.
+     * Fit description line count to spare height.
+     * Critical: description is shrink-0 — we never flex-crush the box (that
+     * clipped glyphs mid-line on mobile). Measure with inline styles sync,
+     * then commit the final line count to React state.
+     * While the drawer is open we dim only — no re-clamp mid-animation.
      */
     const fit = () => {
       if (drawerOpen) return;
-      let lines = MAX_DESC_LINES;
-      const apply = () => {
+      const mobile = window.matchMedia('(max-width: 767px)').matches;
+      let lines = mobile ? MAX_DESC_LINES_MOBILE : MAX_DESC_LINES;
+
+      const apply = (n: number) => {
         desc.style.display = '-webkit-box';
         desc.style.setProperty('-webkit-box-orient', 'vertical');
         desc.style.overflow = 'hidden';
-        desc.style.setProperty('-webkit-line-clamp', String(lines));
+        desc.style.flexShrink = '0';
+        desc.style.setProperty('-webkit-line-clamp', String(n));
+        const cs = window.getComputedStyle(desc);
+        const fontSize = parseFloat(cs.fontSize) || 13;
+        const lh = Number.parseFloat(cs.lineHeight);
+        const lineHeight = Number.isFinite(lh) ? lh : fontSize * 1.5;
+        // Full line-boxes only — never a fractional last line.
+        desc.style.minHeight = `${Math.ceil(lineHeight * n)}px`;
       };
       const overflowing = () => root.scrollHeight - root.clientHeight > 1;
 
-      apply();
+      apply(lines);
       for (let i = 0; i < 12 && overflowing(); i += 1) {
         if (lines <= MIN_DESC_LINES) break;
         lines -= 1;
-        apply();
+        apply(lines);
       }
+      setDescLines(lines);
     };
 
     const delay = drawerOpen || shouldReduceMotion ? 0 : 340;
@@ -279,10 +292,15 @@ function PickCardBody({
       ) : null}
       <p
         ref={descRef}
-        className={`m-0 mb-2.5 min-h-0 shrink text-[13px] font-medium leading-[1.5] text-white/90 line-clamp-3 md:mb-3 md:text-[13.5px] md:leading-[1.55] md:line-clamp-6 ${styles.descBase} ${
+        className={`m-0 mb-3 shrink-0 text-[13px] font-medium leading-[1.5] text-white/90 md:mb-3 md:text-[13.5px] md:leading-[1.55] ${styles.descBase} ${
           drawerOpen ? styles.descDim : ''
         }`}
-        style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical' as const }}
+        style={{
+          display: '-webkit-box',
+          WebkitBoxOrient: 'vertical',
+          WebkitLineClamp: descLines,
+          overflow: 'hidden',
+        }}
       >
         {fields.description}
       </p>
