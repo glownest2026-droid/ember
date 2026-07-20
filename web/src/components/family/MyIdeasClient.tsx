@@ -42,7 +42,19 @@ export interface ListItemRow {
   products: { name: string; image_url?: string | null } | { name: string; image_url?: string | null }[] | null;
   pl_category_types: { name: string; label: string | null; image_url?: string | null } | { name: string; label: string | null; image_url?: string | null }[] | null;
   pl_ux_wrappers: { ux_label: string; ux_slug?: string | null } | { ux_label: string; ux_slug?: string | null }[] | null;
-  pl_stage3_picks: { product_name: string; brand?: string | null; image_url?: string | null } | { product_name: string; brand?: string | null; image_url?: string | null }[] | null;
+  pl_stage3_picks: {
+    product_name: string;
+    brand?: string | null;
+    image_url?: string | null;
+    category_type_id?: string | null;
+    age_band_id?: string | null;
+  } | {
+    product_name: string;
+    brand?: string | null;
+    image_url?: string | null;
+    category_type_id?: string | null;
+    age_band_id?: string | null;
+  }[] | null;
 }
 
 function _first<T>(v: T | T[] | null): T | null {
@@ -70,7 +82,17 @@ function stage3GoogleShoppingUrl(row: ListItemRow): string {
   return `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(query)}`;
 }
 
-/** Image URL for list item. Category/idea: v_gateway_category_type_images; product: v_gateway_products_public first (same as /discover Examples), then products table. */
+/** True when a Stage 3 / product image URL is missing or unusable. */
+function isBlankImageUrl(url: string | null | undefined): boolean {
+  return !url || !url.trim() || url.trim() === '#';
+}
+
+/** Map key for age-band-specific Stage 2 images (v_gateway_category_type_images). */
+function categoryImageKey(categoryTypeId: string, ageBandId?: string | null): string {
+  return ageBandId ? `${categoryTypeId}|${ageBandId}` : categoryTypeId;
+}
+
+/** Image URL for list item. Category/idea: v_gateway_category_type_images; product: v_gateway_products_public first (same as /discover Examples), then products table. Stage 3: own image, else parent Stage 2 image for the pick's age band. */
 function getItemImageUrl(
   row: ListItemRow,
   categoryImageMap: Map<string, string>,
@@ -83,7 +105,16 @@ function getItemImageUrl(
     if (productImageMap.has(row.product_id)) return productImageMap.get(row.product_id)!;
     if (p?.image_url) return p.image_url;
   }
-  if (row.kind === 'stage3_pick' && s?.image_url) return s.image_url;
+  if (row.kind === 'stage3_pick') {
+    if (!isBlankImageUrl(s?.image_url)) return s!.image_url!.trim();
+    // Inherit parent Stage 2 category art for the age band the pick was saved from.
+    const categoryTypeId = s?.category_type_id ?? null;
+    if (categoryTypeId) {
+      const bandKey = categoryImageKey(categoryTypeId, s?.age_band_id);
+      if (categoryImageMap.has(bandKey)) return categoryImageMap.get(bandKey)!;
+      if (categoryImageMap.has(categoryTypeId)) return categoryImageMap.get(categoryTypeId)!;
+    }
+  }
   if (row.kind === 'category' || row.kind === 'idea') {
     if (row.category_type_id && categoryImageMap.has(row.category_type_id))
       return categoryImageMap.get(row.category_type_id)!;
@@ -205,7 +236,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     const supabase = createClient();
     const { data, error } = await supabase
       .from('user_list_items')
-      .select('id, kind, want, have, gift, product_id, category_type_id, ux_wrapper_id, stage3_pick_id, child_id, created_at, products(name, image_url), pl_category_types(name, label, image_url), pl_ux_wrappers(ux_label, ux_slug), pl_stage3_picks(product_name, brand, image_url)')
+      .select('id, kind, want, have, gift, product_id, category_type_id, ux_wrapper_id, stage3_pick_id, child_id, created_at, products(name, image_url), pl_category_types(name, label, image_url), pl_ux_wrappers(ux_label, ux_slug), pl_stage3_picks(product_name, brand, image_url, category_type_id, age_band_id)')
       .order('created_at', { ascending: false });
     if (!error && data != null) {
       const rows = (data as unknown as (ListItemRow & { child_id?: string | null })[]).map((r) => ({
@@ -284,20 +315,35 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
   }, [fetchList]);
 
   useEffect(() => {
-    const ids = [...new Set(items.map((r) => (r.kind === 'category' || r.kind === 'idea') && r.category_type_id ? r.category_type_id : null).filter(Boolean) as string[])];
+    const ideaCategoryIds = items
+      .map((r) => ((r.kind === 'category' || r.kind === 'idea') && r.category_type_id ? r.category_type_id : null))
+      .filter(Boolean) as string[];
+    const stage3ParentIds = items
+      .filter((r) => r.kind === 'stage3_pick')
+      .map((r) => _first(r.pl_stage3_picks)?.category_type_id ?? null)
+      .filter((id): id is string => typeof id === 'string' && id.length > 0);
+    const ids = [...new Set([...ideaCategoryIds, ...stage3ParentIds])];
     if (ids.length === 0) {
       setCategoryImageMap(new Map());
     } else {
       const supabase = createClient();
       supabase
         .from('v_gateway_category_type_images')
-        .select('category_type_id, image_url')
+        .select('category_type_id, age_band_id, image_url')
         .in('category_type_id', ids)
         .then(({ data }) => {
           const map = new Map<string, string>();
           for (const row of data ?? []) {
-            const r = row as { category_type_id: string; image_url: string };
-            if (r.image_url) map.set(r.category_type_id, r.image_url);
+            const r = row as { category_type_id: string; age_band_id: string | null; image_url: string };
+            if (!r.image_url) continue;
+            // Band-specific key for Stage 3 fallback (e.g. Board books @ 1-3m).
+            if (r.age_band_id) {
+              map.set(categoryImageKey(r.category_type_id, r.age_band_id), r.image_url);
+            }
+            // Plain category id for Ideas tab / global fallback (first wins).
+            if (!map.has(r.category_type_id)) {
+              map.set(r.category_type_id, r.image_url);
+            }
           }
           setCategoryImageMap(map);
         });

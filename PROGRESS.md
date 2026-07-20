@@ -1,4 +1,10 @@
-﻿## 2026-07-20 — fix(discover): mobile "See Our Picks" CTA / Stage 3 anchor reliability
+﻿## 2026-07-20 — fix(my-ideas): Stage 3 product cards inherit Stage 2 image when blank
+
+- `/my-ideas` Products tab: if a saved `stage3_pick` has no `image_url`, use parent Stage 2 art from `v_gateway_category_type_images` for that pick’s `category_type_id` + `age_band_id` (e.g. Peekaboo Bear → Board books and face books @ 1–3m)
+- `MyIdeasClient.tsx`: select `category_type_id`/`age_band_id` on stage3 join; expand category image map with band-keyed lookups
+- PR #275
+
+## 2026-07-20 — fix(discover): mobile "See Our Picks" CTA / Stage 3 anchor reliability
 
 Root causes of unstable mobile tap:
 1. Scroll waited for `/api/discover/picks` to finish → CTA felt dead until network returned
