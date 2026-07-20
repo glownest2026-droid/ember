@@ -1,4 +1,12 @@
-﻿## 2026-07-20 — fix(my-ideas): Stage 3 product cards inherit Stage 2 image when blank
+﻿## 2026-07-20 — fix(gift): Stage 3 image fallback + Find it > on public gift list
+
+- `/gift/[slug]`: blank Stage 3 photos inherit parent Stage 2 category image (age-band scoped), same rule as `/my-ideas`
+- Relatives get **Find it >** → Google Shopping (`shop_query` from brand + product name)
+- Migration applied: `20260720070000_gift_list_stage3_image_and_find_it` (updates `get_public_gift_list`)
+- Files: migration + sql mirror, `GiftListClient.tsx`, `page.tsx`, `eventNames.ts` (`gift_find_it_clicked`)
+- PR #275
+
+## 2026-07-20 — fix(my-ideas): Stage 3 product cards inherit Stage 2 image when blank
 
 - `/my-ideas` Products tab: if a saved `stage3_pick` has no `image_url`, use parent Stage 2 art from `v_gateway_category_type_images` for that pick’s `category_type_id` + `age_band_id` (e.g. Peekaboo Bear → Board books and face books @ 1–3m)
 - `MyIdeasClient.tsx`: select `category_type_id`/`age_band_id` on stage3 join; expand category image map with band-keyed lookups
