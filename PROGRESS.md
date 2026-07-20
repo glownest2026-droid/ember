@@ -1,4 +1,15 @@
-﻿## 2026-07-20 — fix(marketplace): preserve current AI match on “Choose this”
+﻿## 2026-07-20 — At home PR3: Patch Finds + Pass-On fan-out
+
+- **Plan:** `web/docs/INVENTORY_MATCHING_PLAN.md` § PR3
+- **Patch Finds:** on beta listing publish → `queue_patch_finds_for_listing` (relevance + geo + not-already-have) → `inventory_notification_events` → OneSignal push when configured
+- **Pass-On:** cron `POST /api/cron/inventory-notifications` → `queue_pass_on_prompts` for `ready_to_move_on` items (demand nearby vs encourage list)
+- **Demand signal:** `count_patch_find_audience_nearby` replaces placeholder child count in `demand.ts`
+- **Prefs:** new reminder topic `patch_finds` on `/family#reminders`
+- **Migration:** `20260720160000_at_home_notification_fanout_pr3.sql` (applied via `supabase db push`)
+- **Env:** `ONESIGNAL_REST_API_KEY` + existing `NEXT_PUBLIC_ONESIGNAL_APP_ID` for push dispatch; `CRON_SECRET` for Pass-On cron
+- **Verify:** publish listing with `product_type_id` → queued `patch_find` rows; mark item ready_to_move_on → cron queues Pass-On; marketplace opportunity shows relevance-based audience count
+
+## 2026-07-20 — fix(marketplace): preserve current AI match on “Choose this”
 
 - **Issue:** In the listing flow, a correct candidate could flip to an old/random title (e.g. balance bike -> toddler bed) right after pressing **Choose this**.
 - **Root cause:** `select-candidate` identity resolution still considered prior `parent_confirmed_*` values stored on the same draft, so old confirmation text could outrank the new explicit selection.

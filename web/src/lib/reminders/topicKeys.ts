@@ -2,6 +2,7 @@
 export const REMINDER_TOPIC_KEYS = {
   MONTHLY_STAGE_UPDATES: 'monthly_stage_updates',
   MOVE_IT_ON_PROMPTS: 'move_it_on_prompts',
+  PATCH_FINDS: 'patch_finds',
 } as const;
 
 export type ReminderTopicKey = (typeof REMINDER_TOPIC_KEYS)[keyof typeof REMINDER_TOPIC_KEYS];

@@ -1,6 +1,6 @@
 # Inventory matching architecture plan
 
-**Status:** Active — PR2 in flight (2026-07-20); PR1 merged (#276)  
+**Status:** Active — PR3 in flight (2026-07-20); PR1–PR2 merged (#276, #277)  
 **Owner:** Project Rocket / At home + Marketplace sisters  
 **Persona bar:** Conscientious Conor — parents name things; Ember owns the map.
 

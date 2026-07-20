@@ -99,13 +99,15 @@ export async function buildDemandSignal(
   }
 
   let soft_stage_match_count = 0;
-  if (nearbyUserIds.size > 0) {
-    const ids = Array.from(nearbyUserIds);
-    const { count } = await supabase
-      .from("children")
-      .select("id", { count: "exact", head: true })
-      .in("user_id", ids);
-    soft_stage_match_count = Math.min(count ?? 0, 3);
+  if (input.productTypeId && nearbyUserIds.size > 0 && input.location.lat != null && input.location.lng != null) {
+    const { data: audience } = await supabase.rpc("count_patch_find_audience_nearby", {
+      p_seller_user_id: input.sellerUserId,
+      p_product_type_id: input.productTypeId,
+      p_lat: input.location.lat,
+      p_lng: input.location.lng,
+      p_radius_miles: input.location.radius_miles,
+    });
+    soft_stage_match_count = Number(audience ?? 0);
   }
 
   let explicit_interest_count = 0;
