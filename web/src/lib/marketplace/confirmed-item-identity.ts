@@ -23,6 +23,14 @@ function isBroadCategoryLabel(label: string | null | undefined): boolean {
   if (BROAD_CATEGORY_PATTERN.test(norm)) return true;
   // Very short generic phrases without object nouns.
   const objectNouns = [
+    "bike",
+    "trike",
+    "scooter",
+    "ride on",
+    "ride-on",
+    "bed",
+    "cot",
+    "pram",
     "helmet",
     "binocular",
     "saxophone",

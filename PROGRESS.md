@@ -2,7 +2,8 @@
 
 - **Issue:** In the listing flow, a correct candidate could flip to an old/random title (e.g. balance bike -> toddler bed) right after pressing **Choose this**.
 - **Root cause:** `select-candidate` identity resolution still considered prior `parent_confirmed_*` values stored on the same draft, so old confirmation text could outrank the new explicit selection.
-- **Fix:** `web/src/app/api/marketplace/listing-drafts/[draftId]/select-candidate/route.ts` now strips prior `parent_confirmed_*` fields before resolving the new confirmation, ensuring the parent’s current choice is the source of truth.
+- **Follow-up fix:** Added a second guard for id/label drift in the same route. If the chosen display label strongly matches a different canonical item than the candidate id, we remap to the label-aligned canonical id before saving.
+- **Identity fix:** `web/src/lib/marketplace/confirmed-item-identity.ts` now treats concrete nouns like `bike`, `trike`, `scooter`, `ride-on`, `bed`, `cot`, `pram` as specific objects (not broad categories), so parent-confirmed labels are preserved.
 - **Verify:** On an affected draft, run Suggest item then choose the correct candidate; Step 2/Step 3 labels should stay on that chosen item and not jump to unrelated titles.
 
 ## 2026-07-20 — fix(marketplace): reuse At home draft photo when listing from At home

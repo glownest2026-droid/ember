@@ -120,6 +120,38 @@ export async function POST(
     typeof body.display_label === "string" && body.display_label.trim().length > 0
       ? body.display_label.trim()
       : null;
+  let resolvedProductType = productType;
+  if (displayLabel) {
+    const { data: matchedByDisplayLabel } = await supabase.rpc("inventory_match_product_types", {
+      query_text: displayLabel,
+      p_limit: 1,
+    });
+    const bestLabelMatch = Array.isArray(matchedByDisplayLabel) ? matchedByDisplayLabel[0] : null;
+    const bestLabelMatchId =
+      typeof bestLabelMatch?.id === "string" ? bestLabelMatch.id.trim() : "";
+    const bestLabelMatchConfidence =
+      typeof bestLabelMatch?.confidence_bucket === "string"
+        ? bestLabelMatch.confidence_bucket
+        : null;
+
+    // Guard against occasional candidate id/label drift in analysis cards:
+    // when the parent's chosen label strongly matches a different canonical id,
+    // prefer the label-aligned id.
+    if (
+      bestLabelMatchId &&
+      bestLabelMatchId !== productType.id &&
+      (bestLabelMatchConfidence === "high" || bestLabelMatchConfidence === "medium")
+    ) {
+      const { data: remappedProductType } = await supabase
+        .from("product_types")
+        .select("id, label, subtitle")
+        .eq("id", bestLabelMatchId)
+        .maybeSingle();
+      if (remappedProductType?.id) {
+        resolvedProductType = remappedProductType;
+      }
+    }
+  }
   const existingRaw = (draft.ai_raw_response_json ?? null) as Pr3AiRawResponse | null;
   // Parent has just made an explicit new choice. Prior confirmed identity fields
   // from older passes on the same draft must not override this fresh selection.
@@ -135,8 +167,8 @@ export async function POST(
   const resolved = resolveConfirmedIdentity({
     pr3Raw: existingRawWithoutPriorConfirmation,
     parentDisplayLabel: displayLabel,
-    productTypeLabel: productType.label,
-    productTypeSubtitle: productType.subtitle,
+    productTypeLabel: resolvedProductType.label,
+    productTypeSubtitle: resolvedProductType.subtitle,
   });
   const mergedRaw = {
     ...(existingRaw && typeof existingRaw === "object" ? existingRaw : {}),
@@ -152,7 +184,7 @@ export async function POST(
   const { data: updatedDraft, error: updateError } = await supabase
     .from("marketplace_listing_drafts")
     .update({
-      product_type_id: productType.id,
+      product_type_id: resolvedProductType.id,
       status: "confirmed",
       ...draftGeneratedFieldsClearPayload(),
       ai_raw_response_json: mergedRaw,
@@ -171,11 +203,11 @@ export async function POST(
       ok: true,
       message: "Saved to your draft.",
       selected_product_type: {
-        id: productType.id,
-        label: productType.label,
+        id: resolvedProductType.id,
+        label: resolvedProductType.label,
         display_label: resolved.confirmed_item_label,
         category_label: resolved.confirmed_category_label,
-        subtitle: productType.subtitle ?? null,
+        subtitle: resolvedProductType.subtitle ?? null,
       },
       draft: updatedDraft,
     },
