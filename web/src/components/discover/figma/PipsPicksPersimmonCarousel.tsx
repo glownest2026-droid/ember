@@ -165,16 +165,10 @@ type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
  * Glass Stage compact card body (founder-selected 2026-07-19).
  * Spec: web/docs/ui/STAGE3_GLASS_STAGE_CARD.md
  *
- * "Why Pip picked this" is a closed-by-default drawer — earned by a tap —
- * not a permanently expanded verdict wall. Description dims while open.
- *
- * Layout rule (2026-07-19 feedback): never flex-shrink title/brand (mobile
- * overlap). Description line-count is measured against the real card height so
- * desktop fills spare space instead of truncating into an empty gap, and mobile
- * (especially signed-in + bottom nav) clamps only as much as needed.
+ * Description fills leftover card height (no empty mt-auto gap above the
+ * drawer). Line count = floor(availableHeight / lineHeight).
  */
-const MAX_DESC_LINES = 7;
-const MAX_DESC_LINES_MOBILE = 6;
+const MAX_DESC_LINES = 8;
 const MIN_DESC_LINES = 2;
 
 function PickCardBody({
@@ -195,7 +189,7 @@ function PickCardBody({
   onSave?: (trigger: HTMLButtonElement) => void;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [descLines, setDescLines] = useState(MAX_DESC_LINES_MOBILE);
+  const [descLines, setDescLines] = useState(4);
   const shouldReduceMotion = useReducedMotion() ?? false;
   const rootRef = useRef<HTMLDivElement | null>(null);
   const descRef = useRef<HTMLParagraphElement | null>(null);
@@ -204,77 +198,43 @@ function PickCardBody({
     setDrawerOpen(false);
   }, [fields.title, fields.verdict]);
 
-  // When the drawer opens, free vertical space for the verdict scroll by
-  // collapsing the description to its minimum line count (it dims anyway).
-  useEffect(() => {
-    if (!drawerOpen) return;
-    const desc = descRef.current;
-    setDescLines(MIN_DESC_LINES);
-    if (desc) {
-      const cs = window.getComputedStyle(desc);
-      const fontSize = parseFloat(cs.fontSize) || 13;
-      const lh = Number.parseFloat(cs.lineHeight);
-      const lineHeight = Number.isFinite(lh) ? lh : fontSize * 1.5;
-      desc.style.minHeight = `${Math.ceil(lineHeight * MIN_DESC_LINES)}px`;
-      desc.style.setProperty('-webkit-line-clamp', String(MIN_DESC_LINES));
-    }
-  }, [drawerOpen]);
-
   useEffect(() => {
     const root = rootRef.current;
     const desc = descRef.current;
     if (!root || !desc) return;
 
-    /**
-     * Fit description line count to spare height.
-     * Critical: description is shrink-0 — we never flex-crush the box (that
-     * clipped glyphs mid-line on mobile). Measure with inline styles sync,
-     * then commit the final line count to React state.
-     * While the drawer is open we dim only — no re-clamp mid-animation.
-     */
     const fit = () => {
-      if (drawerOpen) return;
-      const mobile = window.matchMedia('(max-width: 767px)').matches;
-      let lines = mobile ? MAX_DESC_LINES_MOBILE : MAX_DESC_LINES;
+      // Let the description flex-grow into free space, then clamp to whole lines.
+      desc.style.flex = drawerOpen ? '0 0 auto' : '1 1 auto';
+      desc.style.minHeight = '0';
+      desc.style.height = 'auto';
+      desc.style.maxHeight = 'none';
+      desc.style.display = '-webkit-box';
+      desc.style.setProperty('-webkit-box-orient', 'vertical');
+      desc.style.overflow = 'hidden';
+      // Unlimited clamp while measuring the flex-assigned box height.
+      desc.style.setProperty('-webkit-line-clamp', '99');
 
-      const apply = (n: number) => {
-        desc.style.display = '-webkit-box';
-        desc.style.setProperty('-webkit-box-orient', 'vertical');
-        desc.style.overflow = 'hidden';
-        desc.style.flexShrink = '0';
-        desc.style.setProperty('-webkit-line-clamp', String(n));
-        const cs = window.getComputedStyle(desc);
-        const fontSize = parseFloat(cs.fontSize) || 13;
-        const lh = Number.parseFloat(cs.lineHeight);
-        const lineHeight = Number.isFinite(lh) ? lh : fontSize * 1.5;
-        // Full line-boxes only — never a fractional last line.
-        desc.style.minHeight = `${Math.ceil(lineHeight * n)}px`;
-      };
-      const overflowing = () => root.scrollHeight - root.clientHeight > 1;
+      const cs = window.getComputedStyle(desc);
+      const fontSize = parseFloat(cs.fontSize) || 13;
+      const lhRaw = Number.parseFloat(cs.lineHeight);
+      const lineHeight = Number.isFinite(lhRaw) ? lhRaw : fontSize * 1.5;
+      const boxH = desc.clientHeight;
+      const maxForBox = Math.max(MIN_DESC_LINES, Math.floor(boxH / lineHeight));
+      const lines = drawerOpen
+        ? MIN_DESC_LINES
+        : Math.min(MAX_DESC_LINES, Math.max(MIN_DESC_LINES, maxForBox));
 
-      apply(lines);
-      for (let i = 0; i < 12 && overflowing(); i += 1) {
-        if (lines <= MIN_DESC_LINES) break;
-        lines -= 1;
-        apply(lines);
-      }
+      desc.style.setProperty('-webkit-line-clamp', String(lines));
       setDescLines(lines);
     };
 
-    const delay = drawerOpen || shouldReduceMotion ? 0 : 340;
-    const timer = window.setTimeout(fit, delay);
-    const observer = new ResizeObserver(() => {
-      if (!drawerOpen) fit();
-    });
+    fit();
+    const observer = new ResizeObserver(() => fit());
     observer.observe(root);
-    document.fonts?.ready.then(() => {
-      if (!drawerOpen) fit();
-    }).catch(() => {});
-    return () => {
-      window.clearTimeout(timer);
-      observer.disconnect();
-    };
-  }, [fields.description, fields.title, fields.brand, fields.tag, drawerOpen, shouldReduceMotion]);
+    document.fonts?.ready.then(() => fit()).catch(() => {});
+    return () => observer.disconnect();
+  }, [fields.description, fields.title, fields.brand, fields.tag, drawerOpen]);
 
   return (
     <div
@@ -308,8 +268,8 @@ function PickCardBody({
       ) : null}
       <p
         ref={descRef}
-        className={`m-0 mb-3 shrink-0 text-[13px] font-medium leading-[1.5] text-white/90 md:mb-3 md:text-[13.5px] md:leading-[1.55] ${styles.descBase} ${
-          drawerOpen ? styles.descDim : ''
+        className={`mb-3 min-h-0 text-[13px] font-medium leading-[1.5] text-white/90 md:text-[13.5px] md:leading-[1.55] ${styles.descBase} ${
+          drawerOpen ? `shrink-0 ${styles.descDim}` : 'flex-1'
         }`}
         style={{
           display: '-webkit-box',
@@ -321,7 +281,7 @@ function PickCardBody({
         {fields.description}
       </p>
 
-      <div className={`mt-auto flex min-h-0 flex-col ${styles.drawer} ${drawerOpen ? styles.drawerOpen : ''}`}>
+      <div className={`flex min-h-0 shrink-0 flex-col ${styles.drawer} ${drawerOpen ? styles.drawerOpen : ''}`}>
         <button
           type="button"
           className={`${styles.drawerHead} flex min-h-11 w-full items-center justify-between gap-2.5 border-0 bg-transparent px-3.5 py-2.5 text-left text-[11px] font-extrabold uppercase tracking-[0.06em] md:min-h-[46px] md:py-3 md:text-[12px]`}
@@ -728,7 +688,7 @@ export function PipsPicksPersimmonCarousel({
       {/* Compact header on mobile so heading + card + Start over share one viewport. */}
       <div
         id="pips-picks-heading"
-        className="relative z-20 shrink-0 scroll-mt-[calc(var(--unified-nav-height,64px)+2px)] px-2 pb-1 text-center md:mt-0 md:px-0 md:pb-5 md:scroll-mt-[calc(var(--header-height,112px)+2px)]"
+        className="relative z-20 shrink-0 scroll-mt-[calc(var(--header-height,112px)+2px)] px-2 pb-1 text-center md:mt-0 md:px-0 md:pb-5"
       >
         <div className="inline-flex items-center justify-center gap-2 md:gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- brand mark is a stable public asset */}

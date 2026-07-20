@@ -1,3 +1,13 @@
+## 2026-07-20 — Glass Stage: stop anchor overshoot + fill card description
+
+Root causes (founder screenshots):
+1. **Overshoot** — multiple setTimeout re-anchors after the viewport-tall section expanded scrolled past Pip’s Picks into the footer / into the card
+2. **Empty card gap** — `mt-auto` on the Why Pip drawer parked free space *above* the drawer while the description stayed at ~2 lines
+
+Fix:
+- Single instant scroll to `#pips-picks-heading` using sticky header bottom (Why these ideas stays hidden on Stage 3)
+- Description is `flex-1`; line count = floor(available height / line-height) so copy fills the card; drawer sits directly under it
+
 ## 2026-07-20 — Glass Stage: real signed-in anchor offset (not 112px)
 
 Founder: previous “anchor fix” was deployed (029bc248) but still underscrolled — it used `--header-height` (112px signed-out token) on signed-in phones where the visible bar is the h-16 row / `--unified-nav-height` (~64px), leaving “? Why these ideas?” in the gap.

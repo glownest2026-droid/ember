@@ -343,53 +343,30 @@ export default function DiscoveryPageClient({
 
   const scrollToStage3Picks = useCallback(
     (behaviorOverride?: ScrollBehavior) => {
-      // Anchor to the Pip's Picks heading itself — not the products section —
-      // so "? Why these ideas?" and other Stage 2 chrome scroll away and the
-      // heading is the first thing under the sticky header (founder 2026-07-20).
-      //
-      // IMPORTANT: do NOT use --header-height (112px) for signed-in mobile. That
-      // token is the signed-out doubled-logo bar. Signed-in chrome is the h-16
-      // logo row (~64px / --unified-nav-height); using 112px underscrolls and
-      // leaves "? Why these ideas?" visible in the gap (founder screenshot).
-      const headerOffsetPx = () => {
-        const signedInNav = document.querySelector('[data-unified-signed-in-nav]');
-        if (signedInNav) {
-          const mainRow = signedInNav.querySelector('.flex.h-16, .flex.md\\:h-20, .relative.flex.h-16');
-          if (mainRow) {
-            return Math.round(mainRow.getBoundingClientRect().bottom) + 2;
-          }
-          const unified = getComputedStyle(document.documentElement)
-            .getPropertyValue('--unified-nav-height')
-            .trim();
-          return (unified ? parseInt(unified, 10) : 64) + 2;
-        }
-        const sticky = document.querySelector('header.sticky');
-        if (sticky) {
-          return Math.round(sticky.getBoundingClientRect().bottom) + 2;
-        }
-        const headerVar = getComputedStyle(document.documentElement)
-          .getPropertyValue('--header-height')
-          .trim();
-        return (headerVar ? parseInt(headerVar, 10) : 112) + 2;
-      };
-
-      const run = (behavior: ScrollBehavior) => {
-        const heading =
-          document.getElementById('pips-picks-heading') ??
-          document.getElementById('discover-figma-products');
-        if (!heading) return;
-        const headerOffset = headerOffsetPx();
-        const rect = heading.getBoundingClientRect();
-        window.scrollTo({ top: Math.max(0, rect.top + window.scrollY - headerOffset), behavior });
-      };
+      // One shot only — repeated re-anchors after layout expansion overshot past
+      // the card into the footer (founder 2026-07-20). "? Why these ideas?" is
+      // hidden during ShowingExamples, so the full sticky header bottom is safe.
       const behavior = behaviorOverride ?? (shouldReduceMotion ? 'auto' : 'smooth');
-      run(behavior);
-      // Re-anchor after layout settles (carousel mount / font metrics).
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => run('auto'));
-      });
-      window.setTimeout(() => run('auto'), 120);
-      window.setTimeout(() => run('auto'), 320);
+      const run = () => {
+        const heading = document.getElementById('pips-picks-heading');
+        if (!heading) return;
+        const header =
+          document.querySelector('[data-unified-signed-in-nav]') ??
+          document.querySelector('header.sticky');
+        const headerOffset = header
+          ? Math.round(header.getBoundingClientRect().bottom) + 2
+          : 72;
+        const y = heading.getBoundingClientRect().top + window.scrollY - headerOffset;
+        window.scrollTo({ top: Math.max(0, y), behavior: 'auto' });
+      };
+      // Prefer instant after paint so smooth+retry races cannot compound.
+      if (behavior === 'smooth' && !shouldReduceMotion) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(run);
+        });
+      } else {
+        requestAnimationFrame(run);
+      }
     },
     [shouldReduceMotion]
   );
@@ -1118,7 +1095,8 @@ export default function DiscoveryPageClient({
     const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedCategoryId ?? 'none'}|${displayIdeas.length}`;
     if (stage3MobileAnchorKeyRef.current === key) return;
     stage3MobileAnchorKeyRef.current = key;
-    requestAnimationFrame(() => scrollToStage3Picks('smooth'));
+    // Instant only — smooth + delayed retries were overshooting past the card.
+    requestAnimationFrame(() => scrollToStage3Picks('auto'));
   }, [discoverState, picksLoading, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, scrollToStage3Picks]);
 
   const handleSaveCategory = (categoryId: string, triggerEl: HTMLButtonElement | null) => {

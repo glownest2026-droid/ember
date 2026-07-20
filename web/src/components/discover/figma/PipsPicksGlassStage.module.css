@@ -106,9 +106,6 @@
 
 .drawerOpen {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
-  /* Take remaining card space so the verdict can scroll fully above the thumbs */
-  flex: 1 1 auto;
-  min-height: 0;
 }
 
 .drawerHead {
@@ -124,11 +121,8 @@
 }
 
 .drawerPanelOpen {
-  /* Grow inside the open drawer; scroll the verdict, with bottom pad so the
-     last line is reachable (founder: scrollbar hit end but text still clipped). */
-  flex: 1 1 auto;
-  min-height: 72px;
-  max-height: min(42dvh, 280px);
+  /* Fixed scrollport with bottom pad so the last verdict line is reachable */
+  max-height: min(38dvh, 240px);
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
