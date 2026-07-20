@@ -688,7 +688,7 @@ export function PipsPicksPersimmonCarousel({
       {/* Compact header on mobile so heading + card + Start over share one viewport. */}
       <div
         id="pips-picks-heading"
-        className="relative z-20 shrink-0 scroll-mt-[calc(var(--header-height,112px)+2px)] px-2 pb-1 text-center md:mt-0 md:px-0 md:pb-5"
+        className="relative z-20 shrink-0 scroll-mt-2 px-2 pb-1 text-center md:mt-0 md:scroll-mt-[calc(var(--header-height,112px)+2px)] md:px-0 md:pb-5"
       >
         <div className="inline-flex items-center justify-center gap-2 md:gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- brand mark is a stable public asset */}
@@ -697,7 +697,7 @@ export function PipsPicksPersimmonCarousel({
             Pip&apos;s Picks
           </h2>
         </div>
-        <p className="mx-auto mt-0.5 max-w-xl text-[12px] font-semibold leading-snug text-[#66717D] md:mt-1 md:max-w-lg md:text-base md:leading-relaxed">
+        <p className="mx-auto mt-0.5 max-w-xl text-[11px] font-semibold leading-snug text-[#66717D] line-clamp-2 md:mt-1 md:max-w-lg md:text-base md:leading-relaxed md:line-clamp-none">
           Pip has foraged the industry for {childDisplayLabel?.trim() || 'your child'}, matching current
           development needs to the best-suited, top-rated products available today.
         </p>
@@ -725,8 +725,9 @@ export function PipsPicksPersimmonCarousel({
         />
         <div
           ref={trackRef}
-          className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-stretch overflow-x-auto px-[calc(50vw_-_150px)] [scrollbar-width:none] md:items-center md:px-[calc(50%_-_185px)] md:pb-[88px] md:pt-4 ${
-            bottomNavVisible ? 'pb-[132px] pt-2' : 'pb-[72px] pt-2'
+          className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-stretch overflow-x-auto px-[calc(50vw_-_150px)] pt-2 [scrollbar-width:none] md:items-center md:px-[calc(50%_-_185px)] md:pb-[88px] md:pt-4 ${
+            // Short-phone: oversized padding was empty dark track below the card.
+            bottomNavVisible ? 'pb-[96px]' : 'pb-[64px]'
           }`}
           style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
         >
@@ -828,9 +829,8 @@ export function PipsPicksPersimmonCarousel({
             <ChevronRight className="h-6 w-6" aria-hidden />
           </button>
         </div>
-        <div
-          className={`absolute left-0 right-0 z-30 flex justify-center gap-2 ${
-            bottomNavVisible ? 'bottom-[118px]' : 'bottom-4'
+        <div className={`absolute left-0 right-0 z-30 flex justify-center gap-2 ${
+            bottomNavVisible ? 'bottom-[88px]' : 'bottom-3'
           } md:bottom-2.5`}
         >
           {displayPicks.map((pick, index) => (

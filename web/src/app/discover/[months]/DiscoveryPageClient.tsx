@@ -342,33 +342,54 @@ export default function DiscoveryPageClient({
   );
 
   const scrollToStage3Picks = useCallback(
-    (behaviorOverride?: ScrollBehavior) => {
-      // One shot only — repeated re-anchors after layout expansion overshot past
-      // the card into the footer (founder 2026-07-20). "? Why these ideas?" is
-      // hidden during ShowingExamples, so the full sticky header bottom is safe.
-      const behavior = behaviorOverride ?? (shouldReduceMotion ? 'auto' : 'smooth');
+    (_behaviorOverride?: ScrollBehavior) => {
+      /**
+       * Founder rule: Pip's Picks heading is the first thing in view.
+       *
+       * Mobile signed-in nav is NOT position:sticky (only lg:sticky). Measuring
+       * that header's 112px minHeight as an offset underscrolls / overshoots
+       * depending on timing. On viewports <1024px, pin the heading near the
+       * top of the viewport. On desktop, offset by the sticky header bottom.
+       *
+       * Wait until #pips-picks-heading exists and has layout — scrolling before
+       * the carousel mounts was a no-op, then later scrolls raced and overshot.
+       */
+      let tries = 0;
+      const maxTries = 60; // ~1s at 60fps
+
       const run = () => {
         const heading = document.getElementById('pips-picks-heading');
-        if (!heading) return;
-        const header =
-          document.querySelector('[data-unified-signed-in-nav]') ??
-          document.querySelector('header.sticky');
-        const headerOffset = header
-          ? Math.round(header.getBoundingClientRect().bottom) + 2
-          : 72;
-        const y = heading.getBoundingClientRect().top + window.scrollY - headerOffset;
+        if (!heading || heading.getBoundingClientRect().height < 8) {
+          if (tries < maxTries) {
+            tries += 1;
+            requestAnimationFrame(run);
+          }
+          return;
+        }
+
+        const desktop = window.matchMedia('(min-width: 1024px)').matches;
+        let offset = 8;
+        if (desktop) {
+          const header =
+            document.querySelector('[data-unified-signed-in-nav]') ??
+            document.querySelector('header.sticky');
+          if (header) offset = Math.round(header.getBoundingClientRect().bottom) + 2;
+        } else {
+          // Signed-out mobile still uses a sticky header.
+          const signedIn = document.querySelector('[data-unified-signed-in-nav]');
+          if (!signedIn) {
+            const sticky = document.querySelector('header.sticky');
+            if (sticky) offset = Math.round(sticky.getBoundingClientRect().bottom) + 2;
+          }
+        }
+
+        const y = heading.getBoundingClientRect().top + window.scrollY - offset;
         window.scrollTo({ top: Math.max(0, y), behavior: 'auto' });
       };
-      // Prefer instant after paint so smooth+retry races cannot compound.
-      if (behavior === 'smooth' && !shouldReduceMotion) {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(run);
-        });
-      } else {
-        requestAnimationFrame(run);
-      }
+
+      requestAnimationFrame(run);
     },
-    [shouldReduceMotion]
+    []
   );
 
   const scrollToWhyMatters = useCallback(() => {
@@ -492,13 +513,6 @@ export default function DiscoveryPageClient({
     setShowingExamples(true);
     void fetchPicksForCategory(categoryFromUrl);
   }, [showFromUrl, categoryFromUrl, wrapperFromUrl, localCategoriesByWrapper, fetchPicksForCategory]);
-
-  useEffect(() => {
-    if (!showFromUrl) return;
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => scrollToStage3Picks('auto'));
-    });
-  }, [showFromUrl, scrollToStage3Picks]);
 
   const selectedBand = ageBands[selectedBandIndex] ?? ageBand;
   const currentMonth = monthParam ?? 25;
@@ -645,9 +659,8 @@ export default function DiscoveryPageClient({
       p.set('category', categoryId);
     });
     void fetchPicksForCategory(categoryId);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => scrollToStage3Picks('auto'));
-    });
+    // Do not scroll here — wait for #pips-picks-heading via the ShowingExamples
+    // effect so we never fire before the carousel mounts (overshoot root cause).
   };
 
   const getSigninUrl = (productId?: string) => {
@@ -1095,8 +1108,7 @@ export default function DiscoveryPageClient({
     const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedCategoryId ?? 'none'}|${displayIdeas.length}`;
     if (stage3MobileAnchorKeyRef.current === key) return;
     stage3MobileAnchorKeyRef.current = key;
-    // Instant only — smooth + delayed retries were overshooting past the card.
-    requestAnimationFrame(() => scrollToStage3Picks('auto'));
+    scrollToStage3Picks();
   }, [discoverState, picksLoading, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, scrollToStage3Picks]);
 
   const handleSaveCategory = (categoryId: string, triggerEl: HTMLButtonElement | null) => {
