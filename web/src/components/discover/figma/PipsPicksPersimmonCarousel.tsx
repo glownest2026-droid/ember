@@ -211,7 +211,17 @@ function PickCardBody({
       const lineHeight = Number.isFinite(lhRaw) ? lhRaw : fontSize * 1.5;
       const mb = Number.parseFloat(cs.marginBottom) || 0;
 
-      // Free height = card body minus every sibling (rank, tag, title, drawer, CTAs).
+      // Cap against the carousel slot (wrapper), not the auto-sized card body —
+      // otherwise short cards never "know" how many extra lines they could show.
+      const wrapper = root.closest('[data-pips-card-wrapper]') as HTMLElement | null;
+      const card = root.closest('[data-pips-card]') as HTMLElement | null;
+      const maxBody = Math.max(
+        0,
+        (wrapper?.clientHeight || card?.clientHeight || 480) -
+          (Number.parseFloat(window.getComputedStyle(card || root).paddingTop) || 0) -
+          (Number.parseFloat(window.getComputedStyle(card || root).paddingBottom) || 0)
+      );
+
       let used = 0;
       for (const child of Array.from(root.children)) {
         if (child === desc) continue;
@@ -221,7 +231,7 @@ function PickCardBody({
           (Number.parseFloat(style.marginTop) || 0) +
           (Number.parseFloat(style.marginBottom) || 0);
       }
-      const available = Math.max(0, root.clientHeight - used - mb);
+      const available = Math.max(0, maxBody - used - mb);
       const maxForBox = Math.max(MIN_DESC_LINES, Math.floor(available / lineHeight));
       const lines = drawerOpen
         ? MIN_DESC_LINES
@@ -249,7 +259,7 @@ function PickCardBody({
   return (
     <div
       ref={rootRef}
-      className={`relative z-10 flex h-full min-h-0 flex-1 flex-col overflow-hidden px-4 py-3.5 transition duration-300 md:p-[18px] ${
+      className={`relative z-10 flex min-h-0 w-full flex-col overflow-hidden px-4 py-3.5 transition duration-300 md:h-full md:flex-1 md:p-[18px] ${
         locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
       }`}
     >
@@ -754,12 +764,12 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-stretch justify-center self-stretch py-0 md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px] md:self-center md:py-2"
+                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-center justify-center self-stretch py-0 md:max-h-[610px] md:w-[370px] md:flex-[0_0_370px] md:self-center md:py-2"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
                   data-pips-card
-                  className={`relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[28px] text-white transition-transform duration-150 md:rounded-[32px] ${styles.glassCard}`}
+                  className={`relative flex max-h-full w-full flex-col overflow-hidden rounded-[28px] text-white transition-transform duration-150 md:h-full md:rounded-[32px] ${styles.glassCard}`}
                   style={
                     {
                       '--accent': accent.accent,

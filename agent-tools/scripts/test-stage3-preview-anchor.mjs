@@ -167,10 +167,10 @@ async function main() {
       console.log(`PASS space: description ~${metrics.descLinesApprox} lines`);
     }
 
-    // Remaining empty below CTAs is OK on a viewport-tall glass card (content is
-    // top-packed). The bug we care about is hollow space *above* the drawer.
-    if (metrics.gapBrowseToCardBottom != null) {
-      console.log(`INFO space: browse→card bottom = ${metrics.gapBrowseToCardBottom}px`);
+    if (metrics.gapBrowseToCardBottom != null && metrics.gapBrowseToCardBottom > 40) {
+      fail(`Empty band under CTAs inside card: ${metrics.gapBrowseToCardBottom}px`);
+    } else if (metrics.gapBrowseToCardBottom != null) {
+      console.log(`PASS space: browse→card bottom = ${metrics.gapBrowseToCardBottom}px`);
     }
   } catch (err) {
     fail(String(err));
