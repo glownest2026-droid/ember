@@ -51,6 +51,19 @@ export type Stage2MatchCandidate = {
   score?: number | null;
 };
 
+export type AtHomeItemTypeMatch = {
+  product_type_id: string;
+  slug: string;
+  label: string;
+  subtitle: string | null;
+  family_slug: string | null;
+  family_label: string | null;
+  family_hint: string | null;
+  specific_label: string | null;
+  confidence_bucket: 'high' | 'medium' | 'low';
+  score?: number | null;
+};
+
 type GarageRow = {
   id: string;
   status: AtHomeItemStatus;
@@ -119,7 +132,7 @@ export function atHomeListItHref(itemId: string): string {
   return `/app/listings?new=1&household_item=${encodeURIComponent(itemId)}`;
 }
 
-/** Dedicated At home add flow (text-first, optional photo, Stage 2 confirm). */
+/** Dedicated At home add flow (text-first, optional photo, item-type confirm). */
 export function atHomeAddHref(
   childId?: string | null,
   from: 'family' | 'at-home' = 'at-home'
@@ -127,6 +140,37 @@ export function atHomeAddHref(
   const params = new URLSearchParams({ from });
   if (childId) params.set('child', childId);
   return `/family/at-home/add?${params.toString()}`;
+}
+
+/** Match parent text to consolidated item-type families (At home add). */
+export async function matchAtHomeItemTypes(args: {
+  query: string;
+  limit?: number;
+}): Promise<{ match: AtHomeItemTypeMatch | null; candidates: AtHomeItemTypeMatch[]; error: string | null }> {
+  const q = args.query.trim();
+  if (!q) return { match: null, candidates: [], error: null };
+
+  const params = new URLSearchParams({ q, limit: String(args.limit ?? 1) });
+
+  try {
+    const res = await fetch(`/api/inventory/match-at-home?${params.toString()}`);
+    const payload = (await res.json()) as {
+      match?: AtHomeItemTypeMatch | null;
+      candidates?: AtHomeItemTypeMatch[];
+      error?: string;
+    };
+    if (!res.ok) {
+      return { match: null, candidates: [], error: payload.error ?? 'Could not find a match.' };
+    }
+    const candidates = payload.candidates ?? (payload.match ? [payload.match] : []);
+    return {
+      match: payload.match ?? candidates[0] ?? null,
+      candidates,
+      error: null,
+    };
+  } catch {
+    return { match: null, candidates: [], error: 'Could not reach match service.' };
+  }
 }
 
 export async function matchStage2Categories(args: {
@@ -204,7 +248,53 @@ async function resolveProductTypeId(
   return null;
 }
 
-/** Save At home from Stage 2 parent confirm (text and/or photo path). */
+/** Save At home from item-type confirm (text and/or photo path). */
+export async function saveAtHomeFromProductTypeMatch(args: {
+  userId: string;
+  productTypeId?: string | null;
+  childId?: string | null;
+  rawQuery?: string | null;
+  hasPhoto?: boolean;
+  draftId?: string | null;
+}): Promise<{ itemId: string | null; error: string | null }> {
+  const supabase = createClient();
+  const childId = args.childId?.trim() || null;
+  const label = args.rawQuery?.trim() || null;
+  const productTypeId = args.productTypeId?.trim() || null;
+
+  const { data, error } = await supabase
+    .from('garage_items')
+    .insert({
+      user_id: args.userId,
+      product_type_id: productTypeId,
+      child_scope_type: childId ? 'single_child' : 'unknown',
+      child_id: childId,
+      raw_query: label,
+      source: args.hasPhoto ? 'photo_assisted' : 'manual_match',
+      status: 'owned',
+    })
+    .select('id')
+    .single();
+
+  if (error || !data?.id) {
+    return { itemId: null, error: error?.message ?? 'Could not save to At home.' };
+  }
+
+  if (args.draftId) {
+    await supabase
+      .from('marketplace_listing_drafts')
+      .update({
+        household_item_id: data.id,
+        ...(productTypeId ? { product_type_id: productTypeId } : {}),
+      })
+      .eq('id', args.draftId)
+      .eq('user_id', args.userId);
+  }
+
+  return { itemId: data.id, error: null };
+}
+
+/** Save At home from Stage 2 parent confirm (Discover Have bridge — legacy path). */
 export async function saveAtHomeFromStage2Match(args: {
   userId: string;
   categoryTypeId?: string | null;
