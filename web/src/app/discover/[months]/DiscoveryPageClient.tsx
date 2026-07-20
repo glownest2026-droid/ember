@@ -152,6 +152,8 @@ export default function DiscoveryPageClient({
   // Server-resolved membership from /api/discover/picks (auth + RLS), not inferred from data shape.
   const [picksAccess, setPicksAccess] = useState<{ canSeeLocked: boolean } | null>(null);
   const picksFetchKeyRef = useRef<string | null>(null);
+  /** Cleared on every "See Our Picks" tap so mobile re-anchors even for the same card. */
+  const stage3MobileAnchorKeyRef = useRef<string | null>(null);
   // Default parent view — most users are the parent; gift mode is opt-in only.
   const [audienceMode, setAudienceMode] = useState<DiscoverAudienceMode>('parent');
   const replayAttemptedRef = useRef(false);
@@ -346,20 +348,20 @@ export default function DiscoveryPageClient({
       /**
        * Founder rule: Pip's Picks heading is the first thing in view.
        *
-       * Mobile signed-in nav is NOT position:sticky (only lg:sticky). Measuring
-       * that header's 112px minHeight as an offset underscrolls / overshoots
-       * depending on timing. On viewports <1024px, pin the heading near the
-       * top of the viewport. On desktop, offset by the sticky header bottom.
+       * Mobile signed-in nav is NOT position:sticky (only lg:sticky). On
+       * viewports <1024px, pin near the top. On desktop, offset by sticky header.
        *
-       * Wait until #pips-picks-heading exists and has layout — scrolling before
-       * the carousel mounts was a no-op, then later scrolls raced and overshot.
+       * Immediate feedback: if the heading is not mounted yet (picks still
+       * loading), pin to #discover-figma-products so the CTA never feels dead,
+       * then re-pin when #pips-picks-heading has layout.
        *
-       * One settle correction after layout (carousel height / fonts) — browsers
-       * can scroll-anchor the page past the heading when the Stage 3 section grows.
+       * One settle correction after layout — browsers can scroll-anchor past
+       * the heading when the Stage 3 section grows.
        */
       let tries = 0;
-      const maxTries = 60; // ~1s at 60fps
+      const maxTries = 180; // ~3s — covers slow picks fetch + mount
       let settleScheduled = false;
+      let pinnedHeading = false;
 
       const offsetForViewport = () => {
         const desktop = window.matchMedia('(min-width: 1024px)').matches;
@@ -379,37 +381,42 @@ export default function DiscoveryPageClient({
         return offset;
       };
 
-      const pin = () => {
-        const heading = document.getElementById('pips-picks-heading');
-        if (!heading) return false;
+      const pinEl = (el: HTMLElement) => {
         const offset = offsetForViewport();
-        const y = heading.getBoundingClientRect().top + window.scrollY - offset;
+        const y = el.getBoundingClientRect().top + window.scrollY - offset;
         window.scrollTo({ top: Math.max(0, y), behavior: 'auto' });
+      };
+
+      const pinHeading = () => {
+        const heading = document.getElementById('pips-picks-heading');
+        if (!heading || heading.getBoundingClientRect().height < 8) return false;
+        pinEl(heading);
+        pinnedHeading = true;
         return true;
       };
 
       const run = () => {
-        const heading = document.getElementById('pips-picks-heading');
-        if (!heading || heading.getBoundingClientRect().height < 8) {
-          if (tries < maxTries) {
-            tries += 1;
-            requestAnimationFrame(run);
+        if (pinHeading()) {
+          if (!settleScheduled) {
+            settleScheduled = true;
+            window.setTimeout(() => {
+              const headingAfter = document.getElementById('pips-picks-heading');
+              if (!headingAfter) return;
+              const top = headingAfter.getBoundingClientRect().top;
+              const offset = offsetForViewport();
+              if (Math.abs(top - offset) > 24) pinHeading();
+            }, 180);
           }
           return;
         }
 
-        pin();
+        // Heading not ready — keep the Stage 3 section in view while picks load.
+        const section = document.getElementById('discover-figma-products');
+        if (section && !pinnedHeading) pinEl(section);
 
-        if (!settleScheduled) {
-          settleScheduled = true;
-          window.setTimeout(() => {
-            const headingAfter = document.getElementById('pips-picks-heading');
-            if (!headingAfter) return;
-            const top = headingAfter.getBoundingClientRect().top;
-            const offset = offsetForViewport();
-            // Only correct drift (overshoot / undershoot) — do not chase forever.
-            if (Math.abs(top - offset) > 24) pin();
-          }, 180);
+        if (tries < maxTries) {
+          tries += 1;
+          requestAnimationFrame(run);
         }
       };
 
@@ -679,14 +686,18 @@ export default function DiscoveryPageClient({
   const handleShowExamples = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
     setShowingExamples(true);
+    // Every CTA tap must re-anchor — including re-taps on the same card (the
+    // one-shot effect key otherwise made the button feel dead on mobile).
+    stage3MobileAnchorKeyRef.current = null;
     replaceClientParams((p) => {
       if (selectedWrapper) p.set('wrapper', selectedWrapper);
       p.set('show', '1');
       p.set('category', categoryId);
     });
     void fetchPicksForCategory(categoryId);
-    // Do not scroll here — wait for #pips-picks-heading via the ShowingExamples
-    // effect so we never fire before the carousel mounts (overshoot root cause).
+    // Instant feedback: scroll to the Stage 3 section now (loading or ready).
+    // The ShowingExamples effect re-pins when the heading mounts after fetch.
+    requestAnimationFrame(() => scrollToStage3Picks());
   };
 
   const getSigninUrl = (productId?: string) => {
@@ -1127,15 +1138,25 @@ export default function DiscoveryPageClient({
     });
   }, [discoverState, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, selectedChildId, user?.id, pathname]);
 
-  const stage3MobileAnchorKeyRef = useRef<string | null>(null);
+  // Re-pin when Stage 3 enters ShowingExamples and again when picks finish loading
+  // (heading mounts). Do not wait for the API — that made the CTA feel dead on mobile.
   useEffect(() => {
-    if (discoverState !== 'ShowingExamples' || picksLoading || displayIdeas.length <= 0) return;
+    if (discoverState !== 'ShowingExamples') return;
     if (typeof window === 'undefined') return;
-    const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedCategoryId ?? 'none'}|${displayIdeas.length}`;
+    const phase = picksLoading ? 'loading' : displayIdeas.length > 0 ? 'ready' : 'empty';
+    const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedCategoryId ?? 'none'}|${phase}|${displayIdeas.length}`;
     if (stage3MobileAnchorKeyRef.current === key) return;
     stage3MobileAnchorKeyRef.current = key;
     scrollToStage3Picks();
-  }, [discoverState, picksLoading, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, scrollToStage3Picks]);
+  }, [
+    discoverState,
+    picksLoading,
+    displayIdeas.length,
+    ageBand?.id,
+    selectedWrapper,
+    selectedCategoryId,
+    scrollToStage3Picks,
+  ]);
 
   const handleSaveCategory = (categoryId: string, triggerEl: HTMLButtonElement | null) => {
     saveModalFocusRef.current = triggerEl;
@@ -1654,8 +1675,25 @@ export default function DiscoveryPageClient({
               <section id="discover-figma-products" className="scroll-mt-[calc(var(--unified-nav-height,64px)+2px)] md:scroll-mt-6">
                 <div id="examplesProgressBar" className="h-1" aria-hidden />
                 {picksLoading ? (
-                  <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]" aria-busy="true">
-                    Loading examples…
+                  <div className="relative flex min-h-[40vh] flex-col text-[#253044] [overflow-anchor:none]">
+                    {/* Same anchor id as the ready carousel — CTA scroll has a target while fetching. */}
+                    <div
+                      id="pips-picks-heading"
+                      className="relative z-20 shrink-0 scroll-mt-2 px-2 pb-3 text-center [overflow-anchor:none]"
+                    >
+                      <h2 className="m-0 text-[20px] font-extrabold leading-tight tracking-normal text-[#253044] md:text-[36px]">
+                        Pip&apos;s Picks
+                      </h2>
+                      <p className="mx-auto mt-1 max-w-xl text-[13px] font-medium text-[#66717D]">
+                        Loading examples…
+                      </p>
+                    </div>
+                    <div
+                      className="mx-auto mt-2 w-full max-w-sm rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]"
+                      aria-busy="true"
+                    >
+                      Finding the best fits…
+                    </div>
                   </div>
                 ) : displayIdeas.length === 0 ? (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]">

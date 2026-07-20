@@ -1,4 +1,17 @@
-﻿## 2026-07-20 — Glass Stage: popup title parity + tighter desktop chrome
+﻿## 2026-07-20 — fix(discover): mobile "See Our Picks" CTA / Stage 3 anchor reliability
+
+Root causes of unstable mobile tap:
+1. Scroll waited for `/api/discover/picks` to finish → CTA felt dead until network returned
+2. One-shot anchor key ignored re-taps on the same Stage 2 card
+3. Embla `dragFree` swallowed button clicks when the finger moved a few pixels
+
+Fix:
+- Scroll immediately on CTA (and again when picks ready); loading state mounts `#pips-picks-heading`
+- Clear anchor key on every tap; pin to section while heading missing, then re-pin
+- Embla `watchDrag` skips buttons/links
+- Files: `DiscoveryPageClient.tsx`, `DiscoverFigmaPlayCarousel.tsx` (PR #275)
+
+## 2026-07-20 — Glass Stage: popup title parity + tighter desktop chrome
 
 Founder follow-up on PR #275:
 1. Popup product title used `h2` at 22/26px — carousel uses `h3` at 19/22px (looked like a different font). Matched popup to carousel title classes.

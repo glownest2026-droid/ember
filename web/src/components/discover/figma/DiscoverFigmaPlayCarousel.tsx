@@ -64,6 +64,13 @@ export function DiscoverFigmaPlayCarousel({
     align: 'start',
     containScroll: 'trimSnaps',
     dragFree: true,
+    // Mobile: dragFree otherwise eats taps on "See Our Picks" when the finger
+    // moves a few pixels — treat interactive controls as non-draggable.
+    watchDrag: (_api, evt) => {
+      const target = evt.target;
+      if (!(target instanceof Element)) return true;
+      return !target.closest('button, a, input, textarea, [role="button"]');
+    },
   });
 
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
