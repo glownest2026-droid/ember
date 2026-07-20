@@ -11,7 +11,9 @@
 - **UI:** `AtHomeAddClient.tsx` — family label + hint; no Stage 2 age band
 - **Verify:** `/family/at-home/add` — founder six examples → one match each; `pnpm -C web build` passes
 - PR #276 — preview green: https://ember-git-feat-at-home-item-type-08dadb-tims-projects-cd69a894.vercel.app
-- **PR1.1 (match quality):** `20260720123000_at_home_match_confidence_gate.sql` — strict matcher; no trigram-only guesses; toy-context gate; bad examples (sword, toy umbrella, sooty and sweep) return no match
+- **PR1.1 (match quality):** `20260720123000_at_home_match_confidence_gate.sql` — strict matcher; no trigram-only guesses
+- **PR1.2 (AI Tier 2):** Gemini text classify when catalogue misses; `learn-at-home-alias` on confirm; pretend_play catalogue seed; migration `20260720124500_at_home_pretend_play_catalogue.sql`
+- **PR1.2b:** AI only after ~1.2s typing pause (`allowAi=1`); catalogue instant at 300ms; repeat phrase cached 24h. Env: `AT_HOME_AI_DAILY_LIMIT` (founder set 200 on Preview)
 
 ## 2026-07-20 — fix(gift): Stage 3 image fallback + Find it > on public gift list
 

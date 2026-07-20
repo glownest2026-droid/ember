@@ -4,6 +4,7 @@ import { resolveAtHomeAiMatch } from "@/lib/inventory/at-home-ai-match";
 import {
   atHomeTextClassifyLimitReachedMessage,
   countAtHomeTextClassifyEventsLast24h,
+  getAtHomeTextClassifyLimitWindowStart,
   resolveAtHomeTextClassifyDailyLimit,
 } from "@/lib/inventory/at-home-ai-rate-limit";
 import { loadAtHomeCatalogue } from "@/lib/inventory/at-home-catalogue";
@@ -74,6 +75,7 @@ async function logAtHomeTextClassifyEvent(
     errorMessage: string | null;
     debugId: string;
     matched: boolean;
+    match?: AtHomeMatchRow | null;
   }
 ) {
   await supabase.from("ai_listing_analysis_events").insert({
@@ -87,11 +89,81 @@ async function logAtHomeTextClassifyEvent(
       raw_query: args.query,
       debug_id: args.debugId,
       matched: args.matched,
+      ...(args.match
+        ? {
+            product_type_id: args.match.product_type_id,
+            family_slug: args.match.family_slug,
+            family_label: args.match.family_label,
+            specific_label: args.match.specific_label,
+          }
+        : {}),
     },
     cost_estimate: null,
     success: args.success,
     error_message: args.errorMessage,
   });
+}
+
+async function loadCachedAtHomeAiMatch(
+  supabase: ReturnType<typeof createClient>["supabase"],
+  userId: string,
+  query: string
+): Promise<AtHomeMatchRow | null> {
+  const limitWindowStart = getAtHomeTextClassifyLimitWindowStart();
+  const { data } = await supabase
+    .from("ai_listing_analysis_events")
+    .select("vision_features_used")
+    .eq("user_id", userId)
+    .eq("success", true)
+    .gte("created_at", limitWindowStart)
+    .eq("vision_features_used->>mode", "at_home_text_classify")
+    .eq("vision_features_used->>raw_query", query)
+    .eq("vision_features_used->>matched", "true")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const payload = (data as { vision_features_used?: Record<string, unknown> } | null)
+    ?.vision_features_used;
+  const productTypeId = String(payload?.product_type_id ?? "").trim();
+  if (!productTypeId) return null;
+
+  const { data: productType } = await supabase
+    .from("product_types")
+    .select("id, slug, label, subtitle, family_slug")
+    .eq("id", productTypeId)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (!productType?.id) return null;
+
+  const familySlug = productType.family_slug ? String(productType.family_slug) : null;
+  let familyLabel = String(payload?.family_label ?? "").trim() || null;
+  let familyHint: string | null = null;
+  if (familySlug) {
+    const { data: family } = await supabase
+      .from("item_type_families")
+      .select("label, hint")
+      .eq("slug", familySlug)
+      .maybeSingle();
+    familyLabel = family?.label ? String(family.label) : familyLabel;
+    familyHint = family?.hint ? String(family.hint) : null;
+  }
+
+  return {
+    product_type_id: productType.id,
+    slug: String(productType.slug),
+    label: familyLabel ?? String(productType.label),
+    subtitle: familyHint ?? (productType.subtitle ? String(productType.subtitle) : null),
+    family_slug: familySlug,
+    family_label: familyLabel,
+    family_hint: familyHint,
+    specific_label: String(payload?.specific_label ?? productType.label),
+    confidence_bucket: "high",
+    score: 95,
+    match_source: "ai",
+    ai_hint: null,
+  };
 }
 
 /** GET /api/inventory/match-at-home?q=paddington&limit=1 */
@@ -109,6 +181,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const query = (searchParams.get("q") ?? "").trim();
   const limit = parseLimit(searchParams.get("limit"));
+  const allowAi = searchParams.get("allowAi") === "1";
 
   if (!query) {
     return json({ match: null, candidates: [] }, { status: 200 });
@@ -146,7 +219,14 @@ export async function GET(request: NextRequest) {
 
   let qualityCandidates = catalogueCandidates.slice(0, limit);
 
-  if (qualityCandidates.length === 0 && query.length >= 3) {
+  if (allowAi && qualityCandidates.length === 0 && query.length >= 3) {
+    const cachedAiMatch = await loadCachedAtHomeAiMatch(supabase, user.id, query);
+    if (cachedAiMatch) {
+      qualityCandidates = [cachedAiMatch];
+    }
+  }
+
+  if (allowAi && qualityCandidates.length === 0 && query.length >= 3) {
     const aiEnv = getAiListingEnvironment();
     const dailyLimit = await resolveAtHomeTextClassifyDailyLimit(supabase, user);
     const usedToday = await countAtHomeTextClassifyEventsLast24h(supabase, user.id);
@@ -174,6 +254,7 @@ export async function GET(request: NextRequest) {
           errorMessage: null,
           debugId,
           matched: Boolean(aiMatch),
+          match: aiMatch,
         });
       } catch (err) {
         const message =

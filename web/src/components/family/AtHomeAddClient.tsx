@@ -17,6 +17,9 @@ const RAW_LISTING_BUCKET = 'marketplace-raw-listing-photos';
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MATCH_MIN_CHARS = 2;
+const CATALOGUE_DEBOUNCE_MS = 300;
+/** Wait for typing to pause before spending an AI name check. */
+const AI_PAUSE_MS = 900;
 
 function getFileExtension(file: File): string {
   const fromName = file.name.split('.').pop()?.toLowerCase();
@@ -37,6 +40,7 @@ export function AtHomeAddClient({
   const [query, setQuery] = useState('');
   const [match, setMatch] = useState<AtHomeItemTypeMatch | null>(null);
   const [matchLoading, setMatchLoading] = useState(false);
+  const [aiChecking, setAiChecking] = useState(false);
   const [matchError, setMatchError] = useState<string | null>(null);
   const [aiLimitMessage, setAiLimitMessage] = useState<string | null>(null);
   const [photoHint, setPhotoHint] = useState<string | null>(null);
@@ -58,34 +62,67 @@ export function AtHomeAddClient({
       : '/family/at-home';
   const backLabel = cameFromFamily ? 'Back to Family' : 'Back to At home';
 
-  const runMatch = useCallback(async (text: string) => {
+  const runMatch = useCallback(async (text: string, allowAi: boolean) => {
     const q = text.trim();
     if (q.length < MATCH_MIN_CHARS) {
       setMatch(null);
       setMatchError(null);
+      setAiLimitMessage(null);
       return;
     }
-    setMatchLoading(true);
+    if (allowAi) {
+      setAiChecking(true);
+    } else {
+      setMatchLoading(true);
+      setMatch(null);
+    }
     setMatchError(null);
     setAiLimitMessage(null);
-    setMatch(null);
-    const { match: next, error, aiLimitMessage } = await matchAtHomeItemTypes({ query: q, limit: 1 });
+
+    const { match: next, error, aiLimitMessage } = await matchAtHomeItemTypes({
+      query: q,
+      limit: 1,
+      allowAi,
+    });
+
     setMatch(next);
     setMatchError(error);
     setAiLimitMessage(aiLimitMessage ?? null);
     setMatchLoading(false);
+    setAiChecking(false);
   }, []);
 
   useEffect(() => {
     const q = query.trim();
     if (q.length < MATCH_MIN_CHARS) {
       setMatch(null);
+      setMatchLoading(false);
+      setAiChecking(false);
+      setAiLimitMessage(null);
       return;
     }
-    const t = window.setTimeout(() => {
-      void runMatch(q);
-    }, 280);
-    return () => window.clearTimeout(t);
+
+    const catalogueTimer = window.setTimeout(() => {
+      void runMatch(q, false);
+    }, CATALOGUE_DEBOUNCE_MS);
+
+    const aiTimer = window.setTimeout(() => {
+      void (async () => {
+        const catalogueOnly = await matchAtHomeItemTypes({ query: q, limit: 1, allowAi: false });
+        if (catalogueOnly.match) {
+          setMatch(catalogueOnly.match);
+          setMatchLoading(false);
+          setAiChecking(false);
+          return;
+        }
+        await runMatch(q, true);
+      })();
+    }, CATALOGUE_DEBOUNCE_MS + AI_PAUSE_MS);
+
+    return () => {
+      window.clearTimeout(catalogueTimer);
+      window.clearTimeout(aiTimer);
+    };
   }, [query, runMatch]);
 
   const handleFileSelected = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -170,7 +207,7 @@ export function AtHomeAddClient({
       if (hinted) {
         setPhotoHint(hinted);
         setQuery((prev) => (prev.trim() ? prev : hinted));
-        await runMatch(hinted);
+        await runMatch(hinted, true);
       }
     } catch (err) {
       setPhotoError(err instanceof Error ? err.message : 'Photo upload failed.');
@@ -338,6 +375,9 @@ export function AtHomeAddClient({
         <div className="flex items-center justify-between gap-2 mb-3">
           <h2 className="text-base font-medium text-[#253044] m-0">Best match</h2>
           {matchLoading && <span className="text-xs text-[#66717D]">Checking...</span>}
+          {!matchLoading && aiChecking && (
+            <span className="text-xs text-[#66717D]">Checking name...</span>
+          )}
         </div>
 
         {query.trim().length < MATCH_MIN_CHARS && (

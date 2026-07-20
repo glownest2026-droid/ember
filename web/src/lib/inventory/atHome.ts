@@ -148,6 +148,7 @@ export function atHomeAddHref(
 export async function matchAtHomeItemTypes(args: {
   query: string;
   limit?: number;
+  allowAi?: boolean;
 }): Promise<{
   match: AtHomeItemTypeMatch | null;
   candidates: AtHomeItemTypeMatch[];
@@ -158,6 +159,7 @@ export async function matchAtHomeItemTypes(args: {
   if (!q) return { match: null, candidates: [], error: null };
 
   const params = new URLSearchParams({ q, limit: String(args.limit ?? 1) });
+  if (args.allowAi) params.set('allowAi', '1');
 
   try {
     const res = await fetch(`/api/inventory/match-at-home?${params.toString()}`);

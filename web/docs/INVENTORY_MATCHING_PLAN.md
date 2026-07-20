@@ -57,7 +57,9 @@ Instance pin (PR2+)   →  Age-fit variant on this specific object
 | **2 — AI classify** | Gemini picks `family_slug` + `product_type_slug` from controlled catalogue when Tier 1 misses | confidence ≥ 0.72 | Yes |
 | **3 — Gate** | Below thresholds | — | **No match** + Add anyway |
 
-**Tier 2:** `GET /api/inventory/match-at-home` → SQL first → `classifyAtHomeTextWithGemini` if miss. Parent confirm → `POST /api/inventory/learn-at-home-alias` seeds alias for next parent (Tier 1).
+**Tier 2:** `GET /api/inventory/match-at-home?allowAi=1` — only after ~1.2s typing pause (catalogue runs at 300ms). Same phrase cached 24h without a second Gemini call.
+
+**Env:** `AT_HOME_AI_DAILY_LIMIT` (default 30) — **not** `AI_LISTING_DAILY_LIMIT` (photo checks).
 
 **Toy context gate (Tier 1):** if query contains `toy`, matched type must be toy-class.
 
