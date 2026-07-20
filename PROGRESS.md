@@ -1,3 +1,11 @@
+## 2026-07-20 — Glass Stage: real signed-in anchor offset (not 112px)
+
+Founder: previous “anchor fix” was deployed (029bc248) but still underscrolled — it used `--header-height` (112px signed-out token) on signed-in phones where the visible bar is the h-16 row / `--unified-nav-height` (~64px), leaving “? Why these ideas?” in the gap.
+
+- Scroll offset now measures the signed-in logo row (fallback `--unified-nav-height`)
+- Hide “? Why these ideas?” while `ShowingExamples` so Pip’s Picks is first
+- Compact Pip’s Picks header; more description line budget; slightly less track bottom padding
+
 ## 2026-07-20 — Glass Stage: Pip's Picks anchor + Why Pip drawer scroll end
 
 Founder follow-up on PR #275:

@@ -173,8 +173,8 @@ type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
  * desktop fills spare space instead of truncating into an empty gap, and mobile
  * (especially signed-in + bottom nav) clamps only as much as needed.
  */
-const MAX_DESC_LINES = 6;
-const MAX_DESC_LINES_MOBILE = 5;
+const MAX_DESC_LINES = 7;
+const MAX_DESC_LINES_MOBILE = 6;
 const MIN_DESC_LINES = 2;
 
 function PickCardBody({
@@ -728,16 +728,16 @@ export function PipsPicksPersimmonCarousel({
       {/* Compact header on mobile so heading + card + Start over share one viewport. */}
       <div
         id="pips-picks-heading"
-        className="relative z-20 -mt-1 shrink-0 scroll-mt-[calc(var(--header-height,88px)+2px)] px-2 pb-1.5 text-center md:mt-0 md:px-0 md:pb-5"
+        className="relative z-20 shrink-0 scroll-mt-[calc(var(--unified-nav-height,64px)+2px)] px-2 pb-1 text-center md:mt-0 md:px-0 md:pb-5 md:scroll-mt-[calc(var(--header-height,112px)+2px)]"
       >
-        <div className="inline-flex items-center justify-center gap-2.5 md:gap-4">
+        <div className="inline-flex items-center justify-center gap-2 md:gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- brand mark is a stable public asset */}
-          <img src={ROBIN_LOGO_URL} alt="" className="h-9 w-9 object-contain md:h-20 md:w-20" />
-          <h2 className="m-0 text-[22px] font-extrabold leading-tight tracking-normal text-[#253044] md:text-[40px]">
+          <img src={ROBIN_LOGO_URL} alt="" className="h-8 w-8 object-contain md:h-20 md:w-20" />
+          <h2 className="m-0 text-[20px] font-extrabold leading-tight tracking-normal text-[#253044] md:text-[40px]">
             Pip&apos;s Picks
           </h2>
         </div>
-        <p className="mx-auto mt-1 max-w-xl text-[12px] font-semibold leading-snug text-[#66717D] md:mt-1 md:max-w-lg md:text-base md:leading-relaxed">
+        <p className="mx-auto mt-0.5 max-w-xl text-[12px] font-semibold leading-snug text-[#66717D] md:mt-1 md:max-w-lg md:text-base md:leading-relaxed">
           Pip has foraged the industry for {childDisplayLabel?.trim() || 'your child'}, matching current
           development needs to the best-suited, top-rated products available today.
         </p>
@@ -766,7 +766,7 @@ export function PipsPicksPersimmonCarousel({
         <div
           ref={trackRef}
           className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-stretch overflow-x-auto px-[calc(50vw_-_150px)] [scrollbar-width:none] md:items-center md:px-[calc(50%_-_185px)] md:pb-[88px] md:pt-4 ${
-            bottomNavVisible ? 'pb-[148px] pt-3' : 'pb-[88px] pt-3'
+            bottomNavVisible ? 'pb-[132px] pt-2' : 'pb-[72px] pt-2'
           }`}
           style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
         >

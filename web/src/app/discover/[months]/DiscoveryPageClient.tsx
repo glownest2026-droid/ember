@@ -346,14 +346,39 @@ export default function DiscoveryPageClient({
       // Anchor to the Pip's Picks heading itself — not the products section —
       // so "? Why these ideas?" and other Stage 2 chrome scroll away and the
       // heading is the first thing under the sticky header (founder 2026-07-20).
+      //
+      // IMPORTANT: do NOT use --header-height (112px) for signed-in mobile. That
+      // token is the signed-out doubled-logo bar. Signed-in chrome is the h-16
+      // logo row (~64px / --unified-nav-height); using 112px underscrolls and
+      // leaves "? Why these ideas?" visible in the gap (founder screenshot).
+      const headerOffsetPx = () => {
+        const signedInNav = document.querySelector('[data-unified-signed-in-nav]');
+        if (signedInNav) {
+          const mainRow = signedInNav.querySelector('.flex.h-16, .flex.md\\:h-20, .relative.flex.h-16');
+          if (mainRow) {
+            return Math.round(mainRow.getBoundingClientRect().bottom) + 2;
+          }
+          const unified = getComputedStyle(document.documentElement)
+            .getPropertyValue('--unified-nav-height')
+            .trim();
+          return (unified ? parseInt(unified, 10) : 64) + 2;
+        }
+        const sticky = document.querySelector('header.sticky');
+        if (sticky) {
+          return Math.round(sticky.getBoundingClientRect().bottom) + 2;
+        }
+        const headerVar = getComputedStyle(document.documentElement)
+          .getPropertyValue('--header-height')
+          .trim();
+        return (headerVar ? parseInt(headerVar, 10) : 112) + 2;
+      };
+
       const run = (behavior: ScrollBehavior) => {
         const heading =
           document.getElementById('pips-picks-heading') ??
           document.getElementById('discover-figma-products');
         if (!heading) return;
-        const headerVar = getComputedStyle(document.documentElement).getPropertyValue('--header-height').trim();
-        const headerPx = headerVar ? parseInt(headerVar, 10) : 88;
-        const headerOffset = headerPx + 2;
+        const headerOffset = headerOffsetPx();
         const rect = heading.getBoundingClientRect();
         window.scrollTo({ top: Math.max(0, rect.top + window.scrollY - headerOffset), behavior });
       };
@@ -361,9 +386,10 @@ export default function DiscoveryPageClient({
       run(behavior);
       // Re-anchor after layout settles (carousel mount / font metrics).
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => run(behavior === 'smooth' ? 'auto' : behavior));
+        requestAnimationFrame(() => run('auto'));
       });
-      window.setTimeout(() => run('auto'), 180);
+      window.setTimeout(() => run('auto'), 120);
+      window.setTimeout(() => run('auto'), 320);
     },
     [shouldReduceMotion]
   );
@@ -1595,7 +1621,8 @@ export default function DiscoveryPageClient({
               </section>
             ) : null}
 
-            {selectedWrapper ? (
+            {/* Hide while Pip's Picks is on screen — founder: heading must be first. */}
+            {selectedWrapper && discoverState !== 'ShowingExamples' ? (
               <div className="flex flex-col items-center gap-6 mt-6 mb-10 px-4">
                 <button
                   type="button"
@@ -1608,7 +1635,7 @@ export default function DiscoveryPageClient({
             ) : null}
 
             {discoverState === 'ShowingExamples' ? (
-              <section id="discover-figma-products" className="scroll-mt-[calc(var(--header-height,88px)+2px)] md:scroll-mt-6">
+              <section id="discover-figma-products" className="scroll-mt-[calc(var(--unified-nav-height,64px)+2px)] md:scroll-mt-6">
                 <div id="examplesProgressBar" className="h-1" aria-hidden />
                 {picksLoading ? (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]" aria-busy="true">
