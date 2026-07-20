@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { Gift, ImageOff, Users } from 'lucide-react';
+import { Gift, ImageOff, Search, Users } from 'lucide-react';
 import { EVENTS } from '@/lib/analytics/eventNames';
 import { trackEvent } from '@/lib/analytics/trackEvent';
 
@@ -13,9 +13,15 @@ export type PublicGiftItem = {
   image_url: string | null;
   created_at: string;
   child_id: string | null;
+  /** Brand + product (or category) query for Google Shopping — relatives "Find it >". */
+  shop_query: string | null;
 };
 
 const UNASSIGNED_VALUE = '__unassigned__';
+
+function googleShoppingUrl(query: string): string {
+  return `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(query.trim())}`;
+}
 
 export function GiftListClient({
   items,
@@ -86,38 +92,63 @@ export function GiftListClient({
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {filteredItems.map((row) => (
-            <div
-              key={row.id}
-              className="rounded-xl border overflow-hidden bg-white"
-              style={{ borderColor: 'var(--ember-border-subtle, #E5E7EB)' }}
-            >
-              {row.image_url ? (
-                <div className="aspect-square bg-[#f5f5f5] relative">
-                  <img
-                    src={row.image_url}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-2 right-2 rounded-full p-1.5 shadow-sm bg-white">
-                    <Gift className="w-3.5 h-3.5 text-[#E65100]" aria-hidden />
+          {filteredItems.map((row) => {
+            const findItHref =
+              row.shop_query && row.shop_query.trim()
+                ? googleShoppingUrl(row.shop_query)
+                : null;
+            return (
+              <div
+                key={row.id}
+                className="rounded-xl border overflow-hidden bg-white"
+                style={{ borderColor: 'var(--ember-border-subtle, #E5E7EB)' }}
+              >
+                {row.image_url ? (
+                  <div className="aspect-square bg-[#f5f5f5] relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- gift share is public CDN art */}
+                    <img
+                      src={row.image_url}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2 right-2 rounded-full p-1.5 shadow-sm bg-white">
+                      <Gift className="w-3.5 h-3.5 text-[#E65100]" aria-hidden />
+                    </div>
                   </div>
+                ) : (
+                  <div className="aspect-square bg-[#f5f5f5] flex items-center justify-center text-[#5C646D]">
+                    <ImageOff className="w-10 h-10" aria-hidden />
+                  </div>
+                )}
+                <div className="p-3">
+                  <h2 className="font-medium text-sm line-clamp-2 text-[#1A1E23]">
+                    {row.display_name ?? '—'}
+                  </h2>
+                  <p className="text-xs text-[#5C646D] mt-1">
+                    {formatSavedTime(row.created_at)}
+                  </p>
+                  {findItHref ? (
+                    <a
+                      href={findItHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-[#FF5C34] hover:text-[#E04B28]"
+                      onClick={() => {
+                        trackEvent(EVENTS.GIFT_FIND_IT_CLICKED, {
+                          gift_share_slug: giftShareSlug,
+                          item_id: row.id,
+                          kind: row.kind,
+                        });
+                      }}
+                    >
+                      <Search className="w-3.5 h-3.5" aria-hidden />
+                      Find it &gt;
+                    </a>
+                  ) : null}
                 </div>
-              ) : (
-                <div className="aspect-square bg-[#f5f5f5] flex items-center justify-center text-[#5C646D]">
-                  <ImageOff className="w-10 h-10" aria-hidden />
-                </div>
-              )}
-              <div className="p-3">
-                <h2 className="font-medium text-sm line-clamp-2 text-[#1A1E23]">
-                  {row.display_name ?? '—'}
-                </h2>
-                <p className="text-xs text-[#5C646D] mt-1">
-                  {formatSavedTime(row.created_at)}
-                </p>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {filteredItems.length === 0 && (

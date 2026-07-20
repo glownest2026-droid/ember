@@ -1,88 +1,214 @@
-## 2026-07-19: Stage 3 card text now self-measures — no more viewport-height guessing (round 6)
+﻿## 2026-07-20 — fix(gift): Stage 3 image fallback + Find it > on public gift list
 
-Founder found DevTools device emulation did not match his real phone: viewport-height media queries (`@media (max-height: …)`) measure the browser window, which differs across real browser chrome / PWA standalone / DevTools for the same physical screen, so clamps tuned in emulation still clipped the "Why Pip picked this" box behind the thumb row on-device.
+- `/gift/[slug]`: blank Stage 3 photos inherit parent Stage 2 category image (age-band scoped), same rule as `/my-ideas`
+- Relatives get **Find it >** → Google Shopping (`shop_query` from brand + product name)
+- Migration applied: `20260720070000_gift_list_stage3_image_and_find_it` (updates `get_public_gift_list`)
+- Files: migration + sql mirror, `GiftListClient.tsx`, `page.tsx`, `eventNames.ts` (`gift_find_it_clicked`)
+- PR #275
 
-- **Fix (branch `fix/stage3-adaptive-card-fit`)**: extracted the compact-card body into `PickCardBody` (`web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx`), which measures its own rendered height after layout (`ResizeObserver` + font-ready refit) and steps description/verdict line counts down (desc 5→2, verdict 6→1) until tag + title + brand + description + verdict + thumb row all fit inside the *actual* card. If space is extremely tight the verdict box collapses entirely instead of clipping mid-sentence. All `[@media(min-height/max-height:…)]` clamp variants removed. The expand popup still carries the full text, so the compact card is always just a teaser.
-- Behaviour is now device-truthful by construction: whatever height the card really gets — any phone, any browser chrome state, any DevTools profile — the text budget is computed from that height, not from a guessed viewport.
+## 2026-07-20 — fix(my-ideas): Stage 3 product cards inherit Stage 2 image when blank
+
+- `/my-ideas` Products tab: if a saved `stage3_pick` has no `image_url`, use parent Stage 2 art from `v_gateway_category_type_images` for that pick’s `category_type_id` + `age_band_id` (e.g. Peekaboo Bear → Board books and face books @ 1–3m)
+- `MyIdeasClient.tsx`: select `category_type_id`/`age_band_id` on stage3 join; expand category image map with band-keyed lookups
+- PR #275
+
+## 2026-07-20 — fix(discover): mobile "See Our Picks" CTA / Stage 3 anchor reliability
+
+Root causes of unstable mobile tap:
+1. Scroll waited for `/api/discover/picks` to finish → CTA felt dead until network returned
+2. One-shot anchor key ignored re-taps on the same Stage 2 card
+3. Embla `dragFree` swallowed button clicks when the finger moved a few pixels
+
+Fix:
+- Scroll immediately on CTA (and again when picks ready); loading state mounts `#pips-picks-heading`
+- Clear anchor key on every tap; pin to section while heading missing, then re-pin
+- Embla `watchDrag` skips buttons/links
+- Files: `DiscoveryPageClient.tsx`, `DiscoverFigmaPlayCarousel.tsx` (PR #275)
+
+## 2026-07-20 — Glass Stage: popup title parity + tighter desktop chrome
+
+Founder follow-up on PR #275:
+1. Popup product title used `h2` at 22/26px — carousel uses `h3` at 19/22px (looked like a different font). Matched popup to carousel title classes.
+2. Desktop track 560 → **500px** (card max ~440) so empty bands shrink further.
+3. Desktop prev/next arrows moved **outside** the dark track onto the cream gutter (white discs) so they no longer sit on peek cards.
+
+## 2026-07-20 — Glass Stage: expand pop-up + tighter desktop track
+
+Founder:
+1. Expand / pop-up still used the old cream + solid navy card
+2. Desktop carousel track was near full-viewport tall → huge empty bands above/below content-sized cards
+
+Fix:
+- `PipsPickExpanded` uses Glass Stage (dark track, glass, robin, accent drawer; drawer open by default in reader; close top-left)
+- Desktop: drop viewport `min-height` on the section; track is a fixed `560px` shell; cards hug content (`md:h-auto`)
+
+PR #275.
+
+## 2026-07-20 — Glass Stage: self-tested spacing (shrink-wrap description)
+
+Founder: preview still showed hollow space above “Why Pip picked this.” Playwright on the live preview measured **~76px text→drawer gap** — the description `<p>` was `flex-1` (140px box) while the muslin blurb only needed ~77px of text.
+
+Fix:
+- Measure free height from siblings; line-clamp up to that budget; **shrink-wrap** the box (`flex: 0 0 auto`) so short copy does not leave a mid-card hollow
+- Mobile cards **size to content** (capped by the carousel slot) so leftover space is dark track, not an empty band under Browse offers
+- One settle re-pin after layout + `overflow-anchor: none` on the Stage 3 section (stops browser scroll-anchoring past the heading)
+- Slightly less track bottom padding / dots
+
+Smoke (run after Vercel green): `node agent-tools/scripts/test-stage3-preview-anchor.mjs` and `…/test-stage3-preview-cta-path.mjs` — assert `gapTextToDrawer ≤ 28`, heading near top, footer not in view.
+
+PR #275.
+
+## 2026-07-20 — Glass Stage: preview-verified anchor (wait for heading) + less track padding
+
+Founder: preview still looked broken. Root causes confirmed in code:
+1. Scroll fired before #pips-picks-heading mounted (and/or used 112px offset on non-sticky mobile signed-in nav) → overshoot to footer
+2. Track pb-[132px] left a tall empty dark band under the card on S8+ (740px)
+
+Fix: single scroll path that polls until the heading has layout; mobile signed-in offset ~8px (nav is not sticky); reduce track bottom padding; keep description flex-fill. Playwright smoke: gent-tools/scripts/test-stage3-preview-anchor.mjs.
+
+## 2026-07-20 ÔÇö Glass Stage: stop anchor overshoot + fill card description
+
+Root causes (founder screenshots):
+1. **Overshoot** ÔÇö multiple setTimeout re-anchors after the viewport-tall section expanded scrolled past PipÔÇÖs Picks into the footer / into the card
+2. **Empty card gap** ÔÇö `mt-auto` on the Why Pip drawer parked free space *above* the drawer while the description stayed at ~2 lines
+
+Fix:
+- Single instant scroll to `#pips-picks-heading` using sticky header bottom (Why these ideas stays hidden on Stage 3)
+- Description is `flex-1`; line count = floor(available height / line-height) so copy fills the card; drawer sits directly under it
+
+## 2026-07-20 ÔÇö Glass Stage: real signed-in anchor offset (not 112px)
+
+Founder: previous ÔÇ£anchor fixÔÇØ was deployed (029bc248) but still underscrolled ÔÇö it used `--header-height` (112px signed-out token) on signed-in phones where the visible bar is the h-16 row / `--unified-nav-height` (~64px), leaving ÔÇ£? Why these ideas?ÔÇØ in the gap.
+
+- Scroll offset now measures the signed-in logo row (fallback `--unified-nav-height`)
+- Hide ÔÇ£? Why these ideas?ÔÇØ while `ShowingExamples` so PipÔÇÖs Picks is first
+- Compact PipÔÇÖs Picks header; more description line budget; slightly less track bottom padding
+
+## 2026-07-20 ÔÇö Glass Stage: Pip's Picks anchor + Why Pip drawer scroll end
+
+Founder follow-up on PR #275:
+- **Major:** Stage 3 anchor now targets `#pips-picks-heading` (with re-anchor after layout) so PipÔÇÖs Picks is first under the sticky header ÔÇö ÔÇ£? Why these ideas?ÔÇØ scrolls away. Section subtitle no longer line-clamped; card description may use up to 5 mobile lines when space allows.
+- **Minor:** Why Pip drawer panel uses a taller scrollport + bottom padding so the last verdict line is reachable (was clipped with scrollbar at end).
+
+## 2026-07-19 ÔÇö Glass Stage: stop mid-line description clip on mobile
+
+Description had `flex-shrink`, so the card ÔÇ£fittedÔÇØ by crushing the last line of text. Now description is `shrink-0`, line count is measured sync, and `min-height` locks full line-boxes (mobile max 3 lines).
+
+## 2026-07-19 ÔÇö Glass Stage: larger corner robin + drawer description restore
+
+Founder preview follow-up on PR #275:
+- Corner robin **88├ù88px** (2├ù prior 44px); rank/tag/title padding cleared for it
+- Mobile bug: openÔåÆclose ÔÇ£Why Pip picked thisÔÇØ left description gone ÔÇö fit no longer sets `display:none`, never clamps below 2 lines, skips re-fit while drawer open, re-fits after close animation
+
+## 2026-07-19 ÔÇö Stage 3 Glass Stage layout fix (desktop truncation + mobile crush)
+
+Founder preview feedback on PR #275:
+
+- **Desktop:** description was hard-clamped to 3 lines while `mt-auto` left a large empty gap ÔÇö looked like unnecessary truncation
+- **Mobile (worse signed-in):** flex-shrink crushed brand into description; tag mid-word cut-off; Start over overlapped track
+
+**Fix:** adaptive description line-fit (`ResizeObserver`, up to 6 lines / down to hide); rank/tag/title/brand/drawer/thumbs are `shrink-0`; tags wrap to 2 lines; compact mobile header; cards stretch inside padded track (no absolute + fixed 500px cap); signed-in bottom reserve raised so dots/Start over clear the card.
+
+- **Files:** `PipsPicksPersimmonCarousel.tsx`, `PipsPicksGlassStage.module.css`
+- **PR:** https://github.com/glownest2026-droid/ember/pull/275
+
+## 2026-07-19 ÔÇö Stage 3 Glass Stage card UI shipped to Discover
+
+Founder-selected **Glass Stage** visual language now live on PipÔÇÖs Picks / Stage 3 cards (UI only ÔÇö no catalogue data change).
+
+- **What:** Dark spatial track + frosted glass cards + ambient orbs that recolour with the active pick; per-pick Ember warm accents; upright 44px corner robin only (tilted watermark removed); **ÔÇ£Why Pip picked thisÔÇØ closed-by-default drawer** (tap to open; description dims; `aria-expanded`; reduced-motion safe). Browse offers still ÔåÆ Google Shopping. Free pick-1 + locked upsell, expand, and save preserved.
+- **Files:** `web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx`, `web/src/components/discover/figma/PipsPicksGlassStage.module.css`
+- **Canonical docs (also in PR):** `web/docs/ui/STAGE3_GLASS_STAGE_CARD.md`, `web/docs/ui/artifacts/stage3-glass-stage-card.reference.html`, `.cursor/rules/stage3-glass-stage-card.mdc`
+- **Fallback:** solid navy/ink glass when `backdrop-filter` unsupported (`@supports not`)
+- **Verify:** `pnpm -C web` tsc + build pass; phone-width `/discover/2` ÔåÆ Stage 2 with Ember Picks ÔåÆ PipÔÇÖs Picks
+- **PR:** https://github.com/glownest2026-droid/ember/pull/275
+- **Conor chrome check:** drawer/CTA labels reuse existing parent-facing strings (ÔÇ£Why Pip picked thisÔÇØ, ÔÇ£Browse offersÔÇØ) ÔÇö five tests pass; no new banned marketing copy
+
+## 2026-07-19: Stage 3 card text now self-measures ÔÇö no more viewport-height guessing (round 6)
+
+Founder found DevTools device emulation did not match his real phone: viewport-height media queries (`@media (max-height: ÔÇª)`) measure the browser window, which differs across real browser chrome / PWA standalone / DevTools for the same physical screen, so clamps tuned in emulation still clipped the "Why Pip picked this" box behind the thumb row on-device.
+
+- **Fix (branch `fix/stage3-adaptive-card-fit`)**: extracted the compact-card body into `PickCardBody` (`web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx`), which measures its own rendered height after layout (`ResizeObserver` + font-ready refit) and steps description/verdict line counts down (desc 5ÔåÆ2, verdict 6ÔåÆ1) until tag + title + brand + description + verdict + thumb row all fit inside the *actual* card. If space is extremely tight the verdict box collapses entirely instead of clipping mid-sentence. All `[@media(min-height/max-height:ÔÇª)]` clamp variants removed. The expand popup still carries the full text, so the compact card is always just a teaser.
+- Behaviour is now device-truthful by construction: whatever height the card really gets ÔÇö any phone, any browser chrome state, any DevTools profile ÔÇö the text budget is computed from that height, not from a guessed viewport.
 - Verified: `tsc --noEmit` and `npm run build` pass.
 
-## 2026-07-19: Stage 3 follow-up bug bash — save-to-Products, signed-out carousel repair, expanded-view navigation (11 items)
+## 2026-07-19: Stage 3 follow-up bug bash ÔÇö save-to-Products, signed-out carousel repair, expanded-view navigation (11 items)
 
 Founder follow-up after merging #271. All 11 items shipped in one PR (branch `fix/stage3-followups`).
 
-- **Item 1 — Save works and lands in Products tab.** New `stage3_pick` kind on `user_list_items` (`supabase/migrations/20260719140000_stage3_pick_saves.sql`): FK to `pl_stage3_picks`, widened kind/ref constraints, unique index, `upsert_user_list_item` consolidated to one 9-arg function (the live DB had an ambiguous 7/8-arg overload pair), subnav stats + public gift list count/resolve stage3 picks. `DiscoveryPageClient` gets `handleSaveStage3Pick` (+ auth replay case `save_stage3_pick`), modal links to `/my-ideas?tab=products`. `MyIdeasClient` renders saved picks in Products with Google Shopping "Browse offers".
-- **Item 10 — desktop "1 / 1" broken arrows root cause.** RLS hides locked picks from non-members, so after the placeholder change the app couldn't tell 5 picks existed and rendered one card with dead arrows. New owner-privilege counts view `v_gateway_stage3_pick_counts_public` (`20260719141000`) exposes only counts; `public.ts` fills locked placeholders to the true researched count. Signed-out users get the 1-free + locked-upsell carousel back.
-- **Item 6 — "Best for…" tags standardised in data** (`20260719142000`): all 55 visible picks (1–3m + 34–36m) rewritten as `Best for <situation>`; verified 0 non-conforming. Format rule added to `ember-stage3-research` skill; QA gate added to `ember-stage3-card-ingestion` skill.
-- **Item 9 — icon hard rule**: `pickIcon()` rewritten most-specific-first with word boundaries (playmat → mat icon not tree; "cards" no longer matches "car"); rule documented in the ingestion skill.
-- **Items 5 + 11 — expanded view**: close button anchored to the card (not screen corner), swipe + arrow keys + on-card chevrons navigate all visible picks without closing; desktop chevrons sit beside the card.
-- **Item 3 — dead space**: verdict box follows description directly; thumb row anchors the card bottom; clamps loosened one line.
-- **Items 2 + 7 — anchor balance**: compact Pip's Picks header on mobile, card heights `clamp()`ed to viewport, scroll offset now reserves room for the Start over FAB (148px mobile / 88px desktop) so header + card + Start over share the viewport without overlap.
-- **Item 4 — lane swap**: "Things that can help" renders before "Useful ideas" in parent mode.
-- **Item 8 — robin silver**: card-corner robins get a grayscale/brightness filter (premium silver); header robin keeps brand colours.
+- **Item 1 ÔÇö Save works and lands in Products tab.** New `stage3_pick` kind on `user_list_items` (`supabase/migrations/20260719140000_stage3_pick_saves.sql`): FK to `pl_stage3_picks`, widened kind/ref constraints, unique index, `upsert_user_list_item` consolidated to one 9-arg function (the live DB had an ambiguous 7/8-arg overload pair), subnav stats + public gift list count/resolve stage3 picks. `DiscoveryPageClient` gets `handleSaveStage3Pick` (+ auth replay case `save_stage3_pick`), modal links to `/my-ideas?tab=products`. `MyIdeasClient` renders saved picks in Products with Google Shopping "Browse offers".
+- **Item 10 ÔÇö desktop "1 / 1" broken arrows root cause.** RLS hides locked picks from non-members, so after the placeholder change the app couldn't tell 5 picks existed and rendered one card with dead arrows. New owner-privilege counts view `v_gateway_stage3_pick_counts_public` (`20260719141000`) exposes only counts; `public.ts` fills locked placeholders to the true researched count. Signed-out users get the 1-free + locked-upsell carousel back.
+- **Item 6 ÔÇö "Best forÔÇª" tags standardised in data** (`20260719142000`): all 55 visible picks (1ÔÇô3m + 34ÔÇô36m) rewritten as `Best for <situation>`; verified 0 non-conforming. Format rule added to `ember-stage3-research` skill; QA gate added to `ember-stage3-card-ingestion` skill.
+- **Item 9 ÔÇö icon hard rule**: `pickIcon()` rewritten most-specific-first with word boundaries (playmat ÔåÆ mat icon not tree; "cards" no longer matches "car"); rule documented in the ingestion skill.
+- **Items 5 + 11 ÔÇö expanded view**: close button anchored to the card (not screen corner), swipe + arrow keys + on-card chevrons navigate all visible picks without closing; desktop chevrons sit beside the card.
+- **Item 3 ÔÇö dead space**: verdict box follows description directly; thumb row anchors the card bottom; clamps loosened one line.
+- **Items 2 + 7 ÔÇö anchor balance**: compact Pip's Picks header on mobile, card heights `clamp()`ed to viewport, scroll offset now reserves room for the Start over FAB (148px mobile / 88px desktop) so header + card + Start over share the viewport without overlap.
+- **Item 4 ÔÇö lane swap**: "Things that can help" renders before "Useful ideas" in parent mode.
+- **Item 8 ÔÇö robin silver**: card-corner robins get a grayscale/brightness filter (premium silver); header robin keeps brand colours.
 - Cache bump `20260719-stage3-followups`. Migrations applied via `supabase db push` and mirrored to `supabase/sql/`. `tsc` + `pnpm build` pass.
 
-**Round 5 (founder, PR #273):** (a) Subtitle replaced with founder copy, personalised via `childDisplayLabel` ("Pip has foraged the industry for {name|your child}, matching current development needs to the best-suited, top-rated products available today.") for both member states. (b) Desktop gets the mobile viewport-fit: dropped the fixed `650px`/`610px` min-height calcs — the section is a full-bleed viewport column at all widths, the mint container flexes below the heading with an 88px bottom reserve (Start over FAB now `md:bottom-6`, matching where the tab bar disappears), card capped at 610px, and the height-stepped line clamps now govern desktop too so bottom CTAs are never pushed below the fold. Mobile untouched (founder-approved).
+**Round 5 (founder, PR #273):** (a) Subtitle replaced with founder copy, personalised via `childDisplayLabel` ("Pip has foraged the industry for {name|your child}, matching current development needs to the best-suited, top-rated products available today.") for both member states. (b) Desktop gets the mobile viewport-fit: dropped the fixed `650px`/`610px` min-height calcs ÔÇö the section is a full-bleed viewport column at all widths, the mint container flexes below the heading with an 88px bottom reserve (Start over FAB now `md:bottom-6`, matching where the tab bar disappears), card capped at 610px, and the height-stepped line clamps now govern desktop too so bottom CTAs are never pushed below the fold. Mobile untouched (founder-approved).
 
-**Round 4 (founder, PR #273):** (a) Full-bleed: the picks section now runs to the very bottom of the viewport (`100dvh − header − 4px`), so the affiliate smallprint and "Want to explore another area?" sit below the fold; the Start over gap is reserved *inside* the mint container via track bottom padding — 80px signed-out / 136px signed-in (`bottomNavVisible` prop mirrors the mobile tab bar's `user` check), and the signed-out mobile FAB drops from `bottom-20` to `bottom-6` to sit in that gap. (b) Shrink-clipping fixed: tag/title/brand/description are `shrink-0` so flexbox can never squash a text block mid-line; only the verdict box may shrink, clipping cleanly inside its rounded border.
+**Round 4 (founder, PR #273):** (a) Full-bleed: the picks section now runs to the very bottom of the viewport (`100dvh ÔêÆ header ÔêÆ 4px`), so the affiliate smallprint and "Want to explore another area?" sit below the fold; the Start over gap is reserved *inside* the mint container via track bottom padding ÔÇö 80px signed-out / 136px signed-in (`bottomNavVisible` prop mirrors the mobile tab bar's `user` check), and the signed-out mobile FAB drops from `bottom-20` to `bottom-6` to sit in that gap. (b) Shrink-clipping fixed: tag/title/brand/description are `shrink-0` so flexbox can never squash a text block mid-line; only the verdict box may shrink, clipping cleanly inside its rounded border.
 
-**Round 3 (founder, PR #273):** (a) Anchor lands on the "Pip's Picks" heading — `scrollToStage3Picks` scrolls the section top under the sticky header instead of measuring the card. (b) The carousel section is a viewport-height flex column on mobile (`100dvh − header − 140px` bottom reserve for the Start over FAB); the card area flexes to fill everything below the heading, so heading + card + FAB share one screen and the card runs almost to the bottom. (c) In-card space: the content column is `justify-between` so spare height breathes between tag/title/description/verdict instead of pooling as a dark void above the button row; description/verdict line clamps loosened one line at each viewport-height step.
+**Round 3 (founder, PR #273):** (a) Anchor lands on the "Pip's Picks" heading ÔÇö `scrollToStage3Picks` scrolls the section top under the sticky header instead of measuring the card. (b) The carousel section is a viewport-height flex column on mobile (`100dvh ÔêÆ header ÔêÆ 140px` bottom reserve for the Start over FAB); the card area flexes to fill everything below the heading, so heading + card + FAB share one screen and the card runs almost to the bottom. (c) In-card space: the content column is `justify-between` so spare height breathes between tag/title/description/verdict instead of pooling as a dark void above the button row; description/verdict line clamps loosened one line at each viewport-height step.
 
-**Round 2 (founder screenshots on preview):** (a) card still clipped on ~760–880px-tall phones — height floor lowered to 380px, text clamps now step down in exclusive viewport-height ranges (`>880` / `761–880` / `≤760`), tag clamped to 1 line, tighter mobile padding; (b) popup "not swipeable" for signed-out users was by design (only 1 unlocked pick) but wrong — expanded view now swipes onto the locked upsell card too (Ember Plus pitch inside the popup, `Discover Ember Plus` → `/pricing`), and the swipe surface covers the whole overlay with `touch-action: pan-y`.
+**Round 2 (founder screenshots on preview):** (a) card still clipped on ~760ÔÇô880px-tall phones ÔÇö height floor lowered to 380px, text clamps now step down in exclusive viewport-height ranges (`>880` / `761ÔÇô880` / `Ôëñ760`), tag clamped to 1 line, tighter mobile padding; (b) popup "not swipeable" for signed-out users was by design (only 1 unlocked pick) but wrong ÔÇö expanded view now swipes onto the locked upsell card too (Ember Plus pitch inside the popup, `Discover Ember Plus` ÔåÆ `/pricing`), and the swipe surface covers the whole overlay with `touch-action: pan-y`.
 
-## 2026-07-19: Stage 3 card UX cleanup + Start over + breadth (bug bash items 5–8)
+## 2026-07-19: Stage 3 card UX cleanup + Start over + breadth (bug bash items 5ÔÇô8)
 
-**PR #270** (stacked on the cluster-mapping branch, PR #269 — merge #269 first). All UI/plumbing, no DB changes. Vercel green, preview: `ember-git-fix-stage3-card-ux-tims-projects-cd69a894.vercel.app`.
+**PR #270** (stacked on the cluster-mapping branch, PR #269 ÔÇö merge #269 first). All UI/plumbing, no DB changes. Vercel green, preview: `ember-git-fix-stage3-card-ux-tims-projects-cd69a894.vercel.app`.
 
-- **Item 5 — card cleanup** (`web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx`): removed "Pick X" tag prefix and price; new thumb row at the card bottom with three controls — **Browse offers** (primary), expand, save (wired to the same save-to-my-ideas action as Stage 2 cards via `onSavePick`). Expand button moved out of the top corner. Card/carousel heights now scale with the viewport (`min(…, calc(100dvh - …))`) with tighter line clamps under 720px-tall screens, so content breathes without ever overflowing the device.
-- **Item 5v — retailer rule**: retailer CTAs never deep-link one retailer. `googleShoppingUrl()` sends every Browse offers / expanded-view CTA to Google Shopping (`brand + name` query). Rule documented in the component.
-- **Item 6 — Start over**: `DiscoveryPageClient.tsx` now observes the Stage 3 picks section too, so the floating Start over button stays visible through Stage 3; picks section got `pb-20` so the FAB never overlaps the last card.
-- **Item 7 — personalisation**: verified `personalizePickCopy` + `childDisplayLabel` already flow into the verdict copy; no code change needed (was not lost).
-- **Item 8 — breadth 5→10**: picks pipeline now supports up to 10 per category — API limit (`api/discover/picks/route.ts`), carousel slice, and `public.ts` placeholder logic (placeholders only fill gaps up to the highest researched rank, so 5-pick categories stay at 5 with no "coming soon" padding). **Judgement for 1–3m: stay at 5 visible picks** — the existing rank 6–15 longlist rows are `backup_not_card_ready` (no tags/short descriptions) and would dilute quality; board books is the natural first 10-pick candidate once research delivers card-ready depth.
-- **Item 8ii — research skill upgraded**: `~/.codex/skills/ember-stage3-research/SKILL.md` (mirrored at `agent-tools/skill-updates/ember-stage3-research/SKILL.md`) now takes `target_pick_count` (default 5, max 10), with a pick-depth test (does pick 10 help a different parent than picks 1–9?), category guidance (books yes; mirrors/safety no), and a hard rule that picks 6–10 must meet the same card-ready bar.
+- **Item 5 ÔÇö card cleanup** (`web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx`): removed "Pick X" tag prefix and price; new thumb row at the card bottom with three controls ÔÇö **Browse offers** (primary), expand, save (wired to the same save-to-my-ideas action as Stage 2 cards via `onSavePick`). Expand button moved out of the top corner. Card/carousel heights now scale with the viewport (`min(ÔÇª, calc(100dvh - ÔÇª))`) with tighter line clamps under 720px-tall screens, so content breathes without ever overflowing the device.
+- **Item 5v ÔÇö retailer rule**: retailer CTAs never deep-link one retailer. `googleShoppingUrl()` sends every Browse offers / expanded-view CTA to Google Shopping (`brand + name` query). Rule documented in the component.
+- **Item 6 ÔÇö Start over**: `DiscoveryPageClient.tsx` now observes the Stage 3 picks section too, so the floating Start over button stays visible through Stage 3; picks section got `pb-20` so the FAB never overlaps the last card.
+- **Item 7 ÔÇö personalisation**: verified `personalizePickCopy` + `childDisplayLabel` already flow into the verdict copy; no code change needed (was not lost).
+- **Item 8 ÔÇö breadth 5ÔåÆ10**: picks pipeline now supports up to 10 per category ÔÇö API limit (`api/discover/picks/route.ts`), carousel slice, and `public.ts` placeholder logic (placeholders only fill gaps up to the highest researched rank, so 5-pick categories stay at 5 with no "coming soon" padding). **Judgement for 1ÔÇô3m: stay at 5 visible picks** ÔÇö the existing rank 6ÔÇô15 longlist rows are `backup_not_card_ready` (no tags/short descriptions) and would dilute quality; board books is the natural first 10-pick candidate once research delivers card-ready depth.
+- **Item 8ii ÔÇö research skill upgraded**: `~/.codex/skills/ember-stage3-research/SKILL.md` (mirrored at `agent-tools/skill-updates/ember-stage3-research/SKILL.md`) now takes `target_pick_count` (default 5, max 10), with a pick-depth test (does pick 10 help a different parent than picks 1ÔÇô9?), category guidance (books yes; mirrors/safety no), and a hard rule that picks 6ÔÇô10 must meet the same card-ready bar.
 
-Verified: `tsc --noEmit` and `pnpm build` pass in the worktree. Outstanding from the bug bash: item 2 (Tummy Time Stage 3 picks) — blocked on the Manus research files, which were not attached.
+Verified: `tsc --noEmit` and `pnpm build` pass in the worktree. Outstanding from the bug bash: item 2 (Tummy Time Stage 3 picks) ÔÇö blocked on the Manus research files, which were not attached.
 
 **2026-07-19 follow-up:** #270 was merged into its stacked base branch after #269's merge commit was cut, so its changes never reached `main`. Re-landed on `main` via PR #271 (branch `fix/stage3-card-ux-mainland`).
 
-## 2026-07-19: Stage 1→2 duplication root-cause fix — cluster context on Stage 2 mapping (bug bash item 1)
+## 2026-07-19: Stage 1ÔåÆ2 duplication root-cause fix ÔÇö cluster context on Stage 2 mapping (bug bash item 1)
 
-Founder reported Stage 1 cards leading to the same Stage 2 cards (e.g. "I'm finding your face" and "I'm listening to your voice"). Validated against the offline source of truth (Spine 3.0 Bible `discover_projection` tab, 1–3m workbook): **confirmed a real bug, not content reality.** The Bible gives each cluster its own curated list (55 rows, only 2 intentional overlaps), but ingestion dropped the cluster column and keyed rows by shared development needs — clusters sharing a need rendered the union of each other's cards ("I'm starting to wriggle" showed 20 cards instead of 7; "I'm finding your face" was missing its high-contrast card), and per-cluster copy variants collapsed to one arbitrary winner.
+Founder reported Stage 1 cards leading to the same Stage 2 cards (e.g. "I'm finding your face" and "I'm listening to your voice"). Validated against the offline source of truth (Spine 3.0 Bible `discover_projection` tab, 1ÔÇô3m workbook): **confirmed a real bug, not content reality.** The Bible gives each cluster its own curated list (55 rows, only 2 intentional overlaps), but ingestion dropped the cluster column and keyed rows by shared development needs ÔÇö clusters sharing a need rendered the union of each other's cards ("I'm starting to wriggle" showed 20 cards instead of 7; "I'm finding your face" was missing its high-contrast card), and per-cluster copy variants collapsed to one arbitrary winner.
 
 Fix (schema + data + app, no band-aids):
 
-- **`supabase/migrations/20260719110000_add_wrapper_context_stage2_junction.sql`** — adds `ux_wrapper_id` to `pl_age_band_development_need_category_types`, widens the unique key (`NULLS NOT DISTINCT`), exposes `wrapper_slug` on `v_gateway_category_types_public`.
-- **`scripts/generate-discover-projection-sql.mjs`** — generator now carries `cluster_entity_id` through to the junction (wrapper join, DISTINCT ON, conflict target, deactivation all wrapper-aware). Future band reimports get exact Bible fidelity automatically.
-- **`supabase/migrations/20260719112000_reimport_discover_1_3m_cluster_context.sql`** — regenerated 1–3m from the Bible (55 rows / 10 clusters, validation notices pass). Applied via `supabase db push` (also committed 16 previously-applied-but-uncommitted image-mapping migrations to sync history).
-- **`web/src/lib/pl/public.ts`** — cluster-tagged rows are now the source of truth: wrapper-scoped fetch per cluster; legacy need-based resolution kept only for bands not yet re-ingested (rows with NULL wrapper). No fuzzy logic.
+- **`supabase/migrations/20260719110000_add_wrapper_context_stage2_junction.sql`** ÔÇö adds `ux_wrapper_id` to `pl_age_band_development_need_category_types`, widens the unique key (`NULLS NOT DISTINCT`), exposes `wrapper_slug` on `v_gateway_category_types_public`.
+- **`scripts/generate-discover-projection-sql.mjs`** ÔÇö generator now carries `cluster_entity_id` through to the junction (wrapper join, DISTINCT ON, conflict target, deactivation all wrapper-aware). Future band reimports get exact Bible fidelity automatically.
+- **`supabase/migrations/20260719112000_reimport_discover_1_3m_cluster_context.sql`** ÔÇö regenerated 1ÔÇô3m from the Bible (55 rows / 10 clusters, validation notices pass). Applied via `supabase db push` (also committed 16 previously-applied-but-uncommitted image-mapping migrations to sync history).
+- **`web/src/lib/pl/public.ts`** ÔÇö cluster-tagged rows are now the source of truth: wrapper-scoped fetch per cluster; legacy need-based resolution kept only for bands not yet re-ingested (rows with NULL wrapper). No fuzzy logic.
 - **Cache bump:** `GATEWAY_CATALOGUE_CACHE_VERSION = '20260719-stage2-cluster-context'`.
 
-Verified in live DB: every 1–3m cluster now returns exactly the Bible's list; shared categories carry per-cluster copy ("Face books to look at together" rank 5 under faces vs "Board books and face books" rank 3 under listen). Note: 9–12m has the same latent duplication (shared needs: books/container/parent_day/bilateral) — fixed automatically when that band is re-ingested from its Bible.
+Verified in live DB: every 1ÔÇô3m cluster now returns exactly the Bible's list; shared categories carry per-cluster copy ("Face books to look at together" rank 5 under faces vs "Board books and face books" rank 3 under listen). Note: 9ÔÇô12m has the same latent duplication (shared needs: books/container/parent_day/bilateral) ÔÇö fixed automatically when that band is re-ingested from its Bible.
 
-Same PR, bug bash item 4 — **picks-first Stage 2 ranking**: `sortedPlayIdeas` in `DiscoveryPageClient.tsx` now leads each lane with cards that have Ember Picks (9 categories have visible Stage 3 picks in 1–3m, incl. `cat_soft_carrier_sling` per the founder's example).
+Same PR, bug bash item 4 ÔÇö **picks-first Stage 2 ranking**: `sortedPlayIdeas` in `DiscoveryPageClient.tsx` now leads each lane with cards that have Ember Picks (9 categories have visible Stage 3 picks in 1ÔÇô3m, incl. `cat_soft_carrier_sling` per the founder's example).
 
-Same PR, bug bash item 3 — **old-image audit** (read-only): `agent-tools/exports/old_images_audit_2026-07-19.md`. 41 card placements use pre-2026-06-26 images across two old generations (2026-04-22: 9 files/26 placements, mostly 19–36m; 2026-06-16: 5 files/15 placements incl. founder-reported reach-and-grab). Highest-impact replacement: `ember_cat_soft_graspable_balls_category.png` (10 bands). Replacements need founder-generated assets, then the standard image-mapping migration.
+Same PR, bug bash item 3 ÔÇö **old-image audit** (read-only): `agent-tools/exports/old_images_audit_2026-07-19.md`. 41 card placements use pre-2026-06-26 images across two old generations (2026-04-22: 9 files/26 placements, mostly 19ÔÇô36m; 2026-06-16: 5 files/15 placements incl. founder-reported reach-and-grab). Highest-impact replacement: `ember_cat_soft_graspable_balls_category.png` (10 bands). Replacements need founder-generated assets, then the standard image-mapping migration.
 
 ## 2026-07-19: Codified offline source of truth for Discover content (docs-only, PR #268)
 
-Founder rule made durable: the offline source of truth for Discover content and Stage 1→Stage 2 mapping is **always** the Spine 3.0 Bible workbook — `Spine 3.0 → Spine 3.0_02 Ember Bibles → 02_Ember_Bible_<band>_*.xlsx → discover_projection tab` (1–3m: `02_Ember_Bible_1_3m_Conor_Thea_Depth_v2_more_purchase_depth.xlsx`).
+Founder rule made durable: the offline source of truth for Discover content and Stage 1ÔåÆStage 2 mapping is **always** the Spine 3.0 Bible workbook ÔÇö `Spine 3.0 ÔåÆ Spine 3.0_02 Ember Bibles ÔåÆ 02_Ember_Bible_<band>_*.xlsx ÔåÆ discover_projection tab` (1ÔÇô3m: `02_Ember_Bible_1_3m_Conor_Thea_Depth_v2_more_purchase_depth.xlsx`).
 
-- New §0 in `.cursor/rules/conor-grade-catalogue-upload.mdc` (always-applied): path pattern, tab contents, and the rule that when live DB and workbook disagree, the workbook wins — fix via migration, never fuzzy lookups.
-- Cross-referenced in `AGENTS.md` topic map and `web/docs/DEVELOPER_OPERATING_MODEL.md` §3.
+- New ┬º0 in `.cursor/rules/conor-grade-catalogue-upload.mdc` (always-applied): path pattern, tab contents, and the rule that when live DB and workbook disagree, the workbook wins ÔÇö fix via migration, never fuzzy lookups.
+- Cross-referenced in `AGENTS.md` topic map and `web/docs/DEVELOPER_OPERATING_MODEL.md` ┬º3.
 - PR: https://github.com/glownest2026-droid/ember/pull/268 (docs-only).
 
-## 2026-07-19: Developer Operating Model — central knowledge base (docs-only)
+## 2026-07-19: Developer Operating Model ÔÇö central knowledge base (docs-only)
 
 Created a cross-agent knowledge base so the #264/#265 learnings become standing rules for every agent (Cursor, Codex, etc.), not just Cursor rules.
 
-- **`AGENTS.md`** (repo root) — front door: 10 non-negotiables + map of canonical sources. First cross-agent entrypoint in the repo.
-- **`web/docs/DEVELOPER_OPERATING_MODEL.md`** — full doctrine with real #264/#265/#266 examples; references existing rules rather than duplicating them.
-- **`.cursor/rules/developer-operating-model.mdc`** — thin always-on pointer to both.
+- **`AGENTS.md`** (repo root) ÔÇö front door: 10 non-negotiables + map of canonical sources. First cross-agent entrypoint in the repo.
+- **`web/docs/DEVELOPER_OPERATING_MODEL.md`** ÔÇö full doctrine with real #264/#265/#266 examples; references existing rules rather than duplicating them.
+- **`.cursor/rules/developer-operating-model.mdc`** ÔÇö thin always-on pointer to both.
 - **Enforcement:** both new docs added to `web/docs/DOCS_MANIFEST.md` and `web/scripts/check-required-docs.js` (now 6 required docs; `node web/scripts/check-required-docs.js` passes).
-- **Codex handoff:** `agent-tools/feedback/CODEX_ONBOARDING_OPERATING_MODEL.md` — shareable brief to point Codex at the knowledge base; post-mortem source is `agent-tools/feedback/CODEX_STAGE3_FEEDBACK_2026-07.md`.
+- **Codex handoff:** `agent-tools/feedback/CODEX_ONBOARDING_OPERATING_MODEL.md` ÔÇö shareable brief to point Codex at the knowledge base; post-mortem source is `agent-tools/feedback/CODEX_STAGE3_FEEDBACK_2026-07.md`.
 
 Deliberately references (does not restate) `pr-handoff.mdc`, `progress-log.mdc`, `DEPLOY-CHECKLIST.md` to avoid doctrine drift.
 
-## 2026-07-18: Pip's Picks expand pop-up + guaranteed card fit — PR #266 follow-up 2
+## 2026-07-18: Pip's Picks expand pop-up + guaranteed card fit ÔÇö PR #266 follow-up 2
 
 Founder still saw cut-off CTAs and wanted the Stage 2 pattern: compact cards that always fit, with a pop-up for the full text.
 
@@ -90,7 +216,7 @@ Founder still saw cut-off CTAs and wanted the Stage 2 pattern: compact cards tha
 - New full-screen expanded view (`PipsPickExpanded` in `PipsPicksPersimmonCarousel.tsx`), mirroring `DiscoverFigmaPlayIdeaExpanded`: unclamped text, same dark card styling, View retailer CTA, Escape/close button, body scroll lock, reduced-motion aware. Opened via a `Maximize2` button next to the rank pill (unlocked cards only).
 - Robin mark enlarged from 48px to 64px (72px desktop), still tucked in the corner; tag/title right padding increased to keep clear.
 
-## 2026-07-18: Pip's Picks card polish (mobile) — PR #266 follow-up
+## 2026-07-18: Pip's Picks card polish (mobile) ÔÇö PR #266 follow-up
 
 Founder review of the preview on a phone flagged three issues, fixed in `PipsPicksPersimmonCarousel.tsx`:
 
@@ -98,18 +224,18 @@ Founder review of the preview on a phone flagged three issues, fixed in `PipsPic
 2. **Robin mark:** shrunk from 88px to 48px and tucked into the top-right corner (2.5 inset); tag and title rows get right padding so text never runs underneath.
 3. **Non-member locked cards:** instead of four identical locked cards, non-members now see pick 1 plus a single locked upsell card with a "4 more picks available" counter pill (count = hidden picks). Members still see all five. Rank badge keeps "n / 5" so the full shortlist size stays visible.
 
-## 2026-07-18: Stage 3 1-3m repair — re-land lost PR #265 fixes properly (Cursor)
+## 2026-07-18: Stage 3 1-3m repair ÔÇö re-land lost PR #265 fixes properly (Cursor)
 
 **Why:** PR #265 was merged into the already-merged feature branch `codex/stage3-ui-persimmon-pop` instead of `main`, so none of its fixes reached production. This PR re-lands the good parts on a clean branch from `main`, removes the band-aid patterns, and repairs the database properly.
 
 **Re-landed from #265:**
-- `20260718101000_ingest_stage3_pips_picks_1_3m.sql` — corrected join via `pl_age_band_development_need_category_types` (+ new `::boolean` cast fix for the all-NULL backup `gift_suitable` column, also fixed in the generator `web/scripts/ingest-stage3-pips-picks.mjs`)
-- `DiscoverFigmaImage` fix — image no longer hides at `opacity:0` waiting for `onLoad`; placeholder renders underneath
-- Stage 3 gating (`withStage3Availability`) — "See Our Picks" only where visible Stage 3 picks exist
+- `20260718101000_ingest_stage3_pips_picks_1_3m.sql` ÔÇö corrected join via `pl_age_band_development_need_category_types` (+ new `::boolean` cast fix for the all-NULL backup `gift_suitable` column, also fixed in the generator `web/scripts/ingest-stage3-pips-picks.mjs`)
+- `DiscoverFigmaImage` fix ÔÇö image no longer hides at `opacity:0` waiting for `onLoad`; placeholder renders underneath
+- Stage 3 gating (`withStage3Availability`) ÔÇö "See Our Picks" only where visible Stage 3 picks exist
 - Private no-store caching on `/api/discover/picks` category path; `force-dynamic` on both discover API routes (removed contradictory `revalidate` exports)
 
 **Band-aids removed (new in this repair):**
-- Deleted fuzzy wrapper-recovery (keyword scoring) and the hardcoded 34-36m need-slug override from `web/src/lib/pl/public.ts`. Root cause fixed in data: `20260718160000_fix_wrapper_need_mappings_6_9m_25_27m_34_36m.sql` adds the missing wrapper→need rows (6-9m first-foods/mouth-sensory, all 25-27m clusters from the 2026-07-03 v2 reimport, 34-36m talk-stories/feelings) to `v_gateway_age_band_wrapper_needs_public`. Verified: every wrapper on every band now resolves ≥1 category without code-side guessing.
+- Deleted fuzzy wrapper-recovery (keyword scoring) and the hardcoded 34-36m need-slug override from `web/src/lib/pl/public.ts`. Root cause fixed in data: `20260718160000_fix_wrapper_need_mappings_6_9m_25_27m_34_36m.sql` adds the missing wrapperÔåÆneed rows (6-9m first-foods/mouth-sensory, all 25-27m clusters from the 2026-07-03 v2 reimport, 34-36m talk-stories/feelings) to `v_gateway_age_band_wrapper_needs_public`. Verified: every wrapper on every band now resolves ÔëÑ1 category without code-side guessing.
 - Ember Plus state on `/discover` now comes from the server-resolved `access.canSeeLocked` returned by `/api/discover/picks` (`resolveEmberMembershipAccess`), not inferred from lock flags in the payload.
 
 **New fixes:**
@@ -117,11 +243,11 @@ Founder review of the preview on a phone flagged three issues, fixed in `PipsPic
 - Affiliate disclosure restored under the Pip's Picks section (removed in #264; compliance).
 
 **Database (live, via Supabase CLI after history repair):**
-- `supabase migration repair` — reverted orphan history rows `20260716163641`/`20260717050143` (Codex MCP duplicates), marked `20260716143000`/`20260717090000`/`20260717093000` as applied. Migration history now matches the repo.
+- `supabase migration repair` ÔÇö reverted orphan history rows `20260716163641`/`20260717050143` (Codex MCP duplicates), marked `20260716143000`/`20260717090000`/`20260717093000` as applied. Migration history now matches the repo.
 - `supabase db push` applied `20260718101000` + `20260718160000`. Verified: 1-3m Stage 3 = 45 visible + 83 backup across all 9 categories (was 10 rows / 2 categories of manual drift).
 - Cache version bumped to `20260718-stage3-repair-v2`.
 
-**Verification:** `tsc --noEmit` clean, `npm run build` clean. PR [#266](https://github.com/glownest2026-droid/ember/pull/266) — Vercel checks green, `MERGEABLE`/`CLEAN`. Preview smoke checks passed: 1-3m `ent_cluster_listen_and_coo` shows `See Our Picks` on exactly the 3 pilot categories (all others hidden); anon picks API returns rank 1 unlocked with real retailer URL + `access.canSeeLocked=false`; previously broken wrappers (25-27m ×2, 6-9m first foods, 34-36m ×2) all return 5–9 categories. Preview: https://ember-git-fix-stage3-1-3m-repair-tims-projects-cd69a894.vercel.app
+**Verification:** `tsc --noEmit` clean, `npm run build` clean. PR [#266](https://github.com/glownest2026-droid/ember/pull/266) ÔÇö Vercel checks green, `MERGEABLE`/`CLEAN`. Preview smoke checks passed: 1-3m `ent_cluster_listen_and_coo` shows `See Our Picks` on exactly the 3 pilot categories (all others hidden); anon picks API returns rank 1 unlocked with real retailer URL + `access.canSeeLocked=false`; previously broken wrappers (25-27m ├ù2, 6-9m first foods, 34-36m ├ù2) all return 5ÔÇô9 categories. Preview: https://ember-git-fix-stage3-1-3m-repair-tims-projects-cd69a894.vercel.app
 
 ## 2026-07-17: At home add UX (text-first + Stage 2 confirm)
 
@@ -139,245 +265,245 @@ Founder review of the preview on a phone flagged three issues, fixed in `PipsPic
 
 - Parent name **At home**; route `/family/at-home` under Family
 - Discover Have syncs into `garage_items` via `sync_at_home_from_discover_have` (+ backfill)
-- **Add item** → `/family/at-home/add` (supersedes listings intent path)
-- List it → `/app/listings?new=1&household_item=…` (full Marketplace publish flow)
+- **Add item** ÔåÆ `/family/at-home/add` (supersedes listings intent path)
+- List it ÔåÆ `/app/listings?new=1&household_item=ÔÇª` (full Marketplace publish flow)
 - Migrations applied: `20260715134457` + `20260715134927` + `20260717060500`
 - Garage parent-facing language removed from Family UI
 
-## 2026-07-15 — Manus research brief (jigsaws 34–36m)
+## 2026-07-15 ÔÇö Manus research brief (jigsaws 34ÔÇô36m)
 
-- `agent-tools/exports/manus_stage3_research_brief_34-36m_jigsaws.md` — single-card brief; **top 5** Ember Picks
+- `agent-tools/exports/manus_stage3_research_brief_34-36m_jigsaws.md` ÔÇö single-card brief; **top 5** Ember Picks
 - Required return: `ember_picks_research_v1` JSON + CSV (`research_date`, URL + `url_checked_date` / `price_checked_date`) for later ingest
 
-## 2026-07-15 — Manus research brief (Pip’s Picks 34–36m)
+## 2026-07-15 ÔÇö Manus research brief (PipÔÇÖs Picks 34ÔÇô36m)
 
 - Brief: `agent-tools/exports/manus_stage3_research_brief_34-36m.md`
 - 7 research rows with Spine educational objectives + age nuance; Conor guardrails; methodology left to Manus
 - Safety Stage 1 excluded (Quick Check only)
 
-## 2026-07-15 — Pip’s Picks MVP shortlist (34–36m)
+## 2026-07-15 ÔÇö PipÔÇÖs Picks MVP shortlist (34ÔÇô36m)
 
-- **Launch principle:** ≥1 Stage 2 card with Stage 3 recs under every Stage 1 card (product rows only; safety clusters may skip).
+- **Launch principle:** ÔëÑ1 Stage 2 card with Stage 3 recs under every Stage 1 card (product rows only; safety clusters may skip).
 - **Script:** `web/scripts/export-stage3-research-shortlist.mjs`
 - **Source:** `02_Ember_Bible_34_36m_v1_1.xlsx` (`discover_projection`)
 - **Output:** `agent-tools/exports/stage3_shortlist_34-36m.md` + `.csv`
-- **Result:** 8 Stage 1 clusters → **7 research candidates**; 1 no-pick (`The safety reset…` → Keep as Quick Check)
+- **Result:** 8 Stage 1 clusters ÔåÆ **7 research candidates**; 1 no-pick (`The safety resetÔÇª` ÔåÆ Keep as Quick Check)
 
-## 2026-07-15 — pricing: Learn more → Ember Plus features
+## 2026-07-15 ÔÇö pricing: Learn more ÔåÆ Ember Plus features
 
-- Orange centred “Learn more” above Ember Plus “Join the waitlist” CTA
+- Orange centred ÔÇ£Learn moreÔÇØ above Ember Plus ÔÇ£Join the waitlistÔÇØ CTA
 - Anchors to `#ember-plus-features` on the features block
 - Desktop scroll offset: `scroll-mt-[calc(var(--header-height)+24px)]` so heading clears sticky nav
 
-## 2026-07-15 — Project Rocket Phase 0 waitlist
+## 2026-07-15 ÔÇö Project Rocket Phase 0 waitlist
 
-- Migrations applied: `20260715003133_ember_plus_waitlist` + `…_anon_insert` (RLS INSERT for anon/authenticated)
+- Migrations applied: `20260715003133_ember_plus_waitlist` + `ÔÇª_anon_insert` (RLS INSERT for anon/authenticated)
 - API `POST /api/waitlist/ember-plus`; pricing CTA + modal; FAQ waitlist-honest
 - Anon insert smoke-tested (unique email dedupe OK)
-- View rows: Supabase → Table Editor → `ember_plus_waitlist`
+- View rows: Supabase ÔåÆ Table Editor ÔåÆ `ember_plus_waitlist`
 - PR #259 green preview: https://ember-git-feat-ember-plus-waitlist-tims-projects-cd69a894.vercel.app
-- Standing rule: always open PR + green Vercel for app builds (never ask) — `pr-handoff.mdc` / `project-rocket.mdc`
+- Standing rule: always open PR + green Vercel for app builds (never ask) ÔÇö `pr-handoff.mdc` / `project-rocket.mdc`
 - Founder: waitlist **confirmation email deferred** (modal sufficient for Phase 0)
 
-## 2026-07-15 — Project Rocket founder IDs renumbered F1–F9
+## 2026-07-15 ÔÇö Project Rocket founder IDs renumbered F1ÔÇôF9
 
-- No gap: F1 bands · F2 Picks rules · F3 shortlist rows · F4–F9 unchanged roles
+- No gap: F1 bands ┬À F2 Picks rules ┬À F3 shortlist rows ┬À F4ÔÇôF9 unchanged roles
 - Waitlist is Cursor-owned (not a missing F1)
 
-## 2026-07-15 — Project Rocket HTML v3 founder briefs
+## 2026-07-15 ÔÇö Project Rocket HTML v3 founder briefs
 
-- Abundant founder deliverables: copy-paste templates, examples, done-when per F1–F8
+- Abundant founder deliverables: copy-paste templates, examples, done-when per F1ÔÇôF8
 - Dual-track board points at briefs; Inventory still Cursor-owned
 - Drive + Knowledge + `agent-tools/exports/Ember_Project_Rocket_Roadmap.html`
 
-## 2026-07-15 — Project Rocket dual-track HTML v2
+## 2026-07-15 ÔÇö Project Rocket dual-track HTML v2
 
-- Rebuilt Drive HTML: Founder Jobs ‖ Cursor Builds; blockers; Inventory = Cursor-owned
+- Rebuilt Drive HTML: Founder Jobs ÔÇû Cursor Builds; blockers; Inventory = Cursor-owned
 - Waitlist: Supabase-native interest only; founding offer dropped
 - Mirrors: Knowledge folder + `agent-tools/exports/Ember_Project_Rocket_Roadmap.html`
 
-## 2026-07-15 — Project Rocket founder HTML roadmap
+## 2026-07-15 ÔÇö Project Rocket founder HTML roadmap
 
-- Branded HTML for marketing founder: phases, what goes live, parent examples, F1–F9 deps
+- Branded HTML for marketing founder: phases, what goes live, parent examples, F1ÔÇôF9 deps
 - Drive: `Project Leaf/Project Rocket/Ember_Project_Rocket_Roadmap.html` (+ Knowledge mirror)
 - Repo mirror: `agent-tools/exports/Ember_Project_Rocket_Roadmap.html`
 
-## 2026-07-15 — Project Rocket kickoff
+## 2026-07-15 ÔÇö Project Rocket kickoff
 
 - Formalised `web/docs/PROJECT_ROCKET.md` + always-on `.cursor/rules/project-rocket.mdc`
 - `$MVP_Threshold` BRD, waitlist-first GTM, phased roadmap, founder dependency checklist
-- Spine 3.0 finding: Pip’s Picks “high priority” = Bible `show_ember_picks` (not Source Captures)
+- Spine 3.0 finding: PipÔÇÖs Picks ÔÇ£high priorityÔÇØ = Bible `show_ember_picks` (not Source Captures)
 
-## 2026-07-15 — docs: privacy promise — optional child call-names
+## 2026-07-15 ÔÇö docs: privacy promise ÔÇö optional child call-names
 
 - Policy flip: parents may optionally share a call-name; Ember may personalise product + marketing/push; name never required
 - Added `.cursor/rules/privacy-promise.mdc` (alwaysApply)
-- Updated OneSignal runbook privacy boundary, analytics §F (vendor telemetry ban retained), Leaf image-mapping hard requirement, FamilyDashboardClient comment
-- Founder still needs to replace Cursor **User Rules** line that says “Never collect a child’s name”
+- Updated OneSignal runbook privacy boundary, analytics ┬ºF (vendor telemetry ban retained), Leaf image-mapping hard requirement, FamilyDashboardClient comment
+- Founder still needs to replace Cursor **User Rules** line that says ÔÇ£Never collect a childÔÇÖs nameÔÇØ
 
-## 2026-07-15 — fix(home): Developmental Play heading
+## 2026-07-15 ÔÇö fix(home): Developmental Play heading
 
-- Homepage How it works: “One calm loop” → “Developmental Play”
+- Homepage How it works: ÔÇ£One calm loopÔÇØ ÔåÆ ÔÇ£Developmental PlayÔÇØ
 
-## 2026-07-15 — fix(pricing + home): copy follow-ups after merge
+## 2026-07-15 ÔÇö fix(pricing + home): copy follow-ups after merge
 
-- Hero 3-line split; Ember Plus + Pip lead; Free label “browse in your own time”; £29 for 12 months
+- Hero 3-line split; Ember Plus + Pip lead; Free label ÔÇ£browse in your own timeÔÇØ; ┬ú29 for 12 months
 - Free card: Marketplace link only in bullet (not label)
-- FAQ: drop “make money”; add card/cancel/post-cancel questions
-- Homepage How it works: Buy it → Find it
+- FAQ: drop ÔÇ£make moneyÔÇØ; add card/cancel/post-cancel questions
+- Homepage How it works: Buy it ÔåÆ Find it
 
-## 2026-07-14 — fix(pricing): spacing breathe + swipe hint
+## 2026-07-14 ÔÇö fix(pricing): spacing breathe + swipe hint
 
-- “Ember Plus features:”; swipe hint → “Swipe to discover >”
+- ÔÇ£Ember Plus features:ÔÇØ; swipe hint ÔåÆ ÔÇ£Swipe to discover >ÔÇØ
 - More section/card/FAQ/journey-node whitespace (SaaS breathing room)
 
-## 2026-07-14 — fix(pricing): Ember Plus wording, features intro, Seasons v2
+## 2026-07-14 ÔÇö fix(pricing): Ember Plus wording, features intro, Seasons v2
 
-- Hero: “Get more from Ember with Pip, your play coach”; always “Ember Plus” in UI copy
-- Journey intro: “Ember Plus features”
+- Hero: ÔÇ£Get more from Ember with Pip, your play coachÔÇØ; always ÔÇ£Ember PlusÔÇØ in UI copy
+- Journey intro: ÔÇ£Ember Plus featuresÔÇØ
 - Uploaded + mapped `ember_pricing_journey_seasons_christmas_v2_category.png` (HEAD 200)
 
-## 2026-07-14 — feat(pricing): map custom journey images (HEAD 200)
+## 2026-07-14 ÔÇö feat(pricing): map custom journey images (HEAD 200)
 
 - Wired 5 Make uploads into `pricingImages.ts` (Free, Patch, Seasons, Chapters, Pass-On)
 - Pathway + Picks unchanged (stacking cups / first puzzles)
 - Storage verified HEAD 200 for each `ember_pricing_journey_*_category.png`
 
-## 2026-07-14 — fix(pricing): Find it + shortlist + Make journey art input
+## 2026-07-14 ÔÇö fix(pricing): Find it + shortlist + Make journey art input
 
-- Copy: Find it (not Buy it); shortlist; pocket play coach; Pass-On “right local family”; drop “Cups back out”; six exclusive features line
+- Copy: Find it (not Buy it); shortlist; pocket play coach; Pass-On ÔÇ£right local familyÔÇØ; drop ÔÇ£Cups back outÔÇØ; six exclusive features line
 - Make input (5 images, keep Pathway/Picks): `agent-tools/exports/ABI_Image_Creation_Template_pricing_journey_INPUT.csv`
 
-## 2026-07-14 — feat(pricing): feature rename — Patch Finds / Chapters / Pass-On
+## 2026-07-14 ÔÇö feat(pricing): feature rename ÔÇö Patch Finds / Chapters / Pass-On
 
-- Proximity → Pip’s Patch Finds; Moments → Pip’s Chapters; Move-On → Pip’s Pass-On
+- Proximity ÔåÆ PipÔÇÖs Patch Finds; Moments ÔåÆ PipÔÇÖs Chapters; Move-On ÔåÆ PipÔÇÖs Pass-On
 - PMF Draft v2.3 naming confirmed
 
-## 2026-07-14 — fix(pricing): stacking cups + Proximity “scouting” wording
+## 2026-07-14 ÔÇö fix(pricing): stacking cups + Proximity ÔÇ£scoutingÔÇØ wording
 
-- Pathway spike: “stacking cups and pouring” (nesting wasn’t clear)
-- Proximity: “Pip has been scouting for local walkers…” (watching local baby = creepy)
+- Pathway spike: ÔÇ£stacking cups and pouringÔÇØ (nesting wasnÔÇÖt clear)
+- Proximity: ÔÇ£Pip has been scouting for local walkersÔÇªÔÇØ (watching local baby = creepy)
 
-## 2026-07-14 — fix(pricing): plain language, spike formatting, Marketplace links
+## 2026-07-14 ÔÇö fix(pricing): plain language, spike formatting, Marketplace links
 
 - Ban forever / stage / research-backed on `/pricing` + PMF v2.2
-- Journey cards: split lines + bold/underline personalised spikes; drop “Catalogue example”
-- Picks: child-specific animal-play notice (no “spark up”)
+- Journey cards: split lines + bold/underline personalised spikes; drop ÔÇ£Catalogue exampleÔÇØ
+- Picks: child-specific animal-play notice (no ÔÇ£spark upÔÇØ)
 - Hyperlink Marketplace everywhere it appears
 
-## 2026-07-14 — fix(pricing): Meet Pip before plans, slim hero
+## 2026-07-14 ÔÇö fix(pricing): Meet Pip before plans, slim hero
 
-- Order: short hero → Meet Pip → Free/Plus → journey → FAQ
+- Order: short hero ÔåÆ Meet Pip ÔåÆ Free/Plus ÔåÆ journey ÔåÆ FAQ
 - Dropped unexplained hero Pip badge + long Plus paragraph (Meet Pip owns that story)
 - Compact Meet Pip profile so price cards still peek on mobile
 
-## 2026-07-14 — feat(pricing): founder V3 human voice + PMF 2.1
+## 2026-07-14 ÔÇö feat(pricing): founder V3 human voice + PMF 2.1
 
-- Live `/pricing` copy replaced with founder dad edit (post–real-mum AI-language feedback)
-- PMF → Draft v2.1: ban AI red flags; optimistic pain framing; Ember/Pip proactive voice
+- Live `/pricing` copy replaced with founder dad edit (postÔÇôreal-mum AI-language feedback)
+- PMF ÔåÆ Draft v2.1: ban AI red flags; optimistic pain framing; Ember/Pip proactive voice
 - Conor rule: pointer to marketing AI red flags
-- Light overlays of founder learnings on leftover negatives (“feel behind”, “stage ideas”, spirals)
+- Light overlays of founder learnings on leftover negatives (ÔÇ£feel behindÔÇØ, ÔÇ£stage ideasÔÇØ, spirals)
 
-## 2026-07-14 — fix(pricing): card hierarchy, Picks retailers, hero/path copy
+## 2026-07-14 ÔÇö fix(pricing): card hierarchy, Picks retailers, hero/path copy
 
 - Concept cards lead with ~20-word explainer; sample titles demoted
 - Picks mini-list: Argos / Amazon / Ergobaby dummies
-- Mobile hint: “Swipe to discover each feature”; journey subcopy + hero + “Ember Plus adds your assistant Pip”
+- Mobile hint: ÔÇ£Swipe to discover each featureÔÇØ; journey subcopy + hero + ÔÇ£Ember Plus adds your assistant PipÔÇØ
 
-## 2026-07-14 — fix(pricing): mobile horizontal journey + Ember Plus hero
+## 2026-07-14 ÔÇö fix(pricing): mobile horizontal journey + Ember Plus hero
 
 - Mobile journey: horizontal snap carousel (one feature + one card); desktop keeps vertical Pip track
-- Hero: “Ember Plus puts / Pip on the path with you.”
+- Hero: ÔÇ£Ember Plus puts / Pip on the path with you.ÔÇØ
 
-## 2026-07-14 — fix(pricing): mobile UX feedback on PMF v2 page
+## 2026-07-14 ÔÇö fix(pricing): mobile UX feedback on PMF v2 page
 
-- Hero: Pip logo above the fold so “puts Pip on the path” has a face
+- Hero: Pip logo above the fold so ÔÇ£puts Pip on the pathÔÇØ has a face
 - Journey: concept card first + sticky on mobile; shorter card image; drop per-node robin marks
-- Free card: no redundant £0; Meet Pip title enlarged as the section headline
+- Free card: no redundant ┬ú0; Meet Pip title enlarged as the section headline
 
-## 2026-07-14 — feat(pricing): PMF 2.0 page replace (live `/pricing`)
+## 2026-07-14 ÔÇö feat(pricing): PMF 2.0 page replace (live `/pricing`)
 
 - Replaces live `/pricing` copy with Product Marketing Library v2.0: Free = good / Plus = great
 - Naming: Pathway, Picks, Proximity, Seasons, Moments, Move-On, Smart Marketplace
 - Journey adds Seasons + Moments stops; Picks/Seasons/Moments use varied card formats (mini-list / pills)
 - Ships draft `web/docs/PRODUCT_MARKETING_LIBRARY.md` alongside
 
-## 2026-07-14 — docs(pricing): Pricing Page v2 HTML from PMF 2.0
+## 2026-07-14 ÔÇö docs(pricing): Pricing Page v2 HTML from PMF 2.0
 
 - Static branded HTML for founder copy edit (preceded live port)
 - Grounded in `PRODUCT_MARKETING_LIBRARY.md` Draft v2.0
 - Journey: Gemini linear UI + PMF copy + Stage 2 `category_images`
-- Files: `agent-tools/exports/ember_pricing_v2_pmf.html` · Google Drive `Ember_Pricing_v2.html`
+- Files: `agent-tools/exports/ember_pricing_v2_pmf.html` ┬À Google Drive `Ember_Pricing_v2.html`
 
-## 2026-07-13 — feat(pricing): haircut — lean SaaS structure
+## 2026-07-13 ÔÇö feat(pricing): haircut ÔÇö lean SaaS structure
 
-- Page reduced to: hero → plans → Meet Pip → journey → short FAQ
+- Page reduced to: hero ÔåÆ plans ÔåÆ Meet Pip ÔåÆ journey ÔåÆ short FAQ
 - Removed trust grid, final CTA, hero Pip badge, journey Seasons/Moments stops, and FAQ bloat
 - Meet Pip kept as compact profile; journey kept as the single Plus differentiator
 
-## 2026-07-13 — feat(pricing): Meet Pip clarity + Ember journey art
+## 2026-07-13 ÔÇö feat(pricing): Meet Pip clarity + Ember journey art
 
-- Meet Pip section names the logo as Plus guide; journey cards use Stage 2 `category_images` + “Pip spotted this” chips
-- Explore the catalogue card links to `/discover`; hero price is £3.99/month (no “from”)
+- Meet Pip section names the logo as Plus guide; journey cards use Stage 2 `category_images` + ÔÇ£Pip spotted thisÔÇØ chips
+- Explore the catalogue card links to `/discover`; hero price is ┬ú3.99/month (no ÔÇ£fromÔÇØ)
 - Journey + FAQ copy rewritten for Conor tone
 
-## 2026-07-13 — feat(pricing): Pip journey explainer + brand refresh
+## 2026-07-13 ÔÇö feat(pricing): Pip journey explainer + brand refresh
 
 - `/pricing` uses marketing container, canvas `#FBFAF7`, Manrope via `homepage-discover-brand`, accent `#FF5C34` with white CTA text
 - Hero introduces Pip as Plus guide; plan cards use Pip Trail / Picks language (no banned "unlock")
 - After **Know it. Buy it. Move it on.**, replaced interactive comparison with `PipJourneyExplainer` (Gemini HTML port)
 - FAQ + trust + final CTA updated for Pip; affiliate links to `/how-ember-makes-money` and `/affiliate-disclosure`
 
-**Verify:** open `/pricing` — Pip logo in hero; journey auto-advances; Free/Plus cards; Start free → sign-in or Discover
+**Verify:** open `/pricing` ÔÇö Pip logo in hero; journey auto-advances; Free/Plus cards; Start free ÔåÆ sign-in or Discover
 
 - **Hero image:** `ember_cat_copy_me_games_category.png` (white family; single hero use)
 
-## 2026-07-13 — fix(marketing): white text on orange homepage CTAs
+## 2026-07-13 ÔÇö fix(marketing): white text on orange homepage CTAs
 
 - Removed blanket `a { color: inherit }` that overrode Tailwind `text-white`
 - `.home-cta` locked to `#ffffff` on orange buttons
 
-## 2026-07-13 — fix(marketing): homepage fonts locked to Discover Manrope
+## 2026-07-13 ÔÇö fix(marketing): homepage fonts locked to Discover Manrope
 
 - **Source of truth:** Discover body = Manrope 16/17px `#66717D` (`DiscoverFigmaChildHero`)
 - **Conflict found:** ThemeProvider defaults still inject Inter (body) + Source Serif 4 (headings)
 - Homepage now forces `--brand-font-*` + every `.home-*` class to Discover Manrope; body metrics match Discover
 
 ### How to verify
-1. Preview `/` vs `/discover/26` — body copy should be the same Manrope face
-2. "How Ember Works." and other section titles — Manrope, not serif
+1. Preview `/` vs `/discover/26` ÔÇö body copy should be the same Manrope face
+2. "How Ember Works." and other section titles ÔÇö Manrope, not serif
 
-## 2026-07-13 — fix(marketing): full-viewport hero (Apple-style first impression)
+## 2026-07-13 ÔÇö fix(marketing): full-viewport hero (Apple-style first impression)
 
 - Hero `min-h` fills viewport below sticky nav so age slider sits below the fold
-- Display ~48–88px; image up to ~620px tall; larger CTAs + lead
+- Display ~48ÔÇô88px; image up to ~620px tall; larger CTAs + lead
 
 ### How to verify
-1. Preview `/` on desktop — first screen is brand + hero only
+1. Preview `/` on desktop ÔÇö first screen is brand + hero only
 2. Scroll once to reach "My child's current age"
 
-## 2026-07-13 — fix(marketing): homepage image diversity, hero scale, nav alignment
+## 2026-07-13 ÔÇö fix(marketing): homepage image diversity, hero scale, nav alignment
 
-- **Images:** five distinct families/scenes — dropped recurring orange-sweater catalogue model
-- **Hero:** display ~44–68px semibold (SaaS opening impact, still not bold)
+- **Images:** five distinct families/scenes ÔÇö dropped recurring orange-sweater catalogue model
+- **Hero:** display ~44ÔÇô68px semibold (SaaS opening impact, still not bold)
 - **Layout:** shared `max-w-7xl` marketing container; nav widens on `/` + `/pricing`; removed redundant `ContentSpacer`
 
 ### How to verify
-1. Preview `/` — no repeat orange-sweater parent; logo aligns with hero text edges
+1. Preview `/` ÔÇö no repeat orange-sweater parent; logo aligns with hero text edges
 2. Hero headline reads larger than section titles
 3. No double gap under sticky nav
 
-## 2026-07-13 — fix(marketing): softer homepage type scale + stages image swap
+## 2026-07-13 ÔÇö fix(marketing): softer homepage type scale + stages image swap
 
-- **Type:** shared `.home-*` scale — semibold/medium headings (not bold), body 16–18px like Discover
+- **Type:** shared `.home-*` scale ÔÇö semibold/medium headings (not bold), body 16ÔÇô18px like Discover
 - **Stages image:** `ember_cat_real_object_baskets_category.png` (replaces old soft-balls art)
 - **Rhythm:** slightly tighter section padding + lighter image shadows
 
 ### How to verify
-1. Preview `/` — headings feel lighter; body reads at ~17px not 24px+
+1. Preview `/` ÔÇö headings feel lighter; body reads at ~17px not 24px+
 2. "Parenting moves in stages" block shows real-object basket art
 
-## 2026-07-13 — fix(marketing): homepage typography, crop, no em dashes
+## 2026-07-13 ÔÇö fix(marketing): homepage typography, crop, no em dashes
 
 - Hero/body: regular weight (Discover body pattern); headings stay Manrope bold
 - CTAs: `font-medium` / normal only (never bold)
@@ -387,340 +513,340 @@ Founder review of the preview on a phone flagged three issues, fixed in `PipsPic
 ### How to verify
 1. Preview `/` vs live: hero image fills the frame edge-to-edge
 2. Subtext and CTAs are not bold
-3. No "—" in hero line
+3. No "ÔÇö" in hero line
 
-## 2026-07-13 — feat(marketing): homepage Discover brand + Stage 2 Storage images
+## 2026-07-13 ÔÇö feat(marketing): homepage Discover brand + Stage 2 Storage images
 
 - **Brand:** `.homepage-discover-brand` remaps tokens to Discover Figma (`#253044`, `#FF5C34`, `#FBFAF7`, `#E7E2DC`); Manrope headings (no Source Serif)
 - **Imagery:** Unsplash / local webp replaced with `category_images` Stage 2 PNGs (`homeStage2Images.ts` + `HomeStage2Media`)
 - **PR:** continues #254
 
 ### How to verify
-1. Open `/` — headings look like Discover (Manrope bold); accent is `#FF5C34`
+1. Open `/` ÔÇö headings look like Discover (Manrope bold); accent is `#FF5C34`
 2. Hero + stage blocks + final CTA show Stage 2 product art (not stock photos)
 3. Compare side-by-side with `/discover/14`
 
-## 2026-07-12 — feat(marketing): homepage calls out 600+ Stage 2 ideas
+## 2026-07-12 ÔÇö feat(marketing): homepage calls out 600+ Stage 2 ideas
 
-- **Hero:** “over 600 free ideas for what they’re practising next”
+- **Hero:** ÔÇ£over 600 free ideas for what theyÔÇÖre practising nextÔÇØ
 - **Also:** How it works (Know it), How it shows up (Discover), final CTA, root meta description
-- **Tone:** catalogue depth without “science-backed” / catalogue-speak
+- **Tone:** catalogue depth without ÔÇ£science-backedÔÇØ / catalogue-speak
 
 ### How to verify
-1. Open `/` — hero subhead mentions over 600 free ideas
-2. Scroll to How Ember Works / How it shows up — same signal, lightly
-3. View page source meta description includes “Over 600 free ideas…”
+1. Open `/` ÔÇö hero subhead mentions over 600 free ideas
+2. Scroll to How Ember Works / How it shows up ÔÇö same signal, lightly
+3. View page source meta description includes ÔÇ£Over 600 free ideasÔÇªÔÇØ
 
-## 2026-07-02 — feat(data): map 31–33m Stage 2 category images (60/60)
+## 2026-07-02 ÔÇö feat(data): map 31ÔÇô33m Stage 2 category images (60/60)
 
-- **Preflight:** HEAD 200 on all 60 slugs in `category_images` — global filenames `ember_{slug}_category.png` (no age-scoped `*_31_33m_*` variants uploaded)
+- **Preflight:** HEAD 200 on all 60 slugs in `category_images` ÔÇö global filenames `ember_{slug}_category.png` (no age-scoped `*_31_33m_*` variants uploaded)
 - **Manifest:** `agent-tools/exports/31-33m_category_image_verified_map.json`
-- **Migration:** `20260702222945_fix_31_33m_category_images_verified.sql` — applied via `supabase db push`
+- **Migration:** `20260702222945_fix_31_33m_category_images_verified.sql` ÔÇö applied via `supabase db push`
 - **Result:** 60 active rows in `v_gateway_category_type_images` for `age_band_id=31-33m`; export gap count **0**
 
 ### How to verify
-1. `node web/scripts/export-stage2-no-image-band.mjs 31-33m` → `missing_managed_image: 0`
-2. REST `v_gateway_category_type_images?age_band_id=eq.31-33m` → 60 rows, all `image_url` HEAD 200
-3. `/discover/32` → drill into any Stage 1 cluster → Stage 2 cards show images (not grey placeholders)
+1. `node web/scripts/export-stage2-no-image-band.mjs 31-33m` ÔåÆ `missing_managed_image: 0`
+2. REST `v_gateway_category_type_images?age_band_id=eq.31-33m` ÔåÆ 60 rows, all `image_url` HEAD 200
+3. `/discover/32` ÔåÆ drill into any Stage 1 cluster ÔåÆ Stage 2 cards show images (not grey placeholders)
 
-## 2026-07-02 — fix(discover): mutually exclusive bands, Have-it toggle, name/gender copy
+## 2026-07-02 ÔÇö fix(discover): mutually exclusive bands, Have-it toggle, name/gender copy
 
-- **Age bands:** migration `20260702230000_mutually_exclusive_age_band_ranges.sql` — `6-9m` → **7–9**, `9-12m` → **10–12** (no month overlap); hero keys `7-9` / `10-12`
-- **Have it:** light-switch UX — content greys out, action row stays interactive; no optimistic flip before auth; persist per child; reload only on user/child change
-- **Personalisation:** `personalizeDiscoverCopy()` — name swaps (`your baby`/`your toddler` → child name) + gender (`them`/`their` → him/her) on hero, Stage 1 why-text, Stage 2 rationale/notes
+- **Age bands:** migration `20260702230000_mutually_exclusive_age_band_ranges.sql` ÔÇö `6-9m` ÔåÆ **7ÔÇô9**, `9-12m` ÔåÆ **10ÔÇô12** (no month overlap); hero keys `7-9` / `10-12`
+- **Have it:** light-switch UX ÔÇö content greys out, action row stays interactive; no optimistic flip before auth; persist per child; reload only on user/child change
+- **Personalisation:** `personalizeDiscoverCopy()` ÔÇö name swaps (`your baby`/`your toddler` ÔåÆ child name) + gender (`them`/`their` ÔåÆ him/her) on hero, Stage 1 why-text, Stage 2 rationale/notes
 - **Cache:** `GATEWAY_CATALOGUE_CACHE_VERSION = 20260702c`
 
 ### How to verify
-1. Slider shows **7–9 months** and **10–12 months**; hero sub matches chip exactly
-2. `/discover/8` → Things that can help → tap Have → card greys, stays grey on refresh; tap again to restore
-3. Child with name + gender → hero/why-text uses name and him/her not them
+1. Slider shows **7ÔÇô9 months** and **10ÔÇô12 months**; hero sub matches chip exactly
+2. `/discover/8` ÔåÆ Things that can help ÔåÆ tap Have ÔåÆ card greys, stays grey on refresh; tap again to restore
+3. Child with name + gender ÔåÆ hero/why-text uses name and him/her not them
 4. `pnpm -C web build` passes
 
-## 2026-07-02 — fix(discover): audit — icons, notes, Have-it layout, hero bands
+## 2026-07-02 ÔÇö fix(discover): audit ÔÇö icons, notes, Have-it layout, hero bands
 
-- **Stage 1 icons:** slug + label patterns for 4–6m, 16–18m, 19–21m, 25–27m, 31–33m; `ent_cluster_solve` → Eye (hidden things)
+- **Stage 1 icons:** slug + label patterns for 4ÔÇô6m, 16ÔÇô18m, 19ÔÇô21m, 25ÔÇô27m, 31ÔÇô33m; `ent_cluster_solve` ÔåÆ Eye (hidden things)
 - **Gift mode notes:** `ownership_note` hidden in gift toggle; `gift_note` only via `resolveStage2HelperNote`
-- **Parent notes:** client filter (`cardNotes.ts`) + migration `20260702220000_prune_redundant_ownership_notes.sql` — prunes well-duh borrow/reuse copy
-- **Have it mobile:** two-row card actions — CTA row, then Save / Have / Gift icons; dim/hide state unchanged
-- **Age band hero:** removed legacy `PILOT_AGE_BAND_RANGE_BY_ID` overrides; hero sub uses slider `min–max` from gateway (fixes 10–12 showing 9–12)
+- **Parent notes:** client filter (`cardNotes.ts`) + migration `20260702220000_prune_redundant_ownership_notes.sql` ÔÇö prunes well-duh borrow/reuse copy
+- **Have it mobile:** two-row card actions ÔÇö CTA row, then Save / Have / Gift icons; dim/hide state unchanged
+- **Age band hero:** removed legacy `PILOT_AGE_BAND_RANGE_BY_ID` overrides; hero sub uses slider `minÔÇômax` from gateway (fixes 10ÔÇô12 showing 9ÔÇô12)
 - **Cache:** `GATEWAY_CATALOGUE_CACHE_VERSION = 20260702b`
 
 ### How to verify
-1. `/discover/5` gift toggle → product cards show gift notes only, no “borrow or reuse…”
-2. `/discover/10` hero sub starts “At 9–12 months” (matches slider chip)
-3. `/discover/8` parent → Things that can help → mobile: Ember Picks on row 1, Save+Have+Gift on row 2
-4. Stage 1 icons spot-check 4–6m floor gym (Activity), 9–12m hidden things (Eye)
+1. `/discover/5` gift toggle ÔåÆ product cards show gift notes only, no ÔÇ£borrow or reuseÔÇªÔÇØ
+2. `/discover/10` hero sub starts ÔÇ£At 9ÔÇô12 monthsÔÇØ (matches slider chip)
+3. `/discover/8` parent ÔåÆ Things that can help ÔåÆ mobile: Ember Picks on row 1, Save+Have+Gift on row 2
+4. Stage 1 icons spot-check 4ÔÇô6m floor gym (Activity), 9ÔÇô12m hidden things (Eye)
 5. `pnpm -C web build` passes
 
-## 2026-07-01 — feat(discover): 31–33m Conor+Thea depth v2
+## 2026-07-01 ÔÇö feat(discover): 31ÔÇô33m Conor+Thea depth v2
 
-- **Source:** `02_Ember_Bible_31_33m_Conor_Thea_Depth_v2.xlsx` (`discover_projection`) — replaces legacy ABI v8 child-voice band
+- **Source:** `02_Ember_Bible_31_33m_Conor_Thea_Depth_v2.xlsx` (`discover_projection`) ÔÇö replaces legacy ABI v8 child-voice band
 - **Migrations:** `20260701180000_reimport_discover_31_33m_conor_thea_depth_v2.sql` + `20260701180100_fix_31_33m_wrapper_needs.sql`; applied via `supabase db push`
-- **Counts:** 60 workbook rows → **60** junction rows, **8** Stage 1 clusters, **35** `gift_friendly` product rows, Stage 3 active = 0; **0** slug dedupes
+- **Counts:** 60 workbook rows ÔåÆ **60** junction rows, **8** Stage 1 clusters, **35** `gift_friendly` product rows, Stage 3 active = 0; **0** slug dedupes
 - **Wiring:** One `ent_need_31_33_*` per cluster in `v_gateway_age_band_wrapper_needs_public`
 - **Cache:** `GATEWAY_CATALOGUE_CACHE_VERSION = 20260701e`
 
 ### How to verify
-1. `/discover/32` → **I'm the parent** — 8 child-voice Stage 1 cards; three lanes on Stage 2
-2. `/discover/32` → **Buying a gift** — gift carousels on all 8 clusters
-3. `/discover/32?wrapper=ent_cluster_hands_make_more&show=1` → **Twist, turn and peg puzzles**
-4. REST `v_gateway_category_types_public?age_band_id=eq.31-33m` → 60 rows, 35 with `gift_friendly=true`
+1. `/discover/32` ÔåÆ **I'm the parent** ÔÇö 8 child-voice Stage 1 cards; three lanes on Stage 2
+2. `/discover/32` ÔåÆ **Buying a gift** ÔÇö gift carousels on all 8 clusters
+3. `/discover/32?wrapper=ent_cluster_hands_make_more&show=1` ÔåÆ **Twist, turn and peg puzzles**
+4. REST `v_gateway_category_types_public?age_band_id=eq.31-33m` ÔåÆ 60 rows, 35 with `gift_friendly=true`
 
-## 2026-07-01 — feat(discover): 1–3m Conor+Thea depth v2 (more purchase depth)
+## 2026-07-01 ÔÇö feat(discover): 1ÔÇô3m Conor+Thea depth v2 (more purchase depth)
 
-- **Source:** `02_Ember_Bible_1_3m_Conor_Thea_Depth_v2_more_purchase_depth.xlsx` (`discover_projection`) — replaces v1 workbook
-- **Migration:** `20260701140000_reimport_discover_1_3m_conor_thea_depth_v2.sql` — **55** workbook rows → **53** junction rows (10 clusters), **26** `gift_friendly` product rows (was 16 in v1); Stage 3 active = 0; applied via `supabase db push`
+- **Source:** `02_Ember_Bible_1_3m_Conor_Thea_Depth_v2_more_purchase_depth.xlsx` (`discover_projection`) ÔÇö replaces v1 workbook
+- **Migration:** `20260701140000_reimport_discover_1_3m_conor_thea_depth_v2.sql` ÔÇö **55** workbook rows ÔåÆ **53** junction rows (10 clusters), **26** `gift_friendly` product rows (was 16 in v1); Stage 3 active = 0; applied via `supabase db push`
 - **Depth:** More `things_that_can_help` product cards with ownership / buy-borrow copy across child clusters
-- **Snag (unchanged from v1):** `cat_high_contrast_cards` under **I'm finding your face** maps `ent_need_visual_tracking` — won't surface on faces carousel; 2 slug collisions deduped (`cat_board_books`, `cat_high_contrast_cards`)
+- **Snag (unchanged from v1):** `cat_high_contrast_cards` under **I'm finding your face** maps `ent_need_visual_tracking` ÔÇö won't surface on faces carousel; 2 slug collisions deduped (`cat_board_books`, `cat_high_contrast_cards`)
 
 ### How to verify
-1. `/discover/2` → **I'm the parent** — 10 Stage 1 cards; heavier product lane vs v1
-2. `/discover/2` → **Buying a gift** — gift carousels populated on child clusters
-3. REST `v_gateway_category_types_public?age_band_id=eq.1-3m` → 53 rows, 26 with `gift_friendly=true`
+1. `/discover/2` ÔåÆ **I'm the parent** ÔÇö 10 Stage 1 cards; heavier product lane vs v1
+2. `/discover/2` ÔåÆ **Buying a gift** ÔÇö gift carousels populated on child clusters
+3. REST `v_gateway_category_types_public?age_band_id=eq.1-3m` ÔåÆ 53 rows, 26 with `gift_friendly=true`
 4. `pnpm -C web build` passes
 
-## 2026-07-01 — feat(discover): 1–3m Conor+Thea depth v1 catalogue rebuild
+## 2026-07-01 ÔÇö feat(discover): 1ÔÇô3m Conor+Thea depth v1 catalogue rebuild
 
 - **Source:** `02_Ember_Bible_1_3m_Conor_Thea_Depth_v1.xlsx` (`discover_projection`)
-- **Migration:** `20260701120000_reimport_discover_1_3m_conor_thea_depth_v1.sql` — 45 workbook rows → **43** junction rows (10 clusters), **16** `gift_friendly` product rows; Stage 3 active = 0
-- **Generator fix:** `scripts/generate-discover-projection-sql.mjs` — `DISTINCT ON (age_band_id, development_need_id, category_type_id)` when shared slugs appear under multiple clusters with the same need (2 collisions: `cat_board_books`, `cat_high_contrast_cards`)
-- **Gift toggle:** enabled — 6 child clusters with gift depth; parent-only clusters (settling, feeding kit, sleep, health trips) hidden in gift mode
-- **Workbook snag (founder):** `cat_high_contrast_cards` row under **I'm finding your face** uses `ent_need_visual_tracking`, but that cluster only resolves `ent_need_face_smile_chat` in `v_gateway_age_band_wrapper_needs_public` — the card will not appear on the faces carousel (watching/listen clusters still show it). Faces-specific labels for the two deduped slugs collapse to listen/watching versions.
+- **Migration:** `20260701120000_reimport_discover_1_3m_conor_thea_depth_v1.sql` ÔÇö 45 workbook rows ÔåÆ **43** junction rows (10 clusters), **16** `gift_friendly` product rows; Stage 3 active = 0
+- **Generator fix:** `scripts/generate-discover-projection-sql.mjs` ÔÇö `DISTINCT ON (age_band_id, development_need_id, category_type_id)` when shared slugs appear under multiple clusters with the same need (2 collisions: `cat_board_books`, `cat_high_contrast_cards`)
+- **Gift toggle:** enabled ÔÇö 6 child clusters with gift depth; parent-only clusters (settling, feeding kit, sleep, health trips) hidden in gift mode
+- **Workbook snag (founder):** `cat_high_contrast_cards` row under **I'm finding your face** uses `ent_need_visual_tracking`, but that cluster only resolves `ent_need_face_smile_chat` in `v_gateway_age_band_wrapper_needs_public` ÔÇö the card will not appear on the faces carousel (watching/listen clusters still show it). Faces-specific labels for the two deduped slugs collapse to listen/watching versions.
 
 ### How to verify
-1. `/discover/2` → **I'm the parent** — 10 Stage 1 cards; Stage 2 lanes (`Useful ideas` / `Things that can help` / `Quick checks`)
-2. `/discover/2` → **Buying a gift** — 6 development cards with populated carousels (no empty gift grids)
-3. REST `v_gateway_category_types_public?age_band_id=eq.1-3m` → 43 rows, 16 with `gift_friendly=true`
-4. REST `v_gateway_wrappers_public?age_band_id=eq.1-3m` → 10 clusters with child-voice labels
+1. `/discover/2` ÔåÆ **I'm the parent** ÔÇö 10 Stage 1 cards; Stage 2 lanes (`Useful ideas` / `Things that can help` / `Quick checks`)
+2. `/discover/2` ÔåÆ **Buying a gift** ÔÇö 6 development cards with populated carousels (no empty gift grids)
+3. REST `v_gateway_category_types_public?age_band_id=eq.1-3m` ÔåÆ 43 rows, 16 with `gift_friendly=true`
+4. REST `v_gateway_wrappers_public?age_band_id=eq.1-3m` ÔåÆ 10 clusters with child-voice labels
 5. `pnpm -C web build` passes
 
-## 2026-07-01 — chore(rules): Conor-grade catalogue upload workflow
+## 2026-07-01 ÔÇö chore(rules): Conor-grade catalogue upload workflow
 
-- **Rule:** `.cursor/rules/conor-grade-catalogue-upload.mdc` — ingest + verify + **always open PR** with green Vercel preview (founder should not need to ask).
+- **Rule:** `.cursor/rules/conor-grade-catalogue-upload.mdc` ÔÇö ingest + verify + **always open PR** with green Vercel preview (founder should not need to ask).
 
 ### How to verify
-1. Say "Upload this Conor-grade catalogue" — agent follows full pipeline including PR handoff.
+1. Say "Upload this Conor-grade catalogue" ÔÇö agent follows full pipeline including PR handoff.
 2. Rule visible in Cursor Rules as always-applied.
 
-## 2026-07-01 — fix(discover): hero layout + navbar Manrope typography
+## 2026-07-01 ÔÇö fix(discover): hero layout + navbar Manrope typography
 
-- **Typography:** Hero `h1` and navbar both use Manrope (`--font-sans` / `font-sans`) — fixes serif/sans mismatch from brandbook `h1` rule.
+- **Typography:** Hero `h1` and navbar both use Manrope (`--font-sans` / `font-sans`) ÔÇö fixes serif/sans mismatch from brandbook `h1` rule.
 - **Hero layout (desktop):** Parent/gift toggle on same row as age chip, right-aligned above hero image.
 - **Hero layout (desktop):** Image height stretches to match description + age slider block (grid row symmetry).
-- **Add-child:** Figma shell styling (warm `#FBFAF7`, Manrope, orange icons); form left / marketing right on desktop; edit saves return to `/family?saved=1&child=…`.
+- **Add-child:** Figma shell styling (warm `#FBFAF7`, Manrope, orange icons); form left / marketing right on desktop; edit saves return to `/family?saved=1&child=ÔÇª`.
 - **Discover toggle:** Removed auto-scroll to developments section on parent/gift switch (toggle is now at top).
 - **Files:** `globals.css`, `layout.tsx`, `navStyles.ts`, `DiscoverFigmaChildHero.tsx`, `DiscoverAudienceToggle.tsx`, `DiscoveryPageClient.tsx`, `AddChildForm.tsx`, card components.
 
 ### How to verify
-1. `/discover/14` desktop — single top row: compact age chip left, parent/gift pills right; image height matches title + copy + slider.
+1. `/discover/14` desktop ÔÇö single top row: compact age chip left, parent/gift pills right; image height matches title + copy + slider.
 2. Navbar "Ember" wordmark uses pre-change brand font (not forced `font-sans`).
-3. `/add-children` desktop — hero + full form (incl. consent + submit) above the fold; no duplicate "Add a child" header row.
+3. `/add-children` desktop ÔÇö hero + full form (incl. consent + submit) above the fold; no duplicate "Add a child" header row.
 
-## 2026-07-01 — fix(typography): navbar matches discover hero Manrope
+## 2026-07-01 ÔÇö fix(typography): navbar matches discover hero Manrope
 
-- **Issue:** Hero headline (`h1`) used brandbook serif via global `h1` rule; navbar used Manrope via `discoverManrope.className` — visually mismatched.
+- **Issue:** Hero headline (`h1`) used brandbook serif via global `h1` rule; navbar used Manrope via `discoverManrope.className` ÔÇö visually mismatched.
 - **Fix:** Figma app shell (`ember-figma-app`) forces `h1`/`h2` and nav links to `var(--font-sans)` (Manrope); hero `h1` gets explicit `font-sans`; `ember-figma-app` on `<html>` for SSR.
 
 ### How to verify
-1. Open `/discover/14` — inspect navbar links and “What your child’s practising now” headline: both should be Manrope (not Source Serif).
-2. DevTools → Computed → `font-family` on both elements should match.
+1. Open `/discover/14` ÔÇö inspect navbar links and ÔÇ£What your childÔÇÖs practising nowÔÇØ headline: both should be Manrope (not Source Serif).
+2. DevTools ÔåÆ Computed ÔåÆ `font-family` on both elements should match.
 
-## 2026-06-30 — perf(discover): Phase 2 client navigation and ISR shell
+## 2026-06-30 ÔÇö perf(discover): Phase 2 client navigation and ISR shell
 
-- **Client nav:** `discoverClientNav.ts` — wrapper/show/category URL updates via `history.pushState` (no RSC refetch on Stage 1/2 taps)
+- **Client nav:** `discoverClientNav.ts` ÔÇö wrapper/show/category URL updates via `history.pushState` (no RSC refetch on Stage 1/2 taps)
 - **Picks:** Ember Picks loaded client-side from `/api/discover/picks` when opening examples
-- **API:** `/api/discover/category-types` — CDN-cached Stage 2 fallback
+- **API:** `/api/discover/category-types` ÔÇö CDN-cached Stage 2 fallback
 - **Entry:** `/discover` server `redirect()` + resume cookie mirror (drops client double-hop spinner)
 - **ISR:** `/discover/[months]` `revalidate=1800`; query params handled client-side only
 - **Build:** `pnpm -C web build` pass
 
 ### How to verify
-1. `/discover/14` — tap Stage 1 cards rapidly: no full page reload between wrappers (Network: no new document requests)
-2. Tap Ember Picks on a product row — examples load without document navigation
-3. `/discover` — instant server redirect (no "Loading discover…" flash)
-4. Return to `/discover` after browsing — resumes last section via cookie
+1. `/discover/14` ÔÇö tap Stage 1 cards rapidly: no full page reload between wrappers (Network: no new document requests)
+2. Tap Ember Picks on a product row ÔÇö examples load without document navigation
+3. `/discover` ÔÇö instant server redirect (no "Loading discoverÔÇª" flash)
+4. Return to `/discover` after browsing ÔÇö resumes last section via cookie
 5. `pnpm -C web build` passes
 
-## 2026-06-30 — perf(discover): Phase 1 server catalogue speed
+## 2026-06-30 ÔÇö perf(discover): Phase 1 server catalogue speed
 
-- **Public client:** `createPublicCatalogueClient()` — cookieless Supabase for gateway reads; safe inside `unstable_cache` (fixes May redirect-loop constraint)
-- **Batch fetch:** `getGatewayCategoryTypesByWrapperForAgeBand` — one mapping + one category + one image query per age band (was N×wrapper sequential loops)
+- **Public client:** `createPublicCatalogueClient()` ÔÇö cookieless Supabase for gateway reads; safe inside `unstable_cache` (fixes May redirect-loop constraint)
+- **Batch fetch:** `getGatewayCategoryTypesByWrapperForAgeBand` ÔÇö one mapping + one category + one image query per age band (was N├ùwrapper sequential loops)
 - **Cache wired:** `/discover/[months]` uses `gateway-cache` for bands, wrappers, categories, products, picks, hero
-- **SSR images:** deterministic Storage URLs via `applyDeterministicStorageCategoryImages` — no blocking HEAD probes
-- **Client:** `categoriesByWrapper` preloaded on page — wrapper tap shows Stage 2 cards instantly from props (no skeleton wait for server round-trip)
+- **SSR images:** deterministic Storage URLs via `applyDeterministicStorageCategoryImages` ÔÇö no blocking HEAD probes
+- **Client:** `categoriesByWrapper` preloaded on page ÔÇö wrapper tap shows Stage 2 cards instantly from props (no skeleton wait for server round-trip)
 - **Also:** `/discover` + `/api/discover/age-bands` use cached age bands
 - **Build:** `pnpm -C web build` pass
 
 ### How to verify
-1. DevTools → Network → `/discover/14` document TTFB: should drop sharply vs before (especially on 2nd load within 30m)
-2. `/discover/14` → tap any Stage 1 card → Stage 2 carousel appears immediately (no multi-second skeleton)
-3. `/discover` → single redirect to band page; no redirect loop
-4. Signed-in `?child=` — hero still personalises
+1. DevTools ÔåÆ Network ÔåÆ `/discover/14` document TTFB: should drop sharply vs before (especially on 2nd load within 30m)
+2. `/discover/14` ÔåÆ tap any Stage 1 card ÔåÆ Stage 2 carousel appears immediately (no multi-second skeleton)
+3. `/discover` ÔåÆ single redirect to band page; no redirect loop
+4. Signed-in `?child=` ÔÇö hero still personalises
 5. `pnpm -C web build` passes
 
-## 2026-06-30 — feat(discover): 13–15m Thea depth v5 catalogue rebuild
+## 2026-06-30 ÔÇö feat(discover): 13ÔÇô15m Thea depth v5 catalogue rebuild
 
 - **Source:** `02_Ember_Bible_13_15m_Thea_Depth_v5.xlsx` (`discover_projection`)
 - **Why:** v4 gift depth too thin for Thea; v5 adds tangible gift rows across six child clusters
-- **Migration:** `20260630140000_reimport_discover_13_15m_thea_depth_v5.sql` — 74 rows, 10 clusters, 30 `gift_friendly` product rows (was 58 / 14 in v4); Stage 3 active = 0
+- **Migration:** `20260630140000_reimport_discover_13_15m_thea_depth_v5.sql` ÔÇö 74 rows, 10 clusters, 30 `gift_friendly` product rows (was 58 / 14 in v4); Stage 3 active = 0
 - **Gift clusters visible in Buying a gift mode:** working things out, telling you things, copying your day, braver on feet, first marks, joining in (meals / safety / parent-only clusters still hidden)
 - **Applied:** `supabase db push` OK
 - **Follow-up:** `20260630150000_fix_13_15m_cluster_why_text.sql` restores full Stage 1 why-text (v5 workbook cells were truncated at ~80 chars)
 
 ### How to verify
-1. `/discover/14` → **Buying a gift** → six development cards (not empty carousels on any visible card)
-2. Pick e.g. “I'm working things out” → multiple gift-friendly rows in carousel
-3. “I'm taking charge at meals” still hidden in gift mode (no gift rows by design)
-4. **I'm the parent** → full 74-row lane split (`Useful ideas` / `Things that can help` / `Quick checks`)
-5. REST `v_gateway_category_types_public?age_band_id=eq.13-15m` → 74 rows, 30 with `gift_friendly=true`
+1. `/discover/14` ÔåÆ **Buying a gift** ÔåÆ six development cards (not empty carousels on any visible card)
+2. Pick e.g. ÔÇ£I'm working things outÔÇØ ÔåÆ multiple gift-friendly rows in carousel
+3. ÔÇ£I'm taking charge at mealsÔÇØ still hidden in gift mode (no gift rows by design)
+4. **I'm the parent** ÔåÆ full 74-row lane split (`Useful ideas` / `Things that can help` / `Quick checks`)
+5. REST `v_gateway_category_types_public?age_band_id=eq.13-15m` ÔåÆ 74 rows, 30 with `gift_friendly=true`
 
-## 2026-06-30 — feat(discover): 13–15m Conor+Thea v4 rebuild (lane UI + gift mode)
+## 2026-06-30 ÔÇö feat(discover): 13ÔÇô15m Conor+Thea v4 rebuild (lane UI + gift mode)
 
 - **Source:** `02_Ember_Bible_13_15m_Conor_Thea_v4.xlsx` (`discover_projection`)
 - **Data model:** Added Stage 2 lane/action metadata on junction (`content_type`, `ui_lane`, `show_ember_picks`, `show_gift_action`, `gift_friendly`, `buyer_mode_label`, `gift_note`, `ownership_note`, `product_family_label`, `card_cta_label`, `render_rule`)
 - **Migrations:** `20260630103000_discover_stage2_ui_lanes.sql`; `20260630110000_reimport_discover_13_15m_conor_thea_v4.sql` (58 rows, 10 clusters; Stage 3 active = 0)
 - **UI:** Stage 2 split into `Useful ideas`, `Things that can help`, and `Quick checks`; early **Who is this for?** toggle (`I'm the parent` / `Buying a gift`) above Stage 1 grid
-- **Thea fix:** In gift mode, Stage 1 cards with zero `gift_friendly` rows are hidden (e.g. “I'm taking charge at meals” on 13–15m); no empty gift carousels
+- **Thea fix:** In gift mode, Stage 1 cards with zero `gift_friendly` rows are hidden (e.g. ÔÇ£I'm taking charge at mealsÔÇØ on 13ÔÇô15m); no empty gift carousels
 - **Build:** `pnpm -C web build` pass
 
 ### How to verify
-1. `/discover/14` → choose a development, then confirm separate `Useful ideas`, `Things that can help`, `Quick checks` sections (no mixed carousel)
+1. `/discover/14` ÔåÆ choose a development, then confirm separate `Useful ideas`, `Things that can help`, `Quick checks` sections (no mixed carousel)
 2. `Useful ideas` and `Quick checks` do not show Ember Picks CTA
 3. `Things that can help` shows Ember Picks only on rows flagged for it
-4. Toggle **Buying a gift** above the development grid → only clusters with gift rows appear; “I'm taking charge at meals” is hidden
-5. Select a gift cluster → gift carousel only (no empty “No gift-friendly rows” state)
+4. Toggle **Buying a gift** above the development grid ÔåÆ only clusters with gift rows appear; ÔÇ£I'm taking charge at mealsÔÇØ is hidden
+5. Select a gift cluster ÔåÆ gift carousel only (no empty ÔÇ£No gift-friendly rowsÔÇØ state)
 6. REST `v_gateway_category_types_public?age_band_id=eq.13-15m` shows lane/gift fields populated
 
-## 2026-06-30 — feat(discover): Conor-grade 13–15m content overhaul
+## 2026-06-30 ÔÇö feat(discover): Conor-grade 13ÔÇô15m content overhaul
 
 - **Source:** `02_Ember_Bible_13-15M_Ember_ABI_Conor_Grade_v3.xlsx` (`discover_projection` + `age_band_meta`)
-- **Migration:** `20260630120000_import_discover_13_15m_conor_grade.sql` — 50 rows, **10 clusters** (was 8/40); new Conor-grade Stage 1 voice + Stage 2 ideas with buy/borrow/bring-back-out in rationale
+- **Migration:** `20260630120000_import_discover_13_15m_conor_grade.sql` ÔÇö 50 rows, **10 clusters** (was 8/40); new Conor-grade Stage 1 voice + Stage 2 ideas with buy/borrow/bring-back-out in rationale
 - **Hero:** `discoverHeroCopy.ts` updated from workbook `hero_summary`
 - **Icons:** 10 new cluster slugs mapped in `wrapperIcons.tsx`
-- **Applied:** `supabase db push` — validation notices pass; Stage 3 active = 0
+- **Applied:** `supabase db push` ÔÇö validation notices pass; Stage 3 active = 0
 - **Build:** `pnpm -C web build` pass
 
 ### How to verify
-1. `/discover/14` — 10 Stage 1 clusters (e.g. "I'm working things out"); hero mentions purposeful experiments
-2. `/discover/14?wrapper=ent_cluster_working_things_out&show=1` — Stage 2 cards match workbook; expanded card shows buy/borrow copy
-3. REST `v_gateway_wrappers_public?age_band_id=eq.13-15m` — 10 rows
-4. REST `v_gateway_category_types_public?age_band_id=eq.13-15m` — 50 rows
+1. `/discover/14` ÔÇö 10 Stage 1 clusters (e.g. "I'm working things out"); hero mentions purposeful experiments
+2. `/discover/14?wrapper=ent_cluster_working_things_out&show=1` ÔÇö Stage 2 cards match workbook; expanded card shows buy/borrow copy
+3. REST `v_gateway_wrappers_public?age_band_id=eq.13-15m` ÔÇö 10 rows
+4. REST `v_gateway_category_types_public?age_band_id=eq.13-15m` ÔÇö 50 rows
 
-## 2026-06-30 — fix(pwa): open to Discover instead of /app placeholder
+## 2026-06-30 ÔÇö fix(pwa): open to Discover instead of /app placeholder
 
-- **Root cause:** PWA `manifest.ts` had `start_url: '/app'`, and `/app` was a dev placeholder (“Signed in as …email…”).
-- **Fix:** `start_url` → `/discover`; `/app` now server-redirects to `/discover` (covers existing installed PWAs still bookmarked at `/app`).
+- **Root cause:** PWA `manifest.ts` had `start_url: '/app'`, and `/app` was a dev placeholder (ÔÇ£Signed in as ÔÇªemailÔÇªÔÇØ).
+- **Fix:** `start_url` ÔåÆ `/discover`; `/app` now server-redirects to `/discover` (covers existing installed PWAs still bookmarked at `/app`).
 
 ### How to verify
-1. Open `/app` in browser — should redirect to `/discover` (or age-band child route).
-2. Reinstall PWA (or clear site data) and launch from home screen — lands on Discover, not email page.
+1. Open `/app` in browser ÔÇö should redirect to `/discover` (or age-band child route).
+2. Reinstall PWA (or clear site data) and launch from home screen ÔÇö lands on Discover, not email page.
 3. `/app/marketplace`, `/app/messages`, etc. still work unchanged.
 
-## 2026-06-30 — fix(discover): carousel loading hang on wrapper select
+## 2026-06-30 ÔÇö fix(discover): carousel loading hang on wrapper select
 
 - **Branch:** `fix/discover-carousel-loading-hang`
-- **Root cause:** (1) `ideasSectionLoading` treated synced empty `categoryTypes` as still loading → infinite skeleton; (2) gateway resolved one global `development_need_id` per wrapper slug, so 13–15m clusters like `ent_cluster_words` queried 9–12m needs and returned zero categories.
-- **Fix:** Loading skeleton only while client/server wrapper slug mismatch; age-band wrapper→need view resolves `development_need_id` via anchored category slugs; gateway fetches categories for all mapped needs per band.
+- **Root cause:** (1) `ideasSectionLoading` treated synced empty `categoryTypes` as still loading ÔåÆ infinite skeleton; (2) gateway resolved one global `development_need_id` per wrapper slug, so 13ÔÇô15m clusters like `ent_cluster_words` queried 9ÔÇô12m needs and returned zero categories.
+- **Fix:** Loading skeleton only while client/server wrapper slug mismatch; age-band wrapperÔåÆneed view resolves `development_need_id` via anchored category slugs; gateway fetches categories for all mapped needs per band.
 - **Migrations:** `20260630053819_fix_age_band_wrapper_needs_mapping.sql`, `20260630054526_fix_age_band_wrapper_needs_via_category.sql` (applied via `supabase db push`).
 
 ### How to verify
-1. `/discover/14` → tap **I'm telling you things** — carousel shows 5 ideas (not loading skeleton)
+1. `/discover/14` ÔåÆ tap **I'm telling you things** ÔÇö carousel shows 5 ideas (not loading skeleton)
 2. Repeat for **I'm off and moving**, **I'm posting, stacking and finding out**
-3. Direct URL `/discover/14?wrapper=ent_cluster_words` — Board books and Picture cards visible
+3. Direct URL `/discover/14?wrapper=ent_cluster_words` ÔÇö Board books and Picture cards visible
 
-## 2026-06-29 — fix(discover): faster category image delivery
+## 2026-06-29 ÔÇö fix(discover): faster category image delivery
 
 - **Branch:** `fix/discover-image-delivery`
-- **Images:** Supabase Storage render URLs (WebP, width-capped) — ~37 KB vs ~1.5 MB PNG origin
+- **Images:** Supabase Storage render URLs (WebP, width-capped) ÔÇö ~37 KB vs ~1.5 MB PNG origin
 - **UX:** Per-wrapper play-idea cache, loading skeleton (no stale images on toggle), route + image prefetch on card hover
-- **Server:** Gateway cached queries on discover month page — **reverted** (`unstable_cache` + `cookies()` broke age-band load → redirect loop)
+- **Server:** Gateway cached queries on discover month page ÔÇö **reverted** (`unstable_cache` + `cookies()` broke age-band load ÔåÆ redirect loop)
 - **Carousel:** Eager load for first two visible slides
 - **Build:** `pnpm -C web build` pass
 
 ### How to verify
-1. `/discover/2` — tap “I'm watching the world”; skeleton then images (not wrong wrapper's cards)
-2. Toggle development cards — revisit prior card shows images instantly from cache
-3. DevTools Network — category images ~30–40 KB WebP, not 1.5 MB PNG
-4. Hover a development card before tap — route prefetched
+1. `/discover/2` ÔÇö tap ÔÇ£I'm watching the worldÔÇØ; skeleton then images (not wrong wrapper's cards)
+2. Toggle development cards ÔÇö revisit prior card shows images instantly from cache
+3. DevTools Network ÔÇö category images ~30ÔÇô40 KB WebP, not 1.5 MB PNG
+4. Hover a development card before tap ÔÇö route prefetched
 
-## 2026-06-29 — fix(discover): perceived performance and image loading
+## 2026-06-29 ÔÇö fix(discover): perceived performance and image loading
 
-- **Branch:** `fix/discover-perceived-performance` — PR [#238](https://github.com/glownest2026-droid/ember/pull/238)
-- **Scope:** `/discover`, `/discover/[months]` — recommendation card tap scroll + card images only
+- **Branch:** `fix/discover-perceived-performance` ÔÇö PR [#238](https://github.com/glownest2026-droid/ember/pull/238)
+- **Scope:** `/discover`, `/discover/[months]` ÔÇö recommendation card tap scroll + card images only
 - **Interaction:** Scroll no longer waits for server `categoryTypes`; instant `behavior: 'auto'` on tap; immediate NeedCard press feedback
 - **Images:** `DiscoverFigmaImage` upgraded to `next/image` with `sizes`, lazy load, reserved aspect-ratio placeholders, hero `priority`
 - **Build:** `pnpm -C web build` pass
-- **Browser smoke:** Playwright desktop + iPhone 13 — tap→scroll movement 100–213ms, settled &lt;400ms, routes stable, no console errors, no oversized card images on mobile
+- **Browser smoke:** Playwright desktop + iPhone 13 ÔÇö tapÔåÆscroll movement 100ÔÇô213ms, settled &lt;400ms, routes stable, no console errors, no oversized card images on mobile
 
 ### How to verify
-1. `/discover/26` — tap 3 development cards; scroll begins within ~150ms; no long smooth-scroll pause
-2. `/discover/32` — play-idea card images fade in over reserved space (no strip loading)
-3. `/discover` — client redirect to age band; no redirect loop
+1. `/discover/26` ÔÇö tap 3 development cards; scroll begins within ~150ms; no long smooth-scroll pause
+2. `/discover/32` ÔÇö play-idea card images fade in over reserved space (no strip loading)
+3. `/discover` ÔÇö client redirect to age band; no redirect loop
 4. `pnpm -C web build` passes
 
-## 2026-06-28 — fix(snag-pack): restore Discover 7–9 months age band
+## 2026-06-28 ÔÇö fix(snag-pack): restore Discover 7ÔÇô9 months age band
 
-- **Branch:** `fix/snag-pack-discover-7-9m-band` — PR [#235](https://github.com/glownest2026-droid/ember/pull/235)
-- **Root cause:** Spine v2 deprecate migration deactivated `6-9m` (label 7–9 months) with no import; the 7–9M workbook existed on G Drive as `02_Ember_Bible_Pilot_6_9m_discover_projection_voice_v1.xlsx` (misnamed 6-9m).
-- **Fix:** `20260628182042_restore_discover_7_9m_age_band.sql` (reactivate band); `20260628203000_import_discover_6_9m_spine_v2.sql` (42 rows, 8 clusters from workbook; id `6-9m`, label **7–9 months**, min 7 max 9).
-- **Applied:** `supabase db push` — validation notices pass.
+- **Branch:** `fix/snag-pack-discover-7-9m-band` ÔÇö PR [#235](https://github.com/glownest2026-droid/ember/pull/235)
+- **Root cause:** Spine v2 deprecate migration deactivated `6-9m` (label 7ÔÇô9 months) with no import; the 7ÔÇô9M workbook existed on G Drive as `02_Ember_Bible_Pilot_6_9m_discover_projection_voice_v1.xlsx` (misnamed 6-9m).
+- **Fix:** `20260628182042_restore_discover_7_9m_age_band.sql` (reactivate band); `20260628203000_import_discover_6_9m_spine_v2.sql` (42 rows, 8 clusters from workbook; id `6-9m`, label **7ÔÇô9 months**, min 7 max 9).
+- **Applied:** `supabase db push` ÔÇö validation notices pass.
 - **Build:** `pnpm -C web build` pass
 
 ### How to verify
-1. `/discover/8` — slider shows **7–9 months**; Stage 1 includes "Things can hide and come back" (Spine v2 voice).
+1. `/discover/8` ÔÇö slider shows **7ÔÇô9 months**; Stage 1 includes "Things can hide and come back" (Spine v2 voice).
 2. Stage 2 first card on sitting cluster: **A safe floor-play mat** with updated rationale copy.
-3. REST `v_gateway_age_bands_public?id=eq.6-9m` — label `7–9 months`, min 7 max 9.
+3. REST `v_gateway_age_bands_public?id=eq.6-9m` ÔÇö label `7ÔÇô9 months`, min 7 max 9.
 4. No console errors desktop + mobile.
 
-## 2026-06-28 — feat(catalogue): Spine v2 slug cleanup + unified re-import (mega-PR)
+## 2026-06-28 ÔÇö feat(catalogue): Spine v2 slug cleanup + unified re-import (mega-PR)
 
-- **Branch:** `feat/catalogue-spine-v2-cleanup` — PR [#234](https://github.com/glownest2026-droid/ember/pull/234)
+- **Branch:** `feat/catalogue-spine-v2-cleanup` ÔÇö PR [#234](https://github.com/glownest2026-droid/ember/pull/234)
 - **Source of truth:** 5 G Drive Spine 2.0 workbooks (`1-3M`, `4-6M`, `10-12M`, `13-15M`, `16-18M`)
-- **Crosswalk:** `agent-tools/exports/category_slug_crosswalk.csv` — 161 source slugs → 145 canonical `cat_*`
+- **Crosswalk:** `agent-tools/exports/category_slug_crosswalk.csv` ÔÇö 161 source slugs ÔåÆ 145 canonical `cat_*`
 - **Workbooks:** Patched `discover_projection.category_entity_id` on G Drive (97 cells across 10-12M, 13-15M, 16-18M); backups in `agent-tools/backups/spine-v2-workbooks-pre-slug-cleanup/`
 - **Migrations:** `20260628180000_catalogue_spine_v2_deprecate_merge.sql` (6 deprecated bands + 95 slug merges); `20260628190000_reimport_discover_spine_v2_all_bands.sql` (197 rows, 5 bands)
-- **Deprecated bands:** `6-9m`, `22-24m`, `25-27m`, `28-30m`, `31-33m`, `34-36m` — deactivated, label suffixed `[deprecated — pre-Spine 2.0]`
+- **Deprecated bands:** `6-9m`, `22-24m`, `25-27m`, `28-30m`, `31-33m`, `34-36m` ÔÇö deactivated, label suffixed `[deprecated ÔÇö pre-Spine 2.0]`
 - **Distinct slug preserved:** `cat_bedtime_board_books` (not merged into `cat_board_books`)
-- **Applied:** `supabase db push` — validation notices pass; zero `ent_cat_*` on 9-12m gateway
+- **Applied:** `supabase db push` ÔÇö validation notices pass; zero `ent_cat_*` on 9-12m gateway
 - **Build:** `pnpm -C web build` pass
 
 ### How to verify
-1. `/discover/10?wrapper=ent_cluster_move&show=1` — Stage 2 uses `cat_*` slugs; e.g. "Posting boxes and hiding lids" on `cat_posting_boxes`
-2. REST `v_gateway_age_bands_public` — no deprecated bands (6-9m, 34-36m absent)
-3. REST `v_gateway_category_types_public?age_band_id=eq.9-12m` — 48 rows, all `cat_*` slugs
-4. Open crosswalk CSV — `cat_bedtime_board_books` distinct from `cat_board_books`
-5. G Drive workbooks — `category_entity_id` columns use canonical `cat_*` (no `ent_cat_*`, no `cat_13_15_*`)
+1. `/discover/10?wrapper=ent_cluster_move&show=1` ÔÇö Stage 2 uses `cat_*` slugs; e.g. "Posting boxes and hiding lids" on `cat_posting_boxes`
+2. REST `v_gateway_age_bands_public` ÔÇö no deprecated bands (6-9m, 34-36m absent)
+3. REST `v_gateway_category_types_public?age_band_id=eq.9-12m` ÔÇö 48 rows, all `cat_*` slugs
+4. Open crosswalk CSV ÔÇö `cat_bedtime_board_books` distinct from `cat_board_books`
+5. G Drive workbooks ÔÇö `category_entity_id` columns use canonical `cat_*` (no `ent_cat_*`, no `cat_13_15_*`)
 
-## 2026-06-28 — fix(snag-pack): discover age-band hero copy
+## 2026-06-28 ÔÇö fix(snag-pack): discover age-band hero copy
 
 - **Branch:** `fix/snag-pack-discover-hero-copy`
 - **PR:** https://github.com/glownest2026-droid/ember/pull/232
 - **Preview:** https://ember-git-fix-snag-pack-discover-655092-tims-projects-cd69a894.vercel.app
-- **Snags:** Per-band hero headline + body on Discover for 1–3m, 4–6m, 7–9m, 10–12m, 13–15m (13–15m uses "young one" headline); pilot band slider labels corrected 6–9→7–9 and 9–12→10–12
+- **Snags:** Per-band hero headline + body on Discover for 1ÔÇô3m, 4ÔÇô6m, 7ÔÇô9m, 10ÔÇô12m, 13ÔÇô15m (13ÔÇô15m uses "young one" headline); pilot band slider labels corrected 6ÔÇô9ÔåÆ7ÔÇô9 and 9ÔÇô12ÔåÆ10ÔÇô12
 - **Migration:** `20260628120000_fix_pilot_age_band_ranges_7_9_10_12.sql` (applied via `supabase db push`)
 - **Build:** `pnpm -C web build` pass
 
 ### How to verify
-1. Preview `/discover/2` — headline "What your baby's practising now"; body mentions turning towards faces.
-2. `/discover/5` — reaching with purpose / first tastes copy.
-3. `/discover/8` — sitting steadier / finger foods copy.
-4. `/discover/10` — 9–12 months busy/brave copy (band label still 10–12 months).
-5. `/discover/14` — "What your young one's practising now" + toddler steadier-on-feet copy.
-6. Slide age slider — hero updates per band; no console errors desktop + mobile.
+1. Preview `/discover/2` ÔÇö headline "What your baby's practising now"; body mentions turning towards faces.
+2. `/discover/5` ÔÇö reaching with purpose / first tastes copy.
+3. `/discover/8` ÔÇö sitting steadier / finger foods copy.
+4. `/discover/10` ÔÇö 9ÔÇô12 months busy/brave copy (band label still 10ÔÇô12 months).
+5. `/discover/14` ÔÇö "What your young one's practising now" + toddler steadier-on-feet copy.
+6. Slide age slider ÔÇö hero updates per band; no console errors desktop + mobile.
 
-## 2026-06-27 — fix(snag-pack): discover UX polish (7 snags)
+## 2026-06-27 ÔÇö fix(snag-pack): discover UX polish (7 snags)
 
 - **Branch:** `fix/snag-pack-discover-ux`
 - **PR:** https://github.com/glownest2026-droid/ember/pull/231
 - **Preview:** https://ember-git-fix-snag-pack-discover-ux-tims-projects-cd69a894.vercel.app
-- **Snags:** 1-3m Lucide icons; Stage 2 Have toggle (grey/browse); save modal child name + “View X’s List”; remove science Read more; expandable Stage 2 cards; discover session resume via sessionStorage; My List widget mobile bleed
+- **Snags:** 1-3m Lucide icons; Stage 2 Have toggle (grey/browse); save modal child name + ÔÇ£View XÔÇÖs ListÔÇØ; remove science Read more; expandable Stage 2 cards; discover session resume via sessionStorage; My List widget mobile bleed
 - **Build:** `pnpm -C web build` pass
 
 ### How to verify
-1. `/discover/2` — Stage 1 tiles show distinct icons (Smile, Mic, Eye, … not generic Shapes).
+1. `/discover/2` ÔÇö Stage 1 tiles show distinct icons (Smile, Mic, Eye, ÔÇª not generic Shapes).
 2. Stage 2 Have button greys/restores card; save modal uses child name; expand icon opens fullscreen card.
-3. Discover → deep section → Saves → Discover tab resumes same wrapper.
-4. `/my-ideas` on mobile — sidebar widgets edge-to-edge.
+3. Discover ÔåÆ deep section ÔåÆ Saves ÔåÆ Discover tab resumes same wrapper.
+4. `/my-ideas` on mobile ÔÇö sidebar widgets edge-to-edge.
 
 ## 2026-06-27 - feat(discover): v2 display_label, age-scoped images, deterministic storage lookup
 
@@ -728,16 +854,16 @@ Founder review of the preview on a phone flagged three issues, fixed in `PipsPic
 - **Migration:** `20260627120000_discover_v2_display_label_age_images.sql` (applied via `supabase db push`)
 - **Schema:** `pl_age_band_development_need_category_types.display_label`; `pl_category_type_images.age_band_id`; updated `v_gateway_category_types_public` (COALESCE display label) and `v_gateway_category_type_images` (exposes age_band_id)
 - **Backfill:** 246 junction `display_label` rows from import migrations; fixes cross-band title bleed (e.g. soft balls now band-specific)
-- **Slug fix:** `ent_cat_soft_balls` → `cat_soft_graspable_balls` on 9-12m
-- **App:** `getGatewayCategoryTypeImages(ids, ageBandId)` band-aware; replaced v2 fuzzy `categoryImageOverrides` with deterministic Storage HEAD probe (`ember_{slug}_{band}_category.png` → global fallback)
-- **Generator:** `generate-discover-projection-sql.mjs` v2 — `need_entity_ids`, junction `display_label`, no global label UPDATE, canonical name from slug
+- **Slug fix:** `ent_cat_soft_balls` ÔåÆ `cat_soft_graspable_balls` on 9-12m
+- **App:** `getGatewayCategoryTypeImages(ids, ageBandId)` band-aware; replaced v2 fuzzy `categoryImageOverrides` with deterministic Storage HEAD probe (`ember_{slug}_{band}_category.png` ÔåÆ global fallback)
+- **Generator:** `generate-discover-projection-sql.mjs` v2 ÔÇö `need_entity_ids`, junction `display_label`, no global label UPDATE, canonical name from slug
 - **Tooling:** `scripts/generate-display-label-backfill.mjs`; import templates + column dictionary updated
 - **Build:** `pnpm -C web build` pass
 - **Not in scope:** 207 unmapped slugs still need PNG uploads; 38 stock-photo mappings unchanged; zero age-scoped Storage files yet (convention ready)
 
 ### How to verify
-1. Query `v_gateway_category_types_public?slug=eq.cat_soft_graspable_balls` — labels differ by band
-2. `/discover/5?wrapper=ent_cluster_4_6_floor_strength&show=1` — soft balls title = "Soft balls to watch, hold and roll"
+1. Query `v_gateway_category_types_public?slug=eq.cat_soft_graspable_balls` ÔÇö labels differ by band
+2. `/discover/5?wrapper=ent_cluster_4_6_floor_strength&show=1` ÔÇö soft balls title = "Soft balls to watch, hold and roll"
 3. Upload `ember_cat_soft_graspable_balls_4_6m_category.png` then confirm band-specific image resolves
 
 ## 2026-06-27 - docs(discover): ABI Spine v2 ingestion template + catalogue differentiation plan
@@ -746,15 +872,15 @@ Founder review of the preview on a phone flagged three issues, fixed in `PipsPic
 - **Deliverable:** `supabase/import_templates/Leaf_Cursor_Template_ABI_Spine_Age_Band_Ingestion_v2.txt` + `Leaf_Cursor_Template_Category_Image_Mapping.txt`; G Drive image prompt upgraded. Slug rule: trust `category_entity_id` only.
 - **Next engineering:** One-time schema migration + update `scripts/generate-discover-projection-sql.mjs` to v2 rules before next band import.
 
-## 2026-06-16 - feat(discover): ingest pilot 4–6m + 16–18m discover_projection bands
+## 2026-06-16 - feat(discover): ingest pilot 4ÔÇô6m + 16ÔÇô18m discover_projection bands
 
 - **Branch:** `feat/discover-4-6m-16-18m-pilot`
-- **Goal:** Import `discover_projection` tabs from 4–6M and 16–18M Ember ABI workbooks (Downloads) into the existing Discover gateway path; Stage 1 clusters + Stage 2 categories only.
-- **Ground-truth read path:** `web/src/app/discover/page.tsx`, `web/src/app/discover/[months]/page.tsx`, `web/src/lib/pl/public.ts` → curated views (`v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_category_types_public`).
+- **Goal:** Import `discover_projection` tabs from 4ÔÇô6M and 16ÔÇô18M Ember ABI workbooks (Downloads) into the existing Discover gateway path; Stage 1 clusters + Stage 2 categories only.
+- **Ground-truth read path:** `web/src/app/discover/page.tsx`, `web/src/app/discover/[months]/page.tsx`, `web/src/lib/pl/public.ts` ÔåÆ curated views (`v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_category_types_public`).
 - **Generator:** `scripts/generate-discover-projection-sql.mjs` with `--migration=20260616200000_import_discover_4_6m_16_18m_pilot`.
-- **Migration:** `20260616200000_import_discover_4_6m_16_18m_pilot.sql` — 67 rows (34 + 33), 8 clusters per band; Stage 3 products = 0.
-- **Overlap:** Month 6 resolves to `6-9m` (higher min_months tie-break); no competing placeholder bands for 4–6 or 16–18 ranges.
-- **Validation (REST):** 8 wrappers + 34 categories on `4-6m`; 8 wrappers + 33 categories on `16-18m`; month resolver: 4–5→`4-6m`, 16–18→`16-18m`.
+- **Migration:** `20260616200000_import_discover_4_6m_16_18m_pilot.sql` ÔÇö 67 rows (34 + 33), 8 clusters per band; Stage 3 products = 0.
+- **Overlap:** Month 6 resolves to `6-9m` (higher min_months tie-break); no competing placeholder bands for 4ÔÇô6 or 16ÔÇô18 ranges.
+- **Validation (REST):** 8 wrappers + 34 categories on `4-6m`; 8 wrappers + 33 categories on `16-18m`; month resolver: 4ÔÇô5ÔåÆ`4-6m`, 16ÔÇô18ÔåÆ`16-18m`.
 - **Build:** `pnpm -C web build` pass; migration applied via `supabase db push`.
 
 ### Rollback (scoped)
@@ -764,33 +890,33 @@ DELETE FROM pl_age_band_ux_wrappers WHERE age_band_id IN ('4-6m','16-18m');
 UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_id IN ('4-6m','16-18m');
 ```
 
-## 2026-06-16 - feat(discover): re-import 1–3m from Ember Bible v3 voice rebuild
+## 2026-06-16 - feat(discover): re-import 1ÔÇô3m from Ember Bible v3 voice rebuild
 
 - **Branch:** `feat/discover-1-3m-13-15m-pilot` (PR #228)
-- **Source:** `02_Ember_Bible_1_3m_v3_voice_rebuild.xlsx` → `discover_projection` tab only (replaces prior `1-3M Ember ABI.xlsx` import).
-- **Migration:** `20260616190000_reimport_discover_1_3m_bible_v3.sql` — 42 rows, **10 clusters** (was 38 rows / 8 clusters).
+- **Source:** `02_Ember_Bible_1_3m_v3_voice_rebuild.xlsx` ÔåÆ `discover_projection` tab only (replaces prior `1-3M Ember ABI.xlsx` import).
+- **Migration:** `20260616190000_reimport_discover_1_3m_bible_v3.sql` ÔÇö 42 rows, **10 clusters** (was 38 rows / 8 clusters).
 - **New clusters:** `ent_cluster_listen_and_coo` (rank 2), `ent_cluster_kicks_wriggles` (rank 5); voice-rebuilt parent-friendly labels throughout.
 - **13-15m:** unchanged from `20260616180000_reimport_discover_13_15m_bible_v2.sql`.
 - **Validation:** 10 wrappers on `1-3m`; Stage 3 = 0.
 
-## 2026-06-16 - feat(discover): re-import 13–15m from Ember Bible v2
+## 2026-06-16 - feat(discover): re-import 13ÔÇô15m from Ember Bible v2
 
 - **Branch:** `feat/discover-1-3m-13-15m-pilot` (PR #228)
-- **Source:** `02_Ember_Bible_13_15m_v2.xlsx` → `discover_projection` tab only (replaces prior `13-15M Ember ABI.xlsx` import).
-- **Migration:** `20260616180000_reimport_discover_13_15m_bible_v2.sql` — 47 rows, **10 clusters** (was 40 rows / 8 clusters).
+- **Source:** `02_Ember_Bible_13_15m_v2.xlsx` ÔåÆ `discover_projection` tab only (replaces prior `13-15M Ember ABI.xlsx` import).
+- **Migration:** `20260616180000_reimport_discover_13_15m_bible_v2.sql` ÔÇö 47 rows, **10 clusters** (was 40 rows / 8 clusters).
 - **New clusters:** `ent_cluster_first_marks` (rank 6), `ent_cluster_joining_in` (rank 7); `ent_cluster_safety` label updated to "Keep curious hands safer"; ranks reordered.
 - **1-3m:** unchanged from `20260616170000_import_discover_1_3m_13_15m_pilot.sql`.
 - **Validation:** 10 wrappers + 47 category mappings on `13-15m`; Stage 3 = 0.
 
-## 2026-06-16 - feat(discover): ingest pilot 1–3m + 13–15m discover_projection bands
+## 2026-06-16 - feat(discover): ingest pilot 1ÔÇô3m + 13ÔÇô15m discover_projection bands
 
 - **Branch:** `feat/discover-1-3m-13-15m-pilot`
-- **Goal:** Import `discover_projection` tabs from 1–3M and 13–15M Ember ABI workbooks (Downloads) into the existing Discover gateway path; Stage 1 clusters + Stage 2 categories only.
-- **Ground-truth read path:** `web/src/app/discover/page.tsx`, `web/src/app/discover/[months]/page.tsx`, `web/src/lib/pl/public.ts` → curated views (`v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_category_types_public`).
-- **Generator:** `scripts/generate-discover-projection-sql.mjs` — generic `age_N_Mm` → `N-Mm` mapping, dynamic per-band row/cluster validation, requires `--migration=` + workbook path(s).
-- **Migration:** `20260616170000_import_discover_1_3m_13_15m_pilot.sql` — 78 rows (38 + 40), 8 clusters per band; Stage 3 products = 0.
-- **Overlap:** No competing active placeholder bands for months 1–3 or 13–15 (verified via `pl_age_bands` query before import).
-- **Note:** 13–15m reuses `ent_cluster_*` slugs shared with 9–12m; global `pl_ux_wrappers.ux_label` is per-slug (existing architecture).
+- **Goal:** Import `discover_projection` tabs from 1ÔÇô3M and 13ÔÇô15M Ember ABI workbooks (Downloads) into the existing Discover gateway path; Stage 1 clusters + Stage 2 categories only.
+- **Ground-truth read path:** `web/src/app/discover/page.tsx`, `web/src/app/discover/[months]/page.tsx`, `web/src/lib/pl/public.ts` ÔåÆ curated views (`v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_category_types_public`).
+- **Generator:** `scripts/generate-discover-projection-sql.mjs` ÔÇö generic `age_N_Mm` ÔåÆ `N-Mm` mapping, dynamic per-band row/cluster validation, requires `--migration=` + workbook path(s).
+- **Migration:** `20260616170000_import_discover_1_3m_13_15m_pilot.sql` ÔÇö 78 rows (38 + 40), 8 clusters per band; Stage 3 products = 0.
+- **Overlap:** No competing active placeholder bands for months 1ÔÇô3 or 13ÔÇô15 (verified via `pl_age_bands` query before import).
+- **Note:** 13ÔÇô15m reuses `ent_cluster_*` slugs shared with 9ÔÇô12m; global `pl_ux_wrappers.ux_label` is per-slug (existing architecture).
 - **Build:** `pnpm -C web install --frozen-lockfile` + `pnpm -C web build` pass; migration applied via `supabase db push`.
 
 ### Rollback (scoped)
@@ -800,36 +926,36 @@ DELETE FROM pl_age_band_ux_wrappers WHERE age_band_id IN ('1-3m','13-15m');
 UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_id IN ('1-3m','13-15m');
 ```
 
-## 2026-06-15 - feat(discover): re-ingest 6–9m + 9–12m brand voice copy
+## 2026-06-15 - feat(discover): re-ingest 6ÔÇô9m + 9ÔÇô12m brand voice copy
 
 - **Branch:** `feat/discover-6-9m-9-12m-brand-voice`
 - **Goal:** Re-import `discover_projection` from Brand Voice Update workbooks; slugs unchanged, all public-facing labels and rationale text revised.
 - **Generator:** `scripts/generate-discover-projection-sql.mjs` now overwrites `pl_development_needs` and `pl_category_types` text on re-import (not fill-empty-only); supports `--migration=` flag.
-- **Migration:** `20260615140000_reimport_discover_6_9m_9_12m_brand_voice.sql` — 90 rows (42 + 48), 8 clusters per band.
+- **Migration:** `20260615140000_reimport_discover_6_9m_9_12m_brand_voice.sql` ÔÇö 90 rows (42 + 48), 8 clusters per band.
 - **UI:** `wrapperIcons.tsx` label-pattern fallbacks for first-person cluster titles (e.g. "I can sit and reach").
 - **Build:** `pnpm -C web build` pass; migration applied via `supabase db push`.
 
-## 2026-06-15 - feat(discover): ingest pilot 6–9m + 9–12m discover_projection bands
+## 2026-06-15 - feat(discover): ingest pilot 6ÔÇô9m + 9ÔÇô12m discover_projection bands
 
 - **Branch:** `feat/discover-6-9m-9-12m-pilot`
-- **Goal:** Import `discover_projection` tabs from 6–9M and 9–12M Ember ABI workbooks into the existing Discover gateway path; wire parent-friendly cluster labels, long why-text, category labels, and `audience_lens` card styling in `/discover/[months]`.
-- **Ground-truth read path:** `web/src/app/discover/page.tsx`, `web/src/app/discover/[months]/page.tsx`, `web/src/app/discover/[months]/DiscoveryPageClient.tsx`, `web/src/lib/pl/public.ts` → curated views (`v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_category_types_public`).
-- **Ingestion:** `scripts/generate-discover-projection-sql.mjs` → migrations `20260615120000` (audience_lens schema + views), `20260615120100` (90-row import), `20260615120200` (overlap + lens fix), `20260615120300`/`20260615120400` (age-band visibility).
-- **Import proof:** 42 rows (6–9m, 8 clusters) + 48 rows (9–12m, 8 clusters) = 90; Stage 3 products = 0.
+- **Goal:** Import `discover_projection` tabs from 6ÔÇô9M and 9ÔÇô12M Ember ABI workbooks into the existing Discover gateway path; wire parent-friendly cluster labels, long why-text, category labels, and `audience_lens` card styling in `/discover/[months]`.
+- **Ground-truth read path:** `web/src/app/discover/page.tsx`, `web/src/app/discover/[months]/page.tsx`, `web/src/app/discover/[months]/DiscoveryPageClient.tsx`, `web/src/lib/pl/public.ts` ÔåÆ curated views (`v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_category_types_public`).
+- **Ingestion:** `scripts/generate-discover-projection-sql.mjs` ÔåÆ migrations `20260615120000` (audience_lens schema + views), `20260615120100` (90-row import), `20260615120200` (overlap + lens fix), `20260615120300`/`20260615120400` (age-band visibility).
+- **Import proof:** 42 rows (6ÔÇô9m, 8 clusters) + 48 rows (9ÔÇô12m, 8 clusters) = 90; Stage 3 products = 0.
 - **UI:** `audienceLens.ts` token mapping for `for_your_child` / `for_you` / `for_both` on Stage 1 + Stage 2 cards.
-- **Follow-up UX:** Restored full age-band slider taxonomy; grouped Stage 1 cards under “For them” / “For you” with higher-contrast lens colours; tightened Stage 2 vertical spacing for desktop viewport.
+- **Follow-up UX:** Restored full age-band slider taxonomy; grouped Stage 1 cards under ÔÇ£For themÔÇØ / ÔÇ£For youÔÇØ with higher-contrast lens colours; tightened Stage 2 vertical spacing for desktop viewport.
 - **Build:** `pnpm -C web install --frozen-lockfile` + `pnpm -C web build` pass.
 
 
-- **Branch:** `fix/auth-callback-redirect-loop` · PR follow-up to #223
+- **Branch:** `fix/auth-callback-redirect-loop` ┬À PR follow-up to #223
 
 ### Root cause
 - PR #223 used `normalizeAuthOrigin()` to force **any** emberplay host to `NEXT_PUBLIC_SITE_URL`.
-- When that env was `https://emberplay.app` (apex) but Vercel serves **www**, the app redirected **www → apex** on `/auth/callback` while Vercel redirected **apex → www** → infinite loop.
+- When that env was `https://emberplay.app` (apex) but Vercel serves **www**, the app redirected **www ÔåÆ apex** on `/auth/callback` while Vercel redirected **apex ÔåÆ www** ÔåÆ infinite loop.
 
 ### Fix
 - Production auth origin is always `https://www.emberplay.app`.
-- Server only redirects **apex → www** once (`shouldRedirectAuthToWww`); never www → apex.
+- Server only redirects **apex ÔåÆ www** once (`shouldRedirectAuthToWww`); never www ÔåÆ apex.
 - `pnpm -C web test:auth-callback` updated.
 
 ## 2026-05-31 - PR10 Patch: Potty Development Mapping Fix
@@ -837,18 +963,18 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Branch:** `fix/marketplace-potty-toileting-mapping`
 
 ### Summary
-- Fixed obvious potty-training listing not appearing under “I’m getting ready for potty”.
+- Fixed obvious potty-training listing not appearing under ÔÇ£IÔÇÖm getting ready for pottyÔÇØ.
 - Added `potty_training_seat` marketplace item type with aliases and toileting mapping (seed + SQL).
 - Added conservative `resolveObviousItemTypeSlugFromListingText` for buyer-side title fallback.
 - Fixed catalog default ages being treated as AI estimates (`browse_with_caution`), which blocked `recommended` counts.
 - Added `development-match-diagnostic.ts` for explainable non-match reasons in tests.
 - PR10 smoke tests for potty resolver, catalog eligibility, and toileting seed.
-- UI: “Local opportunities by development area” (was “Local toys…”).
+- UI: ÔÇ£Local opportunities by development areaÔÇØ (was ÔÇ£Local toysÔÇªÔÇØ).
 
 ### Root cause
-- No `potty_training_seat` in controlled taxonomy → title “Pink Potty Training Seat…” resolved to **zero** development wrappers.
+- No `potty_training_seat` in controlled taxonomy ÔåÆ title ÔÇ£Pink Potty Training SeatÔÇªÔÇØ resolved to **zero** development wrappers.
 - Nearby beta listings list is unfiltered by development; development cards require wrapper + `recommended` eligibility.
-- Separately, when item types did match via catalog defaults, `enrichListingForBuyerMatch` passed defaults through `ai_estimated_*` fields → `computeRecommendationEligibility` treated them as AI-only → `browse_with_caution` → not counted as opportunities.
+- Separately, when item types did match via catalog defaults, `enrichListingForBuyerMatch` passed defaults through `ai_estimated_*` fields ÔåÆ `computeRecommendationEligibility` treated them as AI-only ÔåÆ `browse_with_caution` ÔåÆ not counted as opportunities.
 
 ### Verification
 - Build: pass
@@ -857,17 +983,17 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - Potty listing appears under toileting: pass (code path; preview after deploy + optional SQL apply)
 - Map/listing filter works: pass (existing client filter + buyer_match)
 - Own listing exclusion still works: pass (`buyerUserId` skip unchanged)
-- Safety/cautious copy: pass (“May support”, estimated stage copy)
+- Safety/cautious copy: pass (ÔÇ£May supportÔÇØ, estimated stage copy)
 - No exact location/privacy leak: pass (unchanged)
 
 ## 2026-05-31 - PR10 UX: Child banner, dev card grid, copy
 
-- **Branch:** `feat/marketplace-development-opportunities` · commit `0f693e5f`
+- **Branch:** `feat/marketplace-development-opportunities` ┬À commit `0f693e5f`
 
 ### Summary
-- Subtitle: “Move items to nearby families who need them”.
+- Subtitle: ÔÇ£Move items to nearby families who need themÔÇØ.
 - Development cards: `grid-cols-2` mobile, `lg:grid-cols-4` desktop (no horizontal scroll).
-- `MarketplaceActiveChildBanner`: prominent “Browsing marketplace for {name}” widget.
+- `MarketplaceActiveChildBanner`: prominent ÔÇ£Browsing marketplace for {name}ÔÇØ widget.
 - Removed duplicate watch-mode empty copy in results panel.
 - Smoke updated; `pnpm -C web test:marketplace-pr10` passes.
 
@@ -876,10 +1002,10 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Branch:** `fix/auth-canonical-www-callback`
 
 ### Summary
-- Root cause: Vercel serves `www.emberplay.app` but Supabase OAuth often returned to `emberplay.app`; PKCE verifier and session cookies were host-scoped → `exchangeCodeForSession` failed silently / user stayed signed out.
+- Root cause: Vercel serves `www.emberplay.app` but Supabase OAuth often returned to `emberplay.app`; PKCE verifier and session cookies were host-scoped ÔåÆ `exchangeCodeForSession` failed silently / user stayed signed out.
 - `normalizeAuthOrigin()` + callback/confirm redirect to canonical host before code exchange.
 - `buildAuthCallbackUrl()` always uses canonical www in production; `bindSupabaseToResponse` uses `getAll`/`setAll` for auth cookies.
-- Docs: `FEB_2026_AUTH_SETUP.md` — allowlist both www and apex; `NEXT_PUBLIC_SITE_URL=https://www.emberplay.app`.
+- Docs: `FEB_2026_AUTH_SETUP.md` ÔÇö allowlist both www and apex; `NEXT_PUBLIC_SITE_URL=https://www.emberplay.app`.
 - Smoke: `pnpm -C web test:auth-callback`.
 
 ## 2026-05-31 - PR10 UX: Compact marketplace layout + instant dev filter
@@ -907,7 +1033,7 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - Matching window: current child age + 6 months.
 - Manufacturer age guidance and PR9 recommendation gates override personalised counts.
 - Browse-with-caution items are not counted as normal opportunities.
-- Missing ABI age-band data treated as coverage gap (`marketplace_item_estimate_only`), not “no needs”.
+- Missing ABI age-band data treated as coverage gap (`marketplace_item_estimate_only`), not ÔÇ£no needsÔÇØ.
 - No durable match records, push/email, or new migrations.
 
 ### Data/API
@@ -926,7 +1052,7 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 
 ### Summary
 - Removed **Mark ready for next step** and the duplicate review checklist from Step 4 (read-only review only; checks live in Step 3 **Save draft details**).
-- **Ember’s estimate** in Step 3: dropped “May support…” development lines; **Continue to quick review** appears after **Save estimate**.
+- **EmberÔÇÖs estimate** in Step 3: dropped ÔÇ£May supportÔÇªÔÇØ development lines; **Continue to quick review** appears after **Save estimate**.
 - After **Save draft details**, **Continue to review your draft** scrolls to Step 4.
 
 ## 2026-05-31 - PR9 UX: Product labels, title case, single save CTA
@@ -934,9 +1060,9 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Branch:** `feat/marketplace-intelligence-taxonomy-safety` (PR #221)
 
 ### Summary
-- Step 2 candidate cards show a concrete product title (e.g. “Toy knight helmet”) with category as subtitle, not the broad play category alone.
+- Step 2 candidate cards show a concrete product title (e.g. ÔÇ£Toy knight helmetÔÇØ) with category as subtitle, not the broad play category alone.
 - Listing titles use consistent product title casing (`formatProductTitleCase`) in Step 3 and server reconciliation paths.
-- Step 3 “Draft the listing” now includes the five quick-review checkboxes above **Save draft details**; saving also marks review ready (no separate **Mark ready** when embedded in the flow).
+- Step 3 ÔÇ£Draft the listingÔÇØ now includes the five quick-review checkboxes above **Save draft details**; saving also marks review ready (no separate **Mark ready** when embedded in the flow).
 
 ### Verification
 - `pnpm -C web build`
@@ -947,17 +1073,17 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Branch:** `feat/marketplace-intelligence-taxonomy-safety` (same PR #221)
 
 ### Summary
-- Fixed remaining helmet identity drift where Step 3 title could remain “Sleep” after helmet confirmation.
+- Fixed remaining helmet identity drift where Step 3 title could remain ÔÇ£SleepÔÇØ after helmet confirmation.
 - Step 2 now preserves concrete item identity separately from category/development label.
 - Step 3 draft generation atomically updates title and description; bad titles get a deterministic fallback instead of being saved.
 - Stale downstream draft fields are cleared when photo or confirmed item changes (server + client).
-- Identity guard now validates title as well as description (catches standalone “Sleep” vs helmet).
-- Ember’s estimate moved to Step 3 (Draft the listing) so it is visible without scrolling to Review.
+- Identity guard now validates title as well as description (catches standalone ÔÇ£SleepÔÇØ vs helmet).
+- EmberÔÇÖs estimate moved to Step 3 (Draft the listing) so it is visible without scrolling to Review.
 
 ### Root cause
-- Stale `title_draft` (“Sleep”) from a prior item could persist while a new helmet description was generated.
-- Step 2 stored only the broad category (“Dress up and pretend play”) as the confirmed label.
-- Identity guard did not treat standalone “Sleep” as conflicting with helmet/costume identity.
+- Stale `title_draft` (ÔÇ£SleepÔÇØ) from a prior item could persist while a new helmet description was generated.
+- Step 2 stored only the broad category (ÔÇ£Dress up and pretend playÔÇØ) as the confirmed label.
+- Identity guard did not treat standalone ÔÇ£SleepÔÇØ as conflicting with helmet/costume identity.
 
 ### Verification
 - Build: pass
@@ -968,7 +1094,7 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Branch:** `feat/marketplace-intelligence-taxonomy-safety`
 
 ### Summary
-- Fixed Step 2 → Step 3 identity drift in Create a Listing.
+- Fixed Step 2 ÔåÆ Step 3 identity drift in Create a Listing.
 - Step 3 draft generation now anchors to the parent-confirmed item identity.
 - Added a controlled marketplace item taxonomy (extended existing `marketplace_item_types`).
 - Added item aliases for Gemini/user wording.
@@ -1032,12 +1158,12 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 ### Verification
 - Build: pass (`pnpm -C web build`, 31 May 2026).
 - PR9 smoke: pass.
-- Helmet identity guard: pass (helmet → sleep aid blocked).
-- Saxophone identity guard: pass (saxophone → xylophone blocked; saxophone draft allowed).
-- Binoculars intelligence: pass (generic "Toy" draft → review_required; binoculars draft allowed).
+- Helmet identity guard: pass (helmet ÔåÆ sleep aid blocked).
+- Saxophone identity guard: pass (saxophone ÔåÆ xylophone blocked; saxophone draft allowed).
+- Binoculars intelligence: pass (generic "Toy" draft ÔåÆ review_required; binoculars draft allowed).
 - Taxonomy unknown slug quarantine: pass (`dress_up_play_magic_category`, `imagination_world` not live).
-- Age/safety helper: pass (manufacturer 36m blocks <window child; AI-only → cautious).
-- Coverage-state helper: pass (31–33m exact; missing band → estimate-only, never "no needs").
+- Age/safety helper: pass (manufacturer 36m blocks <window child; AI-only ÔåÆ cautious).
+- Coverage-state helper: pass (31ÔÇô33m exact; missing band ÔåÆ estimate-only, never "no needs").
 - Existing regression: PR7 smoke pass, PR8 smoke pass.
 
 ### Known debt
@@ -1045,40 +1171,40 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - PR11 will build auto-matchmaking and in-app recommendations.
 - Full admin taxonomy review UI deferred.
 - Full restricted-category policy and moderation dashboard deferred.
-- ABI coverage beyond 31–33 months still requires content expansion.
-- Intelligence classification uses a deterministic alias→taxonomy mapping in PR9;
+- ABI coverage beyond 31ÔÇô33 months still requires content expansion.
+- Intelligence classification uses a deterministic aliasÔåÆtaxonomy mapping in PR9;
   the Gemini classification contract (`intelligence.ts`) is ready to wire in later.
 
-## fix(snag-pack): feedback round — home slider Expecting, remove-child hang, sign-out CTA, sign-in → /discover (30 May 2026)
+## fix(snag-pack): feedback round ÔÇö home slider Expecting, remove-child hang, sign-out CTA, sign-in ÔåÆ /discover (30 May 2026)
 
 - **Branch:** `fix/snag-pack-discover-family-may30` (PR #220)
-- **Feedback #1/#2 (homepage slider):** Home slider now mirrors `/discover`: the `0–0 months` band renders as **"Expecting"** (`longLabel`/`shortLabel`), and the caption changed from "My toddler's current age" → **"My child's current age"** — `HomeAgeSlider.tsx`.
-- **Feedback #3 (remove-child hang):** The confirm popup hung on "Removing…" because `deleteChild` is a server action that calls `redirect()`, which soft-navigates without unmounting the client component (modal state stuck). Replaced with a direct client-side delete (same `children` table, RLS-scoped to `user_id`), then close the popup, drop the child from local state, reset to "All", and `router.replace('/family?deleted=1')`. No hang — `FamilyFigmaClient.tsx`.
-- **Feedback #4 (sign-out CTA):** `/signout` button was a black CTA pinned to the far left (outside the page width). Now wrapped in `container-wrap` with a heading and styled as the standard orange CTA — `signout/page.tsx`.
-- **Feedback #5 (post-sign-in destination):** Sign-in still landed on the marketing homepage when `next=/`. `safeNextPath` now treats `/` as a non-destination and defaults to `/discover` — `auth-callback-url.ts`.
-- **Build:** `pnpm -C web build` — pass (30 May 2026).
+- **Feedback #1/#2 (homepage slider):** Home slider now mirrors `/discover`: the `0ÔÇô0 months` band renders as **"Expecting"** (`longLabel`/`shortLabel`), and the caption changed from "My toddler's current age" ÔåÆ **"My child's current age"** ÔÇö `HomeAgeSlider.tsx`.
+- **Feedback #3 (remove-child hang):** The confirm popup hung on "RemovingÔÇª" because `deleteChild` is a server action that calls `redirect()`, which soft-navigates without unmounting the client component (modal state stuck). Replaced with a direct client-side delete (same `children` table, RLS-scoped to `user_id`), then close the popup, drop the child from local state, reset to "All", and `router.replace('/family?deleted=1')`. No hang ÔÇö `FamilyFigmaClient.tsx`.
+- **Feedback #4 (sign-out CTA):** `/signout` button was a black CTA pinned to the far left (outside the page width). Now wrapped in `container-wrap` with a heading and styled as the standard orange CTA ÔÇö `signout/page.tsx`.
+- **Feedback #5 (post-sign-in destination):** Sign-in still landed on the marketing homepage when `next=/`. `safeNextPath` now treats `/` as a non-destination and defaults to `/discover` ÔÇö `auth-callback-url.ts`.
+- **Build:** `pnpm -C web build` ÔÇö pass (30 May 2026).
 
 ## fix(snag-pack): discover Expecting, family remove/quick-add, mobile CTA, sign-in redirect (30 May 2026)
 
 - **Branch:** `fix/snag-pack-discover-family-may30`
-- **Snag #1 (discover slider / Have icon):** The newborn band (`0–0 months`) now displays as **"Expecting"** on `/discover` (`formatBandLabel` in `DiscoveryPageClient.tsx`). When that stage is selected the hero headline changes to **"What your baby will need"** with prep-focused subtext (`DiscoverFigmaChildHero.tsx`, new `isExpecting` prop). The product carousel **"Have"** button icon swapped from `Check` → `CircleX` (circle-x) — `DiscoverFigmaProductCarousel.tsx`.
-- **Snag #6 (expecting baby bug):** `/discover?child=` with a **future** birthdate previously fell back to the 25–27 month default. Now future birthdates resolve to the Expecting band (month 0) — `web/src/app/discover/page.tsx`.
-- **Snag #2 (remove child):** Added a **"Remove child"** button next to **"Add child"** on `/family` with a confirm popup ("Are you sure?", explainer "All of {child}'s history, saves and information will be deleted permanently.", **Back** / **Yes - remove**). Targets the selected child (or the only child in "All" view). Reuses the existing `deleteChild` server action — `FamilyFigmaClient.tsx`.
-- **Snag #3 (family copy):** "Add what's in your house" → **"Move on {child}'s items locally"**; "Type or snap - we'll match it." → **"List for free in seconds. We'll matchmake a local family."** — `FamilyFigmaClient.tsx`.
-- **Snag #4 (quick add):** The "Quick add" card now opens the marketplace **Add a product** (prelist) flow via `/marketplace?prelist=1` (with `child` when scoped) instead of the inline modal — `FamilyFigmaClient.tsx`.
-- **Snag #5 (mobile CTA):** On `/add-children` the fixed bottom **"Add a child"** CTA was hidden behind the signed-in mobile bottom nav. Lifted it above the nav on mobile (`bottom-20 md:bottom-0`, `z-40`) and increased page bottom padding — `AddChildForm.tsx`.
-- **Snag #7 (sign-in redirect):** Added `safeNextPath()` so post-sign-in `next` never points back to an auth route (`/signin`, `/signout`, `/auth`) — defaults to `/discover`. Applied in `signin/page.tsx`, `signin/password/page.tsx`, and `auth/callback/route.ts` (`auth-callback-url.ts`).
+- **Snag #1 (discover slider / Have icon):** The newborn band (`0ÔÇô0 months`) now displays as **"Expecting"** on `/discover` (`formatBandLabel` in `DiscoveryPageClient.tsx`). When that stage is selected the hero headline changes to **"What your baby will need"** with prep-focused subtext (`DiscoverFigmaChildHero.tsx`, new `isExpecting` prop). The product carousel **"Have"** button icon swapped from `Check` ÔåÆ `CircleX` (circle-x) ÔÇö `DiscoverFigmaProductCarousel.tsx`.
+- **Snag #6 (expecting baby bug):** `/discover?child=` with a **future** birthdate previously fell back to the 25ÔÇô27 month default. Now future birthdates resolve to the Expecting band (month 0) ÔÇö `web/src/app/discover/page.tsx`.
+- **Snag #2 (remove child):** Added a **"Remove child"** button next to **"Add child"** on `/family` with a confirm popup ("Are you sure?", explainer "All of {child}'s history, saves and information will be deleted permanently.", **Back** / **Yes - remove**). Targets the selected child (or the only child in "All" view). Reuses the existing `deleteChild` server action ÔÇö `FamilyFigmaClient.tsx`.
+- **Snag #3 (family copy):** "Add what's in your house" ÔåÆ **"Move on {child}'s items locally"**; "Type or snap - we'll match it." ÔåÆ **"List for free in seconds. We'll matchmake a local family."** ÔÇö `FamilyFigmaClient.tsx`.
+- **Snag #4 (quick add):** The "Quick add" card now opens the marketplace **Add a product** (prelist) flow via `/marketplace?prelist=1` (with `child` when scoped) instead of the inline modal ÔÇö `FamilyFigmaClient.tsx`.
+- **Snag #5 (mobile CTA):** On `/add-children` the fixed bottom **"Add a child"** CTA was hidden behind the signed-in mobile bottom nav. Lifted it above the nav on mobile (`bottom-20 md:bottom-0`, `z-40`) and increased page bottom padding ÔÇö `AddChildForm.tsx`.
+- **Snag #7 (sign-in redirect):** Added `safeNextPath()` so post-sign-in `next` never points back to an auth route (`/signin`, `/signout`, `/auth`) ÔÇö defaults to `/discover`. Applied in `signin/page.tsx`, `signin/password/page.tsx`, and `auth/callback/route.ts` (`auth-callback-url.ts`).
 - **Privacy:** No new name fields or prompts added; child names are only displayed from existing data.
-- **Build:** `pnpm -C web build` — pass (30 May 2026).
+- **Build:** `pnpm -C web build` ÔÇö pass (30 May 2026).
 
 ## fix(snag-pack): home slider true alignment with /discover bands (30 May 2026)
 
 - **Branch:** `fix/snag-pack-discover-home`
 - **Snag #1 (re-fix 2):** Two bugs found after review:
-  1. The `/api/discover/age-bands` route wrapped `getGatewayAgeBandsPublic()` (which calls `cookies()`) in `unstable_cache`, which throws — so the route returned `[]` and the slider fell back to hardcoded (wrong) bands. Switched the route to read the function directly (uncached; CDN cached via headers).
-  2. The slider only rendered the two end labels. Now renders **all** bands as tick labels, derived from `min_months`/`max_months` exactly like `/discover`'s `formatBandLabel` (the live source uses e.g. `22–24 months`, not the `label` field). Ticks are inset by half the thumb width to align with the native slider thumb.
+  1. The `/api/discover/age-bands` route wrapped `getGatewayAgeBandsPublic()` (which calls `cookies()`) in `unstable_cache`, which throws ÔÇö so the route returned `[]` and the slider fell back to hardcoded (wrong) bands. Switched the route to read the function directly (uncached; CDN cached via headers).
+  2. The slider only rendered the two end labels. Now renders **all** bands as tick labels, derived from `min_months`/`max_months` exactly like `/discover`'s `formatBandLabel` (the live source uses e.g. `22ÔÇô24 months`, not the `label` field). Ticks are inset by half the thumb width to align with the native slider thumb.
   - Removed the hardcoded fallback bands entirely so the homepage never shows numbers that disagree with `/discover`; shows a loading state until the real taxonomy loads.
-  - Verified the live endpoint returns the real 13-band taxonomy (`0–0m … 34–36m`) — the homepage now renders all of them (tick mark per band; labels thinned on mobile), matching `/discover` exactly.
+  - Verified the live endpoint returns the real 13-band taxonomy (`0ÔÇô0m ÔÇª 34ÔÇô36m`) ÔÇö the homepage now renders all of them (tick mark per band; labels thinned on mobile), matching `/discover` exactly.
   - Files: `web/src/components/home/HomeAgeSlider.tsx`, `web/src/app/api/discover/age-bands/route.ts`.
 
 ## fix(snag-pack): home slider now reuses the /discover slider (30 May 2026)
@@ -1086,41 +1212,41 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Branch:** `fix/snag-pack-discover-home`
 - **Snag #1 (re-fix):** Replaced the homepage's custom slider with the exact `/discover` native slider (`discovery-age-slider` + `discovery-slider-wrap`, native thumb so no handle/line drift). "Begin your journey" routes to `/discover/<band.min_months>`, matching `/discover`'s own slider navigation. Files: `web/src/components/home/HomeAgeSlider.tsx`, `web/src/app/api/discover/age-bands/route.ts`.
 
-## fix(snag-pack): feedback round — slider, ideas heading, start-over FAB (30 May 2026)
+## fix(snag-pack): feedback round ÔÇö slider, ideas heading, start-over FAB (30 May 2026)
 
 - **Branch:** `fix/snag-pack-discover-home`
-- **Snag #1 (home slider):** Relabelled the homepage age slider to mirror the `/discover` band taxonomy (`23–25m, 25–27m, 28–30m, 31–33m, 34–36m`) and switched to index-based positioning so the drag handle, fill and tick labels all derive from the same fraction — fixes the handle/line misalignment. "Begin your journey" now routes to `/discover/<band midpoint>`. File: `web/src/components/home/HomeAgeSlider.tsx`.
-- **Snag #5 (ideas heading):** Capitalise the first letter of the development name in `Ideas for "…"` (e.g. `i'm` → `I'm`). File: `web/src/app/discover/[months]/DiscoveryPageClient.tsx`.
-- **Snag #6 (start over):** Floating "Start over" FAB now gated on an `IntersectionObserver` over the `Ideas for…` section, so it only shows while that section is in view and hides when scrolled back up. File: `web/src/app/discover/[months]/DiscoveryPageClient.tsx`.
-- **Build:** `pnpm -C web build` — pass (30 May 2026)
+- **Snag #1 (home slider):** Relabelled the homepage age slider to mirror the `/discover` band taxonomy (`23ÔÇô25m, 25ÔÇô27m, 28ÔÇô30m, 31ÔÇô33m, 34ÔÇô36m`) and switched to index-based positioning so the drag handle, fill and tick labels all derive from the same fraction ÔÇö fixes the handle/line misalignment. "Begin your journey" now routes to `/discover/<band midpoint>`. File: `web/src/components/home/HomeAgeSlider.tsx`.
+- **Snag #5 (ideas heading):** Capitalise the first letter of the development name in `Ideas for "ÔÇª"` (e.g. `i'm` ÔåÆ `I'm`). File: `web/src/app/discover/[months]/DiscoveryPageClient.tsx`.
+- **Snag #6 (start over):** Floating "Start over" FAB now gated on an `IntersectionObserver` over the `Ideas forÔÇª` section, so it only shows while that section is in view and hides when scrolled back up. File: `web/src/app/discover/[months]/DiscoveryPageClient.tsx`.
+- **Build:** `pnpm -C web build` ÔÇö pass (30 May 2026)
 
 ## fix(discover): stop redirect loop after performance cleanup (29 May 2026)
 
 - **Branch:** `fix/discover-redirect-loop-after-performance-cleanup`
-- **Incident:** After PR #216, `/discover` ↔ `/discover/26` redirect loop (ERR_TOO_MANY_REDIRECTS).
+- **Incident:** After PR #216, `/discover` Ôåö `/discover/26` redirect loop (ERR_TOO_MANY_REDIRECTS).
 - **Root cause:** `revalidate = 1800` on `/discover/[months]` could bake a build-time `redirect('/discover')` when age-band lookup failed; plus `getAgeBandForAgeCached` could cache `null` for 30m. `/discover` always redirects to `/discover/26`.
-- **Fix:** Restore `force-dynamic` on `[months]`; uncached gateway reads on Discover pages (cached `Set` + `cookies()` in `unstable_cache` broke `.has()` and SSR); never redirect `[months]` → `/discover`; `gateway-cache` kept for `/api/discover/picks` only.
+- **Fix:** Restore `force-dynamic` on `[months]`; uncached gateway reads on Discover pages (cached `Set` + `cookies()` in `unstable_cache` broke `.has()` and SSR); never redirect `[months]` ÔåÆ `/discover`; `gateway-cache` kept for `/api/discover/picks` only.
 - **Preserved from #216:** WebP images, nav `prefetch={false}`, `/go` bot guard, picks API cache headers.
-- **Build:** `pnpm -C web build` — pass (29 May 2026)
-- **Verify (local prod):** `/discover` → single 307 → `/discover/26` 200; `/discover/26` and `/discover/32` 200 stable; Playwright desktop + iPhone 13 viewport PASS; `/api/discover/picks` 200. Signed-in `?child=` not automated (no test session in CI/local).
+- **Build:** `pnpm -C web build` ÔÇö pass (29 May 2026)
+- **Verify (local prod):** `/discover` ÔåÆ single 307 ÔåÆ `/discover/26` 200; `/discover/26` and `/discover/32` 200 stable; Playwright desktop + iPhone 13 viewport PASS; `/api/discover/picks` 200. Signed-in `?child=` not automated (no test session in CI/local).
 
 ## fix(vercel): reduce residual function and transfer usage (29 May 2026)
 
 - **Branch:** `fix/vercel-cost-shield-performance-cleanup`
-- **Goal:** Lower Discover SSR cost, nav prefetch noise, homepage transfer, and /go bot logging after cost-shield PRs #213–#215.
-- **Discover:** `gateway-cache.ts` — `unstable_cache` 30m on public gateway reads; `/discover/[months]` removed `force-dynamic`, added `revalidate=1800`; `/api/discover/picks` CDN cache headers + cached fetches.
+- **Goal:** Lower Discover SSR cost, nav prefetch noise, homepage transfer, and /go bot logging after cost-shield PRs #213ÔÇô#215.
+- **Discover:** `gateway-cache.ts` ÔÇö `unstable_cache` 30m on public gateway reads; `/discover/[months]` removed `force-dynamic`, added `revalidate=1800`; `/api/discover/picks` CDN cache headers + cached fetches.
 - **Nav:** `prefetch={false}` on signed-in links to `/discover`, `/my-ideas`, `/family`, `/marketplace`, `/app/messages`.
 - **Images:** `hero.webp` (~59 KB), `stages.webp` (~58 KB) from ~733/768 KB PNGs.
 - **`/go/[id]`:** UUID guard; skip `click_events` insert for known bot UAs; redirects unchanged.
-- **Build:** `pnpm -C web build` — pass (29 May 2026)
+- **Build:** `pnpm -C web build` ÔÇö pass (29 May 2026)
 
 ## fix(vercel): lock down cron and diagnostic routes (28 May 2026)
 
 - **Branch:** `fix/vercel-cost-shield-runtime-lockdown`
 - **Goal:** Fail-closed cron/preview/diagnostic routes so resumed Vercel usage stays safe without new env vars.
-- **Changes:** `web/src/lib/runtime-guards.ts`; cron requires `CRON_SECRET` (404 if unset); preview/probe require `BUILDER_PREVIEW_SECRET`; `/whoami`, `/cms/diag`, `/cms/_diag` → `notFound()` in production; `robots.ts` disallows `/api/`, `/go/`, diagnostics; static `/ping` + `/__ping`.
-- **`/go/[id]`:** Audited only — Supabase fetch + click log per hit; follow-up PR for rate limiting recommended.
-- **Build:** `pnpm -C web build` — pass (28 May 2026); `/robots.txt` static
+- **Changes:** `web/src/lib/runtime-guards.ts`; cron requires `CRON_SECRET` (404 if unset); preview/probe require `BUILDER_PREVIEW_SECRET`; `/whoami`, `/cms/diag`, `/cms/_diag` ÔåÆ `notFound()` in production; `robots.ts` disallows `/api/`, `/go/`, diagnostics; static `/ping` + `/__ping`.
+- **`/go/[id]`:** Audited only ÔÇö Supabase fetch + click log per hit; follow-up PR for rate limiting recommended.
+- **Build:** `pnpm -C web build` ÔÇö pass (28 May 2026); `/robots.txt` static
 
 ## fix(vercel): stop forcing public app routes dynamic (28 May 2026)
 
@@ -1128,15 +1254,15 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Goal:** Remove global `force-dynamic` from root layout so public pages can be statically generated / cached.
 - **Changes:** Dropped `export const dynamic` from `web/src/app/layout.tsx` and `web/src/components/ThemeProvider.tsx`; `loadTheme()` only calls `noStore()` when reading DB theme (`BRANDBOOK_WINS` uses static `DEFAULT_THEME`); added `web/src/app/(app)/app/layout.tsx` with `force-dynamic` for `/app/*` only; `Suspense` around `ConditionalHeader` + pages using `useSearchParams` (`/marketplace`, `/signin`, `/auth/error`) so static prerender succeeds.
 - **Discover tradeoff:** `/discover/[months]` keeps page-level `force-dynamic` for gateway freshness; `/discover` index may still be dynamic when `?child=` triggers auth lookup.
-- **Build:** `pnpm -C web build` — pass; 27 static pages prerendered (was ~10 dynamic-only before). Public `○`: `/`, `/marketplace`, `/pricing`, `/signin`, etc. Private `ƒ`: `/app/*`, `/discover/*`, `/family`, etc.
+- **Build:** `pnpm -C web build` ÔÇö pass; 27 static pages prerendered (was ~10 dynamic-only before). Public `Ôùï`: `/`, `/marketplace`, `/pricing`, `/signin`, etc. Private `ãÆ`: `/app/*`, `/discover/*`, `/family`, etc.
 
 ## fix(vercel): narrow middleware scope to protected routes (28 May 2026)
 
 - **Branch:** `fix/vercel-cost-shield-middleware`
 - **Goal:** Stop running `updateSession` + `getUser()` on every public/bot request (Vercel Hobby overage).
-- **Change:** `web/middleware.ts` matcher — from catch-all minus static assets → explicit `/app`, `/add-children`, `/account`, `/api/preview`, `/cms` (excl. `/cms/diag`, `/cms/_diag`).
+- **Change:** `web/middleware.ts` matcher ÔÇö from catch-all minus static assets ÔåÆ explicit `/app`, `/add-children`, `/account`, `/api/preview`, `/cms` (excl. `/cms/diag`, `/cms/_diag`).
 - **Unchanged:** Auth redirect rules for `/app/*`, `/add-children/*`, `/account`; CMS preview secret redirect + CSP; no Supabase helper edits.
-- **Build:** `pnpm -C web build` — pass (28 May 2026)
+- **Build:** `pnpm -C web build` ÔÇö pass (28 May 2026)
 
 ## fix(snag-pack): discover + desktop nav (18 May 2026)
 
@@ -1148,7 +1274,7 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Global Figma nav branding:** `navStyles.ts` + `ConditionalHeader` applies discover Manrope/warm header/orange accents on all routes; signed-out `DiscoverStickyHeader` restyled; signed-in always uses figma nav + bottom mobile tabs
 - **Active nav underline:** `globals.css` `.figma-desktop-nav-link--active` matches Figma `Root.tsx` (`border-bottom: 2px solid #ff5c34`, `py-1`); desktop header row `md:h-20`
 - **Nav alignment + child dropdown (19 May):** Figma 3-column layout (logo | flex-1 centred nav | child pill + profile); `FigmaChildAvatar` on pill + list items; dropdown uses `FIGMA_DROPDOWN_ITEM_CLASS` (pointer + hover)
-- **Build:** `pnpm -C web build` — pass (18 May 2026)
+- **Build:** `pnpm -C web build` ÔÇö pass (18 May 2026)
 
 ## feat(discover): Figma Make overhaul + preserved wiring (May 2026)
 
@@ -1156,9 +1282,9 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Goal:** Implement May 2026 Figma Make `/discover` UI (Hero, focus grid, why panel, Embla ideas carousel) while preserving gateway data, save/have/auth, and age routing.
 - **Routes touched:** `web/src/app/discover/[months]/page.tsx`, `web/src/app/discover/[months]/DiscoveryPageClient.tsx`
 - **Figma UI folder:** `web/src/components/discover/figma/*` (+ barrel `web/src/components/figma/discover/index.ts`)
-- **Data wiring preserved (reads):** `getGatewayAgeBandsPublic`, `getGatewayWrappersForAgeBand`, `getGatewayCategoryTypesForAgeBandAndWrapper`, `getGatewayTopPicksForAgeBandAndWrapperSlug`, `getGatewayTopPicksForAgeBandAndCategoryType`, `getGatewayTopProductsForAgeBand`, `getDiscoverServerPersonalization` — views `v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_wrapper_detail_public`, `v_gateway_category_types_public`, `v_gateway_products_public`, `v_gateway_category_type_images`
+- **Data wiring preserved (reads):** `getGatewayAgeBandsPublic`, `getGatewayWrappersForAgeBand`, `getGatewayCategoryTypesForAgeBandAndWrapper`, `getGatewayTopPicksForAgeBandAndWrapperSlug`, `getGatewayTopPicksForAgeBandAndCategoryType`, `getGatewayTopProductsForAgeBand`, `getDiscoverServerPersonalization` ÔÇö views `v_gateway_age_bands_public`, `v_gateway_wrappers_public`, `v_gateway_wrapper_detail_public`, `v_gateway_category_types_public`, `v_gateway_products_public`, `v_gateway_category_type_images`
 - **Data wiring preserved (writes):** `upsert_user_list_item` RPC (category/product save + have), legacy fallbacks `user_saved_ideas` / `user_saved_products`, `/api/click` outbound tracking
-- **Image override:** `web/src/lib/discover/categoryImageOverrides.ts` — server-side HEAD probe of `category_images` `*-v2.png*` files; high-confidence slug/name match only; fallback to existing `image_url`
+- **Image override:** `web/src/lib/discover/categoryImageOverrides.ts` ÔÇö server-side HEAD probe of `category_images` `*-v2.png*` files; high-confidence slug/name match only; fallback to existing `image_url`
 - **V2 image mapping (public storage, May 2026):**
 
   | Filename | Matched category | Confidence | URL source |
@@ -1169,14 +1295,14 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 
   **Note:** Only **3** `-v2` objects are currently reachable in `category_images`; a 4th filename was not found via exhaustive slug/label probes. Override helper will pick up additional files automatically when uploaded.
 
-- **Build:** `pnpm -C web build` — pass (May 2026)
+- **Build:** `pnpm -C web build` ÔÇö pass (May 2026)
 - **Preview URL:** _(fill from Vercel after `git push` + PR)_
 - **Verification steps:**
-  1. Open `/discover/32` (or your child’s month band).
+  1. Open `/discover/32` (or your childÔÇÖs month band).
   2. Confirm hero: robin chip, mobile image, integrated age slider.
-  3. Choose a focus → warm “Why this matters now” panel.
+  3. Choose a focus ÔåÆ warm ÔÇ£Why this matters nowÔÇØ panel.
   4. Ideas carousel: Embla swipe, See examples / Save / Already have.
-  5. Examples section when picks exist; “Examples coming soon” when Stage 3 empty.
+  5. Examples section when picks exist; ÔÇ£Examples coming soonÔÇØ when Stage 3 empty.
   6. Confirm v2 images only on the three mapped categories; others unchanged.
 - **Known debt / follow-up:**
   - Upload/confirm 4th `-v2.png` category image in `category_images` if founder has a specific mapping.
@@ -1185,19 +1311,19 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 
 ### follow-up: founder nav + discover UI fixes (May 2026)
 
-- **Desktop nav:** Restored `UnifiedSignedInNav` (Discover / Saves / Marketplace, full child dropdown) with Figma shell styling — `#FBFAF7` background, orange underline active tab, Manrope.
-- **Mobile nav:** Fixed bottom bar — Discover / Saves / Marketplace / **Menu** (hamburger → same Account / Family / Membership / Sign out list as desktop profile menu). Legacy in-header tabs hidden on app-shell routes.
-- **Robin logo:** `EmberRobinMark` component — larger readable sizes in age chip + “Why this matters now” panel.
+- **Desktop nav:** Restored `UnifiedSignedInNav` (Discover / Saves / Marketplace, full child dropdown) with Figma shell styling ÔÇö `#FBFAF7` background, orange underline active tab, Manrope.
+- **Mobile nav:** Fixed bottom bar ÔÇö Discover / Saves / Marketplace / **Menu** (hamburger ÔåÆ same Account / Family / Membership / Sign out list as desktop profile menu). Legacy in-header tabs hidden on app-shell routes.
+- **Robin logo:** `EmberRobinMark` component ÔÇö larger readable sizes in age chip + ÔÇ£Why this matters nowÔÇØ panel.
 - **Focus cards:** Doorway Lucide icons + explicit `#FF5C34` / `#66717D` icon colours.
-- **CTA:** **Ember Picks ›** (removed “See”; `whitespace-nowrap` + chevron).
-- **Removed:** “Change focus” link on discover detail view.
+- **CTA:** **Ember Picks ÔÇ║** (removed ÔÇ£SeeÔÇØ; `whitespace-nowrap` + chevron).
+- **Removed:** ÔÇ£Change focusÔÇØ link on discover detail view.
 
-### follow-up: Figma parity pass — fonts, nav, layout, CTA (May 2026)
+### follow-up: Figma parity pass ÔÇö fonts, nav, layout, CTA (May 2026)
 
 - **Branch:** `feat/discover-figma-make-overhaul-may-UI-update`
 - **FONT:** Manrope 400/500/600/700 via `next/font` (`web/src/lib/discover/manrope.ts`); applied on app-shell routes via `EmberFigmaAppNav` + `html.ember-figma-app` + `/discover` layout.
-- **NAV:** New `EmberFigmaAppNav` from Figma `Root.tsx` — desktop sticky header (`max-w-5xl`), mobile child pill header, fixed bottom tabs (What's next / My ideas / Marketplace / Family). Wired in `ConditionalHeader` for `/discover`, `/my-ideas`, `/marketplace`, `/family`.
-- **CTA:** Idea cards → **See Ember Picks** with `BadgeCheck` icon (`DiscoverFigmaPlayIdeaCard.tsx`).
+- **NAV:** New `EmberFigmaAppNav` from Figma `Root.tsx` ÔÇö desktop sticky header (`max-w-5xl`), mobile child pill header, fixed bottom tabs (What's next / My ideas / Marketplace / Family). Wired in `ConditionalHeader` for `/discover`, `/my-ideas`, `/marketplace`, `/family`.
+- **CTA:** Idea cards ÔåÆ **See Ember Picks** with `BadgeCheck` icon (`DiscoverFigmaPlayIdeaCard.tsx`).
 - **LAYOUT:** Content width `max-w-5xl` (`figmaTokens.ts`); main column `gap-10 md:gap-14` rhythm.
 - **Build:** `pnpm -C web build` pass.
 
@@ -1230,17 +1356,17 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
     - Stage 1 card click now scrolls to the Stage 1 "Why this matters" section (not directly to Stage 2), with increased scroll margin.
     - Stage 2 card title text now strips parenthetical `"(e.g. ...)"` fragments at render time.
   - `web/src/app/discover/[months]/_lib/wrapperIcons.tsx`
-    - Added explicit icon mapping for 31–33m wrapper slugs (`social_emotional`, `self_care_independence`, `fine_motor`, `gross_motor`, `language_communication`, `cognitive_problem_solving`, `toileting`) to avoid identical fallback icons.
+    - Added explicit icon mapping for 31ÔÇô33m wrapper slugs (`social_emotional`, `self_care_independence`, `fine_motor`, `gross_motor`, `language_communication`, `cognitive_problem_solving`, `toileting`) to avoid identical fallback icons.
 - **Proof:** `pnpm build` passes in `web/`.
 
 ### follow-up: anchor + explainer placement adjustment (Apr 2026)
 
-- **Goal:** Fine-tune Stage 1 anchor position and move `Explained ⓘ` into the explainer card header.
+- **Goal:** Fine-tune Stage 1 anchor position and move `Explained Ôôÿ` into the explainer card header.
 - **What changed:**
   - `web/src/components/discover/figma/DiscoverFigmaScienceSection.tsx`
-    - Added optional `onExplain` action and rendered `Explained ⓘ` inline after `Why this matters for your child`.
+    - Added optional `onExplain` action and rendered `Explained Ôôÿ` inline after `Why this matters for your child`.
   - `web/src/app/discover/[months]/DiscoveryPageClient.tsx`
-    - Removed the separate `Chosen for 31–33 months • Explained` line under Stage 1 title.
+    - Removed the separate `Chosen for 31ÔÇô33 months ÔÇó Explained` line under Stage 1 title.
     - Updated Stage 1 click auto-scroll to land slightly lower (`targetTop = sectionTop + 64`) so the explainer and Stage 2 CTA area can coexist in first view.
 - **Proof:** `pnpm build` passes in `web/`.
 
@@ -1255,7 +1381,7 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
   - Reuses existing masters where resolvable by slug/name; creates missing global development needs/category types only when no clean match exists.
   - Enforces Stage 3 empty semantics for these CSVs (deactivates Stage 3 product mappings for imported bands).
   - Updates Discover unlock logic so Stage 1+2 can render even when Stage 3 products are absent.
-  - Updates Stage 1 cards to render from dataset wrappers (not hardcoded doorway labels), with existing Lucide style via slug→icon mapping in `wrapperIcons.tsx`.
+  - Updates Stage 1 cards to render from dataset wrappers (not hardcoded doorway labels), with existing Lucide style via slugÔåÆicon mapping in `wrapperIcons.tsx`.
   - Updates Stage 3 empty state text to **`Examples coming soon`**.
 - **CSV stats (source files):**
   - `ABI_28_30m_ready.csv`: 11 rows, 6 wrappers, 11 category slugs, Stage 3 product rows: 0.
@@ -1283,14 +1409,14 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
   - `web/src/app/discover/[months]/page.tsx` now computes `selectedBandHasStage12Data` from real wrapper + category data (not product presence), and uses it to unlock the experience.
   - Stage 3 navigation (`show=1`) now works from Stage 2 even when product mappings are empty.
   - `web/src/app/discover/[months]/DiscoveryPageClient.tsx` now gates main experience by Stage 1+2 availability and shows `Examples coming soon` in Stage 3 when no product examples exist.
-  - `web/src/lib/discover/doorways.ts` maps new 34–36m wrapper slugs to existing Lucide doorway definitions/icons (same visual system as existing 25–27m cards).
+  - `web/src/lib/discover/doorways.ts` maps new 34ÔÇô36m wrapper slugs to existing Lucide doorway definitions/icons (same visual system as existing 25ÔÇô27m cards).
 - **Proof:** `pnpm build` passes in `web/`.
 
 ### follow-up: fix Stage 1 cards to match 34-36m dataset (Apr 2026)
 
 - **Root cause found:** Stage 1 card UI text/labels were hardcoded doorway content; wrapper data was only used for slug resolution, not displayed label content.
-- **Fix:** `web/src/app/discover/[months]/DiscoveryPageClient.tsx` now renders non-25–27 age bands directly from `wrappers` data (label from DB, e.g. `Pretend & story play`) while preserving Lucide icon styling.
-- **Behavior:** 34–36 now shows dataset-driven Stage 1 wrapper labels; selecting `Pretend & story play` flows to Stage 2 categories including `Dressing-up clothes`.
+- **Fix:** `web/src/app/discover/[months]/DiscoveryPageClient.tsx` now renders non-25ÔÇô27 age bands directly from `wrappers` data (label from DB, e.g. `Pretend & story play`) while preserving Lucide icon styling.
+- **Behavior:** 34ÔÇô36 now shows dataset-driven Stage 1 wrapper labels; selecting `Pretend & story play` flows to Stage 2 categories including `Dressing-up clothes`.
 - **Proof:** `pnpm build` passes in `web/`.
 
 ### follow-up: mobile arrow overlap in Stage 2 carousel (Apr 2026)
@@ -1303,7 +1429,7 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 # CTO Snapshot (Source of Truth)
  _Last updated: 2026-03-25_
 
-## feat(inventory): controlled CSV canonical ingestion (PR4) — 2026-04-01
+## feat(inventory): controlled CSV canonical ingestion (PR4) ÔÇö 2026-04-01
 - **Branch:** `feat/inventory-pr4-csv-canonical-ingestion`
 - **Goal:** Expand canonical dictionary coverage from attached draft CSV without bloating product_types or weakening canonical truth.
 - **Ground truth checks completed:** CSV parsed safely (1000 rows, 124 proposed canonical slugs). Controlled ingest keeps only `seed_confidence='medium'` rows (500). Overlap cluster detected and collapsed deterministically (`pram`/`pushchair`/`stroller` -> `stroller`).
@@ -1313,7 +1439,7 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Verification:** `pnpm -C web build` passes.
 - **Rollback:** Revert PR4 commit(s). Optional DB rollback migration should remove only PR4-added product_types/aliases and revert queue resolution notes set by PR4.
 
-## feat(posthog): PostHog foundation (privacy-safe, discovery-grounded) — 2026-03-25
+## feat(posthog): PostHog foundation (privacy-safe, discovery-grounded) ÔÇö 2026-03-25
 - **Branch:** `feat/posthog-foundation`
 - **Goal:** Install a minimal, privacy-safe PostHog foundation for Ember using the analytics discovery contract as the source of truth, without changing runtime product behavior beyond necessary client navigation timing for child-save tracking.
 - **Scope (no vendors besides PostHog):**
@@ -1335,18 +1461,18 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Verification:** `pnpm -C web build` succeeds in `web/` on this branch.
 - **Rollback:** Revert branch / close the PR (PostHog integration is isolated to the analytics wrapper + event call sites).
 
-## feat(ui): /family action-first redesign (Figma Manage Family V2) — 2026-03-19
+## feat(ui): /family action-first redesign (Figma Manage Family V2) ÔÇö 2026-03-19
 - **Branch:** `feat/family-figma-redesign`
-- **Goal:** Redesign the signed-in `/family` page into an action-first “family control room” while preserving existing Supabase children + per-child saved stats + gift-share plumbing. Scope is `/family` only.
+- **Goal:** Redesign the signed-in `/family` page into an action-first ÔÇ£family control roomÔÇØ while preserving existing Supabase children + per-child saved stats + gift-share plumbing. Scope is `/family` only.
 - **UI wiring (no new backend logic):**
   - Child saved counters use existing `get_my_subnav_stats(p_child_id)` calls already powering `/family`.
-  - “Remind me” toggle uses existing reminders model via `user_notification_prefs.development_reminders_enabled` (same pattern as `MyIdeasClient`).
+  - ÔÇ£Remind meÔÇØ toggle uses existing reminders model via `user_notification_prefs.development_reminders_enabled` (same pattern as `MyIdeasClient`).
   - Action cards are wired to existing routes: `/discover?child=`, `/my-ideas?tab=ideas|products&child=`, `/marketplace?child=`.
-- **Deviations from pack where plumbing is missing:** We did not port the pack’s mock “quick add / inventory drawer” flows (no matching inventory backend found); “Quick add” navigates to Discover.
+- **Deviations from pack where plumbing is missing:** We did not port the packÔÇÖs mock ÔÇ£quick add / inventory drawerÔÇØ flows (no matching inventory backend found); ÔÇ£Quick addÔÇØ navigates to Discover.
 - **Verification:** `pnpm build` in `web/`; `pnpm exec eslint` on the modified `/family` components.
 - **Rollback:** Revert the branch / close the PR (no DB/schema changes were made).
 - **Follow-up (same PR, visual parity pass):**
-  - Removed the desktop right column (“Keep the home in sync” hero + duplicate right-side modules).
+  - Removed the desktop right column (ÔÇ£Keep the home in syncÔÇØ hero + duplicate right-side modules).
   - Removed the redundant bottom child profile card grid from `/family`.
   - Kept plumbing, counters, route links, gift-share widget, and reminder persistence intact in a single-column layout.
 - **Follow-up 2 (same PR, Figma parity tightening):**
@@ -1355,7 +1481,7 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
   - Reworked reminders card to Figma structure with icon, subtitle, and 2 switch rows.
   - Added gift icon treatment in gift-share card.
   - Removed hardcoded child copy from headline/pulse; now derived from actual household data.
-  - Added full “Add what’s in your house” modal journey (search, suggested matches, assign-to, add-to-home CTA) with live routing back into existing Discover flow.
+  - Added full ÔÇ£Add whatÔÇÖs in your houseÔÇØ modal journey (search, suggested matches, assign-to, add-to-home CTA) with live routing back into existing Discover flow.
 - **Follow-up 3 (same PR, consistency + polish pass):**
   - Synced scope logic so selected tab drives header pulse, counters, action subtitle, links, and action copy consistently.
   - Removed non-approved header control (`Settings`) and kept focused controls (`Add child`, scope tabs, counters).
@@ -1364,67 +1490,67 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
   - Reduced Gift list visual weight via compact integrated card presentation.
   - Tightened section rhythm and reminders card hierarchy/copy for closer Figma pacing.
 
-## fix(pwa): Android install icon (maskable + solid canvas) — 2026-03-18
+## fix(pwa): Android install icon (maskable + solid canvas) ÔÇö 2026-03-18
 - **Goal:** Installed PWA on Android uses full-bleed, premium icon (no white tile from transparent PNG on launcher).
-- **Assets:** `web/public/icons/icon-192.png`, `icon-512.png`, `icon-512-maskable.png` — solid **#FFFCF8** canvas, trimmed robin centred (~76% for `any`, ~56% for maskable safe zone). **RGB only** (no alpha). `web/public/apple-touch-icon.png` regenerated to match.
+- **Assets:** `web/public/icons/icon-192.png`, `icon-512.png`, `icon-512-maskable.png` ÔÇö solid **#FFFCF8** canvas, trimmed robin centred (~76% for `any`, ~56% for maskable safe zone). **RGB only** (no alpha). `web/public/apple-touch-icon.png` regenerated to match.
 - **Why maskable:** Android adaptive icons crop to circle/squircle; `purpose: "maskable"` + smaller artwork keeps the robin inside the safe zone; `any` icons stay bolder for square contexts.
 - **Regenerate:** `node web/scripts/generate-pwa-icons.mjs` (fetches brand PNG once; do not point manifest at Supabase URL).
-- **Manifest:** `web/src/app/manifest.ts` — icons under `/icons/…` with `purpose: any` + `maskable`. `layout.tsx` `metadata.icons.icon` → `/icons/icon-192.png`.
+- **Manifest:** `web/src/app/manifest.ts` ÔÇö icons under `/icons/ÔÇª` with `purpose: any` + `maskable`. `layout.tsx` `metadata.icons.icon` ÔåÆ `/icons/icon-192.png`.
 - **Verification:** `pnpm run build` in `web/`; open `/manifest.webmanifest`; install PWA on Android Chrome and confirm launcher icon.
 
-## feat(ui): Discover page Figma redesign + child personalization — 2026-03-17
+## feat(ui): Discover page Figma redesign + child personalization ÔÇö 2026-03-17
 - **Branch:** `feat/discover-figma-redesign`
-- **Goal:** Implement Figma Discover layout on `/discover/[months]` (REPLACE UI); keep doorway → category → picks flow, Save/Have/Visit, How we choose sheet, age band slider. No duplicate AppBar (global header unchanged).
-- **Personalization:** When signed in and `?child=`, load `child_name`, `display_name`, `gender`, `birthdate`. **Full display label** (child_name || display_name, e.g. “Pop pop”) for hero/stage copy; hero **month count** from **birthdate** when available (not URL band). Closing line uses gender object pronoun (**her/him/them**). If no name → **your child** / **your family**.
+- **Goal:** Implement Figma Discover layout on `/discover/[months]` (REPLACE UI); keep doorway ÔåÆ category ÔåÆ picks flow, Save/Have/Visit, How we choose sheet, age band slider. No duplicate AppBar (global header unchanged).
+- **Personalization:** When signed in and `?child=`, load `child_name`, `display_name`, `gender`, `birthdate`. **Full display label** (child_name || display_name, e.g. ÔÇ£Pop popÔÇØ) for hero/stage copy; hero **month count** from **birthdate** when available (not URL band). Closing line uses gender object pronoun (**her/him/them**). If no name ÔåÆ **your child** / **your family**.
 - **New files:** `web/src/lib/discover/personalization.ts`; `web/src/components/discover/figma/` (ChildHero, NeedCard, ScienceSection, PlayCarousel, PlayIdeaCard, ProductCarousel, Image).
 - **Removed from discover page:** `CategoryCarousel`, `DiscoverCardStack` (replaced by Figma carousels). Guest still sees `DiscoverHeroPocketPlayGuide`.
-- **Auth (Preview PKCE fix, same PR):** `web/src/lib/auth-callback-url.ts` — browser OAuth/magic `redirectTo` uses **`window.location.origin`** so Vercel Preview returns to the same preview host. Server: `VERCEL_ENV=preview` → `https://${VERCEL_URL}`; production → `NEXT_PUBLIC_SITE_URL`; else localhost. Docs: `web/docs/FEB_2026_AUTH_SETUP.md` §2c. **Supabase** must allow preview `/auth/callback` URLs (wildcard or explicit).
+- **Auth (Preview PKCE fix, same PR):** `web/src/lib/auth-callback-url.ts` ÔÇö browser OAuth/magic `redirectTo` uses **`window.location.origin`** so Vercel Preview returns to the same preview host. Server: `VERCEL_ENV=preview` ÔåÆ `https://${VERCEL_URL}`; production ÔåÆ `NEXT_PUBLIC_SITE_URL`; else localhost. Docs: `web/docs/FEB_2026_AUTH_SETUP.md` ┬º2c. **Supabase** must allow preview `/auth/callback` URLs (wildcard or explicit).
 - **Nav (child toggle dead clicks, same PR):** `UnifiedSignedInNav` used one `ref` for both desktop and mobile child dropdowns; React kept only the mobile node, so desktop **click-outside** fired on mousedown inside the open menu and unmounted it before `handleChildSelect` ran. **Fix:** separate `childDropdownDesktopRef` / `childDropdownMobileRef`; click-outside treats either as inside.
-- **Discover + nav (same PR):** On Discover, child switch → **full load** `/discover?child=` (or `/discover`) so server redirects to that child’s age band + **`?child=`**; hero personalizes from URL child id. Toggle **accent ring** ~850ms (sessionStorage after full navigation). Toast host removed. **Age slider** always when band empty.
+- **Discover + nav (same PR):** On Discover, child switch ÔåÆ **full load** `/discover?child=` (or `/discover`) so server redirects to that childÔÇÖs age band + **`?child=`**; hero personalizes from URL child id. Toggle **accent ring** ~850ms (sessionStorage after full navigation). Toast host removed. **Age slider** always when band empty.
 - **Discover personalization (server):** `getDiscoverServerPersonalization(childParam)` uses **`select('*')`** on `children` + shared `personalizationFromChildrenRow` (avoids fixed column lists breaking on schema drift).
 - **Discover personalization (client):** Same `select('*')`; **`getUser()` + `onAuthStateChange(INITIAL_SESSION | SIGNED_IN)`** so load runs after session is ready (fixes race vs SubnavStats `user`).
 - **Verification:** `pnpm run build` in `web/`. Discover: `/discover/26?child=<uuid>`. Auth: Google sign-in on a Preview deployment completes on that preview origin without PKCE error.
 - **Rollback:** Revert PR / branch.
 
-## feat(ui): Discover page Figma redesign + child personalization — 2026-03-17
+## feat(ui): Discover page Figma redesign + child personalization ÔÇö 2026-03-17
 - **Branch:** `feat/discover-figma-redesign`
-- **Goal:** Implement Figma Discover layout on `/discover/[months]` (REPLACE UI); keep doorway → category → picks flow, Save/Have/Visit, How we choose sheet, age band slider. No duplicate AppBar (global header unchanged).
-- **Personalization:** When signed in and `?child=`, load `child_name`, `display_name`, `gender`, `birthdate`. **Full display label** (child_name || display_name, e.g. “Pop pop”) for hero/stage copy; hero **month count** from **birthdate** when available (not URL band). Closing line uses gender object pronoun (**her/him/them**). If no name → **your child** / **your family**.
+- **Goal:** Implement Figma Discover layout on `/discover/[months]` (REPLACE UI); keep doorway ÔåÆ category ÔåÆ picks flow, Save/Have/Visit, How we choose sheet, age band slider. No duplicate AppBar (global header unchanged).
+- **Personalization:** When signed in and `?child=`, load `child_name`, `display_name`, `gender`, `birthdate`. **Full display label** (child_name || display_name, e.g. ÔÇ£Pop popÔÇØ) for hero/stage copy; hero **month count** from **birthdate** when available (not URL band). Closing line uses gender object pronoun (**her/him/them**). If no name ÔåÆ **your child** / **your family**.
 - **New files:** `web/src/lib/discover/personalization.ts`; `web/src/components/discover/figma/` (ChildHero, NeedCard, ScienceSection, PlayCarousel, PlayIdeaCard, ProductCarousel, Image).
 - **Removed from discover page:** `CategoryCarousel`, `DiscoverCardStack` (replaced by Figma carousels). Guest still sees `DiscoverHeroPocketPlayGuide`.
-- **Auth (Preview PKCE fix, same PR):** `web/src/lib/auth-callback-url.ts` — browser OAuth/magic `redirectTo` uses **`window.location.origin`** so Vercel Preview returns to the same preview host. Server: `VERCEL_ENV=preview` → `https://${VERCEL_URL}`; production → `NEXT_PUBLIC_SITE_URL`; else localhost. Docs: `web/docs/FEB_2026_AUTH_SETUP.md` §2c. **Supabase** must allow preview `/auth/callback` URLs (wildcard or explicit).
+- **Auth (Preview PKCE fix, same PR):** `web/src/lib/auth-callback-url.ts` ÔÇö browser OAuth/magic `redirectTo` uses **`window.location.origin`** so Vercel Preview returns to the same preview host. Server: `VERCEL_ENV=preview` ÔåÆ `https://${VERCEL_URL}`; production ÔåÆ `NEXT_PUBLIC_SITE_URL`; else localhost. Docs: `web/docs/FEB_2026_AUTH_SETUP.md` ┬º2c. **Supabase** must allow preview `/auth/callback` URLs (wildcard or explicit).
 - **Nav (child toggle dead clicks, same PR):** `UnifiedSignedInNav` used one `ref` for both desktop and mobile child dropdowns; React kept only the mobile node, so desktop **click-outside** fired on mousedown inside the open menu and unmounted it before `handleChildSelect` ran. **Fix:** separate `childDropdownDesktopRef` / `childDropdownMobileRef`; click-outside treats either as inside.
-- **Discover + nav (same PR):** On Discover, child switch → **full load** `/discover?child=` (or `/discover`) so server redirects to that child’s age band + **`?child=`**; hero personalizes from URL child id. Toggle **accent ring** ~850ms (sessionStorage after full navigation). Toast host removed. **Age slider** always when band empty.
+- **Discover + nav (same PR):** On Discover, child switch ÔåÆ **full load** `/discover?child=` (or `/discover`) so server redirects to that childÔÇÖs age band + **`?child=`**; hero personalizes from URL child id. Toggle **accent ring** ~850ms (sessionStorage after full navigation). Toast host removed. **Age slider** always when band empty.
 - **Discover personalization (server):** `getDiscoverServerPersonalization(childParam)` uses **`select('*')`** on `children` + shared `personalizationFromChildrenRow` (avoids fixed column lists breaking on schema drift).
 - **Discover personalization (client):** Same `select('*')`; **`getUser()` + `onAuthStateChange(INITIAL_SESSION | SIGNED_IN)`** so load runs after session is ready (fixes race vs SubnavStats `user`).
 - **Verification:** `pnpm run build` in `web/`. Discover: `/discover/26?child=<uuid>`. Auth: Google sign-in on a Preview deployment completes on that preview origin without PKCE error.
 - **Rollback:** Revert PR / branch.
 
-## fix(auth): Google SSO production callback domain (emberplay.app) — 2026-03-17
+## fix(auth): Google SSO production callback domain (emberplay.app) ÔÇö 2026-03-17
 - **Branch:** `fix/google-sso-production-domain`
 - **Goal:** OAuth and magic-link `redirectTo` uses `https://emberplay.app/auth/callback` in production (via `NEXT_PUBLIC_SITE_URL`); localhost unchanged (always browser origin).
-- **Code:** `web/src/lib/auth-callback-url.ts` — `buildAuthCallbackUrl()`; wired in `signin/page.tsx`, `SaveToListModal.tsx`, `account/page.tsx` (link Google/Apple). `/auth/callback` route unchanged (`exchangeCodeForSession`).
+- **Code:** `web/src/lib/auth-callback-url.ts` ÔÇö `buildAuthCallbackUrl()`; wired in `signin/page.tsx`, `SaveToListModal.tsx`, `account/page.tsx` (link Google/Apple). `/auth/callback` route unchanged (`exchangeCodeForSession`).
 - **Vercel Production:** Set `NEXT_PUBLIC_SITE_URL=https://emberplay.app` (no trailing slash). Do not set locally.
-- **Verification:** `pnpm run build` + `pnpm run lint` in `web/`; code review: production build with env → `redirectTo` base is emberplay.app; localhost → `http://localhost:3000/auth/callback`.
+- **Verification:** `pnpm run build` + `pnpm run lint` in `web/`; code review: production build with env ÔåÆ `redirectTo` base is emberplay.app; localhost ÔåÆ `http://localhost:3000/auth/callback`.
 - **Rollback:** Revert PR; remove `NEXT_PUBLIC_SITE_URL` from Vercel if needed.
 
 ### Founder follow-up: Google Cloud + Supabase settings
 
 **Must do (production Google sign-in)**
 
-1. **Supabase → Authentication → URL configuration**
+1. **Supabase ÔåÆ Authentication ÔåÆ URL configuration**
    - **Site URL:** `https://emberplay.app`
    - **Redirect URLs:** include `https://emberplay.app/auth/callback` and `http://localhost:3000/auth/callback` (and preview URLs if you test OAuth on Vercel previews).
 
-2. **Vercel → Production env:** add `NEXT_PUBLIC_SITE_URL` = `https://emberplay.app`, redeploy.
+2. **Vercel ÔåÆ Production env:** add `NEXT_PUBLIC_SITE_URL` = `https://emberplay.app`, redeploy.
 
-3. **Google Cloud → Credentials → OAuth 2.0 Client ID → Authorized redirect URIs:** keep **`https://<project-ref>.supabase.co/auth/v1/callback`** (copy exact URL from Supabase → Authentication → Providers → Google). The app does **not** use `emberplay.app` as Google’s redirect URI — Google returns to Supabase first; Supabase then sends the user to our `/auth/callback`.
+3. **Google Cloud ÔåÆ Credentials ÔåÆ OAuth 2.0 Client ID ÔåÆ Authorized redirect URIs:** keep **`https://<project-ref>.supabase.co/auth/v1/callback`** (copy exact URL from Supabase ÔåÆ Authentication ÔåÆ Providers ÔåÆ Google). The app does **not** use `emberplay.app` as GoogleÔÇÖs redirect URI ÔÇö Google returns to Supabase first; Supabase then sends the user to our `/auth/callback`.
 
 **Should do (branding & trust)**
 
-4. **Google Cloud → OAuth consent screen:** App name **Ember**; **Authorized domains** include `emberplay.app`; **Application home page** `https://emberplay.app`; add privacy policy / terms links if you have them; support email.
+4. **Google Cloud ÔåÆ OAuth consent screen:** App name **Ember**; **Authorized domains** include `emberplay.app`; **Application home page** `https://emberplay.app`; add privacy policy / terms links if you have them; support email.
 
-5. **Google Cloud → Credentials → Authorized JavaScript origins:** include `https://emberplay.app` (and `http://localhost:3000` for local testing).
+5. **Google Cloud ÔåÆ Credentials ÔåÆ Authorized JavaScript origins:** include `https://emberplay.app` (and `http://localhost:3000` for local testing).
 
 **Nice to do**
 
@@ -1432,21 +1558,21 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 
 ---
 
-## feat(ui): Unified signed-in navigation (Figma Subnav Bar V3) — 2026-03-16
+## feat(ui): Unified signed-in navigation (Figma Subnav Bar V3) ÔÇö 2026-03-16
 - **Branch:** feat/unified-signed-in-nav
 - **Goal:** Upgrade navigation for signed-in users by consolidating the previous two navs (header + subnav) into one sticky bar from the Figma Subnav Bar V3 code pack.
 - **Scope:** One PR. ConditionalHeader shows UnifiedSignedInNav when signed-in, DiscoverStickyHeader when signed-out. SubnavGate no longer renders SubnavBar (returns null). ContentSpacer uses --unified-nav-height when signed-in.
 - **Figma pack:** `C:\Users\timwo\OneDrive\Documents\Project Leaf\Project Leaf - UI Components\Figma - Subnav Bar V3` (App.tsx). Assets replaced with Ember logo URL and lucide-react icons; no figma:asset imports.
-- **Data:** useSubnavStats (user, stats, refetch), children from Supabase, pathname/searchParams for active section and ?child=. All links/buttons wired: Discover, Saves, Marketplace, child dropdown (Add a child → /add-children, Manage my family → /family), stats → my-ideas?tab=, Account, Sign out, Reminders toggle + tooltip.
+- **Data:** useSubnavStats (user, stats, refetch), children from Supabase, pathname/searchParams for active section and ?child=. All links/buttons wired: Discover, Saves, Marketplace, child dropdown (Add a child ÔåÆ /add-children, Manage my family ÔåÆ /family), stats ÔåÆ my-ideas?tab=, Account, Sign out, Reminders toggle + tooltip.
 - **Non-negotiables:** Sticky on scroll; subnav hidden for logged-out users; width max-w-[90rem] px-4 md:px-6 lg:px-12; no dead buttons/icons.
 - **Files changed:** web/src/components/subnav/UnifiedSignedInNav.tsx (new), ConditionalHeader.tsx, SubnavGate.tsx, ContentSpacer.tsx, app/globals.css (--unified-nav-height). SubnavBar.tsx retained but no longer rendered.
-- **Verification:** Signed out → single header (logo, Sign in, Get started). Signed in → one sticky bar: logo, Discover/Saves/Marketplace, child switcher, stats (ideas/products/gifts), Reminders toggle, profile dropdown (email, Account, Sign out); mobile: tabs + stats row + reminders. Build passes.
+- **Verification:** Signed out ÔåÆ single header (logo, Sign in, Get started). Signed in ÔåÆ one sticky bar: logo, Discover/Saves/Marketplace, child switcher, stats (ideas/products/gifts), Reminders toggle, profile dropdown (email, Account, Sign out); mobile: tabs + stats row + reminders. Build passes.
 - **Mobile tab row (2026-03-17):** CSS `position: sticky` for Discover/Saves/Marketplace did not work inside the tall `<header>`. Fix: scroll listener + 1px sentinel above tab row; when sentinel scrolls above viewport, tab row switches to `position: fixed` with spacer to avoid layout jump; safe-area padding on fixed bar. Desktop unchanged (`lg:sticky` on header).
 - **Rollback:** Revert PR; restore ConditionalHeader to only DiscoverStickyHeader; restore SubnavGate to render SubnavBar when user; restore ContentSpacer to header+subnav height.
 
-## chore(staging): Frontend/deployment foundation — staging lane (2026-03-12)
+## chore(staging): Frontend/deployment foundation ÔÇö staging lane (2026-03-12)
 - **Branch:** feat/staging-frontend-foundation
-- **Scope:** One PR: confirm current truth, lock staging topology (main → prod, staging branch → stable staging, PRs → preview), add docs and runbook. No staging backend, seed data, or feature flags.
+- **Scope:** One PR: confirm current truth, lock staging topology (main ÔåÆ prod, staging branch ÔåÆ stable staging, PRs ÔåÆ preview), add docs and runbook. No staging backend, seed data, or feature flags.
 - **Deliverables:** `docs/staging/current-truth.md`, `docs/staging/topology-decision.md`, `docs/staging/runbook.md`, `docs/staging/environment-matrix.md`; optional creation/push of `staging` branch; PROGRESS.md and state/latest.json updated.
 - **Verification:** Build passes; PR checks green; Vercel preview URL works. Founder: follow runbook for creating/verifying `staging` branch, Vercel Staging environment, and staging env vars.
 - **Rollback:** Revert PR; delete `docs/staging/` if desired; no production or DB changes.
@@ -1455,77 +1581,77 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Branch:** feat/marketplace-prelist-figma-wiring
 - **Scope:** One PR: pre-launch listing flow from Figma Make code pack, wired to PR1 backend. No DB/schema changes.
 - **Route:** /marketplace (logged-in): widget above hero + modal; /marketplace/listings: canonical My listings page; /app/listings redirects to /marketplace/listings.
-- **Flow:** Step 1 item + pg_trgm suggestions; Step 2 condition + photo upload (storage + marketplace_listing_photos); Step 3 pickup area + marketplace_preferences; Step 4 pricing intent (GBP, rough price visible); Step 5 review (photos + £ price) + submit (status=submitted). Success modal → "View my listings" → /marketplace/listings.
-- **Snag fixes:** (1) Pricing step: compact layout so Rough price box visible; GBP (£) everywhere, no conversion. (2) Review step: show uploaded photos; price as £ (GBP). (3) Listings at /marketplace/listings; link from SuccessModal; /app/listings redirect. (4) Listing cards: object-contain for photo (no squish); notes parsed for price display; show condition, area, price. (5) Subnav: Marketplace links preserve ?child=; marketplace page reads ?child= for header "Ready to pass anything on for [child name]?" else "your child"; subnav child toggle applies on /marketplace so "All children" updates URL and shows "your child".
+- **Flow:** Step 1 item + pg_trgm suggestions; Step 2 condition + photo upload (storage + marketplace_listing_photos); Step 3 pickup area + marketplace_preferences; Step 4 pricing intent (GBP, rough price visible); Step 5 review (photos + ┬ú price) + submit (status=submitted). Success modal ÔåÆ "View my listings" ÔåÆ /marketplace/listings.
+- **Snag fixes:** (1) Pricing step: compact layout so Rough price box visible; GBP (┬ú) everywhere, no conversion. (2) Review step: show uploaded photos; price as ┬ú (GBP). (3) Listings at /marketplace/listings; link from SuccessModal; /app/listings redirect. (4) Listing cards: object-contain for photo (no squish); notes parsed for price display; show condition, area, price. (5) Subnav: Marketplace links preserve ?child=; marketplace page reads ?child= for header "Ready to pass anything on for [child name]?" else "your child"; subnav child toggle applies on /marketplace so "All children" updates URL and shows "your child".
 - **Flow bugs (2026-03-05):** (1) Pickup area: last submitted postcode/radius saved to marketplace_preferences on submit; modal pre-fills postcode/radius from preferences for new listings so user does not re-enter. (2) Review modal: content area has min-h-0 and flex-shrink-0 on header/footer so modal fits in viewport and body scrolls; Back/Save always visible. (3) Review step: submitted photo(s) render in Photos section and first photo shown next to item name (replacing package icon).
 - **Files:** web/src/components/figma/marketplace-prelist/* (ListingWidget, ListingModal, SuccessModal, steps/*); web/src/app/marketplace/page.tsx; web/src/app/marketplace/listings/page.tsx; web/src/app/(app)/app/listings/page.tsx (redirect); DiscoverStickyHeader, MyIdeasClient, SubnavBar (withChild / marketplace childToggle); lib/marketplace/actions.ts; globals.css (prelist tokens).
-- **Verification:** Login → /marketplace → List an item → set rough price £10 → Review shows photo + £10 (GBP) → submit → View my listings → /marketplace/listings; card shows photo (correct aspect), condition, price. From /my-ideas?child=id → Marketplace → header uses child name; subnav shows same child.
+- **Verification:** Login ÔåÆ /marketplace ÔåÆ List an item ÔåÆ set rough price ┬ú10 ÔåÆ Review shows photo + ┬ú10 (GBP) ÔåÆ submit ÔåÆ View my listings ÔåÆ /marketplace/listings; card shows photo (correct aspect), condition, price. From /my-ideas?child=id ÔåÆ Marketplace ÔåÆ header uses child name; subnav shows same child.
 
-## feat(marketplace): Listings backend — schema, storage, pg_trgm (2026-03-05)
+## feat(marketplace): Listings backend ÔÇö schema, storage, pg_trgm (2026-03-05)
 - **Branch:** feat/marketplace-listings-backend
 - **Scope:** One PR: (a) pre-launch marketplace listings schema, (b) photo upload storage bucket, (c) fuzzy item-type suggestions via pg_trgm.
 - **DB migrations (apply in order):** `202603051200_marketplace_pg_trgm_item_types.sql`, `202603051201_marketplace_listings_tables.sql`, `202603051202_marketplace_rls.sql`, `202603051203_marketplace_storage.sql`, `202603051204_marketplace_suggest_rpc.sql`.
 - **Deliverables:** pg_trgm + `marketplace_item_types` (search_text, GIN index, seed); `marketplace_listings` + `marketplace_listing_photos` + `marketplace_preferences`; RLS on all; private bucket `marketplace-listing-photos` with path `{user_id}/{listing_id}/{filename}`; RPC `suggest_marketplace_item_types(query_text, limit)`.
-- **Smoke tests:** `docs/marketplace_smoke_tests.sql` — run in Supabase SQL Editor after migrations.
+- **Smoke tests:** `docs/marketplace_smoke_tests.sql` ÔÇö run in Supabase SQL Editor after migrations.
 - **Verification:** Migrations apply cleanly; RLS blocks cross-user access; bucket exists; RPC returns suggestions for "chair", "hi chair", "bath".
 
 ## fix(snag-pack): Nav and pages snags (2026-03-05)
 - **Branch:** fix/snag-pack-nav-and-pages
-- **Snags:** (A) /gift header → "Live gift list for..."; (B) /my-ideas: removed content between header and My list grid, removed "Today for My Child" box, header "My ideas for [Child Name]" when child in URL; (C) Subnav "toys" → "products"; (D) Main nav: Family icon hidden on desktop and mobile bar, kept in hamburger only; (E) /discover: age slider preset from child age when ?child= and known age, else 25–27 months; (F) /add-children: hero height reduced by third (h-64→h-[168px]), future birth dates allowed, birthdate modal blurb updated.
+- **Snags:** (A) /gift header ÔåÆ "Live gift list for..."; (B) /my-ideas: removed content between header and My list grid, removed "Today for My Child" box, header "My ideas for [Child Name]" when child in URL; (C) Subnav "toys" ÔåÆ "products"; (D) Main nav: Family icon hidden on desktop and mobile bar, kept in hamburger only; (E) /discover: age slider preset from child age when ?child= and known age, else 25ÔÇô27 months; (F) /add-children: hero height reduced by third (h-64ÔåÆh-[168px]), future birth dates allowed, birthdate modal blurb updated.
 - **Files:** GiftListClient, MyIdeasClient, SubnavBar, DiscoverStickyHeader, discover/page.tsx, AddChildForm, PrivacySheet.
 
-## feat(marketplace): Figma Make overhaul — /marketplace (2026-03-05)
+## feat(marketplace): Figma Make overhaul ÔÇö /marketplace (2026-03-05)
 - **Branch:** feat/marketplace-figma-make-overhaul
-- **Route:** `/marketplace` (new). Public marketing page; uses existing app shell (ConditionalHeader, SubnavGate from root layout). No Figma Header — per brief, do not import code-pack navbar.
+- **Route:** `/marketplace` (new). Public marketing page; uses existing app shell (ConditionalHeader, SubnavGate from root layout). No Figma Header ÔÇö per brief, do not import code-pack navbar.
 - **UI (exact from Figma Make pack):** Hero (value prop + NotificationAnimation), How it works (3 steps), Trust & safety (6 pillars), Pre-launch preview (SellSuggestions), Early access benefits (3 cards), FAQ (6-item accordion), Final CTA, Footer. Layout/typography/spacing/animations match code pack; desktop + mobile responsive.
-- **Data wiring:** None. Static marketing content; no new tables or API. Links: /join, /notify, /login → /signin; SellSuggestions “Start a listing” / “List a bundle” → /products.
+- **Data wiring:** None. Static marketing content; no new tables or API. Links: /join, /notify, /login ÔåÆ /signin; SellSuggestions ÔÇ£Start a listingÔÇØ / ÔÇ£List a bundleÔÇØ ÔåÆ /products.
 - **Files:** `web/src/app/marketplace/page.tsx`; `web/src/components/figma/marketplace/*` (NotificationAnimation, SellSuggestions, ui/button, ui/card, ui/accordion, ui/utils). Design tokens added to `globals.css` @theme (primary, border, muted, accent, etc.) and accordion keyframes for Radix content height animation.
 - **Dependencies added:** @radix-ui/react-accordion, @radix-ui/react-slot, class-variance-authority (scoped to figma/marketplace UI).
-- **Nav:** DiscoverStickyHeader and HomeShowsUp “Marketplace” links now point to /marketplace (was /products).
-- **Verification:** Visit /marketplace → hero, notification carousel, how it works, trust, sell suggestions, early access cards, FAQ accordion, final CTA, footer. Nav “Marketplace” and homepage “Explore marketplace” go to /marketplace. Build passes.
-- **Known debt:** Footer “About”, “Trust & Safety”, “Contact”, “Privacy”, “Terms” link to / (placeholder until those routes exist).
+- **Nav:** DiscoverStickyHeader and HomeShowsUp ÔÇ£MarketplaceÔÇØ links now point to /marketplace (was /products).
+- **Verification:** Visit /marketplace ÔåÆ hero, notification carousel, how it works, trust, sell suggestions, early access cards, FAQ accordion, final CTA, footer. Nav ÔÇ£MarketplaceÔÇØ and homepage ÔÇ£Explore marketplaceÔÇØ go to /marketplace. Build passes.
+- **Known debt:** Footer ÔÇ£AboutÔÇØ, ÔÇ£Trust & SafetyÔÇØ, ÔÇ£ContactÔÇØ, ÔÇ£PrivacyÔÇØ, ÔÇ£TermsÔÇØ link to / (placeholder until those routes exist).
 
 ## fix(my-ideas): Hide saves for suppressed children (2026-03-05)
 - **Branch:** fix/suppress-saves-when-child-removed
 - **Problem:** When a user removes all child profiles, legacy saves still appeared; after adding a new child, those saves "came flooding back."
 - **Requirement:** Saves for removed children must be hidden and stay hidden; data remains in DB for recovery.
-- **Solution:** (1) **RLS:** Show only rows where `child_id IS NOT NULL` and that child is visible (not suppressed). **Unassigned items (`child_id IS NULL`) are never shown** so legacy unassigned saves do not reappear when the user adds a new child. (2) **Stats:** Same rule — only count items assigned to a visible child; unassigned never counted.
+- **Solution:** (1) **RLS:** Show only rows where `child_id IS NOT NULL` and that child is visible (not suppressed). **Unassigned items (`child_id IS NULL`) are never shown** so legacy unassigned saves do not reappear when the user adds a new child. (2) **Stats:** Same rule ÔÇö only count items assigned to a visible child; unassigned never counted.
 - **Migrations:** Run `202603051000_PART1_rls_only.sql` then `202603051000_PART2_stats_only.sql` (or full `202603051000_suppress_saves_for_suppressed_children.sql`).
-- **Verification:** Remove all children → 0/empty; add a new child → still 0 until user saves new items for that child. Legacy unassigned and suppressed-child saves stay in DB but never surface.
+- **Verification:** Remove all children ÔåÆ 0/empty; add a new child ÔåÆ still 0 until user saves new items for that child. Legacy unassigned and suppressed-child saves stay in DB but never surface.
 - **Gift page:** Migration `202603051100_gift_list_hide_legacy.sql`: `get_public_gift_list` now returns only items assigned to a visible (non-suppressed) child; unassigned and suppressed-child gift items are excluded so /gift does not show legacy content. Dropdown "Unassigned" no longer appears when there are no unassigned items.
 
 ## feat(gifts): Public gift sharing /gift/[slug] (2026-03-04)
 - **Branch:** feat/gift-share-widget
 - **Scope:** Share your gift list widget on /family: Copy link + Preview. Public route /gift/[slug] shows read-only gift list (no auth).
-- **Part A — Slug model:** Migration `supabase/sql/202603041100_gift_shares.sql`: table `gift_shares` (id, user_id, slug, created_at), UNIQUE(user_id), UNIQUE(slug). RLS: owner CRUD only; anon cannot read table. Functions: `resolve_gift_slug_user_id(p_slug)` (internal), `get_public_gift_list(p_slug)` SECURITY DEFINER returns only gift-flagged items; GRANT EXECUTE to anon/authenticated.
-- **Part B — Public route:** `web/src/app/gift/[slug]/page.tsx`: server component, no auth; calls `get_public_gift_list(slug)`; 404 if slug invalid or no items; renders read-only list (title, image, saved time). No user IDs or edit/remove.
-- **Part C — Widget:** `ShareYourGiftListWidget` in FamilyFigmaClient and MyIdeasClient (Gifts tab): Copy link (getOrCreateGiftShareSlug → clipboard, “Link copied”), Preview (open /gift/{slug} in new tab). Slug created on first use (8–12 char URL-safe). Server action `lib/gift/actions.ts`: getOrCreateGiftShareSlug().
+- **Part A ÔÇö Slug model:** Migration `supabase/sql/202603041100_gift_shares.sql`: table `gift_shares` (id, user_id, slug, created_at), UNIQUE(user_id), UNIQUE(slug). RLS: owner CRUD only; anon cannot read table. Functions: `resolve_gift_slug_user_id(p_slug)` (internal), `get_public_gift_list(p_slug)` SECURITY DEFINER returns only gift-flagged items; GRANT EXECUTE to anon/authenticated.
+- **Part B ÔÇö Public route:** `web/src/app/gift/[slug]/page.tsx`: server component, no auth; calls `get_public_gift_list(slug)`; 404 if slug invalid or no items; renders read-only list (title, image, saved time). No user IDs or edit/remove.
+- **Part C ÔÇö Widget:** `ShareYourGiftListWidget` in FamilyFigmaClient and MyIdeasClient (Gifts tab): Copy link (getOrCreateGiftShareSlug ÔåÆ clipboard, ÔÇ£Link copiedÔÇØ), Preview (open /gift/{slug} in new tab). Slug created on first use (8ÔÇô12 char URL-safe). Server action `lib/gift/actions.ts`: getOrCreateGiftShareSlug().
 - **Security:** Anonymous cannot read gift_shares or user_list_items; only get_public_gift_list(slug) returns gift rows. No service_role in client.
-- **Verification:** Apply migration; sign in → /family → Copy link → paste in new tab (or Preview) → see gift list when logged out. Add/remove gift items on /my-ideas; shared link reflects only gift-flagged items.
-- **Follow-up (same branch):** My List on /my-ideas: (1) Grid filters by URL `?child=` so it auto-updates when subnav child toggle changes (no hard refresh). (2) List fetches once on mount; no refetch on browser tab visibility so grid stays settled. (3) “Share your gift list” widget moved to top of Gifts tab only (inside My list card, above the grid).
+- **Verification:** Apply migration; sign in ÔåÆ /family ÔåÆ Copy link ÔåÆ paste in new tab (or Preview) ÔåÆ see gift list when logged out. Add/remove gift items on /my-ideas; shared link reflects only gift-flagged items.
+- **Follow-up (same branch):** My List on /my-ideas: (1) Grid filters by URL `?child=` so it auto-updates when subnav child toggle changes (no hard refresh). (2) List fetches once on mount; no refetch on browser tab visibility so grid stays settled. (3) ÔÇ£Share your gift listÔÇØ widget moved to top of Gifts tab only (inside My list card, above the grid).
 - **Follow-up 2 (same branch):** Public /gift/[slug] page: family members can filter by child. Migration `202603041200_gift_list_child_id.sql`: get_public_gift_list now returns child_id (nullable). GiftListClient shows "All children" dropdown plus "Child 1", "Child 2" (no names; order by first appearance). Grid filters by selected child; subnav-like behaviour.
 - **Follow-up 3 (same branch):** Gift page UX: (1) Title "Gift list for [Name]'s family" via get_gift_share_list_title(p_slug) (first name from auth.users; migration 202603041300). (2) Human copy: "Here's what they're hoping for." (no "Read-only"). (3) Child toggle always visible when there are items; add "Unassigned" option for items with null child_id. (4) Global nav on /gift constrained to max-w-3xl to match page content (DiscoverStickyHeader pathname check).
 - **Follow-up 4 (same branch):** Gift list title + child dropdown fixes: (1) get_gift_share_list_title now prefers display_name, full_name, name, then first_name + last_name, then first_name (so Dashboard "Display name" e.g. "Tim Wood" shows). (2) New RPC get_public_gift_children(p_slug) returns child ids for the list owner; GiftListClient receives childrenIds from server and shows "Child 1", "Child 2" in dropdown (not only from items). Dropdown visible when items or children exist.
 - **Follow-up 5 (same branch):** (1) Gift page child dropdown shows real labels: get_public_gift_children now returns (child_id, label) with label = child_name/display_name + " - Aged " + age_band (e.g. "Alex - Aged 6+"); fallback "Child N". (2) Subnav child param preserved: handleWrapperSelect, handleShowExamples, and age-slider navigation in DiscoveryPageClient now use withChildParam() so ?child= sticks when selecting a doorway or changing age. openAuth effect preserves child in signin next URL. (3) Save idea / Have them: handleSaveCategory and handleHaveThemCategory run() wrapped in try/catch with error toast so failed RPC shows "Could not save idea" / "Couldn't update" instead of no feedback.
 - **Follow-up 6 (same branch):** (1) Share your gift list widget: Preview button shows "Loading..." while slug is fetched and new tab opens; button disabled during load. (2) My ideas Examples modal: Save and Have CTAs pass p_child_id (effectiveChildForSave = filterChildId ?? selectedChildId) so saves are stored for the selected child; on error set actionError; clear actionError when opening modal.
-- **Follow-up 7 (same branch):** Gift page card images: get_public_gift_list image_url for ideas now uses same source as /my-ideas — v_gateway_category_type_images first, then pl_category_types.image_url fallback (so e.g. "Picture books and board books" shows image on /gift). Migration 202603041200 updated; 202603041400_gift_list_image_from_gateway.sql provided for DBs that already applied 202603041200.
+- **Follow-up 7 (same branch):** Gift page card images: get_public_gift_list image_url for ideas now uses same source as /my-ideas ÔÇö v_gateway_category_type_images first, then pl_category_types.image_url fallback (so e.g. "Picture books and board books" shows image on /gift). Migration 202603041200 updated; 202603041400_gift_list_image_from_gateway.sql provided for DBs that already applied 202603041200.
 
 ## feat(family): Remove child profile (soft) + is_suppressed (2026-03-04)
 - **Scope:** Child profile cards get a working Remove flow with confirmation; removed children are hidden (soft) via `is_suppressed`, not hard-deleted.
 - **DB:** Migration `supabase/sql/202603041000_children_is_suppressed.sql`: add `children.is_suppressed` (boolean, default false), index `children_user_suppressed_idx` for list queries.
 - **Backend:** `lib/children/actions.ts`: new `suppressChild(childId)` server action (sets `is_suppressed = true` for own row).
-- **Family UI:** `ChildProfileCard` already had Remove button + “Are you sure?” modal; `ChildProfilesSection` now accepts `onRemove` and passes it to each card; `FamilyFigmaClient` calls `suppressChild(id)` then refetches children so list updates without reload.
+- **Family UI:** `ChildProfileCard` already had Remove button + ÔÇ£Are you sure?ÔÇØ modal; `ChildProfilesSection` now accepts `onRemove` and passes it to each card; `FamilyFigmaClient` calls `suppressChild(id)` then refetches children so list updates without reload.
 - **Filtering:** All list queries for children now exclude suppressed: `FamilyFigmaClient`, `FamilyDashboardClient`, `MyIdeasClient`, `SubnavBar` (all 3 fallbacks), `SaveToListModal`, `app/recs/page`. Edit-by-id (`add-children/[id]`) still loads the child (no filter) so link-to-edit remains valid.
-- **Verification:** Run migration; sign in → /family → Remove on a card → confirm → card disappears; subnav and my-ideas no longer show that child; DB row remains with `is_suppressed = true`.
+- **Verification:** Run migration; sign in ÔåÆ /family ÔåÆ Remove on a card ÔåÆ confirm ÔåÆ card disappears; subnav and my-ideas no longer show that child; DB row remains with `is_suppressed = true`.
 
 ## feat(family): Figma Make overhaul on /family (2026-03-03)
 - Branch: feat/family-figma-make-overhaul
 - **Route:** `/family` (unchanged). App shell (ConditionalHeader, SubnavGate) preserved.
-- **UI:** Manage My Family page replaced with Figma Make design: header (title + Settings), left column (Child profiles section with grid of cards + Add a child CTA + Add another child card), right column on desktop (hero image, 2 secondary images, “Growing together” card). Layout: `max-w-[90rem]`, `lg:grid-cols-[1fr_400px]`, responsive; sidebar hidden on mobile.
+- **UI:** Manage My Family page replaced with Figma Make design: header (title + Settings), left column (Child profiles section with grid of cards + Add a child CTA + Add another child card), right column on desktop (hero image, 2 secondary images, ÔÇ£Growing togetherÔÇØ card). Layout: `max-w-[90rem]`, `lg:grid-cols-[1fr_400px]`, responsive; sidebar hidden on mobile.
 - **Data wiring (unchanged):** `children` table (id, birthdate, gender, age_band); per-child stats via `get_my_subnav_stats(p_child_id)` (ideas_saved_count, toys_saved_count, gifts_saved_count). No DB schema or RLS changes.
-- **Privacy:** No child name displayed; card title “Little One”, avatar initial from deterministic `getAvatarInitial(child.id)` (no PII).
-- **Files:** `web/src/app/family/page.tsx` → uses `FamilyFigmaClient`; `web/src/components/figma/family/*` (FamilyFigmaClient, ChildProfilesSection, ChildProfileCard, AddChildCard, EmptyChildProfiles, GenderIcon, ImageWithFallback, utils). Sidebar images: Unsplash URLs (existing remotePatterns).
-- **Verification:** Sign in → go to /family → see new layout; child cards show birthdate, age, ideas/toys/gifts; Edit → /add-children/[id]; Add a child → /add-children; Settings → /account; Go to My ideas → /my-ideas. ?saved=1 / ?deleted=1 toasts still work; ?child=id scrolls to card.
+- **Privacy:** No child name displayed; card title ÔÇ£Little OneÔÇØ, avatar initial from deterministic `getAvatarInitial(child.id)` (no PII).
+- **Files:** `web/src/app/family/page.tsx` ÔåÆ uses `FamilyFigmaClient`; `web/src/components/figma/family/*` (FamilyFigmaClient, ChildProfilesSection, ChildProfileCard, AddChildCard, EmptyChildProfiles, GenderIcon, ImageWithFallback, utils). Sidebar images: Unsplash URLs (existing remotePatterns).
+- **Verification:** Sign in ÔåÆ go to /family ÔåÆ see new layout; child cards show birthdate, age, ideas/toys/gifts; Edit ÔåÆ /add-children/[id]; Add a child ÔåÆ /add-children; Settings ÔåÆ /account; Go to My ideas ÔåÆ /my-ideas. ?saved=1 / ?deleted=1 toasts still work; ?child=id scrolls to card.
 - **Known debt:** Gender tooltip uses native `title` (no Radix); optional later: Radix Tooltip for exact Figma behaviour.
 
 ## fix(my-ideas): My List grid filtered by selected child (2026-03-03)
@@ -1536,9 +1662,9 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 
 ## fix(child-toggle): dropdown labels, family/discover/my-ideas use child param, list filter by child (2026-03-03)
 - Branch: fix/child-toggle-labels-and-context
-- Snags: (1) Subnav child dropdown: show "Name – Aged X" or "Gender – Aged X" instead of "Child 1/2/3"; robust query (child_name/display_name then fallback with gender). (2) Family: pass params.child to FamilyDashboardClient; highlight and scroll to selected child card. (3) Discover: read ?child= in searchParams; pass initialChildId to DiscoveryPageClient; show "Ideas for Alex" / "Chosen for Alex" when child selected; redirect from /discover preserves child. (4) My-ideas: fetch user_list_items with child_id; filter list by selected child (child_id = selected OR null); counts and tabs reflect filtered list.
+- Snags: (1) Subnav child dropdown: show "Name ÔÇô Aged X" or "Gender ÔÇô Aged X" instead of "Child 1/2/3"; robust query (child_name/display_name then fallback with gender). (2) Family: pass params.child to FamilyDashboardClient; highlight and scroll to selected child card. (3) Discover: read ?child= in searchParams; pass initialChildId to DiscoveryPageClient; show "Ideas for Alex" / "Chosen for Alex" when child selected; redirect from /discover preserves child. (4) My-ideas: fetch user_list_items with child_id; filter list by selected child (child_id = selected OR null); counts and tabs reflect filtered list.
 - **Follow-up (same PR):** New child not in toggle after add; stats not 0 for new child. (5) SubnavBar refetches children when pathname changes so new/edited child appears after add-children. (6) get_my_subnav_stats(p_child_id) optional param; when set, counts only items for that child (child_id = p_child_id OR null). SubnavStatsContext refetch(childId); SubnavBar calls refetch(selectedChildId) when pathname/selectedChildId change so stat counters show per-child (e.g. 0 for new child). Migration: 202603031000_subnav_stats_per_child.sql.
-- **Follow-up 2 (same PR):** (7) Dropdown labels: first query now selects id, child_name, display_name, age_band, gender; toSubnavChild() normalizes API row so names (Geraldine/Alex) show when present; fallbacks for display_name-only then gender/age. (8) Saves from /discover store against selected child: upsert_user_list_item(p_child_id) in 202603031100_upsert_user_list_item_child.sql; DiscoveryPageClient passes selectedChildId from URL to all save/have RPCs and to replay payload; getReturnUrl preserves ?child= so post–sign-in return keeps selection.
+- **Follow-up 2 (same PR):** (7) Dropdown labels: first query now selects id, child_name, display_name, age_band, gender; toSubnavChild() normalizes API row so names (Geraldine/Alex) show when present; fallbacks for display_name-only then gender/age. (8) Saves from /discover store against selected child: upsert_user_list_item(p_child_id) in 202603031100_upsert_user_list_item_child.sql; DiscoveryPageClient passes selectedChildId from URL to all save/have RPCs and to replay payload; getReturnUrl preserves ?child= so postÔÇôsign-in return keeps selection.
 - **Follow-up 3 (same PR):** (9) Add-child/edit UX: CTA shows "Save changes" when editing (initial?.id), "Add a child" when new. Consent checkbox defaults to true when editing so user does not re-confirm. (10) saveChild writes name to both child_name and display_name so toggle shows it; SubnavBar fetchChildren on pathname + 300ms delayed refetch on subnav pages + visibilitychange refetch so list updates after redirect from add-children.
 - **Follow-up 4 (same PR):** (11) Subnav stats inverted: "All children" showed 0, per-child (e.g. Sophie) showed totals. SubnavStatsContext now always passes `p_child_id` explicitly: `null` for aggregate (all), UUID for per-child; avoids ambiguity so RPC branch is correct. Ensure migration 202603031300_subnav_stats_child_only.sql is applied so per-child counts only that child (Sophie = 0 when no saves).
 - **Follow-up 5 (same PR):** (12) Sophie still showed 8/3/3 despite no saves: per-child stats were inheriting unassigned items (old 202603031000 had `OR child_id IS NULL`). Child profiles must NEVER inherit; 202603031000_subnav_stats_per_child.sql updated to count only `child_id = p_child_id` (no OR unassigned). Re-apply that migration or run 202603031300 on Supabase so Sophie = 0, Geraldine = her actual counts.
@@ -1549,7 +1675,7 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 
 ## fix(snag-pack): nav 4+2, discover hero hide when signed-in, family/my-ideas split, Examples modal (2026-02-28)
 - Branch: fix/snag-pack-nav-and-family
-- Snags: (A i–ii) Nav simplified to 4+2: Discover, My Saves, Marketplace, Family | Account, Sign out; Lucide icons (Compass, Bookmark, ShoppingBag, Users, User, LogOut); desktop icon before text, mobile stacked (text then icon). (A iii) /discover: hide “Your pocket play guide” hero for signed-in users; first section = age slider. (A iv) /family: child profiles only; content below (child selector, Today, My list, sidebar) moved to /my-ideas. (A v) My List Examples: API accepts wrapperSlug for idea kind; FamilyExamplesModal uses wrapperSlug when set; Examples button shown for ideas with ux_slug; picks load via getGatewayTopPicksForAgeBandAndWrapperSlug.
+- Snags: (A iÔÇôii) Nav simplified to 4+2: Discover, My Saves, Marketplace, Family | Account, Sign out; Lucide icons (Compass, Bookmark, ShoppingBag, Users, User, LogOut); desktop icon before text, mobile stacked (text then icon). (A iii) /discover: hide ÔÇ£Your pocket play guideÔÇØ hero for signed-in users; first section = age slider. (A iv) /family: child profiles only; content below (child selector, Today, My list, sidebar) moved to /my-ideas. (A v) My List Examples: API accepts wrapperSlug for idea kind; FamilyExamplesModal uses wrapperSlug when set; Examples button shown for ideas with ux_slug; picks load via getGatewayTopPicksForAgeBandAndWrapperSlug.
 
 ## fix(snag-pack): mobile nav, add-children CTA, discover CTA, child name field, subnav switcher (2026-02-28)
 - Branch: fix/snag-pack-mobile-and-ux
@@ -1560,7 +1686,7 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 ## Homepage Figma rebuild (feat/homepage-figma-rebuild)
 - Branch: feat/homepage-figma-rebuild
 - Replaced (/) content with Figma code-pack design: HomeHero, HomeAgeSlider, HomeHowItWorks, HomeStageBlocks, HomeShowsUp, HomeHowWeChoose, HomeFinalCTA. Assets in web/public/home/; Unsplash in next.config images.
-- **Figma navbar:** DiscoverStickyHeader updated to Figma style from same code pack: sticky, max-w-[90rem], px-6 lg:px-12, py-5, logo from /home/ember-logo.png, wordmark “Ember” text-2xl. No “How it works” or “About”. Signed-in only: “Manage Family”, “Account”, “Sign out”. Signed-out: “Get started” CTA. Subnav (SubnavGate) unchanged; still shown for signed-in users only. --header-height set to 88px for new navbar height.
+- **Figma navbar:** DiscoverStickyHeader updated to Figma style from same code pack: sticky, max-w-[90rem], px-6 lg:px-12, py-5, logo from /home/ember-logo.png, wordmark ÔÇ£EmberÔÇØ text-2xl. No ÔÇ£How it worksÔÇØ or ÔÇ£AboutÔÇØ. Signed-in only: ÔÇ£Manage FamilyÔÇØ, ÔÇ£AccountÔÇØ, ÔÇ£Sign outÔÇØ. Signed-out: ÔÇ£Get startedÔÇØ CTA. Subnav (SubnavGate) unchanged; still shown for signed-in users only. --header-height set to 88px for new navbar height.
 
 ## Environments
 - Production URL: https://ember-mocha-eight.vercel.app
@@ -1575,11 +1701,11 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - Theme: Theme v1 via ThemeProvider + CSS variables, editable in /app/admin/theme (merged)
 
 ## Auth posture (as of today)
-- Invite-only: ✅ Signups disabled in Supabase Auth
-- Friends sign-in: ✅ Magic link (existing users only; no auto-create)
-- Admin sign-in: ✅ Email + Password (admin user created directly in Supabase Auth Users)
-- Forgot password / email recovery: ❌ NOT reliable in current maturity state (no custom domain; email delivery inconsistent)
-- Resend: ✅ Account created | ❌ NOT wired into Supabase (deferred)
+- Invite-only: Ô£à Signups disabled in Supabase Auth
+- Friends sign-in: Ô£à Magic link (existing users only; no auto-create)
+- Admin sign-in: Ô£à Email + Password (admin user created directly in Supabase Auth Users)
+- Forgot password / email recovery: ÔØî NOT reliable in current maturity state (no custom domain; email delivery inconsistent)
+- Resend: Ô£à Account created | ÔØî NOT wired into Supabase (deferred)
 
 ## Supabase Auth redirect allowlist (high level)
 - Includes: localhost, production, wildcard Vercel previews, /auth/callback, /reset-password
@@ -1588,11 +1714,11 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 ## Proof-of-done routes (source of truth)
 - /signin
 - /auth/callback
-- /app (logged out → redirect to /signin?next=/app)
+- /app (logged out ÔåÆ redirect to /signin?next=/app)
 - /add-children (add-child form only; list lives on /family; /app/children redirects here)
-- /add-children/[id] (edit child; back/save/delete → /family)
-- /app/children, /app/children/new → redirect to /add-children
-- /app/children/[id] → redirect to /add-children/[id]
+- /add-children/[id] (edit child; back/save/delete ÔåÆ /family)
+- /app/children, /app/children/new ÔåÆ redirect to /add-children
+- /app/children/[id] ÔåÆ redirect to /add-children/[id]
 - /app/recs
 - /ping
 - /cms/lego-kit-demo
@@ -1603,12 +1729,12 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - /family (Manage My Family dashboard; Child profiles list below header; auth-gated, list + child data, images/toggle/remind/gift; save/delete from add-children redirect here with ?saved=1|?deleted=1)
 
 ## Open PR policy
-- Keep ≤ 1 open “feature PR” at a time (currently: #79 only).
+- Keep Ôëñ 1 open ÔÇ£feature PRÔÇØ at a time (currently: #79 only).
 - Merge strategy: Rebase & merge.
 - Conflict strategy: resolve locally via rebase (never GitHub UI conflict buttons).
 
 ## Current open PRs
-- #79 feat(auth): admin password login + reset flows (12A) — OPEN
+- #79 feat(auth): admin password login + reset flows (12A) ÔÇö OPEN
 
 ## Known issues (active)
 1) Branding/theme only renders after sign-in on some public routes (reported: / and /signin at minimum). Must be fixed so logged-out users see correct branding.
@@ -1616,130 +1742,130 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 
 ---
 
-## PR0 — Feb 2026 Auth Baseline Audit Receipt (no behavior changes)
+## PR0 ÔÇö Feb 2026 Auth Baseline Audit Receipt (no behavior changes)
 
 - **What changed:** Added Feb 2026 Auth Baseline Audit docs; no runtime changes. New: `web/docs/FEB_2026_AUTH_BASELINE.md`, `web/docs/FEB_2026_DECISION_LOG.md`.
 - **Proof:** `pnpm -C web build` passes (run on main after pull).
-- **PR:** [PR URL placeholder — fill after PR is opened]
+- **PR:** [PR URL placeholder ÔÇö fill after PR is opened]
 
 ---
 
-## PR1 — Auth Modal + Session Plumbing (Apple/Google/Email OTP)
+## PR1 ÔÇö Auth Modal + Session Plumbing (Apple/Google/Email OTP)
 
-- **What changed:** Upgraded SaveToListModal to auth modal with Apple/Google (feature-flagged), Email OTP (6-digit in-modal); fixed auth callback and confirm routes to set session cookies via route-handler Supabase client; DiscoverStickyHeader shows “Signed in” when authed; OAuth return-to via `next` param; added `web/docs/FEB_2026_AUTH_SETUP.md` and `web/src/lib/auth-flags.ts`.
-- **Proof:** `pnpm -C web build` passes. Manual: open Vercel Preview → /discover/26 → “Save to my list” → Email OTP flow → verify code → modal closes, header shows “Signed in”.
-- **PR:** [PR URL placeholder — fill after PR is opened]
+- **What changed:** Upgraded SaveToListModal to auth modal with Apple/Google (feature-flagged), Email OTP (6-digit in-modal); fixed auth callback and confirm routes to set session cookies via route-handler Supabase client; DiscoverStickyHeader shows ÔÇ£Signed inÔÇØ when authed; OAuth return-to via `next` param; added `web/docs/FEB_2026_AUTH_SETUP.md` and `web/src/lib/auth-flags.ts`.
+- **Proof:** `pnpm -C web build` passes. Manual: open Vercel Preview ÔåÆ /discover/26 ÔåÆ ÔÇ£Save to my listÔÇØ ÔåÆ Email OTP flow ÔåÆ verify code ÔåÆ modal closes, header shows ÔÇ£Signed inÔÇØ.
+- **PR:** [PR URL placeholder ÔÇö fill after PR is opened]
 
 ### PR1 mini-step: OTP template docs + error UX
 
-- **What changed:** (1) Docs: `FEB_2026_AUTH_SETUP.md` now includes section “Email OTP: show a 6-digit code in the email” — Magic link template must include `{{ .Token }}`, with Founder click path (Authentication → Email → Templates → Magic link → add `{{ .Token }}` → Save) and note that with custom SMTP OFF, Supabase rate limits may apply (OK for prototype). (2) In-app: when OTP send fails, modal shows “We couldn’t send a code right now. Please try again in a minute.” and, for email-delivery/5xx errors, a second line: “If this keeps happening, we may need to fix email delivery settings in Supabase.”; “Send code” becomes “Try again in Xs” with 60s cooldown; dev-only `console.warn` for send failure (no secrets). (3) Code step copy: “Check your email for a 6-digit code. We sent it to {email}.”
+- **What changed:** (1) Docs: `FEB_2026_AUTH_SETUP.md` now includes section ÔÇ£Email OTP: show a 6-digit code in the emailÔÇØ ÔÇö Magic link template must include `{{ .Token }}`, with Founder click path (Authentication ÔåÆ Email ÔåÆ Templates ÔåÆ Magic link ÔåÆ add `{{ .Token }}` ÔåÆ Save) and note that with custom SMTP OFF, Supabase rate limits may apply (OK for prototype). (2) In-app: when OTP send fails, modal shows ÔÇ£We couldnÔÇÖt send a code right now. Please try again in a minute.ÔÇØ and, for email-delivery/5xx errors, a second line: ÔÇ£If this keeps happening, we may need to fix email delivery settings in Supabase.ÔÇØ; ÔÇ£Send codeÔÇØ becomes ÔÇ£Try again in XsÔÇØ with 60s cooldown; dev-only `console.warn` for send failure (no secrets). (3) Code step copy: ÔÇ£Check your email for a 6-digit code. We sent it to {email}.ÔÇØ
 - **Proof:** `pnpm -C web build` passes.
 - **Note:** The Supabase Magic link template change (adding `{{ .Token }}`) was done by Founder (Tim) in the dashboard; this commit only documents it and improves error UX.
 
 ### PR1: OTP success confirmation step
 
-- **What changed:** After OTP verify succeeds, modal shows “You’re signed in” / “Nice — you can save ideas now.” for ~1s, then closes and calls `onAuthSuccess`. Timeout stored in ref and cleared on modal close or unmount to avoid state update on unmounted component.
+- **What changed:** After OTP verify succeeds, modal shows ÔÇ£YouÔÇÖre signed inÔÇØ / ÔÇ£Nice ÔÇö you can save ideas now.ÔÇØ for ~1s, then closes and calls `onAuthSuccess`. Timeout stored in ref and cleared on modal close or unmount to avoid state update on unmounted component.
 - **Proof:** `pnpm -C web build` passes.
-## PR2 — Gate actions + replay after sign-in (no anonymous saves)
+## PR2 ÔÇö Gate actions + replay after sign-in (no anonymous saves)
 
 - **Goal:** Gate first actions (Save / Have / Join) behind auth and replay the intended action once after sign-in. No anonymous saves.
-- **What changed:** New shared utility `web/src/lib/auth/requireAuthThen.ts` (requireAuthThen, consumePendingAuthAction, replayPendingAuthAction). Pending action stored in sessionStorage key `ember.pendingAuthAction.v1`; replayed in one place only: DiscoveryPageClient on auth state (mount + onAuthStateChange). All four triggers now use requireAuthThen: Save category (Layer B), Save product (Layer C), Have category, Have product. “Join free” in discover header opens auth modal via `?openAuth=1` and URL is cleaned; no replay for join-only. Replay validates returnUrl matches current path; on failure shows toast: “Signed in — we couldn’t save that just now. Please try again.”
+- **What changed:** New shared utility `web/src/lib/auth/requireAuthThen.ts` (requireAuthThen, consumePendingAuthAction, replayPendingAuthAction). Pending action stored in sessionStorage key `ember.pendingAuthAction.v1`; replayed in one place only: DiscoveryPageClient on auth state (mount + onAuthStateChange). All four triggers now use requireAuthThen: Save category (Layer B), Save product (Layer C), Have category, Have product. ÔÇ£Join freeÔÇØ in discover header opens auth modal via `?openAuth=1` and URL is cleaned; no replay for join-only. Replay validates returnUrl matches current path; on failure shows toast: ÔÇ£Signed in ÔÇö we couldnÔÇÖt save that just now. Please try again.ÔÇØ
 - **Key files:** `web/src/lib/auth/requireAuthThen.ts`, `web/src/app/discover/[months]/DiscoveryPageClient.tsx`, `web/src/components/discover/DiscoverStickyHeader.tsx`.
 - **Proof:** `pnpm -C web build` passes. Vercel Preview: [PR URL].
-- **Manual QA (browser):** Guest on /discover/26 → Save category → auth modal → sign in → action replays (toast/modal). Same for Save product, Have it already. Join free → modal opens; after sign-in stay on page. Guest browsing works; no sign-in on load.
+- **Manual QA (browser):** Guest on /discover/26 ÔåÆ Save category ÔåÆ auth modal ÔåÆ sign in ÔåÆ action replays (toast/modal). Same for Save product, Have it already. Join free ÔåÆ modal opens; after sign-in stay on page. Guest browsing works; no sign-in on load.
 - **Rollback:** Revert PR2 commits; main remains deployable.
 
 ---
 
-## PR3+4 — Account hardening: optional password + link providers
+## PR3+4 ÔÇö Account hardening: optional password + link providers
 
-- **Goal:** Single PR: (1) Set a password (optional) after OTP sign-in; (2) Password sign-in + Forgot password working; (3) Explicit “Link Google” / “Link Apple” on /account. No automatic merges; no anonymous saves.
-- **What changed:** New `/account` page (protected by middleware): signed-in email, “Set a password (optional)” form (updateUser password, success message per spec), “Link Google” / “Link Apple” (feature-flagged; linkIdentity with redirectTo `/auth/callback?next=/account`). DiscoverStickyHeader: “Account” link when signed in. Middleware: protect `/account` (redirect to signin?next=/account). Docs: `FEB_2026_AUTH_SETUP.md` sections 7 (Set password), 8 (Account linking); `FEB_2026_DECISION_LOG.md` PR3+4 entry.
-- **Proof:** `pnpm -C web build` passes. Manual QA: OTP sign-in from /discover → /account → set password → success message; sign out → /signin/password works; forgot/reset flow; linking (when flags + Supabase configured) returns to /account.
+- **Goal:** Single PR: (1) Set a password (optional) after OTP sign-in; (2) Password sign-in + Forgot password working; (3) Explicit ÔÇ£Link GoogleÔÇØ / ÔÇ£Link AppleÔÇØ on /account. No automatic merges; no anonymous saves.
+- **What changed:** New `/account` page (protected by middleware): signed-in email, ÔÇ£Set a password (optional)ÔÇØ form (updateUser password, success message per spec), ÔÇ£Link GoogleÔÇØ / ÔÇ£Link AppleÔÇØ (feature-flagged; linkIdentity with redirectTo `/auth/callback?next=/account`). DiscoverStickyHeader: ÔÇ£AccountÔÇØ link when signed in. Middleware: protect `/account` (redirect to signin?next=/account). Docs: `FEB_2026_AUTH_SETUP.md` sections 7 (Set password), 8 (Account linking); `FEB_2026_DECISION_LOG.md` PR3+4 entry.
+- **Proof:** `pnpm -C web build` passes. Manual QA: OTP sign-in from /discover ÔåÆ /account ÔåÆ set password ÔåÆ success message; sign out ÔåÆ /signin/password works; forgot/reset flow; linking (when flags + Supabase configured) returns to /account.
 - **Rollback:** Revert this PR; main remains usable via OTP.
 
 ---
 
-## PR5 — Enable Google + Apple SSO (flags + setup + QA)
+## PR5 ÔÇö Enable Google + Apple SSO (flags + setup + QA)
 
 - **Goal:** Make Google/Apple provider enablement production-ready via documentation and founder QA script. No code changes unless callback/linking breaks; flags remain env-only.
-- **What changed:** Docs only. `web/docs/FEB_2026_AUTH_SETUP.md`: new sections **2a** Enable Google SSO (Founder click-path: Supabase + Google Console + redirect URLs), **2b** Enable Apple SSO (Founder click-path), **2c** Redirect URL allowlist, **3** Vercel Environment Variables (keys/values, keep flags OFF until Supabase setup complete), **10** QA Script (Browser-only) — Test 1 Google sign-in from /discover, Test 2 Apple sign-in, Test 3 Linking while signed in, Test 4 Regression (guest, OTP, sign out). Section numbers 3–9 renumbered to 4–9.
+- **What changed:** Docs only. `web/docs/FEB_2026_AUTH_SETUP.md`: new sections **2a** Enable Google SSO (Founder click-path: Supabase + Google Console + redirect URLs), **2b** Enable Apple SSO (Founder click-path), **2c** Redirect URL allowlist, **3** Vercel Environment Variables (keys/values, keep flags OFF until Supabase setup complete), **10** QA Script (Browser-only) ÔÇö Test 1 Google sign-in from /discover, Test 2 Apple sign-in, Test 3 Linking while signed in, Test 4 Regression (guest, OTP, sign out). Section numbers 3ÔÇô9 renumbered to 4ÔÇô9.
 - **Proof:** `pnpm -C web build` passes. No code changes; mergeable even if providers not configured.
 - **Rollback:** Set `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE` / `NEXT_PUBLIC_AUTH_ENABLE_APPLE` to `false` in Vercel (no code revert needed).
 
 ---
 
-## UI — Google icon on auth modal button
+## UI ÔÇö Google icon on auth modal button
 
-- **What changed:** Added Google “G” icon to the “Continue with Google” button in the auth modal (SaveToListModal). New `web/src/components/icons/GoogleMark.tsx` (18px inline SVG, aria-hidden); button keeps label “Continue with Google” and existing gap-2 layout. Same “Logo + Continue with Google” option added on `/signin` (gated by `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE`, same OAuth redirectTo pattern). Removed “Admin?” text from signin page; “Sign in with password” link kept. No auth logic, flags, or redirect changes.
+- **What changed:** Added Google ÔÇ£GÔÇØ icon to the ÔÇ£Continue with GoogleÔÇØ button in the auth modal (SaveToListModal). New `web/src/components/icons/GoogleMark.tsx` (18px inline SVG, aria-hidden); button keeps label ÔÇ£Continue with GoogleÔÇØ and existing gap-2 layout. Same ÔÇ£Logo + Continue with GoogleÔÇØ option added on `/signin` (gated by `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE`, same OAuth redirectTo pattern). Removed ÔÇ£Admin?ÔÇØ text from signin page; ÔÇ£Sign in with passwordÔÇØ link kept. No auth logic, flags, or redirect changes.
 - **Proof:** `pnpm -C web build` passes. With `NEXT_PUBLIC_AUTH_ENABLE_GOOGLE=true`, modal and /signin show icon + label; with flag off, buttons remain hidden.
 - **Rollback:** Revert the commit(s) on the branch.
 
 ---
 
-## PR — /family dashboard shell (visual + auth gate, no DB)
+## PR ÔÇö /family dashboard shell (visual + auth gate, no DB)
 
-- **Goal:** Add authenticated `/family` route (“Manage My Family” dashboard) as a production-quality visual shell matching the Figma Manage Family prototype layout. No DB reads or writes; placeholder/skeleton data only.
-- **What changed:** New route `web/src/app/family/page.tsx` (server component: `createClient().auth.getUser()`; if no user → `FamilySignInRequired`, else → `FamilyDashboardClient`). New components: `web/src/components/family/FamilySignInRequired.tsx` (signed-out state: “Sign in to manage your family” + CTA to `/signin?next=/family` and link to `/discover?returnTo=/family`); `web/src/components/family/FamilyDashboardClient.tsx` (shell: header “Manage My Family”, child chips strip with one placeholder child, personalization strip “Today for {displayName}” with optional name fallback “My child”, two-column layout: left = My list with Ideas/Products/Gifts tabs + skeleton card with **Want** and **Gift** as two separate controls, right = Next steps, Reminders, Settings; all actions “Coming soon” or placeholder).
-- **Intentionally placeholder:** Children list (one neutral “— · —” chip); saved counts (0); list items (one skeleton card with Want/Gift toggles, no persistence); reminders toggle; Add child, Filter, Search, Share my list.
-- **QA (founder):** 1) Signed out: go to `/family` → see “Sign in to manage your family” and “Sign in” button; 2) Sign in, go to `/family` → see full shell with “Manage My Family” header, child chip “— · —”, “Today for My child” strip, My list (Ideas/Products/Gifts tabs), one skeleton card with Want + Gift checkboxes, Next steps / Remind me / Settings; 3) Build: `cd web && pnpm install && pnpm run build` passes.
+- **Goal:** Add authenticated `/family` route (ÔÇ£Manage My FamilyÔÇØ dashboard) as a production-quality visual shell matching the Figma Manage Family prototype layout. No DB reads or writes; placeholder/skeleton data only.
+- **What changed:** New route `web/src/app/family/page.tsx` (server component: `createClient().auth.getUser()`; if no user ÔåÆ `FamilySignInRequired`, else ÔåÆ `FamilyDashboardClient`). New components: `web/src/components/family/FamilySignInRequired.tsx` (signed-out state: ÔÇ£Sign in to manage your familyÔÇØ + CTA to `/signin?next=/family` and link to `/discover?returnTo=/family`); `web/src/components/family/FamilyDashboardClient.tsx` (shell: header ÔÇ£Manage My FamilyÔÇØ, child chips strip with one placeholder child, personalization strip ÔÇ£Today for {displayName}ÔÇØ with optional name fallback ÔÇ£My childÔÇØ, two-column layout: left = My list with Ideas/Products/Gifts tabs + skeleton card with **Want** and **Gift** as two separate controls, right = Next steps, Reminders, Settings; all actions ÔÇ£Coming soonÔÇØ or placeholder).
+- **Intentionally placeholder:** Children list (one neutral ÔÇ£ÔÇö ┬À ÔÇöÔÇØ chip); saved counts (0); list items (one skeleton card with Want/Gift toggles, no persistence); reminders toggle; Add child, Filter, Search, Share my list.
+- **QA (founder):** 1) Signed out: go to `/family` ÔåÆ see ÔÇ£Sign in to manage your familyÔÇØ and ÔÇ£Sign inÔÇØ button; 2) Sign in, go to `/family` ÔåÆ see full shell with ÔÇ£Manage My FamilyÔÇØ header, child chip ÔÇ£ÔÇö ┬À ÔÇöÔÇØ, ÔÇ£Today for My childÔÇØ strip, My list (Ideas/Products/Gifts tabs), one skeleton card with Want + Gift checkboxes, Next steps / Remind me / Settings; 3) Build: `cd web && pnpm install && pnpm run build` passes.
 - **Follow-on PRs (not in this PR):** Wire children from DB; wire saved ideas/products/gifts from DB; persist Want/Gift/reminders; Add child flow; Filter/Search; Share my list.
 - **Rollback:** Revert PR or delete `web/src/app/family/` and `web/src/components/family/`. No DB/RLS changes.
 
 ---
 
-## PR — /family My list plumbing (user_list_items + Want/Have/Gift)
+## PR ÔÇö /family My list plumbing (user_list_items + Want/Have/Gift)
 
-- **Goal:** Implement real, persistent “My list” with Want/Have/Gift flags; wire /family to show real counts and items; wire Discover “Save idea” and “Have them” to persist to a single canonical table.
+- **Goal:** Implement real, persistent ÔÇ£My listÔÇØ with Want/Have/Gift flags; wire /family to show real counts and items; wire Discover ÔÇ£Save ideaÔÇØ and ÔÇ£Have themÔÇØ to persist to a single canonical table.
 - **Ground truth:** Existing save tables `user_saved_products` and `user_saved_ideas` (supabase/sql/202602190000_subnav_saves_and_consent.sql) were actively used by DiscoveryPageClient. This PR adds a new canonical table `user_list_items` with unified semantics (Want, Have, Gift; Gift implies Want), backfills from those tables, and switches all writes to `user_list_items`. get_my_subnav_stats now counts from user_list_items.
-- **What changed:** (1) **DB:** New migration `supabase/sql/202602250000_family_user_list_items.sql`: table `public.user_list_items` (id, user_id, child_id, kind, ux_wrapper_id, category_type_id, product_id, want, have, gift, created_at, updated_at); constraints: kind+ref match, gift⇒want; partial unique indexes per ref type; RLS (auth-only, child ownership for INSERT/UPDATE); backfill from user_saved_products and user_saved_ideas; `get_my_subnav_stats()` updated to count from user_list_items; RPC `upsert_user_list_item(p_kind, p_product_id, p_category_type_id, p_ux_wrapper_id, p_want, p_have, p_gift)`. Verification script `supabase/sql/verify_family_user_list_items.sql`. (2) **Discover:** DiscoveryPageClient save_category, save_product, have_category, have_product (and replay) now call `upsert_user_list_item` instead of user_saved_ideas/user_saved_products. (3) **/family:** FamilyDashboardClient fetches user_list_items (with joins to products, pl_category_types, pl_ux_wrappers), shows real counts and list grid; Want/Gift toggles call upsert (Gift on ⇒ want=true; Want off ⇒ gift=false).
+- **What changed:** (1) **DB:** New migration `supabase/sql/202602250000_family_user_list_items.sql`: table `public.user_list_items` (id, user_id, child_id, kind, ux_wrapper_id, category_type_id, product_id, want, have, gift, created_at, updated_at); constraints: kind+ref match, giftÔçÆwant; partial unique indexes per ref type; RLS (auth-only, child ownership for INSERT/UPDATE); backfill from user_saved_products and user_saved_ideas; `get_my_subnav_stats()` updated to count from user_list_items; RPC `upsert_user_list_item(p_kind, p_product_id, p_category_type_id, p_ux_wrapper_id, p_want, p_have, p_gift)`. Verification script `supabase/sql/verify_family_user_list_items.sql`. (2) **Discover:** DiscoveryPageClient save_category, save_product, have_category, have_product (and replay) now call `upsert_user_list_item` instead of user_saved_ideas/user_saved_products. (3) **/family:** FamilyDashboardClient fetches user_list_items (with joins to products, pl_category_types, pl_ux_wrappers), shows real counts and list grid; Want/Gift toggles call upsert (Gift on ÔçÆ want=true; Want off ÔçÆ gift=false).
 - **Founder runbook:** See PR description: copy/paste migration block into Supabase SQL Editor, then verification block.
 - **Remains (out of scope):** Add child modal persistence; Remind me preference persistence; gift list sharing links.
 - **Rollback:** Code: revert PR. DB: `DROP TABLE IF EXISTS public.user_list_items CASCADE;` then re-run `202602190000_subnav_saves_and_consent.sql` to restore get_my_subnav_stats to read from user_saved_* (or leave function as-is if no revert of migration).
 
 ---
 
-## Fix — Discover “Save idea” dead link + /family sync with subnav
+## Fix ÔÇö Discover ÔÇ£Save ideaÔÇØ dead link + /family sync with subnav
 
-- **Bugs addressed:** (1) On /discover, “Save idea” / “Save” did nothing (RPC missing or silent failure). (2) Subnav showed “3 ideas” but /family showed 0 (family only read `user_list_items`; when migration not applied, table missing or empty).
-- **What changed:** (1) **Discover:** `handleSaveCategory` and `handleSaveToList` (and replay handlers) now try `upsert_user_list_item` RPC first; if it fails with function/relation missing (e.g. code 42883), fall back to legacy `user_saved_ideas` / `user_saved_products` upsert so Save idea/Save work before migration. Success path shows a “Saved.” toast. (2) **/family:** `FamilyDashboardClient` `fetchList` tries `user_list_items` first; on error (e.g. 42P01 or “user_list_items does not exist”), falls back to fetching `user_saved_ideas` and `user_saved_products` and mapping to the same list shape so Ideas/Products tabs show the same counts as the subnav.
-- **Proof:** `pnpm -C web build` passes. Manual: sign in → /discover → click “Save idea” on a category → see “Saved.” toast and subnav count update; go to /family → Ideas tab shows saved ideas. If migration not applied, both Save and /family still work via legacy tables.
+- **Bugs addressed:** (1) On /discover, ÔÇ£Save ideaÔÇØ / ÔÇ£SaveÔÇØ did nothing (RPC missing or silent failure). (2) Subnav showed ÔÇ£3 ideasÔÇØ but /family showed 0 (family only read `user_list_items`; when migration not applied, table missing or empty).
+- **What changed:** (1) **Discover:** `handleSaveCategory` and `handleSaveToList` (and replay handlers) now try `upsert_user_list_item` RPC first; if it fails with function/relation missing (e.g. code 42883), fall back to legacy `user_saved_ideas` / `user_saved_products` upsert so Save idea/Save work before migration. Success path shows a ÔÇ£Saved.ÔÇØ toast. (2) **/family:** `FamilyDashboardClient` `fetchList` tries `user_list_items` first; on error (e.g. 42P01 or ÔÇ£user_list_items does not existÔÇØ), falls back to fetching `user_saved_ideas` and `user_saved_products` and mapping to the same list shape so Ideas/Products tabs show the same counts as the subnav.
+- **Proof:** `pnpm -C web build` passes. Manual: sign in ÔåÆ /discover ÔåÆ click ÔÇ£Save ideaÔÇØ on a category ÔåÆ see ÔÇ£Saved.ÔÇØ toast and subnav count update; go to /family ÔåÆ Ideas tab shows saved ideas. If migration not applied, both Save and /family still work via legacy tables.
 - **Rollback:** Revert the commit(s) that added fallbacks.
 
 ---
 
-## Fix — /family Figma prototype alignment (cards + child data)
+## Fix ÔÇö /family Figma prototype alignment (cards + child data)
 
 - **Goal:** Align /family dashboard with Figma Manage Family prototype: card visuals (image, title, saved time, Want/Have pill, examples + Gift list), and child data from profile.
-- **What changed:** (1) **Child data:** FamilyDashboardClient fetches real children from `children` table (id, birthdate, age_band); child chips show “My child · {ageBand}” (age from age_band or calculateAgeBand(birthdate)); “+ Add child” links to /app/children/new. Personalization strip uses “My child (aged X): —” and a short next-steps placeholder. (2) **List cards (Figma-style):** List items use card layout: aspect-square image (from pl_category_types.image_url or products.image_url), title, “Saved X ago”, Want/Have pill toggle, “examples” (link to /discover), “+ Gift list” (toggles gift); gift badge (Gift icon) on image when row.gift. Fetch includes image_url in products and pl_category_types joins (and legacy fallback). (3) **Next steps / Remind me:** Copy updated to match placeholder messaging.
-- **Proof:** `pnpm -C web build` passes. Manual: sign in → /family → child chips show real profiles or “My child · —”; list cards show image, title, saved time, Want/Have pill, examples, Gift list.
+- **What changed:** (1) **Child data:** FamilyDashboardClient fetches real children from `children` table (id, birthdate, age_band); child chips show ÔÇ£My child ┬À {ageBand}ÔÇØ (age from age_band or calculateAgeBand(birthdate)); ÔÇ£+ Add childÔÇØ links to /app/children/new. Personalization strip uses ÔÇ£My child (aged X): ÔÇöÔÇØ and a short next-steps placeholder. (2) **List cards (Figma-style):** List items use card layout: aspect-square image (from pl_category_types.image_url or products.image_url), title, ÔÇ£Saved X agoÔÇØ, Want/Have pill toggle, ÔÇ£examplesÔÇØ (link to /discover), ÔÇ£+ Gift listÔÇØ (toggles gift); gift badge (Gift icon) on image when row.gift. Fetch includes image_url in products and pl_category_types joins (and legacy fallback). (3) **Next steps / Remind me:** Copy updated to match placeholder messaging.
+- **Proof:** `pnpm -C web build` passes. Manual: sign in ÔåÆ /family ÔåÆ child chips show real profiles or ÔÇ£My child ┬À ÔÇöÔÇØ; list cards show image, title, saved time, Want/Have pill, examples, Gift list.
 - **Rollback:** Revert the commit(s).
 
 ---
 
-## Fix — /family: images, Want/Have toggle, Remind me sync, Gift list
+## Fix ÔÇö /family: images, Want/Have toggle, Remind me sync, Gift list
 
-- **Goal:** Match Figma and fix four issues: (1) list card images from same source as /discover; (2) Want/Have as a single toggle; (3) Remind me as toggle in sync with subnav; (4) “+ Gift list” working with “Successfully added” feedback.
-- **What changed:** (1) **Images:** Family list cards use `v_gateway_category_type_images` for category/idea images (same as /discover). After loading items, component fetches that view by `category_type_id` and merges into `categoryImageMap`; `getItemImageUrl(row, categoryImageMap)` prefers the map for category/idea, then falls back to joined `pl_category_types.image_url` or `products.image_url`. (2) **Want/Have:** Single pill control with `role="group"` and `aria-pressed` so it reads as one toggle (Want | Have). (3) **Remind me:** Replaced checkbox with `SubnavSwitch`; state comes from `useSubnavStats().stats.remindersEnabled`; `handleRemindersChange` upserts `user_notification_prefs.development_reminders_enabled` and calls `refetchSubnavStats()` so /family and subnav stay in sync. (4) **Gift list:** “+ Gift list” calls `updateItem(row, { gift: true })` (await); `updateItem` returns `Promise<boolean>`. On success, set `giftSuccessId` and show green “Successfully added” for 3s, then “On gift list”. If already on list, show “On gift list” only.
-- **Proof:** `pnpm -C web build` passes. Manual: /family list cards show discover images when present; Want/Have is one pill; Remind me toggle matches subnav; click “+ Gift list” → “Successfully added” (green) → “On gift list”, item in Gifts tab.
+- **Goal:** Match Figma and fix four issues: (1) list card images from same source as /discover; (2) Want/Have as a single toggle; (3) Remind me as toggle in sync with subnav; (4) ÔÇ£+ Gift listÔÇØ working with ÔÇ£Successfully addedÔÇØ feedback.
+- **What changed:** (1) **Images:** Family list cards use `v_gateway_category_type_images` for category/idea images (same as /discover). After loading items, component fetches that view by `category_type_id` and merges into `categoryImageMap`; `getItemImageUrl(row, categoryImageMap)` prefers the map for category/idea, then falls back to joined `pl_category_types.image_url` or `products.image_url`. (2) **Want/Have:** Single pill control with `role="group"` and `aria-pressed` so it reads as one toggle (Want | Have). (3) **Remind me:** Replaced checkbox with `SubnavSwitch`; state comes from `useSubnavStats().stats.remindersEnabled`; `handleRemindersChange` upserts `user_notification_prefs.development_reminders_enabled` and calls `refetchSubnavStats()` so /family and subnav stay in sync. (4) **Gift list:** ÔÇ£+ Gift listÔÇØ calls `updateItem(row, { gift: true })` (await); `updateItem` returns `Promise<boolean>`. On success, set `giftSuccessId` and show green ÔÇ£Successfully addedÔÇØ for 3s, then ÔÇ£On gift listÔÇØ. If already on list, show ÔÇ£On gift listÔÇØ only.
+- **Proof:** `pnpm -C web build` passes. Manual: /family list cards show discover images when present; Want/Have is one pill; Remind me toggle matches subnav; click ÔÇ£+ Gift listÔÇØ ÔåÆ ÔÇ£Successfully addedÔÇØ (green) ÔåÆ ÔÇ£On gift listÔÇØ, item in Gifts tab.
 - **Rollback:** Revert the commit(s).
 
 ---
 
-## Fix — /family: Want/Have slider, Gift list button, Product images
+## Fix ÔÇö /family: Want/Have slider, Gift list button, Product images
 
-- **Bugs addressed:** (1) Want/Have in My list was pill buttons, not a toggle slider; (2) “+ Gift list” still dead (click not adding to Gifts tab); (3) Products tab images not pulling through (same source as /discover).
-- **What changed:** (1) **Want/Have:** Replaced pill with `SubnavSwitch` (sliding toggle) with “Want” and “Have” labels; `checked={row.have}`, `onCheckedChange` calls `updateItem(row, { have: checked })`. (2) **Gift list:** Button uses `e.preventDefault()` and `e.stopPropagation()`; handler calls `updateItem(row, { gift: true }).then(ok => …)` so the promise is handled and success sets `giftSuccessId` for “Successfully added” feedback. (3) **Product images:** Same source as /discover: after loading items, fetch `v_gateway_products_public` for product ids in the list (`select('id, image_url').in('id', productIds)`), build `productImageMap`; `getItemImageUrl(row, categoryImageMap, productImageMap)` uses `productImageMap` for product rows first, then joined `products.image_url`.
-- **Proof:** `pnpm -C web build` passes. Manual: /family Ideas & Products tabs show Want/Have as a switch; “+ Gift list” adds item to Gifts tab and shows “Successfully added”; Products tab cards show images when present in gateway.
+- **Bugs addressed:** (1) Want/Have in My list was pill buttons, not a toggle slider; (2) ÔÇ£+ Gift listÔÇØ still dead (click not adding to Gifts tab); (3) Products tab images not pulling through (same source as /discover).
+- **What changed:** (1) **Want/Have:** Replaced pill with `SubnavSwitch` (sliding toggle) with ÔÇ£WantÔÇØ and ÔÇ£HaveÔÇØ labels; `checked={row.have}`, `onCheckedChange` calls `updateItem(row, { have: checked })`. (2) **Gift list:** Button uses `e.preventDefault()` and `e.stopPropagation()`; handler calls `updateItem(row, { gift: true }).then(ok => ÔÇª)` so the promise is handled and success sets `giftSuccessId` for ÔÇ£Successfully addedÔÇØ feedback. (3) **Product images:** Same source as /discover: after loading items, fetch `v_gateway_products_public` for product ids in the list (`select('id, image_url').in('id', productIds)`), build `productImageMap`; `getItemImageUrl(row, categoryImageMap, productImageMap)` uses `productImageMap` for product rows first, then joined `products.image_url`.
+- **Proof:** `pnpm -C web build` passes. Manual: /family Ideas & Products tabs show Want/Have as a switch; ÔÇ£+ Gift listÔÇØ adds item to Gifts tab and shows ÔÇ£Successfully addedÔÇØ; Products tab cards show images when present in gateway.
 - **Rollback:** Revert the commit(s).
 
 ---
 
-## Fix — /family: Toggles + Gift list + Product images (optimistic UI + errors + image fallback)
+## Fix ÔÇö /family: Toggles + Gift list + Product images (optimistic UI + errors + image fallback)
 
-- **Bugs addressed:** Want/Have toggles and Gift list button still not working; product images showing “No image”.
-- **What changed:** (1) **Optimistic UI:** Added `optimisticHave` and `optimisticGift` state so the toggle and “+ Gift list” update immediately on click; on RPC failure state reverts. (2) **Error feedback:** `updateItem` now sets `actionError` on RPC failure (and on “function does not exist” shows “My list isn’t set up yet. Run the database migration.”); error message shown above the list. (3) **Product images:** Product image fetch now uses both `v_gateway_products_public` and `products` table (`Promise.all`); first fill from gateway view, then fill missing from `products.id, image_url` so images show when gateway has no row for that product. (4) **Handlers:** Want/Have uses dedicated `handleHaveChange` that sets optimistic state then calls `updateItem`; Gift list handler sets `optimisticGift` then `updateItem`, reverts on failure.
-- **Proof:** `pnpm -C web build` passes. Manual: /family → toggle Want/Have (moves immediately; if migration not applied, reverts and shows error); click “+ Gift list” (shows “Successfully added” or error); Products tab shows image when present in gateway or products table.
+- **Bugs addressed:** Want/Have toggles and Gift list button still not working; product images showing ÔÇ£No imageÔÇØ.
+- **What changed:** (1) **Optimistic UI:** Added `optimisticHave` and `optimisticGift` state so the toggle and ÔÇ£+ Gift listÔÇØ update immediately on click; on RPC failure state reverts. (2) **Error feedback:** `updateItem` now sets `actionError` on RPC failure (and on ÔÇ£function does not existÔÇØ shows ÔÇ£My list isnÔÇÖt set up yet. Run the database migration.ÔÇØ); error message shown above the list. (3) **Product images:** Product image fetch now uses both `v_gateway_products_public` and `products` table (`Promise.all`); first fill from gateway view, then fill missing from `products.id, image_url` so images show when gateway has no row for that product. (4) **Handlers:** Want/Have uses dedicated `handleHaveChange` that sets optimistic state then calls `updateItem`; Gift list handler sets `optimisticGift` then `updateItem`, reverts on failure.
+- **Proof:** `pnpm -C web build` passes. Manual: /family ÔåÆ toggle Want/Have (moves immediately; if migration not applied, reverts and shows error); click ÔÇ£+ Gift listÔÇØ (shows ÔÇ£Successfully addedÔÇØ or error); Products tab shows image when present in gateway or products table.
 - **Rollback:** Revert the commit(s).
 
 ---
@@ -1750,42 +1876,42 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 - **Source branch:** feat/family-my-list-plumbing (full list plumbing + images, Want/Have toggle, Gift list, child data, Discover fallback).
 - **What changed:** Merged origin/feat/family-my-list-plumbing into feat/prod-sync-family (from main). Resolved conflicts in PROGRESS.md, state/latest.json, FamilyDashboardClient.tsx (kept incoming full dashboard).
 - **Commits included:** 551fd2e (merge), b7c7148, 49d74b9, 7791092, 0ced016, 1728f20, e0dd25b, a80e742. Final SHA after merge: 551fd2e (or GitHub-created merge commit).
-- **PR:** Open at https://github.com/glownest2026-droid/ember/compare/main...feat/prod-sync-family — title: "chore(prod): sync /family improvements to main". Description in `.pr_prod_sync_family_body.md`.
+- **PR:** Open at https://github.com/glownest2026-droid/ember/compare/main...feat/prod-sync-family ÔÇö title: "chore(prod): sync /family improvements to main". Description in `.pr_prod_sync_family_body.md`.
 - **Proof:** cd web && pnpm install && pnpm run build passes. Manual: /family shows real list, toggles, images; Discover Save idea works; apply migration 202602250000 if not already in production.
 - **Rollback:** Revert PR. DB: DROP TABLE IF EXISTS public.user_list_items CASCADE; restore get_my_subnav_stats from 202602190000 if needed.
 
 ---
 
-## Service Pack PR 1 — Navbar polish + counters (2026-02-26)
+## Service Pack PR 1 ÔÇö Navbar polish + counters (2026-02-26)
 
-- **Goal:** One PR: navbar signed-in UX (remove “Signed In” text, move Sign out far right, add “Manage Family” → /family) and fix subnav gift counter so it shows real count, not undefined.
-- **What changed:** (1) **Navbar** (`DiscoverStickyHeader.tsx`): Removed “Signed In” text; layout flex `justify-between` with left group (Logo, Ember, About, Manage Family, Account) and right group (Sign out). “Manage Family” and “Account” visible only when signed in; “Sign out” far right. (2) **Gift counter:** New migration `supabase/sql/202602261000_subnav_gifts_count.sql` — `get_my_subnav_stats()` now returns `gifts_saved_count` (count from `user_list_items` where `user_id = auth.uid()` and `gift = true`). `SubnavStatsContext` reads `gifts_saved_count` from RPC and defaults to 0; `SubnavBar` displays with defensive `typeof stats.giftsSaved === 'number' ? stats.giftsSaved : 0`.
+- **Goal:** One PR: navbar signed-in UX (remove ÔÇ£Signed InÔÇØ text, move Sign out far right, add ÔÇ£Manage FamilyÔÇØ ÔåÆ /family) and fix subnav gift counter so it shows real count, not undefined.
+- **What changed:** (1) **Navbar** (`DiscoverStickyHeader.tsx`): Removed ÔÇ£Signed InÔÇØ text; layout flex `justify-between` with left group (Logo, Ember, About, Manage Family, Account) and right group (Sign out). ÔÇ£Manage FamilyÔÇØ and ÔÇ£AccountÔÇØ visible only when signed in; ÔÇ£Sign outÔÇØ far right. (2) **Gift counter:** New migration `supabase/sql/202602261000_subnav_gifts_count.sql` ÔÇö `get_my_subnav_stats()` now returns `gifts_saved_count` (count from `user_list_items` where `user_id = auth.uid()` and `gift = true`). `SubnavStatsContext` reads `gifts_saved_count` from RPC and defaults to 0; `SubnavBar` displays with defensive `typeof stats.giftsSaved === 'number' ? stats.giftsSaved : 0`.
 - **Routes touched:** Global header (all routes); subnav (signed-in only: /, /discover, /family).
-- **Verification:** Signed OUT: navbar shows only Logo, Ember, About, “Join free”. Signed IN: no “Signed In” text; “Manage Family” (→ /family) and “Account” visible; “Sign out” far right; subnav gift counter shows a number (0 if none), never undefined. Check /, /discover, /family.
+- **Verification:** Signed OUT: navbar shows only Logo, Ember, About, ÔÇ£Join freeÔÇØ. Signed IN: no ÔÇ£Signed InÔÇØ text; ÔÇ£Manage FamilyÔÇØ (ÔåÆ /family) and ÔÇ£AccountÔÇØ visible; ÔÇ£Sign outÔÇØ far right; subnav gift counter shows a number (0 if none), never undefined. Check /, /discover, /family.
 - **Preview URL:** (set after PR opened; Vercel bot comment.)
 - **Known debt:** None. Apply migration `202602261000_subnav_gifts_count.sql` in Supabase SQL Editor if not yet in production so gift counter reflects real data.
 - **Rollback:** Revert PR. If migration was applied: re-run `202602250000_family_user_list_items.sql` PART 3 (get_my_subnav_stats without gifts_saved_count) or leave as-is (extra key in JSON is harmless).
 
 ---
 
-## Service Pack PR 2 — /family Examples modal (2026-02-26)
+## Service Pack PR 2 ÔÇö /family Examples modal (2026-02-26)
 
-- **Goal:** /family “Examples” capitalised; clicking “Examples” on a saved idea opens a modal that shows example cards using the same DiscoverCardStack widget as /discover “Next steps for…” section. No DB/schema changes.
-- **What changed:** (1) **Capitalisation:** “examples” → “Examples” in FamilyDashboardClient list row (link and disabled span). (2) **Examples modal:** New `FamilyExamplesModal` (backdrop, X, Esc) and API route `GET /api/discover/picks?ageBandId=&categoryTypeId=` that returns picks via existing `getGatewayTopPicksForAgeBandAndCategoryType`. For idea/category rows with `category_type_id`, “Examples” opens the modal; modal fetches picks and renders `DiscoverCardStack` (same as /discover). Product rows keep “Examples” as link to /discover. (3) **Save/Have in modal:** Handlers call `upsert_user_list_item` and refetch list/subnav (signed-in only; /family is auth-gated).
+- **Goal:** /family ÔÇ£ExamplesÔÇØ capitalised; clicking ÔÇ£ExamplesÔÇØ on a saved idea opens a modal that shows example cards using the same DiscoverCardStack widget as /discover ÔÇ£Next steps forÔÇªÔÇØ section. No DB/schema changes.
+- **What changed:** (1) **Capitalisation:** ÔÇ£examplesÔÇØ ÔåÆ ÔÇ£ExamplesÔÇØ in FamilyDashboardClient list row (link and disabled span). (2) **Examples modal:** New `FamilyExamplesModal` (backdrop, X, Esc) and API route `GET /api/discover/picks?ageBandId=&categoryTypeId=` that returns picks via existing `getGatewayTopPicksForAgeBandAndCategoryType`. For idea/category rows with `category_type_id`, ÔÇ£ExamplesÔÇØ opens the modal; modal fetches picks and renders `DiscoverCardStack` (same as /discover). Product rows keep ÔÇ£ExamplesÔÇØ as link to /discover. (3) **Save/Have in modal:** Handlers call `upsert_user_list_item` and refetch list/subnav (signed-in only; /family is auth-gated).
 - **Routes touched:** /family; shared reuse: `DiscoverCardStack`, `web/src/components/family/FamilyExamplesModal.tsx`, `web/src/app/api/discover/picks/route.ts`.
-- **Verification:** Signed in → /family → confirm “Examples” capitalised. Click “Examples” on a saved idea (idea or category row) → modal opens with title “Examples for {idea title}”, example cards (same layout as /discover), loading/empty states. Close via X, backdrop click, or Esc. Confirm /discover “Next steps for…” and examples section unchanged (no regression).
+- **Verification:** Signed in ÔåÆ /family ÔåÆ confirm ÔÇ£ExamplesÔÇØ capitalised. Click ÔÇ£ExamplesÔÇØ on a saved idea (idea or category row) ÔåÆ modal opens with title ÔÇ£Examples for {idea title}ÔÇØ, example cards (same layout as /discover), loading/empty states. Close via X, backdrop click, or Esc. Confirm /discover ÔÇ£Next steps forÔÇªÔÇØ and examples section unchanged (no regression).
 - **Preview URL:** (set after PR opened; Vercel bot comment.)
-- **Known debt:** None. PR3 will handle /discover “Saved to …’s ideas” personalisation + CTA link rename to /family.
+- **Known debt:** None. PR3 will handle /discover ÔÇ£Saved to ÔÇªÔÇÖs ideasÔÇØ personalisation + CTA link rename to /family.
 - **Rollback:** Revert PR; no DB changes.
 
 ---
 
-## Service Pack PR 3 — /discover save modal personalisation + CTA to /family (2026-02-26)
+## Service Pack PR 3 ÔÇö /discover save modal personalisation + CTA to /family (2026-02-26)
 
-- **Goal:** After saving an idea on /discover, confirmation modal shows personalised copy (“Saved to {Name}'s ideas” / “your son's ideas” / “your daughter's ideas” / “your child's ideas”) and CTA “View my toy ideas” linking to /family. No DB/schema changes. Also: /family Products tab image sourcing aligned with /discover.
-- **What changed:** (1) **SaveToListModal** (`web/src/components/ui/SaveToListModal.tsx`): Exported helper `savedToCopy({ name, gender })` (UK English; apostrophe “Poppy's ideas”; gender male/m/boy/son → son, female/f/girl/daughter → daughter). (2) When modal is open and signed in, if no `savedToLabel` prop: default headline “Saved to your child's ideas”; fetch first child's `gender` from `children` (user-scoped) and update headline. Optional prop `savedToLabel` lets callers override. (3) Replaced “Saved to your list” with computed label; replaced “View my list” with “View my toy ideas” and `href="/family"`. No name fetched from DB (privacy). (4) **/family Products tab image fix:** `FamilyDashboardClient` product image fetch now uses the same sourcing as /discover “Examples you might like”: query `v_gateway_products_public` with `.order('age_band_id').order('category_type_id').order('rank')` so “first wins” per product is deterministic; then fall back to `products` table for missing. Comment clarified for `getItemImageUrl`. (5) When no image is available, show Lucide ImageOff icon instead of "No image" text. For product rows: replace "Examples" with Search icon + "Visit" linking to retailer URL (same precedence as /discover); productUrlMap built from gateway and products URL columns.
+- **Goal:** After saving an idea on /discover, confirmation modal shows personalised copy (ÔÇ£Saved to {Name}'s ideasÔÇØ / ÔÇ£your son's ideasÔÇØ / ÔÇ£your daughter's ideasÔÇØ / ÔÇ£your child's ideasÔÇØ) and CTA ÔÇ£View my toy ideasÔÇØ linking to /family. No DB/schema changes. Also: /family Products tab image sourcing aligned with /discover.
+- **What changed:** (1) **SaveToListModal** (`web/src/components/ui/SaveToListModal.tsx`): Exported helper `savedToCopy({ name, gender })` (UK English; apostrophe ÔÇ£Poppy's ideasÔÇØ; gender male/m/boy/son ÔåÆ son, female/f/girl/daughter ÔåÆ daughter). (2) When modal is open and signed in, if no `savedToLabel` prop: default headline ÔÇ£Saved to your child's ideasÔÇØ; fetch first child's `gender` from `children` (user-scoped) and update headline. Optional prop `savedToLabel` lets callers override. (3) Replaced ÔÇ£Saved to your listÔÇØ with computed label; replaced ÔÇ£View my listÔÇØ with ÔÇ£View my toy ideasÔÇØ and `href="/family"`. No name fetched from DB (privacy). (4) **/family Products tab image fix:** `FamilyDashboardClient` product image fetch now uses the same sourcing as /discover ÔÇ£Examples you might likeÔÇØ: query `v_gateway_products_public` with `.order('age_band_id').order('category_type_id').order('rank')` so ÔÇ£first winsÔÇØ per product is deterministic; then fall back to `products` table for missing. Comment clarified for `getItemImageUrl`. (5) When no image is available, show Lucide ImageOff icon instead of "No image" text. For product rows: replace "Examples" with Search icon + "Visit" linking to retailer URL (same precedence as /discover); productUrlMap built from gateway and products URL columns.
 - **Routes/components touched:** SaveToListModal (used by /discover); FamilyDashboardClient (Products tab images, no-image icon, product Visit link); DiscoveryPageClient unchanged (does not pass savedToLabel).
-- **Verification:** Signed in on /discover → Save idea → modal shows personalised headline; CTA “View my toy ideas” → /family. No regression to save action. /family → Products tab: product images from gateway/products; no image → ImageOff icon; product rows show Search + "Visit" (retailer link) instead of "Examples".
+- **Verification:** Signed in on /discover ÔåÆ Save idea ÔåÆ modal shows personalised headline; CTA ÔÇ£View my toy ideasÔÇØ ÔåÆ /family. No regression to save action. /family ÔåÆ Products tab: product images from gateway/products; no image ÔåÆ ImageOff icon; product rows show Search + "Visit" (retailer link) instead of "Examples".
 - **Preview URL:** (set after PR opened; Vercel bot comment.)
 - **Known debt:** None. Children table has no name field (privacy); name-based copy only if parent passes `savedToLabel`.
 - **Rollback:** Revert PR; no DB changes.
@@ -1793,22 +1919,22 @@ UPDATE pl_age_band_category_type_products SET is_active = false WHERE age_band_i
 ---
 
 # Decision Log (dated)
-## 2026-02-13 — fix(discover): Show Examples anchor + swipe progress direction (mobile)
+## 2026-02-13 ÔÇö fix(discover): Show Examples anchor + swipe progress direction (mobile)
 
 ### Summary
-- **Anchor lower**: "Show Examples" scroll target was still showing "Chosen for 25–27 months" at the top. Progress bar container scroll-margin changed from `scroll-mt-24` to `scroll-mt-[var(--header-height,4rem)]` so the progress bar is the first visible content (just below the fixed header).
-- **Swipe vs progress**: Swiping the product card was moving the progress bar backwards; arrow clicks correctly moved it forwards. Inverted swipe→direction mapping in DiscoverProductCard: swipe left (offset.x < 0) = next card ('right'), swipe right = previous ('left'), so progress advances when user swipes to reveal the next card.
+- **Anchor lower**: "Show Examples" scroll target was still showing "Chosen for 25ÔÇô27 months" at the top. Progress bar container scroll-margin changed from `scroll-mt-24` to `scroll-mt-[var(--header-height,4rem)]` so the progress bar is the first visible content (just below the fixed header).
+- **Swipe vs progress**: Swiping the product card was moving the progress bar backwards; arrow clicks correctly moved it forwards. Inverted swipeÔåÆdirection mapping in DiscoverProductCard: swipe left (offset.x < 0) = next card ('right'), swipe right = previous ('left'), so progress advances when user swipes to reveal the next card.
 
 ### Files changed
-- `web/src/components/discover/DiscoverCardStack.tsx` — progress bar container scroll-mt uses var(--header-height)
-- `web/src/components/discover/DiscoverProductCard.tsx` — onSwipe(info.offset.x < 0 ? 'right' : 'left')
+- `web/src/components/discover/DiscoverCardStack.tsx` ÔÇö progress bar container scroll-mt uses var(--header-height)
+- `web/src/components/discover/DiscoverProductCard.tsx` ÔÇö onSwipe(info.offset.x < 0 ? 'right' : 'left')
 
 ### Rollback
 Revert commit; no schema changes.
 
 ---
 
-## 2026-02-13 — feat(discover): Replace bottom product cards with Figma Product Cards UI
+## 2026-02-13 ÔÇö feat(discover): Replace bottom product cards with Figma Product Cards UI
 
 ### Summary
 - **Bottom product cards on /discover**: Replaced the "Examples you might like" section (AnimatedTestimonials carousel) with the new Product Cards UI from Figma: swipeable card stack (DiscoverProductCard + DiscoverCardStack) with Save / Have / Visit actions, progress bar, Shuffle/Reset/Prev/Next controls. Data unchanged: still uses `picks` or `exampleProducts` from gateway views (v_gateway_*); no new DB/RLS or fabricated data.
@@ -1816,143 +1942,143 @@ Revert commit; no schema changes.
 - One goal per PR; no hero/doorways/category changes.
 
 ### Files changed
-- `web/src/components/discover/DiscoverProductCard.tsx` — new (Figma-aligned card UI; motion/react)
-- `web/src/components/discover/DiscoverCardStack.tsx` — new (stack + controls)
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — examples section now uses DiscoverCardStack; removed AnimatedTestimonials + albumItems; removed unused imports (Bookmark, Check, ExternalLink, Link, getProductIconKey)
+- `web/src/components/discover/DiscoverProductCard.tsx` ÔÇö new (Figma-aligned card UI; motion/react)
+- `web/src/components/discover/DiscoverCardStack.tsx` ÔÇö new (stack + controls)
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` ÔÇö examples section now uses DiscoverCardStack; removed AnimatedTestimonials + albumItems; removed unused imports (Bookmark, Check, ExternalLink, Link, getProductIconKey)
 
 ### QA (manual, Vercel preview)
-- Go to /discover → select age → select a focus (e.g. "Let me help") → open category or "Show examples". Bottom section shows new card stack. Swipe or use Prev/Next; Shuffle/Reset work. Save / Have / Visit behave as before (sign-in modal when needed, toast, Visit opens product URL).
+- Go to /discover ÔåÆ select age ÔåÆ select a focus (e.g. "Let me help") ÔåÆ open category or "Show examples". Bottom section shows new card stack. Swipe or use Prev/Next; Shuffle/Reset work. Save / Have / Visit behave as before (sign-in modal when needed, toast, Visit opens product URL).
 
 ### Rollback
 Revert PR. Restore AnimatedTestimonials + albumItems in DiscoveryPageClient; remove DiscoverProductCard.tsx and DiscoverCardStack.tsx.
 
 ---
 
-## 2026-02-12 — feat(discover): Pocket play guide hero (UI-only)
+## 2026-02-12 ÔÇö feat(discover): Pocket play guide hero (UI-only)
 
 ### Summary
-- **Discover hero upgrade**: Replace existing /discover hero with premium “Your pocket play guide” hero. Headline (Source Serif 4): “Your pocket” / “play guide” with exact responsive sizes (60px → 128px). Subheadline (Inter 300): “From bump to big steps — science-powered toy ideas for what they’re learning next.” Single CTA “Get started” (accent #FF6347, hover #B8432B) with ArrowRight icon; click scrolls to discovery start (id="discover-start") with prefers-reduced-motion respected.
+- **Discover hero upgrade**: Replace existing /discover hero with premium ÔÇ£Your pocket play guideÔÇØ hero. Headline (Source Serif 4): ÔÇ£Your pocketÔÇØ / ÔÇ£play guideÔÇØ with exact responsive sizes (60px ÔåÆ 128px). Subheadline (Inter 300): ÔÇ£From bump to big steps ÔÇö science-powered toy ideas for what theyÔÇÖre learning next.ÔÇØ Single CTA ÔÇ£Get startedÔÇØ (accent #FF6347, hover #B8432B) with ArrowRight icon; click scrolls to discovery start (id="discover-start") with prefers-reduced-motion respected.
 - **Background**: White hero on canvas #FAFAFA; three gradient layers (warm cream/golden, subtle peach, top-right ember glow) as per Figma snippet; pointer-events-none.
 - No DB/RLS/vendor changes. No nav/header/Layer A/B/C or analytics changes.
 
 ### Files changed
-- `web/src/components/discover/DiscoverHeroPocketPlayGuide.tsx` — new hero component (gradients, typography, CTA)
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — use DiscoverHeroPocketPlayGuide; scroll target id="discover-start"; Back to choices scrolls to discover-start
+- `web/src/components/discover/DiscoverHeroPocketPlayGuide.tsx` ÔÇö new hero component (gradients, typography, CTA)
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` ÔÇö use DiscoverHeroPocketPlayGuide; scroll target id="discover-start"; Back to choices scrolls to discover-start
 
 ### QA (browser only, Vercel preview URL)
 - **Desktop (1440px)**: Hero ~85vh, text centered, warm glow subtle. Headline Source Serif 4, large at largest breakpoint. Subheadline lighter, max-w-3xl. CTA accent with hover + arrow nudge.
 - **Mobile (~390px)**: Headline 60px, tight leading, no overflow. Subheadline 20px, wraps. CTA tappable.
-- **Behaviour**: “Get started” scrolls to discovery start; reduced motion respected.
+- **Behaviour**: ÔÇ£Get startedÔÇØ scrolls to discovery start; reduced motion respected.
 
 ### Rollback
 Revert PR (no schema changes). Remove DiscoverHeroPocketPlayGuide import and restore previous hero markup + selectorSection id if needed.
 
 ---
 
-## 2026-02-11 — feat(ui): sticky header + calm hero + "What is Ember?" bottom sheet
+## 2026-02-11 ÔÇö feat(ui): sticky header + calm hero + "What is Ember?" bottom sheet
 
 ### Summary
 - **Discover-only sticky header**: Replace top-of-page shell on `/discover` with mobile-first sticky header. Left: Ember robin logo (brand-assets URL) + "Ember" text, button scrolls to top. Right: "What is Ember?" (opens bottom sheet), "Join free" (existing `/signin?next=...`). Styling: minimal, border #E5E7EB, white surface, accent #FF6347 / hover #B8432B, safe-area padding.
 - **Bottom sheet "What is Ember?"**: Reusable sheet; close by swipe down, X icon, tap outside. Exact copy: What it does / How it works (bullets) / Privacy. Single CTA "Join free".
-- **Calm hero**: Replace hero with 240–320px responsive container; gradient + subtle ember glow; exact copy: "Guided toy shopping. From bump to big steps." / "See what they're learning next - and what to buy for it." / "Use what you've got. Add what you need."
-- **5 regression fixes**: (1) Header alignment + logo size (max-w-7xl, h-6/h-7 logo). (2) "Show examples" cursor + hover underline. (3) "Explained ⓘ" + "Why these?" open HowWeChooseSheet (exact "How Ember chooses" copy). (4) Layer B carousel reset on doorway change (resetKey). (5) "Have them" wired with toast.
-- **Residual**: (1) Header: bigger logo h-7/h-8, max-w-6xl wrapper. (2) What is Ember?: desktop = centered modal (720px/92vw), mobile = bottom sheet. (3) Auto-scroll to Next steps on tile click (ref + setTimeout, reduced-motion). (4) Have them / Have it already: signed out → auth modal + toast; signed in → toast and/or /api/click.
+- **Calm hero**: Replace hero with 240ÔÇô320px responsive container; gradient + subtle ember glow; exact copy: "Guided toy shopping. From bump to big steps." / "See what they're learning next - and what to buy for it." / "Use what you've got. Add what you need."
+- **5 regression fixes**: (1) Header alignment + logo size (max-w-7xl, h-6/h-7 logo). (2) "Show examples" cursor + hover underline. (3) "Explained Ôôÿ" + "Why these?" open HowWeChooseSheet (exact "How Ember chooses" copy). (4) Layer B carousel reset on doorway change (resetKey). (5) "Have them" wired with toast.
+- **Residual**: (1) Header: bigger logo h-7/h-8, max-w-6xl wrapper. (2) What is Ember?: desktop = centered modal (720px/92vw), mobile = bottom sheet. (3) Auto-scroll to Next steps on tile click (ref + setTimeout, reduced-motion). (4) Have them / Have it already: signed out ÔåÆ auth modal + toast; signed in ÔåÆ toast and/or /api/click.
 - No DB/RLS/gateway. No new deps.
 
 ### Files changed
-- `web/src/components/discover/DiscoverStickyHeader.tsx` — sticky header + alignment + logo size
-- `web/src/components/discover/WhatIsEmberSheet.tsx` — bottom sheet
-- `web/src/components/discover/HowWeChooseSheet.tsx` — new: "How Ember chooses" sheet (single source of truth)
-- `web/src/components/discover/CategoryCarousel.tsx` — Show examples affordance; resetKey; Have them cursor
-- `web/src/components/ConditionalHeader.tsx` — DiscoverStickyHeader when path /discover
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — hero; Explained ⓘ / Why these? → HowWeChooseSheet; resetKey; howWeChooseOpen state
+- `web/src/components/discover/DiscoverStickyHeader.tsx` ÔÇö sticky header + alignment + logo size
+- `web/src/components/discover/WhatIsEmberSheet.tsx` ÔÇö bottom sheet
+- `web/src/components/discover/HowWeChooseSheet.tsx` ÔÇö new: "How Ember chooses" sheet (single source of truth)
+- `web/src/components/discover/CategoryCarousel.tsx` ÔÇö Show examples affordance; resetKey; Have them cursor
+- `web/src/components/ConditionalHeader.tsx` ÔÇö DiscoverStickyHeader when path /discover
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` ÔÇö hero; Explained Ôôÿ / Why these? ÔåÆ HowWeChooseSheet; resetKey; howWeChooseOpen state
 
-### QA (founder, browser only — Vercel preview URL)
-A) Desktop header: logo readable; no giant middle space; actions right. B) Desktop "What is Ember?" = centered modal. C) Mobile "What is Ember?" = bottom sheet. D) Click development tile → scrolls to Next steps. E) "Have them" / "Have it already": signed out → auth modal + toast; signed in → toast/click.
+### QA (founder, browser only ÔÇö Vercel preview URL)
+A) Desktop header: logo readable; no giant middle space; actions right. B) Desktop "What is Ember?" = centered modal. C) Mobile "What is Ember?" = bottom sheet. D) Click development tile ÔåÆ scrolls to Next steps. E) "Have them" / "Have it already": signed out ÔåÆ auth modal + toast; signed in ÔåÆ toast/click.
 
 ### Rollback
 Revert PR (no schema changes).
 
 ---
 
-## 2026-02-09 — feat(discover): frictionless load + swipe-first carousels + Save-first CTAs
+## 2026-02-09 ÔÇö feat(discover): frictionless load + swipe-first carousels + Save-first CTAs
 
 ### Summary
 - **Default load**: B/C sections hidden until doorway selected; server passes `selectedWrapperSlug` from URL only; category types fetched only when wrapper in URL.
 - **No "See next steps"**: Doorway tile click sets selection, updates URL, scrolls to Layer B (next steps). Respects `prefers-reduced-motion` for scroll behavior.
-- **Swipe carousels**: Layer B = horizontal scroll-snap (overflow-x-auto, snap, hidden scrollbar). Layer C = swipe/drag on stacked cards to change active index (40px threshold so taps don’t trigger).
+- **Swipe carousels**: Layer B = horizontal scroll-snap (overflow-x-auto, snap, hidden scrollbar). Layer C = swipe/drag on stacked cards to change active index (40px threshold so taps donÔÇÖt trigger).
 - **CTA hierarchy**: B = Save idea (primary), Have them (outline), Show examples (ghost). C = Save product (primary), Have it already (outline), Visit (ghost).
 
 ### Files changed
-- `web/src/app/discover/[months]/page.tsx` — selectedWrapperSlug from URL only; categoryTypes when slug set
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — remove See next steps; doorway click scroll to B; Layer C button order + labels
-- `web/src/components/discover/CategoryCarousel.tsx` — scroll-snap carousel; button order (Save idea primary, Show examples tertiary)
-- `web/src/components/ui/animated-testimonials.tsx` — swipe/drag to change active index
+- `web/src/app/discover/[months]/page.tsx` ÔÇö selectedWrapperSlug from URL only; categoryTypes when slug set
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` ÔÇö remove See next steps; doorway click scroll to B; Layer C button order + labels
+- `web/src/components/discover/CategoryCarousel.tsx` ÔÇö scroll-snap carousel; button order (Save idea primary, Show examples tertiary)
+- `web/src/components/ui/animated-testimonials.tsx` ÔÇö swipe/drag to change active index
 
 ### QA (browser only, preview URL)
-1. Load /discover/26 → only doorway tiles. 2. Tap doorway → scroll to B, categories correct. 3. Swipe B + arrows. 4. Save idea primary, Show examples tertiary. 5. Show examples → C appears. 6. Swipe C. 7. Reduce motion → no smooth scroll.
+1. Load /discover/26 ÔåÆ only doorway tiles. 2. Tap doorway ÔåÆ scroll to B, categories correct. 3. Swipe B + arrows. 4. Save idea primary, Show examples tertiary. 5. Show examples ÔåÆ C appears. 6. Swipe C. 7. Reduce motion ÔåÆ no smooth scroll.
 
 ### Rollback
 Revert PR (no schema changes).
 
-## 2026-02-09 — feat(save): open "Save to my list" as a modal (no navigation)
+## 2026-02-09 ÔÇö feat(save): open "Save to my list" as a modal (no navigation)
 
 ### Summary
-- **SaveToListModal**: New accessible modal using native `<dialog>` — focus trap, ESC close, backdrop click close, focus return to trigger. Signed out: Sign in / Join free links; **Email address** field + magic link (same as /signin); Not now.
+- **SaveToListModal**: New accessible modal using native `<dialog>` ÔÇö focus trap, ESC close, backdrop click close, focus return to trigger. Signed out: Sign in / Join free links; **Email address** field + magic link (same as /signin); Not now.
 - **DiscoveryPageClient**: "Save to my list" (Layer C) and **CategoryCarousel** "Save idea" (Layer B) both open the same modal.
 - No page navigation unless user chooses Sign in, Join free, View my list, or submits magic link. "Have it already" / "Have them" unchanged.
 
 ### Files changed
-- `web/src/components/ui/SaveToListModal.tsx` — modal + email magic link
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — Save button + handleSaveCategory
-- `web/src/components/discover/CategoryCarousel.tsx` — Save idea button + onSaveIdea
+- `web/src/components/ui/SaveToListModal.tsx` ÔÇö modal + email magic link
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` ÔÇö Save button + handleSaveCategory
+- `web/src/components/discover/CategoryCarousel.tsx` ÔÇö Save idea button + onSaveIdea
 
 ### QA checklist (founder manual)
 1. `pnpm -C web build` passes
-2. Preview → /discover/26 → select doorway → See next steps → Layer C products
-3. Signed out: Click "Save to my list" → modal, no nav. ESC/backdrop/Not now closes.
-4. Signed in: Click "Save to my list" → "Saved" modal, View my list works
+2. Preview ÔåÆ /discover/26 ÔåÆ select doorway ÔåÆ See next steps ÔåÆ Layer C products
+3. Signed out: Click "Save to my list" ÔåÆ modal, no nav. ESC/backdrop/Not now closes.
+4. Signed in: Click "Save to my list" ÔåÆ "Saved" modal, View my list works
 5. "Have it already" still works
 
 ### Rollback
 Revert PR (no schema changes).
 
-## 2026-02-08 — feat(discover): polish category carousel cards (HD image legibility + peek next/prev)
+## 2026-02-08 ÔÇö feat(discover): polish category carousel cards (HD image legibility + peek next/prev)
 
 ### Summary
 - **Category card media**: Fixed 4:3 aspect ratio (better vertical space for overlay text; works well for category/product imagery). Image uses object-cover; fallback gradient + Sparkles. Calm scrim overlay (stronger toward bottom) for text legibility.
-- **Text legibility**: Title and “why” line-clamp-2; “More” as stable ghost pill over scrim. Actions area has solid surface so buttons are always readable. Ember tokens: borders #E5E7EB, text #1A1E23/#5C646D, accent #FF6347 / deep #B8432B.
+- **Text legibility**: Title and ÔÇ£whyÔÇØ line-clamp-2; ÔÇ£MoreÔÇØ as stable ghost pill over scrim. Actions area has solid surface so buttons are always readable. Ember tokens: borders #E5E7EB, text #1A1E23/#5C646D, accent #FF6347 / deep #B8432B.
 - **Peek/tease carousel**: Desktop card 380px, ~80px peek each side; mobile 320px card, ~40px peek. Active card centered; prev/next arrows + counter; clicking teased card advances. User-controlled only (no auto-advance).
 - **Reduced motion**: useReducedMotion (motion/react); when set, carousel transform uses no transition.
 
 ### Files changed
-- `web/src/components/discover/CategoryCarousel.tsx` — card refactor (4:3 media, scrim, pill), peek carousel layout, reduced motion
+- `web/src/components/discover/CategoryCarousel.tsx` ÔÇö card refactor (4:3 media, scrim, pill), peek carousel layout, reduced motion
 
 ### QA checklist (founder manual)
-1. Open Vercel preview → /discover/26
-2. Select doorway → click “See next steps”
-3. Navigate carousel to “Tea sets and tableware” (or any category with HD image)
-4. Confirm: image crops nicely (no awkward stretching); title and why text readable over image; “More” affordance stable and usable
-5. Confirm desktop shows a “peek” of next/prev card
+1. Open Vercel preview ÔåÆ /discover/26
+2. Select doorway ÔåÆ click ÔÇ£See next stepsÔÇØ
+3. Navigate carousel to ÔÇ£Tea sets and tablewareÔÇØ (or any category with HD image)
+4. Confirm: image crops nicely (no awkward stretching); title and why text readable over image; ÔÇ£MoreÔÇØ affordance stable and usable
+5. Confirm desktop shows a ÔÇ£peekÔÇØ of next/prev card
 6. Confirm mobile layout has no overlap and buttons are tappable
-7. Confirm “Show examples” still reveals Layer C products
+7. Confirm ÔÇ£Show examplesÔÇØ still reveals Layer C products
 8. Turn on Reduce Motion (OS) and refresh: carousel still works, motion simplified
 
 ### Rollback
 Revert PR (no DB/schema changes).
 
-## 2026-02-08 — fix(discover): Layer B guidance polish (public label header + readable why text)
+## 2026-02-08 ÔÇö fix(discover): Layer B guidance polish (public label header + readable why text)
 
 ### Summary
-- **Header label fix**: In "Next steps for …", use the same parent-friendly label shown in the doorway tile grid (e.g. "Play with others"). Label derived from doorway definition the user selected, not gateway wrapper ux_label.
+- **Header label fix**: In "Next steps for ÔÇª", use the same parent-friendly label shown in the doorway tile grid (e.g. "Play with others"). Label derived from doorway definition the user selected, not gateway wrapper ux_label.
 - **Category tile why readability**: 2-line clamp with ellipsis for rationale; native title tooltip on hover; "More" / "Less" toggle for full text on tap or click.
 
 ### Files changed
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — selectedWrapperLabel from doorway.label (prefer over wrapper.ux_label)
-- `web/src/components/discover/CategoryCarousel.tsx` — rationale line-clamp-2, More/Less expand, title tooltip
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` ÔÇö selectedWrapperLabel from doorway.label (prefer over wrapper.ux_label)
+- `web/src/components/discover/CategoryCarousel.tsx` ÔÇö rationale line-clamp-2, More/Less expand, title tooltip
 
 ### QA checklist (founder manual)
-1. Open Vercel preview → /discover/26
+1. Open Vercel preview ÔåÆ /discover/26
 2. Select "Play with others"
 3. Confirm header says "Next steps for Play with others"
 4. On a category tile, confirm the "why" line shows cleanly (up to 2 lines)
@@ -1962,44 +2088,44 @@ Revert PR (no DB/schema changes).
 ### Rollback
 Revert PR (no DB changes).
 
-## 2026-02-08 — feat(discover): vertical A→B→C next steps flow (category carousel + optional examples)
+## 2026-02-08 ÔÇö feat(discover): vertical AÔåÆBÔåÆC next steps flow (category carousel + optional examples)
 
 ### Summary
-- **Vertical journey**: /discover is now a guided vertical flow: selector (Layer A) → Next steps (Layer B) → Examples (Layer C). Products are only revealed after user clicks "Show examples" on a category tile.
+- **Vertical journey**: /discover is now a guided vertical flow: selector (Layer A) ÔåÆ Next steps (Layer B) ÔåÆ Examples (Layer C). Products are only revealed after user clicks "Show examples" on a category tile.
 - **Layer B**: Category carousel (user-controlled, no auto-advance) with tiles showing category imagery (from `pl_category_type_images` or `pl_category_types.image_url`). CTAs: Save idea, Have them, Show examples. Empty state: "We're adding more ideas here." when no category types.
-- **Layer C**: AnimatedTestimonials product album. Product face: one-line why-it-fits, "More details" drawer for long rationale. WhyThese drawer explains chain: Chosen for {age band} • Focus: {doorway} • Category: {selected category} with 2–4 bullets.
-- **Scroll anchors**: "See next steps ↓" scrolls to Layer B; "Back to choices" scrolls to selector. Respects prefers-reduced-motion (no smooth scroll when reduced).
+- **Layer C**: AnimatedTestimonials product album. Product face: one-line why-it-fits, "More details" drawer for long rationale. WhyThese drawer explains chain: Chosen for {age band} ÔÇó Focus: {doorway} ÔÇó Category: {selected category} with 2ÔÇô4 bullets.
+- **Scroll anchors**: "See next steps Ôåô" scrolls to Layer B; "Back to choices" scrolls to selector. Respects prefers-reduced-motion (no smooth scroll when reduced).
 - **DB**: `pl_category_type_images` table + `v_gateway_category_type_images` view for founder-managed category imagery. Canonical table protected; public reads via gateway view only.
 
 ### Files changed
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — vertical layout, state machine, scroll anchors, CategoryCarousel, WhyThese chain
-- `web/src/app/discover/[months]/page.tsx` — fetch category types, pass to client
-- `web/src/lib/pl/public.ts` — getGatewayCategoryTypesForAgeBandAndWrapper, getGatewayCategoryTypeImages, image join
-- `web/src/components/discover/CategoryCarousel.tsx` — Layer B carousel (user-scrolled, Lucide icons)
-- `web/src/components/ui/animated-testimonials.tsx` — AlbumItem.longDescription, "More details" drawer, line-clamp quote
-- `supabase/sql/202602080000_pl_category_type_images.sql` — pl_category_type_images table + v_gateway_category_type_images view
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` ÔÇö vertical layout, state machine, scroll anchors, CategoryCarousel, WhyThese chain
+- `web/src/app/discover/[months]/page.tsx` ÔÇö fetch category types, pass to client
+- `web/src/lib/pl/public.ts` ÔÇö getGatewayCategoryTypesForAgeBandAndWrapper, getGatewayCategoryTypeImages, image join
+- `web/src/components/discover/CategoryCarousel.tsx` ÔÇö Layer B carousel (user-scrolled, Lucide icons)
+- `web/src/components/ui/animated-testimonials.tsx` ÔÇö AlbumItem.longDescription, "More details" drawer, line-clamp quote
+- `supabase/sql/202602080000_pl_category_type_images.sql` ÔÇö pl_category_type_images table + v_gateway_category_type_images view
 
 ### QA checklist (founder manual)
 1. `pnpm install` then `pnpm run build` (passes).
-2. Open /discover or /discover/26. Select a doorway → "Next steps" section appears below.
-3. Click "See next steps" → scrolls to Next steps section.
+2. Open /discover or /discover/26. Select a doorway ÔåÆ "Next steps" section appears below.
+3. Click "See next steps" ÔåÆ scrolls to Next steps section.
 4. Next steps shows category carousel (or empty state). Prev/Next buttons work; no auto-advance.
-5. Click "Show examples" on a category tile → Examples section appears, scrolls into view, products load.
+5. Click "Show examples" on a category tile ÔåÆ Examples section appears, scrolls into view, products load.
 6. Product face: one-line quote; "More details" expands when rationale is long.
 7. "Why these?" shows chain: age band, focus, category (when available).
 8. Save to my list | Have it already | Visit work on products.
-9. Reduced motion ON → scroll uses instant jump.
+9. Reduced motion ON ÔåÆ scroll uses instant jump.
 10. Apply migration `supabase/sql/202602080000_pl_category_type_images.sql` in Supabase SQL Editor to enable founder-managed category imagery.
 
 ### Rollback
 - Revert PR. If migration applied: `DROP VIEW v_gateway_category_type_images; DROP TABLE pl_category_type_images;`
 
-## 2026-02-06 — PR3: Discover animated product album (Aceternity shuffle)
+## 2026-02-06 ÔÇö PR3: Discover animated product album (Aceternity shuffle)
 
 ### Summary
 - **Right panel**: Replaced the list of 3 idea cards with an Aceternity-style **animated product album** (stacked cards + next/prev, word-by-word blur reveal). Same interaction and timing feel as Aceternity Animated Testimonials.
-- **Album items**: Up to 12 products from existing gateway read path (picks or example products). No filtering by “has image”: if `product.image_url` exists show image; else show **icon tile** (Lucide icon in #B8432B on soft gradient background, rounded-3xl).
-- **Icons**: `web/src/lib/icons/productIcon.ts` — `getProductIconKey(product, focusDoorwayLabelOrSlug)` with fixed mapping for 12 doorways; no DB backfill.
+- **Album items**: Up to 12 products from existing gateway read path (picks or example products). No filtering by ÔÇ£has imageÔÇØ: if `product.image_url` exists show image; else show **icon tile** (Lucide icon in #B8432B on soft gradient background, rounded-3xl).
+- **Icons**: `web/src/lib/icons/productIcon.ts` ÔÇö `getProductIconKey(product, focusDoorwayLabelOrSlug)` with fixed mapping for 12 doorways; no DB backfill.
 - **Actions**: Save to my list | Have it already | Visit on each item (renderActions slot). Have it already unchanged (POST /api/click, source: discover_owned).
 - **Layout**: Responsive grid (image stack left, text right on md+; stacked on narrow). `prefers-reduced-motion` respected (no y-bounce, reduced blur).
 - **Deps**: motion, clsx, tailwind-merge; `cn()` in `web/src/lib/utils.ts`. No @tabler/icons-react; Lucide ChevronLeft/ChevronRight.
@@ -2008,30 +2134,30 @@ Revert PR (no DB changes).
 - Manual QA only (no headless screenshots, no GitHub API polling). See QA checklist below.
 
 ### Files changed
-- `web/src/components/ui/animated-testimonials.tsx` — new (AlbumItem, image or icon tile, blur reveal, reduced-motion)
-- `web/src/lib/utils.ts` — new (cn)
-- `web/src/lib/icons/productIcon.ts` — new (getProductIconKey, doorway → icon mapping)
-- `web/src/app/discover/[months]/page.tsx` — fetch 12 picks / 12 example products
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — albumItems from displayIdeas, AnimatedTestimonials + renderActions; removed IdeaCard
+- `web/src/components/ui/animated-testimonials.tsx` ÔÇö new (AlbumItem, image or icon tile, blur reveal, reduced-motion)
+- `web/src/lib/utils.ts` ÔÇö new (cn)
+- `web/src/lib/icons/productIcon.ts` ÔÇö new (getProductIconKey, doorway ÔåÆ icon mapping)
+- `web/src/app/discover/[months]/page.tsx` ÔÇö fetch 12 picks / 12 example products
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` ÔÇö albumItems from displayIdeas, AnimatedTestimonials + renderActions; removed IdeaCard
 
 ### QA checklist (founder manual)
 1. `pnpm install` then `pnpm run build` (passes).
-2. Open /discover (or /discover/26), choose a focus, click “Show my 3 ideas”.
-3. Right panel shows album: stacked “photos” (images or icon tiles), next/prev arrows, 1/12 counter.
+2. Open /discover (or /discover/26), choose a focus, click ÔÇ£Show my 3 ideasÔÇØ.
+3. Right panel shows album: stacked ÔÇ£photosÔÇØ (images or icon tiles), next/prev arrows, 1/12 counter.
 4. Next/Prev cycle smoothly; text area shows title, optional subtitle, quote with word-by-word blur.
 5. Items without image show icon tile (gradient + Lucide icon).
-6. Save to my list | Have it already | Visit present and clickable; “Have it already” shows toast.
-7. Reduce motion: enable OS “Reduce motion” → no bounce, quote shows without blur animation.
+6. Save to my list | Have it already | Visit present and clickable; ÔÇ£Have it alreadyÔÇØ shows toast.
+7. Reduce motion: enable OS ÔÇ£Reduce motionÔÇØ ÔåÆ no bounce, quote shows without blur animation.
 8. No console errors.
 
-### 2026-02-07 — Component alignment to Aceternity + useReducedMotion
-- **animated-testimonials.tsx** aligned to Aceternity source: AnimatePresence stack, active card `y: [0,-80,0]`, deterministic `hashToRotation(id)`; Motion `useReducedMotion()` — when reduced: no bounce, no rotate, quote without word blur. Icon tiles: white surface + border + #B8432B stroke. Preview URL: set after push/Vercel. Rollback: revert PR (no DB changes).
+### 2026-02-07 ÔÇö Component alignment to Aceternity + useReducedMotion
+- **animated-testimonials.tsx** aligned to Aceternity source: AnimatePresence stack, active card `y: [0,-80,0]`, deterministic `hashToRotation(id)`; Motion `useReducedMotion()` ÔÇö when reduced: no bounce, no rotate, quote without word blur. Icon tiles: white surface + border + #B8432B stroke. Preview URL: set after push/Vercel. Rollback: revert PR (no DB changes).
 
-## 2026-02-05 — Acquisition landing course-correct (hero v2, doorways 12→6+See all, icons, Have it already)
+## 2026-02-05 ÔÇö Acquisition landing course-correct (hero v2, doorways 12ÔåÆ6+See all, icons, Have it already)
 
 ### Summary
 - **Hero**: Exact 3 lines (H1, subheader, reassurance); no extra trust line. Faded Pexels background image behind hero; hero + main content in same `max-w-7xl` wrapper for alignment.
-- **Doorways**: 12 needs, 6 default + "See all"; section **"What they're learning right now"** + guide copy; 1:1 mapping to existing gateway wrapper slugs; Suggested pills for 25–27m on Do it myself, Big feelings, Little hands; default selected for 25–27m = Do it myself; selected glow 0px 0px 28px rgba(255,99,71,0.35), 0px 10px 30px rgba(0,0,0,0.06); tile label/helper line-clamp-2. **Removed** "We only use age to tailor ideas." under age slider.
+- **Doorways**: 12 needs, 6 default + "See all"; section **"What they're learning right now"** + guide copy; 1:1 mapping to existing gateway wrapper slugs; Suggested pills for 25ÔÇô27m on Do it myself, Big feelings, Little hands; default selected for 25ÔÇô27m = Do it myself; selected glow 0px 0px 28px rgba(255,99,71,0.35), 0px 10px 30px rgba(0,0,0,0.06); tile label/helper line-clamp-2. **Removed** "We only use age to tailor ideas." under age slider.
 - **Layout**: Bottom two containers (left/right columns) aligned with hero and nav by wrapping hero + main in one `max-w-7xl mx-auto px-4 sm:px-6` container.
 - **Product cards**: getProductIcon (Sparkles fallback); never exclude products for missing images; **"Why?"** from `product.rationale` (data layer: rationale = stage_reason \| age_suitability_note); buttons: **Bookmark** + "Save to my list", **Check** + "Have it already", **ExternalLink** + **"Visit"** (was "View"); icon colour #B8432B.
 - **Have it already**: Event capture via POST /api/click with source: discover_owned; toast "Marked as have it already." (best-effort; 401 when signed out still shows toast).
@@ -2042,15 +2168,15 @@ Revert PR (no DB changes).
 - **Have it already persistence**: Add saved/owned status to existing save pipeline or new table when safe minimal migration is available. See TODO in codebase; no DB/RLS changes in this PR.
 
 ### Files changed
-- `web/src/lib/discover/doorways.ts` — ALL_DOORWAYS (12), DEFAULT_DOORWAYS, MORE_DOORWAYS, helper text, SUGGESTED_DOORWAY_KEYS_25_27, DEFAULT_WRAPPER_SLUG_25_27
-- `web/src/lib/discover/ideaIcons.ts` — getProductIcon, Sparkles default
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — hero (unchanged), doorways section, IdeaCard with getProductIcon + Have it already + toast
-- `web/src/app/discover/[months]/page.tsx` — default wrapper for 25–27m (let-me-help)
+- `web/src/lib/discover/doorways.ts` ÔÇö ALL_DOORWAYS (12), DEFAULT_DOORWAYS, MORE_DOORWAYS, helper text, SUGGESTED_DOORWAY_KEYS_25_27, DEFAULT_WRAPPER_SLUG_25_27
+- `web/src/lib/discover/ideaIcons.ts` ÔÇö getProductIcon, Sparkles default
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` ÔÇö hero (unchanged), doorways section, IdeaCard with getProductIcon + Have it already + toast
+- `web/src/app/discover/[months]/page.tsx` ÔÇö default wrapper for 25ÔÇô27m (let-me-help)
 
 ### Rollback
 Revert PR (no DB changes).
 
-## 2026-02-03 — Discovery polish: glow, truncation, icons
+## 2026-02-03 ÔÇö Discovery polish: glow, truncation, icons
 
 ### Summary
 - **Stronger tile glow**: box-shadow 0 0 26px rgba(255,99,71,0.48) + 0 10px 24px; translateY(-1px); 250ms transition; prefers-reduced-motion respected.
@@ -2059,91 +2185,91 @@ Revert PR (no DB changes).
 - **Icon accent #B8432B**: doorway tiles + idea cards use icon accent.
 
 ### Files changed
-- `web/src/lib/discover/ideaIcons.ts` — new iconForIdea resolver
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — glow, truncation, icon imports
-- `web/src/app/discover/[months]/_lib/ideaIcons.tsx` — removed (replaced by lib)
+- `web/src/lib/discover/ideaIcons.ts` ÔÇö new iconForIdea resolver
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` ÔÇö glow, truncation, icon imports
+- `web/src/app/discover/[months]/_lib/ideaIcons.tsx` ÔÇö removed (replaced by lib)
 
 ### Rollback
 Revert PR (no DB changes).
 
-## 2026-02-03 — Discovery V1.0 doorways
+## 2026-02-03 ÔÇö Discovery V1.0 doorways
 
 ### Summary
-- **Copy sweep**: picks→ideas, shortlist→my list, "Your 3 picks"→"A quick example" (pre) / "Three ideas for {Focus}" (post). Chips: No child details, Under a minute, Clear reasons. Headline: "Three age-right ideas in under a minute."
+- **Copy sweep**: picksÔåÆideas, shortlistÔåÆmy list, "Your 3 picks"ÔåÆ"A quick example" (pre) / "Three ideas for {Focus}" (post). Chips: No child details, Under a minute, Clear reasons. Headline: "Three age-right ideas in under a minute."
 - **6 Today doorways + More**: Burn energy, Quiet focus, Big feelings, Let me help, Talk & stories, Play together. "More" reveals remaining wrappers. Mapping in `lib/discover/doorways.ts`.
 - **Right panel Narnia hook**: Pre-interaction shows "A quick example" with 3 real example idea cards from gateway (getGatewayTopProductsForAgeBand). Post-interaction: "Three ideas for {Focus}" with filtered ideas + "Why these?" inline drawer.
 - **Idea card icons**: ideaIconForTitle() deterministic mapping (Package default). Icons render with #5C646D, 16px, stroke 1.5.
 - **/new redirect**: /new and /new/[months] 308 redirect to /discover.
 
 ### Files changed
-- `web/src/lib/discover/doorways.ts` — 6 doorway defs + resolveDoorwayToWrapper
-- `web/src/lib/pl/public.ts` — getGatewayTopProductsForAgeBand
-- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` — new doorways UI
-- `web/src/app/discover/[months]/_lib/ideaIcons.tsx` — ideaIconForTitle
-- `web/src/app/discover/[months]/_lib/wrapperIcons.tsx` — getWrapperIcon
-- `web/src/app/discover/[months]/page.tsx` — exampleProducts, DiscoveryPageClient
-- `web/src/app/new/page.tsx` — redirect to /discover
-- `web/src/app/new/[months]/page.tsx` — redirect to /discover/[months]
-- `web/src/components/ConditionalHeader.tsx` — homeHref /discover for both
+- `web/src/lib/discover/doorways.ts` ÔÇö 6 doorway defs + resolveDoorwayToWrapper
+- `web/src/lib/pl/public.ts` ÔÇö getGatewayTopProductsForAgeBand
+- `web/src/app/discover/[months]/DiscoveryPageClient.tsx` ÔÇö new doorways UI
+- `web/src/app/discover/[months]/_lib/ideaIcons.tsx` ÔÇö ideaIconForTitle
+- `web/src/app/discover/[months]/_lib/wrapperIcons.tsx` ÔÇö getWrapperIcon
+- `web/src/app/discover/[months]/page.tsx` ÔÇö exampleProducts, DiscoveryPageClient
+- `web/src/app/new/page.tsx` ÔÇö redirect to /discover
+- `web/src/app/new/[months]/page.tsx` ÔÇö redirect to /discover/[months]
+- `web/src/components/ConditionalHeader.tsx` ÔÇö homeHref /discover for both
 
 ### Verification (Proof-of-Done)
-- `pnpm install` + `pnpm run build` — ✅
+- `pnpm install` + `pnpm run build` ÔÇö Ô£à
 
 ### Rollback
 Revert PR (no DB changes).
 
-## 2026-02-03 — Website Brand Refresh (Brandbook)
+## 2026-02-03 ÔÇö Website Brand Refresh (Brandbook)
 
 ### Summary
 - Applied brandbook design tokens site-wide (excluding /new/ path which was recently refreshed).
 - **Design tokens**: Added ember-shadow-ambient, ember-glow-active, ember-alpha-disabled, ember-radius-button (8px), ember-radius-card (12px). Typography: H1/H2 Serif (Source Serif 4), H3+ Sans (Inter). Body line-height 1.6.
-- **DEFAULT_THEME**: Updated to Brandbook palette — ember-accent-base (#FF6347), ember-accent-hover (#B8432B), ember-bg-canvas (#FAFAFA), ember-text-high (#1A1E23), ember-text-low (#5C646D), ember-border-subtle (#E5E7EB). sourceserif4_inter font pair for headings.
+- **DEFAULT_THEME**: Updated to Brandbook palette ÔÇö ember-accent-base (#FF6347), ember-accent-hover (#B8432B), ember-bg-canvas (#FAFAFA), ember-text-high (#1A1E23), ember-text-low (#5C646D), ember-border-subtle (#E5E7EB). sourceserif4_inter font pair for headings.
 - **Header**: All navigation headers use ember tokens (accent, text, border, radius-8). Wordmark gradient, buttons, nav links aligned to brandbook.
 - **globals.css**: Cards use radius-12, ember-shadow-ambient; buttons radius-8, ember-accent-base; inputs radius-8, ember-focus-ring. prefers-reduced-motion respected.
 - **layout.tsx**: themeColor #FF6347 (ember-accent-base).
 
 ### Files changed
-- `web/src/app/globals.css` — Brandbook tokens, typography, card/btn/input radius
-- `web/src/lib/theme.ts` — DEFAULT_THEME brandbook palette
-- `web/src/components/ThemeProvider.tsx` — sourceserif4_inter font pair, default fallbacks
-- `web/src/components/Header.tsx` — ember tokens, radius-8
-- `web/src/app/layout.tsx` — themeColor #FF6347
+- `web/src/app/globals.css` ÔÇö Brandbook tokens, typography, card/btn/input radius
+- `web/src/lib/theme.ts` ÔÇö DEFAULT_THEME brandbook palette
+- `web/src/components/ThemeProvider.tsx` ÔÇö sourceserif4_inter font pair, default fallbacks
+- `web/src/components/Header.tsx` ÔÇö ember tokens, radius-8
+- `web/src/app/layout.tsx` ÔÇö themeColor #FF6347
 
 ### Verification (Proof-of-Done)
-- `pnpm install` (in `/web`) — ✅
-- `pnpm run build` (in `/web`) — ✅
+- `pnpm install` (in `/web`) ÔÇö Ô£à
+- `pnpm run build` (in `/web`) ÔÇö Ô£à
 
 ### Rollback
 - Revert PR (frontend only).
 
-## 2026-02-03 — Discovery Page UI Overhaul (Ember 2026 spec)
+## 2026-02-03 ÔÇö Discovery Page UI Overhaul (Ember 2026 spec)
 
 ### Summary
 - End-to-end UI overhaul of the Discovery flow to match the Unified UX + Brand Implementation Brief.
 - **Routes**: `/new` and `/new/[months]` remain the canonical discovery flow; **added `/discover` and `/discover/[months]** as aliases using the same `NewLandingPageClient` component (no duplication). Existing `/new` deep links unchanged.
 - **Design tokens**: Added Ember 2026 CSS variables (ember-bg-canvas, ember-surface-primary, ember-text-high/low, ember-accent-base/hover, ember-focus-ring, etc.) in `globals.css`. Font variables `--font-serif` (Source Serif 4), `--font-sans` (Inter), `--font-mono` (IBM Plex Mono); Source Serif 4 and IBM Plex Mono loaded via ThemeProvider.
 - **Page layout**: Page background #FAFAFA; single central surface container (white, 12px radius, 0px 4px 24px rgba(0,0,0,0.04)); max-width mobile 100%, tablet 640px, desktop 720px. Orange gradient removed.
-- **Header**: H1 serif, calm copy (“Ideas that fit this stage.”); supporting line Inter 16px ember-text-low. Three trust chips only: “No child name”, “Under a minute”, “Reasoned picks” (ember-surface-soft, no icons).
-- **Slider**: Track inactive/active per spec; thumb 20px, accent fill, focus ring 2px #D44D31; age label IBM Plex Mono 14px; helper copy: “We only use age to tailor ideas.”
+- **Header**: H1 serif, calm copy (ÔÇ£Ideas that fit this stage.ÔÇØ); supporting line Inter 16px ember-text-low. Three trust chips only: ÔÇ£No child nameÔÇØ, ÔÇ£Under a minuteÔÇØ, ÔÇ£Reasoned picksÔÇØ (ember-surface-soft, no icons).
+- **Slider**: Track inactive/active per spec; thumb 20px, accent fill, focus ring 2px #D44D31; age label IBM Plex Mono 14px; helper copy: ÔÇ£We only use age to tailor ideas.ÔÇØ
 - **Wrapper grid**: 2 cols mobile/tablet, 3 desktop; tile border default, selected state glow only (0px 0px 16px rgba(255, 99, 71, 0.4)), no fill change. No invented icons.
-- **CTA**: Single “Show my 3 picks”; disabled until age resolved + one wrapper selected (30% opacity); hover ember-accent-hover; microcopy “Takes about a minute.”
-- **Picks section**: Destination feel; calm empty states; “Why these?” text-only button toggles **inline** expansion (no modal). Reasoning block: serif heading, Inter body, up to 3 bullets (age + selected focus), no AI/algorithm language.
+- **CTA**: Single ÔÇ£Show my 3 picksÔÇØ; disabled until age resolved + one wrapper selected (30% opacity); hover ember-accent-hover; microcopy ÔÇ£Takes about a minute.ÔÇØ
+- **Picks section**: Destination feel; calm empty states; ÔÇ£Why these?ÔÇØ text-only button toggles **inline** expansion (no modal). Reasoning block: serif heading, Inter body, up to 3 bullets (age + selected focus), no AI/algorithm language.
 - **Motion**: 250ms, cubic-bezier(0.4, 0, 0.2, 1); prefers-reduced-motion respected on slider.
-- **Copy**: No “Unlock”, “AI”, “Magic”, “Algorithm”, “Smart”, or “moment” language on the page.
+- **Copy**: No ÔÇ£UnlockÔÇØ, ÔÇ£AIÔÇØ, ÔÇ£MagicÔÇØ, ÔÇ£AlgorithmÔÇØ, ÔÇ£SmartÔÇØ, or ÔÇ£momentÔÇØ language on the page.
 - **Security/data**: No DB, RLS, or policy changes; reads remain via gateway public views.
 
 ### Files changed
-- `web/src/app/globals.css` — Ember 2026 tokens, discovery slider styles, motion vars
-- `web/src/components/ThemeProvider.tsx` — Source Serif 4, IBM Plex Mono loaded
-- `web/src/app/new/[months]/NewLandingPageClient.tsx` — Full UI overhaul, basePath prop
-- `web/src/app/new/[months]/page.tsx` — Pass basePath="/new"
-- `web/src/app/discover/page.tsx` — New (redirect to first band)
-- `web/src/app/discover/[months]/page.tsx` — New (shared client, basePath="/discover")
-- `web/src/components/ConditionalHeader.tsx` — homeHref for /discover
+- `web/src/app/globals.css` ÔÇö Ember 2026 tokens, discovery slider styles, motion vars
+- `web/src/components/ThemeProvider.tsx` ÔÇö Source Serif 4, IBM Plex Mono loaded
+- `web/src/app/new/[months]/NewLandingPageClient.tsx` ÔÇö Full UI overhaul, basePath prop
+- `web/src/app/new/[months]/page.tsx` ÔÇö Pass basePath="/new"
+- `web/src/app/discover/page.tsx` ÔÇö New (redirect to first band)
+- `web/src/app/discover/[months]/page.tsx` ÔÇö New (shared client, basePath="/discover")
+- `web/src/components/ConditionalHeader.tsx` ÔÇö homeHref for /discover
 
 ### Verification (Proof-of-Done)
-- `pnpm install` (in `/web`) — ✅
-- `pnpm run build` (in `/web`) — ✅
+- `pnpm install` (in `/web`) ÔÇö Ô£à
+- `pnpm run build` (in `/web`) ÔÇö Ô£à
 
 ### Rollback
 - Revert PR (frontend only).
@@ -2156,19 +2282,19 @@ Revert PR (no DB changes).
 
 ------
 
-## 2026-02-01 — PR3b: Age-band-first slider for `/new` (UI only)
+## 2026-02-01 ÔÇö PR3b: Age-band-first slider for `/new` (UI only)
 
 ### Summary
 - Switched the `/new` age control from **month-first** to **age-band-first** (range slider).
 - Kept deep links `/new/[months]` working by snapping the month param to the correct age band on load, while showing the age range in the UI.
 - `/new` now redirects deterministically to the **first band with picks** (otherwise the newest band).
-- Added a calm “catalogue coming soon” empty state for bands with no picks.
+- Added a calm ÔÇ£catalogue coming soonÔÇØ empty state for bands with no picks.
 - **No DB changes** and no invented coverage.
 
 ### Follow-up fix (same branch)
-- Fixed overlap tie-break: when a month sits in two bands (e.g. 25), **prefer the newer band** (higher `min_months`), so `/new/25` resolves to `25–27m`.
-- Restored public gateway picks flow using **gateway views only**: wrapper grid + “Show my 3 picks” → 3 product cards.
-- Slider changes update the URL again using representative mid-month per band (e.g. 23–25 → 24, 25–27 → 26).
+- Fixed overlap tie-break: when a month sits in two bands (e.g. 25), **prefer the newer band** (higher `min_months`), so `/new/25` resolves to `25ÔÇô27m`.
+- Restored public gateway picks flow using **gateway views only**: wrapper grid + ÔÇ£Show my 3 picksÔÇØ ÔåÆ 3 product cards.
+- Slider changes update the URL again using representative mid-month per band (e.g. 23ÔÇô25 ÔåÆ 24, 25ÔÇô27 ÔåÆ 26).
 
 ### Files changed
 - `web/src/app/new/page.tsx`
@@ -2178,16 +2304,16 @@ Revert PR (no DB changes).
 - `web/docs/FEB_2026_DECISION_LOG.md`
 
 ### Verification (Proof-of-Done)
-- `pnpm install` (in `/web`) — ✅ (already up to date)
-- `pnpm run build` (in `/web`) — ✅
+- `pnpm install` (in `/web`) ÔÇö Ô£à (already up to date)
+- `pnpm run build` (in `/web`) ÔÇö Ô£à
 
 ### Rollback
 - Revert PR (frontend + docs only).
 
-## 2026-02-01 — PR3: 23–25m coverage audit + provenance-safe apply script (no UI changes)
+## 2026-02-01 ÔÇö PR3: 23ÔÇô25m coverage audit + provenance-safe apply script (no UI changes)
 
 ### Summary
-- Added a founder-safe audit doc + SQL to determine whether **real** 23–25m picks can be produced from existing Manus-derived DB fields (no inventing/cloning).
+- Added a founder-safe audit doc + SQL to determine whether **real** 23ÔÇô25m picks can be produced from existing Manus-derived DB fields (no inventing/cloning).
 - Added an **apply SQL** script that is explicitly gated: it aborts unless the audit proves required tables/columns exist and seed rows exist for `23-25m`.
 - **No UI changes** in PR3. UI remains honest-empty until mappings exist.
 
@@ -2197,14 +2323,14 @@ Revert PR (no DB changes).
 - `NEXT.md` (follow-ups not in PR3)
 
 ### Verification (Proof-of-Done)
-- `pnpm install` (in `/web`) — ✅
-- `pnpm run build` (in `/web`) — ✅
+- `pnpm install` (in `/web`) ÔÇö Ô£à
+- `pnpm run build` (in `/web`) ÔÇö Ô£à
 
 ### Rollback
 - Revert PR (code/doc only).
 - If APPLY SQL was run in Supabase: use rollback SQL included in the apply file.
 
-## 2026-01-31 — PR0: Feb 2026 baseline audit snapshot + decision log scaffold
+## 2026-01-31 ÔÇö PR0: Feb 2026 baseline audit snapshot + decision log scaffold
 
 ### Summary
 - Added a **permanent Feb 2026 baseline audit snapshot** + **decision log scaffold** for the public gateway (`/new`, `/new/[months]`).
@@ -2215,14 +2341,14 @@ Revert PR (no DB changes).
 - `web/docs/FEB_2026_DECISION_LOG.md`
 
 ### Verification (Proof-of-Done)
-- `pnpm install` (in `/web`) — already up to date
-- `pnpm run build` (in `/web`) — ✅ succeeded
+- `pnpm install` (in `/web`) ÔÇö already up to date
+- `pnpm run build` (in `/web`) ÔÇö Ô£à succeeded
 - Note: `pnpm run lint` currently fails because `next lint` is not a supported command in Next.js `v16.0.7` CLI; **left unchanged** in PR0 to keep scope docs-only.
 
 ### Rollback
 - Revert PR.
 
-## 2026-01-15 — Phase A: DB Foundation (Gateway Spine + Curated Public Views)
+## 2026-01-15 ÔÇö Phase A: DB Foundation (Gateway Spine + Curated Public Views)
 
 ### Summary
 - Created comprehensive SQL migration for Phase A gateway spine tables
@@ -2235,19 +2361,19 @@ Revert PR (no DB changes).
 ### DB & RLS
 - **Migration**: `supabase/sql/202601150000_phase_a_db_foundation.sql`
 - **New Tables**:
-  - `pl_ux_wrappers` — UX wrapper vocabulary
-  - `pl_ux_wrapper_needs` — Wrapper → need mapping (1:1 via UNIQUE)
-  - `pl_age_band_ux_wrappers` — Age-band-specific wrapper ranking
-  - `pl_age_band_development_need_meta` — Age-band-specific stage metadata
-  - `pl_age_band_development_need_category_types` — Age-band-specific need → category mapping
-  - `pl_age_band_category_type_products` — Age-band-specific category → product mapping
+  - `pl_ux_wrappers` ÔÇö UX wrapper vocabulary
+  - `pl_ux_wrapper_needs` ÔÇö Wrapper ÔåÆ need mapping (1:1 via UNIQUE)
+  - `pl_age_band_ux_wrappers` ÔÇö Age-band-specific wrapper ranking
+  - `pl_age_band_development_need_meta` ÔÇö Age-band-specific stage metadata
+  - `pl_age_band_development_need_category_types` ÔÇö Age-band-specific need ÔåÆ category mapping
+  - `pl_age_band_category_type_products` ÔÇö Age-band-specific category ÔåÆ product mapping
 - **Curated Public Views** (gateway-scoped for security):
-  - `v_gateway_age_bands_public` — Only age bands with active wrapper rankings
-  - `v_gateway_wrappers_public` — UX wrappers with rank per age band
-  - `v_gateway_wrapper_detail_public` — Wrapper + need + stage metadata (NEW)
-  - `v_gateway_development_needs_public` — Only needs reachable from active wrappers
-  - `v_gateway_category_types_public` — Age-band scoped, only via active mappings (includes age_band_id, development_need_id, rank, rationale)
-  - `v_gateway_products_public` — Age-band scoped, only via active mappings, excludes archived (includes age_band_id, category_type_id, rank, rationale)
+  - `v_gateway_age_bands_public` ÔÇö Only age bands with active wrapper rankings
+  - `v_gateway_wrappers_public` ÔÇö UX wrappers with rank per age band
+  - `v_gateway_wrapper_detail_public` ÔÇö Wrapper + need + stage metadata (NEW)
+  - `v_gateway_development_needs_public` ÔÇö Only needs reachable from active wrappers
+  - `v_gateway_category_types_public` ÔÇö Age-band scoped, only via active mappings (includes age_band_id, development_need_id, rank, rationale)
+  - `v_gateway_products_public` ÔÇö Age-band scoped, only via active mappings, excludes archived (includes age_band_id, category_type_id, rank, rationale)
 - **RLS Policies**: Admin CRUD on base tables, public SELECT on curated views only
 - **Triggers**: Updated_at triggers on all new tables, immutability trigger for `pl_age_bands.id`
 
@@ -2271,7 +2397,7 @@ Revert PR (no DB changes).
 - **Rationale fields**: Added to category types and products views for gateway context
 
 ### Verification (Proof-of-Done)
-- **Build Status**: ✅ Build passes (`pnpm run build` succeeds)
+- **Build Status**: Ô£à Build passes (`pnpm run build` succeeds)
 - **Proof Bundle**: Migration includes embedded proof bundle with counts and sample data
 - **Migration File**: `supabase/sql/202601150000_phase_a_db_foundation.sql` (updated with gateway-scoped views, security fixes, and rationale fields)
 
@@ -2317,7 +2443,7 @@ Revert PR (no DB changes).
   - **Next Step**: UI cutover to use gateway views (`v_gateway_*_public`) instead of legacy tables
 
 ### Migration Application Steps
-1. Open Supabase Dashboard → SQL Editor
+1. Open Supabase Dashboard ÔåÆ SQL Editor
 2. Paste entire contents of `supabase/sql/202601150000_phase_a_db_foundation.sql`
 3. Execute
 4. Check NOTICE messages in output (proof bundle runs automatically)
@@ -2333,7 +2459,7 @@ Revert PR (no DB changes).
 
 ------
 
-## 2026-01-15 — Phase A: Ground Truth + Gateway Schema (No Migrations)
+## 2026-01-15 ÔÇö Phase A: Ground Truth + Gateway Schema (No Migrations)
 
 ### Summary
 - Audited current gateway implementation (`/new` and `/new/[months]` routes)
@@ -2342,27 +2468,27 @@ Revert PR (no DB changes).
 - No migrations in this PR (write-only plan for PR #2)
 
 ### Routes Audited
-- `/new` — Redirects to `/new/26` (default age)
-- `/new/[months]` — Main gateway landing page with age slider (24–30 months), moment selection, and top 3 picks display
+- `/new` ÔÇö Redirects to `/new/26` (default age)
+- `/new/[months]` ÔÇö Main gateway landing page with age slider (24ÔÇô30 months), moment selection, and top 3 picks display
 
 ### Data Fetching (Current)
 - Server-side data fetching via `web/src/lib/pl/public.ts`
 - Reads from: `pl_age_bands`, `pl_moments`, `pl_age_moment_sets`, `pl_reco_cards`, `pl_category_types`, `products`
-- Uses legacy pattern: age band + moment → published set → cards → category types/products
+- Uses legacy pattern: age band + moment ÔåÆ published set ÔåÆ cards ÔåÆ category types/products
 
 ### Legacy Freeze
 - **FROZEN** (no new writes for Phase A): `pl_age_moment_sets`, `pl_reco_cards`, `pl_evidence` (legacy), `pl_pool_items`
 - Phase A will use new tables: `pl_ux_wrappers`, `pl_age_band_ux_wrappers`, mapping tables
 
 ### Documentation Added
-- `web/docs/PHASE_A_GROUND_TRUTH.md` — Current state audit:
+- `web/docs/PHASE_A_GROUND_TRUTH.md` ÔÇö Current state audit:
   - Gateway routes and UI components
   - Supabase read paths
   - Legacy freeze declaration
   - DB reality summary (canonical tables, seed tables, delimiter formats)
   - Discovered surprises (no mock HTML, legacy tables still in use, seed table delimiters)
-- `web/docs/PHASE_A_GATEWAY_SCHEMA.md` — Schema design:
-  - ERD in text (age band → UX wrapper → development need → category types → products)
+- `web/docs/PHASE_A_GATEWAY_SCHEMA.md` ÔÇö Schema design:
+  - ERD in text (age band ÔåÆ UX wrapper ÔåÆ development need ÔåÆ category types ÔåÆ products)
   - New tables to be created in PR #2 (7 tables + optional `pl_product_sources`)
   - Curated public views (`v_gateway_*_public`) for anonymous access
   - Updated_at triggers plan (shared function)
@@ -2386,7 +2512,7 @@ Revert PR (no DB changes).
 
 ------
 
-## 2026-01-15 — Phase 2A: Canonise Layer A (Development Needs)
+## 2026-01-15 ÔÇö Phase 2A: Canonise Layer A (Development Needs)
 
 ### Summary
 - Canonised Layer A (Development Needs) table with full Manus Layer A CSV data
@@ -2400,14 +2526,14 @@ Revert PR (no DB changes).
 - **RLS Policies**:
   - `pl_development_needs_admin_all`: Admin CRUD (FOR ALL using is_admin())
   - `pl_development_needs_authenticated_read`: Authenticated users can read
-  - `pl_development_needs_public_read`: **Public read (anon + authenticated)** — required for MVP landing page
+  - `pl_development_needs_public_read`: **Public read (anon + authenticated)** ÔÇö required for MVP landing page
 - **Schema**: 14 columns including need_name, slug, plain_english_description, why_it_matters, min_month, max_month, stage_anchor_month, stage_phase, stage_reason, evidence_urls, evidence_notes
 - **Constraints**: UNIQUE on need_name and slug
 - **Proof Bundle**: Included at end of migration (prints row count, sample rows, duplicate checks, null checks, RLS policies)
 
 ### Key Changes
 - **Public Read Access**: Added `pl_development_needs_public_read` policy with `USING (true)` to allow anonymous users to read development needs (required for public MVP landing page)
-- **Proof Bundle**: Added DO block at end of migration that prints verification results (row count, samples, duplicates, nulls, policies) — founder runs ONE paste and sees all outputs
+- **Proof Bundle**: Added DO block at end of migration that prints verification results (row count, samples, duplicates, nulls, policies) ÔÇö founder runs ONE paste and sees all outputs
 - **Idempotent**: Migration safely handles existing table and skips inserts if data already exists
 
 ### Implementation Details
@@ -2423,22 +2549,22 @@ Revert PR (no DB changes).
   - Duplicate checks = 0 for both need_name and slug
   - Null checks = 0 for all required fields
   - 3 RLS policies listed (admin_all, authenticated_read, public_read)
-- **Build Status**: ✅ Build passes (`pnpm run build` succeeds)
+- **Build Status**: Ô£à Build passes (`pnpm run build` succeeds)
 - **PR**: https://github.com/glownest2026-droid/ember/compare/main...feat/pl-admin-4-merch-office-v1
 
 ### Migration Application Steps
-1. Open Supabase Dashboard → SQL Editor
+1. Open Supabase Dashboard ÔåÆ SQL Editor
 2. Paste entire contents of `supabase/sql/202601150000_phase2a_canonise_layer_a_development_needs.sql`
 3. Execute
 4. Check NOTICE messages in output (proof bundle runs automatically)
 5. Verify: Row count = 12, no duplicates, no nulls, 3 policies
 
 ### Known Debt
-- None — migration is complete and production-ready
+- None ÔÇö migration is complete and production-ready
 
 ### Patch (2026-01-15, same day)
 - **Issue**: Migration failed with `ERROR 23502: null value in column "name" of relation "pl_development_needs" violates not-null constraint`
-- **Root Cause**: Legacy schema drift — live table has NOT NULL `name` column that wasn't being populated
+- **Root Cause**: Legacy schema drift ÔÇö live table has NOT NULL `name` column that wasn't being populated
 - **Fix**: 
   - Added schema reconciliation: detect and add `name` column if missing (for backwards compatibility)
   - Changed from "only if table empty" to UPSERT-based loader using `ON CONFLICT (need_name) DO UPDATE`
@@ -2452,17 +2578,17 @@ Revert PR (no DB changes).
 
 ------
 
-## 2026-01-14 — PL Need UX Labels: Scalable UX Wrapper Mapping Table
+## 2026-01-14 ÔÇö PL Need UX Labels: Scalable UX Wrapper Mapping Table
 
 ### Founder Exec Summary
 
-Implemented Option B: a scalable UX wrapper mapping table from development needs (Layer A) to parent-friendly labels ("moments"). Created `pl_need_ux_labels` table and seeded 12 brand director mappings for 25–27m. This enables flexible UX labeling without changing core development needs data.
+Implemented Option B: a scalable UX wrapper mapping table from development needs (Layer A) to parent-friendly labels ("moments"). Created `pl_need_ux_labels` table and seeded 12 brand director mappings for 25ÔÇô27m. This enables flexible UX labeling without changing core development needs data.
 
 ### Summary
 
 - Added `slug` column to `pl_development_needs` table (if missing) with backfill from `need_name`
 - Created `pl_need_ux_labels` table with constraints for primary labels and active slugs
-- Seeded 12 brand director mappings for 25–27m (development needs → UX labels)
+- Seeded 12 brand director mappings for 25ÔÇô27m (development needs ÔåÆ UX labels)
 - Migration is idempotent and handles cases where table/column may not exist
 
 ### DB & RLS
@@ -2475,14 +2601,14 @@ Implemented Option B: a scalable UX wrapper mapping table from development needs
 
 ### Key code
 
-- `supabase/sql/202601142252_pl_need_ux_labels.sql` — complete migration with slug column logic, table creation, and seeding
+- `supabase/sql/202601142252_pl_need_ux_labels.sql` ÔÇö complete migration with slug column logic, table creation, and seeding
 
 ### Implementation Details
 
 - Slug generation: Lowercase, keep alnum and spaces, replace spaces with hyphens, collapse multiple hyphens
 - Seeding logic: Prefers slug lookup, falls back to exact `need_name` match
 - Idempotent: Migration checks for table/column existence before modifying
-- Seeded mappings: 12 brand director mappings (e.g., "Color and shape recognition" → "Shapes & colours")
+- Seeded mappings: 12 brand director mappings (e.g., "Color and shape recognition" ÔåÆ "Shapes & colours")
 
 ### Verification (Proof-of-Done)
 
@@ -2512,7 +2638,7 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 
 ### Migration Application Steps
 
-1. Apply migration via Supabase Dashboard → SQL Editor → paste and run `supabase/sql/202601142252_pl_need_ux_labels.sql`
+1. Apply migration via Supabase Dashboard ÔåÆ SQL Editor ÔåÆ paste and run `supabase/sql/202601142252_pl_need_ux_labels.sql`
 2. Verify: Run verification SQL to confirm 12 mappings are seeded
 3. After migration: `pl_development_needs` has `slug` column (if it didn't before), `pl_need_ux_labels` table exists with 12 seeded rows
 
@@ -2521,7 +2647,7 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Revert PR to remove migration file
 - If SQL already applied: Drop `pl_need_ux_labels` table and remove `slug` column from `pl_development_needs` (if added by this migration)
 
-## 2026-01-04 — PL-0: Product Library Ground Truth & Guardrails
+## 2026-01-04 ÔÇö PL-0: Product Library Ground Truth & Guardrails
 
 ### Summary
 - Added PL-0 Supabase SQL migration with pl_* tables and hardened products table RLS
@@ -2529,7 +2655,7 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Products table write access (INSERT/UPDATE/DELETE) now requires admin role via user_roles table
 
 ### Routes added
-- `/app/admin/pl` — admin-only product library stub page (lists age bands + moments)
+- `/app/admin/pl` ÔÇö admin-only product library stub page (lists age bands + moments)
 
 ### DB & RLS
 - Migration file: `supabase/sql/202601041654_pl0_product_library.sql`
@@ -2539,8 +2665,8 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Public SELECT allowed ONLY for published sets and their related cards/evidence
 
 ### Key code
-- `supabase/sql/202601041654_pl0_product_library.sql` — complete migration with RLS policies
-- `web/src/app/(app)/app/admin/pl/page.tsx` — admin page with graceful handling for unmigrated DB
+- `supabase/sql/202601041654_pl0_product_library.sql` ÔÇö complete migration with RLS policies
+- `web/src/app/(app)/app/admin/pl/page.tsx` ÔÇö admin page with graceful handling for unmigrated DB
 
 ### Implementation Details
 - Products RLS: Dropped all existing policies, recreated SELECT (public) and INSERT/UPDATE/DELETE (admin-only)
@@ -2556,14 +2682,14 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
 
 ### Migration Application Steps
-- Apply migration via Supabase Dashboard → SQL Editor → paste and run migration SQL
+- Apply migration via Supabase Dashboard ÔåÆ SQL Editor ÔåÆ paste and run migration SQL
 - After migration: `/app/admin/pl` will display age bands and moments tables
 
 ### Rollback
 - Revert PR to remove admin page
 - If SQL already applied: Drop pl_* tables/types and restore products policies to public select + authenticated write (if needed)
 
-## 2026-01-06 — Manus-ready: Scoring and Gating Logic
+## 2026-01-06 ÔÇö Manus-ready: Scoring and Gating Logic
 
 ### Summary
 - Added Manus scoring columns to products and pl_category_types tables
@@ -2575,11 +2701,11 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Updated empty state message for zero products passing gating
 
 ### Routes modified
-- `/app/recs` — updated product filtering and sorting logic
+- `/app/recs` ÔÇö updated product filtering and sorting logic
 
 ### Key code
-- `supabase/sql/202601060000_manus_ready_scoring_and_evidence.sql` — idempotent migration with scoring columns and pl_evidence table
-- `web/src/app/(app)/app/recs/page.tsx` — updated gating logic and sorting
+- `supabase/sql/202601060000_manus_ready_scoring_and_evidence.sql` ÔÇö idempotent migration with scoring columns and pl_evidence table
+- `web/src/app/(app)/app/recs/page.tsx` ÔÇö updated gating logic and sorting
 
 ### Implementation Details
 - Migration is idempotent: uses ADD COLUMN IF NOT EXISTS, CREATE TABLE IF NOT EXISTS, DROP POLICY IF EXISTS
@@ -2606,7 +2732,7 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - All proof routes pass: `/signin`, `/auth/callback`, `/app`, `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
 
 ### Migration Application Steps
-- Apply migration via Supabase Dashboard → SQL Editor → paste and run migration SQL
+- Apply migration via Supabase Dashboard ÔåÆ SQL Editor ÔåÆ paste and run migration SQL
 - After migration: products table will have new scoring columns; pl_evidence table will be available for evidence storage
 
 ### Rollback
@@ -2614,7 +2740,7 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Migration is additive, so no data loss (new columns are nullable)
 - If needed: ALTER TABLE to drop new columns (but not recommended if data has been populated)
 
-## 2025-11-01 — Module 1: Baseline Audit & Guardrails
+## 2025-11-01 ÔÇö Module 1: Baseline Audit & Guardrails
 
 - Added `/SECURITY.md` documenting surfaces, env vars, and RLS (waitlist insert-only; play_idea public select).
 - Added `/web/docs/DEPLOY-CHECKLIST.md` with preflight, Vercel settings, and rollback steps.
@@ -2625,21 +2751,21 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Merged PR via **Rebase and merge**: `chore: baseline audit & guardrails (module 1)`.
 - Production validation: https://ember-mocha-eight.vercel.app/
 
-## 2025-11-01 — Module 2: Auth + Protected App Shell
+## 2025-11-01 ÔÇö Module 2: Auth + Protected App Shell
 - Added cookie-based auth via `@supabase/ssr` (App Router).
 - Added `/signin` (magic link) and `/auth/callback` (code exchange).
 - Protected `/app/*` via middleware; added private shell with user email + sign out.
 - Verified Supabase URL configuration (Site URL + Additional Redirect URLs) and Vercel envs.
 - Local build passed; PR merged via **Rebase and merge**.
 
-## 2025-11-04 — Module 2b: Auth + Protected App Shell
+## 2025-11-04 ÔÇö Module 2b: Auth + Protected App Shell
 - Magic-link email sign-in via Supabase (PKCE)
 - `/auth/callback` exchanges code and redirects to `/app`
-- Middleware gates `/app/*`; header “Sign in” fixed to be a real link
+- Middleware gates `/app/*`; header ÔÇ£Sign inÔÇØ fixed to be a real link
 - Added `/verify` code fallback to bypass email scanners
 - Local and preview builds green
 
-## 2025-11-30 — Module 8: Builder.io Install & Wiring
+## 2025-11-30 ÔÇö Module 8: Builder.io Install & Wiring
 
 ### Summary
 - Installed Builder SDK and wired a draft-aware CMS route under `/cms/[[...path]]`.
@@ -2648,15 +2774,15 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Created diagnostics: `/ping` (health) and `/api/probe/builder` (content/draft check).
 
 ### Routes touched/added
-- `/cms/[[...path]]` — public (draft-aware via builder.preview or Next draftMode)
-- `/api/preview` — public endpoint that sets draftMode with secret
-- `/api/probe/builder` — public JSON probe (uses secret to include unpublished)
-- `/ping` — public health check
+- `/cms/[[...path]]` ÔÇö public (draft-aware via builder.preview or Next draftMode)
+- `/api/preview` ÔÇö public endpoint that sets draftMode with secret
+- `/api/probe/builder` ÔÇö public JSON probe (uses secret to include unpublished)
+- `/ping` ÔÇö public health check
 
 ### Env & Secrets
 - Local `.env.local`: `NEXT_PUBLIC_BUILDER_API_KEY`, `BUILDER_PREVIEW_SECRET`
 - Vercel (Preview): `NEXT_PUBLIC_BUILDER_API_KEY`, `BUILDER_PREVIEW_SECRET`
-- Vercel (Production): (optional for now — add before publishing CMS content to prod)
+- Vercel (Production): (optional for now ÔÇö add before publishing CMS content to prod)
 - **Note:** Secret values must be set in Vercel; never commit secrets to the repository.
 
 ### 3rd-party wiring
@@ -2668,11 +2794,11 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - N/A for this module (no schema changes)
 
 ### Verification (Proof-of-Done)
-- `/ping` → **200**
-- `/api/preview?secret=<BUILDER_PREVIEW_SECRET>&path=/cms/hello2` → **307** to `/cms/hello2?builder.preview=true` (use secret set in Vercel env vars)
-- `/cms/hello2?builder.preview=true` (in dev/preview) → **200** (renders draft)
-- `/api/probe/builder?path=/cms/hello2&secret=<BUILDER_PREVIEW_SECRET>` → `{ ok: true, preview: true, hasContent: true }` when draft exists (use secret set in Vercel env vars)
-- Published content: `/cms/hello2` → **200** (if published), **404** (if not)
+- `/ping` ÔåÆ **200**
+- `/api/preview?secret=<BUILDER_PREVIEW_SECRET>&path=/cms/hello2` ÔåÆ **307** to `/cms/hello2?builder.preview=true` (use secret set in Vercel env vars)
+- `/cms/hello2?builder.preview=true` (in dev/preview) ÔåÆ **200** (renders draft)
+- `/api/probe/builder?path=/cms/hello2&secret=<BUILDER_PREVIEW_SECRET>` ÔåÆ `{ ok: true, preview: true, hasContent: true }` when draft exists (use secret set in Vercel env vars)
+- Published content: `/cms/hello2` ÔåÆ **200** (if published), **404** (if not)
 
 ### Known debt / risks (carried forward)
 - Ensure `NEXT_PUBLIC_BUILDER_API_KEY` is a **real key** in all envs (not a placeholder).
@@ -2685,20 +2811,20 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Start in: `web/src/components/builder/` (register tokenized blocks), update Builder model inputs
 - Keep `PROGRESS.md` + `state/latest.json` up to date for continuity
 
-## 2025-12-05 — Module 8: Register Branded Blocks (8-Pack)
+## 2025-12-05 ÔÇö Module 8: Register Branded Blocks (8-Pack)
 
 ### Summary
 - Installed and wired the Builder.io SDK with Next 16-safe patterns for the `page` model.
 - Implemented a catch-all `/cms` route that fetches Builder content via `fetchOneEntry` on the server and passes it into a `BuilderPageClient` renderer.
 - Registered the branded Lego kit blocks (Hero, ValueProps, FeatureGrid, CTA, TestimonialList, FAQList, LogoWall, StatsBar) behind a block-shell abstraction.
 - Hardened Builder preview with CSP middleware, `/api/preview` guard, probes (`/_ds/builder`, `/api/probe/builder`), and a branded `/cms/diag` page.
-- Upgraded Next.js to a patched 16.x version to satisfy Vercel’s security enforcement.
+- Upgraded Next.js to a patched 16.x version to satisfy VercelÔÇÖs security enforcement.
 
 ### Routes touched/added
-- `/cms/[[...path]]` — public (Builder-driven CMS pages)
-- `/cms/diag` — private (branded blocks debug / sanity page)
-- `/api/probe/builder` — private (Builder content probe, draft-aware)
-- `/whoami` — private (Next 16-safe debug route)
+- `/cms/[[...path]]` ÔÇö public (Builder-driven CMS pages)
+- `/cms/diag` ÔÇö private (branded blocks debug / sanity page)
+- `/api/probe/builder` ÔÇö private (Builder content probe, draft-aware)
+- `/whoami` ÔÇö private (Next 16-safe debug route)
 
 ### Env & Secrets
 - Local `.env.local`: `NEXT_PUBLIC_BUILDER_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` present.
@@ -2716,13 +2842,13 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - No new tables, columns, or RLS policies for this module.
 
 ### Verification (Proof-of-Done)
-- Visit `/cms/lego-kit-demo` on the Vercel preview → Builder-driven Lego kit demo renders with branded blocks.
-- Visit `/cms/diag` → diagnostic page renders branded test blocks without error.
-- Visit `/api/probe/builder` → JSON probe reports `contentFound: yes` and lists `page` entries.
+- Visit `/cms/lego-kit-demo` on the Vercel preview ÔåÆ Builder-driven Lego kit demo renders with branded blocks.
+- Visit `/cms/diag` ÔåÆ diagnostic page renders branded test blocks without error.
+- Visit `/api/probe/builder` ÔåÆ JSON probe reports `contentFound: yes` and lists `page` entries.
 - `/whoami` renders without dynamic-server usage errors and shows debug info.
 
 ### Known debt / risks (carried forward)
-- Builder preview UX is sensitive to preview URL configuration; mis-configured models can still produce the “site not loading as expected” popup.
+- Builder preview UX is sensitive to preview URL configuration; mis-configured models can still produce the ÔÇ£site not loading as expectedÔÇØ popup.
 - CMS routes currently focused on the `page` model; additional models (e.g. blog, docs) will need their own wiring and possibly separate probes.
 - Branded block set is Lego-kit specific; future modules may extend or refactor these into a shared design system.
 
@@ -2735,7 +2861,7 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
   - `web/src/app/cms/blocks/*`
   - `web/middleware.ts`
 
-## 2025-12-20 — Module 10A: Privacy Hotfix — Remove Child Name Collection
+## 2025-12-20 ÔÇö Module 10A: Privacy Hotfix ÔÇö Remove Child Name Collection
 
 ### Summary
 - Privacy compliance: Removed child name field from `children` table schema (privacy promise: never collect child's name)
@@ -2750,7 +2876,7 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 
 ### DB & RLS
 - Migration file: `supabase/sql/2025-12-20_module_10A_remove_child_name.sql`
-- Change: `children.name` → `legacy_name` (nullable, deprecated)
+- Change: `children.name` ÔåÆ `legacy_name` (nullable, deprecated)
 - RLS policies unchanged: Existing policies only check `user_id` ownership, not name field
 
 ### Verification (Proof-of-Done)
@@ -2764,10 +2890,10 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Future Module 10 implementation must use birthdate/stage-based age calculation, not name collection
 
 ### Migration Application Steps
-- Apply migration via Supabase Dashboard → SQL Editor → paste and run migration SQL
+- Apply migration via Supabase Dashboard ÔåÆ SQL Editor ÔåÆ paste and run migration SQL
 - No application deployment required (database-only change)
 
-## 2025-12-20 — Module 10B: Child Profile UI (Stage, Not Name)
+## 2025-12-20 ÔÇö Module 10B: Child Profile UI (Stage, Not Name)
 
 ### Summary
 - Built CRUD interface for child profiles under `/app/children` routes
@@ -2776,9 +2902,9 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - RLS enforcement: All operations respect `user_id = auth.uid()` via Supabase RLS policies
 
 ### Routes touched/added
-- `/app/children` — list child profiles (birthdate, computed age band, gender)
-- `/app/children/new` — create new child profile form
-- `/app/children/[id]` — edit and delete existing child profile (ownership verified)
+- `/app/children` ÔÇö list child profiles (birthdate, computed age band, gender)
+- `/app/children/new` ÔÇö create new child profile form
+- `/app/children/[id]` ÔÇö edit and delete existing child profile (ownership verified)
 
 ### Env & Secrets
 - No changes to environment variables
@@ -2811,7 +2937,7 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Branch: `feat/module-10B-child-profiles`
 - Routes ready for integration with product recommendations based on child age bands
 
-## 2025-12-20 — Module 10A: Privacy Promise Enforcement (No Child Name)
+## 2025-12-20 ÔÇö Module 10A: Privacy Promise Enforcement (No Child Name)
 
 ### Summary
 - Enforced privacy promise: we never collect a child's name.
@@ -2819,8 +2945,8 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Migration hardened to be idempotent + safe in environments where `name/legacy_name` never existed.
 
 ### Files changed
-- `supabase/sql/2025-11-04_core_schema.sql` — removed `children.name` and added privacy comment
-- `supabase/sql/2025-12-20_module_10A_remove_child_name.sql` — guarded rename/nullability/comment so it never errors when columns don't exist
+- `supabase/sql/2025-11-04_core_schema.sql` ÔÇö removed `children.name` and added privacy comment
+- `supabase/sql/2025-12-20_module_10A_remove_child_name.sql` ÔÇö guarded rename/nullability/comment so it never errors when columns don't exist
 
 ### Verification (Proof-of-Done)
 - Supabase SQL:
@@ -2833,7 +2959,7 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 ### Decision log
 - Decision: No child names anywhere (schema, UI, analytics). Only stage inputs (birthdate/gender/age band/preferences).
 
-## 2025-12-23 — Module 10B: Child Profiles (Stage, Not Name)
+## 2025-12-23 ÔÇö Module 10B: Child Profiles (Stage, Not Name)
 
 ### Summary
 - Built child profile CRUD under `/app/children` using birthdate + optional gender.
@@ -2841,9 +2967,9 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Ownership enforced via RLS; user_id set server-side only.
 
 ### Routes added
-- `/app/children` — list + CTA to add profile
-- `/app/children/new` — create
-- `/app/children/[id]` — edit/delete
+- `/app/children` ÔÇö list + CTA to add profile
+- `/app/children/new` ÔÇö create
+- `/app/children/[id]` ÔÇö edit/delete
 
 ### Key code
 - `web/src/app/(app)/app/children/page.tsx`
@@ -2854,21 +2980,21 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - `web/src/lib/ageBand.ts`
 
 ### Verification (Proof-of-Done)
-- Logged out: `/app/children` → redirects to `/signin?next=/app/children`
+- Logged out: `/app/children` ÔåÆ redirects to `/signin?next=/app/children`
 - Logged in:
-  - Create profile → appears in list
-  - Edit birthdate → age band updates
-  - Delete profile → removed from list
+  - Create profile ÔåÆ appears in list
+  - Edit birthdate ÔåÆ age band updates
+  - Delete profile ÔåÆ removed from list
 
-## 2025-12-23 — Module 10B.1: UX Polish + /app Header Auth State
+## 2025-12-23 ÔÇö Module 10B.1: UX Polish + /app Header Auth State
 
 ### Summary
 - Added visible success/error messaging for child profile save/delete.
 - Fixed `/app` navbar to reflect signed-in state (email + Sign out).
 
 ### Verification (Proof-of-Done)
-- Save child → redirect to `/app/children?saved=1` and banner shows "Profile saved"
-- Delete child → redirect to `/app/children?deleted=1` and banner shows "Profile deleted"
+- Save child ÔåÆ redirect to `/app/children?saved=1` and banner shows "Profile saved"
+- Delete child ÔåÆ redirect to `/app/children?deleted=1` and banner shows "Profile deleted"
 - Signed in: `/app` header shows email + Sign out (not "Sign in")
 - Existing proof routes still work: `/signin`, `/auth/callback`, `/ping`, `/cms/lego-kit-demo`
 
@@ -2876,7 +3002,7 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Latest shipped: child profiles + UX + auth-aware /app header.
 - Next focus: personalised products v0 by child age band + click tracking.
 
-## 2025-12-23 — Module 11A: Recommendations v0 (Age-Band)
+## 2025-12-23 ÔÇö Module 11A: Recommendations v0 (Age-Band)
 
 ### Summary
 - Added `/app/recs` route for product recommendations filtered by selected child's age band.
@@ -2886,13 +3012,13 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Product cards with link precedence: deep_link_url > affiliate_url > affiliate_deeplink > none.
 
 ### Routes added
-- `/app/recs` — recommendations page (protected by existing `/app/*` middleware)
+- `/app/recs` ÔÇö recommendations page (protected by existing `/app/*` middleware)
 
 ### Key code
-- `web/src/app/(app)/app/recs/page.tsx` — server component with auth, children fetch, product query
-- `web/src/app/(app)/app/recs/_components/ChildSelector.tsx` — client component for child selection
-- `web/src/app/(app)/app/recs/_components/ProductCard.tsx` — product card with image validation and link precedence
-- `web/src/app/(app)/layout.tsx` — added "Recommendations" nav link
+- `web/src/app/(app)/app/recs/page.tsx` ÔÇö server component with auth, children fetch, product query
+- `web/src/app/(app)/app/recs/_components/ChildSelector.tsx` ÔÇö client component for child selection
+- `web/src/app/(app)/app/recs/_components/ProductCard.tsx` ÔÇö product card with image validation and link precedence
+- `web/src/app/(app)/layout.tsx` ÔÇö added "Recommendations" nav link
 
 ### Implementation Details
 - Server-side age band derivation reuses existing `calculateAgeBand` helper from `/lib/ageBand.ts`.
@@ -2903,14 +3029,14 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 
 ### Verification (Proof-of-Done)
 - `/app/recs` exists and is accessible only when signed in (via existing `/app/*` protection)
-- Empty state: 0 children → shows CTA to `/app/children/new`
-- Child selector: >=1 child → dropdown appears, default selection works, selection updates via `?child=` query param
+- Empty state: 0 children ÔåÆ shows CTA to `/app/children/new`
+- Child selector: >=1 child ÔåÆ dropdown appears, default selection works, selection updates via `?child=` query param
 - Recommendations: only shows products with matching age_band AND rating >= 4 AND non-null rating
-- Archived handling: if `is_archived` exists → archived excluded; if not → page still works (graceful fallback)
+- Archived handling: if `is_archived` exists ÔåÆ archived excluded; if not ÔåÆ page still works (graceful fallback)
 - CTA link precedence: deep_link_url > affiliate_url > affiliate_deeplink > none (disabled button)
-- All proof routes pass: `/signin`, `/auth/callback`, `/app` (logged out → redirect), `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
+- All proof routes pass: `/signin`, `/auth/callback`, `/app` (logged out ÔåÆ redirect), `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
 
-## 2025-12-23 — Module 11B: Click Tracking v0 (Recs CTA)
+## 2025-12-23 ÔÇö Module 11B: Click Tracking v0 (Recs CTA)
 
 ### Summary
 - Added click tracking for "View product" clicks on `/app/recs` product cards.
@@ -2919,12 +3045,12 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Privacy promise: no child name collection; only child_id (UUID) and age_band.
 
 ### Routes added
-- `/api/click` — POST endpoint for click tracking (returns 204, best-effort insert)
+- `/api/click` ÔÇö POST endpoint for click tracking (returns 204, best-effort insert)
 
 ### Key code
-- `web/src/app/api/click/route.ts` — API route with auth check and best-effort Supabase insert
-- `web/src/app/(app)/app/recs/_components/ProductCard.tsx` — converted to client component with click handler
-- `web/src/app/(app)/app/recs/page.tsx` — updated to pass selectedChild info to ProductCard
+- `web/src/app/api/click/route.ts` ÔÇö API route with auth check and best-effort Supabase insert
+- `web/src/app/(app)/app/recs/_components/ProductCard.tsx` ÔÇö converted to client component with click handler
+- `web/src/app/(app)/app/recs/page.tsx` ÔÇö updated to pass selectedChild info to ProductCard
 
 ### Implementation Details
 - API route: validates user session, product_id (UUID format), optional child_id/age_band/dest_host.
@@ -2944,32 +3070,32 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - No child name collection (only child_id UUID and age_band string)
 - All proof routes pass: `/signin`, `/auth/callback`, `/app`, `/app/children`, `/app/recs`, `/ping`, `/cms/lego-kit-demo`
 
-## 2025-12-24 — Module 11C: Theme v1 (Global Apply + Live Preview + Semantic Tokens + Gradients)
+## 2025-12-24 ÔÇö Module 11C: Theme v1 (Global Apply + Live Preview + Semantic Tokens + Gradients)
 
 ### Summary
 - Shipped admin-managed brand theming with global site apply (home/signin/app/cms) and a live preview editor.
-- Expanded from basic tokens to a clearer, semantic theme model (button foregrounds, section backgrounds) and added “Reset to factory” to restore Ember defaults.
+- Expanded from basic tokens to a clearer, semantic theme model (button foregrounds, section backgrounds) and added ÔÇ£Reset to factoryÔÇØ to restore Ember defaults.
 - Hardened deployment hygiene (resolved merge-conflict markers causing build failure).
 - Applied homepage section theming so marketing page blocks follow the Background/Section alternation (no hard-coded white outliers).
 
 
 ### Routes added
-- /app/admin/theme — admin-only theme settings page with live preview
-- /api/admin/theme — theme save endpoint with revalidation
+- /app/admin/theme ÔÇö admin-only theme settings page with live preview
+- /api/admin/theme ÔÇö theme save endpoint with revalidation
 
 
 ### Key code
-- web/src/lib/theme.ts — theme schema, DEFAULT_THEME (factory), mergeTheme(), luminance helpers + safe merges
-- web/src/lib/admin.ts — admin role check utility
-- web/src/components/ThemeProvider.tsx — applies theme globally via CSS variables
-- web/src/app/layout.tsx — root layout wraps all routes with ThemeProvider (global apply)
-- web/src/app/(app)/app/admin/theme/page.tsx — admin theme page
-- web/src/app/(app)/app/admin/theme/_components/ThemeEditor.tsx — editor UI incl. sticky preview + reset
-- web/src/app/(app)/app/admin/theme/_components/ThemePreview.tsx — live preview mock showing token effects
-- web/src/app/api/admin/theme/route.ts — POST endpoint + revalidatePath for immediate propagation
-- web/src/app/globals.css — maps theme vars into global styling (background, text, buttons, sections, optional scrollbar)
-- web/src/app/page.tsx — homepage sections updated to use theme background/section tokens (remove hard-coded white)
-- web/src/components/ui/Button.tsx + web/src/components/Header.tsx — primary/accent buttons use foreground tokens for readable text
+- web/src/lib/theme.ts ÔÇö theme schema, DEFAULT_THEME (factory), mergeTheme(), luminance helpers + safe merges
+- web/src/lib/admin.ts ÔÇö admin role check utility
+- web/src/components/ThemeProvider.tsx ÔÇö applies theme globally via CSS variables
+- web/src/app/layout.tsx ÔÇö root layout wraps all routes with ThemeProvider (global apply)
+- web/src/app/(app)/app/admin/theme/page.tsx ÔÇö admin theme page
+- web/src/app/(app)/app/admin/theme/_components/ThemeEditor.tsx ÔÇö editor UI incl. sticky preview + reset
+- web/src/app/(app)/app/admin/theme/_components/ThemePreview.tsx ÔÇö live preview mock showing token effects
+- web/src/app/api/admin/theme/route.ts ÔÇö POST endpoint + revalidatePath for immediate propagation
+- web/src/app/globals.css ÔÇö maps theme vars into global styling (background, text, buttons, sections, optional scrollbar)
+- web/src/app/page.tsx ÔÇö homepage sections updated to use theme background/section tokens (remove hard-coded white)
+- web/src/components/ui/Button.tsx + web/src/components/Header.tsx ÔÇö primary/accent buttons use foreground tokens for readable text
 
 
 ### Theme Schema (as-shipped)
@@ -3008,9 +3134,9 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 
 ### Implementation Details
 - Global apply: ThemeProvider in root layout covers all routes (/, /signin, /cms/, /app/).
-- Live preview: Draft state updates preview panel without affecting saved theme until “Save Theme”.
+- Live preview: Draft state updates preview panel without affecting saved theme until ÔÇ£Save ThemeÔÇØ.
 - Immediate propagation: save endpoint triggers revalidation (revalidatePath on relevant layouts/routes).
-- Reset: “Reset to factory” writes DEFAULT_THEME back to site_settings.theme and revalidates.
+- Reset: ÔÇ£Reset to factoryÔÇØ writes DEFAULT_THEME back to site_settings.theme and revalidates.
 - Semantic mapping: background/surface/section drive page + sections; primary/accent drive buttons/links; foreground tokens ensure readable button text.
 - Fonts: curated dropdown expanded beyond v0 (ensure list matches current implementation).
 - Deployment hygiene: resolved and prevented merge conflict markers in theme.ts that broke Turbopack build.
@@ -3025,7 +3151,7 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Build passes: no conflict markers; Vercel build succeeds.
 - All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
 
-## 2025-12-30 — Module 11D: Mobile + PWA-lite
+## 2025-12-30 ÔÇö Module 11D: Mobile + PWA-lite
 
 ### Summary
 - Added PWA-lite manifest route with icons for installability (best-effort).
@@ -3033,15 +3159,15 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Applied mobile CSS polish: tap targets (44px minimum), input font-size (16px to prevent iOS zoom), overflow prevention.
 
 ### Routes added
-- `/manifest.webmanifest` — PWA manifest route (auto-generated by Next.js from `manifest.ts`)
+- `/manifest.webmanifest` ÔÇö PWA manifest route (auto-generated by Next.js from `manifest.ts`)
 
 ### Key code
-- `web/src/app/manifest.ts` — PWA manifest configuration (name, icons, theme_color, background_color, display: standalone)
-- `web/src/app/layout.tsx` — added viewport export (viewportFit: cover), themeColor metadata, appleWebApp metadata, apple-touch-icon
-- `web/src/app/globals.css` — mobile polish: `.btn` min-height 44px, `.input` font-size 16px and min-height 44px, `html/body` overflow-x hidden, `.container-wrap` box-sizing, `.card` box-sizing
-- `web/src/components/Header.tsx` — responsive padding (px-4 sm:px-6) for mobile overflow prevention
-- `web/scripts/generate-icons.mjs` — utility script to generate placeholder icons (icon-192.png, icon-512.png, apple-touch-icon.png)
-- `web/public/icon-192.png`, `web/public/icon-512.png`, `web/public/apple-touch-icon.png` — generated placeholder icons with brand colors
+- `web/src/app/manifest.ts` ÔÇö PWA manifest configuration (name, icons, theme_color, background_color, display: standalone)
+- `web/src/app/layout.tsx` ÔÇö added viewport export (viewportFit: cover), themeColor metadata, appleWebApp metadata, apple-touch-icon
+- `web/src/app/globals.css` ÔÇö mobile polish: `.btn` min-height 44px, `.input` font-size 16px and min-height 44px, `html/body` overflow-x hidden, `.container-wrap` box-sizing, `.card` box-sizing
+- `web/src/components/Header.tsx` ÔÇö responsive padding (px-4 sm:px-6) for mobile overflow prevention
+- `web/scripts/generate-icons.mjs` ÔÇö utility script to generate placeholder icons (icon-192.png, icon-512.png, apple-touch-icon.png)
+- `web/public/icon-192.png`, `web/public/icon-512.png`, `web/public/apple-touch-icon.png` ÔÇö generated placeholder icons with brand colors
 
 ### Implementation Details
 - Manifest: uses DEFAULT_THEME colors (primary: #FFBEAB, background: #FFFCF8), start_url: /app, display: standalone.
@@ -3053,11 +3179,11 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 ### Verification (Proof-of-Done)
 - Build passes: `pnpm build` succeeds, manifest route registered.
 - Icons present: icon-192.png, icon-512.png, apple-touch-icon.png in public/.
-- Manifest served: `/manifest.webmanifest` accessible (check via DevTools → Application → Manifest).
+- Manifest served: `/manifest.webmanifest` accessible (check via DevTools ÔåÆ Application ÔåÆ Manifest).
 - Mobile layout: no horizontal overflow, buttons/inputs tappable (44px minimum), inputs don't trigger iOS zoom (16px font).
 - All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
 
-## 2026-01-05 — PL Taxonomy: Category Types + Products Admin + Curation Control
+## 2026-01-05 ÔÇö PL Taxonomy: Category Types + Products Admin + Curation Control
 
 ### Summary
 - Implemented founder-facing admin capabilities for Category Types and Products (SKUs)
@@ -3069,24 +3195,24 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - Added age band dropdown and optional rating field to products admin
 
 ### Routes added
-- `/app/admin/category-types` — Category Types admin (list + create/edit)
-- `/app/admin/products` — Products admin (list + create/edit with category_type_id, age_band dropdown, optional rating)
-- `/api/admin/category-types` — Category Types API (GET, POST)
-- `/api/admin/category-types/[id]` — Category Type API (PATCH)
-- `/api/admin/products` — Products API (GET, POST)
-- `/api/admin/products/[id]` — Product API (PATCH)
-- `/api/admin/age-bands` — Age Bands API (GET, for products dropdown)
+- `/app/admin/category-types` ÔÇö Category Types admin (list + create/edit)
+- `/app/admin/products` ÔÇö Products admin (list + create/edit with category_type_id, age_band dropdown, optional rating)
+- `/api/admin/category-types` ÔÇö Category Types API (GET, POST)
+- `/api/admin/category-types/[id]` ÔÇö Category Type API (PATCH)
+- `/api/admin/products` ÔÇö Products API (GET, POST)
+- `/api/admin/products/[id]` ÔÇö Product API (PATCH)
+- `/api/admin/age-bands` ÔÇö Age Bands API (GET, for products dropdown)
 
 ### Key code
-- `supabase/sql/202601050000_pl_category_types_and_products.sql` — Migration: pl_category_types table + category_type_id column on products (handles existing `label` column gracefully)
-- `supabase/sql/202601050001_remove_rating_min_constraint.sql` — Migration to remove any rating >= 4 constraint (if exists)
-- `web/src/app/api/admin/category-types/**` — Category Types API routes (admin-guarded, service role writes)
-- `web/src/app/api/admin/products/**` — Products API routes (admin-guarded, service role writes, rating optional 0-5)
-- `web/src/app/api/admin/age-bands/route.ts` — Age Bands API route for dropdown
-- `web/src/app/(app)/app/admin/category-types/page.tsx` — Category Types admin UI
-- `web/src/app/(app)/app/admin/products/page.tsx` — Products admin UI (with age_band dropdown from pl_age_bands, optional rating field)
-- `web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MomentSetEditor.tsx` — Fixed dropdowns to use `name` field, proper labels, controlled components, conditional product filtering by category type
-- `web/src/app/(app)/app/admin/pl/_actions.ts` — Removed mutual exclusivity from card updates
+- `supabase/sql/202601050000_pl_category_types_and_products.sql` ÔÇö Migration: pl_category_types table + category_type_id column on products (handles existing `label` column gracefully)
+- `supabase/sql/202601050001_remove_rating_min_constraint.sql` ÔÇö Migration to remove any rating >= 4 constraint (if exists)
+- `web/src/app/api/admin/category-types/**` ÔÇö Category Types API routes (admin-guarded, service role writes)
+- `web/src/app/api/admin/products/**` ÔÇö Products API routes (admin-guarded, service role writes, rating optional 0-5)
+- `web/src/app/api/admin/age-bands/route.ts` ÔÇö Age Bands API route for dropdown
+- `web/src/app/(app)/app/admin/category-types/page.tsx` ÔÇö Category Types admin UI
+- `web/src/app/(app)/app/admin/products/page.tsx` ÔÇö Products admin UI (with age_band dropdown from pl_age_bands, optional rating field)
+- `web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MomentSetEditor.tsx` ÔÇö Fixed dropdowns to use `name` field, proper labels, controlled components, conditional product filtering by category type
+- `web/src/app/(app)/app/admin/pl/_actions.ts` ÔÇö Removed mutual exclusivity from card updates
 
 ### Implementation Details
 - Category Types: name (required, unique), slug (auto-generated from name), description (optional), image_url (optional)
@@ -3127,28 +3253,28 @@ Expected: 12 rows showing the mappings (need_name, need_slug, ux_label, ux_slug)
 - All proof routes pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
 - Theme admin still works: /app/admin/theme
 
-## 2026-01-10 — FT-1: Public /new landing page (age slider) + signup gate
+## 2026-01-10 ÔÇö FT-1: Public /new landing page (age slider) + signup gate
 
 ### Founder Exec Summary
 
-We shipped the public acquisition page that lets a brand-new visitor set their child’s age (slider), pick a “moment”, instantly see curated picks, and then hit a natural conversion gate (“Save to shortlist” → sign in). This is the MVP “paid landing page” surface for TikTok/ads.
+We shipped the public acquisition page that lets a brand-new visitor set their childÔÇÖs age (slider), pick a ÔÇ£momentÔÇØ, instantly see curated picks, and then hit a natural conversion gate (ÔÇ£Save to shortlistÔÇØ ÔåÆ sign in). This is the MVP ÔÇ£paid landing pageÔÇØ surface for TikTok/ads.
 
 ### Summary
 
 - Added public landing routes /new and /new/[months] (deep linkable from ads)
 - Slider is preloaded from the URL (e.g. /new/25) and updates the URL as you change it
 - Moment selection is reflected in the URL via query params (shareable / consistent refresh)
-- Integrates with PL curation: shows “top 3 picks” only when a published set exists for that age+moment
-- “Save to shortlist” triggers sign-in immediately and preserves return state (month + moment)
+- Integrates with PL curation: shows ÔÇ£top 3 picksÔÇØ only when a published set exists for that age+moment
+- ÔÇ£Save to shortlistÔÇØ triggers sign-in immediately and preserves return state (month + moment)
 - Routes added
-- /new — public landing (default age range)
-- /new/[months] — deep-link landing (preloads slider)
+- /new ÔÇö public landing (default age range)
+- /new/[months] ÔÇö deep-link landing (preloads slider)
 - (No new auth routes; uses existing /signin?next=... flow)
 
 ### Key code
 
-- web/src/app/new/page.tsx and/or web/src/app/new/[months]/page.tsx — public landing routes
-- web/src/components/*NewLandingPage* — client component implementing slider + moment + cards UI
+- web/src/app/new/page.tsx and/or web/src/app/new/[months]/page.tsx ÔÇö public landing routes
+- web/src/components/*NewLandingPage* ÔÇö client component implementing slider + moment + cards UI
 - PL fetch integration (published sets only): uses pl_age_moment_sets + related cards/evidence (read-only)
 - Header behaviour: header/logo remains inside the experience; signup redirects preserve state
 - Verification (Proof-of-Done)
@@ -3156,11 +3282,11 @@ We shipped the public acquisition page that lets a brand-new visitor set their c
 - /new/25 preloads age to 25 months
 - Changing slider updates URL and refreshes picks deterministically
 - If no published set exists for chosen age+moment: show premium empty state (no crash)
-- “Save to shortlist” redirects to /signin?next=<return-to-same-new-url>
+- ÔÇ£Save to shortlistÔÇØ redirects to /signin?next=<return-to-same-new-url>
 - All proof routes still pass: /signin, /auth/callback, /app, /app/children, /app/recs, /ping, /cms/lego-kit-demo
 - Theme still applies globally (no regression): /app/admin/theme works for admins
 
-## 2026-01-13 — PL-ADMIN-5: Build Fixes + System Status Panel + UX Improvements
+## 2026-01-13 ÔÇö PL-ADMIN-5: Build Fixes + System Status Panel + UX Improvements
 
 ### Founder Exec Summary
 
@@ -3212,7 +3338,7 @@ Fixed critical build errors preventing Vercel deployment, added comprehensive Sy
 - System Status panel shows first 7 chars of commit SHA (full SHA available in logs)
 - User ID truncated to first 8 chars for display (full ID in logs)
 
-## 2026-01-12 — PL-ADMIN-5: Autopilot v0 + Algorithm Controls
+## 2026-01-12 ÔÇö PL-ADMIN-5: Autopilot v0 + Algorithm Controls
 
 ### Founder Exec Summary
 
@@ -3270,10 +3396,10 @@ Autopilot v0 is now fully wired and operational. The admin runs itself ("Ramsay-
 
 1. **Autopilot exists and runs**: Opening `/app/admin/pl/25-27m` shows populated draft for Bath time without manual card creation
 2. **Algorithm panel exists and is wired**: 
-   - Change weights → Save → Regenerate → at least one slot changes (or explanation given why not)
+   - Change weights ÔåÆ Save ÔåÆ Regenerate ÔåÆ at least one slot changes (or explanation given why not)
    - Weights normalize to sum to 1.0
 3. **Score breakdown visible**: When algorithm toggle is on, cards show score breakdown with confidence/quality/anchor/evidence components
-4. **Locks prevent overwrite**: Lock a card, regenerate draft → locked card unchanged
+4. **Locks prevent overwrite**: Lock a card, regenerate draft ÔåÆ locked card unchanged
 5. **Why auto-fills**: Autopilot-assigned cards have "Why it can work" pre-filled from product database
 6. **Evidence chips**: Cards show "Sources: X", "Needs 2nd source", "Ready to publish" chips
 7. **Add card works**: Add card button creates card and persists (no disappearing toast)
@@ -3291,7 +3417,7 @@ Autopilot v0 is now fully wired and operational. The admin runs itself ("Ramsay-
 - Consider adding "Regenerate all moments" button (performance permitting)
 - Add pool warning when no pool exists ("No pool set; autopilot using full catalogue")
 
-## 2026-01-12 — PL-ADMIN-4: Merchandising Office v1 (Shopfront + Factory)
+## 2026-01-12 ÔÇö PL-ADMIN-4: Merchandising Office v1 (Shopfront + Factory)
 
 ### Founder Exec Summary
 
@@ -3315,7 +3441,7 @@ Merchandising Office v1 is a two-pane workspace (Shopfront 40% + Factory 60%) de
 - `web/src/app/(app)/app/admin/pl/[ageBandId]/_components/MerchandisingOffice.tsx`: New two-pane component replacing MomentSetEditor
   - Shopfront pane: moment header, status strip, card list (populated only), "Add card" CTA
   - Factory pane: product table, search/filters, product drawer, "Place into" buttons
-  - Slot label mapping: LANE_TO_LABEL mapping (obvious → "Great fit", etc.)
+  - Slot label mapping: LANE_TO_LABEL mapping (obvious ÔåÆ "Great fit", etc.)
   - Product drawer: slide-out drawer with product details and slot placement buttons
 - `web/src/app/(app)/app/admin/pl/_actions.ts`:
   - `createCard()`: Creates new card for a set with specified lane and rank
@@ -3363,7 +3489,7 @@ Merchandising Office v1 is a two-pane workspace (Shopfront 40% + Factory 60%) de
 - Refine mobile responsive behavior
 - Consider adding evidence management UI (currently handled separately)
 
-## 2026-01-10 — PL-ADMIN-2: Conditional SKU filtering + merchandising UX tweaks
+## 2026-01-10 ÔÇö PL-ADMIN-2: Conditional SKU filtering + merchandising UX tweaks
 
 ### Founder Exec Summary
 
@@ -3428,10 +3554,10 @@ Fixed critical bug where selecting a Category Type (e.g., "Play dough") allowed 
 - Consider adding bulk operations for category assignment
 - Consider adding product search/filter within category dropdown
 
-## 2026-01-12 — PL-ADMIN-1: Admin dropdowns populated + publish gating (evidence-aware)
+## 2026-01-12 ÔÇö PL-ADMIN-1: Admin dropdowns populated + publish gating (evidence-aware)
 ### Founder Exec Summary
 
-We unblocked the Product Library admin workflow so it can finally “see” the real catalogue seeded from Manus. Category Type and Product dropdowns now populate from the new fit-based sources (age-band aware), and publishing is protected by an evidence gate (products cannot be published unless they have sufficient evidence). This gets us to a usable merch admin surface while we iterate toward the “Virtual Merchandising Office” layout.
+We unblocked the Product Library admin workflow so it can finally ÔÇ£seeÔÇØ the real catalogue seeded from Manus. Category Type and Product dropdowns now populate from the new fit-based sources (age-band aware), and publishing is protected by an evidence gate (products cannot be published unless they have sufficient evidence). This gets us to a usable merch admin surface while we iterate toward the ÔÇ£Virtual Merchandising OfficeÔÇØ layout.
 
 ### Summary
 
@@ -3443,7 +3569,7 @@ UI now displays product metadata when selected:
 
 Confidence score and quality score (from pl_product_fits)
 
-Evidence count + publish readiness badge (“Needs 2nd source”)
+Evidence count + publish readiness badge (ÔÇ£Needs 2nd sourceÔÇØ)
 
 Publish action now enforces a server-side gate:
 
@@ -3459,7 +3585,7 @@ Product dropdown is not yet conditional on selected Category Type (can select mi
 
 web/src/app/(app)/app/admin/pl/[ageBandId]/page.tsx
 
-Updated category query: pl_category_type_fits → join pl_category_types → sort by label
+Updated category query: pl_category_type_fits ÔåÆ join pl_category_types ÔåÆ sort by label
 
 Updated product query: v_pl_product_fits_ready_for_recs filtered by age band + ready-for-recs
 
@@ -3477,13 +3603,13 @@ Blocks publish with explicit error messaging
 
 Data / Supabase notes (manual actions taken)
 
-Catalogue seeded successfully for 25–27m:
+Catalogue seeded successfully for 25ÔÇô27m:
 
 products total: 186
 
-pl_product_fits for 25–27m: 163
+pl_product_fits for 25ÔÇô27m: 163
 
-pl_category_type_fits for 25–27m: 38
+pl_category_type_fits for 25ÔÇô27m: 38
 
 Evidence gating view implemented:
 
@@ -3491,15 +3617,15 @@ v_pl_product_fits_ready_for_recs
 
 is_ready_for_recs = true (>= 1 evidence)
 
-is_ready_for_publish = false currently for all 25–27m (requires 2nd independent source)
+is_ready_for_publish = false currently for all 25ÔÇô27m (requires 2nd independent source)
 
-Removed/disabled insert-time enforcement that conflicted with “store wide, gate later”:
+Removed/disabled insert-time enforcement that conflicted with ÔÇ£store wide, gate laterÔÇØ:
 
 Disabled trg_min_rating / check_min_rating() on products (publish gating replaces this)
 
 ### Verification (Proof-of-Done)
 
-Admin PL page loads for 25–27m and dropdowns show real options (not just “None”).
+Admin PL page loads for 25ÔÇô27m and dropdowns show real options (not just ÔÇ£NoneÔÇØ).
 
 Selecting a SKU shows evidence badge and confidence/quality metadata.
 
@@ -3525,9 +3651,9 @@ Category-only cards remain publishable.
 
 ## feat(subnav-ui): authenticated subnav globally + real saves counts + reminders toggle (Feb 2026)
 
-- **Goal:** Implement authenticated subnav per Figma; hidden for guests, shown when logged in; "Add a child" → /app/children; Save Idea / product Save write to PR1 tables and update subnav counts; "Send me development reminders" toggle upserts user_notification_prefs.
+- **Goal:** Implement authenticated subnav per Figma; hidden for guests, shown when logged in; "Add a child" ÔåÆ /app/children; Save Idea / product Save write to PR1 tables and update subnav counts; "Send me development reminders" toggle upserts user_notification_prefs.
 - **What changed:** Root layout wrapped with SubnavStatsProvider; SubnavGate + SubnavBar (toys saved, gifts saved = 0, category ideas saved, reminders toggle). useSubnavStats fetches get_my_subnav_stats() for authed users; refetch after saves/toggle. DiscoveryPageClient: handleSaveCategory and handleSaveToList insert into user_saved_ideas / user_saved_products (upsert), refetch subnav; runReplayForAction does same for replay-after-sign-in. SubnavBar reminders toggle upserts user_notification_prefs. New: web/src/lib/subnav/SubnavStatsContext.tsx, web/src/components/subnav/SubnavBar.tsx, SubnavSwitch.tsx, SubnavGate.tsx.
-- **Proof:** `pnpm -C web build` passes. Founder QA: guest no subnav; sign in → subnav appears; Add a child → /app/children; Save Idea / Save → counts increment and persist; reminders toggle persists.
+- **Proof:** `pnpm -C web build` passes. Founder QA: guest no subnav; sign in ÔåÆ subnav appears; Add a child ÔåÆ /app/children; Save Idea / Save ÔåÆ counts increment and persist; reminders toggle persists.
 - **Rollback:** Revert PR (no DB migration in this PR).
 - **PR:** [Link after PR opened]
 
@@ -3546,7 +3672,7 @@ Category-only cards remain publishable.
 ## fix(snag-pack): homepage + navbar tweaks (fix/snag-pack-homepage-v1)
 
 - **Goal:** Single Snag Fix PR: navbar nav icons for signed-in users; homepage copy, layout, animation and logo fixes.
-- **What changed:** (1) **Navbar:** After "Ember" text, three clickable nav icons for signed-in users — Discover (Lightbulb → /discover), Buy (ShoppingBag → /new), Move (RefreshCw → /products); same Lucide icons as homepage. (2) **Homepage:** Every section header ends in full stop; "How Ember Works" subtitle one sentence per line. (3) **Hero:** "Your pocket play guide" → "Your proactive" / "play guide" (two lines). (4) **Buy it card:** Body text updated to "A short set of ideas that fit this stage. The latest retailer offers that pass our review tests. Buy what you need, or add to your gift list for helpful family purchases." (5) **Flow animation:** Faster rotation (40s → 16s) and path animations; darker dashed circle (opacity 0.7, strokeWidth 1). (6) **How we choose:** Container centre-aligned (mx-auto text-center). (7) **Section order + layout:** "Never behind the curve" moved above "Built around how children actually grow"; four image blocks alternate image right, left, right, left. (8) **Ember logo:** Replaced with Supabase asset URL (Ember_Logo_Robin1.png) in navbar and HomeHowItWorks.
+- **What changed:** (1) **Navbar:** After "Ember" text, three clickable nav icons for signed-in users ÔÇö Discover (Lightbulb ÔåÆ /discover), Buy (ShoppingBag ÔåÆ /new), Move (RefreshCw ÔåÆ /products); same Lucide icons as homepage. (2) **Homepage:** Every section header ends in full stop; "How Ember Works" subtitle one sentence per line. (3) **Hero:** "Your pocket play guide" ÔåÆ "Your proactive" / "play guide" (two lines). (4) **Buy it card:** Body text updated to "A short set of ideas that fit this stage. The latest retailer offers that pass our review tests. Buy what you need, or add to your gift list for helpful family purchases." (5) **Flow animation:** Faster rotation (40s ÔåÆ 16s) and path animations; darker dashed circle (opacity 0.7, strokeWidth 1). (6) **How we choose:** Container centre-aligned (mx-auto text-center). (7) **Section order + layout:** "Never behind the curve" moved above "Built around how children actually grow"; four image blocks alternate image right, left, right, left. (8) **Ember logo:** Replaced with Supabase asset URL (Ember_Logo_Robin1.png) in navbar and HomeHowItWorks.
 - **Key files:** `DiscoverStickyHeader.tsx`, `HomeHero.tsx`, `HomeHowItWorks.tsx`, `HomeHowWeChoose.tsx`, `HomeShowsUp.tsx`, `HomeStageBlocks.tsx`, `HomeFinalCTA.tsx`, `page.tsx`.
 - **Proof:** `pnpm -C web build` passes. Manual: navbar signed-in shows three icons; homepage copy, layout, animation and logo as above.
 - **PR:** #157 fix(snag-pack): homepage + navbar tweaks
@@ -3558,14 +3684,14 @@ Category-only cards remain publishable.
 
 - **Goal:** Resolve the 13 requested snags only (nav/mobile polish, discover/save/family UX, signin return path, and marketplace CTA tweaks).
 - **What changed:** 
-  - `web/src/components/subnav/UnifiedSignedInNav.tsx` — larger mobile logo for signed-in nav, "All children" label when no child selected, products counter icon switched from box/package to shopping cart, added `Family` link in mobile menu after `Account`.
-  - `web/src/components/ui/SimpleTooltip.tsx` — tooltip alignment/width constrained so reminders tooltip stays within viewport on mobile.
-  - `web/src/app/marketplace/page.tsx` — removed "Get notified"; changed "Join early access" CTAs to a simple confirmation route (`/success`).
-  - `web/src/components/family/MyIdeasClient.tsx` — added top-right minus affordance on cards plus modal overlay ("Are you sure?") with `Remove` and `Archive` actions.
-  - `web/src/app/discover/[months]/DiscoveryPageClient.tsx`, `web/src/components/discover/figma/DiscoverFigmaPlayCarousel.tsx`, `web/src/components/discover/figma/DiscoverFigmaPlayIdeaCard.tsx`, `web/src/components/discover/figma/DiscoverFigmaProductCarousel.tsx` — added Ember logo before each stage section header; hide "Have" action for signed-out users.
-  - `web/src/components/discover/DiscoverStickyHeader.tsx` — signin links now preserve current page + query in `next` so post-auth returns to same journey page.
-  - `web/src/components/figma/family/FamilyFigmaClient.tsx` — email toggles moved before their text labels, made mutually exclusive; navbar reminders preference remains tied only to "Monthly stage updates".
-  - `web/src/app/layout.tsx`, `web/src/app/globals.css` — set global white fallback background to avoid black flash before content render.
+  - `web/src/components/subnav/UnifiedSignedInNav.tsx` ÔÇö larger mobile logo for signed-in nav, "All children" label when no child selected, products counter icon switched from box/package to shopping cart, added `Family` link in mobile menu after `Account`.
+  - `web/src/components/ui/SimpleTooltip.tsx` ÔÇö tooltip alignment/width constrained so reminders tooltip stays within viewport on mobile.
+  - `web/src/app/marketplace/page.tsx` ÔÇö removed "Get notified"; changed "Join early access" CTAs to a simple confirmation route (`/success`).
+  - `web/src/components/family/MyIdeasClient.tsx` ÔÇö added top-right minus affordance on cards plus modal overlay ("Are you sure?") with `Remove` and `Archive` actions.
+  - `web/src/app/discover/[months]/DiscoveryPageClient.tsx`, `web/src/components/discover/figma/DiscoverFigmaPlayCarousel.tsx`, `web/src/components/discover/figma/DiscoverFigmaPlayIdeaCard.tsx`, `web/src/components/discover/figma/DiscoverFigmaProductCarousel.tsx` ÔÇö added Ember logo before each stage section header; hide "Have" action for signed-out users.
+  - `web/src/components/discover/DiscoverStickyHeader.tsx` ÔÇö signin links now preserve current page + query in `next` so post-auth returns to same journey page.
+  - `web/src/components/figma/family/FamilyFigmaClient.tsx` ÔÇö email toggles moved before their text labels, made mutually exclusive; navbar reminders preference remains tied only to "Monthly stage updates".
+  - `web/src/app/layout.tsx`, `web/src/app/globals.css` ÔÇö set global white fallback background to avoid black flash before content render.
 - **Proof:** `pnpm -C web build` passes after changes.
 
 ### follow-up snag pass (open feedback fixes)
@@ -3620,7 +3746,7 @@ Category-only cards remain publishable.
 - **Proof:** `pnpm -C web build` passes after this tweak.
 
 ---
-## 2026-05-19 — AI Marketplace Listing PR1: Draft Listing Data Spine
+## 2026-05-19 ÔÇö AI Marketplace Listing PR1: Draft Listing Data Spine
 
 ### Summary
 - Audited existing marketplace/inventory/product/storage/RLS patterns.
@@ -3669,7 +3795,7 @@ Category-only cards remain publishable.
 
 ---
 
-## 2026-05-19 — AI Marketplace Listing PR2: AI Listing Photo Upload Flow
+## 2026-05-19 ÔÇö AI Marketplace Listing PR2: AI Listing Photo Upload Flow
 
 ### Summary
 - Added signed-in-only photo upload flow at `/app/listings` for AI marketplace listing drafts.
@@ -3697,7 +3823,7 @@ Category-only cards remain publishable.
 - Requires PR1 schema objects to exist in Supabase (draft table + private raw-photo bucket/policies).
 - Signed preview links are temporary by design and should be refreshed on revisit.
 
-### Follow-up — mobile camera capture option
+### Follow-up ÔÇö mobile camera capture option
 - Added explicit camera capture actions so users can take a fresh device photo instead of only choosing from existing gallery.
 - Updated:
   - `web/src/components/figma/marketplace-prelist/steps/ConditionDetailsStep.tsx`
@@ -3709,7 +3835,7 @@ Category-only cards remain publishable.
 
 ---
 
-## 2026-05-19 — AI Marketplace Listing PR3: Image Analysis + Candidate Matching
+## 2026-05-19 ÔÇö AI Marketplace Listing PR3: Image Analysis + Candidate Matching
 
 ### Summary
 - Added server-only image analysis for private marketplace listing draft photos.
@@ -3722,9 +3848,9 @@ Category-only cards remain publishable.
 - No listing generation, pricing, local demand, maps, or publish flow added.
 
 ### Routes touched/added
-- `/api/marketplace/listing-drafts/[draftId]/analyse-image` — protected API route
-- `/api/marketplace/listing-drafts/[draftId]/select-candidate` — protected candidate selection
-- `/app/listings` — extended PR2 UI
+- `/api/marketplace/listing-drafts/[draftId]/analyse-image` ÔÇö protected API route
+- `/api/marketplace/listing-drafts/[draftId]/select-candidate` ÔÇö protected candidate selection
+- `/app/listings` ÔÇö extended PR2 UI
 
 ### Env & Secrets
 - Local `.env.local` requires:
@@ -3767,9 +3893,9 @@ Category-only cards remain publishable.
 - Candidate behaviour:
   - high/medium/low confidence
   - parent must confirm
-  - “Not sure” path available
+  - ÔÇ£Not sureÔÇØ path available
 - Missing canonical data/debt:
-  - when no canonical ID is found, UI surfaces AI suggestion text and requires “Not sure / choose manually” path without inventing IDs
+  - when no canonical ID is found, UI surfaces AI suggestion text and requires ÔÇ£Not sure / choose manuallyÔÇØ path without inventing IDs
 
 ### Verification
 - Baseline build:
@@ -3788,7 +3914,7 @@ Category-only cards remain publishable.
   - no live listing created
 
 ### Known debt / risks
-- Gemini quality needs founder testing across 10–20 real household toy photos.
+- Gemini quality needs founder testing across 10ÔÇô20 real household toy photos.
 - Google Vision/Product Recognizer remains deferred unless exact recognition quality is poor.
 - PR4 will generate editable listing details and suggested price after parent confirmation.
 - No recall/status validation is final yet; PR4 should add safety/resale eligibility prompts.
@@ -3805,8 +3931,8 @@ Category-only cards remain publishable.
   - safety/resale eligibility checks
   - editable draft listing form
 
-### Follow-up — listing flow entry decision screen
-- Added a new first screen in the existing `/marketplace` “List an item” modal flow with two explicit options:
+### Follow-up ÔÇö listing flow entry decision screen
+- Added a new first screen in the existing `/marketplace` ÔÇ£List an itemÔÇØ modal flow with two explicit options:
   - **Smart Listing - with Camera**
   - **Manual Listing - Enter Details**
 - Smart Listing now routes parents into the camera-assisted path (`/app/listings`), while Manual Listing continues the existing multi-step details flow.
@@ -3815,14 +3941,14 @@ Category-only cards remain publishable.
   - `web/src/components/figma/marketplace-prelist/ListingModal.tsx`
 - Verification: `pnpm -C web build` passes after entry-screen integration.
 
-### Follow-up — robust API error handling on suggest-item call
+### Follow-up ÔÇö robust API error handling on suggest-item call
 - Fixed client handling for non-JSON / empty API responses on `/app/listings` suggest-item and candidate-selection actions.
 - Prevents raw `Unexpected end of JSON input` from surfacing to parents; now shows a friendly fallback error message.
 - File updated:
   - `web/src/app/(app)/app/listings/page.tsx`
 - Verification: `pnpm -C web build` passes after response-parsing hardening.
 
-### Follow-up — network resilience for suggest-item endpoint
+### Follow-up ÔÇö network resilience for suggest-item endpoint
 - Added Gemini request timeout (`20s`) and a route-level safety catch in analysis API to guarantee JSON error responses instead of dropped network responses.
 - Mapped low-level client `Failed to fetch` network errors to friendly retry guidance.
 - Files updated:
@@ -3831,7 +3957,7 @@ Category-only cards remain publishable.
   - `web/src/app/(app)/app/listings/page.tsx`
 - Verification: `pnpm -C web build` passes after timeout + route hardening.
 
-### Follow-up — Gemini compatibility + clearer provider diagnostics
+### Follow-up ÔÇö Gemini compatibility + clearer provider diagnostics
 - Relaxed Gemini generation config by removing strict JSON MIME hint to improve model compatibility across Preview configs.
 - Increased Gemini request timeout to `60s` for slow upstream responses.
 - Added safer user-facing provider error messages for common misconfig cases:
@@ -3843,7 +3969,7 @@ Category-only cards remain publishable.
   - `web/src/app/api/marketplace/listing-drafts/[draftId]/analyse-image/route.ts`
 - Verification: `pnpm -C web build` passes after compatibility patch.
 
-### Follow-up — root-cause visibility instrumentation
+### Follow-up ÔÇö root-cause visibility instrumentation
 - Added structured analysis API error payloads with:
   - `error_code`
   - `debug_id`
@@ -3859,7 +3985,7 @@ Category-only cards remain publishable.
   - `web/.env.example`
 - Verification: `pnpm -C web build` passes after diagnostics instrumentation.
 
-### Follow-up — PR3 blocker diagnostics pass
+### Follow-up ÔÇö PR3 blocker diagnostics pass
 - Confirmed debug reference format (`Ref: <uuid>`) is generated as per-request `debug_id`, not `ai_listing_analysis_events.id`.
 - Added provider status/code extraction from Gemini errors and returned them in protected API error payloads.
 - Added logging of effective model in server logs:
@@ -3875,7 +4001,7 @@ Category-only cards remain publishable.
   - provider 503/unavailable -> `gemini_temporarily_unavailable`
 - Added click guards on client handlers to prevent duplicate in-flight requests.
 
-## 2026-05-19 — PR205 Diagnostic Pass: AI Image Analysis
+## 2026-05-19 ÔÇö PR205 Diagnostic Pass: AI Image Analysis
 
 ### Summary
 - Added protected step-by-step diagnostic route for PR3 AI analysis (`/api/marketplace/diagnostics/ai-analysis`).
@@ -3899,8 +4025,8 @@ Category-only cards remain publishable.
 ### Diagnostic findings (local dev)
 - `ai-config` (no key in `.env.local`): not run against live Gemini locally
 - `ai-config?testProvider=1`: not run locally (no `GEMINI_API_KEY` in workspace env)
-- `ai-analysis?draftId=…&mode=no-provider`: run on Vercel Preview after deploy (signed-in + draft owner)
-- `ai-analysis?draftId=…` full pipeline: run on Vercel Preview after deploy
+- `ai-analysis?draftId=ÔÇª&mode=no-provider`: run on Vercel Preview after deploy (signed-in + draft owner)
+- `ai-analysis?draftId=ÔÇª` full pipeline: run on Vercel Preview after deploy
 - `failureStage` / `providerStatus` / `providerCode`: populate from Preview diagnostic JSON + Vercel function logs (`[ai-analysis-diagnostic:<debugId>]`)
 
 ### Known risks / next actions
@@ -3909,18 +4035,18 @@ Category-only cards remain publishable.
 - Redeploy Vercel Preview after merging/pushing this branch so new routes and env vars apply.
 - PR3 should not merge until Preview diagnostics show whether failure is pre-Gemini or at `gemini_request`.
 
-### Follow-up — fix diagnostic route HTTP 500 on Next.js 16
+### Follow-up ÔÇö fix diagnostic route HTTP 500 on Next.js 16
 - Root cause: `NextResponse.next()` is not allowed in App Router route handlers (Next.js 16); diagnostic routes returned `headers: response.headers` from that object and crashed with empty HTTP 500.
 - Fix: updated `createClient()` in `route-handler.ts` to buffer session cookies and apply them via a `json()` helper; redirect auth routes use new `bindSupabaseToResponse()`.
 - Files updated: diagnostics routes, analyse-image, select-candidate, inventory/match, auth/callback, auth/confirm.
 
-### Follow-up — fix Gemini timeoutMs=1 abort
-- Root cause: `GEMINI_TIMEOUT_MS=1` on Vercel Preview (via `parsePositiveInt` allowing any value ≥1).
+### Follow-up ÔÇö fix Gemini timeoutMs=1 abort
+- Root cause: `GEMINI_TIMEOUT_MS=1` on Vercel Preview (via `parsePositiveInt` allowing any value ÔëÑ1).
 - Fix: `resolveGeminiTimeoutMs()` defaults to **30000ms**, clamps `<5000` to 30000, clamps `>60000` to 60000.
 - Diagnostics expose `timeoutSource`: `default` | `env` | `clamped`.
 - Recommended Preview env: `GEMINI_TIMEOUT_MS=30000` (optional; code safe without it).
 
-## 2026-05-20 — PR205 Acceptance: AI Image Analysis Breakthrough
+## 2026-05-20 ÔÇö PR205 Acceptance: AI Image Analysis Breakthrough
 
 ### Summary
 - Confirmed end-to-end AI image analysis works in Vercel Preview.
@@ -3935,7 +4061,7 @@ Category-only cards remain publishable.
 - No-provider image pipeline: pass
 - Full image analysis: pass (founder toy doctor kit photo)
 - UI candidate rendering: pass
-- Parent confirmation: pass — `Choose this` sets `product_type_id` + `status=confirmed`; `Not sure` sets `product_type_id=null` + `status=draft` (no fake canonical ID)
+- Parent confirmation: pass ÔÇö `Choose this` sets `product_type_id` + `status=confirmed`; `Not sure` sets `product_type_id=null` + `status=draft` (no fake canonical ID)
 - Build: pass
 
 ### DB / audit (expected after successful analysis + Choose this)
@@ -3961,11 +4087,11 @@ Category-only cards remain publishable.
 
 ### Known debt
 - UI is functional/beta, not final marketplace polish.
-- Need more real-photo tests across 10–20 household items.
+- Need more real-photo tests across 10ÔÇô20 household items.
 - PR4 will generate editable listing draft details only after parent-confirmed match.
 - Diagnostic routes must remain admin/preview/debug-only.
 
-## 2026-05-20 — AI Marketplace Listing PR4: Editable Listing Draft Generation
+## 2026-05-20 ÔÇö AI Marketplace Listing PR4: Editable Listing Draft Generation
 
 ### Summary
 - Added editable listing draft generation after parent-confirmed item type.
@@ -3975,9 +4101,9 @@ Category-only cards remain publishable.
 - No publish flow, pricing, local demand, maps, payments, or public listing creation added.
 
 ### Routes touched/added
-- `POST /api/marketplace/listing-drafts/[draftId]/generate-details` — protected
-- `PATCH /api/marketplace/listing-drafts/[draftId]/details` — protected
-- `/app/listings` — protected UI (`ListingDraftDetailsSection`)
+- `POST /api/marketplace/listing-drafts/[draftId]/generate-details` ÔÇö protected
+- `PATCH /api/marketplace/listing-drafts/[draftId]/details` ÔÇö protected
+- `/app/listings` ÔÇö protected UI (`ListingDraftDetailsSection`)
 
 ### Env & Secrets
 - `GEMINI_API_KEY`: server-only
@@ -4015,13 +4141,13 @@ Category-only cards remain publishable.
 - Pricing deferred
 - Local demand/map deferred
 - Multi-photo upload deferred
-- No `safety_policy` table yet — restricted flag comes from Gemini + parent review only
+- No `safety_policy` table yet ÔÇö restricted flag comes from Gemini + parent review only
 
 ### Next module handoff
 - Branch to create after merge: `feat/ai-listing-price-guidance`
 - Start with grounded product/RRP lookup, cautious price range only, no publish flow
 
-### Follow-up — PR4 title quality patch (visual label first)
+### Follow-up ÔÇö PR4 title quality patch (visual label first)
 - User-facing `title_draft` now biases toward Gemini visual identification before canonical category labels.
 - Canonical product type remains internal taxonomy support and no longer dominates the listing title.
 - Added deterministic guardrails for known contradictions:
@@ -4030,40 +4156,40 @@ Category-only cards remain publishable.
 - Added `canonical_review_note` capture in `listing_draft_details_json` when visual label and broad canonical match diverge.
 - Known taxonomy expansion need: add specific toy instruments (e.g. `toy_saxophone`, `toy_trumpet`, `toy_keyboard`, `toy_drum`).
 
-### Follow-up — PR4 display label + stale draft reset (binoculars / Toy Box)
+### Follow-up ÔÇö PR4 display label + stale draft reset (binoculars / Toy Box)
 - Candidate cards now show Gemini/visual label first; weak catalog matches (e.g. Toy Box) appear as `Catalog match:` subtitle via `ai-listing-display-label.ts`.
 - Re-analyse or new photo upload clears confirmation, generated listing details, and PR3/PR4 draft fields so stale xylophone data cannot persist.
 - Parent confirmation stores `parent_confirmed_display_label` in `ai_raw_response_json`; green banner uses visual label with optional catalog parenthetical.
 - `generate-details` title reconciliation uses shared display-label helpers (binoculars vs toy box / xylophone guards).
 
-### Follow-up — Gemini model fallback (503 / UNAVAILABLE)
-- Provider-only diagnostic (`ai-config?testProvider=1`) proved `gemini-2.5-flash-lite` can return HTTP 503 / `UNAVAILABLE` (“high demand”) while Ember config (API key, timeout, storage) is correct.
-- Added single controlled fallback path to `gemini-2.5-flash` via `GEMINI_FALLBACK_MODEL` (default `gemini-2.5-flash`): primary once, fallback once — no loops, no auto-fallback on 401/403/429/parse/storage errors.
+### Follow-up ÔÇö Gemini model fallback (503 / UNAVAILABLE)
+- Provider-only diagnostic (`ai-config?testProvider=1`) proved `gemini-2.5-flash-lite` can return HTTP 503 / `UNAVAILABLE` (ÔÇ£high demandÔÇØ) while Ember config (API key, timeout, storage) is correct.
+- Added single controlled fallback path to `gemini-2.5-flash` via `GEMINI_FALLBACK_MODEL` (default `gemini-2.5-flash`): primary once, fallback once ÔÇö no loops, no auto-fallback on 401/403/429/parse/storage errors.
 - `ai-config` diagnostics return `fallbackModel`; `testProvider=1` returns `providerTest.primary`, `providerTest.fallback`, `finalSuccess`, `finalModelUsed`.
 - AI events log `primary_model`, `fallback_model`, `fallback_used`, and primary failure codes when fallback runs.
-- UI labels debug IDs as **Debug ref** (not draft ID). Temporary-unavailable copy includes “not caused by your photo.”
+- UI labels debug IDs as **Debug ref** (not draft ID). Temporary-unavailable copy includes ÔÇ£not caused by your photo.ÔÇØ
 
-### Follow-up — rate limit + draft diagnostic (founder testing)
+### Follow-up ÔÇö rate limit + draft diagnostic (founder testing)
 - Provider-only `ai-config?testProvider=1` proved Gemini reachable; UI blocker was **`ember_daily_limit_reached`** (Ember internal limiter, not Google).
-- **Limiter:** counts rows in `ai_listing_analysis_events` for `user_id` in rolling 24h, excluding `listing_details_generation` and `diagnostic_ai_analysis` event sources. Failures from user analyse-image still count. `ai-config?testProvider=1` does **not** write quota events. Admin users get `AI_LISTING_DAILY_LIMIT × 5`.
+- **Limiter:** counts rows in `ai_listing_analysis_events` for `user_id` in rolling 24h, excluding `listing_details_generation` and `diagnostic_ai_analysis` event sources. Failures from user analyse-image still count. `ai-config?testProvider=1` does **not** write quota events. Admin users get `AI_LISTING_DAILY_LIMIT ├ù 5`.
 - **`ai-config`** now returns `imageAnalysisLimit`, `imageAnalysisUsedLast24h`, `imageAnalysisRemaining`, `limitWindowStart` for signed-in admin.
 - **`ai-analysis` diagnostic** returns `draftLookup` (row_missing / owner_mismatch / rls_hidden / invalid_uuid). Debug refs are not draft IDs.
 - Preview: set `AI_LISTING_DAILY_LIMIT=100` on Vercel and redeploy for heavy testing.
 
-### Follow-up — visual-first candidate titles (microphone / xylophone)
-- Root cause: `pickUserFacingDisplayLabel` fell back to `broad_category` (“pretend play”) when Gemini labels were broad; RPC canonical label (“Xylophone”) was shown as authoritative catalog match despite microphone reasoning.
-- Candidate card title hierarchy: specific Gemini candidate → detected_item_label → inferred object from description → safe category (“Musical toy”), never broad_category alone.
-- Weak/contradictory canonical matches hidden from user-facing “Catalog match”; show `Category: Musical toy` + “Internal match needs review” instead.
+### Follow-up ÔÇö visual-first candidate titles (microphone / xylophone)
+- Root cause: `pickUserFacingDisplayLabel` fell back to `broad_category` (ÔÇ£pretend playÔÇØ) when Gemini labels were broad; RPC canonical label (ÔÇ£XylophoneÔÇØ) was shown as authoritative catalog match despite microphone reasoning.
+- Candidate card title hierarchy: specific Gemini candidate ÔåÆ detected_item_label ÔåÆ inferred object from description ÔåÆ safe category (ÔÇ£Musical toyÔÇØ), never broad_category alone.
+- Weak/contradictory canonical matches hidden from user-facing ÔÇ£Catalog matchÔÇØ; show `Category: Musical toy` + ÔÇ£Internal match needs reviewÔÇØ instead.
 - `canonical_review_summary` stored in `ai_raw_response_json`; PR4 title generation seeds from visual label, not weak canonical.
 
-### Follow-up — `user_facing_item_label` + parent UI (PR4 quality)
+### Follow-up ÔÇö `user_facing_item_label` + parent UI (PR4 quality)
 - PR4 separates user-facing AI visual labels from internal canonical matches.
-- Weak/contradictory canonical matches no longer appear as “Catalog match: …” on parent cards.
-- Generic “Toy item” fallback tightened when `visual_description` / `why` mentions ice cream, microphone, doctor kit, etc.
+- Weak/contradictory canonical matches no longer appear as ÔÇ£Catalog match: ÔÇªÔÇØ on parent cards.
+- Generic ÔÇ£Toy itemÔÇØ fallback tightened when `visual_description` / `why` mentions ice cream, microphone, doctor kit, etc.
 - Gemini prompt now requires `user_facing_item_label`, `visual_description`, `canonical_search_terms`.
 - Canonical DB debt: `toy_microphone`, `toy_saxophone`, `ice_cream_cart_toy`, `ice_cream_shop_playset`.
 
-## 2026-05-20 — AI Marketplace Listing PR5: Listing Draft Review & Readiness Gate
+## 2026-05-20 ÔÇö AI Marketplace Listing PR5: Listing Draft Review & Readiness Gate
 
 ### Summary
 - Added a private review step after editable listing draft generation on `/app/listings`.
@@ -4073,9 +4199,9 @@ Category-only cards remain publishable.
 - No publish flow, pricing, local demand, maps, payments, or live listing creation added.
 
 ### Routes touched/added
-- `/app/listings` — review card UI
-- `PATCH /api/marketplace/listing-drafts/[draftId]/review` — save checklist + ready state
-- `PATCH /api/marketplace/listing-drafts/[draftId]/details` — clears review on title/description/condition edit
+- `/app/listings` ÔÇö review card UI
+- `PATCH /api/marketplace/listing-drafts/[draftId]/review` ÔÇö save checklist + ready state
+- `PATCH /api/marketplace/listing-drafts/[draftId]/details` ÔÇö clears review on title/description/condition edit
 
 ### DB & RLS
 - Uses draft table: `marketplace_listing_drafts`
@@ -4118,7 +4244,7 @@ Category-only cards remain publishable.
 - Recommended next branch: `feat/ai-listing-price-guidance`
 - Start with cautious price guidance, no invented RRP, condition-adjusted price range, source/evidence capture, no publish flow unless separately approved
 
-## 2026-05-20 — PR5 UX Hardening: Guided Listing Flow
+## 2026-05-20 ÔÇö PR5 UX Hardening: Guided Listing Flow
 
 ### Summary
 - Converted the long prototype listing page into a guided step-based flow.
@@ -4141,7 +4267,7 @@ Category-only cards remain publishable.
 - Review readiness persists: unchanged server routes
 - No publish/pricing/map: unchanged scope
 
-## 2026-05-23 — PR6: Marketplace Opportunity & Beta Publish
+## 2026-05-23 ÔÇö PR6: Marketplace Opportunity & Beta Publish
 
 ### Summary
 - Added marketplace opportunity layer after reviewed AI listing draft (step 5: Local opportunity).
@@ -4150,7 +4276,7 @@ Category-only cards remain publishable.
 - Added provider-light approximate opportunity map card (no exact pins).
 - Added beta publish flow from ready draft to `marketplace_listings` (`published_beta`).
 - Added `/app/marketplace` for nearby signed-in buyers and seller interest counts.
-- Added buyer “I'm interested” action.
+- Added buyer ÔÇ£I'm interestedÔÇØ action.
 - No full chat, payments, exact address, public SEO listing, or public raw-photo URL.
 
 ### Data model
@@ -4183,11 +4309,11 @@ Category-only cards remain publishable.
 ### Next module handoff
 - Branch: `feat/marketplace-masked-chat`
 
-## 2026-05-23 — Listing flow UX: condition + post-publish CTA
+## 2026-05-23 ÔÇö Listing flow UX: condition + post-publish CTA
 
 ### Summary
 - **Condition (step 3):** Labelled required; inline hint that review unlocks only after save with condition; amber highlight + clearer error if save attempted without selection; Ember suggestion labelled as not saved until a pill is chosen.
-- **Post-publish dead-end:** When all steps collapse after beta publish, show “You’re all set” card with **Go to marketplace** (`#listing-flow-complete`); step 5 collapsed summary also links to marketplace; header/footer copy updates when listed (no misleading “private until you continue”).
+- **Post-publish dead-end:** When all steps collapse after beta publish, show ÔÇ£YouÔÇÖre all setÔÇØ card with **Go to marketplace** (`#listing-flow-complete`); step 5 collapsed summary also links to marketplace; header/footer copy updates when listed (no misleading ÔÇ£private until you continueÔÇØ).
 - **Save without condition:** Blocked client-side with explicit message (review step hidden until condition saved).
 
 ### Files
@@ -4195,14 +4321,14 @@ Category-only cards remain publishable.
 
 ### Verification
 - Build: pass
-- Manual: save without condition → error + highlight; pick condition + save → step 4 appears; after publish → green completion card + marketplace button visible without expanding step 5
+- Manual: save without condition ÔåÆ error + highlight; pick condition + save ÔåÆ step 4 appears; after publish ÔåÆ green completion card + marketplace button visible without expanding step 5
 
-## 2026-05-23 — Marketplace postcode: single source of truth
+## 2026-05-23 ÔÇö Marketplace postcode: single source of truth
 
 ### Summary
 - **Outward postcode removed** for matching; full UK postcode in `marketplace_preferences.postcode`, geocoded to lat/lng via postcodes.io; distance matching uses haversine within `radius_miles` (default 5).
-- **`GET/PATCH /api/marketplace/preferences`** — account-wide postcode; PATCH accepts postcode or lat/lng (reverse geocode for “Use my location”).
-- **`MarketplaceYourPostcode`** on `/app/marketplace` below “Create a listing” — display, edit, use my location.
+- **`GET/PATCH /api/marketplace/preferences`** ÔÇö account-wide postcode; PATCH accepts postcode or lat/lng (reverse geocode for ÔÇ£Use my locationÔÇØ).
+- **`MarketplaceYourPostcode`** on `/app/marketplace` below ÔÇ£Create a listingÔÇØ ÔÇö display, edit, use my location.
 - Publish/opportunity/nearby/interest/demand all use `resolveUserMarketplaceLocation` / saved preferences.
 
 ### Files
@@ -4210,20 +4336,20 @@ Category-only cards remain publishable.
 
 ### Verification
 - Build: pass; `pnpm -C web test:marketplace-pr6` pass
-- Manual: set postcode on marketplace → nearby uses 5mi radius; listing flow step 5 uses same prefs
+- Manual: set postcode on marketplace ÔåÆ nearby uses 5mi radius; listing flow step 5 uses same prefs
 
-## 2026-05-23 — Marketplace listing flow: fresh create, edit, postcode on /marketplace
+## 2026-05-23 ÔÇö Marketplace listing flow: fresh create, edit, postcode on /marketplace
 
 ### Summary
-- **Postcode widget** on `/marketplace` (logged-in) below List an item widget — same as `/app/marketplace`.
+- **Postcode widget** on `/marketplace` (logged-in) below List an item widget ÔÇö same as `/app/marketplace`.
 - **Fresh listing after publish:** boot skips drafts already linked to `published_beta`; `?new=1` clears UI; publish resets to empty create flow.
-- **Edit from marketplace:** “Edit listing” → `/app/listings?edit={id}` loads source draft; saves sync to live `marketplace_listings` via `sync-beta-listing.ts`.
+- **Edit from marketplace:** ÔÇ£Edit listingÔÇØ ÔåÆ `/app/listings?edit={id}` loads source draft; saves sync to live `marketplace_listings` via `sync-beta-listing.ts`.
 
 ### Verification
 - Build: pass
-- Manual: publish → page clears; Create listing → empty flow; Edit saxophone → populated steps; save title → marketplace updates
+- Manual: publish ÔåÆ page clears; Create listing ÔåÆ empty flow; Edit saxophone ÔåÆ populated steps; save title ÔåÆ marketplace updates
 
-## 2026-05-24 — PR7: Masked Chat, Notifications & Handover Safety
+## 2026-05-24 ÔÇö PR7: Masked Chat, Notifications & Handover Safety
 
 ### Summary
 - Added Supabase-native `marketplace_conversations` and `marketplace_messages` linked to beta listings and PR6 interests.
@@ -4249,7 +4375,7 @@ Category-only cards remain publishable.
 ### Verification
 - Build: pass
 - Smoke: `pnpm -C web test:marketplace-pr7` pass
-- Manual E2E (two users): requires founder — apply migration on Supabase first
+- Manual E2E (two users): requires founder ÔÇö apply migration on Supabase first
 
 ### Known debt
 - Push/email notifications deferred
@@ -4260,7 +4386,7 @@ Category-only cards remain publishable.
 ### Next module handoff
 - Branch: `feat/marketplace-safety-moderation`
 
-## 2026-05-24 — PR8: Marketplace Map & Demand Visual Layer
+## 2026-05-24 ÔÇö PR8: Marketplace Map & Demand Visual Layer
 
 ### Summary
 - Added provider-light Ember Opportunity Map card.
@@ -4274,7 +4400,7 @@ Category-only cards remain publishable.
 ### Product decision
 - First map version is an approximate opportunity visual, not a literal pin map.
 - Default radius remains 5 miles.
-- Demand wording remains “may be interested.”
+- Demand wording remains ÔÇ£may be interested.ÔÇØ
 - Exact addresses are not shown.
 - Full postcode can be used for matching/editing but not shown in normal buyer/listing/map UI.
 
@@ -4294,7 +4420,7 @@ Category-only cards remain publishable.
 - Geospatial modelling can be strengthened later with PostGIS/H3/geohash.
 - Map card is currently provider-light and illustrative.
 
-## 2026-05-24 — PR8 Patch: Real Mapbox Marketplace Map
+## 2026-05-24 ÔÇö PR8 Patch: Real Mapbox Marketplace Map
 
 ### Summary
 - Upgraded PR8 from illustrative map card to real Mapbox-backed marketplace map.
@@ -4306,7 +4432,7 @@ Category-only cards remain publishable.
 
 ### Founder setup
 - Required env var: `NEXT_PUBLIC_MAPBOX_TOKEN`
-- Vercel: Project → Settings → Environment Variables → Preview and Production → redeploy after adding
+- Vercel: Project ÔåÆ Settings ÔåÆ Environment Variables ÔåÆ Preview and Production ÔåÆ redeploy after adding
 - Missing token: fallback visual renders
 
 ### Location model
@@ -4324,11 +4450,11 @@ Category-only cards remain publishable.
 - Marker/listing interaction: pass (code)
 - Privacy checks: pass
 
-## 2026-05-30 — PR8 review fixes (PR #212)
+## 2026-05-30 ÔÇö PR8 review fixes (PR #212)
 
 ### Summary
 - Restored Gemini/AI listing env keys in `web/.env.example` (they were removed by mistake) and kept the new `NEXT_PUBLIC_MAPBOX_TOKEN` line. No runtime change; restores founder/dev setup docs.
-- Hardened map coordinates: listing coordinates are now snapped to a coarse (~1km) grid before deterministic jitter. The jitter is reversible from the public listing id, so the snap ensures a recovered point only resolves to a coarse cell — never the exact full-postcode location.
+- Hardened map coordinates: listing coordinates are now snapped to a coarse (~1km) grid before deterministic jitter. The jitter is reversible from the public listing id, so the snap ensures a recovered point only resolves to a coarse cell ÔÇö never the exact full-postcode location.
 - Corrected PR description: `mapbox-gl` is added as a real dependency (always bundled); the live map is still optional via `NEXT_PUBLIC_MAPBOX_TOKEN`.
 
 ### Verification
@@ -4336,7 +4462,7 @@ Category-only cards remain publishable.
 - Lint: clean
 - Marker still renders within the viewer radius; only precision reduced
 
-## 2026-05-23 — Snag pack: listings images + discover polish
+## 2026-05-23 ÔÇö Snag pack: listings images + discover polish
 
 ### Summary
 - **Live listing images:** Added photo thumbnails to the signed-in live listing cards so published items show their image.
@@ -4353,7 +4479,7 @@ Category-only cards remain publishable.
 - Baseline build before edits: pass (`pnpm build` in `web/`)
 - Post-change build: pass (`pnpm build` in `web/`)
 
-## 2026-05-29 — Awin Review Readiness: Discover + Affiliate Compliance
+## 2026-05-29 ÔÇö Awin Review Readiness: Discover + Affiliate Compliance
 
 ### Summary
 - Added public affiliate/commercial trust pages for Awin review readiness.
@@ -4397,21 +4523,21 @@ Category-only cards remain publishable.
 - Latest Preview URL: (Vercel preview on PR)
 - Start here: `web/src/components/compliance/`, `web/src/app/discover/[months]/`, `web/docs/awin-reapplication.md`
 
-## 2026-05-30 — Snag pack: home/discover/marketplace/nav fixes
+## 2026-05-30 ÔÇö Snag pack: home/discover/marketplace/nav fixes
 
 ### Summary
-- **Home slider sync:** "Begin your journey" now navigates to `/discover/<band midpoint>` so the landing band matches the slider selection (no more 30–33m → 25–27m jump).
+- **Home slider sync:** "Begin your journey" now navigates to `/discover/<band midpoint>` so the landing band matches the slider selection (no more 30ÔÇô33m ÔåÆ 25ÔÇô27m jump).
 - **Home "Move it" copy:** Now reads "pass it on safely through the family marketplace" with "family marketplace" linked to `/marketplace`.
 - **Discover hero personalisation:** Added cost-effective server helper `getGatewayHeroImageForAgeBand` (one category-type query + one batched image lookup, only when no wrapper is selected) so the hero pulls a category image from the child's age band.
 - **Discover anchoring:** Clicking a development card now anchors to "why it matters" on both mobile and desktop, followed by an animated down-arrow ("See the ideas") that scrolls to the ideas.
-- **Discover copy:** "Ideas for …" now wraps the development in quotes, e.g. Ideas for “i'm doing more by myself”.
+- **Discover copy:** "Ideas for ÔÇª" now wraps the development in quotes, e.g. Ideas for ÔÇ£i'm doing more by myselfÔÇØ.
 - **Discover Start over:** The Start over control is now always visible while a focus/ideas are shown (was only near the page bottom).
 - **Discover icon:** Development idea card save button uses the lucide `Save` icon (was `Bookmark`).
-- **Saves experience:** `/verify` now honours `next` (and `/signin` passes `next` to the code links) so a signed-out save → sign-in returns to the same `/discover` card; the "Saved to your child's ideas" popup is shown by the existing pending-action replay.
+- **Saves experience:** `/verify` now honours `next` (and `/signin` passes `next` to the code links) so a signed-out save ÔåÆ sign-in returns to the same `/discover` card; the "Saved to your child's ideas" popup is shown by the existing pending-action replay.
 - **My Ideas auto-listing:** "Move it on" now opens the marketplace manual listing flow pre-filled with the item name, landing on Step 2 ("What item").
 - **Navigation:** Added "Marketplace" after "Pricing" in the signed-out header (desktop + mobile).
-- **Pricing:** Signed-out "Start free" CTAs now link to `/signin` (signed-in → `/discover`).
-- **Marketplace:** Signed-out "Join early access" now links to `/signin` (signed-in → `/success`).
+- **Pricing:** Signed-out "Start free" CTAs now link to `/signin` (signed-in ÔåÆ `/discover`).
+- **Marketplace:** Signed-out "Join early access" now links to `/signin` (signed-in ÔåÆ `/success`).
 
 ### DB & RLS
 - No schema changes. No RLS changes. No new dependencies. No child name fields added.
@@ -4421,14 +4547,14 @@ Category-only cards remain publishable.
 - Lint: clean on edited files
 - Preview: see PR / Vercel
 
-## 2026-06-16 — ops: category_images mapping (6–9m sitting/reaching cluster)
+## 2026-06-16 ÔÇö ops: category_images mapping (6ÔÇô9m sitting/reaching cluster)
 
-- **Goal:** Map five newly uploaded 6–9m category images in `category_images` to `pl_category_type_images`.
+- **Goal:** Map five newly uploaded 6ÔÇô9m category images in `category_images` to `pl_category_type_images`.
 - **Input slugs resolved:** `cat_sitting_play_mat`, `cat_reach_grab_toys`, `cat_hand_transfer_toys`, `cat_soft_graspable_balls`, `cat_first_puzzle`.
 - **What changed:** Idempotent upsert into `public.pl_category_type_images` using canonical public URLs `https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images/ember_<slug>_category.png` (`ON CONFLICT (category_type_id)`).
 - **Proof:** Preflight 5/5 objects found; write mapped 5/5; re-run idempotent (5 active rows, no duplicate-active anomalies); `v_gateway_category_type_images` returns all five URLs.
 
-## 2026-07-03 — Discover: final four age bands (16–18m, 22–24m, 28–30m, 34–36m)
+## 2026-07-03 ÔÇö Discover: final four age bands (16ÔÇô18m, 22ÔÇô24m, 28ÔÇô30m, 34ÔÇô36m)
 
 ### Summary
 - **Source workbooks (discover_projection):**
@@ -4438,18 +4564,18 @@ Category-only cards remain publishable.
   - `02_Ember_Bible_34_36m_v1_1.xlsx`
 - **Migration:** `20260703140000_reimport_discover_16_18m_22_24m_28_30m_34_36m_final.sql` (+ mirror in `supabase/sql/`)
 - **Counts (workbook = REST):** 189 total Stage 2 rows across 4 bands; 8 clusters each; gift_friendly: 16-18m 17, 22-24m 29, 28-30m 19, 34-36m 25; Stage 3 active = 0
-- **Cache:** bumped `GATEWAY_CATALOGUE_CACHE_VERSION` → `20260703c`
+- **Cache:** bumped `GATEWAY_CATALOGUE_CACHE_VERSION` ÔåÆ `20260703c`
 
 ### Verify
 - REST parity on `v_gateway_wrappers_public` + `v_gateway_category_types_public` for each band
-- UI: `/discover/17` (16–18m), `/discover/23` (22–24m), `/discover/29` (28–30m), `/discover/35` (34–36m)
+- UI: `/discover/17` (16ÔÇô18m), `/discover/23` (22ÔÇô24m), `/discover/29` (28ÔÇô30m), `/discover/35` (34ÔÇô36m)
 - Parent/gift toggle visible on all four (gift rows present)
 - Three lanes render: Useful ideas / Things that can help / Quick checks
 
-## 2026-07-02 — Discover audit follow-up: age bands, notes, Have it
+## 2026-07-02 ÔÇö Discover audit follow-up: age bands, notes, Have it
 
 ### Summary
-- **Mutually exclusive age bands:** DB migration re-applies 7–9 / 10–12 ranges; deactivated overlapping `24_30m`; runtime `DISPLAY_RANGE_BY_BAND_ID` + generator `ageBandMeta` canonical labels; bumped `GATEWAY_CATALOGUE_CACHE_VERSION` and added version to age-bands cache key.
+- **Mutually exclusive age bands:** DB migration re-applies 7ÔÇô9 / 10ÔÇô12 ranges; deactivated overlapping `24_30m`; runtime `DISPLAY_RANGE_BY_BAND_ID` + generator `ageBandMeta` canonical labels; bumped `GATEWAY_CATALOGUE_CACHE_VERSION` and added version to age-bands cache key.
 - **Parent vs gift notes:** Migration clears gift-buyer copy from `ownership_note`; client filters `isGiftOrientedNote` and hides gift badges in parent mode (`resolveStage2BadgeLabel`).
 - **Have it:** Session-scoped `discoverHaveIt.ts` (sessionStorage) merged with DB on load; optimistic toggle + replay persistence; hydrate from session before async fetch.
 
@@ -4458,12 +4584,12 @@ Category-only cards remain publishable.
 - `20260702233100_clear_gift_copy_from_ownership_notes.sql`
 
 ### Verify
-- `/discover/8` — chip, slider, hero show **7–9 months** (not 6–9)
-- `/discover/10` — **10–12 months**
-- `/discover/32` parent mode — Feeling faces card: no “High chance the family owns…”
-- Sign in → Things that can help → Have it → refresh: card stays greyed
+- `/discover/8` ÔÇö chip, slider, hero show **7ÔÇô9 months** (not 6ÔÇô9)
+- `/discover/10` ÔÇö **10ÔÇô12 months**
+- `/discover/32` parent mode ÔÇö Feeling faces card: no ÔÇ£High chance the family ownsÔÇªÔÇØ
+- Sign in ÔåÆ Things that can help ÔåÆ Have it ÔåÆ refresh: card stays greyed
 
-## 2026-07-19 — Stage 3 mobile/PWA card actions clipped
+## 2026-07-19 ÔÇö Stage 3 mobile/PWA card actions clipped
 
 ### Summary
 - Fixed Stage 3 (Pip's Picks) card layout on constrained mobile/PWA heights so CTA/buttons are no longer pushed out of the visible card area.
@@ -4476,5 +4602,5 @@ Category-only cards remain publishable.
 - `web/src/app/discover/[months]/DiscoveryPageClient.tsx`
 
 ### Verification
-- `pnpm -C web build` ✅
+- `pnpm -C web build` Ô£à
 - Manual spot check target: `/discover/<month>` in mobile viewport/PWA shell; confirm each Stage 3 card shows Browse offers + expand/save buttons without clipping.
