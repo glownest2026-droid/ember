@@ -25,9 +25,8 @@ Ship the **Pip feature set** to an agreed `$MVP_Threshold`, collect demand via w
 | Ember Plus checkout / entitlements | Not live — pricing CTAs should stay waitlist until threshold |
 | Pip’s Pathway | Prefs + Discover content exist; **no automated T−3M journeys** |
 | Pip’s Picks | UI plumbing exists; **Stage 3 shortlists thin/empty on many bands**; not Plus-gated |
-| Pip’s Patch Finds | Marketplace pull; **no “comes to you” push** on developmental match |
-| Pip’s Seasons / Chapters | Marketing vision; content not productised |
-| Pip’s Pass-On | Garage / list path partial; **no outgrown nudge** |
+| Pip’s Patch Finds | Marketplace pull; **push fan-out lands PR3** (relevance + geo + not-already-have) |
+| Pip’s Pass-On | Garage / list path partial; **cron Pass-On prompts PR3** |
 | Inventory | **At home** at `/family/at-home`; add via `/family/at-home/add` (text + optional photo → Stage 2 confirm); List it → Marketplace |
 | OneSignal | Opt-in + prefs + dashboard test; **not automated Pip programs** |
 
