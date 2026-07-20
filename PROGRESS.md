@@ -9,6 +9,21 @@
 - **Env:** `ONESIGNAL_REST_API_KEY` + existing `NEXT_PUBLIC_ONESIGNAL_APP_ID` for push dispatch; `CRON_SECRET` for Pass-On cron
 - **Verify:** publish listing with `product_type_id` → queued `patch_find` rows; mark item ready_to_move_on → cron queues Pass-On; marketplace opportunity shows relevance-based audience count
 
+## 2026-07-20 — fix(marketplace): preserve current AI match on “Choose this”
+
+- **Issue:** In the listing flow, a correct candidate could flip to an old/random title (e.g. balance bike -> toddler bed) right after pressing **Choose this**.
+- **Root cause:** `select-candidate` identity resolution still considered prior `parent_confirmed_*` values stored on the same draft, so old confirmation text could outrank the new explicit selection.
+- **Follow-up fix:** Added a second guard for id/label drift in the same route. If the chosen display label strongly matches a different canonical item than the candidate id, we remap to the label-aligned canonical id before saving.
+- **Identity fix:** `web/src/lib/marketplace/confirmed-item-identity.ts` now treats concrete nouns like `bike`, `trike`, `scooter`, `ride-on`, `bed`, `cot`, `pram` as specific objects (not broad categories), so parent-confirmed labels are preserved.
+- **Verify:** On an affected draft, run Suggest item then choose the correct candidate; Step 2/Step 3 labels should stay on that chosen item and not jump to unrelated titles.
+
+## 2026-07-20 — fix(marketplace): reuse At home draft photo when listing from At home
+
+- **Issue:** `/app/listings?new=1&household_item=...` always started as a fresh Marketplace draft, even when the same At home item already had a private photo draft.
+- **Fix:** In `web/src/app/(app)/app/listings/page.tsx`, when `household_item` is present we now look up the latest linked `marketplace_listing_drafts` row for that item and hydrate it (including `image_storage_path`) if it is not already published.
+- **Outcome:** At home and Marketplace now share the same listing photo library for the same item; parents only need to re-upload if no linked draft photo exists.
+- **Verify:** From At home, open **List it** on an item previously added with photo; Step 1 should show the saved private photo immediately.
+
 ## 2026-07-20 — At home PR2: hidden Stage 2 relevance map + age-fit pinning
 
 - **Plan:** `web/docs/INVENTORY_MATCHING_PLAN.md` § PR2 (PR3 = Patch/Pass-On next)
