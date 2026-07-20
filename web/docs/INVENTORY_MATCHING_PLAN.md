@@ -53,18 +53,15 @@ Instance pin (PR2+)   →  Age-fit variant on this specific object
 
 | Tier | Rule | Score | Shown? |
 |------|------|-------|--------|
-| Exact label | Normalized label equals query | 100 | Yes |
-| Exact alias | Alias table hit | 95 | Yes |
-| Substring | Full query in label/alias | 82 | Yes |
-| Reverse substring | Label/alias (≥4 chars) in query | 78 | Yes |
-| All tokens | Every significant token (≥3 chars, minus stopwords) in label/alias | 68 | Yes |
-| Trigram / fuzzy only | — | — | **Never** |
+| **1 — Catalogue** | Exact label / alias / substring / all tokens | 68–100 | Yes |
+| **2 — AI classify** | Gemini picks `family_slug` + `product_type_slug` from controlled catalogue when Tier 1 misses | confidence ≥ 0.72 | Yes |
+| **3 — Gate** | Below thresholds | — | **No match** + Add anyway |
 
-**Toy context gate:** if query contains `toy`, matched type must be toy-class (family set, `toy_*` slug, or toy/pretend/plush/soft/puppet/doll in label/alias).
+**Tier 2:** `GET /api/inventory/match-at-home` → SQL first → `classifyAtHomeTextWithGemini` if miss. Parent confirm → `POST /api/inventory/learn-at-home-alias` seeds alias for next parent (Tier 1).
 
-**Minimum score to return:** 68 (medium+). Low-confidence rows are dropped — parent sees “No close match yet” and can **Add anyway** (feeds alias backlog).
+**Toy context gate (Tier 1):** if query contains `toy`, matched type must be toy-class.
 
----
+**Never:** trigram-only guesses.
 
 ## PR breakdown (minimum 3)
 

@@ -62,6 +62,8 @@ export type AtHomeItemTypeMatch = {
   specific_label: string | null;
   confidence_bucket: 'high' | 'medium' | 'low';
   score?: number | null;
+  match_source?: 'catalogue' | 'ai';
+  ai_hint?: string | null;
 };
 
 type GarageRow = {
@@ -146,7 +148,12 @@ export function atHomeAddHref(
 export async function matchAtHomeItemTypes(args: {
   query: string;
   limit?: number;
-}): Promise<{ match: AtHomeItemTypeMatch | null; candidates: AtHomeItemTypeMatch[]; error: string | null }> {
+}): Promise<{
+  match: AtHomeItemTypeMatch | null;
+  candidates: AtHomeItemTypeMatch[];
+  error: string | null;
+  aiLimitMessage?: string | null;
+}> {
   const q = args.query.trim();
   if (!q) return { match: null, candidates: [], error: null };
 
@@ -158,6 +165,7 @@ export async function matchAtHomeItemTypes(args: {
       match?: AtHomeItemTypeMatch | null;
       candidates?: AtHomeItemTypeMatch[];
       error?: string;
+      ai_limit_message?: string;
     };
     if (!res.ok) {
       return { match: null, candidates: [], error: payload.error ?? 'Could not find a match.' };
@@ -167,9 +175,29 @@ export async function matchAtHomeItemTypes(args: {
       match: payload.match ?? candidates[0] ?? null,
       candidates,
       error: null,
+      aiLimitMessage: payload.ai_limit_message ?? null,
     };
   } catch {
     return { match: null, candidates: [], error: 'Could not reach match service.' };
+  }
+}
+
+/** Teach catalogue when parent confirms an AI-suggested match. */
+export async function learnAtHomeAlias(args: {
+  query: string;
+  productTypeId: string;
+}): Promise<void> {
+  try {
+    await fetch('/api/inventory/learn-at-home-alias', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: args.query.trim(),
+        productTypeId: args.productTypeId,
+      }),
+    });
+  } catch {
+    // Best-effort — never block save.
   }
 }
 

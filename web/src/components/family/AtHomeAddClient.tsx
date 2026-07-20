@@ -7,6 +7,7 @@ import { ArrowLeft, Camera, Check, Home, Search, Sparkles } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import {
   AT_HOME_HERO_IMAGE,
+  learnAtHomeAlias,
   matchAtHomeItemTypes,
   saveAtHomeFromProductTypeMatch,
   type AtHomeItemTypeMatch,
@@ -37,6 +38,7 @@ export function AtHomeAddClient({
   const [match, setMatch] = useState<AtHomeItemTypeMatch | null>(null);
   const [matchLoading, setMatchLoading] = useState(false);
   const [matchError, setMatchError] = useState<string | null>(null);
+  const [aiLimitMessage, setAiLimitMessage] = useState<string | null>(null);
   const [photoHint, setPhotoHint] = useState<string | null>(null);
   const [draftId, setDraftId] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -65,9 +67,12 @@ export function AtHomeAddClient({
     }
     setMatchLoading(true);
     setMatchError(null);
-    const { match: next, error } = await matchAtHomeItemTypes({ query: q, limit: 1 });
+    setAiLimitMessage(null);
+    setMatch(null);
+    const { match: next, error, aiLimitMessage } = await matchAtHomeItemTypes({ query: q, limit: 1 });
     setMatch(next);
     setMatchError(error);
+    setAiLimitMessage(aiLimitMessage ?? null);
     setMatchLoading(false);
   }, []);
 
@@ -200,6 +205,13 @@ export function AtHomeAddClient({
 
       if (saved.error || !saved.itemId) {
         throw new Error(saved.error ?? 'Could not save.');
+      }
+
+      if (candidate?.product_type_id && query.trim()) {
+        void learnAtHomeAlias({
+          query: query.trim(),
+          productTypeId: candidate.product_type_id,
+        });
       }
 
       const params = new URLSearchParams({ added: '1' });
@@ -340,6 +352,10 @@ export function AtHomeAddClient({
           </p>
         )}
 
+        {aiLimitMessage && (
+          <p className="text-sm text-[#66717D]">{aiLimitMessage}</p>
+        )}
+
         {!matchLoading &&
           query.trim().length >= MATCH_MIN_CHARS &&
           !matchError &&
@@ -365,6 +381,9 @@ export function AtHomeAddClient({
               )}
               {match.subtitle && (
                 <p className="text-xs text-[#66717D] mt-1 mb-0">{match.subtitle}</p>
+              )}
+              {match.match_source === 'ai' && (
+                <p className="text-xs text-[#66717D] mt-1 mb-0">Ember worked this out from the name.</p>
               )}
             </div>
             <button
