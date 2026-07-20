@@ -1,4 +1,11 @@
-﻿## 2026-07-20 — fix(marketplace): reuse At home draft photo when listing from At home
+﻿## 2026-07-20 — fix(marketplace): preserve current AI match on “Choose this”
+
+- **Issue:** In the listing flow, a correct candidate could flip to an old/random title (e.g. balance bike -> toddler bed) right after pressing **Choose this**.
+- **Root cause:** `select-candidate` identity resolution still considered prior `parent_confirmed_*` values stored on the same draft, so old confirmation text could outrank the new explicit selection.
+- **Fix:** `web/src/app/api/marketplace/listing-drafts/[draftId]/select-candidate/route.ts` now strips prior `parent_confirmed_*` fields before resolving the new confirmation, ensuring the parent’s current choice is the source of truth.
+- **Verify:** On an affected draft, run Suggest item then choose the correct candidate; Step 2/Step 3 labels should stay on that chosen item and not jump to unrelated titles.
+
+## 2026-07-20 — fix(marketplace): reuse At home draft photo when listing from At home
 
 - **Issue:** `/app/listings?new=1&household_item=...` always started as a fresh Marketplace draft, even when the same At home item already had a private photo draft.
 - **Fix:** In `web/src/app/(app)/app/listings/page.tsx`, when `household_item` is present we now look up the latest linked `marketplace_listing_drafts` row for that item and hydrate it (including `image_storage_path`) if it is not already published.

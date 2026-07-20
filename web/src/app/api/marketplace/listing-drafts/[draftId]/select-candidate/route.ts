@@ -121,8 +121,19 @@ export async function POST(
       ? body.display_label.trim()
       : null;
   const existingRaw = (draft.ai_raw_response_json ?? null) as Pr3AiRawResponse | null;
+  // Parent has just made an explicit new choice. Prior confirmed identity fields
+  // from older passes on the same draft must not override this fresh selection.
+  const existingRawWithoutPriorConfirmation = existingRaw
+    ? {
+        ...existingRaw,
+        parent_confirmed_display_label: undefined,
+        parent_confirmed_item_label: undefined,
+        parent_confirmed_category_label: undefined,
+        parent_confirmed_visual_description: undefined,
+      }
+    : null;
   const resolved = resolveConfirmedIdentity({
-    pr3Raw: existingRaw,
+    pr3Raw: existingRawWithoutPriorConfirmation,
     parentDisplayLabel: displayLabel,
     productTypeLabel: productType.label,
     productTypeSubtitle: productType.subtitle,
