@@ -526,12 +526,12 @@ function PipsPickExpanded({
                       {lockedCount} more {lockedCount === 1 ? 'pick' : 'picks'} available
                     </span>
                   ) : null}
-                  <h2
+                  <h3
                     id="expanded-pick-title"
-                    className="m-0 text-[22px] font-extrabold leading-tight text-white md:text-[26px]"
+                    className="m-0 text-[19px] font-extrabold leading-[1.2] tracking-normal text-white md:text-[22px] md:leading-[1.18]"
                   >
                     Discover Pip&apos;s Picks with Ember Plus
-                  </h2>
+                  </h3>
                   <p className="m-0 max-w-[300px] text-[14px] font-semibold leading-relaxed text-white/80">
                     Pick 1 is free. Ember Plus shows the full shortlist and why each option fits.
                   </p>
@@ -551,12 +551,12 @@ function PipsPickExpanded({
                       {fields.tag}
                     </span>
                   ) : null}
-                  <h2
+                  <h3
                     id="expanded-pick-title"
-                    className="m-0 pr-[72px] text-[22px] font-extrabold leading-[1.2] text-white md:pr-0 md:text-[26px] md:leading-[1.18]"
+                    className="m-0 mb-1 shrink-0 pr-[96px] text-[19px] font-extrabold leading-[1.2] tracking-normal text-white md:text-[22px] md:leading-[1.18]"
                   >
                     {fields.title}
-                  </h2>
+                  </h3>
                   {fields.brand ? (
                     <p className="m-0 text-[12px] font-bold uppercase tracking-[0.06em] text-white/60 md:text-[13px]">
                       {fields.brand}
@@ -792,8 +792,20 @@ export function PipsPicksPersimmonCarousel({
         </p>
       </div>
 
+      <div className="relative flex min-h-0 flex-1 items-stretch md:items-center md:gap-3">
+        {/* Desktop arrows sit beside the track (cream gutter) — not over peek cards. */}
+        <button
+          type="button"
+          onClick={() => scrollByCard(-1)}
+          disabled={activeIndex === 0}
+          className="z-30 hidden h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-[#253044]/15 bg-white text-[#253044] shadow-[0_8px_24px_rgba(37,48,68,0.18)] transition hover:border-[#FF5C34]/40 hover:text-[#FF5C34] disabled:pointer-events-none disabled:opacity-35 md:inline-flex"
+          aria-label="Previous Pip's Pick"
+        >
+          <ChevronLeft className="h-7 w-7" aria-hidden />
+        </button>
+
       <div
-        className={`relative min-h-0 flex-1 overflow-hidden rounded-[28px] md:h-[560px] md:flex-none ${styles.trackShell}`}
+        className={`relative min-h-0 flex-1 overflow-hidden rounded-[28px] md:h-[500px] md:max-w-none ${styles.trackShell}`}
         style={enable3d ? { perspective: '1200px' } : undefined}
       >
         {/* Ambient orbs — recolour with the active pick's accent */}
@@ -814,7 +826,7 @@ export function PipsPicksPersimmonCarousel({
         />
         <div
           ref={trackRef}
-          className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-stretch overflow-x-auto px-[calc(50vw_-_150px)] pt-2 [scrollbar-width:none] md:items-center md:px-[calc(50%_-_185px)] md:pb-12 md:pt-3 ${
+          className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-stretch overflow-x-auto px-[calc(50vw_-_150px)] pt-2 [scrollbar-width:none] md:items-center md:px-[calc(50%_-_185px)] md:pb-10 md:pt-2 ${
             // Short-phone: keep a thin reserve for dots / Start over — not a dark empty band.
             bottomNavVisible ? 'pb-[72px]' : 'pb-[48px]'
           }`}
@@ -831,7 +843,7 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-center justify-center self-stretch py-0 md:h-auto md:max-h-[500px] md:w-[370px] md:flex-[0_0_370px] md:self-center md:py-1"
+                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-center justify-center self-stretch py-0 md:h-auto md:max-h-[440px] md:w-[370px] md:flex-[0_0_370px] md:self-center md:py-1"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
@@ -896,28 +908,6 @@ export function PipsPicksPersimmonCarousel({
             );
           })}
         </div>
-        <div className="absolute inset-y-0 left-3 z-30 hidden items-center md:flex">
-          <button
-            type="button"
-            onClick={() => scrollByCard(-1)}
-            disabled={activeIndex === 0}
-            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg transition hover:bg-white/20 disabled:opacity-30"
-            aria-label="Previous Pip's Pick"
-          >
-            <ChevronLeft className="h-6 w-6" aria-hidden />
-          </button>
-        </div>
-        <div className="absolute inset-y-0 right-3 z-30 hidden items-center md:flex">
-          <button
-            type="button"
-            onClick={() => scrollByCard(1)}
-            disabled={activeIndex >= displayPicks.length - 1}
-            className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg transition hover:bg-white/20 disabled:opacity-30"
-            aria-label="Next Pip's Pick"
-          >
-            <ChevronRight className="h-6 w-6" aria-hidden />
-          </button>
-        </div>
         <div className={`absolute left-0 right-0 z-30 flex justify-center gap-2 ${
             bottomNavVisible ? 'bottom-[64px]' : 'bottom-3'
           } md:bottom-2.5`}
@@ -934,6 +924,17 @@ export function PipsPicksPersimmonCarousel({
             />
           ))}
         </div>
+      </div>
+
+        <button
+          type="button"
+          onClick={() => scrollByCard(1)}
+          disabled={activeIndex >= displayPicks.length - 1}
+          className="z-30 hidden h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-[#253044]/15 bg-white text-[#253044] shadow-[0_8px_24px_rgba(37,48,68,0.18)] transition hover:border-[#FF5C34]/40 hover:text-[#FF5C34] disabled:pointer-events-none disabled:opacity-35 md:inline-flex"
+          aria-label="Next Pip's Pick"
+        >
+          <ChevronRight className="h-7 w-7" aria-hidden />
+        </button>
       </div>
 
       <AnimatePresence>

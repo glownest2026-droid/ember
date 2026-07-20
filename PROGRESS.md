@@ -1,4 +1,11 @@
-﻿## 2026-07-20 — Glass Stage: expand pop-up + tighter desktop track
+﻿## 2026-07-20 — Glass Stage: popup title parity + tighter desktop chrome
+
+Founder follow-up on PR #275:
+1. Popup product title used `h2` at 22/26px — carousel uses `h3` at 19/22px (looked like a different font). Matched popup to carousel title classes.
+2. Desktop track 560 → **500px** (card max ~440) so empty bands shrink further.
+3. Desktop prev/next arrows moved **outside** the dark track onto the cream gutter (white discs) so they no longer sit on peek cards.
+
+## 2026-07-20 — Glass Stage: expand pop-up + tighter desktop track
 
 Founder:
 1. Expand / pop-up still used the old cream + solid navy card

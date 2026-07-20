@@ -36,7 +36,10 @@ async function main() {
 
     const deskM = await desk.evaluate(() => {
       const heading = document.getElementById('pips-picks-heading');
-      const shell = heading?.nextElementSibling;
+      const wrap = heading?.nextElementSibling;
+      const shell =
+        wrap?.querySelector?.('[class*="trackShell"]') ||
+        (wrap?.children?.length ? wrap.children[1] : null);
       const card = document.querySelector('[data-pips-card]');
       const shellRect = shell?.getBoundingClientRect();
       const cardRect = card?.getBoundingClientRect();
@@ -51,11 +54,38 @@ async function main() {
     console.log('DESKTOP', JSON.stringify(deskM));
 
     if (deskM.shellH == null) fail('desktop track shell not found');
-    else if (deskM.shellH > 620) fail(`desktop shell too tall: ${deskM.shellH}`);
+    else if (deskM.shellH > 520) fail(`desktop shell too tall: ${deskM.shellH}`);
     else console.log('PASS desktop shell height', deskM.shellH);
 
-    if (deskM.gapAbove != null && deskM.gapAbove > 100) fail(`desktop gapAbove ${deskM.gapAbove}`);
+    if (deskM.gapAbove != null && deskM.gapAbove > 60) fail(`desktop gapAbove ${deskM.gapAbove}`);
     else console.log('PASS desktop gapAbove', deskM.gapAbove);
+
+    // Arrows should sit outside the dark track (cream gutter), not over peek cards.
+    const arrows = await desk.evaluate(() => {
+      const prev = document.querySelector('button[aria-label="Previous Pip\'s Pick"]');
+      const next = document.querySelector('button[aria-label="Next Pip\'s Pick"]');
+      const heading = document.getElementById('pips-picks-heading');
+      const shell = heading?.nextElementSibling?.querySelector?.('[class*="trackShell"]')
+        || heading?.nextElementSibling?.children?.[1]
+        || null;
+      // Structure: wrapper > [prevBtn, trackShell, nextBtn]
+      const wrap = heading?.nextElementSibling;
+      const track = wrap?.querySelector?.('[class*="trackShell"]') || wrap?.children?.[1] || null;
+      const trackRect = track?.getBoundingClientRect();
+      const prevRect = prev?.getBoundingClientRect();
+      const nextRect = next?.getBoundingClientRect();
+      return {
+        prevOutside: !!(prevRect && trackRect && prevRect.right <= trackRect.left + 2),
+        nextOutside: !!(nextRect && trackRect && nextRect.left >= trackRect.right - 2),
+        prevVisible: !!(prev && getComputedStyle(prev).display !== 'none'),
+        nextVisible: !!(next && getComputedStyle(next).display !== 'none'),
+      };
+    });
+    console.log('ARROWS', JSON.stringify(arrows));
+    if (!arrows.prevVisible || !arrows.nextVisible) fail('desktop arrows not visible');
+    else if (!arrows.prevOutside || !arrows.nextOutside) fail('desktop arrows still overlap track');
+    else console.log('PASS desktop arrows outside track');
+
 
     const mob = await browser.newPage({ viewport: { width: 360, height: 740 } });
     await mob.goto(`${PREVIEW}${DEEP}`, { waitUntil: 'domcontentloaded', timeout: 90000 });
