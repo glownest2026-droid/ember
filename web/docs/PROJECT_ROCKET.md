@@ -337,6 +337,12 @@ IDs are **F1–F9 in order** (no gaps). Waitlist is a Cursor build with optional
 - Entry CTAs scrubbed of Marketplace positioning; `intent=at-home` redirects here
 - Migrations: `20260717060500_inventory_match_stage2_categories` + `20260717054756_at_home_unmatched_and_match_quality`
 
+### 2026-07-20: At home PR1 — item-type families (consolidated match)
+
+- `/family/at-home/add` now matches **item types + families** (not Stage 2 cards); one **Best match** card
+- Plan: `web/docs/INVENTORY_MATCHING_PLAN.md` — PR2 relevance map, PR3 Patch/Pass-On fan-out
+- Migration: `20260720120000_at_home_item_type_families_pr1` (`item_type_families`, aliases, `inventory_match_at_home`)
+
 ---
 
 ## How agents should update this file

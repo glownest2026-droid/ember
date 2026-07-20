@@ -7,15 +7,19 @@ import { ArrowLeft, Camera, Check, Home, Search, Sparkles } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import {
   AT_HOME_HERO_IMAGE,
-  matchStage2Categories,
-  saveAtHomeFromStage2Match,
-  type Stage2MatchCandidate,
+  learnAtHomeAlias,
+  matchAtHomeItemTypes,
+  saveAtHomeFromProductTypeMatch,
+  type AtHomeItemTypeMatch,
 } from '@/lib/inventory/atHome';
 
 const RAW_LISTING_BUCKET = 'marketplace-raw-listing-photos';
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MATCH_MIN_CHARS = 2;
+const CATALOGUE_DEBOUNCE_MS = 300;
+/** Wait for typing to pause before spending an AI name check. */
+const AI_PAUSE_MS = 900;
 
 function getFileExtension(file: File): string {
   const fromName = file.name.split('.').pop()?.toLowerCase();
@@ -34,9 +38,11 @@ export function AtHomeAddClient({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [candidates, setCandidates] = useState<Stage2MatchCandidate[]>([]);
+  const [match, setMatch] = useState<AtHomeItemTypeMatch | null>(null);
   const [matchLoading, setMatchLoading] = useState(false);
+  const [aiChecking, setAiChecking] = useState(false);
   const [matchError, setMatchError] = useState<string | null>(null);
+  const [aiLimitMessage, setAiLimitMessage] = useState<string | null>(null);
   const [photoHint, setPhotoHint] = useState<string | null>(null);
   const [draftId, setDraftId] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -56,38 +62,67 @@ export function AtHomeAddClient({
       : '/family/at-home';
   const backLabel = cameFromFamily ? 'Back to Family' : 'Back to At home';
 
-  const runMatch = useCallback(
-    async (text: string) => {
-      const q = text.trim();
-      if (q.length < MATCH_MIN_CHARS) {
-        setCandidates([]);
-        setMatchError(null);
-        return;
-      }
-      setMatchLoading(true);
+  const runMatch = useCallback(async (text: string, allowAi: boolean) => {
+    const q = text.trim();
+    if (q.length < MATCH_MIN_CHARS) {
+      setMatch(null);
       setMatchError(null);
-      const { candidates: next, error } = await matchStage2Categories({
-        query: q,
-        childId: initialChildId ?? null,
-        limit: 3,
-      });
-      setCandidates(next.slice(0, 3));
-      setMatchError(error);
-      setMatchLoading(false);
-    },
-    [initialChildId]
-  );
+      setAiLimitMessage(null);
+      return;
+    }
+    if (allowAi) {
+      setAiChecking(true);
+    } else {
+      setMatchLoading(true);
+      setMatch(null);
+    }
+    setMatchError(null);
+    setAiLimitMessage(null);
+
+    const { match: next, error, aiLimitMessage } = await matchAtHomeItemTypes({
+      query: q,
+      limit: 1,
+      allowAi,
+    });
+
+    setMatch(next);
+    setMatchError(error);
+    setAiLimitMessage(aiLimitMessage ?? null);
+    setMatchLoading(false);
+    setAiChecking(false);
+  }, []);
 
   useEffect(() => {
     const q = query.trim();
     if (q.length < MATCH_MIN_CHARS) {
-      setCandidates([]);
+      setMatch(null);
+      setMatchLoading(false);
+      setAiChecking(false);
+      setAiLimitMessage(null);
       return;
     }
-    const t = window.setTimeout(() => {
-      void runMatch(q);
-    }, 280);
-    return () => window.clearTimeout(t);
+
+    const catalogueTimer = window.setTimeout(() => {
+      void runMatch(q, false);
+    }, CATALOGUE_DEBOUNCE_MS);
+
+    const aiTimer = window.setTimeout(() => {
+      void (async () => {
+        const catalogueOnly = await matchAtHomeItemTypes({ query: q, limit: 1, allowAi: false });
+        if (catalogueOnly.match) {
+          setMatch(catalogueOnly.match);
+          setMatchLoading(false);
+          setAiChecking(false);
+          return;
+        }
+        await runMatch(q, true);
+      })();
+    }, CATALOGUE_DEBOUNCE_MS + AI_PAUSE_MS);
+
+    return () => {
+      window.clearTimeout(catalogueTimer);
+      window.clearTimeout(aiTimer);
+    };
   }, [query, runMatch]);
 
   const handleFileSelected = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -172,7 +207,7 @@ export function AtHomeAddClient({
       if (hinted) {
         setPhotoHint(hinted);
         setQuery((prev) => (prev.trim() ? prev : hinted));
-        await runMatch(hinted);
+        await runMatch(hinted, true);
       }
     } catch (err) {
       setPhotoError(err instanceof Error ? err.message : 'Photo upload failed.');
@@ -182,8 +217,8 @@ export function AtHomeAddClient({
     }
   };
 
-  const handleSave = async (candidate?: Stage2MatchCandidate) => {
-    const saveKey = candidate?.category_type_id ?? '__typed__';
+  const handleSave = async (candidate?: AtHomeItemTypeMatch) => {
+    const saveKey = candidate?.product_type_id ?? '__typed__';
     setSavingId(saveKey);
     setSaveError(null);
     try {
@@ -196,9 +231,9 @@ export function AtHomeAddClient({
         return;
       }
 
-      const saved = await saveAtHomeFromStage2Match({
+      const saved = await saveAtHomeFromProductTypeMatch({
         userId: user.id,
-        categoryTypeId: candidate?.category_type_id ?? null,
+        productTypeId: candidate?.product_type_id ?? null,
         childId: initialChildId ?? null,
         rawQuery: query.trim() || candidate?.label,
         hasPhoto: Boolean(draftId && previewUrl),
@@ -207,6 +242,13 @@ export function AtHomeAddClient({
 
       if (saved.error || !saved.itemId) {
         throw new Error(saved.error ?? 'Could not save.');
+      }
+
+      if (candidate?.product_type_id && query.trim()) {
+        void learnAtHomeAlias({
+          query: query.trim(),
+          productTypeId: candidate.product_type_id,
+        });
       }
 
       const params = new URLSearchParams({ added: '1' });
@@ -218,6 +260,11 @@ export function AtHomeAddClient({
       setSavingId(null);
     }
   };
+
+  const showSpecificLabel =
+    match?.specific_label &&
+    match.family_label &&
+    match.specific_label.toLowerCase() !== match.family_label.toLowerCase();
 
   return (
     <div className="max-w-xl mx-auto">
@@ -261,7 +308,7 @@ export function AtHomeAddClient({
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Helmet, white noise machine, kitchen stool..."
+              placeholder="Paddington bear, toy broom, guitar..."
               className="w-full min-h-[48px] rounded-xl border border-[#E7E2DC] bg-[#FBFAF7] pl-10 pr-3 text-[0.9375rem] text-[#253044] outline-none focus:ring-2 focus:ring-[#FF5C34]/35"
               autoComplete="off"
               autoFocus
@@ -326,8 +373,11 @@ export function AtHomeAddClient({
 
       <div className="mt-6">
         <div className="flex items-center justify-between gap-2 mb-3">
-          <h2 className="text-base font-medium text-[#253044] m-0">Best matches</h2>
+          <h2 className="text-base font-medium text-[#253044] m-0">Best match</h2>
           {matchLoading && <span className="text-xs text-[#66717D]">Checking...</span>}
+          {!matchLoading && aiChecking && (
+            <span className="text-xs text-[#66717D]">Checking name...</span>
+          )}
         </div>
 
         {query.trim().length < MATCH_MIN_CHARS && (
@@ -342,10 +392,14 @@ export function AtHomeAddClient({
           </p>
         )}
 
+        {aiLimitMessage && (
+          <p className="text-sm text-[#66717D]">{aiLimitMessage}</p>
+        )}
+
         {!matchLoading &&
           query.trim().length >= MATCH_MIN_CHARS &&
           !matchError &&
-          candidates.length === 0 && (
+          !match && (
             <div className="rounded-2xl border border-[#E7E2DC] bg-white p-4">
               <p className="text-sm text-[#66717D] m-0">
                 No close match yet. You can still save this At home.
@@ -353,40 +407,36 @@ export function AtHomeAddClient({
             </div>
           )}
 
-        <ul className="space-y-3 list-none p-0 m-0">
-          {candidates.map((c) => (
-            <li
-              key={c.category_type_id}
-              className="rounded-2xl border border-[#E7E2DC] bg-white p-3.5 flex gap-3 items-center"
+        {match && (
+          <div className="rounded-2xl border border-[#E7E2DC] bg-white p-3.5 flex gap-3 items-center">
+            <div className="w-16 h-16 rounded-xl bg-[#FBFAF7] border border-[#E7E2DC] overflow-hidden shrink-0 flex items-center justify-center">
+              <Home className="w-5 h-5 text-[#66717D]" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[0.9375rem] font-medium text-[#253044] m-0 leading-snug">
+                {match.label}
+              </p>
+              {showSpecificLabel && (
+                <p className="text-xs text-[#66717D] mt-1 mb-0">{match.specific_label}</p>
+              )}
+              {match.subtitle && (
+                <p className="text-xs text-[#66717D] mt-1 mb-0">{match.subtitle}</p>
+              )}
+              {match.match_source === 'ai' && (
+                <p className="text-xs text-[#66717D] mt-1 mb-0">Ember worked this out from the name.</p>
+              )}
+            </div>
+            <button
+              type="button"
+              disabled={Boolean(savingId)}
+              onClick={() => void handleSave(match)}
+              className="shrink-0 inline-flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-xl text-sm font-medium text-white bg-[#FF5C34] hover:opacity-95 disabled:opacity-60"
             >
-              <div className="w-16 h-16 rounded-xl bg-[#FBFAF7] border border-[#E7E2DC] overflow-hidden shrink-0 flex items-center justify-center">
-                {c.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.image_url} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <Home className="w-5 h-5 text-[#66717D]" />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-[0.9375rem] font-medium text-[#253044] m-0 leading-snug">
-                  {c.label}
-                </p>
-                {c.age_band_id && (
-                  <p className="text-xs text-[#66717D] mt-1 mb-0">{c.age_band_id}</p>
-                )}
-              </div>
-              <button
-                type="button"
-                disabled={Boolean(savingId)}
-                onClick={() => void handleSave(c)}
-                className="shrink-0 inline-flex items-center gap-1.5 min-h-[40px] px-3.5 rounded-xl text-sm font-medium text-white bg-[#FF5C34] hover:opacity-95 disabled:opacity-60"
-              >
-                <Check className="w-4 h-4" />
-                {savingId === c.category_type_id ? 'Saving...' : 'This one'}
-              </button>
-            </li>
-          ))}
-        </ul>
+              <Check className="w-4 h-4" />
+              {savingId === match.product_type_id ? 'Saving...' : 'This one'}
+            </button>
+          </div>
+        )}
 
         {query.trim().length >= MATCH_MIN_CHARS && !matchLoading && (
           <button

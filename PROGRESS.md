@@ -1,4 +1,21 @@
-﻿## 2026-07-20 — fix(gift): Stage 3 image fallback + Find it > on public gift list
+﻿## 2026-07-20 — At home PR1: item-type families + consolidated match
+
+- **Plan:** `web/docs/INVENTORY_MATCHING_PLAN.md` (3-PR architecture; PR2 = relevance map, PR3 = Patch/Pass-On)
+- **Problem:** `/family/at-home/add` matched Discover Stage 2 cards → most real objects unmatched or showed misleading age bands
+- **Fix:** Match parent text → `product_types` + `item_type_families`; one **Best match** card; save `product_type_id`
+- **Migration:** `20260720120000_at_home_item_type_families_pr1.sql` (applied via `supabase db push`)
+  - Tables: `item_type_families`; `product_types.family_slug`
+  - RPC: `inventory_match_at_home`
+  - Seeds: families + types + aliases (Paddington, broom, Peppa phone, guitar, ice cream truck, Freddie)
+- **API:** `GET /api/inventory/match-at-home`
+- **UI:** `AtHomeAddClient.tsx` — family label + hint; no Stage 2 age band
+- **Verify:** `/family/at-home/add` — founder six examples → one match each; `pnpm -C web build` passes
+- PR #276 — preview green: https://ember-git-feat-at-home-item-type-08dadb-tims-projects-cd69a894.vercel.app
+- **PR1.1 (match quality):** `20260720123000_at_home_match_confidence_gate.sql` — strict matcher; no trigram-only guesses
+- **PR1.2 (AI Tier 2):** Gemini text classify when catalogue misses; `learn-at-home-alias` on confirm; pretend_play catalogue seed; migration `20260720124500_at_home_pretend_play_catalogue.sql`
+- **PR1.2b:** AI only after ~1.2s typing pause (`allowAi=1`); catalogue instant at 300ms; repeat phrase cached 24h. Env: `AT_HOME_AI_DAILY_LIMIT` (founder set 200 on Preview)
+
+## 2026-07-20 — fix(gift): Stage 3 image fallback + Find it > on public gift list
 
 - `/gift/[slug]`: blank Stage 3 photos inherit parent Stage 2 category image (age-band scoped), same rule as `/my-ideas`
 - Relatives get **Find it >** → Google Shopping (`shop_query` from brand + product name)
