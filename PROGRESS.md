@@ -1,4 +1,16 @@
-﻿## 2026-07-20 — Glass Stage: self-tested spacing (shrink-wrap description)
+﻿## 2026-07-20 — Glass Stage: expand pop-up + tighter desktop track
+
+Founder:
+1. Expand / pop-up still used the old cream + solid navy card
+2. Desktop carousel track was near full-viewport tall → huge empty bands above/below content-sized cards
+
+Fix:
+- `PipsPickExpanded` uses Glass Stage (dark track, glass, robin, accent drawer; drawer open by default in reader; close top-left)
+- Desktop: drop viewport `min-height` on the section; track is a fixed `560px` shell; cards hug content (`md:h-auto`)
+
+PR #275.
+
+## 2026-07-20 — Glass Stage: self-tested spacing (shrink-wrap description)
 
 Founder: preview still showed hollow space above “Why Pip picked this.” Playwright on the live preview measured **~76px text→drawer gap** — the description `<p>` was `flex-1` (140px box) while the muslin blurb only needed ~77px of text.
 

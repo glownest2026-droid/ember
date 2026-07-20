@@ -178,6 +178,7 @@ Prefer **Tailwind + small CSS module / styled tokens** matching the values above
 - [ ] Robin upright top-right only (44px)
 - [ ] Per-pick accent variance visible when swiping
 - [ ] **Why Pip drawer** closed by default; tap opens; description dims
+- [ ] **Expand / pop-up reader** uses the same Glass Stage treatment (dark track, glass card, robin, drawer) — not the old solid navy cream-backdrop card
 - [ ] Browse offers → Google Shopping
 - [ ] 44px tap targets; Manrope only; reduced-motion respected
 - [ ] Backdrop-filter fallback tested (or solid navy fallback)

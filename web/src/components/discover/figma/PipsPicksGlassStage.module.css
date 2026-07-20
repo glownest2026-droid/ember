@@ -131,6 +131,11 @@
   opacity: 1;
 }
 
+/* Expanded reader: more room to read the full verdict without feeling cramped */
+.drawerPanelReader {
+  max-height: min(52dvh, 420px);
+}
+
 .drawerChevron {
   transition: transform 250ms ease;
 }
