@@ -574,6 +574,36 @@ function AppListingsPhotoDraftPage() {
           setHouseholdItemId(owned.id);
           setHouseholdItemLabel(label);
           setHouseholdProductTypeId((owned.product_type_id as string | null) ?? null);
+          const { data: linkedDrafts } = await supabase
+            .from("marketplace_listing_drafts")
+            .select(
+              "id, image_storage_path, product_type_id, status, title_draft, description_draft, condition_confirmed_by_user, listing_draft_details_json, listing_details_generated_at, ai_detected_label, ai_raw_response_json"
+            )
+            .eq("user_id", authUser.id)
+            .eq("household_item_id", owned.id)
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+          if (!active) return;
+
+          const linkedDraft = (linkedDrafts?.[0] ?? null) as DraftRow | null;
+          if (linkedDraft?.id) {
+            const published = await draftHasPublishedListing(supabase, linkedDraft.id);
+            if (!active) return;
+
+            if (!published) {
+              setFlowMode("create");
+              await hydrateDraftRow(supabase, linkedDraft, null);
+              setSuccess(
+                linkedDraft.image_storage_path
+                  ? `Listing from At home: ${label}. Using your saved At home photo.`
+                  : `Listing from At home: ${label}. Add a photo to continue.`
+              );
+              if (active) setLoading(false);
+              return;
+            }
+          }
+
           resetToNewListingState();
           setSuccess(`Listing from At home: ${label}. Add a photo to continue.`);
           if (active) setLoading(false);
