@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/client';
+import type { AgeFitPin } from '@/lib/inventory/at-home-age-fit';
 
 const CATEGORY_IMG =
   'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/category_images';
@@ -278,6 +279,67 @@ async function resolveProductTypeId(
   return null;
 }
 
+type ProductTypeAgeFitRow = {
+  age_fit_variant: string | null;
+  default_age_fit_min_months: number | null;
+  default_age_fit_max_months: number | null;
+};
+
+async function resolveStage2CategoryId(
+  supabase: ReturnType<typeof createClient>,
+  args: {
+    productTypeId: string;
+    childId: string | null;
+    ageFit: AgeFitPin | null;
+  }
+): Promise<string | null> {
+  const { data, error } = await supabase.rpc('resolve_at_home_stage2_category', {
+    p_product_type_id: args.productTypeId,
+    p_child_id: args.childId,
+    p_age_fit_min_months: args.ageFit?.ageFitMinMonths ?? null,
+    p_age_fit_max_months: args.ageFit?.ageFitMaxMonths ?? null,
+  });
+  if (error) {
+    console.warn('[at-home] resolve_at_home_stage2_category failed', error.message);
+    return null;
+  }
+  const row = (data as { category_type_id?: string }[] | null)?.[0];
+  return row?.category_type_id ?? null;
+}
+
+async function loadProductTypeAgeFit(
+  supabase: ReturnType<typeof createClient>,
+  productTypeId: string
+): Promise<AgeFitPin | null> {
+  const { data } = await supabase
+    .from('product_types')
+    .select('age_fit_variant, default_age_fit_min_months, default_age_fit_max_months')
+    .eq('id', productTypeId)
+    .maybeSingle();
+  const row = data as ProductTypeAgeFitRow | null;
+  if (!row?.age_fit_variant && row?.default_age_fit_min_months == null) return null;
+  return {
+    ageFitVariant: row.age_fit_variant,
+    ageFitMinMonths: row.default_age_fit_min_months,
+    ageFitMaxMonths: row.default_age_fit_max_months,
+    ageFitSource: 'default',
+  };
+}
+
+/** Resolve product_type id from slug (puzzle clarification path). */
+export async function productTypeIdFromSlug(
+  slug: string
+): Promise<string | null> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('product_types')
+    .select('id')
+    .eq('slug', slug)
+    .eq('is_active', true)
+    .maybeSingle();
+  return (data as { id?: string } | null)?.id ?? null;
+}
+
 /** Save At home from item-type confirm (text and/or photo path). */
 export async function saveAtHomeFromProductTypeMatch(args: {
   userId: string;
@@ -286,22 +348,42 @@ export async function saveAtHomeFromProductTypeMatch(args: {
   rawQuery?: string | null;
   hasPhoto?: boolean;
   draftId?: string | null;
+  ageFit?: AgeFitPin | null;
 }): Promise<{ itemId: string | null; error: string | null }> {
   const supabase = createClient();
   const childId = args.childId?.trim() || null;
   const label = args.rawQuery?.trim() || null;
   const productTypeId = args.productTypeId?.trim() || null;
 
+  let ageFit = args.ageFit ?? null;
+  if (productTypeId && !ageFit) {
+    ageFit = await loadProductTypeAgeFit(supabase, productTypeId);
+  }
+
+  let categoryTypeId: string | null = null;
+  if (productTypeId) {
+    categoryTypeId = await resolveStage2CategoryId(supabase, {
+      productTypeId,
+      childId,
+      ageFit,
+    });
+  }
+
   const { data, error } = await supabase
     .from('garage_items')
     .insert({
       user_id: args.userId,
       product_type_id: productTypeId,
+      category_type_id: categoryTypeId,
       child_scope_type: childId ? 'single_child' : 'unknown',
       child_id: childId,
       raw_query: label,
       source: args.hasPhoto ? 'photo_assisted' : 'manual_match',
       status: 'owned',
+      age_fit_variant: ageFit?.ageFitVariant ?? null,
+      age_fit_min_months: ageFit?.ageFitMinMonths ?? null,
+      age_fit_max_months: ageFit?.ageFitMaxMonths ?? null,
+      age_fit_source: ageFit?.ageFitSource ?? (productTypeId ? 'none' : null),
     })
     .select('id')
     .single();
