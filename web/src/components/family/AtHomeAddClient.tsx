@@ -9,9 +9,17 @@ import {
   AT_HOME_HERO_IMAGE,
   learnAtHomeAlias,
   matchAtHomeItemTypes,
+  productTypeIdFromSlug,
   saveAtHomeFromProductTypeMatch,
   type AtHomeItemTypeMatch,
 } from '@/lib/inventory/atHome';
+import {
+  ageFitFromClarification,
+  ageFitFromQuery,
+  needsPuzzleClarification,
+  PUZZLE_CLARIFICATION_OPTIONS,
+  type PuzzleClarificationOption,
+} from '@/lib/inventory/at-home-age-fit';
 
 const RAW_LISTING_BUCKET = 'marketplace-raw-listing-photos';
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -51,6 +59,12 @@ export function AtHomeAddClient({
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  const puzzleClarificationNeeded =
+    query.trim().length >= MATCH_MIN_CHARS &&
+    !matchLoading &&
+    !aiChecking &&
+    needsPuzzleClarification(query, match?.family_slug ?? null);
 
   const cameFromFamily = initialFrom === 'family';
   const backHref = cameFromFamily
@@ -217,8 +231,12 @@ export function AtHomeAddClient({
     }
   };
 
-  const handleSave = async (candidate?: AtHomeItemTypeMatch) => {
-    const saveKey = candidate?.product_type_id ?? '__typed__';
+  const handleSave = async (
+    candidate?: AtHomeItemTypeMatch,
+    puzzleOption?: PuzzleClarificationOption
+  ) => {
+    const saveKey =
+      puzzleOption?.productTypeSlug ?? candidate?.product_type_id ?? '__typed__';
     setSavingId(saveKey);
     setSaveError(null);
     try {
@@ -231,13 +249,22 @@ export function AtHomeAddClient({
         return;
       }
 
+      let productTypeId = candidate?.product_type_id ?? null;
+      let ageFit = ageFitFromQuery(query);
+
+      if (puzzleOption) {
+        productTypeId = await productTypeIdFromSlug(puzzleOption.productTypeSlug);
+        ageFit = ageFitFromClarification(puzzleOption);
+      }
+
       const saved = await saveAtHomeFromProductTypeMatch({
         userId: user.id,
-        productTypeId: candidate?.product_type_id ?? null,
+        productTypeId,
         childId: initialChildId ?? null,
-        rawQuery: query.trim() || candidate?.label,
+        rawQuery: query.trim() || candidate?.label || puzzleOption?.label,
         hasPhoto: Boolean(draftId && previewUrl),
         draftId,
+        ageFit,
       });
 
       if (saved.error || !saved.itemId) {
@@ -396,7 +423,36 @@ export function AtHomeAddClient({
           <p className="text-sm text-[#66717D]">{aiLimitMessage}</p>
         )}
 
-        {!matchLoading &&
+        {puzzleClarificationNeeded && (
+          <div className="rounded-2xl border border-[#E7E2DC] bg-white p-4 space-y-3">
+            <p className="text-sm font-medium text-[#253044] m-0">
+              Which kind of puzzle?
+            </p>
+            <p className="text-xs text-[#66717D] m-0">
+              This helps Ember keep age-fit right — chunky peg puzzles and bigger jigsaws land in different places.
+            </p>
+            {PUZZLE_CLARIFICATION_OPTIONS.map((option) => (
+              <button
+                key={option.productTypeSlug}
+                type="button"
+                disabled={Boolean(savingId)}
+                onClick={() => void handleSave(undefined, option)}
+                className="w-full text-left rounded-xl border border-[#E7E2DC] bg-[#FBFAF7] p-3.5 hover:border-[#FF5C34]/50 disabled:opacity-60"
+              >
+                <p className="text-[0.9375rem] font-medium text-[#253044] m-0">
+                  {option.label}
+                </p>
+                <p className="text-xs text-[#66717D] mt-1 mb-0">{option.subtitle}</p>
+                <span className="inline-flex mt-2 text-xs font-medium text-[#FF5C34]">
+                  {savingId === option.productTypeSlug ? 'Saving...' : 'This one'}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {!puzzleClarificationNeeded &&
+          !matchLoading &&
           query.trim().length >= MATCH_MIN_CHARS &&
           !matchError &&
           !match && (
@@ -407,7 +463,7 @@ export function AtHomeAddClient({
             </div>
           )}
 
-        {match && (
+        {!puzzleClarificationNeeded && match && (
           <div className="rounded-2xl border border-[#E7E2DC] bg-white p-3.5 flex gap-3 items-center">
             <div className="w-16 h-16 rounded-xl bg-[#FBFAF7] border border-[#E7E2DC] overflow-hidden shrink-0 flex items-center justify-center">
               <Home className="w-5 h-5 text-[#66717D]" />

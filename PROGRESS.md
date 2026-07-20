@@ -1,4 +1,17 @@
-﻿## 2026-07-20 — At home PR1: item-type families + consolidated match
+﻿## 2026-07-20 — At home PR2: hidden Stage 2 relevance map + age-fit pinning
+
+- **Plan:** `web/docs/INVENTORY_MATCHING_PLAN.md` § PR2 (PR3 = Patch/Pass-On next)
+- **Goal:** Item types fan out to Discover Stage 2 across age bands in data (hidden); instance age-fit gates wrong pins (e.g. 24-piece jigsaw ≠ 14m)
+- **Migrations:** `20260720150000_at_home_stage2_relevance_pr2.sql`, `20260720151000_at_home_stage2_relevance_seed.sql`
+  - Table: `item_type_stage2_relevance` (`product_type_id` → `category_type_id` + `age_band_id`)
+  - Columns: `garage_items.age_fit_*`; `product_types.default_age_fit_*`
+  - RPC: `resolve_at_home_stage2_category` (child month + age-fit gate)
+  - Seeds: character soft toy, soft toy, toy broom, pretend phone, puzzle peg/jigsaw multi-band maps
+- **UI:** `AtHomeAddClient` — one clarifying tap when query is ambiguous (`jigsaw` / `puzzle`); `at-home-age-fit.ts`
+- **Save:** `saveAtHomeFromProductTypeMatch` pins hidden `category_type_id` via RPC when age-fit allows
+- **Verify:** DB `item_type_stage2_relevance` rows for `character_soft_toy`; type `jigsaw` → pick chunky vs 24+; child 14m + 24-piece → no 13–15m peg pin
+
+## 2026-07-20 — At home PR1: item-type families + consolidated match
 
 - **Plan:** `web/docs/INVENTORY_MATCHING_PLAN.md` (3-PR architecture; PR2 = relevance map, PR3 = Patch/Pass-On)
 - **Problem:** `/family/at-home/add` matched Discover Stage 2 cards → most real objects unmatched or showed misleading age bands
