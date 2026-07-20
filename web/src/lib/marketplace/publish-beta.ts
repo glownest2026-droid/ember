@@ -1,6 +1,8 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createMarketplaceServiceClient } from "./marketplace-service-client";
+import { fanOutPatchFindsForListing } from "@/lib/inventory/inventory-notification-dispatch";
 import type { SellerLocationInput } from "./beta-listing-types";
 import { isDraftReadyForOpportunity } from "./draft-readiness";
 import { buildOpportunityForDraft } from "./opportunity-service";
@@ -149,6 +151,17 @@ export async function publishBetaListingFromDraft(
     lng: location.lng,
     radius_miles: location.radius_miles,
   });
+
+  if (listing.id) {
+    const service = createMarketplaceServiceClient();
+    if (service) {
+      try {
+        await fanOutPatchFindsForListing(service, listing.id);
+      } catch (err) {
+        console.warn("[patch-finds] fan-out after publish failed", err);
+      }
+    }
+  }
 
   return { listing: { id: listing.id, status: listing.status }, created: true };
 }

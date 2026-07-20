@@ -22,6 +22,7 @@ type TopicRow = {
 const TOPIC_LABELS: Record<ReminderTopicKey, string> = {
   [REMINDER_TOPIC_KEYS.MONTHLY_STAGE_UPDATES]: 'Monthly stage updates',
   [REMINDER_TOPIC_KEYS.MOVE_IT_ON_PROMPTS]: 'Move-it-on prompts',
+  [REMINDER_TOPIC_KEYS.PATCH_FINDS]: 'Pip\'s Patch Finds (local matches)',
 };
 
 function emptyRows(): Record<ReminderTopicKey, TopicRow> {
@@ -33,6 +34,11 @@ function emptyRows(): Record<ReminderTopicKey, TopicRow> {
     },
     [REMINDER_TOPIC_KEYS.MOVE_IT_ON_PROMPTS]: {
       topic_key: REMINDER_TOPIC_KEYS.MOVE_IT_ON_PROMPTS,
+      email_enabled: false,
+      push_enabled: false,
+    },
+    [REMINDER_TOPIC_KEYS.PATCH_FINDS]: {
+      topic_key: REMINDER_TOPIC_KEYS.PATCH_FINDS,
       email_enabled: false,
       push_enabled: false,
     },
@@ -98,6 +104,7 @@ export function FamilyRemindersTopicCard({ serverUserId }: { serverUserId: strin
       .in('topic_key', [
         REMINDER_TOPIC_KEYS.MONTHLY_STAGE_UPDATES,
         REMINDER_TOPIC_KEYS.MOVE_IT_ON_PROMPTS,
+        REMINDER_TOPIC_KEYS.PATCH_FINDS,
       ]);
 
     if (error) {
