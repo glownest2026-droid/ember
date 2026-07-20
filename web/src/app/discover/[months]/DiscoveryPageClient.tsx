@@ -353,9 +353,40 @@ export default function DiscoveryPageClient({
        *
        * Wait until #pips-picks-heading exists and has layout — scrolling before
        * the carousel mounts was a no-op, then later scrolls raced and overshot.
+       *
+       * One settle correction after layout (carousel height / fonts) — browsers
+       * can scroll-anchor the page past the heading when the Stage 3 section grows.
        */
       let tries = 0;
       const maxTries = 60; // ~1s at 60fps
+      let settleScheduled = false;
+
+      const offsetForViewport = () => {
+        const desktop = window.matchMedia('(min-width: 1024px)').matches;
+        let offset = 8;
+        if (desktop) {
+          const header =
+            document.querySelector('[data-unified-signed-in-nav]') ??
+            document.querySelector('header.sticky');
+          if (header) offset = Math.round(header.getBoundingClientRect().bottom) + 2;
+        } else {
+          const signedIn = document.querySelector('[data-unified-signed-in-nav]');
+          if (!signedIn) {
+            const sticky = document.querySelector('header.sticky');
+            if (sticky) offset = Math.round(sticky.getBoundingClientRect().bottom) + 2;
+          }
+        }
+        return offset;
+      };
+
+      const pin = () => {
+        const heading = document.getElementById('pips-picks-heading');
+        if (!heading) return false;
+        const offset = offsetForViewport();
+        const y = heading.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: Math.max(0, y), behavior: 'auto' });
+        return true;
+      };
 
       const run = () => {
         const heading = document.getElementById('pips-picks-heading');
@@ -367,24 +398,19 @@ export default function DiscoveryPageClient({
           return;
         }
 
-        const desktop = window.matchMedia('(min-width: 1024px)').matches;
-        let offset = 8;
-        if (desktop) {
-          const header =
-            document.querySelector('[data-unified-signed-in-nav]') ??
-            document.querySelector('header.sticky');
-          if (header) offset = Math.round(header.getBoundingClientRect().bottom) + 2;
-        } else {
-          // Signed-out mobile still uses a sticky header.
-          const signedIn = document.querySelector('[data-unified-signed-in-nav]');
-          if (!signedIn) {
-            const sticky = document.querySelector('header.sticky');
-            if (sticky) offset = Math.round(sticky.getBoundingClientRect().bottom) + 2;
-          }
-        }
+        pin();
 
-        const y = heading.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top: Math.max(0, y), behavior: 'auto' });
+        if (!settleScheduled) {
+          settleScheduled = true;
+          window.setTimeout(() => {
+            const headingAfter = document.getElementById('pips-picks-heading');
+            if (!headingAfter) return;
+            const top = headingAfter.getBoundingClientRect().top;
+            const offset = offsetForViewport();
+            // Only correct drift (overshoot / undershoot) — do not chase forever.
+            if (Math.abs(top - offset) > 24) pin();
+          }, 180);
+        }
       };
 
       requestAnimationFrame(run);

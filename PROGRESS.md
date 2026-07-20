@@ -1,3 +1,16 @@
+﻿## 2026-07-20 — Glass Stage: self-tested spacing (shrink-wrap description)
+
+Founder: preview still showed hollow space above “Why Pip picked this.” Playwright on the live preview measured **~76px text→drawer gap** — the description `<p>` was `flex-1` (140px box) while the muslin blurb only needed ~77px of text.
+
+Fix:
+- Measure free height from siblings; line-clamp up to that budget; **shrink-wrap** the box (`flex: 0 0 auto`) so short copy does not leave a mid-card hollow
+- One settle re-pin after layout + `overflow-anchor: none` on the Stage 3 section (stops browser scroll-anchoring past the heading)
+- Slightly less track bottom padding / dots
+
+Smoke (run after Vercel green): `node agent-tools/scripts/test-stage3-preview-anchor.mjs` and `…/test-stage3-preview-cta-path.mjs` — assert `gapTextToDrawer ≤ 28`, heading near top, footer not in view.
+
+PR #275.
+
 ## 2026-07-20 — Glass Stage: preview-verified anchor (wait for heading) + less track padding
 
 Founder: preview still looked broken. Root causes confirmed in code:

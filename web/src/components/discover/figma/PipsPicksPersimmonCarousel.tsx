@@ -165,8 +165,9 @@ type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
  * Glass Stage compact card body (founder-selected 2026-07-19).
  * Spec: web/docs/ui/STAGE3_GLASS_STAGE_CARD.md
  *
- * Description fills leftover card height (no empty mt-auto gap above the
- * drawer). Line count = floor(availableHeight / lineHeight).
+ * Description may use leftover card height for *extra lines* when the copy is
+ * long — but the box must shrink-wrap the text. Growing the `<p>` with flex-1
+ * left a hollow band above “Why Pip picked this” when the blurb was short.
  */
 const MAX_DESC_LINES = 8;
 const MIN_DESC_LINES = 2;
@@ -204,27 +205,36 @@ function PickCardBody({
     if (!root || !desc) return;
 
     const fit = () => {
-      // Let the description flex-grow into free space, then clamp to whole lines.
-      desc.style.flex = drawerOpen ? '0 0 auto' : '1 1 auto';
+      const cs = window.getComputedStyle(desc);
+      const fontSize = parseFloat(cs.fontSize) || 13;
+      const lhRaw = Number.parseFloat(cs.lineHeight);
+      const lineHeight = Number.isFinite(lhRaw) ? lhRaw : fontSize * 1.5;
+      const mb = Number.parseFloat(cs.marginBottom) || 0;
+
+      // Free height = card body minus every sibling (rank, tag, title, drawer, CTAs).
+      let used = 0;
+      for (const child of Array.from(root.children)) {
+        if (child === desc) continue;
+        const style = window.getComputedStyle(child);
+        used +=
+          (child as HTMLElement).offsetHeight +
+          (Number.parseFloat(style.marginTop) || 0) +
+          (Number.parseFloat(style.marginBottom) || 0);
+      }
+      const available = Math.max(0, root.clientHeight - used - mb);
+      const maxForBox = Math.max(MIN_DESC_LINES, Math.floor(available / lineHeight));
+      const lines = drawerOpen
+        ? MIN_DESC_LINES
+        : Math.min(MAX_DESC_LINES, Math.max(MIN_DESC_LINES, maxForBox));
+
+      // Shrink-wrap: never leave empty flex space inside the description box.
+      desc.style.flex = '0 0 auto';
       desc.style.minHeight = '0';
       desc.style.height = 'auto';
       desc.style.maxHeight = 'none';
       desc.style.display = '-webkit-box';
       desc.style.setProperty('-webkit-box-orient', 'vertical');
       desc.style.overflow = 'hidden';
-      // Unlimited clamp while measuring the flex-assigned box height.
-      desc.style.setProperty('-webkit-line-clamp', '99');
-
-      const cs = window.getComputedStyle(desc);
-      const fontSize = parseFloat(cs.fontSize) || 13;
-      const lhRaw = Number.parseFloat(cs.lineHeight);
-      const lineHeight = Number.isFinite(lhRaw) ? lhRaw : fontSize * 1.5;
-      const boxH = desc.clientHeight;
-      const maxForBox = Math.max(MIN_DESC_LINES, Math.floor(boxH / lineHeight));
-      const lines = drawerOpen
-        ? MIN_DESC_LINES
-        : Math.min(MAX_DESC_LINES, Math.max(MIN_DESC_LINES, maxForBox));
-
       desc.style.setProperty('-webkit-line-clamp', String(lines));
       setDescLines(lines);
     };
@@ -268,8 +278,8 @@ function PickCardBody({
       ) : null}
       <p
         ref={descRef}
-        className={`mb-3 min-h-0 text-[13px] font-medium leading-[1.5] text-white/90 md:text-[13.5px] md:leading-[1.55] ${styles.descBase} ${
-          drawerOpen ? `shrink-0 ${styles.descDim}` : 'flex-1'
+        className={`mb-3 shrink-0 text-[13px] font-medium leading-[1.5] text-white/90 md:text-[13.5px] md:leading-[1.55] ${styles.descBase} ${
+          drawerOpen ? styles.descDim : ''
         }`}
         style={{
           display: '-webkit-box',
@@ -684,11 +694,13 @@ export function PipsPicksPersimmonCarousel({
     // Full-bleed viewport column (founder, round 4): the section runs to the very
     // bottom of the screen so the disclosure smallprint and the next section stay
     // below the fold. The Start over FAB hovers inside the card's bottom reserve.
-    <section className="relative flex min-h-[calc(100dvh-var(--header-height,88px)-4px)] flex-col overflow-hidden text-[#253044]">
+    <section
+      className="relative flex min-h-[calc(100dvh-var(--header-height,88px)-4px)] flex-col overflow-hidden text-[#253044] [overflow-anchor:none]"
+    >
       {/* Compact header on mobile so heading + card + Start over share one viewport. */}
       <div
         id="pips-picks-heading"
-        className="relative z-20 shrink-0 scroll-mt-2 px-2 pb-1 text-center md:mt-0 md:scroll-mt-[calc(var(--header-height,112px)+2px)] md:px-0 md:pb-5"
+        className="relative z-20 shrink-0 scroll-mt-2 px-2 pb-1 text-center md:mt-0 md:scroll-mt-[calc(var(--header-height,112px)+2px)] md:px-0 md:pb-5 [overflow-anchor:none]"
       >
         <div className="inline-flex items-center justify-center gap-2 md:gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- brand mark is a stable public asset */}
@@ -726,8 +738,8 @@ export function PipsPicksPersimmonCarousel({
         <div
           ref={trackRef}
           className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-stretch overflow-x-auto px-[calc(50vw_-_150px)] pt-2 [scrollbar-width:none] md:items-center md:px-[calc(50%_-_185px)] md:pb-[88px] md:pt-4 ${
-            // Short-phone: oversized padding was empty dark track below the card.
-            bottomNavVisible ? 'pb-[96px]' : 'pb-[64px]'
+            // Short-phone: keep a thin reserve for dots / Start over — not a dark empty band.
+            bottomNavVisible ? 'pb-[72px]' : 'pb-[48px]'
           }`}
           style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
         >
@@ -830,7 +842,7 @@ export function PipsPicksPersimmonCarousel({
           </button>
         </div>
         <div className={`absolute left-0 right-0 z-30 flex justify-center gap-2 ${
-            bottomNavVisible ? 'bottom-[88px]' : 'bottom-3'
+            bottomNavVisible ? 'bottom-[64px]' : 'bottom-3'
           } md:bottom-2.5`}
         >
           {displayPicks.map((pick, index) => (
