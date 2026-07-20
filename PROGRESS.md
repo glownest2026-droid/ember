@@ -1,4 +1,47 @@
-﻿## 2026-07-20 — fix(marketplace): preserve current AI match on “Choose this”
+﻿## 2026-07-20 — Stage 3 ingest: toddler bands 28-30m / 31-33m / 34-36m (10 paid picks)
+
+- **Source:** Manus bundle `stage3_toddler_bands_research_bundle.zip` → `agent-tools/exports/stage3/{band}/research/`
+- **Founder ask:** paid/founder preview shows **10** Pip's Picks (not the usual 5) to stress-test a broader set
+- **How:** `ingest-stage3-pips-picks.mjs --visible-count=10` promotes longlist ranks 6–10 into visible cards (pick 1 free; 2–10 locked for non-members)
+- **Migrations (applied via `supabase db push`):**
+  - `20260720193000_ingest_stage3_pips_picks_28_30m.sql` (7 categories × 10)
+  - `20260720193100_ingest_stage3_pips_picks_31_33m.sql` (8 categories × 10)
+  - `20260720193200_ingest_stage3_pips_picks_34_36m.sql` (4 remaining categories × 10)
+- **App:** default Stage 3 fetch limit 10; lock copy generalised; Lucide icon map extended for toddler product nouns; catalogue cache bump `20260720-stage3-toddler-10picks`
+- **History note:** included already-applied `20260720160000_at_home_notification_fanout_pr3.sql` so local migration history matches remote before push
+- **Caveats:** ranks 6–10 are longlist promotions (thinner card copy; many `check_claim` / `check_url` flags). Soft-doll 31-33m still needs URL/age-fit QA. Prior 34-36m picture books / small-world remain at 5 picks.
+- **Verify:** logged in as `timwd23@gmail.com` open `/discover/29`, `/discover/32`, `/discover/35` → Stage 2 with Ember Picks → see 10 cards; logged out → pick 1 clear, 2–10 blurred
+
+## 2026-07-20 — Stage 3 remaining pilots + Manus prompt (28-30m / 31-33m / 34-36m)
+
+- **Task:** Identify remaining Stage 2 → Stage 3 research pilots for three adjacent toddler bands; write one combined Manus research prompt (cross-band differentiation).
+- **Sources:** Spine 3.0 Bibles `discover_projection` —
+  - `02_Ember_Bible_28_30m_v1_QA_patch.xlsx`
+  - `02_Ember_Bible_31_33m_Conor_Thea_Depth_v2.xlsx`
+  - `02_Ember_Bible_34_36m_v1_1.xlsx`
+- **Runner:** `node web/scripts/export-stage3-research-shortlist.mjs` (updated to accept `show_shop_and_gift_actions` / `show_shop_only` as product-action aliases — needed for 31-33m vocabulary drift)
+- **Remaining queue:** **19** pilots — 28-30m ×7, 31-33m ×8, 34-36m ×4
+- **Excluded (already researched):** 34-36m picture story books, small-world figures, first jigsaws
+- **Artifacts:**
+  - Per-band shortlists: `agent-tools/exports/stage3_shortlist_{28-30m,31-33m,34-36m}.{md,csv}` (+ copies under `stage3/{band}/registry/`)
+  - Combined remaining: `agent-tools/exports/stage3/28-36m-batch/stage3_remaining_shortlist_28-36m.{md,csv,json}`
+  - Manus prompt: `agent-tools/exports/stage3/28-36m-batch/source/manus_stage3_research_prompt_28-36m.md`
+  - Builder: `agent-tools/scripts/build-stage3-remaining-28-36m.mjs`
+- **Founder note:** 31-33m Bible uses non-canonical `render_rule` labels (`show_shop_*` instead of `product_actions`); shortlist treated them as eligible. Worth a later Bible/data tidy so live import vocabulary matches other bands.
+- **Verify:** Open the Manus prompt MD; confirm 19 categories listed and CSV queue embedded; paste into Manus as one task.
+
+## 2026-07-20 — At home PR3: Patch Finds + Pass-On fan-out
+
+- **Plan:** `web/docs/INVENTORY_MATCHING_PLAN.md` § PR3
+- **Patch Finds:** on beta listing publish → `queue_patch_finds_for_listing` (relevance + geo + not-already-have) → `inventory_notification_events` → OneSignal push when configured
+- **Pass-On:** cron `POST /api/cron/inventory-notifications` → `queue_pass_on_prompts` for `ready_to_move_on` items (demand nearby vs encourage list)
+- **Demand signal:** `count_patch_find_audience_nearby` replaces placeholder child count in `demand.ts`
+- **Prefs:** new reminder topic `patch_finds` on `/family#reminders`
+- **Migration:** `20260720160000_at_home_notification_fanout_pr3.sql` (applied via `supabase db push`)
+- **Env:** `ONESIGNAL_REST_API_KEY` + existing `NEXT_PUBLIC_ONESIGNAL_APP_ID` for push dispatch; `CRON_SECRET` for Pass-On cron
+- **Verify:** publish listing with `product_type_id` → queued `patch_find` rows; mark item ready_to_move_on → cron queues Pass-On; marketplace opportunity shows relevance-based audience count
+
+## 2026-07-20 — fix(marketplace): preserve current AI match on “Choose this”
 
 - **Issue:** In the listing flow, a correct candidate could flip to an old/random title (e.g. balance bike -> toddler bed) right after pressing **Choose this**.
 - **Root cause:** `select-candidate` identity resolution still considered prior `parent_confirmed_*` values stored on the same draft, so old confirmation text could outrank the new explicit selection.
