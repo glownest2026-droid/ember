@@ -10,7 +10,7 @@
 - **API:** `GET /api/inventory/match-at-home`
 - **UI:** `AtHomeAddClient.tsx` — family label + hint; no Stage 2 age band
 - **Verify:** `/family/at-home/add` — founder six examples → one match each; `pnpm -C web build` passes
-- PR: (pending)
+- PR #276 — preview green: https://ember-git-feat-at-home-item-type-08dadb-tims-projects-cd69a894.vercel.app
 
 ## 2026-07-20 — fix(gift): Stage 3 image fallback + Find it > on public gift list
 
