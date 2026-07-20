@@ -99,31 +99,42 @@
   border-radius: 18px;
   overflow: hidden;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .drawerOpen {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
+  /* Take remaining card space so the verdict can scroll fully above the thumbs */
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .drawerHead {
   color: var(--accent-soft);
+  flex-shrink: 0;
 }
 
 .drawerPanel {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 320ms ease;
+  opacity: 0;
+  transition: max-height 320ms ease, opacity 200ms ease;
 }
 
 .drawerPanelOpen {
-  max-height: 140px;
+  /* Grow inside the open drawer; scroll the verdict, with bottom pad so the
+     last line is reachable (founder: scrollbar hit end but text still clipped). */
+  flex: 1 1 auto;
+  min-height: 72px;
+  max-height: min(42dvh, 280px);
+  overflow-x: hidden;
   overflow-y: auto;
-}
-
-@media (min-width: 768px) {
-  .drawerPanelOpen {
-    max-height: 220px;
-  }
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: 20px;
+  opacity: 1;
 }
 
 .drawerChevron {

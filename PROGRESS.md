@@ -1,3 +1,9 @@
+## 2026-07-20 — Glass Stage: Pip's Picks anchor + Why Pip drawer scroll end
+
+Founder follow-up on PR #275:
+- **Major:** Stage 3 anchor now targets `#pips-picks-heading` (with re-anchor after layout) so Pip’s Picks is first under the sticky header — “? Why these ideas?” scrolls away. Section subtitle no longer line-clamped; card description may use up to 5 mobile lines when space allows.
+- **Minor:** Why Pip drawer panel uses a taller scrollport + bottom padding so the last verdict line is reachable (was clipped with scrollbar at end).
+
 ## 2026-07-19 — Glass Stage: stop mid-line description clip on mobile
 
 Description had `flex-shrink`, so the card “fitted” by crushing the last line of text. Now description is `shrink-0`, line count is measured sync, and `min-height` locks full line-boxes (mobile max 3 lines).

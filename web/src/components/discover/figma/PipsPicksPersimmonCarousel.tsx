@@ -174,7 +174,7 @@ type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
  * (especially signed-in + bottom nav) clamps only as much as needed.
  */
 const MAX_DESC_LINES = 6;
-const MAX_DESC_LINES_MOBILE = 3;
+const MAX_DESC_LINES_MOBILE = 5;
 const MIN_DESC_LINES = 2;
 
 function PickCardBody({
@@ -203,6 +203,22 @@ function PickCardBody({
   useEffect(() => {
     setDrawerOpen(false);
   }, [fields.title, fields.verdict]);
+
+  // When the drawer opens, free vertical space for the verdict scroll by
+  // collapsing the description to its minimum line count (it dims anyway).
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const desc = descRef.current;
+    setDescLines(MIN_DESC_LINES);
+    if (desc) {
+      const cs = window.getComputedStyle(desc);
+      const fontSize = parseFloat(cs.fontSize) || 13;
+      const lh = Number.parseFloat(cs.lineHeight);
+      const lineHeight = Number.isFinite(lh) ? lh : fontSize * 1.5;
+      desc.style.minHeight = `${Math.ceil(lineHeight * MIN_DESC_LINES)}px`;
+      desc.style.setProperty('-webkit-line-clamp', String(MIN_DESC_LINES));
+    }
+  }, [drawerOpen]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -305,7 +321,7 @@ function PickCardBody({
         {fields.description}
       </p>
 
-      <div className={`mt-auto shrink-0 ${styles.drawer} ${drawerOpen ? styles.drawerOpen : ''}`}>
+      <div className={`mt-auto flex min-h-0 flex-col ${styles.drawer} ${drawerOpen ? styles.drawerOpen : ''}`}>
         <button
           type="button"
           className={`${styles.drawerHead} flex min-h-11 w-full items-center justify-between gap-2.5 border-0 bg-transparent px-3.5 py-2.5 text-left text-[11px] font-extrabold uppercase tracking-[0.06em] md:min-h-[46px] md:py-3 md:text-[12px]`}
@@ -327,7 +343,7 @@ function PickCardBody({
             shouldReduceMotion ? '!transition-none' : ''
           }`}
         >
-          <p className="m-0 px-3.5 pb-3.5 text-[13px] font-semibold leading-[1.55] text-white/[0.94]">
+          <p className="m-0 px-3.5 pb-1 text-[13px] font-semibold leading-[1.55] text-white/[0.94]">
             {fields.verdict}
           </p>
         </div>
@@ -709,8 +725,11 @@ export function PipsPicksPersimmonCarousel({
     // bottom of the screen so the disclosure smallprint and the next section stay
     // below the fold. The Start over FAB hovers inside the card's bottom reserve.
     <section className="relative flex min-h-[calc(100dvh-var(--header-height,88px)-4px)] flex-col overflow-hidden text-[#253044]">
-      {/* Compact header on mobile so header + card + Start over share one viewport (item 7). */}
-      <div className="relative z-20 -mt-1 shrink-0 px-2 pb-1.5 text-center md:mt-0 md:px-0 md:pb-5">
+      {/* Compact header on mobile so heading + card + Start over share one viewport. */}
+      <div
+        id="pips-picks-heading"
+        className="relative z-20 -mt-1 shrink-0 scroll-mt-[calc(var(--header-height,88px)+2px)] px-2 pb-1.5 text-center md:mt-0 md:px-0 md:pb-5"
+      >
         <div className="inline-flex items-center justify-center gap-2.5 md:gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element -- brand mark is a stable public asset */}
           <img src={ROBIN_LOGO_URL} alt="" className="h-9 w-9 object-contain md:h-20 md:w-20" />
@@ -718,7 +737,7 @@ export function PipsPicksPersimmonCarousel({
             Pip&apos;s Picks
           </h2>
         </div>
-        <p className="mx-auto mt-0.5 max-w-lg text-[12px] font-semibold leading-snug text-[#66717D] line-clamp-2 md:mt-1 md:text-base md:leading-relaxed md:line-clamp-none">
+        <p className="mx-auto mt-1 max-w-xl text-[12px] font-semibold leading-snug text-[#66717D] md:mt-1 md:max-w-lg md:text-base md:leading-relaxed">
           Pip has foraged the industry for {childDisplayLabel?.trim() || 'your child'}, matching current
           development needs to the best-suited, top-rated products available today.
         </p>

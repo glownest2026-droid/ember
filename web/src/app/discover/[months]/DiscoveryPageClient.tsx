@@ -343,16 +343,27 @@ export default function DiscoveryPageClient({
 
   const scrollToStage3Picks = useCallback(
     (behaviorOverride?: ScrollBehavior) => {
-      const section = document.getElementById('discover-figma-products');
-      if (!section) return;
-      const headerVar = getComputedStyle(document.documentElement).getPropertyValue('--header-height').trim();
-      // Anchor rule (founder): the "Pip's Picks" heading is the first thing under
-      // the sticky header. The carousel below is viewport-sized, so heading +
-      // card + Start over FAB share one screen without measuring the card.
-      const headerOffset = (headerVar ? parseInt(headerVar, 10) : 88) + 4;
+      // Anchor to the Pip's Picks heading itself — not the products section —
+      // so "? Why these ideas?" and other Stage 2 chrome scroll away and the
+      // heading is the first thing under the sticky header (founder 2026-07-20).
+      const run = (behavior: ScrollBehavior) => {
+        const heading =
+          document.getElementById('pips-picks-heading') ??
+          document.getElementById('discover-figma-products');
+        if (!heading) return;
+        const headerVar = getComputedStyle(document.documentElement).getPropertyValue('--header-height').trim();
+        const headerPx = headerVar ? parseInt(headerVar, 10) : 88;
+        const headerOffset = headerPx + 2;
+        const rect = heading.getBoundingClientRect();
+        window.scrollTo({ top: Math.max(0, rect.top + window.scrollY - headerOffset), behavior });
+      };
       const behavior = behaviorOverride ?? (shouldReduceMotion ? 'auto' : 'smooth');
-      const sectionRect = section.getBoundingClientRect();
-      window.scrollTo({ top: Math.max(0, sectionRect.top + window.scrollY - headerOffset), behavior });
+      run(behavior);
+      // Re-anchor after layout settles (carousel mount / font metrics).
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => run(behavior === 'smooth' ? 'auto' : behavior));
+      });
+      window.setTimeout(() => run('auto'), 180);
     },
     [shouldReduceMotion]
   );
@@ -1597,7 +1608,7 @@ export default function DiscoveryPageClient({
             ) : null}
 
             {discoverState === 'ShowingExamples' ? (
-              <section id="discover-figma-products" className="scroll-mt-[calc(var(--header-height,88px)+4px)] md:scroll-mt-6">
+              <section id="discover-figma-products" className="scroll-mt-[calc(var(--header-height,88px)+2px)] md:scroll-mt-6">
                 <div id="examplesProgressBar" className="h-1" aria-hidden />
                 {picksLoading ? (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]" aria-busy="true">
