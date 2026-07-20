@@ -4,6 +4,7 @@ Founder: preview still showed hollow space above “Why Pip picked this.” Play
 
 Fix:
 - Measure free height from siblings; line-clamp up to that budget; **shrink-wrap** the box (`flex: 0 0 auto`) so short copy does not leave a mid-card hollow
+- Mobile cards **size to content** (capped by the carousel slot) so leftover space is dark track, not an empty band under Browse offers
 - One settle re-pin after layout + `overflow-anchor: none` on the Stage 3 section (stops browser scroll-anchoring past the heading)
 - Slightly less track bottom padding / dots
 
