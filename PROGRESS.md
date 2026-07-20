@@ -11,6 +11,7 @@
 - **UI:** `AtHomeAddClient.tsx` — family label + hint; no Stage 2 age band
 - **Verify:** `/family/at-home/add` — founder six examples → one match each; `pnpm -C web build` passes
 - PR #276 — preview green: https://ember-git-feat-at-home-item-type-08dadb-tims-projects-cd69a894.vercel.app
+- **PR1.1 (match quality):** `20260720123000_at_home_match_confidence_gate.sql` — strict matcher; no trigram-only guesses; toy-context gate; bad examples (sword, toy umbrella, sooty and sweep) return no match
 
 ## 2026-07-20 — fix(gift): Stage 3 image fallback + Find it > on public gift list
 

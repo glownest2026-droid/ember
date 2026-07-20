@@ -51,7 +51,8 @@ export async function GET(request: NextRequest) {
     return json({ error: error.message }, { status: 500 });
   }
 
-  const candidates: AtHomeMatchRow[] = (data ?? []).map(
+  const candidates: AtHomeMatchRow[] = (data ?? [])
+    .map(
     (row: {
       product_type_id: string;
       slug: string;
@@ -75,17 +76,14 @@ export async function GET(request: NextRequest) {
       confidence_bucket: row.confidence_bucket,
       score: row.score ?? null,
     })
-  );
+  )
+    .filter(
+      (row) =>
+        row.confidence_bucket === "high" ||
+        (row.confidence_bucket === "medium" && (row.score ?? 0) >= 68)
+    );
 
-  const top = candidates[0] ?? null;
-  const minScore = top?.score != null ? Math.max(12, top.score * 0.8) : 12;
-  const qualityCandidates =
-    top == null
-      ? []
-      : [
-          top,
-          ...candidates.slice(1).filter((c) => (c.score ?? 0) >= minScore),
-        ].slice(0, limit);
+  const qualityCandidates = candidates.slice(0, limit);
 
   await supabase.from("inventory_search_events").insert({
     user_id: user.id,

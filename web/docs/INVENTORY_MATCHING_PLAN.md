@@ -43,6 +43,26 @@ Instance pin (PR2+)   →  Age-fit variant on this specific object
 2. Never show Discover age band as “when your child will like this”.
 3. Data bugs live in data (migrations + alias seeds), not fuzzy app-code recovery.
 4. `product_type_id` is the inventory ↔ marketplace shared key.
+5. **Prefer no match over a wrong match** — At home never surfaces trigram-only guesses.
+
+---
+
+## At home match confidence policy (PR1.1)
+
+`inventory_match_at_home` is **stricter** than `inventory_match_product_types` (used elsewhere).
+
+| Tier | Rule | Score | Shown? |
+|------|------|-------|--------|
+| Exact label | Normalized label equals query | 100 | Yes |
+| Exact alias | Alias table hit | 95 | Yes |
+| Substring | Full query in label/alias | 82 | Yes |
+| Reverse substring | Label/alias (≥4 chars) in query | 78 | Yes |
+| All tokens | Every significant token (≥3 chars, minus stopwords) in label/alias | 68 | Yes |
+| Trigram / fuzzy only | — | — | **Never** |
+
+**Toy context gate:** if query contains `toy`, matched type must be toy-class (family set, `toy_*` slug, or toy/pretend/plush/soft/puppet/doll in label/alias).
+
+**Minimum score to return:** 68 (medium+). Low-confidence rows are dropped — parent sees “No close match yet” and can **Add anyway** (feeds alias backlog).
 
 ---
 
