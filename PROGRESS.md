@@ -1,4 +1,10 @@
-﻿## 2026-07-21 — fix(stage3): Browse offers opens in a new window
+﻿## 2026-07-21 — fix(stage3): Best-for pill never truncates
+
+- **Issue:** long tags (e.g. “Best for understanding big emotions”) were clamped to 2 lines and cut off
+- **Fix:** drop line-clamp on `.tagPill`; allow full wrap; slightly softer radius/tracking so multi-line pills stay readable
+- **Verify:** open a Pip’s Pick with a long Best-for tag — full phrase visible, no ellipsis/cut-off
+
+## 2026-07-21 — fix(stage3): Browse offers opens in a new window
 
 - **Ask:** every Stage 3 “Browse offers” CTA must leave Discover in place and open shopping in a new tab/window
 - **Fix:** `openOutboundRetailerUrl()` in `externalRetailerLink.ts` (window.open + opener cleared); wired on Glass Stage carousel + expanded reader, and Saves Stage 3 rows

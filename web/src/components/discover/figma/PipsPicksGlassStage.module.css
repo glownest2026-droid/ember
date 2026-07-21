@@ -81,16 +81,18 @@
 }
 
 .tagPill {
+  /* Leave room for the corner robin; never clamp — full Best-for copy must show */
   max-width: calc(100% - 96px);
   border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
   background: color-mix(in srgb, var(--accent) 14%, transparent);
   color: var(--accent-soft);
+  display: inline-block;
   white-space: normal;
-  overflow-wrap: anywhere;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+  line-height: 1.35;
+  overflow: visible;
 }
 
 .drawer {

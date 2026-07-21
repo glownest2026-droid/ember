@@ -312,7 +312,7 @@ function PickCardBody({
 
       {fields.tag ? (
         <span
-          className={`${styles.tagPill} mb-2 mt-2 shrink-0 self-start rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.08em] md:mt-3 md:mb-2.5 md:text-[10.5px] md:tracking-[0.1em]`}
+          className={`${styles.tagPill} mb-2 mt-2 shrink-0 self-start rounded-2xl px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.06em] md:mt-3 md:mb-2.5 md:text-[10.5px] md:tracking-[0.08em]`}
         >
           {fields.tag}
         </span>
@@ -600,7 +600,7 @@ function PipsPickExpanded({
                 <>
                   {fields.tag ? (
                     <span
-                      className={`${styles.tagPill} shrink-0 self-start rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.08em] md:text-[10.5px] md:tracking-[0.1em]`}
+                      className={`${styles.tagPill} shrink-0 self-start rounded-2xl px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.06em] md:text-[10.5px] md:tracking-[0.08em]`}
                     >
                       {fields.tag}
                     </span>
