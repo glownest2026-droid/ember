@@ -153,6 +153,7 @@ Founder rule: drive **addictive browsing** on the sofa — every card gives the 
 - Copy comes from ingested Stage 3 data (`best_for` / tag, title, brand, description, verdict).
 - Voice: smart UK parent friend. No magic / win / unlock / essential / “research shows”.
 - Retailer CTA → **Google Shopping** search for `brand + title` — never one retailer deep-link.
+- **Browse offers always opens in a new tab/window** (`target="_blank"` + `openOutboundRetailerUrl`) so Discover stays in place on mobile.
 - Free members: pick 1 unlocked + one locked upsell card (existing product rule) — preserve when wiring.
 
 ---
@@ -181,7 +182,8 @@ Prefer **Tailwind + small CSS module / styled tokens** matching the values above
 - [ ] Open drawer: full verdict scrollable; **Browse offers CTA stays visible** (no collapse required)
 - [ ] Horizontal swipe on the Why Pip box still changes cards
 - [ ] **Expand / pop-up reader** uses the same Glass Stage treatment (dark track, glass card, robin, drawer) — not the old solid navy cream-backdrop card
-- [ ] Expanded reader: one outer scroll includes verdict + CTA (no nested scroll trap)- [ ] Browse offers → Google Shopping
+- [ ] Expanded reader: one outer scroll includes verdict + CTA (no nested scroll trap)
+- [ ] Browse offers → Google Shopping in a **new tab/window** (Discover stays open)
 - [ ] 44px tap targets; Manrope only; reduced-motion respected
 - [ ] Backdrop-filter fallback tested (or solid navy fallback)
 - [ ] Stage 1/2 above still cream/white — Stage 3 still reads as VIP contrast

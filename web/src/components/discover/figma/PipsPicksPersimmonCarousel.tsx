@@ -27,7 +27,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';import 
   type LucideIcon,
 } from 'lucide-react';
 import type { GatewayPick } from '@/lib/pl/public';
-import { retailerLinkRel } from '@/lib/compliance/externalRetailerLink';
+import { openOutboundRetailerUrl, retailerLinkRel } from '@/lib/compliance/externalRetailerLink';
 import styles from './PipsPicksGlassStage.module.css';
 
 const ROBIN_LOGO_URL =
@@ -378,6 +378,7 @@ function PickCardBody({
           href={url}
           target="_blank"
           rel={retailerLinkRel(url)}
+          onClick={(e) => openOutboundRetailerUrl(url, e)}
           className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-full bg-[#FF5C34] px-3 py-3 text-[13px] font-extrabold text-white shadow-[0_14px_36px_rgba(255,92,52,0.4),inset_0_1px_0_rgba(255,255,255,0.35)] transition-transform active:scale-[0.97] md:px-4 md:text-[14px]"
         >
           Browse offers
@@ -671,6 +672,7 @@ function PipsPickExpanded({
                     href={fields.url}
                     target="_blank"
                     rel={retailerLinkRel(fields.url)}
+                    onClick={(e) => openOutboundRetailerUrl(fields.url, e)}
                     className="inline-flex min-h-12 flex-1 items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[15px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97]"
                   >
                     Browse offers

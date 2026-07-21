@@ -1,4 +1,11 @@
-﻿## 2026-07-21 — fix(stage3): Why Pip drawer scroll + CTA + swipe
+﻿## 2026-07-21 — fix(stage3): Browse offers opens in a new window
+
+- **Ask:** every Stage 3 “Browse offers” CTA must leave Discover in place and open shopping in a new tab/window
+- **Fix:** `openOutboundRetailerUrl()` in `externalRetailerLink.ts` (window.open + opener cleared); wired on Glass Stage carousel + expanded reader, and Saves Stage 3 rows
+- **Also:** Why Pip drawer mobile scroll/CTA/swipe fix from earlier today
+- **Verify:** tap Browse offers on a Pip’s Pick — Google Shopping opens elsewhere; Discover preview stays on the card
+
+## 2026-07-21 — fix(stage3): Why Pip drawer scroll + CTA + swipe
 
 - **Issue (mobile):** opening “Why Pip picked this” clipped the verdict, hid Browse offers, and ate horizontal card swipes on that box
 - **Fix:** pin CTA under a flex-fill drawer; verdict scrolls in leftover height; horizontal swipe on the drawer still advances the carousel; expanded reader drops nested scroll so the outer sheet reaches the CTA

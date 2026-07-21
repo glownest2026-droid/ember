@@ -10,6 +10,7 @@ import { SubnavSwitch } from '@/components/subnav/SubnavSwitch';
 import { FamilyExamplesModal } from '@/components/family/FamilyExamplesModal';
 import { ShareYourGiftListWidget } from '@/components/figma/family/ShareYourGiftListWidget';
 import type { GatewayPick } from '@/lib/pl/public';
+import { openOutboundRetailerUrl } from '@/lib/compliance/externalRetailerLink';
 import { Plus, Gift, ImageOff, Search } from 'lucide-react';
 
 const baseStyle = { fontFamily: 'var(--font-sans)' } as const;
@@ -752,6 +753,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
                                   href={stage3GoogleShoppingUrl(row)}
                                   target="_blank"
                                   rel="noopener noreferrer"
+                                  onClick={(e) => openOutboundRetailerUrl(e.currentTarget.href, e)}
                                   className="text-xs hover:underline inline-flex items-center gap-1"
                                   style={{ color: 'var(--ember-accent-base)' }}
                                 >
