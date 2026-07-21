@@ -1,4 +1,10 @@
-﻿## 2026-07-21 — fix(stage3): Best-for pill never truncates
+﻿## 2026-07-21 — fix(stage3): desktop carousel taller so Why Pip doesn’t clip
+
+- **Issue:** on desktop, opening Why Pip pushed the card past the 500px track — rank/header cut off at the top
+- **Fix:** desktop track `680px`, card slot `600px`, card always fills height so the drawer scrolls inside instead of growing out of frame
+- **Verify:** desktop preview → expand Why Pip on a Pip’s Pick — full card visible (3 of N, tag, CTA), no top crop
+
+## 2026-07-21 — fix(stage3): Best-for pill never truncates
 
 - **Issue:** long tags (e.g. “Best for understanding big emotions”) were clamped to 2 lines and cut off
 - **Fix:** drop line-clamp on `.tagPill`; allow full wrap; slightly softer radius/tracking so multi-line pills stay readable

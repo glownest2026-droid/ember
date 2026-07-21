@@ -45,6 +45,8 @@ Banned: tilted/mid-card robins, peach-mush pastels, purple SaaS, static dense ve
 | Track radius | `28px` |
 | Track shadow | `0 24px 56px rgba(19, 26, 40, 0.3)` |
 | Track min-height (mobile) | `~560px` (or `max(452px, 100dvh − header − chrome)`) |
+| Track height (desktop) | `680px` fixed — room for Why Pip open without clipping the card top |
+| Card slot (desktop) | `600px` tall; card fills height so the drawer scrolls inside |
 | Inactive dots | `rgba(255,255,255,0.25)` |
 | Active dot | `#FF5C34`, width `22px` |
 
