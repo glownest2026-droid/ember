@@ -1,4 +1,11 @@
-﻿## 2026-07-20 — Stage 3 ingest: toddler bands 28-30m / 31-33m / 34-36m (10 paid picks)
+﻿## 2026-07-21 — fix(stage3): Why Pip drawer scroll + CTA + swipe
+
+- **Issue (mobile):** opening “Why Pip picked this” clipped the verdict, hid Browse offers, and ate horizontal card swipes on that box
+- **Fix:** pin CTA under a flex-fill drawer; verdict scrolls in leftover height; horizontal swipe on the drawer still advances the carousel; expanded reader drops nested scroll so the outer sheet reaches the CTA
+- **Files:** `PipsPicksPersimmonCarousel.tsx`, `PipsPicksGlassStage.module.css`, `STAGE3_GLASS_STAGE_CARD.md`
+- **Verify on preview:** open Why Pip on `/discover/32` pick 1 — scroll full text, see Browse offers without collapsing, swipe sideways on the Why Pip box to change cards
+
+## 2026-07-20 — Stage 3 ingest: toddler bands 28-30m / 31-33m / 34-36m (10 paid picks)
 
 - **Source:** Manus bundle `stage3_toddler_bands_research_bundle.zip` → `agent-tools/exports/stage3/{band}/research/`
 - **Founder ask:** paid/founder preview shows **10** Pip's Picks (not the usual 5) to stress-test a broader set

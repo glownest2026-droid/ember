@@ -104,6 +104,13 @@
   min-height: 0;
 }
 
+/* Open drawer claims leftover card height so the CTA can stay pinned below */
+.drawerFill {
+  flex: 1 1 auto;
+  flex-shrink: 1;
+  min-height: 0;
+}
+
 .drawerOpen {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
 }
@@ -117,23 +124,31 @@
   max-height: 0;
   overflow: hidden;
   opacity: 0;
-  transition: max-height 320ms ease, opacity 200ms ease;
+  transition: opacity 200ms ease;
 }
 
 .drawerPanelOpen {
-  /* Fixed scrollport with bottom pad so the last verdict line is reachable */
-  max-height: min(38dvh, 240px);
+  /* Carousel: fill the drawer and scroll inside — CTA stays visible under the drawer */
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding-bottom: 20px;
+  /* Let clearly-horizontal pans bubble to the card carousel */
+  touch-action: pan-y;
+  padding-bottom: 24px;
   opacity: 1;
 }
 
-/* Expanded reader: more room to read the full verdict without feeling cramped */
+/* Expanded reader: no nested scrollport — the outer sheet scrolls so CTA is reachable */
 .drawerPanelReader {
-  max-height: min(52dvh, 420px);
+  flex: 0 0 auto;
+  max-height: none;
+  overflow: visible;
+  touch-action: manipulation;
+  padding-bottom: 8px;
 }
 
 .drawerChevron {

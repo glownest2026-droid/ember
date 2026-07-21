@@ -179,9 +179,35 @@ type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
  * Description may use leftover card height for *extra lines* when the copy is
  * long — but the box must shrink-wrap the text. Growing the `<p>` with flex-1
  * left a hollow band above “Why Pip picked this” when the blurb was short.
+ *
+ * When the Why Pip drawer is open: CTA stays pinned; verdict scrolls in the
+ * leftover space; horizontal swipes on the drawer still change carousel cards.
  */
 const MAX_DESC_LINES = 8;
 const MIN_DESC_LINES = 2;
+
+function useHorizontalCardSwipe(onSwipe?: (direction: -1 | 1) => void) {
+  const start = useRef<{ x: number; y: number } | null>(null);
+  return {
+    onTouchStart: (e: React.TouchEvent) => {
+      const t = e.touches[0];
+      start.current = t ? { x: t.clientX, y: t.clientY } : null;
+    },
+    onTouchEnd: (e: React.TouchEvent) => {
+      const origin = start.current;
+      start.current = null;
+      if (!origin || !onSwipe) return;
+      const t = e.changedTouches[0];
+      if (!t) return;
+      const dx = t.clientX - origin.x;
+      const dy = t.clientY - origin.y;
+      if (Math.abs(dx) < 48) return;
+      // Require a clearly horizontal gesture so vertical reading still scrolls.
+      if (Math.abs(dx) <= Math.abs(dy) * 1.15) return;
+      onSwipe(dx > 0 ? -1 : 1);
+    },
+  };
+}
 
 function PickCardBody({
   locked,
@@ -191,6 +217,7 @@ function PickCardBody({
   total,
   onExpand,
   onSave,
+  onSwipeCard,
 }: {
   locked: boolean;
   fields: ReturnType<typeof getDisplayFields>;
@@ -199,12 +226,14 @@ function PickCardBody({
   total: number;
   onExpand: () => void;
   onSave?: (trigger: HTMLButtonElement) => void;
+  onSwipeCard?: (direction: -1 | 1) => void;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [descLines, setDescLines] = useState(4);
   const shouldReduceMotion = useReducedMotion() ?? false;
   const rootRef = useRef<HTMLDivElement | null>(null);
   const descRef = useRef<HTMLParagraphElement | null>(null);
+  const drawerSwipe = useHorizontalCardSwipe(onSwipeCard);
 
   useEffect(() => {
     setDrawerOpen(false);
@@ -270,7 +299,7 @@ function PickCardBody({
   return (
     <div
       ref={rootRef}
-      className={`relative z-10 flex min-h-0 w-full flex-col overflow-hidden px-4 py-3.5 transition duration-300 md:h-full md:flex-1 md:p-[18px] ${
+      className={`relative z-10 flex min-h-0 w-full flex-1 flex-col overflow-hidden px-4 py-3.5 transition duration-300 md:h-full md:p-[18px] ${
         locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
       }`}
     >
@@ -312,7 +341,11 @@ function PickCardBody({
         {fields.description}
       </p>
 
-      <div className={`flex min-h-0 shrink-0 flex-col ${styles.drawer} ${drawerOpen ? styles.drawerOpen : ''}`}>
+      <div
+        className={`flex min-h-0 flex-col ${styles.drawer} ${drawerOpen ? `${styles.drawerOpen} ${styles.drawerFill}` : ''}`}
+        onTouchStart={drawerSwipe.onTouchStart}
+        onTouchEnd={drawerSwipe.onTouchEnd}
+      >
         <button
           type="button"
           className={`${styles.drawerHead} flex min-h-11 w-full items-center justify-between gap-2.5 border-0 bg-transparent px-3.5 py-2.5 text-left text-[11px] font-extrabold uppercase tracking-[0.06em] md:min-h-[46px] md:py-3 md:text-[12px]`}
@@ -401,6 +434,7 @@ function PipsPickExpanded({
 }) {
   const shouldReduceMotion = useReducedMotion() ?? false;
   const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
   // Expanded reader opens the insight by default — the carousel keeps it closed.
   const [drawerOpen, setDrawerOpen] = useState(true);
 
@@ -427,16 +461,24 @@ function PipsPickExpanded({
   }, [onClose, onNavigate, hasPrev, hasNext]);
 
   const onTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0]?.clientX ?? null;
+    const t = e.touches[0];
+    touchStartX.current = t ? t.clientX : null;
+    touchStartY.current = t ? t.clientY : null;
   };
   const onTouchEnd = (e: React.TouchEvent) => {
     const startX = touchStartX.current;
+    const startY = touchStartY.current;
     touchStartX.current = null;
-    if (startX === null) return;
-    const delta = (e.changedTouches[0]?.clientX ?? startX) - startX;
-    if (Math.abs(delta) < 60) return;
-    if (delta > 0 && hasPrev) onNavigate(-1);
-    if (delta < 0 && hasNext) onNavigate(1);
+    touchStartY.current = null;
+    if (startX === null || startY === null) return;
+    const end = e.changedTouches[0];
+    if (!end) return;
+    const dx = end.clientX - startX;
+    const dy = end.clientY - startY;
+    if (Math.abs(dx) < 60) return;
+    if (Math.abs(dx) <= Math.abs(dy) * 1.15) return;
+    if (dx > 0 && hasPrev) onNavigate(-1);
+    if (dx < 0 && hasNext) onNavigate(1);
   };
 
   return (
@@ -854,12 +896,12 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-center justify-center self-stretch py-0 md:h-auto md:max-h-[440px] md:w-[370px] md:flex-[0_0_370px] md:self-center md:py-1"
+                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-stretch justify-center self-stretch py-0 md:h-auto md:max-h-[440px] md:w-[370px] md:flex-[0_0_370px] md:items-center md:self-center md:py-1"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
                   data-pips-card
-                  className={`relative flex max-h-full w-full flex-col overflow-hidden rounded-[28px] text-white transition-transform duration-150 md:h-auto md:rounded-[32px] ${styles.glassCard}`}
+                  className={`relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[28px] text-white transition-transform duration-150 md:h-auto md:max-h-full md:rounded-[32px] ${styles.glassCard}`}
                   style={
                     {
                       '--accent': accent.accent,
@@ -885,6 +927,7 @@ export function PipsPicksPersimmonCarousel({
                     total={renderedPicks.length}
                     onExpand={() => setExpandedIndex(index)}
                     onSave={onSavePick ? (trigger) => onSavePick(pick, trigger) : undefined}
+                    onSwipeCard={scrollByCard}
                   />
 
                   {locked ? (
