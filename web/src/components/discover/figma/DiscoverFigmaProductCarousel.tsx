@@ -45,7 +45,7 @@ export function DiscoverFigmaProductCarousel({
     caveats: pick.product.caveats || '',
     isLocked: Boolean(pick.product.is_locked),
     isStage3Pick: Boolean(pick.product.is_stage3_pick),
-    lockedReason: pick.product.locked_reason || "Pip's Picks 2-5 are included with Ember Plus.",
+    lockedReason: pick.product.locked_reason || "Extra Pip's Picks are included with Ember Plus.",
     imageUrl: pick.product.image_url || '',
     pick,
   }));

@@ -43,11 +43,20 @@ function parseArgs(argv) {
     migrationDir: DEFAULT_MIGRATION_DIR,
     timestamp: timestampToken(new Date()),
     dryRun: false,
+    /** How many picks are card-visible (paid members see all; pick 1 is free). */
+    visibleCount: 5,
   };
 
   for (const arg of argv) {
     if (arg === '--dry-run') args.dryRun = true;
     else if (arg.startsWith('--age-band=')) args.ageBand = arg.slice('--age-band='.length);
+    else if (arg.startsWith('--visible-count=')) {
+      const n = Number(arg.slice('--visible-count='.length));
+      if (!Number.isFinite(n) || n < 1 || n > 10) {
+        throw new Error('--visible-count must be an integer from 1 to 10');
+      }
+      args.visibleCount = Math.floor(n);
+    }
     else if (arg.startsWith('--inputs=')) {
       const inputList = arg.slice('--inputs='.length).split(',').map((part) => part.trim()).filter(Boolean);
       for (const input of inputList) args.inputs.push(...expandInputs(input));
@@ -137,7 +146,13 @@ function sanitizeParentCopy(value) {
     .replace(/\ban essential\b/gi, 'a useful basic')
     .replace(/\bessential basic\b/gi, 'useful basic')
     .replace(/\bessentials\b/gi, 'useful basics')
-    .replace(/\bessential\b/gi, 'useful');
+    .replace(/\bessential\b/gi, 'useful')
+    .replace(/\bmust-haves?\b/gi, 'useful option')
+    .replace(/\bmust have\b/gi, 'worth considering')
+    .replace(/\bunlock(?:s|ing|ed)?\b/gi, 'open up')
+    .replace(/\bmagic\b/gi, 'helpful')
+    .replace(/\boptimise\b/gi, 'improve')
+    .replace(/\boptimize\b/gi, 'improve');
 }
 
 function founderQaFlag(item) {
@@ -154,7 +169,111 @@ function asArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
-function normalizeResearch(filePath, forcedAgeBand) {
+const PROMOTE_BEST_FOR_TAGS = [
+  'Best for budgets',
+  'Best for small spaces',
+  'Best for borrowing first',
+  'Best for gifting',
+  'Best for growing with them',
+];
+
+function wordCount(text) {
+  return String(text || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+}
+
+function clipWords(text, maxWords) {
+  const words = String(text || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (words.length <= maxWords) return words.join(' ');
+  return `${words.slice(0, maxWords).join(' ')}`;
+}
+
+function ensureBestForTag(tag, fallbackIndex) {
+  const raw = String(tag || '').trim();
+  if (/^best for\b/i.test(raw)) return raw.replace(/^best for/i, 'Best for');
+  if (raw) return `Best for ${clipWords(raw, 6)}`;
+  return PROMOTE_BEST_FOR_TAGS[fallbackIndex % PROMOTE_BEST_FOR_TAGS.length];
+}
+
+/**
+ * Promote longlist rows into visible Top Picks when founder asks for a broader
+ * paid set (e.g. 10). Synthesises card-ready fields where Manus left backups thin.
+ */
+function expandVisiblePicks(topPicks, longlist, stage2, visibleCount) {
+  const sortedTop = [...topPicks].sort((a, b) => Number(a.rank) - Number(b.rank));
+  if (sortedTop.length >= visibleCount) {
+    return sortedTop.slice(0, visibleCount).map((pick, index) => ({
+      ...pick,
+      rank: index + 1,
+      longlist_rank: Number(pick.longlist_rank || index + 1),
+    }));
+  }
+
+  const usedNames = new Set(sortedTop.map((pick) => String(pick.product_name || '').toLowerCase()));
+  const candidates = [...longlist]
+    .filter((item) => {
+      const name = String(item.product_name || '').toLowerCase();
+      if (!name || usedNames.has(name)) return false;
+      if (item.included_in_top_5 === true || item.status === 'pick') return false;
+      return true;
+    })
+    .sort((a, b) => Number(a.longlist_rank) - Number(b.longlist_rank));
+
+  const expanded = [...sortedTop];
+  let promoteIndex = 0;
+  while (expanded.length < visibleCount && promoteIndex < candidates.length) {
+    const item = candidates[promoteIndex];
+    promoteIndex += 1;
+    const reason = firstField(item, ['summary_reason', 'reason', 'caveat_short', 'ember_verdict']);
+    const description =
+      sanitizeParentCopy(firstField(item, ['product_description_under_30_words', 'description'])) ||
+      sanitizeParentCopy(
+        clipWords(
+          [item.brand, item.product_name].filter(Boolean).join(' — ') || 'Product option from the research longlist.',
+          28
+        )
+      );
+    const verdict =
+      sanitizeParentCopy(reason) ||
+      sanitizeParentCopy(
+        `Kept as a wider-choice Pip's Pick for founder stress-testing. Compare fit, ownership risk and whether it earns a place over the core five.`
+      );
+    const hasUrl = Boolean(firstField(item, ['product_url', 'url']));
+    const promoted = normalizeTopPick(
+      {
+        ...item,
+        rank: expanded.length + 1,
+        longlist_rank: Number(item.longlist_rank || expanded.length + 1),
+        best_for_tag: ensureBestForTag(item.best_for_tag || item.best_for, expanded.length - sortedTop.length),
+        product_description_under_30_words: description,
+        ember_verdict: verdict,
+        why_it_fits: verdict,
+        product_url: firstField(item, ['product_url', 'url']),
+        founder_qa_flag: hasUrl ? 'check_claim' : 'check_url',
+        evidence_tier: firstField(item, ['evidence_tier'], 'emerging'),
+        buy_borrow_hold_off: firstField(item, ['buy_borrow_hold_off'], 'borrow'),
+        promoted_from_longlist: true,
+      },
+      stage2
+    );
+    usedNames.add(String(promoted.product_name || '').toLowerCase());
+    expanded.push(promoted);
+  }
+
+  return expanded.map((pick, index) => ({
+    ...pick,
+    rank: index + 1,
+    longlist_rank: Number(pick.longlist_rank || index + 1),
+    best_for_tag: ensureBestForTag(pick.best_for_tag, index),
+  }));
+}
+
+function normalizeResearch(filePath, forcedAgeBand, visibleCount = 5) {
   const raw = fs.readFileSync(filePath, 'utf8');
   const doc = JSON.parse(raw);
   const ageBandId = forcedAgeBand || doc.age_band || doc.age_band_id;
@@ -164,8 +283,9 @@ function normalizeResearch(filePath, forcedAgeBand) {
   const categoryLabel = firstField(doc, ['category_label'], firstField(stage2, ['category_label']));
   const clusterEntityId = firstField(doc, ['cluster_entity_id'], firstField(stage1, ['cluster_entity_id']));
   const clusterLabel = firstField(doc, ['cluster_label'], firstField(stage1, ['cluster_label']));
-  const topPicks = asArray(doc.top_picks).map((pick) => normalizeTopPick(pick, stage2));
+  let topPicks = asArray(doc.top_picks).map((pick) => normalizeTopPick(pick, stage2));
   const longlist = normalizeLonglist(asArray(doc.longlist), topPicks);
+  topPicks = expandVisiblePicks(topPicks, longlist, stage2, visibleCount);
   const skips = asArray(doc.skips);
 
   const errors = [];
@@ -176,16 +296,34 @@ function normalizeResearch(filePath, forcedAgeBand) {
   }
   if (!ageBandId) errors.push('Missing age_band_id');
   if (!categoryEntityId) errors.push('Missing category_entity_id');
-  if (topPicks.length !== 5) errors.push(`Expected exactly 5 top_picks, got ${topPicks.length}`);
-  if (longlist.length < 15) errors.push(`Expected at least 15 longlist entries, got ${longlist.length}`);
+  if (topPicks.length !== visibleCount) {
+    errors.push(`Expected exactly ${visibleCount} visible top_picks after expansion, got ${topPicks.length}`);
+  }
+  if (longlist.length < Math.max(visibleCount, 10)) {
+    warnings.push(`Longlist is short (${longlist.length}); expected at least ${Math.max(visibleCount, 10)} for a ${visibleCount}-pick visible set`);
+  } else if (visibleCount <= 5 && longlist.length < 15) {
+    errors.push(`Expected at least 15 longlist entries, got ${longlist.length}`);
+  } else if (visibleCount > 5 && longlist.length < 15) {
+    warnings.push(`Expected 15 longlist entries for classic depth, got ${longlist.length}`);
+  }
   if (skips.length < 5) warnings.push(`Expected at least 5 skips, got ${skips.length}`);
 
   const longlistRanks = new Set(longlist.map((item) => Number(item.longlist_rank)).filter(Number.isFinite));
+  const topNames = new Set(topPicks.map((pick) => String(pick.product_name || '').toLowerCase()));
   for (const pick of topPicks) {
     const rank = Number(pick.rank);
-    if (!Number.isFinite(rank) || rank < 1 || rank > 5) errors.push(`Top pick has invalid rank: ${field(pick, 'product_name', '(unnamed)')}`);
+    if (!Number.isFinite(rank) || rank < 1 || rank > visibleCount) {
+      errors.push(`Top pick has invalid rank: ${field(pick, 'product_name', '(unnamed)')}`);
+    }
     if (!field(pick, 'best_for_tag')) errors.push(`Top pick missing best_for_tag: ${field(pick, 'product_name', '(unnamed)')}`);
-    if (!field(pick, 'product_description_under_30_words')) errors.push(`Top pick missing product_description_under_30_words: ${field(pick, 'product_name', '(unnamed)')}`);
+    if (!/^best for\b/i.test(String(pick.best_for_tag || ''))) {
+      errors.push(`best_for_tag must start with "Best for": ${field(pick, 'product_name', '(unnamed)')}`);
+    }
+    if (!field(pick, 'product_description_under_30_words')) {
+      errors.push(`Top pick missing product_description_under_30_words: ${field(pick, 'product_name', '(unnamed)')}`);
+    } else if (wordCount(pick.product_description_under_30_words) > 35) {
+      warnings.push(`Description over 30 words (soft): ${field(pick, 'product_name', '(unnamed)')}`);
+    }
     if (!field(pick, 'ember_verdict')) errors.push(`Top pick missing ember_verdict: ${field(pick, 'product_name', '(unnamed)')}`);
     if (!field(pick, 'product_url') && founderQaFlag(pick) === 'none') {
       errors.push(`Top pick missing product_url without founder_qa_flag: ${field(pick, 'product_name', '(unnamed)')}`);
@@ -210,12 +348,17 @@ function normalizeResearch(filePath, forcedAgeBand) {
   const backups = longlist
     .filter((item) => {
       const rank = Number(item.longlist_rank);
+      const name = String(item.product_name || '').toLowerCase();
+      if (topNames.has(name)) return false;
       const included = item.included_in_top_5 === true || item.status === 'pick' || Number(item.top_pick_rank) > 0;
-      return Number.isFinite(rank) && rank >= 6 && rank <= 15 && !included;
+      return Number.isFinite(rank) && rank > visibleCount && rank <= 15 && !included;
     })
     .sort((a, b) => Number(a.longlist_rank) - Number(b.longlist_rank));
 
-  if (backups.length < 10) warnings.push(`Expected 10 dormant backups from longlist ranks 6-15, got ${backups.length}`);
+  const expectedBackupFloor = Math.max(0, 15 - visibleCount);
+  if (backups.length < expectedBackupFloor) {
+    warnings.push(`Expected at least ${expectedBackupFloor} dormant backups after visible ${visibleCount}, got ${backups.length}`);
+  }
 
   return {
     source_file: path.relative(repoRoot, filePath).replace(/\\/g, '/'),
@@ -228,6 +371,7 @@ function normalizeResearch(filePath, forcedAgeBand) {
     cluster_entity_id: clusterEntityId,
     cluster_label: clusterLabel,
     qa_summary: doc.qa_summary ?? {},
+    visible_count: visibleCount,
     top_picks: [...topPicks].sort((a, b) => Number(a.rank) - Number(b.rank)),
     backup_picks: backups,
     skips,
@@ -242,13 +386,16 @@ function normalizeTopPick(pick, stage2) {
   const safetyNotes = compactText(firstField(pick, ['safety_notes'], firstField(stage2, ['safety_note_public'])));
   const description = sanitizeParentCopy(firstField(pick, ['product_description_under_30_words', 'description', 'ui_description']));
   const verdict = sanitizeParentCopy(firstField(pick, ['ember_verdict', 'why_pip_picked_this']));
+  const productUrl = firstField(pick, ['product_url', 'url']);
+  const existingFlag = firstField(pick, ['founder_qa_flag', 'qa_flag'], pick.url_status === 'verified_direct' ? 'none' : firstField(pick, ['url_status', 'qa_note'], 'none'));
+  const founderFlag = !productUrl && (existingFlag === 'none' || !existingFlag) ? 'check_url' : existingFlag || 'none';
   return {
     ...pick,
     rank,
     longlist_rank: Number(pick.longlist_rank || pick.rank),
     product_name: firstField(pick, ['product_name', 'name']),
-    best_for_tag: firstField(pick, ['best_for_tag', 'best_for']),
-    product_url: firstField(pick, ['product_url', 'url']),
+    best_for_tag: ensureBestForTag(firstField(pick, ['best_for_tag', 'best_for']), Math.max(0, rank - 1)),
+    product_url: productUrl,
     price_text: priceText(pick),
     stock_status: firstField(pick, ['stock_status', 'availability']),
     description,
@@ -259,7 +406,7 @@ function normalizeTopPick(pick, stage2) {
     safety_notes: safetyNotes,
     gift_suitable: pick.gift_suitable ?? stage2.gift_friendly ?? null,
     gift_note: firstField(pick, ['gift_note'], firstField(stage2, ['buyer_mode_label'])),
-    founder_qa_flag: firstField(pick, ['founder_qa_flag', 'qa_flag'], pick.url_status === 'verified_direct' ? 'none' : firstField(pick, ['url_status', 'qa_note'], 'none')),
+    founder_qa_flag: founderFlag,
   };
 }
 
@@ -347,7 +494,8 @@ function buildMigration(bundle, timestamp) {
   const categorySlugs = categories.map((c) => c.category_entity_id);
   const visibleRows = categories.flatMap((c) => c.top_picks.map((pick) => `    (${visibleTuple(c, pick)})`));
   const backupRows = categories.flatMap((c) => c.backup_picks.map((item) => `    (${backupTuple(c, item)})`));
-  const expectedVisible = categories.length * 5;
+  const visibleCount = Number(bundle.visible_count || 5);
+  const expectedVisible = categories.length * visibleCount;
   const expectedBackups = backupRows.length;
 
   return `-- Generated by web/scripts/ingest-stage3-pips-picks.mjs
@@ -687,18 +835,18 @@ function buildQaMarkdown(bundle, migrationPath) {
   lines.push("$r.picks | Select-Object @{n='rank';e={$_.product.rank}}, @{n='name';e={$_.product.name}}, @{n='locked';e={$_.product.is_locked}}, @{n='url';e={$_.product.canonical_url}}");
   lines.push('```');
   lines.push('');
-  lines.push('Expected signed-out result: rank 1 real product with URL; ranks 2-5 locked placeholders with no URLs.');
+  lines.push(`Expected signed-out result: rank 1 real product with URL; ranks 2-${bundle.visible_count || 5} locked placeholders with no URLs.`);
   return lines.join('\n');
 }
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
   if (!args.ageBand || !args.inputs.length) {
-    console.error('Usage: node web/scripts/ingest-stage3-pips-picks.mjs --age-band=34-36m --inputs=agent-tools/exports/ember_picks_34-36m_*.json');
+    console.error('Usage: node web/scripts/ingest-stage3-pips-picks.mjs --age-band=34-36m [--visible-count=10] --inputs=agent-tools/exports/ember_picks_34-36m_*.json');
     process.exit(1);
   }
 
-  const categories = args.inputs.map((input) => normalizeResearch(input, args.ageBand));
+  const categories = args.inputs.map((input) => normalizeResearch(input, args.ageBand, args.visibleCount));
   const ageBands = [...new Set(categories.map((c) => c.age_band_id))];
   if (ageBands.length !== 1) {
     throw new Error(`Inputs contain multiple age bands: ${ageBands.join(', ')}`);
@@ -708,12 +856,14 @@ function main() {
     schema_version: 'stage3_ingestion_bundle_v1',
     generated_at: new Date().toISOString(),
     age_band_id: ageBands[0],
+    visible_count: args.visibleCount,
     locked_from_rank: 2,
     founder_paid_proxy_email: 'timwd23@gmail.com',
     categories,
     acceptance_checks: {
-      top_5_per_category: categories.every((c) => c.top_picks.length === 5),
-      backups_6_to_15_per_category: categories.every((c) => c.backup_picks.length >= 10),
+      top_5_per_category: categories.every((c) => c.top_picks.length === args.visibleCount),
+      visible_count_per_category: categories.every((c) => c.top_picks.length === args.visibleCount),
+      backups_after_visible_per_category: categories.every((c) => c.backup_picks.length >= Math.max(0, 15 - args.visibleCount)),
       no_banned_copy: categories.every((c) => c.errors.every((e) => !e.startsWith('Banned copy'))),
       all_categories_ingestion_ready: categories.every((c) => c.ingestion_ready === 'pass'),
     },

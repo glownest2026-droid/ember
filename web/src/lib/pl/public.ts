@@ -763,7 +763,7 @@ function stage3PlaceholderProduct(
     safety_notes: null,
     evidence_tier: null,
     founder_qa_flag: null,
-    locked_reason: "Sign in with the founder account to preview picks 2-5.",
+    locked_reason: "Sign in with the founder account to preview the full Pip's Picks set.",
   };
 }
 
@@ -799,21 +799,21 @@ function stage3RowToProduct(row: GatewayStage3PickRow, canSeeLocked: boolean = f
     safety_notes: row.safety_notes,
     evidence_tier: row.evidence_tier,
     founder_qa_flag: row.founder_qa_flag,
-    locked_reason: row.is_locked && !canSeeLocked ? "Pip's Picks 2-5 are included with Ember Plus." : null,
+    locked_reason: row.is_locked && !canSeeLocked ? "Extra Pip's Picks are included with Ember Plus." : null,
   };
 }
 
 /**
  * Fetch Pip's Picks for one Stage 2 card.
  *
- * RLS returns all five only for the founder proxy (`timwd23@gmail.com`).
- * Everyone else receives public pick 1 from Supabase; ranks 2-5 are generated
+ * RLS returns the full visible set only for the founder proxy (`timwd23@gmail.com`).
+ * Everyone else receives public pick 1 from Supabase; ranks 2+ are generated
  * as locked placeholders so gated product details are not sent to the client.
  */
 export async function getGatewayStage3PicksForAgeBandAndCategoryType(
   ageBandId: string,
   categoryTypeId: string,
-  limit: number = 5,
+  limit: number = 10,
   options: { supabase?: SupabaseClient; canSeeLocked?: boolean } = {}
 ): Promise<GatewayPick[]> {
   const supabase = options.supabase ?? createPublicCatalogueClient();

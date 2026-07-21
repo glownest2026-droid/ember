@@ -27,7 +27,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';import 
   type LucideIcon,
 } from 'lucide-react';
 import type { GatewayPick } from '@/lib/pl/public';
-import { retailerLinkRel } from '@/lib/compliance/externalRetailerLink';
+import { openOutboundRetailerUrl, retailerLinkRel } from '@/lib/compliance/externalRetailerLink';
 import styles from './PipsPicksGlassStage.module.css';
 
 const ROBIN_LOGO_URL =
@@ -104,12 +104,23 @@ function pickIcon(productName: string, categoryLabel: string): LucideIcon {
   const text = `${productName} ${categoryLabel}`.toLowerCase();
   if (/\b(playmat|play mat|floor mat|activity mat|mat)\b/.test(text)) return RectangleHorizontal;
   if (/\bmirror\b/.test(text)) return ScanFace;
-  if (/\b(flash ?cards?|sensory cards?|art cards?|cards?)\b/.test(text)) return Images;
+  if (/\b(flash ?cards?|sensory cards?|art cards?|routine cards?|cards?)\b/.test(text)) return Images;
   if (/\b(book|books|story|stories|reading|library)\b/.test(text)) return BookOpen;
   if (/\b(muslin|burp|cloth|cloths|bib|bibs|swaddle)\b/.test(text)) return Shirt;
   if (/\b(car seat|carrier seat|isize|i-size)\b/.test(text) || (/\bcar\b/.test(text) && /\bseat\b/.test(text))) return Car;
   if (/\b(mattress|cot|crib|sleep|bedtime|moses)\b/.test(text)) return Moon;
   if (/\b(carrier|sling|wrap|babywearing)\b/.test(text)) return Baby;
+  if (/\b(potty|toilet|toilet training)\b/.test(text)) return Circle;
+  if (/\b(stool|step stool|learning tower|tower)\b/.test(text)) return Home;
+  if (/\b(kitchen|tea set|play food|household props|pan|spoon)\b/.test(text)) return Home;
+  if (/\b(puzzle|shape sorter|sorter|peg)\b/.test(text)) return Circle;
+  if (/\b(thread|bead|beads|lacing|lace)\b/.test(text)) return Hand;
+  if (/\b(crayon|crayons|paper|drawing|mark.?making)\b/.test(text)) return Images;
+  if (/\b(balance|stepping stone|stepping stones|balance path)\b/.test(text)) return TreePine;
+  if (/\b(hoop|beanbag|jump marker|jump)\b/.test(text)) return Circle;
+  if (/\b(pour|pouring|water lab|water play|cup)\b/.test(text)) return Circle;
+  if (/\b(doll|teddy|soft toy|nurtur)\b/.test(text)) return Baby;
+  if (/\b(timer|routine)\b/.test(text)) return Images;
   if (/\b(rattle|teether|grasp|grasping|grab|reach|oball|ball|balls)\b/.test(text)) return Hand;
   if (/\b(plane|airport|travel|trip|trips|outings)\b/.test(text)) return Plane;
   if (/\b(truck|lorry|recycling|delivery|vehicle)\b/.test(text)) return Truck;
@@ -168,9 +179,35 @@ type ExpandedPickFields = ReturnType<typeof getDisplayFields> & {
  * Description may use leftover card height for *extra lines* when the copy is
  * long — but the box must shrink-wrap the text. Growing the `<p>` with flex-1
  * left a hollow band above “Why Pip picked this” when the blurb was short.
+ *
+ * When the Why Pip drawer is open: CTA stays pinned; verdict scrolls in the
+ * leftover space; horizontal swipes on the drawer still change carousel cards.
  */
 const MAX_DESC_LINES = 8;
 const MIN_DESC_LINES = 2;
+
+function useHorizontalCardSwipe(onSwipe?: (direction: -1 | 1) => void) {
+  const start = useRef<{ x: number; y: number } | null>(null);
+  return {
+    onTouchStart: (e: React.TouchEvent) => {
+      const t = e.touches[0];
+      start.current = t ? { x: t.clientX, y: t.clientY } : null;
+    },
+    onTouchEnd: (e: React.TouchEvent) => {
+      const origin = start.current;
+      start.current = null;
+      if (!origin || !onSwipe) return;
+      const t = e.changedTouches[0];
+      if (!t) return;
+      const dx = t.clientX - origin.x;
+      const dy = t.clientY - origin.y;
+      if (Math.abs(dx) < 48) return;
+      // Require a clearly horizontal gesture so vertical reading still scrolls.
+      if (Math.abs(dx) <= Math.abs(dy) * 1.15) return;
+      onSwipe(dx > 0 ? -1 : 1);
+    },
+  };
+}
 
 function PickCardBody({
   locked,
@@ -180,6 +217,7 @@ function PickCardBody({
   total,
   onExpand,
   onSave,
+  onSwipeCard,
 }: {
   locked: boolean;
   fields: ReturnType<typeof getDisplayFields>;
@@ -188,12 +226,14 @@ function PickCardBody({
   total: number;
   onExpand: () => void;
   onSave?: (trigger: HTMLButtonElement) => void;
+  onSwipeCard?: (direction: -1 | 1) => void;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [descLines, setDescLines] = useState(4);
   const shouldReduceMotion = useReducedMotion() ?? false;
   const rootRef = useRef<HTMLDivElement | null>(null);
   const descRef = useRef<HTMLParagraphElement | null>(null);
+  const drawerSwipe = useHorizontalCardSwipe(onSwipeCard);
 
   useEffect(() => {
     setDrawerOpen(false);
@@ -259,7 +299,7 @@ function PickCardBody({
   return (
     <div
       ref={rootRef}
-      className={`relative z-10 flex min-h-0 w-full flex-col overflow-hidden px-4 py-3.5 transition duration-300 md:h-full md:flex-1 md:p-[18px] ${
+      className={`relative z-10 flex min-h-0 w-full flex-1 flex-col overflow-hidden px-4 py-3.5 transition duration-300 md:h-full md:p-[18px] ${
         locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
       }`}
     >
@@ -272,7 +312,7 @@ function PickCardBody({
 
       {fields.tag ? (
         <span
-          className={`${styles.tagPill} mb-2 mt-2 shrink-0 self-start rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.08em] md:mt-3 md:mb-2.5 md:text-[10.5px] md:tracking-[0.1em]`}
+          className={`${styles.tagPill} mb-2 mt-2 shrink-0 self-start rounded-2xl px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.06em] md:mt-3 md:mb-2.5 md:text-[10.5px] md:tracking-[0.08em]`}
         >
           {fields.tag}
         </span>
@@ -301,7 +341,11 @@ function PickCardBody({
         {fields.description}
       </p>
 
-      <div className={`flex min-h-0 shrink-0 flex-col ${styles.drawer} ${drawerOpen ? styles.drawerOpen : ''}`}>
+      <div
+        className={`flex min-h-0 flex-col ${styles.drawer} ${drawerOpen ? `${styles.drawerOpen} ${styles.drawerFill}` : ''}`}
+        onTouchStart={drawerSwipe.onTouchStart}
+        onTouchEnd={drawerSwipe.onTouchEnd}
+      >
         <button
           type="button"
           className={`${styles.drawerHead} flex min-h-11 w-full items-center justify-between gap-2.5 border-0 bg-transparent px-3.5 py-2.5 text-left text-[11px] font-extrabold uppercase tracking-[0.06em] md:min-h-[46px] md:py-3 md:text-[12px]`}
@@ -334,6 +378,7 @@ function PickCardBody({
           href={url}
           target="_blank"
           rel={retailerLinkRel(url)}
+          onClick={(e) => openOutboundRetailerUrl(url, e)}
           className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-full bg-[#FF5C34] px-3 py-3 text-[13px] font-extrabold text-white shadow-[0_14px_36px_rgba(255,92,52,0.4),inset_0_1px_0_rgba(255,255,255,0.35)] transition-transform active:scale-[0.97] md:px-4 md:text-[14px]"
         >
           Browse offers
@@ -390,6 +435,7 @@ function PipsPickExpanded({
 }) {
   const shouldReduceMotion = useReducedMotion() ?? false;
   const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
   // Expanded reader opens the insight by default — the carousel keeps it closed.
   const [drawerOpen, setDrawerOpen] = useState(true);
 
@@ -416,16 +462,24 @@ function PipsPickExpanded({
   }, [onClose, onNavigate, hasPrev, hasNext]);
 
   const onTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0]?.clientX ?? null;
+    const t = e.touches[0];
+    touchStartX.current = t ? t.clientX : null;
+    touchStartY.current = t ? t.clientY : null;
   };
   const onTouchEnd = (e: React.TouchEvent) => {
     const startX = touchStartX.current;
+    const startY = touchStartY.current;
     touchStartX.current = null;
-    if (startX === null) return;
-    const delta = (e.changedTouches[0]?.clientX ?? startX) - startX;
-    if (Math.abs(delta) < 60) return;
-    if (delta > 0 && hasPrev) onNavigate(-1);
-    if (delta < 0 && hasNext) onNavigate(1);
+    touchStartY.current = null;
+    if (startX === null || startY === null) return;
+    const end = e.changedTouches[0];
+    if (!end) return;
+    const dx = end.clientX - startX;
+    const dy = end.clientY - startY;
+    if (Math.abs(dx) < 60) return;
+    if (Math.abs(dx) <= Math.abs(dy) * 1.15) return;
+    if (dx > 0 && hasPrev) onNavigate(-1);
+    if (dx < 0 && hasNext) onNavigate(1);
   };
 
   return (
@@ -546,7 +600,7 @@ function PipsPickExpanded({
                 <>
                   {fields.tag ? (
                     <span
-                      className={`${styles.tagPill} shrink-0 self-start rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.08em] md:text-[10.5px] md:tracking-[0.1em]`}
+                      className={`${styles.tagPill} shrink-0 self-start rounded-2xl px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.06em] md:text-[10.5px] md:tracking-[0.08em]`}
                     >
                       {fields.tag}
                     </span>
@@ -618,6 +672,7 @@ function PipsPickExpanded({
                     href={fields.url}
                     target="_blank"
                     rel={retailerLinkRel(fields.url)}
+                    onClick={(e) => openOutboundRetailerUrl(fields.url, e)}
                     className="inline-flex min-h-12 flex-1 items-center justify-center rounded-full bg-[#FF5C34] px-4 py-3 text-[15px] font-extrabold text-white shadow-[0_16px_48px_rgba(255,92,52,0.3)] transition-transform active:scale-[0.97]"
                   >
                     Browse offers
@@ -805,7 +860,7 @@ export function PipsPicksPersimmonCarousel({
         </button>
 
       <div
-        className={`relative min-h-0 flex-1 overflow-hidden rounded-[28px] md:h-[500px] md:max-w-none ${styles.trackShell}`}
+        className={`relative min-h-0 flex-1 overflow-hidden rounded-[28px] md:h-[680px] md:max-w-none ${styles.trackShell}`}
         style={enable3d ? { perspective: '1200px' } : undefined}
       >
         {/* Ambient orbs — recolour with the active pick's accent */}
@@ -843,12 +898,12 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-center justify-center self-stretch py-0 md:h-auto md:max-h-[440px] md:w-[370px] md:flex-[0_0_370px] md:self-center md:py-1"
+                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-stretch justify-center self-stretch py-0 md:h-[600px] md:max-h-[600px] md:w-[370px] md:flex-[0_0_370px] md:self-center md:py-1"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
                   data-pips-card
-                  className={`relative flex max-h-full w-full flex-col overflow-hidden rounded-[28px] text-white transition-transform duration-150 md:h-auto md:rounded-[32px] ${styles.glassCard}`}
+                  className={`relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[28px] text-white transition-transform duration-150 md:rounded-[32px] ${styles.glassCard}`}
                   style={
                     {
                       '--accent': accent.accent,
@@ -874,6 +929,7 @@ export function PipsPicksPersimmonCarousel({
                     total={renderedPicks.length}
                     onExpand={() => setExpandedIndex(index)}
                     onSave={onSavePick ? (trigger) => onSavePick(pick, trigger) : undefined}
+                    onSwipeCard={scrollByCard}
                   />
 
                   {locked ? (

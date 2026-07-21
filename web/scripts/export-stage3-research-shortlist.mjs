@@ -109,10 +109,21 @@ function sourceField(row) {
   return { col: null, ids: [] };
 }
 
+/** Canonical shop-action render rules (some older Bibles use aliases). */
+const PRODUCT_ACTION_RENDER_RULES = new Set([
+  'product_actions',
+  'show_shop_and_gift_actions',
+  'show_shop_only',
+]);
+
+function isProductActionRenderRule(v) {
+  return PRODUCT_ACTION_RENDER_RULES.has(String(v ?? '').trim());
+}
+
 function excludeReason(row) {
   if (String(row.content_type).trim() !== 'product_category') return 'not product_category';
   if (!truthy(row.show_ember_picks)) return 'show_ember_picks is FALSE';
-  if (String(row.render_rule).trim() !== 'product_actions') return 'render_rule is not product_actions';
+  if (!isProductActionRenderRule(row.render_rule)) return 'render_rule is not product_actions';
   if (!truthy(row.is_physical_product)) return 'is_physical_product is not TRUE';
   if (truthy(row.needs_research)) return 'needs_research is TRUE';
   if (blank(row.category_entity_id)) return 'missing category_entity_id';
@@ -488,7 +499,7 @@ function runWorkbook(filePath, outDir) {
   // Extra manual flags: strong evidence but blocked by render_rule
   for (const row of rows) {
     if (String(row.content_type) !== 'product_category') continue;
-    if (String(row.render_rule).trim() === 'product_actions') continue;
+    if (isProductActionRenderRule(row.render_rule)) continue;
     const ev = idList(row.evidence_ids).length;
     if (ev >= 3) {
       manualFlags.push({
