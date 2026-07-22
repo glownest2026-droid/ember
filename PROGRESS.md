@@ -1,7 +1,7 @@
 ## 2026-07-22 — Stage 3 Mode A: cat_feelings_faces_books (34–36m) re-research
 
 - **Why:** prior v2 file quarantined (404 Amazon primaries, unparsed age marks)
-- **Output:** `agent-tools/exports/stage3/34-36m/research/inbox/ember_picks_34-36m_cat_feelings_faces_books.{json,csv,summary.md}`
+- **Output:** `agent-tools/exports/stage3/34-36m/research/green/ember_picks_34-36m_cat_feelings_faces_books.{json,csv,summary.md}`
 - **Top 5:** Pip & Posy New Friend, Can You Share Little Whale, That's (Not) Mine, Sour Grape, Squirrels Who Squabbled — all primaries buyable on 2026-07-22
 - **Note:** On Sudden Hill demoted to longlist #6 (Scholastic OOS on stable primary)
 - **FF:** `stage3-ff-check.mjs` (with move) → **PASS** (27/27 URL smoke, 10/10 availability); promoted inbox file to `research/green/`

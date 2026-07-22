@@ -81,4 +81,4 @@ Two squirrels race for the last nut until teamwork saves them. **Verdict:** Rhym
 | Age signals parsed | pass |
 | On Sudden Hill OOS | flagged — longlist backup only |
 
-**Status:** `pending-ff-check` — run `$ember-stage3-ff-checker` before founder HTML.
+**Status:** `founder-review-ready` — FF checker pass confirmed on 2026-07-22.
