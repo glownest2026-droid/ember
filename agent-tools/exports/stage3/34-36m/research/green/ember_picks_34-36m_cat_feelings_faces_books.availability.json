@@ -1,22 +1,10 @@
 {
   "checked_at": "2026-07-22",
-  "url_count": 13,
-  "buyable_count": 6,
+  "url_count": 10,
+  "buyable_count": 10,
   "results": {
-    "https://shop.scholastic.co.uk/products/On-Sudden-Hill-Linda-Sarah-9781471119293": {
-      "url": "https://shop.scholastic.co.uk/products/On-Sudden-Hill-Linda-Sarah-9781471119293",
-      "http_status": 200,
-      "fetch_ok": true,
-      "product_status": "unbuyable",
-      "signals": [
-        "Out of stock"
-      ],
-      "buyable": false,
-      "error": null,
-      "checked_at": "2026-07-22"
-    },
-    "https://www.lovereading4kids.co.uk/book/9781471119293/isbn/On-Sudden-Hill-by-Linda-Sarah.html": {
-      "url": "https://www.lovereading4kids.co.uk/book/9781471119293/isbn/On-Sudden-Hill-by-Linda-Sarah.html",
+    "https://nosycrow.com/book/pip-and-posy-the-new-friend/": {
+      "url": "https://nosycrow.com/book/pip-and-posy-the-new-friend/",
       "http_status": 200,
       "fetch_ok": true,
       "product_status": "buyable",
@@ -25,24 +13,34 @@
       "error": null,
       "checked_at": "2026-07-22"
     },
-    "https://uk.bookshop.org/p/books/pip-and-posy-the-new-friend-camilla-reid/9780857638748": {
-      "url": "https://uk.bookshop.org/p/books/pip-and-posy-the-new-friend-camilla-reid/9780857638748",
-      "http_status": 403,
-      "fetch_ok": false,
-      "product_status": "unknown",
+    "https://www.lovereading4kids.co.uk/book/9781801044073/isbn/Can-You-Share-Little-Whale-by-Jonny-Lambert.html": {
+      "url": "https://www.lovereading4kids.co.uk/book/9781801044073/isbn/Can-You-Share-Little-Whale-by-Jonny-Lambert.html",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
       "signals": [],
-      "buyable": false,
-      "error": "http_403",
+      "buyable": true,
+      "error": null,
       "checked_at": "2026-07-22"
     },
-    "https://nosycrow.com/book/pip-and-posy-the-new-friend/": {
-      "url": "https://nosycrow.com/book/pip-and-posy-the-new-friend/",
-      "http_status": 403,
-      "fetch_ok": false,
-      "product_status": "unknown",
+    "https://www.hachette.co.uk/titles/anna-kang/thats-not-mine/9781444923339/": {
+      "url": "https://www.hachette.co.uk/titles/anna-kang/thats-not-mine/9781444923339/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
       "signals": [],
-      "buyable": false,
-      "error": "http_403",
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://littletiger.co.uk/product/can-you-share-little-whale-2": {
+      "url": "https://littletiger.co.uk/product/can-you-share-little-whale-2",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
       "checked_at": "2026-07-22"
     },
     "https://shop.scholastic.co.uk/products/Sour-Grape-9780063283800": {
@@ -65,18 +63,8 @@
       "error": null,
       "checked_at": "2026-07-22"
     },
-    "https://uk.bookshop.org/p/books/the-sour-grape-jory-john/9780063283800": {
-      "url": "https://uk.bookshop.org/p/books/the-sour-grape-jory-john/9780063283800",
-      "http_status": 403,
-      "fetch_ok": false,
-      "product_status": "unknown",
-      "signals": [],
-      "buyable": false,
-      "error": "http_403",
-      "checked_at": "2026-07-22"
-    },
-    "https://littletiger.co.uk/product/can-you-share-little-whale-2": {
-      "url": "https://littletiger.co.uk/product/can-you-share-little-whale-2",
+    "https://www.hachette.co.uk/titles/rachel-bright/the-squirrels-who-squabbled/9781408340473/": {
+      "url": "https://www.hachette.co.uk/titles/rachel-bright/the-squirrels-who-squabbled/9781408340473/",
       "http_status": 200,
       "fetch_ok": true,
       "product_status": "buyable",
@@ -85,48 +73,28 @@
       "error": null,
       "checked_at": "2026-07-22"
     },
-    "https://www.hachette.co.uk/titles/anna-kang/thats-not-mine/9781444923339/": {
-      "url": "https://www.hachette.co.uk/titles/anna-kang/thats-not-mine/9781444923339/",
+    "https://shop.scholastic.co.uk/products/117331": {
+      "url": "https://shop.scholastic.co.uk/products/117331",
       "http_status": 200,
       "fetch_ok": true,
       "product_status": "buyable",
       "signals": [],
       "buyable": true,
       "error": null,
-      "checked_at": "2026-07-22"
-    },
-    "https://uk.bookshop.org/p/books/on-sudden-hill-linda-sarah/9781471119293": {
-      "url": "https://uk.bookshop.org/p/books/on-sudden-hill-linda-sarah/9781471119293",
-      "http_status": 403,
-      "fetch_ok": false,
-      "product_status": "unknown",
-      "signals": [],
-      "buyable": false,
-      "error": "http_403",
-      "checked_at": "2026-07-22"
-    },
-    "https://uk.bookshop.org/p/books/thats-not-mine-anna-kang/9781444918335": {
-      "url": "https://uk.bookshop.org/p/books/thats-not-mine-anna-kang/9781444918335",
-      "http_status": 403,
-      "fetch_ok": false,
-      "product_status": "unknown",
-      "signals": [],
-      "buyable": false,
-      "error": "http_403",
-      "checked_at": "2026-07-22"
-    },
-    "https://uk.bookshop.org/p/books/can-you-share-little-whale-jonny-lambert/9781801044073": {
-      "url": "https://uk.bookshop.org/p/books/can-you-share-little-whale-jonny-lambert/9781801044073",
-      "http_status": 403,
-      "fetch_ok": false,
-      "product_status": "unknown",
-      "signals": [],
-      "buyable": false,
-      "error": "http_403",
       "checked_at": "2026-07-22"
     },
     "https://www.amazon.co.uk/dp/0857638742": {
       "url": "https://www.amazon.co.uk/dp/0857638742",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/thats-not-mine/anna-kang/9781444918335": {
+      "url": "https://www.waterstones.com/book/thats-not-mine/anna-kang/9781444918335",
       "http_status": 200,
       "fetch_ok": true,
       "product_status": "buyable",

@@ -5,18 +5,6 @@
   "pick_results": [
     {
       "rank": 1,
-      "product_name": "On Sudden Hill",
-      "ff_pass": true,
-      "fail_reasons": [],
-      "url_ok": true,
-      "http_status": 200,
-      "buyable": true,
-      "product_status": "buyable",
-      "age_gate": "pass",
-      "age_fail_reasons": []
-    },
-    {
-      "rank": 2,
       "product_name": "Pip and Posy: The New Friend",
       "ff_pass": true,
       "fail_reasons": [],
@@ -28,19 +16,7 @@
       "age_fail_reasons": []
     },
     {
-      "rank": 3,
-      "product_name": "The Sour Grape",
-      "ff_pass": true,
-      "fail_reasons": [],
-      "url_ok": true,
-      "http_status": 200,
-      "buyable": true,
-      "product_status": "buyable",
-      "age_gate": "pass",
-      "age_fail_reasons": []
-    },
-    {
-      "rank": 4,
+      "rank": 2,
       "product_name": "Can You Share, Little Whale?",
       "ff_pass": true,
       "fail_reasons": [],
@@ -52,8 +28,32 @@
       "age_fail_reasons": []
     },
     {
-      "rank": 5,
+      "rank": 3,
       "product_name": "That's (Not) Mine",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "The Sour Grape",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "The Squirrels Who Squabbled",
       "ff_pass": true,
       "fail_reasons": [],
       "url_ok": true,

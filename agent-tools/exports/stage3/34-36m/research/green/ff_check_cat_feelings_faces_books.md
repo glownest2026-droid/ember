@@ -2,14 +2,14 @@
 
 - **Overall:** PASS
 - **Band:** 34-36m
-- **URL smoke:** 29/30 ok
-- **Availability:** 6/13 buyable
+- **URL smoke:** 27/27 ok
+- **Availability:** 10/10 buyable
 
 | Rank | Product | Pass | Reasons |
 |---:|---|---|---|
-| 1 | On Sudden Hill | pass | — |
-| 2 | Pip and Posy: The New Friend | pass | — |
-| 3 | The Sour Grape | pass | — |
-| 4 | Can You Share, Little Whale? | pass | — |
-| 5 | That's (Not) Mine | pass | — |
+| 1 | Pip and Posy: The New Friend | pass | — |
+| 2 | Can You Share, Little Whale? | pass | — |
+| 3 | That's (Not) Mine | pass | — |
+| 4 | The Sour Grape | pass | — |
+| 5 | The Squirrels Who Squabbled | pass | — |
 
