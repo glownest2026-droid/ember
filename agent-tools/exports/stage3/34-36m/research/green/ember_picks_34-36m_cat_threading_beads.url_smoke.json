@@ -1,0 +1,161 @@
+{
+  "checked_at": "2026-07-22",
+  "url_count": 22,
+  "ok_count": 16,
+  "results": {
+    "https://www.amazon.co.uk/Learning-Resources-Snacks-Lacing-Sweets/dp/B0007KLHBE": {
+      "url": "https://www.amazon.co.uk/Learning-Resources-Snacks-Lacing-Sweets/dp/B0007KLHBE",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/dp/B0BB23Y1B7": {
+      "url": "https://www.amazon.co.uk/dp/B0BB23Y1B7",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://daisydaisydirect.co.uk/play-time/djeco-filacolour-lacing-beads-dj06160.html": {
+      "url": "https://daisydaisydirect.co.uk/play-time/djeco-filacolour-lacing-beads-dj06160.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://halilit.co.uk/products/baby-beads": {
+      "url": "https://halilit.co.uk/products/baby-beads",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.tickety-boo-toys.co.uk/filacolor-lacing-beads-by-djeco.html": {
+      "url": "https://www.tickety-boo-toys.co.uk/filacolor-lacing-beads-by-djeco.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.primaryict.co.uk/pr8280/beads-pattern-card-set-set-of-130-pieces-ler0139": {
+      "url": "https://www.primaryict.co.uk/pr8280/beads-pattern-card-set-set-of-130-pieces-ler0139",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://global.hape.com/caterpillar-fruit-feast-set-e1072": {
+      "url": "https://global.hape.com/caterpillar-fruit-feast-set-e1072",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.primaryict.co.uk/pr8561/smart-snacks-abc-lacing-sweets-learning-r-ler7204": {
+      "url": "https://www.primaryict.co.uk/pr8561/smart-snacks-abc-lacing-sweets-learning-r-ler7204",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.tts-group.co.uk/edushape-sensory-baby-beads-14pk/1053971.html": {
+      "url": "https://www.tts-group.co.uk/edushape-sensory-baby-beads-14pk/1053971.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/dp/B07SPJS4HK": {
+      "url": "https://www.amazon.co.uk/dp/B07SPJS4HK",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/Classic-World-Lacing-Wooden-Animals/dp/B07XJQZ9VN": {
+      "url": "https://www.amazon.co.uk/Classic-World-Lacing-Wooden-Animals/dp/B07XJQZ9VN",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://pinwheelshop.com/en/baby-toddler-toys/lacing-threading-toys/adorable-colourful-chunky-wooden-lacing-beads-les-toupitis.html": {
+      "url": "https://pinwheelshop.com/en/baby-toddler-toys/lacing-threading-toys/adorable-colourful-chunky-wooden-lacing-beads-les-toupitis.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.earlyyearsresources.co.uk/stringing-solids/": {
+      "url": "https://www.earlyyearsresources.co.uk/stringing-solids/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.earlyyearsresources.co.uk/tickit-wooden-lacing-shapes-pk4/": {
+      "url": "https://www.earlyyearsresources.co.uk/tickit-wooden-lacing-shapes-pk4/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.earlyyearsresources.co.uk/tickit-lacing-fruit-set/": {
+      "url": "https://www.earlyyearsresources.co.uk/tickit-lacing-fruit-set/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.earlyyearsresources.co.uk/lacing-apple/": {
+      "url": "https://www.earlyyearsresources.co.uk/lacing-apple/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.bigjigstoys.co.uk/products/crate-of-lacing-beads": {
+      "url": "https://www.bigjigstoys.co.uk/products/crate-of-lacing-beads",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.jaqueslondon.co.uk/products/lets-play-threading-beads": {
+      "url": "https://www.jaqueslondon.co.uk/products/lets-play-threading-beads",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.argos.co.uk/product/7519288": {
+      "url": "https://www.argos.co.uk/product/7519288",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.argos.co.uk/product/7882609": {
+      "url": "https://www.argos.co.uk/product/7882609",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.galttoys.com/products/first-lacing-pictures": {
+      "url": "https://www.galttoys.com/products/first-lacing-pictures",
+      "http_status": 404,
+      "url_ok": false,
+      "error": "http_404",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.galttoys.com/products/cotton-reels": {
+      "url": "https://www.galttoys.com/products/cotton-reels",
+      "http_status": 404,
+      "url_ok": false,
+      "error": "http_404",
+      "checked_at": "2026-07-22"
+    }
+  }
+}

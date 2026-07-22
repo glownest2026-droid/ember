@@ -1,0 +1,77 @@
+{
+  "checked_at": "2026-07-22",
+  "url_count": 7,
+  "buyable_count": 5,
+  "results": {
+    "https://www.thetoyshop.com/shop-by-age/2-3-years/Happyland-London-Bus-Playset/p/549251": {
+      "url": "https://www.thetoyshop.com/shop-by-age/2-3-years/Happyland-London-Bus-Playset/p/549251",
+      "http_status": 403,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.playmobil.com/en-gb/junior:-airport-shuttle-bus/71689.html": {
+      "url": "https://www.playmobil.com/en-gb/junior:-airport-shuttle-bus/71689.html",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.playmobil.com/en-gb/junior:-everyday-heroes/71692.html": {
+      "url": "https://www.playmobil.com/en-gb/junior:-everyday-heroes/71692.html",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.hamleys.com/lego-duplo-town-3-in-1-construction-vehicles-toys-10475": {
+      "url": "https://www.hamleys.com/lego-duplo-town-3-in-1-construction-vehicles-toys-10475",
+      "http_status": null,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "fetch failed",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.moonpig.com/uk/gifts/p/happyland-london-bus-playset/teal-549251/": {
+      "url": "https://www.moonpig.com/uk/gifts/p/happyland-london-bus-playset/teal-549251/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.playmobil.com/en-gb/junior:-dump-truck/71685.html": {
+      "url": "https://www.playmobil.com/en-gb/junior:-dump-truck/71685.html",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/LEGO-10475-tbd-10475/dp/B01MTWBPPI": {
+      "url": "https://www.amazon.co.uk/LEGO-10475-tbd-10475/dp/B01MTWBPPI",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "checked_at": "2026-07-22",
+  "url_count": 14,
+  "buyable_count": 9,
+  "results": {
+    "https://www.penguin.co.uk/books/305040/you-choose-by-goodhart-pippa/9780141379319": {
+      "url": "https://www.penguin.co.uk/books/305040/you-choose-by-goodhart-pippa/9780141379319",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/dont-let-the-pigeon-drive-the-bus/mo-willems/9781406386073": {
+      "url": "https://www.waterstones.com/book/dont-let-the-pigeon-drive-the-bus/mo-willems/9781406386073",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.walker.co.uk/9781406386073/dont-let-the-pigeon-drive-the-bus/": {
+      "url": "https://www.walker.co.uk/9781406386073/dont-let-the-pigeon-drive-the-bus/",
+      "http_status": 403,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/oh-no-george/chris-haughton/9781406357912": {
+      "url": "https://www.waterstones.com/book/oh-no-george/chris-haughton/9781406357912",
+      "http_status": 403,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/oh-no-george-a-hilarious-read-aloud-classic-about-a-dog-trying-his-best-to-be-good-the-perfect-gift-for-tickling-funny-bones-chris-haughton/f94edd4d32692e2b?ean=9781406357912": {
+      "url": "https://uk.bookshop.org/p/books/oh-no-george-a-hilarious-read-aloud-classic-about-a-dog-trying-his-best-to-be-good-the-perfect-gift-for-tickling-funny-bones-chris-haughton/f94edd4d32692e2b?ean=9781406357912",
+      "http_status": 403,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.booktrust.org.uk/book-recommendations/bookfinder/you-choose/": {
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/you-choose/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/dp/1406386073": {
+      "url": "https://www.amazon.co.uk/dp/1406386073",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/shh-we-have-a-plan/chris-haughton/9781406361650": {
+      "url": "https://www.waterstones.com/book/shh-we-have-a-plan/chris-haughton/9781406361650",
+      "http_status": 403,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.walker.co.uk/9781406361650/shh-we-have-a-plan/": {
+      "url": "https://www.walker.co.uk/9781406361650/shh-we-have-a-plan/",
+      "http_status": 403,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.penguin.co.uk/books/327168/shark-in-the-park-by-sharratt-nick/9780552549776": {
+      "url": "https://www.penguin.co.uk/books/327168/shark-in-the-park-by-sharratt-nick/9780552549776",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.booktrust.org.uk/book-recommendations/bookfinder/oh-no-george/": {
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/oh-no-george/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/dp/140635791X": {
+      "url": "https://www.amazon.co.uk/dp/140635791X",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.nicksharratt.com/books/shark-in-the-park": {
+      "url": "https://www.nicksharratt.com/books/shark-in-the-park",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/dp/1406361658": {
+      "url": "https://www.amazon.co.uk/dp/1406361658",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    }
+  }
+}

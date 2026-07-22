@@ -9,11 +9,14 @@ description: Turn Ember Stage 3 research outputs into live /discover Pip's Picks
 
 Use this skill to convert approved or near-approved `$ember-stage3-research` outputs into real parent-facing Pip's Picks cards in `/discover`.
 
-This is the third step in the workflow:
+This is the fourth step in the workflow:
 
 1. `$ember-stage2-pilot-converter` chooses which Stage 2 cards should be piloted first.
-2. `$ember-stage3-research` produces evidence-backed Top 5 picks, longlist backups, skips, and guidance.
-3. `$ember-stage3-card-ingestion` turns the research into live Discover cards, QA'd against Ember brand standards and ready for founder review on a Vercel PR preview.
+2. `$ember-stage3-research` produces evidence-backed Top Picks into `research/inbox/` (`pending-ff-check`).
+3. `$ember-stage3-ff-checker` smoke-checks URLs, ratings, and age gates → `green/` or `quarantine/`.
+4. `$ember-stage3-card-ingestion` turns **`green/`** research into live Discover cards.
+
+**Refuse inputs outside `…/research/green/`.** Run `node agent-tools/scripts/stage3-ff-check.mjs --age-band={AGE_BAND}` first if needed. Gates: `web/docs/STAGE3_TRUST_GATES.md`.
 
 ## Core Product Rules
 
@@ -27,11 +30,6 @@ This is the third step in the workflow:
 - When logged in as `timwd23@gmail.com`, the founder must see all five picks without blurring.
 - When logged out, the founder must be able to test the locked state: pick 1 clear, picks 2-5 blurred.
 - Stage 3 cards should be branded as Pip's Picks and use the current Ember/Pip visual system, including the robin logo where the app has an established asset or component for it. Do not invent new brand assets without founder approval.
-- Default Stage 3 UI pattern: `Persimmon Pop` Pip's Picks carousel. Use a persimmon `#FF5C34` row, deep ink `#161D2B` cards, robin logo beside the `Pip's Picks` title, reflective Lucide icons in each card title, and a standard lock overlay for ranks 2-5.
-- **Icon hard rule (founder, 2026-07-19):** every card title must render a Lucide icon that matches what the product IS (a playmat gets a mat-like icon, never a tree). The mapping lives in `pickIcon()` in `web/src/components/discover/figma/PipsPicksPersimmonCarousel.tsx` — when ingesting a category whose product nouns are not covered there, extend the mapping in the same PR. Verify every ingested pick's icon on the preview before handoff.
-- **Tag hard rule (founder, 2026-07-19):** every `best_for_tag` must read `Best for <parent/child situation>` (see `$ember-stage3-research`). Reject or rewrite research rows that fail this before ingestion.
-- Locked-card CTA copy is `Discover Ember Plus` and must link to `/pricing`.
-- When the child name is known, personalize the card reasoning softly at render/ingestion time. Include the child name and likely-fit language, e.g. change `suits children who build stories` to `suitable for Lily, who is likely to be building stories from everyday routines`.
 
 ## Source Inputs
 
@@ -50,8 +48,6 @@ For repeatable ingestion, prefer the standard bundle:
 - `stage3_ingestion_bundle_[AGE_BAND].json`
 - See `references/stage3-ingestion-bundle-v1.md` when creating, validating, or consuming a bundle.
 
-Before ingesting, check whether `$ember-stage3-founder-review` has produced a current central registry and founder HTML preview for the age band. If not, run it or explain why it cannot be run. The founder review should happen before UI publication, not after.
-
 Also inspect the current repo implementation before editing:
 
 - Discover routes/pages/components under `web/src/app/discover`, `web/src/components/discover`, and adjacent data loaders.
@@ -69,7 +65,7 @@ When working inside the Ember repo, prefer the deterministic generator before ha
 ```bash
 node web/scripts/ingest-stage3-pips-picks.mjs \
   --age-band={AGE_BAND} \
-  --inputs=agent-tools/exports/ember_picks_{AGE_BAND}_*.json
+  --inputs=agent-tools/exports/stage3/{AGE_BAND}/research/green/ember_picks_{AGE_BAND}_*.json
 ```
 
 Use `--dry-run` first. If validation passes, rerun without `--dry-run` to create:
@@ -114,12 +110,6 @@ For product-category Pip's Picks, require:
 - safety notes where relevant
 - buy/borrow/bring-back/hold-off judgement
 
-Also require central-review traceability:
-
-- the source research file is stored under `agent-tools/exports/stage3/{AGE_BAND}/research/` or explicitly linked from the registry;
-- the age-band registry names this Stage 2 card;
-- the founder-preview HTML includes the Top 5 rows or marks them as intentionally not applicable for safety/check content.
-
 If this fails because the research is weak, stale, incomplete, generic, unsafe, or not Conor-grade, automatically rerun `$ember-stage3-research` and tell the founder what triggered the rerun.
 
 If the missing input is not research-fixable, ask one concise clarification question.
@@ -132,7 +122,6 @@ Each visible pick should have:
 
 - rank
 - `best_for_tag`
-- reflective icon hint or enough product/category text for the UI to choose a Lucide icon
 - product name
 - brand
 - retailer/source
@@ -145,7 +134,6 @@ Each visible pick should have:
 - ownership/duplication note where relevant
 - safety note where relevant
 - evidence/QA flags for internal display or admin review, not noisy parent copy
-- personalization-ready reasoning: write why-copy in a form that can be angled toward a named child without inventing facts
 
 Use the research JSON for product facts. Rewrite only the parent-facing copy. Do not invent facts, ratings, awards, prices, age marks, or safety warnings.
 
@@ -199,17 +187,6 @@ Typical implementation tasks may include:
 - adding founder override logic for `timwd23@gmail.com`
 - preserving signed-out behaviour
 - adding tests or fixtures for logged-out, non-paid signed-in, and founder states
-
-For the Persimmon Pop UI:
-
-- Pick 1 renders as a full product card for all users.
-- Picks 2-5 render as blurred cards with a lock overlay for signed-out and non-member users.
-- Ember Plus/founder users see all five full cards.
-- The UI heading is `Pip's Picks` with the robin logo before the title.
-- The card lock overlay uses `Discover Ember Plus`, not `Join Ember Plus`.
-- The overlay links to `/pricing`.
-- The UI should select a reflective Lucide icon from product/category text when no explicit icon hint is supplied.
-- Child-name personalization happens in the app using the selected child profile. The database/research should not store a real child's name unless the founder explicitly requests a child-specific pack.
 
 Access-control behaviour must be server-backed or otherwise consistent with the app's existing auth model. Do not rely only on CSS blur if the full gated content is exposed in client data to users who should not receive it, unless the existing app pattern already accepts that trade-off and the founder is told clearly.
 

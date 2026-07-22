@@ -9,11 +9,14 @@ description: Turn Ember Stage 3 research outputs into live /discover Pip's Picks
 
 Use this skill to convert approved or near-approved `$ember-stage3-research` outputs into real parent-facing Pip's Picks cards in `/discover`.
 
-This is the third step in the workflow:
+This is the fourth step in the workflow:
 
 1. `$ember-stage2-pilot-converter` chooses which Stage 2 cards should be piloted first.
-2. `$ember-stage3-research` produces evidence-backed Top 5 picks, longlist backups, skips, and guidance.
-3. `$ember-stage3-card-ingestion` turns the research into live Discover cards, QA'd against Ember brand standards and ready for founder review on a Vercel PR preview.
+2. `$ember-stage3-research` produces evidence-backed Top Picks into `research/inbox/` (`pending-ff-check`).
+3. `$ember-stage3-ff-checker` smoke-checks URLs, ratings, and age gates → `green/` or `quarantine/`.
+4. `$ember-stage3-card-ingestion` turns **`green/`** research into live Discover cards.
+
+**Refuse inputs outside `…/research/green/`.** Run `node agent-tools/scripts/stage3-ff-check.mjs --age-band={AGE_BAND}` first if needed. Gates: `web/docs/STAGE3_TRUST_GATES.md`.
 
 ## Core Product Rules
 
@@ -62,7 +65,7 @@ When working inside the Ember repo, prefer the deterministic generator before ha
 ```bash
 node web/scripts/ingest-stage3-pips-picks.mjs \
   --age-band={AGE_BAND} \
-  --inputs=agent-tools/exports/ember_picks_{AGE_BAND}_*.json
+  --inputs=agent-tools/exports/stage3/{AGE_BAND}/research/green/ember_picks_{AGE_BAND}_*.json
 ```
 
 Use `--dry-run` first. If validation passes, rerun without `--dry-run` to create:

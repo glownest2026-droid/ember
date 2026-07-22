@@ -1,0 +1,102 @@
+{
+  "checked_at": "2026-07-22",
+  "url_count": 9,
+  "buyable_count": 7,
+  "results": {
+    "https://www.primaryict.co.uk/pr8561/smart-snacks-abc-lacing-sweets-learning-r-ler7204": {
+      "url": "https://www.primaryict.co.uk/pr8561/smart-snacks-abc-lacing-sweets-learning-r-ler7204",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://global.hape.com/caterpillar-fruit-feast-set-e1072": {
+      "url": "https://global.hape.com/caterpillar-fruit-feast-set-e1072",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.tickety-boo-toys.co.uk/filacolor-lacing-beads-by-djeco.html": {
+      "url": "https://www.tickety-boo-toys.co.uk/filacolor-lacing-beads-by-djeco.html",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.primaryict.co.uk/pr8280/beads-pattern-card-set-set-of-130-pieces-ler0139": {
+      "url": "https://www.primaryict.co.uk/pr8280/beads-pattern-card-set-set-of-130-pieces-ler0139",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://daisydaisydirect.co.uk/play-time/djeco-filacolour-lacing-beads-dj06160.html": {
+      "url": "https://daisydaisydirect.co.uk/play-time/djeco-filacolour-lacing-beads-dj06160.html",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/Learning-Resources-Snacks-Lacing-Sweets/dp/B0007KLHBE": {
+      "url": "https://www.amazon.co.uk/Learning-Resources-Snacks-Lacing-Sweets/dp/B0007KLHBE",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/dp/B0BB23Y1B7": {
+      "url": "https://www.amazon.co.uk/dp/B0BB23Y1B7",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "unbuyable",
+      "signals": [
+        "Currently unavailable",
+        "We don't know when or if this item will be back in stock"
+      ],
+      "buyable": false,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://halilit.co.uk/products/baby-beads": {
+      "url": "https://halilit.co.uk/products/baby-beads",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "unbuyable",
+      "signals": [
+        "Sold out"
+      ],
+      "buyable": false,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.tts-group.co.uk/edushape-sensory-baby-beads-14pk/1053971.html": {
+      "url": "https://www.tts-group.co.uk/edushape-sensory-baby-beads-14pk/1053971.html",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    }
+  }
+}

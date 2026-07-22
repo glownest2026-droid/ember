@@ -67,7 +67,9 @@ function parseArgs(argv) {
     else if (!arg.startsWith('-')) args.inputs.push(...expandInputs(arg));
   }
 
-  args.inputs = [...new Set(args.inputs.map((p) => path.resolve(p)))];
+  args.inputs = [...new Set(args.inputs.map((p) => path.resolve(p)))].filter((p) =>
+    /^ember_picks_.+_cat_[a-z0-9_]+\.json$/i.test(path.basename(p)),
+  );
   return args;
 }
 
@@ -291,8 +293,8 @@ function normalizeResearch(filePath, forcedAgeBand, visibleCount = 5) {
   const errors = [];
   const warnings = [];
 
-  if (doc.schema_version !== 'ember_picks_research_v2') {
-    errors.push(`Expected schema_version ember_picks_research_v2, got ${doc.schema_version || '(blank)'}`);
+  if (!['ember_picks_research_v2', 'ember_picks_research_v3'].includes(doc.schema_version)) {
+    errors.push(`Expected schema_version ember_picks_research_v2 or ember_picks_research_v3, got ${doc.schema_version || '(blank)'}`);
   }
   if (!ageBandId) errors.push('Missing age_band_id');
   if (!categoryEntityId) errors.push('Missing category_entity_id');
@@ -692,7 +694,7 @@ SELECT
   jsonb_build_object(
     'bundle_schema_version', ${sqlString(bundle.schema_version)},
     'bundle_generated_at', ${sqlString(bundle.generated_at)},
-    'research_schema_version', ${sqlString('ember_picks_research_v2')},
+    'research_schema_version', ${sqlString(categories[0]?.schema_version || 'ember_picks_research_v3')},
     'source_category_entity_id', r.source_category_entity_id
   )
 FROM stage3_rows r

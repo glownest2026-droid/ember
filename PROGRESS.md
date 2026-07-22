@@ -1,4 +1,13 @@
-﻿## 2026-07-21 — fix(stage3): desktop carousel taller so Why Pip doesn’t clip
+## 2026-07-22 — Stage 3: availability gate + 34–36m v3 ingest (7 categories)
+
+- **Bug fix:** `stage3-availability-check.mjs` + FF integration — rejects retired/discontinued and notify-when-in-stock primaries (e.g. DUPLO Bus Ride 10988)
+- **Small-world fix:** replaced retired Bus Ride with Playmobil Junior Airport Shuttle 71689; DUPLO 10475 primary → Amazon UK (Hamleys bot-block)
+- **Research:** all 7 product categories green under v3 (picture books, small-world, jigsaws, feelings books, threading, balance stones, routine cards)
+- **Migration:** `20260722101500_ingest_stage3_pips_picks_34_36m.sql` (applied via `supabase db push`)
+- **Cache:** `GATEWAY_CATALOGUE_CACHE_VERSION` → `20260722-stage3-34-36m-pips`
+- **Verify:** `/discover/35` → Pip's Picks on each Stage 2 card with Ember Picks; pick 1 unlocked, 2–5 blurred signed out; founder HTML `agent-tools/exports/stage3/34-36m/founder-preview/stage3_founder_review_34-36m.html`
+
+## 2026-07-21 — fix(stage3): desktop carousel taller so Why Pip doesn’t clip
 
 - **Issue:** on desktop, opening Why Pip pushed the card past the 500px track — rank/header cut off at the top
 - **Fix:** desktop track `680px`, card slot `600px`, card always fills height so the drawer scrolls inside instead of growing out of frame

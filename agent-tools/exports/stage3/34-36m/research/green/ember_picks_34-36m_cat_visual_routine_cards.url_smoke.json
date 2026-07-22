@@ -1,0 +1,147 @@
+{
+  "checked_at": "2026-07-22",
+  "url_count": 20,
+  "ok_count": 13,
+  "results": {
+    "https://www.amazon.co.uk/Create-Visual-Aids-communication-transition/dp/B093YJ5RL6": {
+      "url": "https://www.amazon.co.uk/Create-Visual-Aids-communication-transition/dp/B093YJ5RL6",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/Create-Visual-Aids-My-Communication-Book/dp/B0CJ5QXG8L": {
+      "url": "https://www.amazon.co.uk/Create-Visual-Aids-My-Communication-Book/dp/B0CJ5QXG8L",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.createvisualaids.co.uk/products/visual-timetable-for-home-1": {
+      "url": "https://www.createvisualaids.co.uk/products/visual-timetable-for-home-1",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.craftly.co.uk/products/childrens-daily-routine-board": {
+      "url": "https://www.craftly.co.uk/products/childrens-daily-routine-board",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.craftly.co.uk/products/now-and-next-visual-routine-board": {
+      "url": "https://www.craftly.co.uk/products/now-and-next-visual-routine-board",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.craftly.co.uk/products/visual-timetables-to-do-list": {
+      "url": "https://www.craftly.co.uk/products/visual-timetables-to-do-list",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.createvisualaids.co.uk/products/out-the-door-chart": {
+      "url": "https://www.createvisualaids.co.uk/products/out-the-door-chart",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.createvisualaids.co.uk/products/new-my-communication-book-for-early-years-settings-on-improved-materials": {
+      "url": "https://www.createvisualaids.co.uk/products/new-my-communication-book-for-early-years-settings-on-improved-materials",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://haliburtons.com/products/routine-planners-for-kids": {
+      "url": "https://haliburtons.com/products/routine-planners-for-kids",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.createvisualaids.co.uk/products/timeline-keyring": {
+      "url": "https://www.createvisualaids.co.uk/products/timeline-keyring",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.createvisualaids.co.uk/products/mini-now-and-next-board": {
+      "url": "https://www.createvisualaids.co.uk/products/mini-now-and-next-board",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.createvisualaids.co.uk/products/now-and-next-board-plus-symbols-for-home": {
+      "url": "https://www.createvisualaids.co.uk/products/now-and-next-board-plus-symbols-for-home",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.sensorydirect.com/desktop-visual-timer-black-silicone-case": {
+      "url": "https://www.sensorydirect.com/desktop-visual-timer-black-silicone-case",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/dp/B00JNQ96KC": {
+      "url": "https://www.amazon.co.uk/dp/B00JNQ96KC",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://timetimer-europe.com/products/time-timer-mod-home-edition": {
+      "url": "https://timetimer-europe.com/products/time-timer-mod-home-edition",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/Supplies-Developments-Plastic-Morning-Routine/dp/B084WCV94X": {
+      "url": "https://www.amazon.co.uk/Supplies-Developments-Plastic-Morning-Routine/dp/B084WCV94X",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/dp/B08K9GFDMP": {
+      "url": "https://www.amazon.co.uk/dp/B08K9GFDMP",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.etsy.com/uk/search?q=visual+routine+cards+kids": {
+      "url": "https://www.etsy.com/uk/search?q=visual+routine+cards+kids",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://jackies-kids.uk/products/childchart": {
+      "url": "https://jackies-kids.uk/products/childchart",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.johnlewis.com/melissa-doug-daily-routines-chart/p111976168": {
+      "url": "https://www.johnlewis.com/melissa-doug-daily-routines-chart/p111976168",
+      "http_status": null,
+      "url_ok": false,
+      "error": "timeout",
+      "checked_at": "2026-07-22"
+    }
+  }
+}

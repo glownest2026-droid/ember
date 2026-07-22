@@ -1,0 +1,217 @@
+{
+  "checked_at": "2026-07-22",
+  "url_count": 30,
+  "ok_count": 29,
+  "results": {
+    "https://www.amazon.co.uk/dp/0857638742": {
+      "url": "https://www.amazon.co.uk/dp/0857638742",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.lovereading4kids.co.uk/book/9781471119293/isbn/On-Sudden-Hill-by-Linda-Sarah.html": {
+      "url": "https://www.lovereading4kids.co.uk/book/9781471119293/isbn/On-Sudden-Hill-by-Linda-Sarah.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://shop.scholastic.co.uk/products/On-Sudden-Hill-Linda-Sarah-9781471119293": {
+      "url": "https://shop.scholastic.co.uk/products/On-Sudden-Hill-Linda-Sarah-9781471119293",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://nosycrow.com/book/pip-and-posy-the-new-friend/": {
+      "url": "https://nosycrow.com/book/pip-and-posy-the-new-friend/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/pip-and-posy-the-new-friend-camilla-reid/9780857638748": {
+      "url": "https://uk.bookshop.org/p/books/pip-and-posy-the-new-friend-camilla-reid/9780857638748",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/on-sudden-hill-linda-sarah/9781471119293": {
+      "url": "https://uk.bookshop.org/p/books/on-sudden-hill-linda-sarah/9781471119293",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://shop.scholastic.co.uk/products/Sour-Grape-9780063283800": {
+      "url": "https://shop.scholastic.co.uk/products/Sour-Grape-9780063283800",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://littletiger.co.uk/product/can-you-share-little-whale-2": {
+      "url": "https://littletiger.co.uk/product/can-you-share-little-whale-2",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.lovereading4kids.co.uk/book/9780063283800/isbn/The-Sour-Grape-by-Jory-John.html": {
+      "url": "https://www.lovereading4kids.co.uk/book/9780063283800/isbn/The-Sour-Grape-by-Jory-John.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.hachette.co.uk/titles/anna-kang/thats-not-mine/9781444923339/": {
+      "url": "https://www.hachette.co.uk/titles/anna-kang/thats-not-mine/9781444923339/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/the-sour-grape-jory-john/9780063283800": {
+      "url": "https://uk.bookshop.org/p/books/the-sour-grape-jory-john/9780063283800",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/thats-not-mine-anna-kang/9781444918335": {
+      "url": "https://uk.bookshop.org/p/books/thats-not-mine-anna-kang/9781444918335",
+      "http_status": 404,
+      "url_ok": false,
+      "error": "http_404",
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/can-you-share-little-whale-jonny-lambert/9781801044073": {
+      "url": "https://uk.bookshop.org/p/books/can-you-share-little-whale-jonny-lambert/9781801044073",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/llama-llama-time-to-share-anna-dewdney/9781442450986": {
+      "url": "https://uk.bookshop.org/p/books/llama-llama-time-to-share-anna-dewdney/9781442450986",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/the-squirrels-who-squabbled-rachel-bright/9781408340473": {
+      "url": "https://uk.bookshop.org/p/books/the-squirrels-who-squabbled-rachel-bright/9781408340473",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.hachette.co.uk/titles/moira-butterfield-2/sometimes-im-a-baby-bear-sometimes-im-a-snail/9781803380254/": {
+      "url": "https://www.hachette.co.uk/titles/moira-butterfield-2/sometimes-im-a-baby-bear-sometimes-im-a-snail/9781803380254/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/horrible-bear-ame-dyckman/9781783445141": {
+      "url": "https://uk.bookshop.org/p/books/horrible-bear-ame-dyckman/9781783445141",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.hachette.co.uk/titles/rachel-bright/the-hugasaurus/9781408356094/": {
+      "url": "https://www.hachette.co.uk/titles/rachel-bright/the-hugasaurus/9781408356094/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://nosycrow.com/book/pip-and-posy-the-super-scooter/": {
+      "url": "https://nosycrow.com/book/pip-and-posy-the-super-scooter/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.penguin.co.uk/books/438/will-you-be-my-friend/9781529514988.html": {
+      "url": "https://www.penguin.co.uk/books/438/will-you-be-my-friend/9781529514988.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.hachette.co.uk/titles/tom-percival/meesha-makes-friends/9781408356140/": {
+      "url": "https://www.hachette.co.uk/titles/tom-percival/meesha-makes-friends/9781408356140/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://littletiger.co.uk/product/im-going-to-make-a-friend": {
+      "url": "https://littletiger.co.uk/product/im-going-to-make-a-friend",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.hachette.co.uk/titles/emily-coxhead/find-your-happy/9781529501470/": {
+      "url": "https://www.hachette.co.uk/titles/emily-coxhead/find-your-happy/9781529501470/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.penguin.co.uk/books/438/its-mine/9780141370592.html": {
+      "url": "https://www.penguin.co.uk/books/438/its-mine/9780141370592.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.hachette.co.uk/titles/tom-percival/rubys-worry/9781408336341/": {
+      "url": "https://www.hachette.co.uk/titles/tom-percival/rubys-worry/9781408336341/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/the-colour-monster-anna-llenas/9781783444508": {
+      "url": "https://uk.bookshop.org/p/books/the-colour-monster-anna-llenas/9781783444508",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/in-my-heart-a-book-of-feelings-jo-witek/9780500657319": {
+      "url": "https://uk.bookshop.org/p/books/in-my-heart-a-book-of-feelings-jo-witek/9780500657319",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/the-invisible-string-patrice-karst/9780736237769": {
+      "url": "https://uk.bookshop.org/p/books/the-invisible-string-patrice-karst/9780736237769",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/what-if-pig-linzie-hunter/9780008409507": {
+      "url": "https://uk.bookshop.org/p/books/what-if-pig-linzie-hunter/9780008409507",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/when-sadness-comes-to-call-eva-eland/9781783445229": {
+      "url": "https://uk.bookshop.org/p/books/when-sadness-comes-to-call-eva-eland/9781783445229",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    }
+  }
+}

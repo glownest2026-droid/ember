@@ -1,0 +1,224 @@
+{
+  "checked_at": "2026-07-22",
+  "url_count": 31,
+  "ok_count": 27,
+  "results": {
+    "https://www.walker.co.uk/9781406386073/dont-let-the-pigeon-drive-the-bus/": {
+      "url": "https://www.walker.co.uk/9781406386073/dont-let-the-pigeon-drive-the-bus/",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/dp/140635791X": {
+      "url": "https://www.amazon.co.uk/dp/140635791X",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/dp/1406386073": {
+      "url": "https://www.amazon.co.uk/dp/1406386073",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://uk.bookshop.org/p/books/oh-no-george-a-hilarious-read-aloud-classic-about-a-dog-trying-his-best-to-be-good-the-perfect-gift-for-tickling-funny-bones-chris-haughton/f94edd4d32692e2b?ean=9781406357912": {
+      "url": "https://uk.bookshop.org/p/books/oh-no-george-a-hilarious-read-aloud-classic-about-a-dog-trying-his-best-to-be-good-the-perfect-gift-for-tickling-funny-bones-chris-haughton/f94edd4d32692e2b?ean=9781406357912",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.penguin.co.uk/books/305040/you-choose-by-goodhart-pippa/9780141379319": {
+      "url": "https://www.penguin.co.uk/books/305040/you-choose-by-goodhart-pippa/9780141379319",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.booktrust.org.uk/book-recommendations/bookfinder/you-choose/": {
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/you-choose/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/dp/1406361658": {
+      "url": "https://www.amazon.co.uk/dp/1406361658",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.walker.co.uk/9781406361650/shh-we-have-a-plan/": {
+      "url": "https://www.walker.co.uk/9781406361650/shh-we-have-a-plan/",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/dont-let-the-pigeon-drive-the-bus/mo-willems/9781406386073": {
+      "url": "https://www.waterstones.com/book/dont-let-the-pigeon-drive-the-bus/mo-willems/9781406386073",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.nicksharratt.com/books/shark-in-the-park": {
+      "url": "https://www.nicksharratt.com/books/shark-in-the-park",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.booktrust.org.uk/book-recommendations/bookfinder/oh-no-george/": {
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/oh-no-george/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.penguin.co.uk/books/327168/shark-in-the-park-by-sharratt-nick/9780552549776": {
+      "url": "https://www.penguin.co.uk/books/327168/shark-in-the-park-by-sharratt-nick/9780552549776",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/dp/1406344257": {
+      "url": "https://www.amazon.co.uk/dp/1406344257",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/shh-we-have-a-plan/chris-haughton/9781406361650": {
+      "url": "https://www.waterstones.com/book/shh-we-have-a-plan/chris-haughton/9781406361650",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.penguin.co.uk/books/323114/would-you-rather-by-burningham-john/9780099200413": {
+      "url": "https://www.penguin.co.uk/books/323114/would-you-rather-by-burningham-john/9780099200413",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.penguin.co.uk/books/461597/you-choose-bedtime-by-goodhart-pippa/9780241730577": {
+      "url": "https://www.penguin.co.uk/books/461597/you-choose-bedtime-by-goodhart-pippa/9780241730577",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.penguin.co.uk/books/454004/tell-your-own-story-by-guillain-adam-guillain-and-charlotte/9780241622254": {
+      "url": "https://www.penguin.co.uk/books/454004/tell-your-own-story-by-guillain-adam-guillain-and-charlotte/9780241622254",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.penguin.co.uk/books/108924/oi-frog-by-kes-gray/9781444910865": {
+      "url": "https://www.penguin.co.uk/books/108924/oi-frog-by-kes-gray/9781444910865",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.penguin.co.uk/books/305039/you-choose-your-dreams-by-goodhart-pippa/9780241334972": {
+      "url": "https://www.penguin.co.uk/books/305039/you-choose-your-dreams-by-goodhart-pippa/9780241334972",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/stanleys-stick/john-hegley/neal-layton/9780340955862": {
+      "url": "https://www.waterstones.com/book/stanleys-stick/john-hegley/neal-layton/9780340955862",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/molly-olive-and-dexter-the-guessing-game/catherine-rayner/9781529517183": {
+      "url": "https://www.waterstones.com/book/molly-olive-and-dexter-the-guessing-game/catherine-rayner/9781529517183",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/the-book-with-no-pictures/b-j-novak/9780141368124": {
+      "url": "https://www.waterstones.com/book/the-book-with-no-pictures/b-j-novak/9780141368124",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/the-gruffalo/julia-donaldson/axel-scheffler/9781509804707": {
+      "url": "https://www.waterstones.com/book/the-gruffalo/julia-donaldson/axel-scheffler/9781509804707",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/dear-zoo/rod-campbell/9780230747722": {
+      "url": "https://www.waterstones.com/book/dear-zoo/rod-campbell/9780230747722",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/press-here/herve-tullet/9781452178294": {
+      "url": "https://www.waterstones.com/book/press-here/herve-tullet/9781452178294",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/theres-a-monster-in-your-book/tom-fletcher/greg-abbott/9780141376092": {
+      "url": "https://www.waterstones.com/book/theres-a-monster-in-your-book/tom-fletcher/greg-abbott/9780141376092",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/oh-no-george/chris-haughton/9781406357912": {
+      "url": "https://www.waterstones.com/book/oh-no-george/chris-haughton/9781406357912",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/were-going-on-a-bear-hunt/michael-rosen/helen-oxenbury/9781406375943": {
+      "url": "https://www.waterstones.com/book/were-going-on-a-bear-hunt/michael-rosen/helen-oxenbury/9781406375943",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/the-very-hungry-caterpillar/eric-carle/9780241003008": {
+      "url": "https://www.waterstones.com/book/the-very-hungry-caterpillar/eric-carle/9780241003008",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/twenty-questions/mac-barnett/christian-robinson/9781529516784": {
+      "url": "https://www.waterstones.com/book/twenty-questions/mac-barnett/christian-robinson/9781529516784",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.waterstones.com/book/little-dinosaurs-big-questions/swapna-haddow/yi-ting-lee/9781917044103": {
+      "url": "https://www.waterstones.com/book/little-dinosaurs-big-questions/swapna-haddow/yi-ting-lee/9781917044103",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    }
+  }
+}

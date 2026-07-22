@@ -51,6 +51,8 @@ Full reasoning and worked examples: **`web/docs/DEVELOPER_OPERATING_MODEL.md`**.
 | Deploy / merge / rollback checklist | `web/docs/DEPLOY-CHECKLIST.md` |
 | Rocket scope, pricing, waitlist | `.cursor/rules/project-rocket.mdc` + `web/docs/PROJECT_ROCKET.md` |
 | Parent persona + copy bar | `.cursor/rules/conscientious-conor.mdc` + `web/docs/CONSCIENTIOUS_CONOR.md` |
+| Stage 3 trust gates (URL / age / ratings) | `web/docs/STAGE3_TRUST_GATES.md` + `$ember-stage3-ff-checker` |
+| Stage 3 research methodology (WHAT + HOW) | `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` |
 | Catalogue / Discover ingestion | `.cursor/rules/conor-grade-catalogue-upload.mdc` |
 | Offline source of truth (Discover content) | Spine 3.0 Bible workbook `discover_projection` tab — see `.cursor/rules/conor-grade-catalogue-upload.mdc` §0 |
 | Category image mapping | `.cursor/rules/ember-image-mapping.mdc` |
