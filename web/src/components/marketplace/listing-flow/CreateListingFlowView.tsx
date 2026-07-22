@@ -35,6 +35,8 @@ type ConfirmedDraftState = {
 };
 
 export type CreateListingFlowViewProps = {
+  /** marketplace = full list flow; at-home = photo + confirm only, no publish */
+  purpose?: "marketplace" | "at-home";
   debugMode: boolean;
   draftId: string | null;
   imageStoragePath: string | null;
@@ -89,6 +91,7 @@ export type CreateListingFlowViewProps = {
 };
 
 export function CreateListingFlowView({
+  purpose = "marketplace",
   debugMode,
   draftId,
   imageStoragePath,
@@ -125,6 +128,7 @@ export function CreateListingFlowView({
   onOpportunityLoaded,
   onPublished,
 }: CreateListingFlowViewProps) {
+  const atHomePurpose = purpose === "at-home";
   const editingPublished = flowMode === "edit-published";
   const conditionLabel =
     CONDITION_LABELS[draftDetails.condition ?? ""] ?? draftDetails.condition ?? "";
@@ -136,16 +140,25 @@ export function CreateListingFlowView({
   const opportunityActive = displayActiveStep === "opportunity";
 
   const showReviewStep =
-    (detailsSavedOnce &&
+    !atHomePurpose &&
+    ((detailsSavedOnce &&
       Boolean(draftDetails.title?.trim()) &&
       Boolean(draftDetails.description?.trim()) &&
       Boolean(draftDetails.condition?.trim())) ||
-    flow.reviewComplete;
-  const showOpportunityStep = flow.reviewComplete || flow.opportunityComplete || publishedBeta;
+      flow.reviewComplete);
+  const showOpportunityStep =
+    !atHomePurpose && (flow.reviewComplete || flow.opportunityComplete || publishedBeta);
 
   return (
     <div className="mx-auto max-w-xl space-y-4 p-4 pb-10 sm:p-6">
       <header className="space-y-2">
+        {atHomePurpose ? (
+          <p className="text-sm">
+            <Link href="/family/at-home" className="font-medium text-[#FF5C34] hover:underline">
+              ← Back to At home
+            </Link>
+          </p>
+        ) : null}
         <div
           className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${
             publishedBeta
@@ -154,17 +167,27 @@ export function CreateListingFlowView({
           }`}
         >
           <Lock className="h-3.5 w-3.5" aria-hidden />
-          {editingPublished || publishedBeta ? "Listed to nearby families" : "Private draft"}
+          {atHomePurpose
+            ? "Private — saved At home only"
+            : editingPublished || publishedBeta
+              ? "Listed to nearby families"
+              : "Private draft"}
         </div>
         <h1 className="text-2xl font-normal text-[#1A1E23]">
-          {editingPublished ? "Edit listing" : "Create a listing"}
+          {atHomePurpose
+            ? "Add to At home"
+            : editingPublished
+              ? "Edit listing"
+              : "Create a listing"}
         </h1>
         <p className="text-sm text-[#5C646D]">
-          {editingPublished
-            ? "Update your live listing. Changes to title, description, and condition appear on the marketplace when you save."
-            : publishedBeta
-              ? "Your listing is live on the Ember marketplace for nearby families. Check back for interest and price guidance."
-              : "Add a photo, confirm the item, then review the draft. Nothing is public until you list locally."}
+          {atHomePurpose
+            ? "Same photo check as Marketplace — confirm what it is, and Ember keeps it At home. You can list it later when you are ready to pass it on."
+            : editingPublished
+              ? "Update your live listing. Changes to title, description, and condition appear on the marketplace when you save."
+              : publishedBeta
+                ? "Your listing is live on the Ember marketplace for nearby families. Check back for interest and price guidance."
+                : "Add a photo, confirm the item, then review the draft. Nothing is public until you list locally."}
         </p>
       </header>
 
@@ -323,15 +346,42 @@ export function CreateListingFlowView({
                   onClick={() => onSelectCandidate(null)}
                   className="text-sm text-[#5C646D] underline"
                 >
-                  Not sure / choose manually
+                  {atHomePurpose
+                    ? "None of these — try another photo"
+                    : "Not sure / choose manually"}
                 </button>
+                {atHomePurpose ? (
+                  <p className="text-xs text-[#66717D]">
+                    Pick the closest match to save it At home. Listing on Marketplace stays a separate step
+                    later.
+                  </p>
+                ) : null}
               </div>
             )}
           </ListingFlowStepShell>
         </div>
       )}
 
-      {flow.itemComplete && draftId && (
+      {atHomePurpose && flow.itemComplete && (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 space-y-2">
+          <p className="text-sm font-medium text-emerald-900 m-0">
+            {savingSelection
+              ? "Saving to At home…"
+              : selectionMessage || "Saved to At home."}
+          </p>
+          <p className="text-xs text-emerald-800 m-0">
+            You can list it on Marketplace from At home whenever you are ready — no rush.
+          </p>
+          <Link
+            href="/family/at-home"
+            className="inline-flex min-h-[40px] items-center rounded-xl bg-[#FF5C34] px-3.5 py-2 text-sm font-medium text-white"
+          >
+            View At home
+          </Link>
+        </div>
+      )}
+
+      {!atHomePurpose && flow.itemComplete && draftId && (
         <div id="listing-step-details">
           <ListingFlowStepShell
             stepNumber={3}

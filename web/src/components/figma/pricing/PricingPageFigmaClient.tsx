@@ -1,57 +1,89 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { Shield, Lock, Bell, ArrowRight } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
+import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 import { FAQItem } from './faq';
-import { InteractiveComparison } from './interactive-comparison';
 import { PricingCard } from './pricing-card';
+import { PipJourneyExplainer } from './PipJourneyExplainer';
+import { MeetPipSection } from './MeetPipSection';
+import { WaitlistJoinModal } from './WaitlistJoinModal';
+
+function MarketplaceLink({ children = 'Marketplace' }: { children?: ReactNode }) {
+  return (
+    <Link
+      href="/marketplace"
+      className="font-medium text-[#FF5C34] underline-offset-2 hover:underline"
+    >
+      {children}
+    </Link>
+  );
+}
 
 export default function PricingPageFigmaClient() {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => setSignedIn(!!user));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_e, session) => {
       setSignedIn(!!session?.user);
     });
     return () => subscription.unsubscribe();
   }, []);
 
-  // Signed-out users start free by signing in; signed-in users go straight to Discover.
   const startFreeHref = signedIn ? '/discover' : '/signin?next=/discover';
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--ember-gray-100)' }}>
-      <section className="pt-16 pb-20 lg:pt-24 lg:pb-28">
-        <div className="mx-auto max-w-[90rem] px-6 lg:px-12">
-          <div className="max-w-4xl mx-auto text-center">
+    <main
+      id="ember-pricing-prototype"
+      className="homepage-discover-brand min-h-screen bg-[var(--ember-bg-canvas)]"
+    >
+      {/*
+        Flow: short hero → Meet Pip (who is Pip?) → plans → journey → FAQ
+      */}
+      <section className="pt-12 pb-8 lg:pt-16 lg:pb-10">
+        <div className={EMBER_MARKETING_CONTAINER}>
+          <div className="mx-auto max-w-2xl text-center">
             <h1
-              className="mb-0"
-              style={{ fontSize: 'clamp(2.25rem, 4.5vw, 3.5rem)', fontWeight: 400, letterSpacing: '-0.01em', lineHeight: 1.15 }}
+              className="mb-4 font-semibold tracking-[-0.01em] text-[#253044]"
+              style={{ fontSize: 'clamp(1.875rem, 4.5vw, 3rem)', lineHeight: 1.15 }}
             >
-              <span style={{ color: 'var(--ember-gray-900)' }}>Browse for free. </span>
+              Browse for free.
               <br />
-              <span style={{ color: '#B8432B' }}>Let Ember guide what to buy.</span>
+              <span className="text-[#FF5C34]">
+                Ember Plus
+                <br />
+                guides your way.
+              </span>
             </h1>
+            <p className="mx-auto max-w-lg text-[1rem] leading-relaxed text-[#66717D] sm:text-[1.0625rem]">
+              600+ free play ideas and a <MarketplaceLink>Smart Marketplace</MarketplaceLink>. Get
+              more with Ember Plus including Pip — your play coach.
+            </p>
           </div>
         </div>
       </section>
 
-      <section id="pricing" className="pb-16 lg:pb-20">
-        <div className="mx-auto max-w-[90rem] px-6 lg:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+      <MeetPipSection />
+
+      <section id="plans" className="pb-14 pt-10 lg:pb-20 lg:pt-14">
+        <div className={EMBER_MARKETING_CONTAINER}>
+          <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
             <PricingCard
               name="Free"
-              price="£0"
-              label="Understand the stage and browse for yourself"
+              label="The full play library and Smart Marketplace — browse in your own time"
               features={[
-                'See what children this age are learning and why it matters',
-                'Browse products from different brands',
-                'Save ideas and share a simple gift list',
-                'Browse local listings and list items yourself',
+                '600+ play ideas, personalised by age',
+                'Save favourites, and share a gift list with family — for age-appropriate buying',
+                <>
+                  <MarketplaceLink>Smart Marketplace</MarketplaceLink> — list from a photo, match to
+                  the right local families
+                </>,
                 '1 child profile',
               ]}
               ctaText="Start free"
@@ -61,131 +93,117 @@ export default function PricingPageFigmaClient() {
               name="Ember Plus"
               price="£3.99"
               period="/month"
-              annualPrice="or £29 for your first year"
-              label="Help buying the right things, at the right time"
+              annualPrice="or £29 for 12 months"
+              label="Pip brings Ember to you — so you stay one step ahead"
               recommended={true}
-              badge="Best for ongoing help"
+              badge="Recommended"
               features={[
-                'Unlock Ember Picks — research-backed product recommendations',
-                'Get reminders when a new wave is worth a look',
-                'Get smart gift suggestions for family',
-                'Get prompts for what to pass on, when to list it, and who nearby may want it',
-                'Support more than one child',
+                'Pip’s Pathway — nudges on what’s next, so you stay one step ahead',
+                'Pip’s Picks — a shortlist we’ve already weighed up, and why',
+                'Pip’s Patch Finds — local matches for this age, when they fit',
+                'Pip’s Seasons & Chapters — Christmas, birthdays, nursery and more',
+                'Pip’s Pass-On — when toys are done, help them find a new home',
+                'More than one child',
               ]}
-              ctaText="Start Plus"
+              ctaText="Join the waitlist"
+              onCtaClick={() => setWaitlistOpen(true)}
+              ctaHint="No payment yet — we’ll email when Ember Plus is ready"
+              learnMoreHref="#ember-plus-features"
             />
           </div>
         </div>
       </section>
 
-      <section className="py-16 lg:py-20">
-        <div className="mx-auto max-w-[90rem] px-6 lg:px-12">
-          <div className="mb-12 text-center">
-            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', color: 'var(--ember-gray-900)', fontWeight: 400, letterSpacing: '-0.01em', lineHeight: 1.1 }}>
-              Know it. Buy it. Move it on.
+      <WaitlistJoinModal open={waitlistOpen} onClose={() => setWaitlistOpen(false)} source="pricing" />
+
+      <section id="compare" className="pb-20 pt-12 lg:pb-28 lg:pt-16">
+        <div className={EMBER_MARKETING_CONTAINER}>
+          <div className="mb-12 text-center lg:mb-14">
+            <h2
+              className="font-semibold tracking-[-0.01em] text-[#253044]"
+              style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)', lineHeight: 1.15 }}
+            >
+              Know it. Find it. Move it on.
             </h2>
+            <p className="mx-auto mt-4 max-w-xl text-[1.0625rem] leading-relaxed text-[#66717D]">
+              That’s Ember in three steps.
+              <br />
+              With <strong className="font-semibold text-[#253044]">Ember Plus</strong>, Pip helps
+              you stay ahead through six exclusive features.
+            </p>
+            <p
+              id="ember-plus-features"
+              className="mx-auto mt-10 scroll-mt-[calc(var(--header-height,112px)+24px)] font-semibold tracking-[-0.01em] text-[#253044]"
+              style={{ fontSize: 'clamp(1.25rem, 2.5vw, 1.5rem)', lineHeight: 1.2 }}
+            >
+              Ember Plus features:
+            </p>
           </div>
-          <InteractiveComparison />
+          <PipJourneyExplainer />
         </div>
       </section>
 
-      <section className="py-16 lg:py-20">
-        <div className="mx-auto max-w-[90rem] px-6 lg:px-12">
-          <div className="rounded-3xl p-8 lg:p-10 mb-12" style={{ backgroundColor: 'white', border: '1px solid var(--ember-gray-300)' }}>
-            <div className="max-w-3xl mx-auto text-center">
-              <h3 className="mb-4" style={{ fontSize: '1.5rem', color: 'var(--ember-gray-900)', fontWeight: 500 }}>
-                Why Free stays free
-              </h3>
-              <p style={{ fontSize: '1.0625rem', color: 'var(--ember-gray-600)', lineHeight: 1.625 }}>
-                Some retailer links may earn Ember a commission. That never changes Ember Picks or the stage guidance behind what we show.
-              </p>
-            </div>
+      <section id="faq" className="border-t border-[#E7E2DC] bg-white py-20 lg:py-24">
+        <div className={EMBER_MARKETING_CONTAINER}>
+          <h2
+            className="mb-10 text-center font-semibold tracking-[-0.01em] text-[#253044]"
+            style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', lineHeight: 1.2 }}
+          >
+            Questions
+          </h2>
+          <div className="mx-auto max-w-2xl">
+            <FAQItem
+              question="Do I need a card for Free?"
+              answer="No. Start Free with no card. The play library and Smart Marketplace are yours to browse whenever you want."
+            />
+            <FAQItem
+              question="Can I join Ember Plus now?"
+              answer="Not yet — join the waitlist and we’ll email you when it’s ready. There’s no payment to join the list. Free remains available with no card."
+            />
+            <FAQItem
+              question="What’s the difference between Free and Ember Plus?"
+              answer={
+                <>
+                  Free is a full product: 600+ play ideas, saves, gift lists and the{' '}
+                  <MarketplaceLink>Smart Marketplace</MarketplaceLink> — browse in your own time.
+                  Ember Plus will add your assistant Pip: Pathway, Picks, Patch Finds, Seasons,
+                  Chapters and Pass-On — so Ember works for you between visits.
+                </>
+              }
+            />
+            <FAQItem
+              question="Can I use Ember for more than one child?"
+              answer="Free covers one child. Ember Plus is planned to cover more than one, so siblings can sit at different ages without juggling accounts."
+            />
+            <FAQItem
+              question="What will Ember Plus cost?"
+              answer="We’re planning £3.99 a month or £29 for 12 months when it launches. Join the waitlist for an email when paid membership opens — cancel anytime once you’re a member."
+            />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { icon: Lock, title: 'Privacy first', description: 'Your data stays yours. We never sell personal information.' },
-              { icon: Bell, title: 'Calm reminders, not spam', description: 'Parent-controlled notifications. You decide when Ember reaches out.' },
-              { icon: Shield, title: 'Transparent guidance', description: 'Research standards never influenced by commercial partnerships.' },
-              { icon: Shield, title: 'Safety-conscious', description: 'Some items remain new-only for safety. Your child comes first.' },
-            ].map((trust, index) => (
-              <div key={index} className="rounded-2xl p-6" style={{ backgroundColor: 'white' }}>
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(255, 99, 71, 0.1)' }}>
-                  <trust.icon size={22} style={{ color: 'var(--ember-primary)' }} strokeWidth={2} />
-                </div>
-                <h4 className="mb-2" style={{ fontSize: '1.0625rem', color: 'var(--ember-gray-900)', fontWeight: 500 }}>{trust.title}</h4>
-                <p className="text-sm" style={{ color: 'var(--ember-gray-600)', lineHeight: 1.625 }}>{trust.description}</p>
-              </div>
-            ))}
-          </div>
+          <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-[#66717D]">
+            <Link
+              href="/how-ember-makes-money"
+              className="font-medium text-[#FF5C34] underline-offset-2 hover:underline"
+            >
+              How Ember makes money
+            </Link>
+            {' · '}
+            <Link
+              href="/affiliate-disclosure"
+              className="font-medium text-[#FF5C34] underline-offset-2 hover:underline"
+            >
+              Affiliate disclosure
+            </Link>
+            {' · '}
+            <Link
+              href="/safety-rules"
+              className="font-medium text-[#FF5C34] underline-offset-2 hover:underline"
+            >
+              Safety
+            </Link>
+          </p>
         </div>
       </section>
-
-      <section className="py-16 lg:py-20">
-        <div className="mx-auto max-w-[90rem] px-6 lg:px-12">
-          <div className="mb-12 text-center">
-            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', color: 'var(--ember-gray-900)', fontWeight: 400, letterSpacing: '-0.01em', lineHeight: 1.1 }}>
-              Frequently asked questions
-            </h2>
-          </div>
-          <div className="max-w-4xl mx-auto rounded-3xl p-8 lg:p-10" style={{ backgroundColor: 'white' }}>
-            <FAQItem question="Why is Ember free to start?" answer="We want every parent to access stage guidance and browse products without barriers. Free gives you the tools to understand what children this age are learning and explore options on your own. Plus adds the smart engine that saves you time and mental load." />
-            <FAQItem question="What do I get with Ember Plus?" answer="Plus unlocks Ember Picks (research-backed product recommendations), reminders when new recommendations are worth looking at, smart gift suggestions for family, and automated decluttering help with local move-it-on prompts. You also get support for multiple children." />
-            <FAQItem question="What are Ember Picks?" answer="Ember Picks are research-backed product recommendations tailored to your child's age and stage. Instead of browsing hundreds of options, you get a credible shortlist with clear reasoning about why each item is a good fit now. It saves you doing the research yourself." />
-            <FAQItem question="How do reminders work?" answer="When your child moves into a new developmental wave, Ember sends you a calm reminder that new recommendations are worth looking at. You stay one step ahead without checking the app constantly. All reminders are parent-controlled." />
-            <FAQItem question="How does smart gifting help?" answer="Ember suggests age-appropriate items that your child actually needs, making it easier for grandparents and friends to buy useful gifts instead of duplicates. You can share these suggestions with family when birthdays or holidays come around." />
-            <FAQItem question="How does Marketplace work?" answer="On Free, you can browse local listings and list items yourself. With Plus, Ember gives you automated decluttering help: it tells you what your child may be ready to pass on, when to list it, and which nearby families are looking for those items." />
-            <FAQItem question="How does Ember make money?" answer="Ember earns a commission from some retailer links and offers the Plus subscription at £3.99/month. Our research standards and age-stage guidance are never influenced by commercial partnerships." />
-            <FAQItem question="Can I cancel anytime?" answer="Yes. Plus is a monthly subscription you can cancel anytime. There is no lock-in, no hidden fees, and no pressure. If you cancel, you will keep access until the end of your billing period." />
-            <FAQItem question="Can I use Ember for more than one child?" answer="On Free, you can manage one child profile. Plus includes support for multiple children, so Ember can guide you across siblings and stages simultaneously." />
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 lg:py-24">
-        <div className="mx-auto max-w-[90rem] px-6 lg:px-12">
-          <div className="rounded-3xl p-12 lg:p-16 text-center" style={{ backgroundColor: 'white' }}>
-            <h2 className="mb-4" style={{ fontSize: 'clamp(2rem, 4vw, 2.5rem)', color: 'var(--ember-gray-900)', fontWeight: 400, letterSpacing: '-0.01em', lineHeight: 1.1 }}>
-              Start free, upgrade when you want Ember to take more off your plate
-            </h2>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-              <Link
-                href={startFreeHref}
-                className="rounded-xl px-10 py-5 flex items-center gap-2 transition-all duration-300"
-                style={{ backgroundColor: 'var(--ember-primary)', color: 'white', fontWeight: 600, fontSize: '1.125rem' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--ember-primary-dark)';
-                  e.currentTarget.style.transform = 'scale(1.02)';
-                  e.currentTarget.style.boxShadow = '0px 8px 32px rgba(255,99,71,0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--ember-primary)';
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                Start free
-                <ArrowRight size={20} />
-              </Link>
-              <button
-                className="rounded-xl px-10 py-5 transition-all duration-300"
-                style={{ backgroundColor: 'transparent', color: 'var(--ember-gray-900)', border: '2px solid var(--ember-gray-300)', fontWeight: 600, fontSize: '1.125rem' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--ember-primary)';
-                  e.currentTarget.style.color = 'var(--ember-primary)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--ember-gray-300)';
-                  e.currentTarget.style.color = 'var(--ember-gray-900)';
-                }}
-              >
-                Start Plus
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </div>
+    </main>
   );
 }

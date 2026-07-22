@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ember Discover - Pip's Picks Stage 3 Prototype</title>
+  <style>
+    :root {
+      --text-high: #071f3a;
+      --text-low: #536078;
+      --accent: #ff6347;
+      --accent-soft: #fff0ed;
+      --surface: #fffdfa;
+      --surface-soft: #f7f2ec;
+      --line: #ece1d6;
+      --shadow: 0 24px 70px rgba(31, 43, 70, 0.14);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--surface);
+      color: var(--text-high);
+    }
+
+    button, a { font: inherit; }
+
+    .app-nav {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(22px, 8vw, 90px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 253, 250, 0.96);
+    }
+
+    .nav-left, .nav-centre, .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-high);
+      text-decoration: none;
+      font-weight: 760;
+      font-size: 18px;
+    }
+
+    .brand img, .pip-logo {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    .nav-link {
+      position: relative;
+      color: var(--text-high);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 560;
+    }
+
+    .nav-link.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -9px;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    .child-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0 12px 0 9px;
+      color: var(--text-high);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 620;
+    }
+
+    .avatar-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #e5f7ff;
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--text-high);
+      border-radius: 50%;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 720;
+    }
+
+    .page {
+      padding: 22px clamp(22px, 8vw, 90px) 64px;
+    }
+
+    .mode-panel {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+
+    .mode-toggle {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(31, 43, 70, 0.08);
+    }
+
+    .mode-toggle button {
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: var(--text-low);
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 720;
+    }
+
+    .mode-toggle button[aria-pressed="true"] {
+      color: #fff;
+      background: var(--text-high);
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: start;
+      margin-bottom: 34px;
+    }
+
+    .section-heading h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .section-heading p {
+      margin: 9px 0 0;
+      max-width: 620px;
+      color: var(--text-low);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .why-link {
+      margin-top: 14px;
+      color: var(--text-low);
+      text-decoration: none;
+      font-size: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 28px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .tab {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 9px 13px;
+      color: var(--text-low);
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 720;
+    }
+
+    .tab[aria-selected="true"] {
+      color: #fff;
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .carousel-stage {
+      position: relative;
+      max-width: 940px;
+      min-height: 680px;
+      margin: 0 auto;
+    }
+
+    .ghost-card {
+      position: absolute;
+      top: 165px;
+      width: 155px;
+      height: 335px;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 16px 38px rgba(31, 43, 70, 0.1);
+      overflow: hidden;
+      opacity: 0.52;
+    }
+
+    .ghost-card.left { left: 0; }
+    .ghost-card.right { right: 0; }
+
+    .ghost-media {
+      height: 150px;
+      background: var(--surface-soft);
+    }
+
+    .ghost-title {
+      display: grid;
+      place-items: center;
+      min-height: 90px;
+      padding: 16px;
+      color: #9da4b3;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .product-card {
+      position: relative;
+      width: min(438px, calc(100vw - 44px));
+      min-height: 638px;
+      margin: 0 auto;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .media {
+      position: relative;
+      height: 244px;
+      display: grid;
+      place-items: center;
+      background: var(--surface-soft);
+      transition: filter 160ms ease, opacity 160ms ease;
+    }
+
+    .media-symbol {
+      display: grid;
+      place-items: center;
+      width: 92px;
+      height: 92px;
+      border-radius: 22px;
+      color: var(--accent);
+      background: rgba(255, 255, 255, 0.94);
+      font-size: 36px;
+      font-weight: 820;
+      box-shadow: inset 0 0 0 1px rgba(236, 225, 214, 0.9);
+    }
+
+    .pip-chip {
+      position: absolute;
+      top: 17px;
+      left: 17px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 9px 13px;
+      color: var(--text-low);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 6px 18px rgba(31, 43, 70, 0.12);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .pip-chip img {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
+    }
+
+    .counter {
+      position: absolute;
+      top: 17px;
+      right: 17px;
+      border-radius: 999px;
+      padding: 8px 11px;
+      color: #fff;
+      background: rgba(31, 43, 70, 0.44);
+      font-size: 12px;
+      font-weight: 780;
+    }
+
+    .body {
+      padding: 25px 27px 30px;
+      transition: filter 160ms ease, opacity 160ms ease;
+    }
+
+    .tag {
+      margin: 0 0 9px;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 820;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .body h2 {
+      margin: 0 0 5px;
+      color: var(--text-high);
+      font-size: 21px;
+      line-height: 1.18;
+      letter-spacing: 0;
+      font-weight: 620;
+    }
+
+    .brandline, .price, .description, .caveat {
+      margin: 0;
+      color: var(--text-low);
+      font-size: 13px;
+      line-height: 1.52;
+    }
+
+    .price { margin-top: 4px; font-size: 12px; }
+    .description { margin-top: 22px; font-size: 14px; }
+
+    .verdict {
+      margin-top: 16px;
+      border-radius: 13px;
+      padding: 18px;
+      background: var(--accent-soft);
+    }
+
+    .verdict-title {
+      margin: 0 0 9px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .verdict p {
+      margin: 0;
+      color: var(--text-low);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .caveat { margin-top: 11px; font-size: 12px; }
+
+    .visit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      margin-top: 20px;
+      border-radius: 12px;
+      padding: 0 15px;
+      color: #fff;
+      background: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .locked-text {
+      display: none;
+      margin-top: 22px;
+      color: var(--text-low);
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .lock-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      background: rgba(255, 255, 255, 0.36);
+      backdrop-filter: blur(1px);
+      z-index: 6;
+    }
+
+    .lock-box {
+      width: min(220px, 100%);
+      border-radius: 13px;
+      padding: 16px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.97);
+      box-shadow: 0 16px 34px rgba(31, 43, 70, 0.18);
+    }
+
+    .lock-icon {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 8px;
+      border-radius: 999px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      font-size: 12px;
+      font-weight: 820;
+    }
+
+    .lock-box strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 12px;
+      color: var(--text-high);
+    }
+
+    .lock-box span {
+      color: var(--text-low);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .arrow {
+      position: absolute;
+      top: 332px;
+      z-index: 8;
+      width: 39px;
+      height: 39px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--accent);
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(31, 43, 70, 0.13);
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .arrow.prev { left: calc(50% - 259px); }
+    .arrow.next { right: calc(50% - 259px); }
+
+    body[data-member="free"] .product-card[data-locked="true"] .media,
+    body[data-member="free"] .product-card[data-locked="true"] .body {
+      filter: blur(6px);
+      opacity: 0.72;
+      user-select: none;
+    }
+
+    body[data-member="free"] .product-card[data-locked="true"] .lock-overlay,
+    body[data-member="free"] .product-card[data-locked="true"] .locked-text {
+      display: flex;
+    }
+
+    body[data-member="ember_plus"] .product-card[data-locked="true"] .locked-text,
+    body[data-member="ember_plus"] .product-card[data-locked="true"] .lock-overlay {
+      display: none;
+    }
+
+    .brief {
+      max-width: 940px;
+      margin: 20px auto 0;
+      border: 1px dashed rgba(255, 99, 71, 0.45);
+      border-radius: 16px;
+      padding: 14px 16px;
+      color: var(--text-low);
+      background: #fff;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 760px) {
+      .app-nav {
+        padding-inline: 18px;
+      }
+
+      .nav-centre {
+        display: none;
+      }
+
+      .page {
+        padding-inline: 18px;
+      }
+
+      .section-heading {
+        grid-template-columns: 1fr;
+      }
+
+      .ghost-card {
+        display: none;
+      }
+
+      .arrow.prev { left: 2px; }
+      .arrow.next { right: 2px; }
+      .carousel-stage { min-height: 700px; }
+    }
+  </style>
+</head>
+<body data-member="free">
+  <nav class="app-nav" aria-label="Ember">
+    <div class="nav-left">
+      <a class="brand" href="#">
+        <img src="https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png" alt="" />
+        <span>Ember</span>
+      </a>
+    </div>
+    <div class="nav-centre">
+      <a class="nav-link active" href="#">Discover</a>
+      <a class="nav-link" href="#">Saves</a>
+      <a class="nav-link" href="#">Marketplace</a>
+    </div>
+    <div class="nav-right">
+      <span class="child-pill"><span class="avatar-dot"></span> All children</span>
+      <span class="user-avatar">T</span>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="mode-panel">
+      <div class="mode-toggle" aria-label="Access state for prototype">
+        <button type="button" data-mode="free" aria-pressed="true">Free / signed out</button>
+        <button type="button" data-mode="ember_plus" aria-pressed="false">Founder as Ember Plus</button>
+      </div>
+    </div>
+
+    <section class="section-heading">
+      <div>
+        <h1>Pip's Picks</h1>
+        <p>Pip has sorted five options for this card. Pick 1 is open; picks 2-5 are included with Ember Plus.</p>
+        <p>Some retailer links may earn Ember a commission at no extra cost to you. Stage-fit and safety rules come first.</p>
+        <p id="chosen-copy">Chosen for 34-36 months</p>
+      </div>
+      <a class="why-link" href="#">Why these?</a>
+    </section>
+
+    <div class="tabs" aria-label="Stage 2 card">
+      <button class="tab" type="button" data-category="smallWorld" aria-selected="true">Small-world people and vehicles</button>
+      <button class="tab" type="button" data-category="books" aria-selected="false">Picture story books with questions</button>
+    </div>
+
+    <section class="carousel-stage" aria-label="Pip's Picks carousel">
+      <div class="ghost-card left" aria-hidden="true">
+        <div class="ghost-media"></div>
+        <div class="ghost-title" id="prev-title"></div>
+      </div>
+
+      <article class="product-card" id="product-card" data-locked="true">
+        <div class="media">
+          <span class="pip-chip">
+            <img src="https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png" alt="" />
+            Pip's Picks
+          </span>
+          <span class="counter" id="counter">2 of 5</span>
+          <span class="media-symbol" id="media-symbol">T</span>
+        </div>
+        <div class="body">
+          <p class="tag" id="tag"></p>
+          <h2 id="product-name"></h2>
+          <p class="brandline" id="brand"></p>
+          <p class="price" id="price"></p>
+          <p class="description" id="description"></p>
+          <div class="verdict">
+            <div class="verdict-title">Why Pip picked this</div>
+            <p id="verdict"></p>
+            <p class="caveat" id="caveat"></p>
+          </div>
+          <a class="visit" id="visit-link" href="#">View at retailer</a>
+          <p class="locked-text">Locked</p>
+        </div>
+        <div class="lock-overlay" aria-hidden="true">
+          <div class="lock-box">
+            <div class="lock-icon">lock</div>
+            <strong>Included with Ember Plus</strong>
+            <span>Pip's Picks 2-5 are included with Ember Plus.</span>
+          </div>
+        </div>
+      </article>
+
+      <button class="arrow prev" type="button" aria-label="Previous pick" id="prev-button">‹</button>
+      <button class="arrow next" type="button" aria-label="Next pick" id="next-button">›</button>
+
+      <div class="ghost-card right" aria-hidden="true">
+        <div class="ghost-media"></div>
+        <div class="ghost-title" id="next-title"></div>
+      </div>
+    </section>
+
+    <aside class="brief">
+      <strong>Gemini brief:</strong> iterate the Stage 3 card row while preserving the real Ember /discover feel: centred carousel, Pip chip with robin logo, pick counter, ghost side cards, pick 1 public, picks 2-5 blurred for Free/signed-out users, and founder/Ember Plus users seeing the full revealed experience.
+    </aside>
+  </main>
+
+  <script>
+    const categories = {
+      smallWorld: [
+        {
+          tag: "Best travel story starter",
+          name: "LEGO DUPLO First Time at the Airport",
+          brand: "LEGO DUPLO",
+          price: "LEGO Official Shop GB · GBP 24.99",
+          description: "Compact airport set with people, luggage, plane and enough sequence for a whole trip story.",
+          verdict: "A tight small-world set for nearly three: enough characters and sequence for a whole trip story, without a huge footprint.",
+          caveat: "Best if travel talk is live in the family; borrow or buy pre-loved if unsure.",
+          url: "#"
+        },
+        {
+          tag: "Best big open-ended scene",
+          name: "LEGO DUPLO 3in1 Tree House",
+          brand: "LEGO DUPLO",
+          price: "Google Shopping · Compare current prices",
+          description: "Large DUPLO tree-house set with people, animals, slide, garden and rebuildable scenes.",
+          verdict: "The richest story world here: several people, animals and places. Best where the family wants one bigger shared pretend-play set.",
+          caveat: "Big footprint and higher price; borrow or buy pre-loved if unsure.",
+          url: "https://www.google.com/search?q=LEGO+DUPLO+3in1+Tree+House+10993&udm=28"
+        },
+        {
+          tag: "Best animal story add-on",
+          name: "Schleich Farm World Starter Set",
+          brand: "Schleich",
+          price: "Google Shopping · Price not verified",
+          description: "Farm figures that can be added to blocks, vehicles or a play mat to make stories happen.",
+          verdict: "Best when the family already has blocks, vehicles or a play mat and needs characters to make stories happen.",
+          caveat: "Check the current age mark and small-parts guidance before buying.",
+          url: "https://www.google.com/search?q=Schleich+Farm+World+Starter+Set&udm=28"
+        },
+        {
+          tag: "Best simple vehicle role play",
+          name: "PLAYMOBIL 1.2.3 Recycling Truck",
+          brand: "PLAYMOBIL 1.2.3",
+          price: "Google Shopping · Price not verified",
+          description: "A toddler-friendly vehicle scene with one person, one job and one familiar routine.",
+          verdict: "A good low-frustration vehicle scene: one person, one job, one truck. It suits children who build stories from everyday routines.",
+          caveat: "Verify current UK stock and price before recommending.",
+          url: "https://www.google.com/search?q=PLAYMOBIL+1.2.3+Recycling+Truck&udm=28"
+        },
+        {
+          tag: "Best cosy town setup",
+          name: "ELC Happyland Village Set",
+          brand: "Early Learning Centre Happyland",
+          price: "Google Shopping · Price not verified",
+          description: "A ready-made little town for moving people through familiar everyday places.",
+          verdict: "A classic if you want whole little-world play without building. Best for children who like moving people through everyday places.",
+          caveat: "High duplicate risk if they already have Happyland or similar.",
+          url: "https://www.google.com/search?q=ELC+Happyland+Village+Set&udm=28"
+        }
+      ],
+      books: [
+        {
+          tag: "Best conversation starter",
+          name: "You Choose",
+          brand: "Pippa Goodhart and Nick Sharratt",
+          price: "Book retailer / publisher route · Price not verified",
+          description: "Choice-led picture book full of scenes where children pick people, places, clothes, food and adventures.",
+          verdict: "This is the cleanest fit for a nearly-three who wants to answer, explain and lead the page. It is better borrowed first if the family already owns it.",
+          caveat: "High ownership risk; check the bookshelf first.",
+          url: "https://www.penguin.co.uk/books/357910/you-choose-by-goodhart-pippa/9780552547086"
+        },
+        {
+          tag: "Best feelings talk",
+          name: "The Colour Monster",
+          brand: "Anna Llenas",
+          price: "Book retailer / publisher route · Price not verified",
+          description: "Simple feelings book that gives children clear words for emotions and plenty to point at.",
+          verdict: "A good pick when the goal is richer talk, not just story recall. It gives a nearly-three simple words for feelings without becoming a lesson.",
+          caveat: "Better if feelings talk is the current gap, not just another storybook.",
+          url: "https://www.waterstones.com/book/the-colour-monster/anna-llenas/9781783704231"
+        },
+        {
+          tag: "Best talk-back read",
+          name: "Don't Let the Pigeon Drive the Bus!",
+          brand: "Mo Willems",
+          price: "Book retailer / publisher route · Price not verified",
+          description: "A call-and-response picture book where the child gets to answer back on almost every page.",
+          verdict: "A brilliant nearly-three format because the child gets a job on every page. It turns reading into answering, explaining and saying no with confidence.",
+          caveat: "Check whether the family already owns it.",
+          url: "#"
+        },
+        {
+          tag: "Best rhythm and prediction",
+          name: "Oi Frog!",
+          brand: "Kes Gray and Jim Field",
+          price: "GBP 7.99",
+          description: "A rhyming picture book that invites prediction, correction and giggly explanation.",
+          verdict: "This is less question-led than You Choose, but excellent for prediction: what rhymes, what comes next, and why is Frog cross?",
+          caveat: "Strongest when the child enjoys rhythm and silly correction.",
+          url: "#"
+        },
+        {
+          tag: "Best gentle prediction",
+          name: "A Bit Lost",
+          brand: "Chris Haughton",
+          price: "Price not verified",
+          description: "A gentle repeated guessing story with simple pictures and space for the child to explain.",
+          verdict: "A softer pick for a child who likes explaining pictures. The repeated guessing gives adults easy what-next and who-is-that prompts.",
+          caveat: "A quieter choice; less suited if the family wants a bigger gift.",
+          url: "#"
+        }
+      ]
+    };
+
+    let activeCategory = "smallWorld";
+    let activeIndex = 1;
+
+    const body = document.body;
+    const card = document.getElementById("product-card");
+    const fields = {
+      counter: document.getElementById("counter"),
+      symbol: document.getElementById("media-symbol"),
+      tag: document.getElementById("tag"),
+      name: document.getElementById("product-name"),
+      brand: document.getElementById("brand"),
+      price: document.getElementById("price"),
+      description: document.getElementById("description"),
+      verdict: document.getElementById("verdict"),
+      caveat: document.getElementById("caveat"),
+      visit: document.getElementById("visit-link"),
+      prevTitle: document.getElementById("prev-title"),
+      nextTitle: document.getElementById("next-title")
+    };
+
+    function render() {
+      const picks = categories[activeCategory];
+      const pick = picks[activeIndex];
+      const prev = picks[activeIndex - 1];
+      const next = picks[activeIndex + 1];
+      const rank = activeIndex + 1;
+      card.dataset.locked = String(rank > 1);
+      fields.counter.textContent = `${rank} of ${picks.length}`;
+      fields.symbol.textContent = pick.name.trim().charAt(0).toUpperCase();
+      fields.tag.textContent = pick.tag;
+      fields.name.textContent = pick.name;
+      fields.brand.textContent = pick.brand;
+      fields.price.textContent = pick.price;
+      fields.description.textContent = pick.description;
+      fields.verdict.textContent = pick.verdict;
+      fields.caveat.textContent = pick.caveat;
+      fields.visit.href = pick.url;
+      fields.visit.textContent = pick.url.includes("google.com/search") ? "Compare options" : pick.url === "#" ? "Link soon" : "View at retailer";
+      fields.prevTitle.textContent = prev ? prev.name : "";
+      fields.nextTitle.textContent = next ? next.name : "";
+      document.querySelector(".ghost-card.left").style.visibility = prev ? "visible" : "hidden";
+      document.querySelector(".ghost-card.right").style.visibility = next ? "visible" : "hidden";
+      document.getElementById("prev-button").style.visibility = prev ? "visible" : "hidden";
+      document.getElementById("next-button").style.visibility = next ? "visible" : "hidden";
+    }
+
+    document.getElementById("prev-button").addEventListener("click", () => {
+      activeIndex = Math.max(0, activeIndex - 1);
+      render();
+    });
+
+    document.getElementById("next-button").addEventListener("click", () => {
+      activeIndex = Math.min(categories[activeCategory].length - 1, activeIndex + 1);
+      render();
+    });
+
+    document.querySelectorAll("[data-mode]").forEach((button) => {
+      button.addEventListener("click", () => {
+        body.dataset.member = button.dataset.mode;
+        document.querySelectorAll("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+      });
+    });
+
+    document.querySelectorAll("[data-category]").forEach((button) => {
+      button.addEventListener("click", () => {
+        activeCategory = button.dataset.category;
+        activeIndex = activeCategory === "smallWorld" ? 1 : 0;
+        document.querySelectorAll("[data-category]").forEach((b) => b.setAttribute("aria-selected", String(b === button)));
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>

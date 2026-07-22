@@ -26,15 +26,15 @@ import {
 } from '@/components/discover/figma/DiscoverAudienceToggle';
 import { DiscoverFigmaPlayCarousel } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
 import type { PlayIdeaItem } from '@/components/discover/figma/DiscoverFigmaPlayCarousel';
-import { DiscoverFigmaProductCarousel } from '@/components/discover/figma/DiscoverFigmaProductCarousel';
+import { PipsPicksPersimmonCarousel } from '@/components/discover/figma/PipsPicksPersimmonCarousel';
 import { prefetchDiscoverImageUrls } from '@/lib/discover/discoverImageUrl';
 import {
   categoryTypesToPlayIdeaItems,
 } from '@/lib/discover/playIdeaItems';
 import { getWrapperIcon } from './_lib/wrapperIcons';
 import {
-  displayChildName,
   personalizationFromChildrenRow,
+  personalizeDiscoverCopy,
   type DiscoverChildPersonalization,
 } from '@/lib/discover/personalization';
 import { EMBER_FIGMA_APP_CONTAINER } from '@/lib/discover/figmaTokens';
@@ -48,6 +48,8 @@ import {
   type PendingAuthAction,
 } from '@/lib/auth/requireAuthThen';
 import { useSubnavStats } from '@/lib/subnav/SubnavStatsContext';
+import { mergeHaveCategoryIds, readHaveCategoryIds, writeHaveCategoryId } from '@/lib/discover/discoverHaveIt';
+import { syncAtHomeFromDiscoverHave } from '@/lib/inventory/atHome';
 import { saveDiscoverSession } from '@/lib/discover/discoverSession';
 import { useDiscoverClientSearchParams } from '@/lib/discover/discoverClientNav';
 
@@ -144,17 +146,26 @@ export default function DiscoveryPageClient({
   const nextStepsSectionRef = useRef<HTMLElement | null>(null);
   const [pendingScrollToNextSteps, setPendingScrollToNextSteps] = useState(false);
   const [ideasSectionInView, setIdeasSectionInView] = useState(false);
+  const [picksSectionInView, setPicksSectionInView] = useState(false);
   const [fetchedPicks, setFetchedPicks] = useState<PickItem[]>([]);
   const [picksLoading, setPicksLoading] = useState(false);
+  // Server-resolved membership from /api/discover/picks (auth + RLS), not inferred from data shape.
+  const [picksAccess, setPicksAccess] = useState<{ canSeeLocked: boolean } | null>(null);
   const picksFetchKeyRef = useRef<string | null>(null);
+  /** Cleared on every "See Our Picks" tap so mobile re-anchors even for the same card. */
+  const stage3MobileAnchorKeyRef = useRef<string | null>(null);
   // Default parent view — most users are the parent; gift mode is opt-in only.
   const [audienceMode, setAudienceMode] = useState<DiscoverAudienceMode>('parent');
   const replayAttemptedRef = useRef(false);
+  const fallbackHaveChildIdRef = useRef<string | null>(null);
   const basePath = '/discover';
-  const { user, refetch: refetchSubnavStats } = useSubnavStats();
+  const { user, loading: subnavLoading, refetch: refetchSubnavStats } = useSubnavStats();
+  const viewerAccessKey = user?.email?.toLowerCase() ?? 'signed-out';
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { params: clientParams, replace: replaceClientParams } = useDiscoverClientSearchParams(pathname);
+  const [localCategoriesByWrapper, setLocalCategoriesByWrapper] = useState(categoriesByWrapper);
+  const categoryFetchKeyRef = useRef<Set<string>>(new Set());
   const selectedChildId = clientParams.get('child') ?? searchParams.get('child') ?? initialChildId ?? undefined;
   const withChildParam = (url: string) =>
     selectedChildId ? `${url}${url.includes('?') ? '&' : '?'}child=${encodeURIComponent(selectedChildId)}` : url;
@@ -179,6 +190,11 @@ export default function DiscoveryPageClient({
   );
 
   const childIdForPersonalization = selectedChildId?.trim() || initialChildId?.trim() || undefined;
+
+  useEffect(() => {
+    setLocalCategoriesByWrapper(categoriesByWrapper);
+    categoryFetchKeyRef.current = new Set();
+  }, [categoriesByWrapper]);
 
   useEffect(() => {
     if (!childIdForPersonalization) {
@@ -233,7 +249,7 @@ export default function DiscoveryPageClient({
   const fetchPicksForCategory = useCallback(
     async (categoryId: string) => {
       if (!ageBand?.id) return;
-      const key = `${ageBand.id}|${categoryId}`;
+      const key = `${ageBand.id}|${categoryId}|${viewerAccessKey}`;
       if (picksFetchKeyRef.current === key) return;
       picksFetchKeyRef.current = key;
       setPicksLoading(true);
@@ -241,23 +257,30 @@ export default function DiscoveryPageClient({
         const res = await fetch(
           `/api/discover/picks?ageBandId=${encodeURIComponent(ageBand.id)}&categoryTypeId=${encodeURIComponent(categoryId)}`
         );
-        const payload = (await res.json()) as { picks?: PickItem[] };
+        const payload = (await res.json()) as {
+          picks?: PickItem[];
+          access?: { canSeeLocked?: boolean };
+        };
         setFetchedPicks(payload.picks ?? []);
+        setPicksAccess(payload.access ? { canSeeLocked: Boolean(payload.access.canSeeLocked) } : null);
       } catch {
         setFetchedPicks([]);
+        setPicksAccess(null);
       } finally {
         setPicksLoading(false);
       }
     },
-    [ageBand?.id]
+    [ageBand?.id, viewerAccessKey]
   );
 
   // Pre-dim Stage 2 cards the user has already marked as "have".
   useEffect(() => {
+    if (subnavLoading) return;
     if (!user) {
       setDimmedCategoryIds(new Set());
       return;
     }
+    setDimmedCategoryIds((prev) => mergeHaveCategoryIds(user.id, selectedChildId, [], prev));
     let cancelled = false;
     const supabase = createClient();
     void (async () => {
@@ -272,12 +295,39 @@ export default function DiscoveryPageClient({
       const ids = (data ?? [])
         .map((row) => (row as { category_type_id?: string | null }).category_type_id)
         .filter((id): id is string => typeof id === 'string' && id.length > 0);
-      setDimmedCategoryIds(new Set(ids));
+      setDimmedCategoryIds((prev) => mergeHaveCategoryIds(user.id, selectedChildId, ids, prev));
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, selectedChildId, clientParams.get('wrapper')]);
+  }, [user, selectedChildId, subnavLoading]);
+
+  const resolveHaveChildId = useCallback(async (): Promise<string | undefined> => {
+    if (selectedChildId) return selectedChildId;
+    if (fallbackHaveChildIdRef.current) return fallbackHaveChildIdRef.current;
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('children')
+      .select('id')
+      .or('is_suppressed.is.null,is_suppressed.eq.false')
+      .order('created_at', { ascending: true })
+      .limit(1);
+    const id = (data?.[0] as { id?: string } | undefined)?.id;
+    if (typeof id === 'string' && id.length > 0) {
+      fallbackHaveChildIdRef.current = id;
+      return id;
+    }
+    return undefined;
+  }, [selectedChildId]);
+
+  const personalizeCopy = useCallback(
+    (text: string) =>
+      personalizeDiscoverCopy(text, {
+        displayLabel: childProfile.displayLabel,
+        gender: childProfile.gender,
+      }),
+    [childProfile.displayLabel, childProfile.gender]
+  );
 
   const scrollToSection = useCallback(
     (id: string, behaviorOverride?: ScrollBehavior) => {
@@ -291,6 +341,88 @@ export default function DiscoveryPageClient({
       window.scrollTo({ top: targetTop, behavior });
     },
     [shouldReduceMotion]
+  );
+
+  const scrollToStage3Picks = useCallback(
+    (_behaviorOverride?: ScrollBehavior) => {
+      /**
+       * Founder rule: Pip's Picks heading is the first thing in view.
+       *
+       * Mobile signed-in nav is NOT position:sticky (only lg:sticky). On
+       * viewports <1024px, pin near the top. On desktop, offset by sticky header.
+       *
+       * Immediate feedback: if the heading is not mounted yet (picks still
+       * loading), pin to #discover-figma-products so the CTA never feels dead,
+       * then re-pin when #pips-picks-heading has layout.
+       *
+       * One settle correction after layout — browsers can scroll-anchor past
+       * the heading when the Stage 3 section grows.
+       */
+      let tries = 0;
+      const maxTries = 180; // ~3s — covers slow picks fetch + mount
+      let settleScheduled = false;
+      let pinnedHeading = false;
+
+      const offsetForViewport = () => {
+        const desktop = window.matchMedia('(min-width: 1024px)').matches;
+        let offset = 8;
+        if (desktop) {
+          const header =
+            document.querySelector('[data-unified-signed-in-nav]') ??
+            document.querySelector('header.sticky');
+          if (header) offset = Math.round(header.getBoundingClientRect().bottom) + 2;
+        } else {
+          const signedIn = document.querySelector('[data-unified-signed-in-nav]');
+          if (!signedIn) {
+            const sticky = document.querySelector('header.sticky');
+            if (sticky) offset = Math.round(sticky.getBoundingClientRect().bottom) + 2;
+          }
+        }
+        return offset;
+      };
+
+      const pinEl = (el: HTMLElement) => {
+        const offset = offsetForViewport();
+        const y = el.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: Math.max(0, y), behavior: 'auto' });
+      };
+
+      const pinHeading = () => {
+        const heading = document.getElementById('pips-picks-heading');
+        if (!heading || heading.getBoundingClientRect().height < 8) return false;
+        pinEl(heading);
+        pinnedHeading = true;
+        return true;
+      };
+
+      const run = () => {
+        if (pinHeading()) {
+          if (!settleScheduled) {
+            settleScheduled = true;
+            window.setTimeout(() => {
+              const headingAfter = document.getElementById('pips-picks-heading');
+              if (!headingAfter) return;
+              const top = headingAfter.getBoundingClientRect().top;
+              const offset = offsetForViewport();
+              if (Math.abs(top - offset) > 24) pinHeading();
+            }, 180);
+          }
+          return;
+        }
+
+        // Heading not ready — keep the Stage 3 section in view while picks load.
+        const section = document.getElementById('discover-figma-products');
+        if (section && !pinnedHeading) pinEl(section);
+
+        if (tries < maxTries) {
+          tries += 1;
+          requestAnimationFrame(run);
+        }
+      };
+
+      requestAnimationFrame(run);
+    },
+    []
   );
 
   const scrollToWhyMatters = useCallback(() => {
@@ -373,20 +505,47 @@ export default function DiscoveryPageClient({
   const showFromUrl = clientParams.get('show') === '1';
 
   useEffect(() => {
+    if (!selectedWrapper || !ageBand?.id) return;
+    if ((localCategoriesByWrapper[selectedWrapper] ?? []).length > 0) return;
+    const key = `${ageBand.id}|${selectedWrapper}`;
+    if (categoryFetchKeyRef.current.has(key)) return;
+    categoryFetchKeyRef.current.add(key);
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch(
+          `/api/discover/category-types?ageBandId=${encodeURIComponent(ageBand.id)}&wrapperSlug=${encodeURIComponent(selectedWrapper)}`,
+          { cache: 'no-store' }
+        );
+        const payload = (await res.json()) as { categories?: GatewayCategoryTypePublic[] };
+        if (cancelled) return;
+        setLocalCategoriesByWrapper((prev) => ({
+          ...prev,
+          [selectedWrapper]: payload.categories ?? [],
+        }));
+      } catch {
+        if (cancelled) return;
+        setLocalCategoriesByWrapper((prev) => ({
+          ...prev,
+          [selectedWrapper]: prev[selectedWrapper] ?? [],
+        }));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ageBand?.id, selectedWrapper, localCategoriesByWrapper]);
+
+  useEffect(() => {
     if (!showFromUrl || !categoryFromUrl || !wrapperFromUrl) return;
-    const types = categoriesByWrapper[wrapperFromUrl] ?? [];
+    const types = localCategoriesByWrapper[wrapperFromUrl] ?? [];
     if (!types.some((c) => c.id === categoryFromUrl)) return;
     setSelectedCategoryId(categoryFromUrl);
     setShowingExamples(true);
     void fetchPicksForCategory(categoryFromUrl);
-  }, [showFromUrl, categoryFromUrl, wrapperFromUrl, categoriesByWrapper, fetchPicksForCategory]);
-
-  useEffect(() => {
-    if (!showFromUrl) return;
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'auto'));
-    });
-  }, [showFromUrl, scrollToSection]);
+  }, [showFromUrl, categoryFromUrl, wrapperFromUrl, localCategoriesByWrapper, fetchPicksForCategory]);
 
   const selectedBand = ageBands[selectedBandIndex] ?? ageBand;
   const currentMonth = monthParam ?? 25;
@@ -452,6 +611,26 @@ export default function DiscoveryPageClient({
     return () => observer.disconnect();
   }, [selectedWrapper]);
 
+  // Bug bash item 6: keep "Start over" available while the Stage 3 picks section
+  // is in view too (it previously vanished once ideas scrolled out of view).
+  useEffect(() => {
+    if (discoverState !== 'ShowingExamples' || typeof IntersectionObserver === 'undefined') {
+      setPicksSectionInView(false);
+      return;
+    }
+    const el = document.getElementById('discover-figma-products');
+    if (!el) {
+      setPicksSectionInView(false);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setPicksSectionInView(entry?.isIntersecting ?? false),
+      { rootMargin: '-72px 0px 0px 0px', threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [discoverState, selectedWrapper, selectedCategoryId]);
+
   const handleWrapperSelect = (wrapperSlug: string) => {
     if (selectedWrapper === wrapperSlug) {
       setPendingScrollToNextSteps(true);
@@ -463,7 +642,7 @@ export default function DiscoveryPageClient({
     setFetchedPicks([]);
     picksFetchKeyRef.current = null;
     setPendingScrollToNextSteps(true);
-    const types = categoriesByWrapper[wrapperSlug] ?? [];
+    const types = localCategoriesByWrapper[wrapperSlug] ?? [];
     if (types.length > 0) {
       const items = categoryTypesToPlayIdeaItems(types, formatBandLabel(selectedBand));
       prefetchDiscoverImageUrls(items.map((item) => item.imageUrl), 'card');
@@ -478,13 +657,13 @@ export default function DiscoveryPageClient({
 
   const prefetchWrapper = useCallback(
     (wrapperSlug: string) => {
-      const types = categoriesByWrapper[wrapperSlug] ?? [];
+      const types = localCategoriesByWrapper[wrapperSlug] ?? [];
       if (types.length > 0) {
         const items = categoryTypesToPlayIdeaItems(types, formatBandLabel(selectedBand));
         prefetchDiscoverImageUrls(items.map((item) => item.imageUrl), 'card');
       }
     },
-    [categoriesByWrapper, selectedBand]
+    [localCategoriesByWrapper, selectedBand]
   );
 
   const handleDiscoverStartOver = useCallback(() => {
@@ -507,15 +686,18 @@ export default function DiscoveryPageClient({
   const handleShowExamples = (categoryId: string) => {
     setSelectedCategoryId(categoryId);
     setShowingExamples(true);
+    // Every CTA tap must re-anchor — including re-taps on the same card (the
+    // one-shot effect key otherwise made the button feel dead on mobile).
+    stage3MobileAnchorKeyRef.current = null;
     replaceClientParams((p) => {
       if (selectedWrapper) p.set('wrapper', selectedWrapper);
       p.set('show', '1');
       p.set('category', categoryId);
     });
     void fetchPicksForCategory(categoryId);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => scrollToSection('examplesProgressBar', 'auto'));
-    });
+    // Instant feedback: scroll to the Stage 3 section now (loading or ready).
+    // The ShowingExamples effect re-pins when the heading mounts after fetch.
+    requestAnimationFrame(() => scrollToStage3Picks());
   };
 
   const getSigninUrl = (productId?: string) => {
@@ -571,6 +753,28 @@ export default function DiscoveryPageClient({
             signedIn: true,
             signinUrl: getSigninUrlForCategory(categoryId),
             viewMyListHref: withChildParam('/my-ideas?tab=ideas'),
+            ...saveModalPersonalization,
+          });
+          break;
+        }
+        case 'save_stage3_pick': {
+          const stage3PickId = action.payload.stage3PickId as string | undefined;
+          const childId = action.payload.childId as string | undefined;
+          if (!stage3PickId) return;
+          const { error } = await supabase.rpc('upsert_user_list_item', {
+            p_kind: 'stage3_pick',
+            p_stage3_pick_id: stage3PickId,
+            p_want: true,
+            p_have: false,
+            p_gift: false,
+            ...(childId ? { p_child_id: childId } : {}),
+          });
+          if (!error) await refetchSubnavStats(selectedChildId);
+          setSaveModal({
+            open: true,
+            signedIn: true,
+            signinUrl: getSigninUrl(),
+            viewMyListHref: withChildParam('/my-ideas?tab=products'),
             ...saveModalPersonalization,
           });
           break;
@@ -637,18 +841,25 @@ export default function DiscoveryPageClient({
         }
         case 'have_category': {
           const categoryId = (action.payload.categoryId as string) || 'category';
-          const childId = action.payload.childId as string | undefined;
+          const childId = (action.payload.childId as string | undefined) ?? (await resolveHaveChildId());
           const have = action.payload.have !== false;
+          if (!childId) break;
           const { error } = await supabase.rpc('upsert_user_list_item', {
             p_kind: 'category',
             p_category_type_id: categoryId,
             p_want: true,
             p_have: have,
             p_gift: false,
-            ...(childId ? { p_child_id: childId } : {}),
+            p_child_id: childId,
           });
           if (!error) {
-            await refetchSubnavStats(selectedChildId);
+            await syncAtHomeFromDiscoverHave({
+              categoryTypeId: categoryId,
+              childId,
+              have,
+            });
+            await refetchSubnavStats(selectedChildId ?? childId);
+            writeHaveCategoryId(user.id, selectedChildId, categoryId, have);
             setDimmedCategoryIds((prev) => {
               const next = new Set(prev);
               if (have) next.add(categoryId);
@@ -698,7 +909,7 @@ export default function DiscoveryPageClient({
           break;
       }
     },
-    [selectedBand?.id, selectedWrapper, currentMonth, basePath, refetchSubnavStats, selectedChildId, saveModalPersonalization]
+    [selectedBand?.id, selectedWrapper, currentMonth, basePath, refetchSubnavStats, selectedChildId, saveModalPersonalization, resolveHaveChildId]
   );
 
   // Replay pending action once after sign-in (Option B: single place in DiscoveryPageClient)
@@ -731,30 +942,52 @@ export default function DiscoveryPageClient({
 
   const handleHaveThemCategory = (categoryId: string) => {
     const wasDimmed = dimmedCategoryIds.has(categoryId);
+    const nextHave = !wasDimmed;
+
     setDimmedCategoryIds((prev) => {
       const next = new Set(prev);
-      if (wasDimmed) next.delete(categoryId);
-      else next.add(categoryId);
+      if (nextHave) next.add(categoryId);
+      else next.delete(categoryId);
       return next;
     });
 
-    requireAuthThen({
+    if (user) {
+      writeHaveCategoryId(user.id, selectedChildId, categoryId, nextHave);
+    }
+
+    void requireAuthThen({
       actionId: 'have_category',
-      payload: { categoryId, childId: selectedChildId, have: !wasDimmed },
+      payload: { categoryId, childId: selectedChildId, have: nextHave },
       run: async () => {
+        const childId = await resolveHaveChildId();
+        if (!childId) {
+          setActionToast({
+            productId: categoryId,
+            message: 'Select a child in the header to track what you have.',
+          });
+          return;
+        }
         try {
           const supabase = createClient();
           const { error } = await supabase.rpc('upsert_user_list_item', {
             p_kind: 'category',
             p_category_type_id: categoryId,
             p_want: true,
-            p_have: !wasDimmed,
+            p_have: nextHave,
             p_gift: false,
-            ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
+            p_child_id: childId,
           });
           if (error) throw error;
-          await refetchSubnavStats(selectedChildId);
+          await syncAtHomeFromDiscoverHave({
+            categoryTypeId: categoryId,
+            childId,
+            have: nextHave,
+          });
+          const authedUser = user ?? (await supabase.auth.getUser()).data.user;
+          if (authedUser) writeHaveCategoryId(authedUser.id, selectedChildId, categoryId, nextHave);
+          await refetchSubnavStats(selectedChildId ?? childId);
         } catch {
+          if (user) writeHaveCategoryId(user.id, selectedChildId, categoryId, wasDimmed);
           setDimmedCategoryIds((prev) => {
             const next = new Set(prev);
             if (wasDimmed) next.add(categoryId);
@@ -765,6 +998,7 @@ export default function DiscoveryPageClient({
         }
       },
       openAuthModal: ({ signinUrl }) => {
+        if (user) writeHaveCategoryId(user.id, selectedChildId, categoryId, wasDimmed);
         setDimmedCategoryIds((prev) => {
           const next = new Set(prev);
           if (wasDimmed) next.add(categoryId);
@@ -776,8 +1010,11 @@ export default function DiscoveryPageClient({
         setActionToast({ productId: categoryId, message: 'Sign in to record what you have.' });
       },
       isAuthenticated: async () => {
-        const { data: { user } } = await createClient().auth.getUser();
-        return !!user;
+        if (user) return true;
+        const {
+          data: { user: authedUser },
+        } = await createClient().auth.getUser();
+        return !!authedUser;
       },
       getReturnUrl: () =>
         withChildParam(
@@ -787,9 +1024,6 @@ export default function DiscoveryPageClient({
         ),
     });
   };
-
-  const getProductUrl = (p: PickItem) =>
-    p.product.canonical_url || p.product.amazon_uk_url || p.product.affiliate_url || p.product.affiliate_deeplink || '#';
 
   const doorwayMetaBySlug = useMemo(() => {
     const map = new Map<string, { key: string; helper: string; icon: (typeof ALL_DOORWAYS)[number]['icon'] }>();
@@ -883,12 +1117,14 @@ export default function DiscoveryPageClient({
 
   const displayIdeas =
     showingExamples && fetchedPicks.length > 0 ? fetchedPicks : exampleProducts;
+  const displayHasPipsPicks = displayIdeas.some((p) => p.product.is_stage3_pick);
+  const isEmberPlusMember = picksAccess?.canSeeLocked ?? false;
 
   const shortlistTrackKeyRef = useRef<string | null>(null);
   useEffect(() => {
     if (discoverState !== 'ShowingExamples') return;
     if (displayIdeas.length <= 0) return;
-    const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedChildId ?? 'none'}`;
+    const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedCategoryId ?? 'none'}|${selectedChildId ?? 'none'}`;
     if (shortlistTrackKeyRef.current === key) return;
     shortlistTrackKeyRef.current = key;
 
@@ -900,63 +1136,27 @@ export default function DiscoveryPageClient({
       wrapper_slug: selectedWrapper ?? null,
       result_count: displayIdeas.length,
     });
-  }, [discoverState, displayIdeas.length, ageBand?.id, selectedWrapper, selectedChildId, user?.id, pathname]);
+  }, [discoverState, displayIdeas.length, ageBand?.id, selectedWrapper, selectedCategoryId, selectedChildId, user?.id, pathname]);
 
-  const handleHaveItAlready = (productId: string) => {
-    requireAuthThen({
-      actionId: 'have_product',
-      payload: { productId, childId: selectedChildId },
-      run: async () => {
-        const supabase = createClient();
-        const { error } = await supabase.rpc('upsert_user_list_item', {
-          p_kind: 'product',
-          p_product_id: productId,
-          p_want: true,
-          p_have: true,
-          p_gift: false,
-          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
-        });
-        if (!error) await refetchSubnavStats(selectedChildId);
-        try {
-          trackEvent(EVENTS.RETAILER_OUTBOUND_CLICKED, {
-            product_id: productId,
-            source_surface: 'discover',
-            source: 'discover_owned',
-            click_path_type: 'api_click',
-            retailer_host: getRetailerHostFromProductId(productId),
-            child_id: selectedChildId ?? null,
-          });
-          await fetch('/api/click', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              product_id: productId,
-              age_band: selectedBand?.id ?? undefined,
-              source: 'discover_owned',
-            }),
-          });
-        } catch {
-          // Best-effort
-        }
-        setActionToast({ productId, message: 'Marked as have it already.' });
-      },
-      openAuthModal: ({ signinUrl }) => {
-        saveModalFocusRef.current = null;
-        setSaveModal({ open: true, signedIn: false, signinUrl });
-        setActionToast({ productId, message: 'Sign in to record that you have this.' });
-      },
-      isAuthenticated: async () => {
-        const { data: { user } } = await createClient().auth.getUser();
-        return !!user;
-      },
-      getReturnUrl: () =>
-        withChildParam(
-          selectedWrapper
-            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
-            : `${basePath}/${currentMonth}`,
-        ),
-    });
-  };
+  // Re-pin when Stage 3 enters ShowingExamples and again when picks finish loading
+  // (heading mounts). Do not wait for the API — that made the CTA feel dead on mobile.
+  useEffect(() => {
+    if (discoverState !== 'ShowingExamples') return;
+    if (typeof window === 'undefined') return;
+    const phase = picksLoading ? 'loading' : displayIdeas.length > 0 ? 'ready' : 'empty';
+    const key = `${ageBand?.id ?? 'none'}|${selectedWrapper ?? 'none'}|${selectedCategoryId ?? 'none'}|${phase}|${displayIdeas.length}`;
+    if (stage3MobileAnchorKeyRef.current === key) return;
+    stage3MobileAnchorKeyRef.current = key;
+    scrollToStage3Picks();
+  }, [
+    discoverState,
+    picksLoading,
+    displayIdeas.length,
+    ageBand?.id,
+    selectedWrapper,
+    selectedCategoryId,
+    scrollToStage3Picks,
+  ]);
 
   const handleSaveCategory = (categoryId: string, triggerEl: HTMLButtonElement | null) => {
     saveModalFocusRef.current = triggerEl;
@@ -1021,77 +1221,45 @@ export default function DiscoveryPageClient({
     });
   };
 
-  const handleSaveToList = (productId: string, triggerEl: HTMLButtonElement | null) => {
+  /**
+   * Save a Stage 3 pick itself (not its Stage 2 category) — lands in the
+   * Products tab of /my-ideas, mirroring the Stage 2 save flow (founder
+   * bug bash follow-up, item 1).
+   */
+  const handleSaveStage3Pick = (stage3PickId: string, triggerEl: HTMLButtonElement | null) => {
     saveModalFocusRef.current = triggerEl;
     requireAuthThen({
-      actionId: 'save_product',
-      payload: { productId, childId: selectedChildId },
+      actionId: 'save_stage3_pick',
+      payload: { stage3PickId, childId: selectedChildId },
       run: async () => {
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        let ok = false;
-        const { error: rpcError } = await supabase.rpc('upsert_user_list_item', {
-          p_kind: 'product',
-          p_product_id: productId,
-          p_want: true,
-          p_have: false,
-          p_gift: false,
-          ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
-        });
-        if (!rpcError) {
-          ok = true;
-        } else {
-          const fallback = rpcError.code === '42883' || rpcError.message?.includes('does not exist') || rpcError.message?.includes('function');
-          if (fallback) {
-            const { error: legacyError } = await supabase.from('user_saved_products').upsert(
-              { user_id: user.id, product_id: productId },
-              { onConflict: 'user_id,product_id' }
-            );
-            if (!legacyError) ok = true;
+        try {
+          const supabase = createClient();
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+          const { error } = await supabase.rpc('upsert_user_list_item', {
+            p_kind: 'stage3_pick',
+            p_stage3_pick_id: stage3PickId,
+            p_want: true,
+            p_have: false,
+            p_gift: false,
+            ...(selectedChildId ? { p_child_id: selectedChildId } : {}),
+          });
+          if (error) {
+            setActionToast({ productId: stage3PickId, message: 'Could not save. Please try again.' });
+            return;
           }
+          await refetchSubnavStats(selectedChildId);
+          setActionToast({ productId: stage3PickId, message: 'Saved.' });
+          setSaveModal({
+            open: true,
+            signedIn: true,
+            signinUrl: getSigninUrl(),
+            viewMyListHref: withChildParam('/my-ideas?tab=products'),
+            ...saveModalPersonalization,
+          });
+        } catch {
+          setActionToast({ productId: stage3PickId, message: 'Could not save. Please try again.' });
         }
-        if (!ok) {
-          setActionToast({ productId, message: 'Could not save. Please try again.' });
-          return;
-        }
-        setActionToast({ productId, message: 'Saved.' });
-
-        trackEvent(EVENTS.PRODUCT_SAVED, {
-          user_id: user.id,
-          kind: 'product',
-          product_id: productId,
-          source_surface: 'discover_save',
-          child_id: selectedChildId ?? null,
-        });
-
-        trackEvent(EVENTS.RETAILER_OUTBOUND_CLICKED, {
-          user_id: user.id,
-          product_id: productId,
-          source_surface: 'discover',
-          source: 'discover_save',
-          click_path_type: 'api_click',
-          retailer_host: getRetailerHostFromProductId(productId),
-          child_id: selectedChildId ?? null,
-        });
-
-        await fetch('/api/click', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            product_id: productId,
-            age_band: selectedBand?.id ?? undefined,
-            source: 'discover_save',
-          }),
-        });
-        await refetchSubnavStats(selectedChildId);
-        setSaveModal({
-          open: true,
-          signedIn: true,
-          signinUrl: getSigninUrl(productId),
-          viewMyListHref: withChildParam('/my-ideas?tab=products'),
-          ...saveModalPersonalization,
-        });
       },
       openAuthModal: ({ signinUrl }) =>
         setSaveModal({ open: true, signedIn: false, signinUrl }),
@@ -1102,7 +1270,7 @@ export default function DiscoveryPageClient({
       getReturnUrl: () =>
         withChildParam(
           selectedWrapper
-            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1`
+            ? `${basePath}/${currentMonth}?wrapper=${encodeURIComponent(selectedWrapper)}&show=1${selectedCategoryId ? `&category=${encodeURIComponent(selectedCategoryId)}` : ''}`
             : `${basePath}/${currentMonth}`,
         ),
     });
@@ -1123,14 +1291,19 @@ export default function DiscoveryPageClient({
     : formatBandLabel(selectedBand);
 
   const selectedWrapperRecord = wrappers.find((w) => w.ux_slug === selectedWrapper) ?? null;
-  const scienceBody = (selectedWrapperRecord?.ux_description || '').trim();
+  const scienceBody = personalizeCopy((selectedWrapperRecord?.ux_description || '').trim());
   const bandLabelForIdeas = formatBandLabel(selectedBand);
 
   const playIdeaItems = useMemo(() => {
     if (!selectedWrapper) return [];
-    const types = categoriesByWrapper[selectedWrapper] ?? [];
-    return categoryTypesToPlayIdeaItems(types, bandLabelForIdeas);
-  }, [selectedWrapper, categoriesByWrapper, bandLabelForIdeas]);
+    const types = localCategoriesByWrapper[selectedWrapper] ?? [];
+    return categoryTypesToPlayIdeaItems(types, bandLabelForIdeas).map((item) => ({
+      ...item,
+      description: personalizeCopy(item.description),
+      ownershipNote: item.ownershipNote ? personalizeCopy(item.ownershipNote) : item.ownershipNote,
+      giftNote: item.giftNote ? personalizeCopy(item.giftNote) : item.giftNote,
+    }));
+  }, [selectedWrapper, localCategoriesByWrapper, bandLabelForIdeas, personalizeCopy]);
 
   const laneForItem = useCallback((item: PlayIdeaItem): 'useful_ideas' | 'quick_checks' | 'things_that_can_help' => {
     if (item.uiLane === 'useful_ideas' || item.uiLane === 'quick_checks' || item.uiLane === 'things_that_can_help') {
@@ -1143,6 +1316,10 @@ export default function DiscoveryPageClient({
   const sortedPlayIdeas = useMemo(
     () =>
       [...playIdeaItems].sort((a, b) => {
+        // Cards with Ember Picks lead their lane (founder rule, bug bash 2026-07-19).
+        const picksA = a.showEmberPicks === true ? 0 : 1;
+        const picksB = b.showEmberPicks === true ? 0 : 1;
+        if (picksA !== picksB) return picksA - picksB;
         const laneA = a.laneRank ?? a.categoryRank ?? Number.MAX_SAFE_INTEGER;
         const laneB = b.laneRank ?? b.categoryRank ?? Number.MAX_SAFE_INTEGER;
         if (laneA !== laneB) return laneA - laneB;
@@ -1171,9 +1348,10 @@ export default function DiscoveryPageClient({
     [thingsThatCanHelp]
   );
 
-  const ideasSectionLoading = Boolean(selectedWrapper) && playIdeaItems.length === 0;
-
-  const whyWorksHeading = `Why this works for ${displayChildName(childProfile.displayLabel)}`;
+  const ideasSectionLoading =
+    selectedWrapper
+      ? localCategoriesByWrapper[selectedWrapper]?.length === undefined && playIdeaItems.length === 0
+      : false;
   const scienceTitle = 'Why this matters now';
   const ideasDevelopmentName = (() => {
     const lower = selectedWrapperLabel.trim().toLowerCase();
@@ -1189,8 +1367,9 @@ export default function DiscoveryPageClient({
         : 'Ideas to try';
   // Show the Start over control only while ideas are available to reset.
   const startOverVisible = Boolean(selectedWrapper || (showingExamples && displayIdeas.length > 0));
-  // Snag #6: the floating FAB is gated on the "Ideas for…" section being in view.
-  const showStartOverFab = startOverVisible && ideasSectionInView;
+  // Snag #6 + bug bash item 6: the floating FAB stays while either the "Ideas for…"
+  // section or the Stage 3 picks section is in view.
+  const showStartOverFab = startOverVisible && (ideasSectionInView || picksSectionInView);
   const possessiveChild = childProfile.displayLabel ? `${childProfile.displayLabel}'s` : "your child's";
   const bandLabel = formatBandLabel(selectedBand);
   const bandRange = getBandRange(selectedBand);
@@ -1199,7 +1378,6 @@ export default function DiscoveryPageClient({
     () => displayIdeas.some((p) => hasOutboundRetailerUrl(p.product)),
     [displayIdeas]
   );
-
   return (
     <div
       className="min-h-screen w-full bg-[#FBFAF7]"
@@ -1243,7 +1421,7 @@ export default function DiscoveryPageClient({
           bandRange={bandRange}
           isExpecting={isExpecting}
           heroImageUrl={
-            (selectedWrapper ? categoriesByWrapper[selectedWrapper]?.[0]?.image_url : null) ??
+            (selectedWrapper ? localCategoriesByWrapper[selectedWrapper]?.[0]?.image_url : null) ??
             bandHeroImageUrl ??
             exampleProducts[0]?.product?.image_url ??
             null
@@ -1395,25 +1573,7 @@ export default function DiscoveryPageClient({
                 id="discover-figma-ideas"
                 className="scroll-mt-[calc(var(--header-height,88px)+12px)] mt-4 md:mt-0 md:scroll-mt-2 md:-mt-1"
               >
-                {ideasSectionLoading ? (
-                  <div className="flex flex-col gap-4" aria-busy="true" aria-label="Loading ideas">
-                    <div className="h-9 w-2/3 max-w-md rounded-lg bg-[#E7E2DC]/60 animate-pulse" />
-                    <div className="flex gap-4 overflow-hidden">
-                      {[0, 1].map((i) => (
-                        <div
-                          key={i}
-                          className="flex-[0_0_94%] md:flex-[0_0_58%] rounded-[24px] border border-[#E7E2DC] overflow-hidden bg-white"
-                        >
-                          <div className="aspect-[16/9] max-h-[150px] bg-[#E7E2DC]/50 animate-pulse" />
-                          <div className="p-4 space-y-2">
-                            <div className="h-5 w-3/4 rounded bg-[#E7E2DC]/60 animate-pulse" />
-                            <div className="h-4 w-full rounded bg-[#E7E2DC]/40 animate-pulse" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (audienceMode === 'gift' ? giftIdeas.length > 0 : usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
+                {(audienceMode === 'gift' ? giftIdeas.length > 0 : usefulIdeas.length > 0 || thingsThatCanHelp.length > 0 || quickChecks.length > 0) ? (
                   <div className="flex flex-col gap-6">
                     <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">{ideasSectionTitle}</h2>
                     {audienceMode === 'gift' ? (
@@ -1430,10 +1590,31 @@ export default function DiscoveryPageClient({
                         showEmberPicks
                         showSaveAction={false}
                         showGiftAction
+                        noteMode="gift"
                         dimmedCategoryIds={dimmedCategoryIds}
                       />
                     ) : (
                       <>
+                        {/* Founder rule (bug bash follow-up, item 4): "Things that can
+                            help" leads — the lane carrying Ember Picks comes first. */}
+                        {thingsThatCanHelp.length > 0 ? (
+                          <DiscoverFigmaPlayCarousel
+                            items={thingsThatCanHelp}
+                            sectionTitle="Things that can help"
+                            selectedId={selectedCategoryId}
+                            onSelect={setSelectedCategoryId}
+                            onSeeExamples={handleShowExamples}
+                            onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
+                            onGiftAction={(categoryId, el) => handleSaveCategory(categoryId, el)}
+                            onHaveThem={handleHaveThemCategory}
+                            showHaveAction
+                            showEmberPicks
+                            showSaveAction
+                            showGiftAction
+                            noteMode="parent"
+                            dimmedCategoryIds={dimmedCategoryIds}
+                          />
+                        ) : null}
                         {usefulIdeas.length > 0 ? (
                           <DiscoverFigmaPlayCarousel
                             items={usefulIdeas}
@@ -1447,23 +1628,7 @@ export default function DiscoveryPageClient({
                             showEmberPicks={false}
                             showSaveAction
                             showGiftAction={false}
-                            dimmedCategoryIds={dimmedCategoryIds}
-                          />
-                        ) : null}
-                        {thingsThatCanHelp.length > 0 ? (
-                          <DiscoverFigmaPlayCarousel
-                            items={thingsThatCanHelp}
-                            sectionTitle="Things that can help"
-                            selectedId={selectedCategoryId}
-                            onSelect={setSelectedCategoryId}
-                            onSeeExamples={handleShowExamples}
-                            onSaveIdea={(categoryId, el) => handleSaveCategory(categoryId, el)}
-                            onGiftAction={(categoryId, el) => handleSaveCategory(categoryId, el)}
-                            onHaveThem={handleHaveThemCategory}
-                            showHaveAction={!!user}
-                            showEmberPicks
-                            showSaveAction
-                            showGiftAction
+                            noteMode="parent"
                             dimmedCategoryIds={dimmedCategoryIds}
                           />
                         ) : null}
@@ -1493,7 +1658,8 @@ export default function DiscoveryPageClient({
               </section>
             ) : null}
 
-            {selectedWrapper ? (
+            {/* Hide while Pip's Picks is on screen — founder: heading must be first. */}
+            {selectedWrapper && discoverState !== 'ShowingExamples' ? (
               <div className="flex flex-col items-center gap-6 mt-6 mb-10 px-4">
                 <button
                   type="button"
@@ -1506,51 +1672,48 @@ export default function DiscoveryPageClient({
             ) : null}
 
             {discoverState === 'ShowingExamples' ? (
-              <section id="discover-figma-products" className="scroll-mt-6">
-                <div id="examplesProgressBar" className="mb-5 lg:mb-8">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <h2 className="text-[24px] md:text-[32px] font-bold text-[#253044] m-0">
-                      Product examples for this stage
-                    </h2>
-                    {displayIdeas.length > 0 ? (
-                      <button
-                        type="button"
-                        className="text-sm text-[var(--ember-text-low)] hover:underline"
-                        onClick={() => setHowWeChooseOpen(true)}
-                      >
-                        Why these?
-                      </button>
-                    ) : null}
-                  </div>
-                  <p className="text-sm text-[var(--ember-text-low)] mt-2">
-                    These examples are selected for stage-fit and usefulness. Retailer links, where shown, may be
-                    affiliate links.
-                  </p>
-                  <AffiliateDisclosureNotice
-                    hasRetailerLinks={examplesHaveRetailerLinks}
-                    className="mt-2"
-                  />
-                  <p className="text-xs text-[var(--ember-text-low)] mt-2">Chosen for {chosenForLabel}</p>
-                </div>
+              <section id="discover-figma-products" className="scroll-mt-[calc(var(--unified-nav-height,64px)+2px)] md:scroll-mt-6">
+                <div id="examplesProgressBar" className="h-1" aria-hidden />
                 {picksLoading ? (
-                  <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]" aria-busy="true">
-                    Loading examples…
+                  <div className="relative flex min-h-[40vh] flex-col text-[#253044] [overflow-anchor:none]">
+                    {/* Same anchor id as the ready carousel — CTA scroll has a target while fetching. */}
+                    <div
+                      id="pips-picks-heading"
+                      className="relative z-20 shrink-0 scroll-mt-2 px-2 pb-3 text-center [overflow-anchor:none]"
+                    >
+                      <h2 className="m-0 text-[20px] font-extrabold leading-tight tracking-normal text-[#253044] md:text-[36px]">
+                        Pip&apos;s Picks
+                      </h2>
+                      <p className="mx-auto mt-1 max-w-xl text-[13px] font-medium text-[#66717D]">
+                        Loading examples…
+                      </p>
+                    </div>
+                    <div
+                      className="mx-auto mt-2 w-full max-w-sm rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]"
+                      aria-busy="true"
+                    >
+                      Finding the best fits…
+                    </div>
                   </div>
                 ) : displayIdeas.length === 0 ? (
                   <div className="rounded-3xl border border-[var(--ember-border-subtle)] bg-white p-8 text-center text-sm text-[var(--ember-text-low)]">
                     Examples coming soon
                   </div>
                 ) : (
-                  <DiscoverFigmaProductCarousel
-                    key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}`}
-                    picks={displayIdeas.slice(0, 12)}
-                    ageRangeLabel={formatBandLabel(selectedBand)}
-                    whyWorksHeading={whyWorksHeading}
-                    onSave={handleSaveToList}
-                    onHave={handleHaveItAlready}
-                    getProductUrl={getProductUrl}
-                    showHaveAction={!!user}
-                  />
+                  <>
+                    <PipsPicksPersimmonCarousel
+                      key={`${selectedWrapper}-${categoryFromUrl ?? ''}-${displayIdeas.length}-${viewerAccessKey}`}
+                      picks={displayIdeas.slice(0, displayHasPipsPicks ? 10 : 12)}
+                      childDisplayLabel={childProfile.displayLabel}
+                      isEmberPlusMember={isEmberPlusMember}
+                      onSavePick={(pick, el) => handleSaveStage3Pick(pick.product.id, el)}
+                      bottomNavVisible={!!user}
+                    />
+                    <AffiliateDisclosureNotice
+                      hasRetailerLinks={examplesHaveRetailerLinks}
+                      className="mt-2 text-center text-[11px] leading-snug md:mt-3 md:text-xs md:leading-relaxed"
+                    />
+                  </>
                 )}
               </section>
             ) : null}
@@ -1586,7 +1749,9 @@ export default function DiscoveryPageClient({
       </main>
 
       {showStartOverFab ? (
-        <div className="fixed bottom-20 lg:bottom-6 left-0 right-0 z-30 pointer-events-none">
+        // Signed-in mobile: sit above the fixed bottom tab bar. Signed-out: no
+        // tab bar, so drop into the reserve at the bottom of the picks card.
+        <div className={`fixed ${user ? 'bottom-20' : 'bottom-6'} md:bottom-6 left-0 right-0 z-30 pointer-events-none`}>
           <div className={`${EMBER_FIGMA_APP_CONTAINER} flex justify-center`}>
             <button
               type="button"

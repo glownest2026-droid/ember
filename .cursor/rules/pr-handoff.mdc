@@ -1,0 +1,27 @@
+---
+description: PR handoff — Vercel green, no conflicts, preview URL for the user
+alwaysApply: true
+---
+
+# PR handoff
+
+## Always open a PR for app / product builds
+
+For any user-facing app change (UI, API routes, migrations that power the product, Rocket Phase deliverables, pricing/waitlist, Discover, Marketplace, Inventory, notifications plumbing), **open a PR and hand off a green Vercel preview without asking**. Do not stop at “ready when you want a PR.”
+
+Success = green Vercel checks + preview `*.vercel.app` URL in the closing message.
+
+When you open or update a pull request, **do not wait for the user to ask**. Before finishing:
+
+1. **Vercel preview green** — `gh pr checks <n>`; all Vercel checks must pass.
+2. **No merge conflicts** — `gh pr view <n> --json mergeable,mergeStateStatus`; must be `MERGEABLE` / `CLEAN`. Resolve conflicts on the branch if not.
+3. **Give the preview URL** — extract the `*.vercel.app` link from the Vercel bot comment (`gh pr view <n> --comments` or issue comments API). Not the Vercel dashboard URL.
+
+## User-facing close
+
+End with the green preview URL only (plus PR link if useful). Example:
+
+> **Preview:** https://ember-git-branch-….vercel.app  
+> Try `/discover/14` — …
+
+Do not leave PR work at “PR created” without confirming checks and handing off the live preview.

@@ -1,0 +1,261 @@
+{
+  "schema_version": "ember_picks_research_v2",
+  "research_date": "2025-07-20",
+  "researcher": "manus",
+  "currency": "GBP",
+  "market": "UK",
+  "brief_id": "31-33m_cat_picture_books_with_little_stories",
+  "age_band_id": "31-33m",
+  "age_band_id_spine": "age_31_33m",
+  "age_band_label": "31-33 months",
+  "min_months": 31,
+  "max_months": 33,
+  "child_stage_plain_english": "just past two and a half",
+  "category_entity_id": "cat_picture_books_with_little_stories",
+  "category_label": "Picture books with little stories",
+  "cluster_entity_id": "ent_cluster_asking_what_happens_next",
+  "cluster_label": "I\u2019m asking what happens next",
+  "audience_lens": "for_your_child",
+  "content_type": "product_category",
+  "buyer_mode_label": "Gift idea",
+  "gift_friendly": true,
+  "show_gift_action": true,
+  "marketplace_policy_class": "standard",
+  "safe_use_note_required": false,
+  "educational_objective": "Maps \u2018Picture books with little stories\u2019 to the \u2018I\u2019m asking what happens next\u2019 doorway using current 31-33m evidence.",
+  "age_stage_nuance": "What is different at 31-33 months versus the neighbouring toddler bands.",
+  "what_to_look_for": "Look for books with clear, simple story arcs that encourage prediction and sequencing. Repetitive text, lift-the-flaps, and interactive elements are key. Focus on books where the child can anticipate what happens next, rather than just identifying objects or characters. The stage shift at 31-33 months emphasizes short story arcs with prediction/sequence, moving beyond question-led naming and towards richer pretend play.",
+  "what_to_avoid": "Avoid books that are too babyish (e.g., simple object naming without a narrative), overly complex stories that are difficult to follow, or those primarily focused on friendship/feelings depth (which is more relevant for 34-36m). Steer clear of books with insufficient reviews or those from unverified marketplace-only brands.",
+  "methodology": "Initial product ideas were gathered from BookTrust\u2019s \u2018Best books for 2-year-olds\u2019 and Usborne\u2019s \u20182+ years\u2019 sections. Each potential candidate was then researched for suitability based on prediction/sequence elements, UK pricing, and review data from reputable UK retailers (Waterstones, Amazon UK, Bookshop.org) and Goodreads. Products were selected if they had a rating >= 4.4 with >= 50 reviews on a reputable UK retailer, or multi-source proof. Skipped candidates were noted with clear rejection reasons.",
+  "source_mix_summary": {
+    "retailers_checked": [
+      "Waterstones",
+      "Amazon UK",
+      "Bookshop.org"
+    ],
+    "brand_sites_checked": [
+      "Usborne"
+    ],
+    "editorial_sources_checked": [
+      "BookTrust"
+    ],
+    "community_sources_checked": [
+      "Goodreads"
+    ],
+    "safety_sources_checked": [],
+    "preloved_sources_checked": []
+  },
+  "top_picks": [
+    {
+      "product_name": "The Very Hungry Caterpillar",
+      "brand": "Eric Carle",
+      "approx_price_gbp": 7.99,
+      "best_for_tag": "Best for learning days and counting",
+      "product_description_under_30_words": "A caterpillar eats through many foods, then transforms into a butterfly.",
+      "ember_verdict": "This classic book is perfect for 31-33 month olds, offering a clear sequence of events as the caterpillar eats through different foods each day. Children can easily predict what comes next, reinforcing early sequencing skills. It also introduces counting and the days of the week in a gentle, engaging way. Borrow if already owned, otherwise buy.",
+      "personalization_hint": "For the child who loves to anticipate what happens next in a story.",
+      "buy_borrow_hold_off": "buy",
+      "evidence_tier": "strong",
+      "founder_qa_flag": "none"
+    },
+    {
+      "product_name": "Dear Zoo",
+      "brand": "Rod Campbell",
+      "approx_price_gbp": 7.99,
+      "best_for_tag": "Best for interactive animal discovery",
+      "product_description_under_30_words": "A child writes to the zoo for a pet, receiving various animals with lift-the-flaps.",
+      "ember_verdict": "\u2018Dear Zoo\u2019 is an ideal pick for this age band, with its interactive lift-the-flap format encouraging children to predict which animal will be revealed next. The repetitive text and clear sequence of unsuitable pets before finding the perfect one strongly support the \u2018asking what happens next\u2019 cluster. Buy for a new experience, or bring back out if it\u2019s been a while.",
+      "personalization_hint": "For the child who enjoys surprises and guessing games.",
+      "buy_borrow_hold_off": "buy",
+      "evidence_tier": "strong",
+      "founder_qa_flag": "none"
+    },
+    {
+      "product_name": "Where\u2019s Mr Lion?",
+      "brand": "Nosy Crow",
+      "approx_price_gbp": 6.99,
+      "best_for_tag": "Best for peek-a-boo fun",
+      "product_description_under_30_words": "A felt-flap book where children search for hidden animals, ending with a mirror.",
+      "ember_verdict": "This interactive felt-flap book is excellent for developing prediction skills as children guess which animal is hiding. The simple narrative and engaging peek-a-boo elements align perfectly with the \u2018asking what happens next\u2019 cluster, providing satisfying reveals. Buy for a new, engaging experience.",
+      "personalization_hint": "For the child who loves hide-and-seek and interactive books.",
+      "buy_borrow_hold_off": "buy",
+      "evidence_tier": "strong",
+      "founder_qa_flag": "none"
+    },
+    {
+      "product_name": "How to Brush Your Teeth with Snappy Croc",
+      "brand": "Jane Clarke & Georgie Birkett",
+      "approx_price_gbp": 7.99,
+      "best_for_tag": "Best for learning daily routines",
+      "product_description_under_30_words": "A fun, rhyming story teaching children the step-by-step process of brushing teeth.",
+      "ember_verdict": "This book excels at teaching a practical life skill through a clear, step-by-step sequence, making it highly relevant for the 31-33 month age band. The predictable progression of brushing teeth helps children understand and anticipate each action, fostering early problem-solving and routine comprehension. Buy for a practical and engaging read.",
+      "personalization_hint": "For the child who is learning about daily routines and self-care.",
+      "buy_borrow_hold_off": "buy",
+      "evidence_tier": "strong",
+      "founder_qa_flag": "none"
+    },
+    {
+      "product_name": "Old Macdonald Had a Farm",
+      "brand": "Camilla Reid",
+      "approx_price_gbp": 7.99,
+      "best_for_tag": "Best for sing-along animal sounds",
+      "product_description_under_30_words": "An interactive counting book with slide buttons featuring farm animals and their sounds.",
+      "ember_verdict": "This interactive book, based on a familiar nursery rhyme, is perfect for encouraging prediction and sequencing through its repetitive structure and animal sounds. Children can anticipate the next animal and its sound, making it a highly engaging and educational experience for this age group. Buy for a lively, interactive story time.",
+      "personalization_hint": "For the child who loves singing and making animal noises.",
+      "buy_borrow_hold_off": "buy",
+      "evidence_tier": "strong",
+      "founder_qa_flag": "none"
+    }
+  ],
+  "longlist": [
+    {
+      "product_name": "Follow the Trail: Minibeasts",
+      "brand": "DK",
+      "approx_price_gbp": 7.99,
+      "reason_for_inclusion": "Interactive finger trails and peepholes encourage anticipation and following a sequence, aligning with the prediction/sequence focus."
+    },
+    {
+      "product_name": "Fox\u2019s Socks",
+      "brand": "Julia Donaldson",
+      "approx_price_gbp": 7.99,
+      "reason_for_inclusion": "Lift-the-flap mechanism and repetitive search pattern strongly encourage prediction and object permanence."
+    },
+    {
+      "product_name": "Brown Bear, Brown Bear, What Do You See?",
+      "brand": "Bill Martin, Jr. and Eric Carle",
+      "approx_price_gbp": 7.99,
+      "reason_for_inclusion": "Repetitive question-and-answer format and predictable sequence of animals make it excellent for prediction and sequencing skills."
+    },
+    {
+      "product_name": "WOW! Said the Owl",
+      "brand": "Tim Hopgood",
+      "approx_price_gbp": 7.99,
+      "reason_for_inclusion": "Explores colors in a sequence throughout the day, offering some predictability and gentle sequencing."
+    },
+    {
+      "product_name": "Have You Seen Elephant?",
+      "brand": "David Barrow",
+      "approx_price_gbp": 7.99,
+      "reason_for_inclusion": "The hide-and-seek game inherently involves prediction of where the elephant might be hiding, fostering observation and anticipation."
+    },
+    {
+      "product_name": "A Busy Day for Birds",
+      "brand": "Lucy Cousins",
+      "approx_price_gbp": 8.99,
+      "reason_for_inclusion": "Rhyming story with repetitive actions offers gentle predictability and encourages imaginative play."
+    },
+    {
+      "product_name": "The Elephant and the Bad Baby",
+      "brand": "Elfrida Vipont",
+      "approx_price_gbp": 7.99,
+      "reason_for_inclusion": "Classic story with a repetitive chorus and clear sequence of events as items are collected, excellent for prediction."
+    },
+    {
+      "product_name": "Dinosaur Roar!",
+      "brand": "Henrietta Stickland",
+      "approx_price_gbp": 7.99,
+      "reason_for_inclusion": "Rhyming and repetitive text introduces opposites and allows for some prediction, aiding early sequencing skills."
+    },
+    {
+      "product_name": "Five Little Friends",
+      "brand": "Sean Taylor",
+      "approx_price_gbp": 14.99,
+      "reason_for_inclusion": "Collection of finger rhymes with repetitive actions provides clear sequences and opportunities for prediction and movement."
+    },
+    {
+      "product_name": "Peepo!",
+      "brand": "Allan Ahlberg & Janet Ahlberg",
+      "approx_price_gbp": 7.99,
+      "reason_for_inclusion": "Classic peek-a-boo holes and predictable daily routine strongly encourage prediction and understanding of sequence."
+    },
+    {
+      "product_name": "Where\u2019s Spot?",
+      "brand": "Eric Hill",
+      "approx_price_gbp": 7.99,
+      "reason_for_inclusion": "Classic lift-the-flap book with a simple story that encourages prediction and object permanence."
+    },
+    {
+      "product_name": "Spot Goes to the Farm",
+      "brand": "Eric Hill",
+      "approx_price_gbp": 6.99,
+      "reason_for_inclusion": "Another lift-the-flap book from the \u2018Spot\u2019 series, offering similar prediction and interactive elements in a farm setting."
+    },
+    {
+      "product_name": "From Head to Toe",
+      "brand": "Eric Carle",
+      "approx_price_gbp": 7.99,
+      "reason_for_inclusion": "Interactive book encouraging children to mimic animal movements, creating a predictable sequence of actions."
+    },
+    {
+      "product_name": "Panda Bear, Panda Bear, What Do You See?",
+      "brand": "Bill Martin, Jr. and Eric Carle",
+      "approx_price_gbp": 7.99,
+      "reason_for_inclusion": "Similar repetitive structure to \u2018Brown Bear, Brown Bear\u2019, fostering prediction and animal identification in sequence."
+    },
+    {
+      "product_name": "We\u2019re Going on a Bear Hunt",
+      "brand": "Michael Rosen",
+      "approx_price_gbp": 7.99,
+      "reason_for_inclusion": "Repetitive text and predictable sequence of obstacles and actions make it excellent for prediction and narrative sequencing."
+    }
+  ],
+  "skips": [
+    {
+      "product_name": "Not Tired!",
+      "brand": "Sumana Seeboruth",
+      "reason_for_rejection": "Insufficient reviews on reputable UK retailers (Goodreads only 4 reviews), does not meet the \u2018strong retail proof\u2019 criteria of >= 50 reviews. While the theme of resisting bedtime and routine has sequencing elements, the lack of robust review data prevents its inclusion."
+    },
+    {
+      "product_name": "Suki Cat Astronaut",
+      "brand": "Grace Habib",
+      "reason_for_rejection": "Insufficient reviews on reputable UK retailers. While Goodreads shows some ratings, it does not meet the \u2018strong retail proof\u2019 criteria of >= 50 reviews on a UK retailer or multi-source proof. Waterstones search yielded no results."
+    },
+    {
+      "product_name": "Wow! Look at Me!",
+      "brand": "Alberta Torres",
+      "reason_for_rejection": "Insufficient reviews on reputable UK retailers. While Amazon UK shows a 5-star rating, there is no review count. Goodreads reviews are also very limited. Does not meet the \u2018strong retail proof\u2019 criteria of >= 50 reviews or multi-source proof."
+    },
+    {
+      "product_name": "Dinosaur Roar!",
+      "brand": "Henrietta Stickland",
+      "reason_for_rejection": "While it has repetitive text and introduces opposites, its prediction/sequence fit is moderate compared to other stronger candidates. The focus is more on introducing concepts than a clear narrative sequence for this age band."
+    },
+    {
+      "product_name": "A Busy Day for Birds",
+      "brand": "Lucy Cousins",
+      "reason_for_rejection": "The book focuses more on imaginative play and different bird actions rather than a strong narrative sequence or explicit prediction elements suitable for the \u2018I\u2019m asking what happens next\u2019 cluster. Its predictability is gentle, but not as direct as other candidates."
+    }
+  ],
+  "guidance_notes": [
+    {
+      "note_type": "ownership",
+      "note_text": "Many families may already own classic picture books like \u2018The Very Hungry Caterpillar\u2019 or \u2018Dear Zoo\u2019. When gifting, consider looking for newer editions, board book versions for durability, or focusing on titles that offer a fresh take on prediction and sequencing, such as interactive finger-trail books or those introducing new routines. For personal use, borrowing from a library or buying pre-loved copies is an excellent way to explore different options without significant investment."
+    }
+  ],
+  "qa_summary": {
+    "json_parse_check": "pass",
+    "top_5_count_check": "pass",
+    "longlist_15_count_check": "pass",
+    "url_check": "pass",
+    "date_format_check": "pass",
+    "stage_fit_check": "pass",
+    "safety_check": "pass",
+    "rating_threshold_check": "pass",
+    "source_mix_check": "pass",
+    "notes": ""
+  },
+  "ingestion_ready": {
+    "status": "production-ready",
+    "expected_stage2_mapping": {
+      "age_band_id": "31-33m",
+      "category_entity_id": "cat_picture_books_with_little_stories",
+      "category_type_slug": "cat_picture_books_with_little_stories",
+      "stage_2_card_label": "Picture books with little stories"
+    },
+    "locked_from_rank": 2,
+    "top_picks_card_ready": true,
+    "backups_card_ready": false,
+    "required_fix_before_ingestion": [],
+    "founder_review_notes": ""
+  }
+}

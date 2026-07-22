@@ -2,19 +2,28 @@
 
 import { Check } from 'lucide-react';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 
 interface PricingCardProps {
   name: string;
-  price: string;
+  /** Omit or pass empty to hide the big price (e.g. Free — “£0” is redundant). */
+  price?: string;
   period?: string;
-  label: string;
-  features: string[];
+  label: ReactNode;
+  features: ReactNode[];
   ctaText: string;
   recommended?: boolean;
   badge?: string;
   annualPrice?: string;
   /** When set, the CTA renders as a link to this destination. */
   ctaHref?: string;
+  /** When set (and no ctaHref), CTA runs this instead of a no-op button. */
+  onCtaClick?: () => void;
+  /** Quiet line under the CTA (e.g. waitlist reassurance). */
+  ctaHint?: string;
+  /** Optional in-page link centred above the CTA (e.g. Learn more → features). */
+  learnMoreHref?: string;
+  learnMoreLabel?: string;
 }
 
 export function PricingCard({
@@ -28,10 +37,14 @@ export function PricingCard({
   badge,
   annualPrice,
   ctaHref,
+  onCtaClick,
+  ctaHint,
+  learnMoreHref,
+  learnMoreLabel = 'Learn more',
 }: PricingCardProps) {
   return (
     <div
-      className="relative flex flex-col rounded-3xl p-5 lg:p-6 transition-all duration-300"
+      className="relative flex flex-col rounded-3xl p-6 lg:p-8 transition-all duration-300"
       style={{
         backgroundColor: recommended ? 'white' : 'var(--ember-gray-200)',
         border: recommended ? '2px solid var(--ember-primary)' : '1px solid var(--ember-gray-300)',
@@ -75,31 +88,33 @@ export function PricingCard({
         >
           {name}
         </h3>
-        <div className="mb-1">
-          <span
-            className="inline-block"
-            style={{
-              fontSize: '2.5rem',
-              fontWeight: 400,
-              color: 'var(--ember-gray-900)',
-              letterSpacing: '-0.02em',
-              lineHeight: 1,
-            }}
-          >
-            {price}
-          </span>
-          {period && (
+        {price ? (
+          <div className="mb-1">
             <span
-              className="ml-1"
+              className="inline-block"
               style={{
-                color: 'var(--ember-gray-600)',
-                fontSize: '0.875rem',
+                fontSize: '2.5rem',
+                fontWeight: 400,
+                color: 'var(--ember-gray-900)',
+                letterSpacing: '-0.02em',
+                lineHeight: 1,
               }}
             >
-              {period}
+              {price}
             </span>
-          )}
-        </div>
+            {period && (
+              <span
+                className="ml-1"
+                style={{
+                  color: 'var(--ember-gray-600)',
+                  fontSize: '0.875rem',
+                }}
+              >
+                {period}
+              </span>
+            )}
+          </div>
+        ) : null}
         {annualPrice && (
           <p
             className="mb-1"
@@ -122,7 +137,7 @@ export function PricingCard({
         </p>
       </div>
 
-      <ul className="flex-1 mb-4 space-y-1.5">
+      <ul className="flex-1 mb-6 space-y-2.5">
         {features.map((feature, index) => (
           <li key={index} className="flex items-start gap-2">
             <Check
@@ -146,6 +161,15 @@ export function PricingCard({
         ))}
       </ul>
 
+      {learnMoreHref ? (
+        <a
+          href={learnMoreHref}
+          className="mb-3 block text-center font-medium text-[#FF5C34] underline underline-offset-2 hover:opacity-90"
+          style={{ fontSize: '0.875rem' }}
+        >
+          {learnMoreLabel}
+        </a>
+      ) : null}
       {ctaHref ? (
         <Link
           href={ctaHref}
@@ -162,6 +186,8 @@ export function PricingCard({
         </Link>
       ) : (
         <button
+          type="button"
+          onClick={onCtaClick}
           className="w-full rounded-xl px-6 py-3 transition-all duration-300"
           style={{
             backgroundColor: recommended ? 'var(--ember-primary)' : 'transparent',
@@ -192,6 +218,18 @@ export function PricingCard({
           {ctaText}
         </button>
       )}
+      {ctaHint ? (
+        <p
+          className="mt-2.5 text-center"
+          style={{
+            color: 'var(--ember-gray-600)',
+            fontSize: '0.75rem',
+            lineHeight: 1.35,
+          }}
+        >
+          {ctaHint}
+        </p>
+      ) : null}
     </div>
   );
 }

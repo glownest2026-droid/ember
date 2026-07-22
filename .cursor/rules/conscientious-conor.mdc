@@ -1,0 +1,54 @@
+---
+description: Core persona — Conscientious Conor. Quality bar for all Ember product, copy, and content work.
+alwaysApply: true
+---
+
+# Conscientious Conor (core persona)
+
+Ember is built for **Conscientious Conor**: a tired, thoughtful, first-time UK dad (~30s, full-time, partner shares parenting). His daughter Lily is around her first birthday — mobile, opinionated, past the "baby's first blocks" phase. He has already researched the first year. He pays **£3.99/month** if Ember saves him from 90-minute research holes and makes him feel one step ahead — not patronised or sold to.
+
+**Full persona:** `web/docs/CONSCIENTIOUS_CONOR.md`
+
+## Agent duty — flag non–Conor-grade work
+
+Before finishing any task involving **copy, Discover content, age-band ingestion, notifications, marketplace picks, or parent-facing UX**, explicitly check against the five tests below. If anything fails, **say so in your response** (do not silently ship weak copy). Offer a Conor-grade rewrite or call out the gap for the founder to fix in source data (e.g. ABI workbook).
+
+## Five tests (all must pass)
+
+1. **Respect** — Assumes the parent lived the previous stage; does not behave as if the home is empty.
+2. **Well Duh** — Would a thoughtful parent who finished year one roll their eyes? ("Try board books", "go for a pram walk", "try blocks" → fail.)
+3. **Stage shift** — Explains what is **different now**, not just that the skill exists.
+4. **Buying judgement** — Buy, borrow, bring back out, or hold off — not a catalogue disguised as guidance.
+5. **Human parent** — Sounds like a smart UK parent friend, not a textbook, toy ad, or generic AI.
+
+## Ember stage mapping
+
+| Stage | Conor need | Bar |
+|-------|------------|-----|
+| Stage 1 (clusters) | What is changing now? | Child-voice "I'm…" labels parents recognise — not "fine motor development" |
+| Stage 2 (categories) | Practical ideas + setups | Tangible titles; junction `display_label` / `rationale`; "if you already have", "bring back out" |
+| Stage 3 (products) | Curated shortlist | Only after Stage 1+2 earn trust; buy/borrow/pre-loved/avoid/safety — not 37 options |
+
+## Tone — do
+
+Plain English, real moments, UK parent reality, warm not twee, direct on safety, respect existing toys/gear.
+
+## Tone — do not
+
+Patronise, catalogue-speak, Americanised/clinical jargon, overconfident claims, push purchases before stage context.
+
+**Banned in public copy:** magic, win, unlock, optimise, essential, must-have, developmental domain, "research shows", vague leap language.
+
+**Marketing / pricing AI red flags (founder 2026-07):** "another spiral", "endless tabs", "forever", "stage" / "stage-based", "research-backed", "landing the short list", internal labels like "Catalogue example". Never frame pain negatively ("six months behind", "not cluttering the shelf"). Prefer Ember/Pip proactive voice ("Ember has been watching…"). Always link Marketplace to `/marketplace`. Full table: `web/docs/PRODUCT_MARKETING_LIBRARY.md` §0.
+
+## Quick Well Duh fixes
+
+| Fail | Pass |
+|------|------|
+| Try board books | Pause before turning the page; wait for a point, sound or reach |
+| Go for a pram walk | Give a familiar walk a small job: dogs, buses, three leaves |
+| Try blocks | If you already have blocks, the shift is copying you, two-block towers, crash and repeat |
+
+## Commercial bar
+
+Conor cancels if Ember feels like a free blog. He stays if each age band answers: what is changing, what to bring back out, what to set up, what might be worth buying next — in less time than Mumsnet + John Lewis + Instagram combined.

@@ -1,9 +1,11 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { useMemo } from 'react';
 import { EmberRobinMark } from '@/components/figma/discover/EmberRobinMark';
 import { getDiscoverHeroCopy } from './discoverHeroCopy';
 import { DiscoverFigmaImage } from './DiscoverFigmaImage';
+import { personalizeDiscoverCopy } from '@/lib/discover/personalization';
 
 const HERO_FALLBACK =
   'https://images.unsplash.com/photo-1509781827353-fb95c262fc40?w=1080&q=80';
@@ -63,6 +65,7 @@ function AgeSliderCard({
 
 export function DiscoverFigmaChildHero({
   childDisplayLabel,
+  childGender,
   monthAge,
   bandLabel,
   bandRange,
@@ -93,11 +96,16 @@ export function DiscoverFigmaChildHero({
 }) {
   const name = childDisplayLabel?.trim() || null;
   const chipLabel = name ? `For ${name} · ${bandLabel}` : bandLabel;
+  const personalizeCopy = useMemo(
+    () => (text: string) => personalizeDiscoverCopy(text, { displayLabel: childDisplayLabel, gender: childGender }),
+    [childDisplayLabel, childGender]
+  );
   const { headline, sub } = getDiscoverHeroCopy({
     bandRange: bandRange ?? null,
     childDisplayLabel,
     isExpecting,
     monthAge,
+    personalizeCopy,
   });
 
   const heroImg = (

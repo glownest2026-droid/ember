@@ -1,0 +1,110 @@
+---
+description: Ember category image mapping — Storage preflight, DB writes, Discover read path. Use when mapping Stage 2 card images, pl_category_type_images, or category_images bucket uploads.
+globs: supabase/**/*image*,web/scripts/*category*image*,web/src/lib/discover/categoryImageOverrides.ts,web/src/lib/pl/gateway-cache.ts,agent-tools/exports/*image*
+alwaysApply: false
+---
+
+# Ember image mapping
+
+## Trigger
+
+User asks to **map category images**, fix **missing Stage 2 images**, or wire **`category_images`** Storage → `pl_category_type_images`.
+
+Full template: `supabase/import_templates/Leaf_Cursor_Template_Category_Image_Mapping.txt`
+
+## Non-negotiables (learned the hard way)
+
+1. **HEAD Storage before any DB write** — never invent `ember_{slug}_13_15m_category.png` URLs without a 200 response.
+2. **Never `--allow-expected`** on `apply-category-image-map.mjs` unless founder confirms uploads are live.
+3. **DB fix ≠ UI fix** — Discover caches Stage 2 copy 30m; `image_url` must be merged **fresh per request** (`getGatewayCategoryTypesByWrapperForAgeBandWithFreshImages`). **Deploy required** after mapping changes.
+4. **Never use `applyDeterministicStorageCategoryImages` on Discover** — it fabricates broken URLs and blocks fallbacks when any `ember_*_category.png` is set.
+5. **Resolve slugs via `v_gateway_category_types_public`** (anon-readable), not `pl_category_types` (RLS).
+
+## ABI / Make Image Creation INPUT (non-negotiable)
+
+In `stage2_category_type_label`, use **only**:
+
+`$Image title: <toy or idea> $Description: <what the toy/idea is for parents>`
+
+**Never** put art-direction prompts in Description (no “warm lighting”, “no children”, “Ember canvas”, “marketing art for…”, composition notes). Make’s template already owns visual style. Title/Description = the **focus object or play idea**, same register as Discover Stage 2 copy.
+
+## Filename convention
+
+Bucket: `category_images` · PNG only for new uploads.
+
+| Scope | Pattern | Example |
+|-------|---------|---------|
+| Age-band (preferred) | `ember_{slug}_{token}_category.png` | `ember_cat_point_name_walks_13_15m_category.png` |
+| Global fallback | `ember_{slug}_category.png` | `ember_cat_walk_with_job_category.png` |
+
+Token: `age_band_id` with `age_` stripped, `-` → `_` (`13-15m` → `13_15m`).
+
+Public URL: `{NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/category_images/{filename}`
+
+## Efficient workflow
+
+### 1) Preflight (read-only)
+
+```bash
+node web/scripts/preflight-category-image-map.mjs 13-15m cat_slug_one cat_slug_two ...
+```
+
+Or build a verified manifest JSON and run:
+
+```bash
+node web/scripts/fix-category-image-map.mjs 13-15m agent-tools/exports/<band>_category_image_verified_map.json
+```
+
+Manifest shape: `[{ "slug": "cat_foo", "file": "ember_cat_foo_13_15m_category.png" }]` — use `"file": null` when no object exists (deactivate, don't guess).
+
+**Preflight table:** slug · age_band_id · category_type_id · expected_filename · HEAD 200? · action
+
+If slug has no PNG but a **related** slug does (crosswalk), put the **verified filename** in the manifest — do not point DB at missing slug-specific names.
+
+### 2) SQL migration
+
+- Idempotent: deactivate superseded active rows for `(category_type_id, age_band_id)`, insert one active row.
+- Write `age_band_id = '<band>'` for Discover age-scoped cards (not global) unless only global file exists.
+- Mirror to `supabase/sql/` + `supabase/migrations/`; apply: `supabase db push --include-all`.
+
+### 3) Verify (all three)
+
+| Layer | Check |
+|-------|--------|
+| Storage | HEAD each mapped URL → **200** |
+| DB | `v_gateway_category_type_images` → one active row per scope |
+| UI | View-source on `/discover/{month}?wrapper=…` — URL must match Storage, not stale `_{token}_` ghost |
+
+Spot-check: `/discover/14` (13–15m). Grey card = broken URL in HTML or missing PNG — fetch production HTML if user reports miss after DB push.
+
+### 4) Export gaps
+
+```bash
+node web/scripts/export-stage2-no-image-band.mjs 13-15m
+```
+
+## Discover read path (do not regress)
+
+```
+getGatewayCategoryTypesByWrapperForAgeBandWithFreshImages  →  applyResolvedStorageCategoryImages
+```
+
+- Fresh images: `getGatewayCategoryTypeImages` in `gateway-cache.ts`
+- HEAD validate + probe fallbacks: `categoryImageOverrides.ts`
+- Cards read `image_url` via `categoryTypesToPlayIdeaItems` → `DiscoverFigmaImage`
+
+## Scripts (reuse, don't rewrite)
+
+| Script | Purpose |
+|--------|---------|
+| `web/scripts/preflight-category-image-map.mjs` | HEAD probe + slug resolve |
+| `web/scripts/apply-category-image-map.mjs` | Generate migration from slugs (storage-confirmed only) |
+| `web/scripts/fix-category-image-map.mjs` | Generate migration from verified manifest JSON |
+| `web/scripts/export-stage2-no-image-band.mjs` | Export cards still missing images |
+
+## Completion criteria
+
+- Every mapped slug: HEAD 200 on `image_url` in `v_gateway_category_type_images`
+- No duplicate active rows per `(category_type_id, age_band_id)`
+- Skipped slugs reported with exact upload filename expected
+- `PROGRESS.md` updated; user told **deploy** is required for Discover to pick up changes

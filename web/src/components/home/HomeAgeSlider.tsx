@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useReducedMotion } from 'motion/react';
+import { EMBER_MARKETING_CONTAINER } from '@/lib/marketing/layout';
 
 type AgeBand = {
   id: string;
@@ -23,7 +24,7 @@ function rangeOf(band: AgeBand | undefined): { min: number; max: number } | null
   return null;
 }
 
-// The newborn band (0–0 months) represents an unborn baby — show "Expecting",
+// The newborn band (0-0 months) represents an unborn baby: show "Expecting",
 // mirroring /discover's formatBandLabel.
 function isExpectingRange(r: { min: number; max: number } | null): boolean {
   return !!r && r.min === 0 && r.max === 0;
@@ -83,7 +84,7 @@ export function HomeAgeSlider() {
 
   return (
     <section className="bg-[var(--ember-surface-primary)] border-y border-[var(--ember-border-subtle)]">
-      <div className="max-w-[90rem] mx-auto px-6 lg:px-12 py-16 lg:py-20">
+      <div className={`${EMBER_MARKETING_CONTAINER} py-16 lg:py-20`}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -91,14 +92,13 @@ export function HomeAgeSlider() {
           className="max-w-4xl mx-auto"
         >
           <div className="text-center mb-8">
-            <p className="text-lg text-[var(--ember-text-low)] mb-2">My child&apos;s current age</p>
+            <p className="home-body mb-2">My child&apos;s current age</p>
             <motion.p
               key={currentAgeLabel || 'loading'}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reducedMotion ? 0 : 0.3 }}
-              className="text-3xl lg:text-4xl text-[var(--ember-text-high)]"
-              style={{ fontWeight: 600 }}
+              className="home-section-title text-[var(--ember-text-high)]"
             >
               {ready ? currentAgeLabel : '\u00A0'}
             </motion.p>
@@ -151,7 +151,7 @@ export function HomeAgeSlider() {
                             showLabelOnMobile ? 'block' : 'hidden sm:block'
                           } ${
                             active
-                              ? 'text-[var(--ember-accent-base)] font-semibold'
+                              ? 'text-[var(--ember-accent-base)] font-medium'
                               : 'text-[var(--ember-text-low)]'
                           }`}
                         >
@@ -170,8 +170,7 @@ export function HomeAgeSlider() {
                 href={discoverHref}
                 whileHover={reducedMotion ? {} : { scale: 1.02 }}
                 whileTap={reducedMotion ? {} : { scale: 0.98 }}
-                className="inline-flex items-center gap-3 px-10 py-5 bg-[var(--ember-accent-base)] text-white text-lg rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_12px_40px_rgba(255,99,71,0.35)]"
-                style={{ fontWeight: 600 }}
+                className="home-cta inline-flex items-center gap-3 px-8 py-4 bg-[var(--ember-accent-base)] text-white rounded-xl transition-all duration-300 hover:bg-[var(--ember-accent-hover)] hover:shadow-[0px_12px_40px_rgba(255,92,52,0.25)]"
               >
                 Begin your journey
                 <ArrowRight className="w-5 h-5" strokeWidth={2.5} />

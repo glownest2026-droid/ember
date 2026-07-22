@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ember Stage 3 Card Ingestion"
+  short_description: "Import Pip's Picks into Discover"
+  default_prompt: "Use $ember-stage3-card-ingestion to turn Stage 3 research outputs into live Pip's Picks cards in Discover."

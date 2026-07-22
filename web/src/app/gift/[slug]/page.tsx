@@ -34,6 +34,7 @@ export default async function GiftListPage({
     image_url: row.image_url != null ? String(row.image_url) : null,
     created_at: String(row.created_at),
     child_id: row.child_id != null ? String(row.child_id) : null,
+    shop_query: row.shop_query != null ? String(row.shop_query) : null,
   }));
 
   const listTitle =

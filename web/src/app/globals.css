@@ -52,7 +52,7 @@
 
 /* Header and subnav height for content offset / stacking (Figma navbar: py-5 + content) */
 :root {
-  --header-height: 88px; /* Figma navbar height */
+  --header-height: 112px; /* Signed-out nav with doubled logo */
   --subnav-height: 52px; /* Subnav bar when shown (signed-in) - legacy, unused when unified nav */
   /* Unified signed-in nav: one bar (main row + optional mobile tabs + stats) */
   --unified-nav-height: 64px;
@@ -71,6 +71,188 @@
   }
 }
 /* Mobile tab row uses JS + position:fixed when scrolled (see UnifiedSignedInNav) */
+
+/* Homepage remaps brand tokens to Discover Figma (May 2026) — Manrope + #253044 / #FF5C34 */
+.homepage-discover-brand {
+  --ember-bg-canvas: #fbfaf7;
+  --ember-surface-primary: #ffffff;
+  --ember-surface-soft: #fbfaf7;
+  --ember-text-high: #253044;
+  --ember-text-low: #66717d;
+  --ember-border-subtle: #e7e2dc;
+  --ember-accent-base: #ff5c34;
+  --ember-accent-hover: #e04b28;
+  --ember-focus-ring: #ff5c34;
+  --ember-blush: #fff6f3;
+  --ember-primary: #ff5c34;
+  --ember-primary-dark: #e04b28;
+  --ember-primary-light: #ff8870;
+  --ember-gray-900: #253044;
+  --ember-gray-600: #66717d;
+  --ember-gray-300: #e7e2dc;
+  --ember-gray-200: #fbfaf7;
+  --ember-gray-100: #fbfaf7;
+  --ember-primary-10: rgba(255, 92, 52, 0.1);
+  --ember-primary-5: rgba(255, 92, 52, 0.05);
+  --shadow-primary: 0px 8px 32px rgba(255, 92, 52, 0.3);
+  /*
+   * Discover is source of truth: Manrope only.
+   * ThemeProvider still injects Inter (body) + Source Serif 4 (headings) as brand defaults —
+   * override those tokens so homepage cannot fall back to them.
+   */
+  --brand-font-body: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --brand-font-heading: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --brand-font-subheading: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  color: var(--ember-text-high);
+  background-color: var(--ember-bg-canvas);
+}
+
+.homepage-discover-brand h1,
+.homepage-discover-brand h2,
+.homepage-discover-brand h3,
+.homepage-discover-brand h4,
+.homepage-discover-brand p,
+.homepage-discover-brand span,
+.homepage-discover-brand a,
+.homepage-discover-brand li,
+.homepage-discover-brand button,
+.homepage-discover-brand label {
+  font-family: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Homepage typography: Discover Manrope scale (marketing sizes, same face as /discover) */
+.homepage-discover-brand .home-display {
+  font-family: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 3rem;
+  line-height: 1.04;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+@media (min-width: 640px) {
+  .homepage-discover-brand .home-display {
+    font-size: 3.75rem;
+  }
+}
+@media (min-width: 1024px) {
+  .homepage-discover-brand .home-display {
+    font-size: 5rem;
+  }
+}
+@media (min-width: 1280px) {
+  .homepage-discover-brand .home-display {
+    font-size: 5.5rem;
+  }
+}
+
+/* Homepage body copy — one size through the page (matches hero subhead) */
+.homepage-discover-brand .home-lead,
+.homepage-discover-brand .home-section-lead,
+.homepage-discover-brand .home-body {
+  font-family: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.25rem;
+  line-height: 1.55;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #66717d;
+}
+@media (min-width: 640px) {
+  .homepage-discover-brand .home-lead,
+  .homepage-discover-brand .home-section-lead,
+  .homepage-discover-brand .home-body {
+    font-size: 1.375rem;
+  }
+}
+@media (min-width: 1024px) {
+  .homepage-discover-brand .home-lead,
+  .homepage-discover-brand .home-section-lead,
+  .homepage-discover-brand .home-body {
+    font-size: 1.5rem;
+  }
+}
+
+.homepage-discover-brand .home-section-title {
+  font-family: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 2rem;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ember-text-high);
+}
+@media (min-width: 640px) {
+  .homepage-discover-brand .home-section-title {
+    font-size: 2.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .homepage-discover-brand .home-section-title {
+    font-size: 2.75rem;
+  }
+}
+
+.homepage-discover-brand .home-pullquote {
+  font-family: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.75rem;
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+@media (min-width: 640px) {
+  .homepage-discover-brand .home-pullquote {
+    font-size: 2rem;
+  }
+}
+@media (min-width: 1024px) {
+  .homepage-discover-brand .home-pullquote {
+    font-size: 2.25rem;
+  }
+}
+
+.homepage-discover-brand .home-card-title {
+  font-family: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.375rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+@media (min-width: 640px) {
+  .homepage-discover-brand .home-card-title {
+    font-size: 1.5rem;
+  }
+}
+
+.homepage-discover-brand .home-cta,
+.homepage-discover-brand .home-link,
+.homepage-discover-brand .home-cta-hero,
+.homepage-discover-brand .home-link-hero {
+  font-family: var(--font-discover-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+@media (min-width: 1024px) {
+  .homepage-discover-brand .home-cta,
+  .homepage-discover-brand .home-link,
+  .homepage-discover-brand .home-cta-hero,
+  .homepage-discover-brand .home-link-hero {
+    font-size: 1.25rem;
+  }
+}
+
+/* Orange primary buttons: always white label on accent fill */
+.homepage-discover-brand a.home-cta,
+.homepage-discover-brand .home-cta,
+.homepage-discover-brand a.home-cta-hero,
+.homepage-discover-brand .home-cta-hero {
+  color: #ffffff;
+}
+
+.homepage-discover-brand .home-media {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
 
 /* Ember 2026 Brandbook design tokens (Unified UX + Brand) */
 :root {

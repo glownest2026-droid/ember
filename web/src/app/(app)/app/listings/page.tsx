@@ -12,6 +12,7 @@ import {
 import { useListingDebugMode } from "@/components/marketplace/listing-flow/useListingDebugMode";
 import { createClient } from "@/utils/supabase/client";
 import { CreateListingFlowView } from "@/components/marketplace/listing-flow/CreateListingFlowView";
+import { saveAtHomeFromPhotoDraft } from "@/lib/inventory/atHome";
 
 const RAW_LISTING_BUCKET = "marketplace-raw-listing-photos";
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -206,6 +207,11 @@ function AppListingsPhotoDraftPage() {
   const [publishedListingId, setPublishedListingId] = useState<string | null>(null);
   const [defaultAreaLabel, setDefaultAreaLabel] = useState<string | null>(null);
   const [defaultPostcode, setDefaultPostcode] = useState<string | null>(null);
+  const [householdItemId, setHouseholdItemId] = useState<string | null>(null);
+  const [householdItemLabel, setHouseholdItemLabel] = useState<string | null>(null);
+  const [householdProductTypeId, setHouseholdProductTypeId] = useState<string | null>(null);
+  const [atHomeIntent, setAtHomeIntent] = useState(false);
+  const [atHomeChildId, setAtHomeChildId] = useState<string | null>(null);
   const debugMode = useListingDebugMode();
 
   const brandCharacterHint = useMemo(() => {
@@ -338,6 +344,18 @@ function AppListingsPhotoDraftPage() {
     setOpportunityLoaded(false);
     setPublishedBeta(false);
     setPublishedListingId(null);
+    // Keep household item context when starting a fresh listing from At home.
+  }, []);
+
+  const clearHouseholdItemContext = useCallback(() => {
+    setHouseholdItemId(null);
+    setHouseholdItemLabel(null);
+    setHouseholdProductTypeId(null);
+  }, []);
+
+  const clearAtHomeIntent = useCallback(() => {
+    setAtHomeIntent(false);
+    setAtHomeChildId(null);
   }, []);
 
   const hydratePublishedListingForEdit = useCallback(
@@ -478,9 +496,11 @@ function AppListingsPhotoDraftPage() {
 
   const handleStartNewListing = useCallback(() => {
     resetToNewListingState();
+    clearHouseholdItemContext();
+    clearAtHomeIntent();
     router.replace("/app/listings?new=1");
     setSuccess("Add a photo to start your next listing.");
-  }, [resetToNewListingState, router]);
+  }, [resetToNewListingState, clearHouseholdItemContext, clearAtHomeIntent, router]);
 
   useEffect(() => {
     let active = true;
@@ -511,6 +531,90 @@ function AppListingsPhotoDraftPage() {
 
       const forceNew = searchParams.get("new") === "1";
       const editListingId = searchParams.get("edit")?.trim() || null;
+      const fromHouseholdItem = searchParams.get("household_item")?.trim() || null;
+      const intentAtHome = searchParams.get("intent") === "at-home";
+      const childFromQuery = searchParams.get("child")?.trim() || null;
+
+      if (intentAtHome) {
+        const params = new URLSearchParams();
+        if (childFromQuery) params.set("child", childFromQuery);
+        const q = params.toString();
+        router.replace(q ? `/family/at-home/add?${q}` : "/family/at-home/add");
+        return;
+      }
+
+      clearAtHomeIntent();
+
+      if (fromHouseholdItem) {
+        const { data: owned } = await supabase
+          .from("garage_items")
+          .select(
+            `
+            id,
+            product_type_id,
+            raw_query,
+            product_types ( label ),
+            pl_category_types ( label )
+          `
+          )
+          .eq("id", fromHouseholdItem)
+          .eq("user_id", authUser.id)
+          .maybeSingle();
+
+        if (!active) return;
+
+        if (owned?.id) {
+          const pt = owned.product_types as { label?: string | null } | null;
+          const ct = owned.pl_category_types as { label?: string | null } | null;
+          const label =
+            ct?.label?.trim() ||
+            pt?.label?.trim() ||
+            (owned.raw_query as string | null)?.trim() ||
+            "Item at home";
+          setHouseholdItemId(owned.id);
+          setHouseholdItemLabel(label);
+          setHouseholdProductTypeId((owned.product_type_id as string | null) ?? null);
+          const { data: linkedDrafts } = await supabase
+            .from("marketplace_listing_drafts")
+            .select(
+              "id, image_storage_path, product_type_id, status, title_draft, description_draft, condition_confirmed_by_user, listing_draft_details_json, listing_details_generated_at, ai_detected_label, ai_raw_response_json"
+            )
+            .eq("user_id", authUser.id)
+            .eq("household_item_id", owned.id)
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+          if (!active) return;
+
+          const linkedDraft = (linkedDrafts?.[0] ?? null) as DraftRow | null;
+          if (linkedDraft?.id) {
+            const published = await draftHasPublishedListing(supabase, linkedDraft.id);
+            if (!active) return;
+
+            if (!published) {
+              setFlowMode("create");
+              await hydrateDraftRow(supabase, linkedDraft, null);
+              setSuccess(
+                linkedDraft.image_storage_path
+                  ? `Listing from At home: ${label}. Using your saved At home photo.`
+                  : `Listing from At home: ${label}. Add a photo to continue.`
+              );
+              if (active) setLoading(false);
+              return;
+            }
+          }
+
+          resetToNewListingState();
+          setSuccess(`Listing from At home: ${label}. Add a photo to continue.`);
+          if (active) setLoading(false);
+          return;
+        }
+
+        clearHouseholdItemContext();
+        setError("That At home item could not be found.");
+      } else {
+        clearHouseholdItemContext();
+      }
 
       if (forceNew) {
         resetToNewListingState();
@@ -621,6 +725,8 @@ function AppListingsPhotoDraftPage() {
     searchParams,
     refreshSignedPreview,
     resetToNewListingState,
+    clearHouseholdItemContext,
+    clearAtHomeIntent,
     hydrateDraftRow,
     hydratePublishedListingForEdit,
     loadMarketplacePrefs,
@@ -670,6 +776,12 @@ function AppListingsPhotoDraftPage() {
           .insert({
             user_id: user.id,
             status: "draft",
+            ...(householdItemId
+              ? {
+                  household_item_id: householdItemId,
+                  product_type_id: householdProductTypeId,
+                }
+              : {}),
           })
           .select("id")
           .single();
@@ -696,7 +808,8 @@ function AppListingsPhotoDraftPage() {
         .from("marketplace_listing_drafts")
         .update({
           image_storage_path: path,
-          product_type_id: null,
+          product_type_id: householdItemId ? householdProductTypeId : null,
+          ...(householdItemId ? { household_item_id: householdItemId } : {}),
           status: "draft",
           title_draft: null,
           description_draft: null,
@@ -795,6 +908,12 @@ function AppListingsPhotoDraftPage() {
   ) => {
     if (savingSelection) return;
     if (!draftId) return;
+
+    if (atHomeIntent && !productTypeId) {
+      setAnalysisError("Pick the closest match so Ember can save this At home.");
+      return;
+    }
+
     setSavingSelection(true);
     setAnalysisError(null);
     setSelectionMessage(null);
@@ -821,15 +940,16 @@ function AppListingsPhotoDraftPage() {
       }
       const draft = payload?.draft;
       if (draft?.status === "confirmed" && draft.product_type_id) {
+        const resolvedLabel =
+          payload?.selected_product_type?.display_label?.trim() ||
+          displayLabel?.trim() ||
+          analysisResult?.detected_item_label?.trim() ||
+          null;
         setConfirmedDraft({
           status: draft.status,
           productTypeId: draft.product_type_id,
           label: payload?.selected_product_type?.label ?? null,
-          displayLabel:
-            payload?.selected_product_type?.display_label?.trim() ||
-            displayLabel?.trim() ||
-            analysisResult?.detected_item_label?.trim() ||
-            null,
+          displayLabel: resolvedLabel,
           categoryLabel:
             payload?.selected_product_type?.category_label?.trim() ||
             payload?.selected_product_type?.subtitle?.trim() ||
@@ -844,6 +964,25 @@ function AppListingsPhotoDraftPage() {
         });
         setDraftReview(null);
         setDetailsSavedOnce(false);
+
+        if (atHomeIntent && user) {
+          const saved = await saveAtHomeFromPhotoDraft({
+            userId: user.id,
+            draftId,
+            productTypeId: draft.product_type_id,
+            childId: atHomeChildId,
+            displayLabel: resolvedLabel,
+          });
+          if (saved.error || !saved.itemId) {
+            throw new Error(saved.error ?? "Could not save to At home.");
+          }
+          setSelectionMessage("Saved to At home.");
+          setSuccess("Saved to At home. You can list it later when you are ready.");
+          const params = new URLSearchParams({ added: "1" });
+          if (atHomeChildId) params.set("child", atHomeChildId);
+          router.replace(`/family/at-home?${params.toString()}`);
+          return;
+        }
       } else {
         setConfirmedDraft({
           status: draft?.status ?? "draft",
@@ -873,6 +1012,7 @@ function AppListingsPhotoDraftPage() {
   }
 
   if (!user) {
+    const intentFromUrl = searchParams.get("intent") === "at-home";
     return (
       <div className="p-6">
         <p className="text-[#5C646D]">
@@ -880,7 +1020,7 @@ function AppListingsPhotoDraftPage() {
           <Link className="underline text-primary" href="/signin">
             sign in
           </Link>{" "}
-          to upload a listing photo.
+          {intentFromUrl ? "to add something At home." : "to upload a listing photo."}
         </p>
       </div>
     );
@@ -888,6 +1028,7 @@ function AppListingsPhotoDraftPage() {
 
   return (
     <CreateListingFlowView
+      purpose={atHomeIntent ? "at-home" : "marketplace"}
       debugMode={debugMode}
       draftId={draftId}
       imageStoragePath={imageStoragePath}

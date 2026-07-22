@@ -1,7 +1,8 @@
 import { createPublicCatalogueClient } from '../../utils/supabase/public-catalogue';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 const CATEGORY_TYPE_SELECT =
-  'age_band_id, development_need_id, rank, rationale, audience_lens, content_type, ui_lane, ui_section_title, lane_rank, show_ember_picks, show_gift_action, gift_friendly, buyer_mode_label, gift_note, ownership_note, product_family_label, primary_persona, card_cta_label, render_rule, id, slug, label, name, description, image_url, safety_notes';
+  'age_band_id, development_need_id, wrapper_slug, rank, rationale, audience_lens, content_type, ui_lane, ui_section_title, lane_rank, show_ember_picks, show_gift_action, gift_friendly, buyer_mode_label, gift_note, ownership_note, product_family_label, primary_persona, card_cta_label, render_rule, id, slug, label, name, description, image_url, safety_notes';
 
 export type GatewayAgeBandPublic = {
   id: string;
@@ -95,6 +96,8 @@ export type GatewayWrapperPublic = {
 export type GatewayCategoryTypePublic = {
   age_band_id: string;
   development_need_id: string;
+  /** Stage 1 cluster this row belongs to (Bible cluster_entity_id); null for legacy need-keyed rows. */
+  wrapper_slug: string | null;
   rank: number;
   rationale: string | null;
   audience_lens: string | null;
@@ -104,6 +107,7 @@ export type GatewayCategoryTypePublic = {
   lane_rank: number | null;
   show_ember_picks: boolean | null;
   show_gift_action: boolean | null;
+  has_stage3_picks?: boolean | null;
   gift_friendly: boolean | null;
   buyer_mode_label: string | null;
   gift_note: string | null;
@@ -134,11 +138,61 @@ export type GatewayProductPublic = {
   amazon_uk_url: string | null;
   affiliate_url: string | null;
   affiliate_deeplink: string | null;
+  is_stage3_pick?: boolean;
+  is_locked?: boolean;
+  locked_for_non_members?: boolean | null;
+  stage3_rank?: number;
+  best_for_tag?: string | null;
+  title?: string | null;
+  retailer?: string | null;
+  price_text?: string | null;
+  product_description_under_30_words?: string | null;
+  product_description?: string | null;
+  product_url?: string | null;
+  ember_verdict?: string | null;
+  why_pip_picked_this?: string | null;
+  why_it_fits?: string | null;
+  personalization_hint?: string | null;
+  caveats?: string | null;
+  buy_borrow_hold_off?: string | null;
+  gift_suitable?: boolean | null;
+  gift_note?: string | null;
+  ownership_note?: string | null;
+  safety_notes?: string | null;
+  evidence_tier?: string | null;
+  founder_qa_flag?: string | null;
+  locked_reason?: string | null;
 };
 
 export type GatewayPick = {
   product: GatewayProductPublic;
   categoryType: Pick<GatewayCategoryTypePublic, 'id' | 'slug' | 'label' | 'name'>;
+};
+
+type GatewayStage3PickRow = {
+  id: string;
+  age_band_id: string;
+  category_type_id: string;
+  pick_rank: number;
+  is_locked: boolean;
+  best_for_tag: string | null;
+  product_name: string;
+  brand: string | null;
+  retailer: string | null;
+  product_url: string | null;
+  image_url: string | null;
+  price_text: string | null;
+  product_description: string | null;
+  ember_verdict: string | null;
+  why_it_fits: string | null;
+  caveats: string | null;
+  buy_borrow_hold_off: string | null;
+  gift_suitable: boolean | null;
+  gift_note: string | null;
+  ownership_note: string | null;
+  safety_notes: string | null;
+  evidence_tier: string | null;
+  founder_qa_flag: string | null;
 };
 
 /**
@@ -249,7 +303,9 @@ export async function getGatewayHeroImageForAgeBand(ageBandId: string): Promise<
 
 /**
  * Resolve development_need_id(s) for an age band + wrapper.
- * Spine v2 bands use age-band-specific mappings; older bands fall back to the global wrapper→need link.
+ * Spine v2 bands use age-band-specific mappings (v_gateway_age_band_wrapper_needs_public);
+ * older bands fall back to the global wrapper→need link. Missing mappings are a data bug —
+ * fix them in the mapping view migration, not with code-side guessing.
  */
 async function getDevelopmentNeedIdsForAgeBandAndWrapper(
   ageBandId: string,
@@ -293,6 +349,81 @@ function sortCategoriesByNeedOrder(
   });
 }
 
+function sortWrapperScopedCategories(
+  categories: GatewayCategoryTypePublic[]
+): GatewayCategoryTypePublic[] {
+  return [...categories].sort((a, b) => {
+    if (a.rank !== b.rank) return a.rank - b.rank;
+    const laneA = a.lane_rank ?? Number.MAX_SAFE_INTEGER;
+    const laneB = b.lane_rank ?? Number.MAX_SAFE_INTEGER;
+    if (laneA !== laneB) return laneA - laneB;
+    return a.slug.localeCompare(b.slug);
+  });
+}
+
+/**
+ * Fetch Stage 2 rows tagged with their Stage 1 cluster (wrapper_slug).
+ * Bands re-ingested from a Spine 3.0 Bible carry the cluster on every row,
+ * matching the workbook's cluster → category mapping exactly. Returns [] for
+ * legacy bands, which then resolve through the wrapper → need path.
+ */
+async function getWrapperScopedCategories(
+  supabase: SupabaseClient,
+  ageBandId: string,
+  wrapperSlug: string
+): Promise<GatewayCategoryTypePublic[]> {
+  const { data, error } = await supabase
+    .from('v_gateway_category_types_public')
+    .select(CATEGORY_TYPE_SELECT)
+    .eq('age_band_id', ageBandId)
+    .eq('wrapper_slug', wrapperSlug);
+
+  if (error || !data) return [];
+  return sortWrapperScopedCategories(data as GatewayCategoryTypePublic[]);
+}
+
+async function getStage3AvailableCategoryIds(
+  supabase: SupabaseClient,
+  ageBandId: string,
+  categoryTypeIds: string[]
+): Promise<Set<string>> {
+  if (categoryTypeIds.length === 0) return new Set();
+
+  const { data, error } = await supabase
+    .from('pl_stage3_picks')
+    .select('category_type_id')
+    .eq('age_band_id', ageBandId)
+    .eq('status', 'visible')
+    .eq('is_visible', true)
+    .eq('pick_rank', 1)
+    .in('category_type_id', categoryTypeIds);
+
+  if (error || !data) return new Set();
+  return new Set(
+    (data as Array<{ category_type_id?: string | null }>)
+      .map((row) => row.category_type_id)
+      .filter((id): id is string => Boolean(id))
+  );
+}
+
+async function withStage3Availability(
+  supabase: SupabaseClient,
+  ageBandId: string,
+  categories: GatewayCategoryTypePublic[]
+): Promise<GatewayCategoryTypePublic[]> {
+  const availableIds = await getStage3AvailableCategoryIds(
+    supabase,
+    ageBandId,
+    categories.map((c) => c.id)
+  );
+  return categories.map((c) => ({
+    ...c,
+    has_stage3_picks: availableIds.has(c.id),
+    show_ember_picks: availableIds.has(c.id),
+    card_cta_label: availableIds.has(c.id) ? 'See Our Picks' : null,
+  }));
+}
+
 /**
  * Fetch category types for an age band + wrapper (Layer B).
  * Uses v_gateway_category_types_public via wrapper → development_need resolution.
@@ -304,29 +435,36 @@ export async function getGatewayCategoryTypesForAgeBandAndWrapper(
 ): Promise<GatewayCategoryTypePublic[]> {
   const supabase = createPublicCatalogueClient();
 
-  const developmentNeedIds = await getDevelopmentNeedIdsForAgeBandAndWrapper(ageBandId, wrapperSlug);
-  if (developmentNeedIds.length === 0) return [];
+  // Cluster-tagged rows are the source of truth (exact Bible mapping).
+  let categories = await getWrapperScopedCategories(supabase, ageBandId, wrapperSlug);
 
-  const { data: categoryRows, error: categoryError } = await supabase
-    .from('v_gateway_category_types_public')
-    .select(CATEGORY_TYPE_SELECT)
-    .eq('age_band_id', ageBandId)
-    .in('development_need_id', developmentNeedIds);
+  if (categories.length === 0) {
+    // Legacy band: resolve wrapper → development needs → categories.
+    const developmentNeedIds = await getDevelopmentNeedIdsForAgeBandAndWrapper(ageBandId, wrapperSlug);
+    if (developmentNeedIds.length === 0) return [];
 
-  if (categoryError || !categoryRows) return [];
-  const categories = sortCategoriesByNeedOrder(
-    categoryRows as GatewayCategoryTypePublic[],
-    developmentNeedIds
-  );
+    const { data: categoryRows, error: categoryError } = await supabase
+      .from('v_gateway_category_types_public')
+      .select(CATEGORY_TYPE_SELECT)
+      .eq('age_band_id', ageBandId)
+      .in('development_need_id', developmentNeedIds);
+
+    if (categoryError || !categoryRows) return [];
+    categories = sortCategoriesByNeedOrder(
+      (categoryRows as GatewayCategoryTypePublic[]).filter((c) => c.wrapper_slug === null),
+      developmentNeedIds
+    );
+  }
 
   const imageMap = await getGatewayCategoryTypeImages(
     categories.map((c) => c.id),
     ageBandId
   );
-  return categories.map((c) => {
+  const withImages = categories.map((c) => {
     const img = imageMap.get(c.id);
     return img ? { ...c, image_url: img.image_url } : c;
   });
+  return withStage3Availability(supabase, ageBandId, withImages);
 }
 
 export type GatewayCategoryTypesByWrapper = Record<string, GatewayCategoryTypePublic[]>;
@@ -348,6 +486,26 @@ export async function getGatewayCategoryTypesByWrapperForAgeBand(
 
   const supabase = createPublicCatalogueClient();
   const slugLookup = new Set(wrapperSlugs.map((s) => s.toLowerCase()));
+
+  // Cluster-tagged rows first (exact Bible mapping). One query for the whole band.
+  const { data: taggedRows, error: taggedError } = await supabase
+    .from('v_gateway_category_types_public')
+    .select(CATEGORY_TYPE_SELECT)
+    .eq('age_band_id', ageBandId)
+    .not('wrapper_slug', 'is', null);
+
+  const taggedByWrapper = new Map<string, GatewayCategoryTypePublic[]>();
+  if (!taggedError && taggedRows) {
+    for (const row of taggedRows as GatewayCategoryTypePublic[]) {
+      const dbSlug = row.wrapper_slug as string;
+      if (!slugLookup.has(dbSlug.toLowerCase())) continue;
+      const slug = canonicalWrapperSlug(wrapperSlugs, dbSlug);
+      const list = taggedByWrapper.get(slug) ?? [];
+      list.push(row);
+      taggedByWrapper.set(slug, list);
+    }
+  }
+
   const needIdsByWrapper = new Map<string, string[]>();
 
   const { data: bandNeedRows, error: bandNeedError } = await supabase
@@ -361,6 +519,8 @@ export async function getGatewayCategoryTypesByWrapperForAgeBand(
       const dbSlug = row.wrapper_slug as string;
       if (!slugLookup.has(dbSlug.toLowerCase())) continue;
       const slug = canonicalWrapperSlug(wrapperSlugs, dbSlug);
+      if (taggedByWrapper.has(slug)) continue;
+      if ((needIdsByWrapper.get(slug) ?? []).length > 0) continue;
       const needId = row.development_need_id as string;
       const list = needIdsByWrapper.get(slug) ?? [];
       if (!list.includes(needId)) list.push(needId);
@@ -368,7 +528,9 @@ export async function getGatewayCategoryTypesByWrapperForAgeBand(
     }
   }
 
-  const missingSlugs = wrapperSlugs.filter((slug) => (needIdsByWrapper.get(slug) ?? []).length === 0);
+  const missingSlugs = wrapperSlugs.filter(
+    (slug) => !taggedByWrapper.has(slug) && (needIdsByWrapper.get(slug) ?? []).length === 0
+  );
   if (missingSlugs.length > 0) {
     const { data: wrapperDetails, error: wrapperError } = await supabase
       .from('v_gateway_wrapper_detail_public')
@@ -388,31 +550,50 @@ export async function getGatewayCategoryTypesByWrapperForAgeBand(
   }
 
   const allNeedIds = [...new Set([...needIdsByWrapper.values()].flat())];
-  if (allNeedIds.length === 0) return empty;
+  let legacyRows: GatewayCategoryTypePublic[] = [];
+  if (allNeedIds.length > 0) {
+    const { data: categoryRows, error: categoryError } = await supabase
+      .from('v_gateway_category_types_public')
+      .select(CATEGORY_TYPE_SELECT)
+      .eq('age_band_id', ageBandId)
+      .in('development_need_id', allNeedIds);
 
-  const { data: categoryRows, error: categoryError } = await supabase
-    .from('v_gateway_category_types_public')
-    .select(CATEGORY_TYPE_SELECT)
-    .eq('age_band_id', ageBandId)
-    .in('development_need_id', allNeedIds);
+    if (!categoryError && categoryRows) {
+      legacyRows = (categoryRows as GatewayCategoryTypePublic[]).filter(
+        (c) => c.wrapper_slug === null
+      );
+    }
+  }
 
-  if (categoryError || !categoryRows) return empty;
+  const allRows = [...[...taggedByWrapper.values()].flat(), ...legacyRows];
+  if (allRows.length === 0) return empty;
 
   const imageMap = await getGatewayCategoryTypeImages(
-    (categoryRows as GatewayCategoryTypePublic[]).map((c) => c.id),
+    allRows.map((c) => c.id),
     ageBandId
   );
-  const withImages = (categoryRows as GatewayCategoryTypePublic[]).map((c) => {
-    const img = imageMap.get(c.id);
-    return img ? { ...c, image_url: img.image_url } : c;
-  });
+  const withImages = new Map(
+    allRows.map((c) => {
+      const img = imageMap.get(c.id);
+      return [c, img ? { ...c, image_url: img.image_url } : c] as const;
+    })
+  );
+  const withStage3 = await withStage3Availability(supabase, ageBandId, [...withImages.values()]);
+  const enriched = new Map([...withImages.keys()].map((orig, i) => [orig, withStage3[i]] as const));
 
   const result = { ...empty };
   for (const slug of wrapperSlugs) {
+    const tagged = taggedByWrapper.get(slug);
+    if (tagged && tagged.length > 0) {
+      result[slug] = sortWrapperScopedCategories(tagged.map((c) => enriched.get(c) ?? c));
+      continue;
+    }
     const needIds = needIdsByWrapper.get(slug) ?? [];
     if (needIds.length === 0) continue;
     const needSet = new Set(needIds);
-    const filtered = withImages.filter((c) => needSet.has(c.development_need_id));
+    const filtered = legacyRows
+      .map((c) => enriched.get(c) ?? c)
+      .filter((c) => needSet.has(c.development_need_id));
     result[slug] = sortCategoriesByNeedOrder(filtered, needIds);
   }
   return result;
@@ -434,21 +615,27 @@ export async function getGatewayTopPicksForAgeBandAndWrapperSlug(
 ): Promise<GatewayPick[]> {
   const supabase = createPublicCatalogueClient();
 
-  const developmentNeedIds = await getDevelopmentNeedIdsForAgeBandAndWrapper(ageBandId, wrapperSlug);
-  if (developmentNeedIds.length === 0) return [];
+  // Cluster-tagged rows are the source of truth (exact Bible mapping).
+  let categories = await getWrapperScopedCategories(supabase, ageBandId, wrapperSlug);
 
-  const { data: categoryRows, error: categoryError } = await supabase
-    .from('v_gateway_category_types_public')
-    .select('age_band_id, development_need_id, rank, rationale, audience_lens, content_type, ui_lane, ui_section_title, lane_rank, show_ember_picks, show_gift_action, gift_friendly, buyer_mode_label, gift_note, ownership_note, product_family_label, primary_persona, card_cta_label, render_rule, id, slug, label, name, description, image_url, safety_notes')
-    .eq('age_band_id', ageBandId)
-    .in('development_need_id', developmentNeedIds);
+  if (categories.length === 0) {
+    const developmentNeedIds = await getDevelopmentNeedIdsForAgeBandAndWrapper(ageBandId, wrapperSlug);
+    if (developmentNeedIds.length === 0) return [];
 
-  if (categoryError || !categoryRows || categoryRows.length === 0) return [];
+    const { data: categoryRows, error: categoryError } = await supabase
+      .from('v_gateway_category_types_public')
+      .select(CATEGORY_TYPE_SELECT)
+      .eq('age_band_id', ageBandId)
+      .in('development_need_id', developmentNeedIds);
 
-  const categories = sortCategoriesByNeedOrder(
-    categoryRows as GatewayCategoryTypePublic[],
-    developmentNeedIds
-  );
+    if (categoryError || !categoryRows || categoryRows.length === 0) return [];
+
+    categories = sortCategoriesByNeedOrder(
+      (categoryRows as GatewayCategoryTypePublic[]).filter((c) => c.wrapper_slug === null),
+      developmentNeedIds
+    );
+  }
+  if (categories.length === 0) return [];
   const categoryIds = categories.map(c => c.id);
 
   const { data: productRows, error: productError } = await supabase
@@ -539,6 +726,152 @@ export async function getGatewayTopPicksForAgeBandAndCategoryType(
     product: p,
     categoryType: { id: category.id, slug: category.slug, label: category.label, name: category.name },
   }));
+}
+
+function stage3PlaceholderProduct(
+  ageBandId: string,
+  categoryTypeId: string,
+  rank: number
+): GatewayProductPublic {
+  return {
+    age_band_id: ageBandId,
+    category_type_id: categoryTypeId,
+    rank,
+    rationale: "Included with Ember Plus.",
+    id: `stage3_locked_${ageBandId}_${categoryTypeId}_${rank}`,
+    name: `Pip's Pick ${rank}`,
+    brand: null,
+    image_url: null,
+    canonical_url: null,
+    amazon_uk_url: null,
+    affiliate_url: null,
+    affiliate_deeplink: null,
+    is_stage3_pick: true,
+    is_locked: true,
+    stage3_rank: rank,
+    best_for_tag: 'Ember Plus',
+    retailer: null,
+    price_text: null,
+    product_description: null,
+    ember_verdict: 'Pip has another pick ready for Ember Plus.',
+    why_it_fits: null,
+    caveats: null,
+    buy_borrow_hold_off: null,
+    gift_suitable: null,
+    gift_note: null,
+    ownership_note: null,
+    safety_notes: null,
+    evidence_tier: null,
+    founder_qa_flag: null,
+    locked_reason: "Sign in with the founder account to preview the full Pip's Picks set.",
+  };
+}
+
+function stage3RowToProduct(row: GatewayStage3PickRow, canSeeLocked: boolean = false): GatewayProductPublic {
+  return {
+    age_band_id: row.age_band_id,
+    category_type_id: row.category_type_id,
+    rank: row.pick_rank,
+    rationale: row.ember_verdict,
+    id: row.id,
+    name: row.product_name,
+    brand: row.brand,
+    image_url: row.image_url,
+    canonical_url: row.product_url,
+    product_url: row.product_url,
+    amazon_uk_url: null,
+    affiliate_url: null,
+    affiliate_deeplink: null,
+    is_stage3_pick: true,
+    is_locked: row.is_locked && !canSeeLocked,
+    stage3_rank: row.pick_rank,
+    best_for_tag: row.best_for_tag,
+    retailer: row.retailer,
+    price_text: row.price_text,
+    product_description: row.product_description,
+    ember_verdict: row.ember_verdict,
+    why_it_fits: row.why_it_fits,
+    caveats: row.caveats,
+    buy_borrow_hold_off: row.buy_borrow_hold_off,
+    gift_suitable: row.gift_suitable,
+    gift_note: row.gift_note,
+    ownership_note: row.ownership_note,
+    safety_notes: row.safety_notes,
+    evidence_tier: row.evidence_tier,
+    founder_qa_flag: row.founder_qa_flag,
+    locked_reason: row.is_locked && !canSeeLocked ? "Extra Pip's Picks are included with Ember Plus." : null,
+  };
+}
+
+/**
+ * Fetch Pip's Picks for one Stage 2 card.
+ *
+ * RLS returns the full visible set only for the founder proxy (`timwd23@gmail.com`).
+ * Everyone else receives public pick 1 from Supabase; ranks 2+ are generated
+ * as locked placeholders so gated product details are not sent to the client.
+ */
+export async function getGatewayStage3PicksForAgeBandAndCategoryType(
+  ageBandId: string,
+  categoryTypeId: string,
+  limit: number = 10,
+  options: { supabase?: SupabaseClient; canSeeLocked?: boolean } = {}
+): Promise<GatewayPick[]> {
+  const supabase = options.supabase ?? createPublicCatalogueClient();
+
+  const { data: categoryRow, error: categoryError } = await supabase
+    .from('v_gateway_category_types_public')
+    .select('id, slug, label, name')
+    .eq('age_band_id', ageBandId)
+    .eq('id', categoryTypeId)
+    .limit(1)
+    .maybeSingle();
+
+  if (categoryError || !categoryRow) return [];
+
+  const category = categoryRow as Pick<GatewayCategoryTypePublic, 'id' | 'slug' | 'label' | 'name'>;
+
+  const { data: stage3Rows, error: stage3Error } = await supabase
+    .from('pl_stage3_picks')
+    .select(
+      'id, age_band_id, category_type_id, pick_rank, is_locked, best_for_tag, product_name, brand, retailer, product_url, image_url, price_text, product_description, ember_verdict, why_it_fits, caveats, buy_borrow_hold_off, gift_suitable, gift_note, ownership_note, safety_notes, evidence_tier, founder_qa_flag'
+    )
+    .eq('age_band_id', ageBandId)
+    .eq('category_type_id', categoryTypeId)
+    .eq('status', 'visible')
+    .eq('is_visible', true)
+    .order('pick_rank', { ascending: true })
+    .limit(limit);
+
+  if (stage3Error || !stage3Rows || stage3Rows.length === 0) return [];
+
+  const rows = stage3Rows as GatewayStage3PickRow[];
+  const rowsByRank = new Map(rows.map((row) => [row.pick_rank, row]));
+  // RLS hides locked picks from non-members, so the rows above may only contain
+  // rank 1. The counts view (owner privileges, counts only — no details) tells us
+  // how many picks truly exist, so locked upsell placeholders render for exactly
+  // the researched count: 5-pick categories show 5, never padded to the limit.
+  const { data: countRow } = await supabase
+    .from('v_gateway_stage3_pick_counts_public')
+    .select('pick_count')
+    .eq('age_band_id', ageBandId)
+    .eq('category_type_id', categoryTypeId)
+    .maybeSingle();
+  const totalPicks = (countRow as { pick_count: number } | null)?.pick_count
+    ?? Math.max(...rows.map((row) => row.pick_rank));
+  const maxRank = Math.min(limit, totalPicks);
+  const picks: GatewayPick[] = [];
+  for (let rank = 1; rank <= maxRank; rank += 1) {
+    const row = rowsByRank.get(rank);
+    const product = row
+      ? stage3RowToProduct(row, Boolean(options.canSeeLocked))
+      : stage3PlaceholderProduct(ageBandId, categoryTypeId, rank);
+    picks.push({
+      product,
+      categoryType: { id: category.id, slug: category.slug, label: category.label, name: category.name },
+    });
+  }
+
+  return picks;
 }
 
 /**

@@ -8,6 +8,7 @@ export const EVENTS = {
   PRODUCT_SAVED: 'product_saved',
   GIFT_PAGE_VIEWED: 'gift_page_viewed',
   GIFT_PAGE_SHARED: 'gift_page_shared',
+  GIFT_FIND_IT_CLICKED: 'gift_find_it_clicked',
   GARAGE_ITEM_ADDED: 'garage_item_added',
 } as const;
 

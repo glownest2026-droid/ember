@@ -29,14 +29,14 @@ interface InventoryMatchCandidate {
   confidence_bucket: 'high' | 'medium' | 'low';
 }
 
-/** Manage My Family page – Figma Make layout exact. Data: children table + get_my_subnav_stats(p_child_id). */
+/** Manage My Family page. Data: children table + get_my_subnav_stats(p_child_id). */
 export function FamilyFigmaClient({
   serverUserId,
   saved = false,
   deleted = false,
   initialChildId,
 }: {
-  /** User id from server auth – used to fetch children immediately without waiting for client context. */
+  /** User id from server auth, used to fetch children immediately without waiting for client context. */
   serverUserId?: string;
   saved?: boolean;
   deleted?: boolean;
@@ -62,7 +62,7 @@ export function FamilyFigmaClient({
   const [quickAddAllowFallback, setQuickAddAllowFallback] = useState(false);
   const [quickAddSaving, setQuickAddSaving] = useState(false);
   const [quickAddSaved, setQuickAddSaved] = useState(false);
-  const [quickAddSavedToGarage, setQuickAddSavedToGarage] = useState(false);
+  const [quickAddSavedToAtHome, setQuickAddSavedToAtHome] = useState(false);
   const [ownedCountTotal, setOwnedCountTotal] = useState(0);
   const [ownedCountByChild, setOwnedCountByChild] = useState<Record<string, number>>({});
   const [removeChildOpen, setRemoveChildOpen] = useState(false);
@@ -219,14 +219,13 @@ export function FamilyFigmaClient({
   const myIdeasIdeasHref = scopedChildId
     ? `/my-ideas?tab=ideas&child=${encodeURIComponent(scopedChildId)}`
     : '/my-ideas?tab=ideas';
-  const myIdeasProductsHref = scopedChildId
-    ? `/my-ideas?tab=products&child=${encodeURIComponent(scopedChildId)}`
-    : '/my-ideas?tab=products';
+  const atHomeHref = scopedChildId
+    ? `/family/at-home?child=${encodeURIComponent(scopedChildId)}`
+    : '/family/at-home';
+  const addAtHomeHref = scopedChildId
+    ? `/family/at-home/add?from=family&child=${encodeURIComponent(scopedChildId)}`
+    : '/family/at-home/add?from=family';
   const marketplaceHref = scopedChildId ? `/marketplace?child=${encodeURIComponent(scopedChildId)}` : '/marketplace';
-  // Snag: "Quick add" opens the marketplace "Add a product" (prelist) flow.
-  const addProductHref = scopedChildId
-    ? `/marketplace?prelist=1&child=${encodeURIComponent(scopedChildId)}`
-    : '/marketplace?prelist=1';
 
   const childLabel = (() => {
     if (!scopedChild) return 'your household';
@@ -337,7 +336,7 @@ export function FamilyFigmaClient({
     setQuickAddAllowFallback(false);
     setQuickAddSaving(false);
     setQuickAddSaved(false);
-    setQuickAddSavedToGarage(false);
+    setQuickAddSavedToAtHome(false);
   }, []);
 
   const handleQuickAddSave = useCallback(async () => {
@@ -383,7 +382,7 @@ export function FamilyFigmaClient({
           was_confirmed: true,
         });
         await fetchOwnedInventoryCounts();
-        setQuickAddSavedToGarage(true);
+        setQuickAddSavedToAtHome(true);
         setQuickAddSaved(true);
         return;
       }
@@ -395,7 +394,7 @@ export function FamilyFigmaClient({
         confidence_bucket: null,
         was_confirmed: false,
       });
-      setQuickAddSavedToGarage(false);
+      setQuickAddSavedToAtHome(false);
       setQuickAddSaved(true);
     } finally {
       setQuickAddSaving(false);
@@ -596,7 +595,7 @@ export function FamilyFigmaClient({
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Link
-                  href={addProductHref}
+                  href={addAtHomeHref}
                   className="group text-left rounded-2xl px-5 py-5 lg:px-6 lg:py-6 min-h-[168px] bg-gradient-to-br from-[#FF6347] to-[#FF8870] text-white shadow-[0_8px_24px_rgba(255,99,71,0.22)] hover:shadow-[0_10px_28px_rgba(255,99,71,0.26)] transition-all block"
                 >
                   <div className="flex items-center gap-3 mb-4">
@@ -604,12 +603,16 @@ export function FamilyFigmaClient({
                       <Plus className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-base sm:text-lg font-medium m-0 leading-tight">Move on {childLabel}&apos;s items locally</h3>
-                      <p className="text-sm text-white/90 mt-1 leading-snug">List for free in seconds. We&apos;ll matchmake a local family.</p>
+                      <h3 className="text-base sm:text-lg font-medium m-0 leading-tight">
+                        Add what you own
+                      </h3>
+                      <p className="text-sm text-white/90 mt-1 leading-snug">
+                        Ember gets smarter about new ideas and faster pass-on matches.
+                      </p>
                     </div>
                   </div>
                   <div className="inline-flex items-center gap-2 text-sm font-medium mt-1">
-                    Quick add
+                    Add to At home
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </Link>
@@ -636,7 +639,7 @@ export function FamilyFigmaClient({
                 </Link>
 
                 <Link
-                  href={myIdeasProductsHref}
+                  href={atHomeHref}
                   className="group text-left rounded-2xl p-5 min-h-[168px] bg-white border border-[#E5E7EB] hover:border-[#FF6347]/50 hover:shadow-sm transition-all"
                 >
                   <div className="flex items-center gap-3 mb-3">
@@ -653,7 +656,7 @@ export function FamilyFigmaClient({
                     </div>
                   </div>
                   <div className="inline-flex items-center gap-2 font-medium" style={{ color: '#FF6347' }}>
-                    Review
+                    Open At home
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </Link>
@@ -693,7 +696,7 @@ export function FamilyFigmaClient({
                 </Link>
 
                 <Link
-                  href={myIdeasProductsHref}
+                  href={atHomeHref}
                   className="bg-white rounded-2xl p-5 border border-[#E5E7EB] hover:border-[#FF6347]/60 hover:shadow-sm transition-colors"
                 >
                   <div className="flex items-center gap-3 mb-3">
@@ -703,7 +706,7 @@ export function FamilyFigmaClient({
                     <h3 className="text-base font-medium text-[#1A1E23] m-0">At home</h3>
                   </div>
                   <p className="text-sm text-[#5C646D]">
-                    {atHomeCount} items logged - what you already own
+                    {atHomeCount} items logged. What you already own
                   </p>
                 </Link>
 
@@ -801,7 +804,7 @@ export function FamilyFigmaClient({
               <div className="rounded-xl border border-[#E5E7EB] bg-[#F8FFFA] p-4">
                 <p className="text-sm text-[#1A1E23] font-medium mb-1">Added to At home</p>
                 <p className="text-sm text-[#5C646D]">
-                  {quickAddSavedToGarage
+                  {quickAddSavedToAtHome
                     ? `Saved as “${quickAddMatch?.label ?? 'matched item'}”.`
                     : 'No close canonical match found, so no At home item was created. We logged your search for canonical backfill.'}
                 </p>
