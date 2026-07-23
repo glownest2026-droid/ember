@@ -100,6 +100,8 @@ export const BANNED_WORDS = [
   { label: 'muscles', re: /\bmuscles\b/i },
   { label: 'matter', re: /\bmatter\b/i },
   { label: 'matters', re: /\bmatters\b/i },
+  { label: 'reset', re: /\breset\b/i },
+  { label: 'resets', re: /\bresets\b/i },
 ];
 
 /** Fake child/product “feel” judgements. */

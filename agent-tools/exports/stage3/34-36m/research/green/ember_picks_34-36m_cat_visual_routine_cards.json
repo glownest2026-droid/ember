@@ -80,8 +80,8 @@
       "display_status": "visible",
       "locked_for_non_members": false,
       "url_verification": {
-        "checked_at": "2026-07-22",
-        "http_status_or_method": "200",
+        "checked_at": "2026-07-23",
+        "http_status_or_method": "brand_primary_amazon_bot_wall",
         "primary_opens_product": true
       },
       "age_signals": [
@@ -108,14 +108,14 @@
       "best_for_tag": "Best for whole day routines",
       "product_name": "Visual Timetable for Children at Home",
       "brand": "Create Visual Aids",
-      "retailer": "Amazon UK (sold by Create Visual Aids)",
-      "product_url": "https://www.amazon.co.uk/Create-Visual-Aids-communication-transition/dp/B093YJ5RL6",
+      "retailer": "Create Visual Aids",
+      "product_url": "https://www.createvisualaids.co.uk/products/visual-timetable-for-home-1",
       "alternate_urls": [
-        "https://www.createvisualaids.co.uk/products/visual-timetable-for-home-1"
+        "https://www.amazon.co.uk/Create-Visual-Aids-communication-transition/dp/B093YJ5RL6"
       ],
       "stock_status": "in_stock",
       "price_amount": 15.95,
-      "price_text": "£15.95 approx. (Amazon; confirm at checkout)",
+      "price_text": "£15.95 approx. (Create Visual Aids; confirm at checkout)",
       "key_specs": {
         "piece_count": "35 picture cards, 2 A4 backing boards",
         "dimensions": "Cards approx. 6 x 5.5 cm; boards A4",
@@ -138,7 +138,7 @@
       ],
       "substitute_if_unavailable": "Craftly Bespoke Visual Timetable",
       "rank_rationale": "#1 over #2: When the whole day wobbles , not just one transition , a ten-step home timetable beats a morning-only board because nearly-threes need the full arc visible in one place.",
-      "evidence_notes": "Primary Amazon URL smoke-checked HTTP 200 and buyable 2026-07-22. No under-36 choking exclusion found on live Amazon HTML. Ages 2+ taken from Create Visual Aids early-years / toddler home positioning (not bare Amazon Ages 3+ sidebar).",
+      "evidence_notes": "Primary Amazon URL smoke-checked HTTP 200 and buyable 2026-07-22. No under-36 choking exclusion found on live Amazon HTML. Ages 2+ taken from Create Visual Aids early-years / toddler home positioning (not bare Amazon Ages 3+ sidebar). Primary swapped to brand URL 2026-07-23: Amazon substance gate fails bot-wall stubs (HTTP 200 alone is not enough). Amazon kept as alternate for human Shopping.",
       "availability_verification": {
         "checked_at": "2026-07-22",
         "product_status": "buyable",
@@ -299,8 +299,8 @@
       "display_status": "visible",
       "locked_for_non_members": false,
       "url_verification": {
-        "checked_at": "2026-07-22",
-        "http_status_or_method": "200",
+        "checked_at": "2026-07-23",
+        "http_status_or_method": "brand_primary_amazon_asin_dead",
         "primary_opens_product": true
       },
       "age_signals": [
@@ -319,22 +319,20 @@
       "safety_notes": "Small cards or tokens - supervise around younger siblings; store spares out of reach.",
       "preloved_suitability": "possible",
       "preloved_signal_note": "Laminated cards and metal boards survive second-hand; check Velcro and missing symbols.",
-      "founder_qa_flag": "confirm_reviews_on_human_click",
+      "founder_qa_flag": "check_url",
       "rank": 4,
       "status": "pick",
       "longlist_rank": 4,
       "public_rank": 4,
       "best_for_tag": "Best for portable routines",
-      "product_name": "My Communication Book (Early Years)",
+      "product_name": "My Communication Book For Early Years Settings",
       "brand": "Create Visual Aids",
-      "retailer": "Amazon UK (sold by Create Visual Aids)",
-      "product_url": "https://www.amazon.co.uk/Create-Visual-Aids-My-Communication-Book/dp/B0CJ5QXG8L",
-      "alternate_urls": [
-        "https://www.createvisualaids.co.uk/products/new-my-communication-book-for-early-years-settings-on-improved-materials"
-      ],
+      "retailer": "Create Visual Aids",
+      "product_url": "https://www.createvisualaids.co.uk/products/new-my-communication-book-for-early-years-settings-on-improved-materials",
+      "alternate_urls": [],
       "stock_status": "in_stock",
       "price_amount": 25,
-      "price_text": "£25.00 approx. (Amazon; confirm at checkout)",
+      "price_text": "£25.00 approx. (Create Visual Aids; confirm at checkout)",
       "key_specs": {
         "piece_count": "A5 book with 6 visual resources and 34 removable cards",
         "dimensions": "Portable A5 communication book",
@@ -348,15 +346,15 @@
       "caveats": "",
       "rating_value": 4.5,
       "rating_count": 58,
-      "rating_source": "Amazon UK B0CJ5QXG8L (cross-listed on Visual Timetable page)",
+      "rating_source": "Create Visual Aids listing (rating cluster historically Amazon UK cross-sell; ASIN B0CJ5QXG8L dead 2026-07-23)",
       "review_quality_note": "Fifty-eight ratings on Amazon UK product cluster; confirm on human click.",
       "evidence_tier": "strong",
       "evidence_sources": [
-        "https://www.amazon.co.uk/Create-Visual-Aids-My-Communication-Book/dp/B0CJ5QXG8L"
+        "https://www.createvisualaids.co.uk/products/new-my-communication-book-for-early-years-settings-on-improved-materials"
       ],
       "substitute_if_unavailable": "Visual Timetable for Children at Home",
       "rank_rationale": "#4 over #5: Portable book beats a custom metal strip when the child needs the same symbols in two homes or at a childminder , wall charts do not travel.",
-      "evidence_notes": "Amazon primary smoke-checked HTTP 200 and buyable 2026-07-22. Rating cluster referenced from live Amazon cross-sell on Home Visual Timetable listing (4.5/58). Ages 2+ early-years parent-setup; no under-36 exclusion found on sibling SKU checks.",
+      "evidence_notes": "Amazon primary smoke-checked HTTP 200 and buyable 2026-07-22. Rating cluster referenced from live Amazon cross-sell on Home Visual Timetable listing (4.5/58). Ages 2+ early-years parent-setup; no under-36 exclusion found on sibling SKU checks. Amazon ASIN B0CJ5QXG8L no longer resolves to a buyable product (2026-07-23 founder report + Amazon search miss). Primary swapped to brand URL. Amazon primaries must pass substance gate (bot wall / soft-404 / stub), not HTTP 200 alone.",
       "availability_verification": {
         "checked_at": "2026-07-22",
         "product_status": "buyable",
@@ -445,7 +443,7 @@
       "product_name": "Visual Timetable for Children at Home",
       "brand": "Create Visual Aids",
       "retailer": "Amazon UK",
-      "product_url": "https://www.amazon.co.uk/Create-Visual-Aids-communication-transition/dp/B093YJ5RL6",
+      "product_url": "https://www.createvisualaids.co.uk/products/visual-timetable-for-home-1",
       "url_checked_date": "2026-07-22",
       "stock_status": "in_stock",
       "price_text": "£15.95 approx.",
@@ -520,10 +518,10 @@
       "longlist_rank": 4,
       "status": "pick",
       "top_pick_rank": 4,
-      "product_name": "My Communication Book for Early Years Settings",
+      "product_name": "My Communication Book For Early Years Settings",
       "brand": "Create Visual Aids",
       "retailer": "Amazon UK",
-      "product_url": "https://www.amazon.co.uk/Create-Visual-Aids-My-Communication-Book/dp/B0CJ5QXG8L",
+      "product_url": "https://www.createvisualaids.co.uk/products/new-my-communication-book-for-early-years-settings-on-improved-materials",
       "url_checked_date": "2026-07-22",
       "stock_status": "in_stock",
       "price_text": "£25.00 approx.",

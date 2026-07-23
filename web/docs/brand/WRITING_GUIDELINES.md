@@ -173,6 +173,7 @@ Trust breaks when copy sounds machine-made. Prefer plain rhythm, ordinary verbs,
 - **Importance filler:** matter / matters (“Warm-up sessions matter”, “Cord ends matter”)
 - **Vague time filler:** moment / moments in Pip’s Picks (“jealous moments”, “now-and-next moments”) — name the real situation (wobbles, evenings, hand-offs)
 - **Fabricated metaphors:** muscle (“choosing muscle”, “talk-stories muscle”); peculiar phrases (“storage honesty”, “travel honesty”)
+- **Therapy/process filler:** reset / resets (“offers a reset”, “a kind reset”, “reset the evening”) — say what actually happens (start again, soft way back, shared joke)
 - **Odd hyphen compounds:** inventing play-type jargon with hyphens (“rescue-vehicle”, “try-again play”, “get-on-go-return”, “step-pause-turn”, “letters-and-lacing”) — write ordinary spaced English (“good for rescue vehicle play”, “made for get on, go and return”). Allowed hyphens are ordinary English / Ember only (twelve-piece, living-room, wipe-clean, nearly-three, back-and-forth, …) — see `stage3-banned-copy.mjs` allowlist.
 - **Personification of objects:** “Wood earns its place”, “cords love to tangle”
 - **Adult discipline vocabulary:** lecture, sermon, lesson plan — never for UK parent/toddler dynamics

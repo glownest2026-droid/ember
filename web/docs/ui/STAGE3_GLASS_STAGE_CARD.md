@@ -44,9 +44,9 @@ Banned: tilted/mid-card robins, peach-mush pastels, purple SaaS, static dense ve
 | Track background | `radial-gradient(130% 100% at 50% 0%, #1C2537 0%, #131A28 70%)` |
 | Track radius | `28px` |
 | Track shadow | `0 24px 56px rgba(19, 26, 40, 0.3)` |
-| Track min-height (mobile) | Tall enough for ambient orbs (~560px / viewport chrome); cards must **not** stretch to fill it |
-| Track height (desktop) | `min-height ~520px`, grow with content up to ~720px — room for 40–60 word Why Pip |
-| Card height | **Hug content** (`h-fit` / `items-center`). Never stretch the glass to fill the track when the Why Pip drawer is closed — that left empty dark glass under the CTA |
+| Track min-height (mobile) | `~560px` (or `max(452px, 100dvh − header − chrome)`) |
+| Track height (desktop) | `680px` fixed — room for Why Pip open without clipping the card top |
+| Card slot (desktop) | `600px` tall; card fills height so the drawer scrolls inside |
 | Inactive dots | `rgba(255,255,255,0.25)` |
 | Active dot | `#FF5C34`, width `22px` |
 
@@ -154,7 +154,8 @@ Founder rule: drive **addictive browsing** on the sofa — every card gives the 
 
 - Copy comes from ingested Stage 3 data (`best_for` / tag, title, brand, description, verdict).
 - Voice: smart UK parent friend. No magic / win / unlock / essential / “research shows”.
-- Retailer CTA → **researched primary `product_url`** when present (exact pick); fall back to Google Shopping only if URL missing. Founder 2026-07-23: Shopping-only left niche brands ambiguous.
+- Retailer CTA → **Google Shopping** search for `brand + title` when the stored primary is Amazon (or missing) — never deep-link a single marketplace ASIN.
+- Exception (2026-07-23): when research stores a **non-Amazon brand/specialist** `product_url` (Amazon failed substance / dead ASIN), Browse offers opens that URL so parents are not dumped onto a dead Shopping→Amazon result.
 - **Browse offers always opens in a new tab/window** (`target="_blank"` + `openOutboundRetailerUrl`) so Discover stays in place on mobile.
 - Free members: pick 1 unlocked + one locked upsell card (existing product rule) — preserve when wiring.
 

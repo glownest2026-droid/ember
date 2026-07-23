@@ -1,3 +1,12 @@
+## 2026-07-23 — Stage 3 “reset” ban + dead Amazon CTA root cause (34–36m)
+
+- **Founder catch:** “offers a reset” / “kind reset” still in Why Pip; Communication Book Browse offers landed on a dead Amazon ASIN
+- **Root cause (copy):** therapy filler `reset` not on the shared ban list
+- **Root cause (URL):** Amazon HTTP **200** on bot-wall stubs counted as `url_ok`; dead ASIN `B0CJ5QXG8L` shipped. Separately, Browse offers used Google Shopping (`brand + title`), which often ranks the same dead Amazon listing first even after a brand primary is stored
+- **Fix:** ban `reset`/`resets` in `stage3-banned-copy.mjs` + Writing Guidelines; Amazon substance gate in `stage3-url-smoke.mjs`; brand primary for Visual Timetable + Communication Book; Browse offers opens non-Amazon brand/specialist `product_url` when present (Shopping still used for Amazon primaries)
+- **Migration:** `20260723230000_ingest_stage3_pips_picks_34_36m.sql` (applied); cache `20260723-reset-amazon-34-36m`
+- **Verify:** `/discover/35` — no “reset” in Why Pip; Communication Book Browse offers opens Create Visual Aids, not Amazon `B0CJ5QXG8L`
+
 ## 2026-07-23 — Stage 3 formulaic Why Pip closer purge (34–36m)
 
 - **Founder catch:** robotic repeated cadence “That is why XX suits XX when XX” across cards

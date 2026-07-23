@@ -1,6 +1,6 @@
 {
   "ff_check_pass": true,
-  "checked_at": "2026-07-22",
+  "checked_at": "2026-07-23",
   "ingestion_ready_status": "founder-review-ready",
   "pick_results": [
     {
@@ -8,8 +8,10 @@
       "product_name": "You Choose",
       "ff_pass": true,
       "fail_reasons": [],
-      "url_ok": true,
-      "http_status": 200,
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
       "age_gate": "pass",
       "age_fail_reasons": []
     },
@@ -18,8 +20,10 @@
       "product_name": "Don't Let the Pigeon Drive the Bus! (board book)",
       "ff_pass": true,
       "fail_reasons": [],
-      "url_ok": true,
-      "http_status": 200,
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
       "age_gate": "pass",
       "age_fail_reasons": []
     },
@@ -28,8 +32,10 @@
       "product_name": "Oh No, George! (board book)",
       "ff_pass": true,
       "fail_reasons": [],
-      "url_ok": true,
-      "http_status": 200,
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
       "age_gate": "pass",
       "age_fail_reasons": []
     },
@@ -38,8 +44,10 @@
       "product_name": "Shh! We Have a Plan (board book)",
       "ff_pass": true,
       "fail_reasons": [],
-      "url_ok": true,
-      "http_status": 200,
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
       "age_gate": "pass",
       "age_fail_reasons": []
     },
@@ -48,8 +56,10 @@
       "product_name": "Shark in the Park",
       "ff_pass": true,
       "fail_reasons": [],
-      "url_ok": true,
-      "http_status": 200,
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
       "age_gate": "pass",
       "age_fail_reasons": []
     }
