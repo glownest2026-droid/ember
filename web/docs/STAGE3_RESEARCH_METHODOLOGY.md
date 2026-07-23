@@ -15,6 +15,8 @@
 | **`$ember-stage3-ff-checker`** | Deterministic **validation** (links, age, ratings, availability, HOW completeness, and a second-pass re-check that research already followed the copy rules) | Inventing or rewriting parent voice |
 | **Founder HTML / ingest** | Preview and faithful publish | Copywriting |
 
+**Ban-list parity:** Principle 5 bans and FF banned-copy checks are one game. Canonical machine list: `agent-tools/scripts/lib/stage3-banned-copy.mjs`. Research and FF must not diverge (e.g. “lecture” banned in Guidelines but missing from FF). Update the module and Writing Guidelines Principle 5 in the same change.
+
 If research leaves weak Description / Why Pip / Best for / lookalike Top 5, the fix is **Mode A re-research** — not a new FF inventiveness, not light polish into green, not ingest rewrite.
 
 ## Five things that must be true (pilot success)
@@ -110,6 +112,17 @@ Full Mode A `$ember-stage3-research` (Writing Guidelines at source) → `inbox/`
 3. **Cross-check:** if a manufacturer alt shows **retired product**, reject the SKU even when a retailer primary still loads.
 4. If a bot-sensitive retailer (Hamleys, ELC) blocks automated fetch, swap to a **buyable** primary (often Amazon UK) and document why in `evidence_notes` — do not ship a notify-when-in-stock or retired link as Open link.
 5. FF Checker enforces this via `stage3-ff-check.mjs` before `green/` promotion.
+
+### Relational Why Pip (optional Top 5 progression)
+
+Founder feedback (small-world people, 34–36m): when picks naturally form a ladder (bus trips → holiday travel → care roles → help-on-wheels → rebuild jobs), Why Pip may lightly join those dots so the shortlist reads as a joined set. That elevates Ember Picks beyond five isolated SKUs.
+
+**Rules:**
+
+1. Only when a real progression exists in the play / need — never invent one.
+2. Never force link language when picks serve distinct parent situations (e.g. five unrelated book themes).
+3. Keep each Why Pip able to stand alone if a parent only opens one card.
+4. Document in research notes when you used progression vs independent situations.
 
 ### Execution
 

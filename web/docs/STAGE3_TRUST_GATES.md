@@ -22,6 +22,7 @@
 5. **No compressed / light-repair path to green.** Link-only fixes, “fix the 404s” Task packets, and patching quarantine JSON without a full Mode A `$ember-stage3-research` run are **banned**. Prior JSON may be used only as *name hints*; every URL, age signal, rating, and rank must be re-earned under schema v3.
 6. **Age-mark hygiene:** do not store Waterstones-style “Interest age: From 5 years” or bare “Ages 3+” in `age_mark_on_listing` for bands with `min_months < 36` — use structured overlapping `age_signals` (see methodology).
 7. **Root cause upstream:** parent-copy quality (Description, Why Pip, Best for, Top 5 shape, voice bans) is **owned by research + Writing Guidelines**. FF **re-validates** those rules; it does not invent or rewrite voice. See methodology “Root-cause rule”.
+8. **Ban-list parity:** Writing Guidelines Principle 5 and FF must use the **same** banned-copy rules. Canonical machine list: `agent-tools/scripts/lib/stage3-banned-copy.mjs`. Never maintain a second private ban list in the checker.
 
 ## Hard gates (Top Picks)
 

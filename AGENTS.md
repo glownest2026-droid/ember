@@ -52,7 +52,7 @@ Full reasoning and worked examples: **`web/docs/DEVELOPER_OPERATING_MODEL.md`**.
 | Deploy / merge / rollback checklist | `web/docs/DEPLOY-CHECKLIST.md` |
 | Rocket scope, pricing, waitlist | `.cursor/rules/project-rocket.mdc` + `web/docs/PROJECT_ROCKET.md` |
 | Parent persona (Conor / Thea) | `.cursor/rules/conscientious-conor.mdc` + `web/docs/brand/PERSONAS.md` + `web/docs/CONSCIENTIOUS_CONOR.md` |
-| Parent-facing writing craft | `web/docs/brand/WRITING_GUIDELINES.md` |
+| Parent-facing writing craft | `web/docs/brand/WRITING_GUIDELINES.md` · Pip ban machine list: `agent-tools/scripts/lib/stage3-banned-copy.mjs` (must stay in parity with Principle 5 + FF) |
 | Brand system map | `web/docs/brand/README.md` |
 | Stage 3 trust gates (URL / age / ratings; copy **re-check** only) | `web/docs/STAGE3_TRUST_GATES.md` + `$ember-stage3-ff-checker` |
 | Stage 3 research methodology (WHAT + HOW; **copy owned at research**) | `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` + `web/docs/brand/WRITING_GUIDELINES.md` + `$ember-stage3-research` |

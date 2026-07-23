@@ -139,27 +139,44 @@ Help people see why something suits this moment. Do not make buy, borrow, or hol
 
 Trust breaks when copy sounds machine-made. Prefer plain rhythm, ordinary verbs, and concrete nouns.
 
+**Parity rule (non-negotiable):** Writing Guidelines and the Fastidious Founder checker must ban the **same** things. The machine list is canonical:
+
+`agent-tools/scripts/lib/stage3-banned-copy.mjs`
+
+- Research writes against this Principle **and** that module.
+- FF validates by importing that module — it must not maintain a second private ban list.
+- When you add or remove a ban, update **the module and this Principle in the same change**. Never leave one side stricter than the other.
+
+**Scope:** these bans apply to parent-facing Pip’s Picks fields (Description, Why Pip, Best for) and other shipped parent copy. This doc may mention banned words only as fail examples.
+
 **Do**
 
 - Use full stops, commas, and “and”.
 - Prefer plain verbs: help, practise, build, enjoy, keep.
 - Describe the thing itself instead of praising Ember’s curation.
 
-**Avoid**
+**Avoid** (must match `stage3-banned-copy.mjs`)
 
 - The em dash character in shipped copy
 - calm / calming as product praise
 - worth buying / worth it / worth considering
 - Fresh 20XX and dated “new this year” sales talk
 - “that lands” / “really lands” / “hits home”
-- fake intimacy (“real wobbles”, “real jobs” as hype)
+- fake intimacy (“real wobbles”, “real jobs” as hype) and broader “A real X” / “real nearly-three shift” filler
 - carefully curated / thoughtfully designed / carefully chosen
 - game-changer, unlock, essential, must-have, magic
 - US slang (went sideways, peel off, crush it)
 - Internal product words in parent copy (Stage 1/2/3, cluster, lane, specialist exemption, review thresholds)
 - **AI metaphor / process speak:** loop, journey, hook, script, “story shape”, “shape of the day”, on-ramp
-- **Fake child judgements:** “feel fair”, “feels busy”, “when X feels easy/familiar/covered” — a nearly-three does not decide that a twelve-piece tray “feels fair”
-- **Nursery benchmarking** in Pip’s Picks Description / Why Pip (“already familiar from nursery”, “nursery wall”, “nursery bag”) — do not use nursery as social proof for the product
+- **Fake child judgements:** “feel fair”, “feels busy”, “when X feels easy/familiar/covered”
+- **Nursery benchmarking** (“already familiar from nursery”, “nursery wall”, “nursery bag”)
+- **Importance filler:** matter / matters (“Warm-up sessions matter”, “Cord ends matter”)
+- **Vague time filler:** moment / moments in Pip’s Picks (“jealous moments”, “now-and-next moments”) — name the real situation (wobbles, evenings, hand-offs)
+- **Fabricated metaphors:** muscle (“choosing muscle”, “talk-stories muscle”); peculiar phrases (“storage honesty”, “travel honesty”)
+- **Odd hyphen compounds:** rescue-vehicle, try-again play, try-first approach; also **warm-up sessions** (toddler “sessions” framing) — write ordinary English (“suits rescue vehicle play”, “gentler starts”)
+- **Personification of objects:** “Wood earns its place”, “cords love to tangle”
+- **Adult discipline vocabulary:** lecture, sermon, lesson plan — never for UK parent/toddler dynamics
+- Money-shame and sales tells already listed above (tight budgets, low-stakes, quick wins, worth buying, …)
 
 | Pass | Fail |
 |---|---|
@@ -169,6 +186,12 @@ Trust breaks when copy sounds machine-made. Prefer plain rhythm, ordinary verbs,
 | Short rescue puzzles before a fuller twelve-piece set. | Before twelve-piece trays feel fair. That hook is why… |
 | Load, drive and tip out passengers again. | Get-on go-return journey / bus loop / travel script |
 | Keep the routine visible in the kitchen. | Already familiar from nursery / not only on a nursery wall |
+| Suits rescue vehicle play at this age. | Suits rescue-vehicle / try-again play |
+| Gentler starts before a twelve-piece tray. | Warm-up sessions matter / warm-up sessions |
+| Packs into one stack with a carry bag. | Storage honesty / travel honesty |
+| Choosing practice on the sofa. | Choosing muscle / talk-stories muscle |
+| Without turning bedtime into a talking-to. | Without turning bedtime into a lecture |
+| Distance judgement grows fast around this age. | A real nearly-three shift |
 
 ---
 
@@ -239,7 +262,8 @@ There is **one** Description on the card. Do **not** write a separate “What th
 **Why Pip Do**
 
 - Knit together: need at this age → this product → why the Best for idea is fair (in parent language, not “tag” talk).
-- Add fit, play moment, or a kind practical note the Description did not already say.
+- Add fit, a concrete play situation, or a kind practical note the Description did not already say.
+- **Optional Top 5 progression:** where picks naturally form a ladder (e.g. bus → holiday trip → care roles → help-on-wheels), Why Pip may lightly join the dots so the shortlist reads as a set. Never invent a progression; never force link language when picks serve distinct parent situations.
 - Land between **40 and 60 words** inclusive.
 
 **Why Pip Don’t**
@@ -319,7 +343,7 @@ Parents guide, play, and practise with babies and toddlers. Ember’s voice stay
 
 | Pass | Fail |
 |---|---|
-| so your child can see what comes next and feel proud of each step | without turning the house into a lecture |
+| so your child can see what comes next and feel proud of each step | without turning bedtime into a lecture |
 | A supportive way to build morning and bedtime routines together | A non-preachy toolkit for independence |
 
 ---
@@ -335,7 +359,8 @@ Parents guide, play, and practise with babies and toddlers. Ember’s voice stay
 6b. Pip’s Picks Description between **20 and 40 words** (one field only)?
 6c. Description alone makes the product clear (no CTA needed to understand it)?
 6d. Why Pip between **40 and 60 words**, earns the Best for *idea* without saying “tag”, and does not echo Description?
-6e. No money-shame labels (“tight budgets”) or AI tells (loop, journey, hook, feel fair, nursery benchmarking, low-stakes, quick wins, …)?
+6e. No money-shame labels (“tight budgets”) or AI tells (loop, journey, hook, feel fair, nursery, lecture, matter/moment/muscle, odd hyphen compounds, “A real X”, personification, …)?
+6g. If a natural Top 5 progression exists, Why Pip may join dots — but never force one?
 6f. At most two Top Picks from the same brand; findable on major UK retail / Shopping when quality is equal?
 7. No research maths on the page?
 8. Respects the existing home?
@@ -391,14 +416,14 @@ Description carries the plot and format. Why Pip names the positive skill withou
 
 **Brand:** Camilla Reid & Axel Scheffler  
 
-**Best for:** Best for jealous moments  
+**Best for:** Best for jealous wobbles  
 
 **Description:** A warm Pip and Posy picture book where Posy finds Pip playing with someone new, then finds her feet again in a story about friendship and joining in.  
 
 **Why Pip picked this:** Helps your child learn about situations where their best friend scuttles away to play with someone else. Posy finds her feet again, and the story stays warm and light the whole way through.
 
 **Why this works:**  
-Description sets the scene. Why Pip brings the school-gate moment and the warm tone of the ending.
+Description sets the scene. Why Pip brings the school-gate sting and the warm tone of the ending.
 
 ---
 
@@ -468,3 +493,5 @@ See `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` must-be-true #5.
 | 2026-07-23 | Pip’s Picks: Best for must land; Description vs Why Pip jobs; decode SKUs; ban tight budgets / low-stakes / quick wins |
 | 2026-07-23 | Why Pip **40–60 words**; never say “tag”; max two same brand; prefer Shopping-findable stockists |
 | 2026-07-23 | Ban AI process speak (loop / journey / hook / script / feel fair / nursery benchmarking) in Pip parent copy |
+| 2026-07-23 | Ban matter/moment/muscle, lecture, odd hyphen compounds, “A real X”, personification, peculiar “honesty” phrases; optional relational Why Pip |
+| 2026-07-23 | **Ban-list parity:** Principle 5 + FF share `agent-tools/scripts/lib/stage3-banned-copy.mjs` — never diverge |

@@ -74,7 +74,7 @@ node agent-tools/scripts/stage3-ff-check.mjs path/to/file.json --skip-smoke --no
 
 These rules are authored and applied in `$ember-stage3-research` + Writing Guidelines. FF fails closed if research skipped them — then **re-research**, do not invent copy here.
 
-11. Parent fields pass Writing Guidelines bans — em dash, calm, worth buying, Fresh 20XX, Stage X, low-stakes, quick wins, tight budget(s), **loop / journey / hook / script**, **feel fair / feels like**, **nursery benchmarking**, etc.
+11. Parent fields pass Writing Guidelines bans via **shared module** `agent-tools/scripts/lib/stage3-banned-copy.mjs` (same list research writes against — parity required; no second private ban list in this script)
 12. Description word count **20–40** (legacy field name `product_description_under_30_words`; one Description only)
 13. Why Pip word count **40–60** (`ember_verdict`)
 14. No “tag” meta-talk in parent copy (“the tag”, “earns that tag”, …)

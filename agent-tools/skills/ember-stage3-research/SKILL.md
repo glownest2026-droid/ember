@@ -69,10 +69,11 @@ Run on every Top Pick before `inbox/`. This is the **root-cause** quality gate.
 1. Description **20–40 words** and alone makes the product clear (decode SKU jargon).
 2. Why Pip **40–60 words** = need at this age + why this earns Top 5–10 + how it suits the Best for *idea* — **not** a paraphrase of Description, and **never** say “tag” / “earns that tag”.
 3. Best for comes to life in Description and/or Why Pip without fourth-wall tag talk.
-4. No AI / money tells: loop, journey, hook, script, story shape, shape of the day, on-ramp, feel fair / feels busy / when X feels Y, nursery benchmarking, low-stakes, quick wins, tight budgets, worth buying, calm as praise, em dashes, Stage X, Fresh 20XX, crisis framing.
+4. No AI / money tells — must match `agent-tools/scripts/lib/stage3-banned-copy.mjs` (same list FF uses). Includes: loop, journey, hook, script, feel fair, nursery, lecture/sermon, matter/moment/muscle, odd hyphen compounds, “A real X”, personification, peculiar “honesty” phrases, low-stakes, quick wins, tight budgets, worth buying, calm, em dashes, Stage X, Fresh 20XX, crisis framing.
 5. Unique product names across Top 5; at most one lookalike line from the same modular range; **at most two Top Picks from the same brand**.
 6. Prefer products findable on major UK retail / Google Shopping when quality is equal (Browse offers must land on the real pick, not a sea of lookalikes).
-7. Writing Guidelines ship checklist + Conor five tests pass on a read-aloud.
+7. **Optional relational Why Pip:** where Top 5 naturally ladders, lightly join dots; never force when picks are independent situations.
+8. Writing Guidelines ship checklist + Conor five tests pass on a read-aloud.
 
 FF may re-fail any of the above later — that means research skipped this checklist, not that FF should become the copywriter.
 
@@ -336,7 +337,9 @@ It should:
 - add fit or a kind practical note the Description did not already say;
 - land at **40–60 words**.
 
-Do **not** restate the Description. Avoid AI tells: low-stakes, quick wins, tight budgets, worth buying, calm as praise, em dashes, Stage X, Fresh 20XX.
+Do **not** restate the Description. Avoid AI tells using the **same** list as FF: `agent-tools/scripts/lib/stage3-banned-copy.mjs` (lecture, matter/moment/muscle, odd hyphen compounds, “A real X”, personification, peculiar “honesty” phrases, low-stakes, quick wins, worth buying, calm, em dashes, Stage X, Fresh 20XX, …).
+
+**Optional relational Why Pip:** when Top 5 naturally forms a progression (e.g. bus → holiday → care roles), lightly join dots across cards. Never force a link when picks serve different parent situations.
 
 ### Best for + Top 5 shape
 

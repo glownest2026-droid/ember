@@ -1,3 +1,13 @@
+## 2026-07-23 — Stage 3 ban-list parity + founder AI-tell round (34–36m)
+
+- **Defect fixed:** Writing Guidelines and FF could ban different things (e.g. `lecture` as a Guidelines fail but missing from the checker). That is illegal — one game, one rulebook.
+- **Canonical machine list:** `agent-tools/scripts/lib/stage3-banned-copy.mjs` — FF imports it; Principle 5 + research ship checklist must stay in parity (update both in the same change).
+- **New shared bans:** matter/moment/muscle, lecture/sermon, odd hyphen compounds (rescue-vehicle, try-again…), warm-up sessions, “A real X”, personification, peculiar “honesty” phrases.
+- **Process:** optional relational Why Pip (join dots when natural; never force) documented in methodology + Writing Guidelines + research skill.
+- **Content:** 34–36m green Why Pip / Best for scrubbed (21 picks); all 7 categories FF pass (`--skip-smoke --skip-availability --no-move`).
+- **Migration:** `20260723200000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-ban-parity-34-36m`
+- **Verify:** open `/discover/35` Pip’s Picks after deploy — no lecture/matter/moment/muscle/warm-up sessions/storage honesty/rescue-vehicle; small-world still shows bus→holiday→care progression.
+
 ## 2026-07-23 — Stage 3 AI-tell purge (loop / journey / hook / nursery) on 34–36m
 
 - **Why:** Founder: Pip’s Picks still ~80% AI — fake “feel fair / feels busy”, process nouns (loop, journey, hook, script), nursery benchmarking
