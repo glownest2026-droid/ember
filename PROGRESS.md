@@ -1,4 +1,13 @@
+## 2026-07-23 — Stage 3 AI-tell purge (loop / journey / hook / nursery) on 34–36m
+
+- **Why:** Founder: Pip’s Picks still ~80% AI — fake “feel fair / feels busy”, process nouns (loop, journey, hook, script), nursery benchmarking
+- **Upstream:** Writing Guidelines Principle 5 + research ship checklist + FF auto-fail patterns
+- **Content:** 34–36m Why Pip / Description / Best for rewrites; tag “grudge loops” → “stuck-cross nights”
+- **Migration:** `20260723190000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-ai-tells-34-36m`
+- **Verify:** `/discover/35` — no “loop/journey/hook/feel fair/from nursery” in Description or Why Pip; read aloud should sound like a UK parent friend
+
 ## 2026-07-23 — Stage 3 Why Pip 40–60 + card height + Browse offers clarity (34–36m)
+
 
 - **Why:** Founder UX — Why Pip is the paid value (40–60 words); never say “tag”; cards were empty-tall when drawer closed; Create Visual Aids monoculture + Shopping-only CTA left parents unsure which product
 - **Rules:** Writing Guidelines + research ship checklist + FF gates (why length, tag meta-talk, max 2 same brand)

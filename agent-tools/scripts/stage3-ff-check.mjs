@@ -53,10 +53,41 @@ const BANNED = [
   'tight budget',
   'tight budgets',
   'feeling like a win',
+  'travel script',
+  'story shape',
+  'shape of the',
+  'on-ramp',
+  'feel fair',
+  'feels fair',
+  'feels busy',
+  'feel busy',
+  'feel like',
+  'feels like',
+  'from nursery',
+  'nursery wall',
+  'nursery bag',
+  'nursery shelves',
 ];
 
-/** Soft adjectives banned as product praise (whole-word). */
-const BANNED_WORD = [/\bcalm\b/i, /\bcalming\b/i, /\bcheerful\b/i, /\bdelightful\b/i];
+/** Soft adjectives / AI process nouns banned as whole words in parent copy. */
+const BANNED_WORD = [
+  /\bcalm\b/i,
+  /\bcalming\b/i,
+  /\bcheerful\b/i,
+  /\bdelightful\b/i,
+  /\bloop\b/i,
+  /\bloops\b/i,
+  /\bjourney\b/i,
+  /\bjourneys\b/i,
+  /\bhook\b/i,
+  /\bhooks\b/i,
+  /\bscript\b/i,
+  /\bscripts\b/i,
+];
+
+/** Fake child/product “feel” judgements (feel fair / feels busy / feels familiar…). */
+const FAKE_FEEL =
+  /\b(feel|feels|feeling)\s+(fair|busy|familiar|covered|easy|hard|ready|tight|a stretch)\b/i;
 
 /** Fresh 20xx sales talk */
 const FRESH_YEAR = /\bfresh 20\d{2}\b/i;
@@ -458,6 +489,8 @@ function bannedHits(text) {
   }
   if (FRESH_YEAR.test(raw)) hits.push('fresh_year');
   if (/\breal (playgroup|wobbles|jobs|moments)\b/i.test(raw)) hits.push('real_x_filler');
+  if (FAKE_FEEL.test(raw)) hits.push('fake_feel_judgement');
+  if (/\bnursery\b/i.test(raw)) hits.push('nursery_benchmarking');
   return [...new Set(hits)];
 }
 

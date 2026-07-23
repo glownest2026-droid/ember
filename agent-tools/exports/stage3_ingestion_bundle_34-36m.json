@@ -1,6 +1,6 @@
 {
   "schema_version": "stage3_ingestion_bundle_v1",
-  "generated_at": "2026-07-23T07:26:59.640Z",
+  "generated_at": "2026-07-23T08:23:28.893Z",
   "age_band_id": "34-36m",
   "visible_count": 5,
   "locked_from_rank": 2,
@@ -75,7 +75,7 @@
             "other": "Three steepness sides per triangle; stacks; 100 kg load"
           },
           "product_description_under_30_words": "Six triangular plastic stepping stones with rubber rims you arrange on the floor into a route, so your child can step, pause and turn without climbing high furniture.",
-          "ember_verdict": "At nearly three, movement gets planned: step, pause, turn, rather than random crashing around the room. These stones let you invent little living-room routes with clear rules, so balance practice feels like a game you build together. That is why they suit step-pause-turn paths so well for this age.",
+          "ember_verdict": "At nearly three, movement gets planned: step, pause, turn, rather than random crashing around the room. These stones let you invent little living-room routes with clear rules, so balance practice becomes a game you build together. That is why they suit step-pause-turn paths so well for this age.",
           "personalization_hint": "likely to follow simple movement rules like step, pause and turn rather than random crashing around",
           "why_it_fits": "Variable steepness and two sizes create sequenced, rule-based paths - the core 34 - 36m shift versus earlier throw-and-aim games.",
           "caveats": "",
@@ -109,7 +109,7 @@
             "signals": []
           },
           "description": "Six triangular plastic stepping stones with rubber rims you arrange on the floor into a route, so your child can step, pause and turn without climbing high furniture.",
-          "why_pip_picked_this": "At nearly three, movement gets planned: step, pause, turn, rather than random crashing around the room. These stones let you invent little living-room routes with clear rules, so balance practice feels like a game you build together. That is why they suit step-pause-turn paths so well for this age."
+          "why_pip_picked_this": "At nearly three, movement gets planned: step, pause, turn, rather than random crashing around the room. These stones let you invent little living-room routes with clear rules, so balance practice becomes a game you build together. That is why they suit step-pause-turn paths so well for this age."
         },
         {
           "rank": 2,
@@ -309,7 +309,7 @@
             "other": "Anti-overturn design; 100 kg load; pairs with River Stones"
           },
           "product_description_under_30_words": "Three plastic hill shapes at different heights with rubber feet, used beside flat stones so your child practises step-up, pause and step-down on a short indoor path.",
-          "ember_verdict": "Once flat paths feel easy, a little height makes the next step interesting without turning play into daredevil jumping. Three fixed levels invite step-up, pause and step-down, which matches the planned movement this age is growing into. That is why they suit height practice beside flatter stones you may already own.",
+          "ember_verdict": "Once flat paths are sorted, a little height makes the next step interesting without turning play into daredevil jumping. Three fixed levels invite step-up, pause and step-down, which matches the planned movement this age is growing into. That is why they suit height practice beside flatter stones you may already own.",
           "personalization_hint": "likely to practise stepping up and down with deliberate pauses rather than running at speed",
           "why_it_fits": "Three fixed heights teach planned up-down movement - distinct from flat stones and from 31 - 33m throw games.",
           "caveats": "",
@@ -343,7 +343,7 @@
             "signals": []
           },
           "description": "Three plastic hill shapes at different heights with rubber feet, used beside flat stones so your child practises step-up, pause and step-down on a short indoor path.",
-          "why_pip_picked_this": "Once flat paths feel easy, a little height makes the next step interesting without turning play into daredevil jumping. Three fixed levels invite step-up, pause and step-down, which matches the planned movement this age is growing into. That is why they suit height practice beside flatter stones you may already own."
+          "why_pip_picked_this": "Once flat paths are sorted, a little height makes the next step interesting without turning play into daredevil jumping. Three fixed levels invite step-up, pause and step-down, which matches the planned movement this age is growing into. That is why they suit height practice beside flatter stones you may already own."
         },
         {
           "rank": 5,
@@ -1071,7 +1071,7 @@
             "included_items": "",
             "other": ""
           },
-          "product_description_under_30_words": "A short funny picture book about friends learning that sharing works better than shouting mine, with a pivot into shared play that feels light rather than heavy.",
+          "product_description_under_30_words": "A short funny picture book about friends learning that sharing works better than shouting mine, with a pivot into shared play that stays light rather than heavy.",
           "ember_verdict": "Mine fights need humour after a sticky playdate more than a sermon. A funny short book gives you a shared joke to reset the evening without replaying the row. That light reset is why it suits mine-fight nights you may want to open more than once.",
           "personalization_hint": "likely to grab toys and shout 'mine' during parallel play with friends",
           "why_it_fits": "Turn-taking and territory fights between peers - practical social rules, not naming happy/sad.",
@@ -1098,7 +1098,7 @@
           "display_status": "visible",
           "public_rank": 3,
           "locked_for_non_members": false,
-          "rank_rationale": "#3 over #4: the mine-shouting chair fight gives parents a same-day script after toy grabs, edging ahead of Sour Grape’s forgiveness arc which lands better once the row has cooled.",
+          "rank_rationale": "#3 over #4: the mine-shouting chair fight gives parents a same-day read after toy grabs, edging ahead of Sour Grape’s forgiveness arc which lands better once the row has cooled.",
           "evidence_notes": "Hachette primary smoke- and availability-checked buyable 2026-07-22. Hachette lists interest from 3 years; ages 2-5 read-aloud range used for band overlap per picture-book category norms and Mother & Baby sharing roundup placement.",
           "availability_verification": {
             "checked_at": "2026-07-22",
@@ -1106,14 +1106,14 @@
             "buyable": true,
             "signals": []
           },
-          "description": "A short funny picture book about friends learning that sharing works better than shouting mine, with a pivot into shared play that feels light rather than heavy.",
+          "description": "A short funny picture book about friends learning that sharing works better than shouting mine, with a pivot into shared play that stays light rather than heavy.",
           "why_pip_picked_this": "Mine fights need humour after a sticky playdate more than a sermon. A funny short book gives you a shared joke to reset the evening without replaying the row. That light reset is why it suits mine-fight nights you may want to open more than once."
         },
         {
           "rank": 4,
           "status": "pick",
           "longlist_rank": 4,
-          "best_for_tag": "Best for grudge loops",
+          "best_for_tag": "Best for stuck-cross nights",
           "product_name": "The Sour Grape",
           "brand": "Jory John & Pete Oswald",
           "retailer": "Scholastic Shop",
@@ -1151,7 +1151,7 @@
             "other": ""
           },
           "product_description_under_30_words": "A Food Group picture book about staying cross, saying sorry and moving on, written with enough humour for repeat reads after sticky friend play.",
-          "ember_verdict": "Holding a grudge is a new nearly-three skill, and so is starting again. A Food Group story brings enough humour for repeat reads when the cross feeling has stuck. That kind loop is why it suits grudge-loop nights without turning feelings into a lesson plan.",
+          "ember_verdict": "Holding a grudge is a new nearly-three skill, and so is starting again. A Food Group story brings enough humour for repeat reads when the cross feeling has stuck. That kind reset is why it suits stuck-cross nights without turning feelings into a lesson plan.",
           "personalization_hint": "likely to stay upset after small upsets with friends and need help letting go",
           "why_it_fits": "Forgiveness and fairness in friendships - social repair, not basic emotion naming.",
           "caveats": "",
@@ -1186,7 +1186,7 @@
             "signals": []
           },
           "description": "A Food Group picture book about staying cross, saying sorry and moving on, written with enough humour for repeat reads after sticky friend play.",
-          "why_pip_picked_this": "Holding a grudge is a new nearly-three skill, and so is starting again. A Food Group story brings enough humour for repeat reads when the cross feeling has stuck. That kind loop is why it suits grudge-loop nights without turning feelings into a lesson plan."
+          "why_pip_picked_this": "Holding a grudge is a new nearly-three skill, and so is starting again. A Food Group story brings enough humour for repeat reads when the cross feeling has stuck. That kind reset is why it suits stuck-cross nights without turning feelings into a lesson plan."
         },
         {
           "rank": 5,
@@ -1859,7 +1859,7 @@
             "other": "Same First Friends format as Farm — theme swap only"
           },
           "product_description_under_30_words": "Four farm mini-jigsaws in one Galt box that rise from two to five pieces, with thick cardboard pieces sized for little hands still building confidence.",
-          "ember_verdict": "When a full twelve-piece tray still feels like a stretch, rising piece counts give gentle warm-up sessions in one box. Thick Galt pieces survive lots of turning while they learn to finish a picture. That progressive climb is why this suits rising piece counts before bigger interlocking sets.",
+          "ember_verdict": "When a full twelve-piece tray still looks like a stretch, rising piece counts give gentle warm-up sessions in one box. Thick Galt pieces survive lots of turning while they learn to finish a picture. That progressive climb is why this suits rising piece counts before bigger interlocking sets.",
           "rank_rationale": "#2 over #3: Jungle Friends matches the core 12-piece strategy job; it edges Ravensburger My First because the box mark is honestly 2+ rather than an 18m warm-up line.",
           "why_it_fits": "Identical Orchard First Friends quality with a distinct theme for children bored of farm sets.",
           "caveats": "",
@@ -1893,7 +1893,7 @@
             "signals": []
           },
           "description": "Four farm mini-jigsaws in one Galt box that rise from two to five pieces, with thick cardboard pieces sized for little hands still building confidence.",
-          "why_pip_picked_this": "When a full twelve-piece tray still feels like a stretch, rising piece counts give gentle warm-up sessions in one box. Thick Galt pieces survive lots of turning while they learn to finish a picture. That progressive climb is why this suits rising piece counts before bigger interlocking sets."
+          "why_pip_picked_this": "When a full twelve-piece tray still looks like a stretch, rising piece counts give gentle warm-up sessions in one box. Thick Galt pieces survive lots of turning while they learn to finish a picture. That progressive climb is why this suits rising piece counts before bigger interlocking sets."
         },
         {
           "rank": 3,
@@ -1937,7 +1937,7 @@
             "other": "Progressive piece count in one box"
           },
           "product_description_under_30_words": "A Ravensburger box of four thick farm mini-jigsaws that rise from two to five pieces, so you can start small and move up as confidence grows.",
-          "ember_verdict": "Warm-up sessions matter when a full twelve-piece tray still feels busy. Ravensburger My First farm scenes keep the picture clear while pieces stay thick enough for lots of turning. That gentler on-ramp is why this suits families easing into interlocking puzzles before the bigger farm and jungle trays.",
+          "ember_verdict": "Warm-up sessions matter when a full twelve-piece tray still looks like a lot. Ravensburger My First farm scenes keep the picture clear while pieces stay thick enough for lots of turning. That gentler start is why this suits families easing into interlocking puzzles before the bigger farm and jungle trays.",
           "rank_rationale": "#3 over #4: Ravensburger thick-card warm-ups build turn-compare-try with massive review proof before the wooden 6-piece trays; wood wins durability but fewer aggregated UK reviews.",
           "why_it_fits": "Excellent cardboard quality; huge Amazon review base; teaches strategy on 4 - 5 pieces before scaling up.",
           "caveats": "",
@@ -1972,7 +1972,7 @@
             "signals": []
           },
           "description": "A Ravensburger box of four thick farm mini-jigsaws that rise from two to five pieces, so you can start small and move up as confidence grows.",
-          "why_pip_picked_this": "Warm-up sessions matter when a full twelve-piece tray still feels busy. Ravensburger My First farm scenes keep the picture clear while pieces stay thick enough for lots of turning. That gentler on-ramp is why this suits families easing into interlocking puzzles before the bigger farm and jungle trays."
+          "why_pip_picked_this": "Warm-up sessions matter when a full twelve-piece tray still looks like a lot. Ravensburger My First farm scenes keep the picture clear while pieces stay thick enough for lots of turning. That gentler start is why this suits families easing into interlocking puzzles before the bigger farm and jungle trays."
         },
         {
           "rank": 4,
@@ -2096,8 +2096,8 @@
             "other": "Match driver to vehicle after building"
           },
           "product_description_under_30_words": "Six small emergency-vehicle jigsaws in one Orchard Toys box, mostly two and three pieces, plus character pieces for matching drivers to ambulance, fire engine and more.",
-          "ember_verdict": "Vehicle fans need a confidence-building set before twelve-piece trays feel fair. Short rescue scenes keep turn, compare and try-again play going without a table full of bits, and the characters invite a little matching story after the picture is done. That hook is why this suits rescue-vehicle play at this age.",
-          "rank_rationale": "#5 completes the set: Rescue Squad covers cautious starters and vehicle fans when 12-piece feels a stretch; it trails wood and Ravensburger warm-ups on strategy depth but wins on hook and Amazon proof.",
+          "ember_verdict": "Vehicle fans need a confidence-building set before a fuller twelve-piece tray. Short rescue scenes keep turn, compare and try-again play going without a table full of bits, and the characters invite a little matching story after the picture is done. That is why this suits rescue-vehicle play at this age.",
+          "rank_rationale": "#5 completes the set: Rescue Squad covers cautious starters and vehicle fans when a twelve-piece tray still looks like a stretch; it trails wood and Ravensburger warm-ups on strategy depth but wins on theme and Amazon proof.",
           "why_it_fits": "Real interlocking pieces at 2 - 3 count; huge Amazon review base; distinct emergency-vehicle hook.",
           "caveats": "",
           "buy_borrow_hold_off": "buy",
@@ -2130,7 +2130,7 @@
             "signals": []
           },
           "description": "Six small emergency-vehicle jigsaws in one Orchard Toys box, mostly two and three pieces, plus character pieces for matching drivers to ambulance, fire engine and more.",
-          "why_pip_picked_this": "Vehicle fans need a confidence-building set before twelve-piece trays feel fair. Short rescue scenes keep turn, compare and try-again play going without a table full of bits, and the characters invite a little matching story after the picture is done. That hook is why this suits rescue-vehicle play at this age."
+          "why_pip_picked_this": "Vehicle fans need a confidence-building set before a fuller twelve-piece tray. Short rescue scenes keep turn, compare and try-again play going without a table full of bits, and the characters invite a little matching story after the picture is done. That is why this suits rescue-vehicle play at this age."
         }
       ],
       "backup_picks": [
@@ -3433,8 +3433,8 @@
             "included_items": "London bus, 3 characters, bus stop sign; 2x AA batteries included",
             "other": "Removable top deck; sounds buttons"
           },
-          "product_description_under_30_words": "A chunky red London bus with seats for little people, made for loading passengers, driving somewhere, tipping them out and starting the journey all over again.",
-          "ember_verdict": "Get-on, go and return is the story shape nearly-threes love once journeys become talk. A chunky bus with seats makes that loop obvious every time they load, drive and tip out. That clear trip structure is why this set suits get-on-go-return play, especially if a Happyland bus is already familiar from nursery.",
+          "product_description_under_30_words": "A chunky red London bus with seats for little people, made for loading passengers, driving somewhere, tipping them out and starting all over again.",
+          "ember_verdict": "Get on, go and come back is the pretend game nearly-threes love once they start talking about trips. A chunky bus with seats makes that pattern obvious every time they load, drive and tip out. That clear trip structure is why this set suits get-on-go-return play, especially if a Happyland bus is already in the house.",
           "personalization_hint": "likely to seat figures, announce stops, and retell a short outing",
           "why_it_fits": "Bus + stop + people make a whole mini story without tiny classic-Playmobil parts.",
           "caveats": "",
@@ -3464,8 +3464,8 @@
             "buyable": true,
             "signals": []
           },
-          "description": "A chunky red London bus with seats for little people, made for loading passengers, driving somewhere, tipping them out and starting the journey all over again.",
-          "why_pip_picked_this": "Get-on, go and return is the story shape nearly-threes love once journeys become talk. A chunky bus with seats makes that loop obvious every time they load, drive and tip out. That clear trip structure is why this set suits get-on-go-return play, especially if a Happyland bus is already familiar from nursery."
+          "description": "A chunky red London bus with seats for little people, made for loading passengers, driving somewhere, tipping them out and starting all over again.",
+          "why_pip_picked_this": "Get on, go and come back is the pretend game nearly-threes love once they start talking about trips. A chunky bus with seats makes that pattern obvious every time they load, drive and tip out. That clear trip structure is why this set suits get-on-go-return play, especially if a Happyland bus is already in the house."
         },
         {
           "image_url": "",
@@ -3511,7 +3511,7 @@
             "other": "Junior line only"
           },
           "product_description_under_30_words": "A PLAYMOBIL Junior airport shuttle with figures sized for little hands, ready for holiday and travel stories about getting on, going and coming back.",
-          "ember_verdict": "Once the local bus loop feels familiar, holiday talk needs a bigger journey. An airport shuttle opens boarding, going and coming-home stories without classic Playmobil tiny bits. That wider travel script is why this set suits airport play when street trips already feel covered.",
+          "ember_verdict": "Once the local bus game is familiar, holiday talk needs a bigger trip. An airport shuttle opens boarding, going and coming-home stories without classic Playmobil tiny bits. That wider travel play is why this set suits airport pretend when ordinary street trips are already well practised.",
           "personalization_hint": "likely to line figures up to board and announce stops",
           "why_it_fits": "Board, go, arrive - whole-scene travel on Junior age marks with chunky people.",
           "caveats": "",
@@ -3541,7 +3541,7 @@
             "signals": []
           },
           "description": "A PLAYMOBIL Junior airport shuttle with figures sized for little hands, ready for holiday and travel stories about getting on, going and coming back.",
-          "why_pip_picked_this": "Once the local bus loop feels familiar, holiday talk needs a bigger journey. An airport shuttle opens boarding, going and coming-home stories without classic Playmobil tiny bits. That wider travel script is why this set suits airport play when street trips already feel covered."
+          "why_pip_picked_this": "Once the local bus game is familiar, holiday talk needs a bigger trip. An airport shuttle opens boarding, going and coming-home stories without classic Playmobil tiny bits. That wider travel play is why this set suits airport pretend when ordinary street trips are already well practised."
         },
         {
           "image_url": "",
@@ -3587,7 +3587,7 @@
             "other": "Junior line — not classic Playmobil"
           },
           "product_description_under_30_words": "A PLAYMOBIL Junior helper set with doctor, fire and police figures, for pretend stories where someone needs looking after and kindness is part of the play.",
-          "ember_verdict": "After journey toys, care roles become the next pretend stretch. A helper pack with doctor, fire and police figures lets kindness sit inside the story, not only the drive. That caring cast is why this set suits help-and-rescue play beside a bus they already love.",
+          "ember_verdict": "After bus and trip toys, care roles become the next pretend stretch. A helper pack with doctor, fire and police figures lets kindness sit inside the story, not only the drive. That caring cast is why this set suits help-and-rescue play beside a bus they already love.",
           "personalization_hint": "likely to assign jobs and narrate helping someone",
           "why_it_fits": "Help roles give feelings and places to the pretend scene beyond travel alone.",
           "caveats": "",
@@ -3617,7 +3617,7 @@
             "signals": []
           },
           "description": "A PLAYMOBIL Junior helper set with doctor, fire and police figures, for pretend stories where someone needs looking after and kindness is part of the play.",
-          "why_pip_picked_this": "After journey toys, care roles become the next pretend stretch. A helper pack with doctor, fire and police figures lets kindness sit inside the story, not only the drive. That caring cast is why this set suits help-and-rescue play beside a bus they already love."
+          "why_pip_picked_this": "After bus and trip toys, care roles become the next pretend stretch. A helper pack with doctor, fire and police figures lets kindness sit inside the story, not only the drive. That caring cast is why this set suits help-and-rescue play beside a bus they already love."
         },
         {
           "image_url": "",
@@ -3666,7 +3666,7 @@
             "other": "Tilting bed; trailer hitch"
           },
           "product_description_under_30_words": "A chunky DUPLO ambulance with a driver and patient figure, made for load-the-patient, drive, help and return play with pieces sized for little hands.",
-          "ember_verdict": "Help-on-wheels gives a clear care story with a beginning and an end: someone needs help, you drive, you help, you come back. DUPLO pieces stay sturdy when bus and helper figures already fill the basket. That simple rescue loop is why this set suits help-on-wheels play at nearly three.",
+          "ember_verdict": "Help-on-wheels gives a clear care story with a beginning and an end: someone needs help, you drive, you help, you come back. DUPLO pieces stay sturdy when bus and helper figures already fill the basket. That simple rescue pattern is why this set suits help-on-wheels play at nearly three.",
           "personalization_hint": "likely to enjoy repeating a load-and-tip job story",
           "why_it_fits": "Clear go / work / return loop with chunky Junior parts.",
           "caveats": "Thinner public UK review scrape than DUPLO Construction; specialist exemption.",
@@ -3696,7 +3696,7 @@
             "signals": []
           },
           "description": "A chunky DUPLO ambulance with a driver and patient figure, made for load-the-patient, drive, help and return play with pieces sized for little hands.",
-          "why_pip_picked_this": "Help-on-wheels gives a clear care story with a beginning and an end: someone needs help, you drive, you help, you come back. DUPLO pieces stay sturdy when bus and helper figures already fill the basket. That simple rescue loop is why this set suits help-on-wheels play at nearly three."
+          "why_pip_picked_this": "Help-on-wheels gives a clear care story with a beginning and an end: someone needs help, you drive, you help, you come back. DUPLO pieces stay sturdy when bus and helper figures already fill the basket. That simple rescue pattern is why this set suits help-on-wheels play at nearly three."
         },
         {
           "image_url": "",
@@ -3744,7 +3744,7 @@
             "other": ""
           },
           "product_description_under_30_words": "Chunky LEGO DUPLO construction vehicles to build, drive and rebuild, with sturdy pieces that leave plenty of room for your child to invent their own job stories.",
-          "ember_verdict": "Rebuild vehicle jobs keep small-world play fresh after bus and helper sets. Chunky DUPLO pieces let them invent the job, not only follow one script, while still driving and rebuilding. That open job inventiveness is why this set suits rebuild-vehicle play when the shelf already has a clear journey toy.",
+          "ember_verdict": "Rebuild vehicle jobs keep small-world play fresh after bus and helper sets. Chunky DUPLO pieces let them invent the job, not only follow one fixed idea, while still driving and rebuilding. That open inventiveness is why this set suits rebuild-vehicle play when the shelf already has a clear trip toy.",
           "personalization_hint": "likely to rebuild vehicles and narrate site jobs",
           "why_it_fits": "Supports go / work / return with chunky 2+ bricks, though figures are thinner than Happyland or Junior heroes.",
           "caveats": "",
@@ -3774,7 +3774,7 @@
             "signals": []
           },
           "description": "Chunky LEGO DUPLO construction vehicles to build, drive and rebuild, with sturdy pieces that leave plenty of room for your child to invent their own job stories.",
-          "why_pip_picked_this": "Rebuild vehicle jobs keep small-world play fresh after bus and helper sets. Chunky DUPLO pieces let them invent the job, not only follow one script, while still driving and rebuilding. That open job inventiveness is why this set suits rebuild-vehicle play when the shelf already has a clear journey toy."
+          "why_pip_picked_this": "Rebuild vehicle jobs keep small-world play fresh after bus and helper sets. Chunky DUPLO pieces let them invent the job, not only follow one fixed idea, while still driving and rebuilding. That open inventiveness is why this set suits rebuild-vehicle play when the shelf already has a clear trip toy."
         }
       ],
       "backup_picks": [
@@ -4225,7 +4225,7 @@
             "other": "LER7204"
           },
           "product_description_under_30_words": "Oversized letter sweets on a chunky cord, sized for little hands that enjoy a proper threading job at the table rather than tiny jewellery beads.",
-          "ember_verdict": "Letters make the lace feel like a finished word job, not endless random beads. Oversized sweets keep little hands on a proper threading task while concentration is still growing. Keep them company as the cords love to tangle. That letter-finish pride is why this set suits letters-and-lacing practice at the table.",
+          "ember_verdict": "Letters make the lace into a finished word job, not endless random beads. Oversized sweets keep little hands on a proper threading task while concentration is still growing. Keep them company as the cords love to tangle. That letter-finish pride is why this set suits letters-and-lacing practice at the table.",
           "why_it_fits": "Large bead size and Ages 2 - 6 mark clear the 34 - 36m age gate; letter faces add a light copy-and-name layer without tiny craft pieces.",
           "caveats": "",
           "buy_borrow_hold_off": "buy",
@@ -4257,7 +4257,7 @@
             "signals": []
           },
           "description": "Oversized letter sweets on a chunky cord, sized for little hands that enjoy a proper threading job at the table rather than tiny jewellery beads.",
-          "why_pip_picked_this": "Letters make the lace feel like a finished word job, not endless random beads. Oversized sweets keep little hands on a proper threading task while concentration is still growing. Keep them company as the cords love to tangle. That letter-finish pride is why this set suits letters-and-lacing practice at the table."
+          "why_pip_picked_this": "Letters make the lace into a finished word job, not endless random beads. Oversized sweets keep little hands on a proper threading task while concentration is still growing. Keep them company as the cords love to tangle. That letter-finish pride is why this set suits letters-and-lacing practice at the table."
         },
         {
           "rank": 2,
@@ -4455,7 +4455,7 @@
             "other": "LER0139"
           },
           "product_description_under_30_words": "Chunky beads plus picture cards that invite children to copy a pattern on the lace, turning simple threading into a matching game as their focus grows.",
-          "ember_verdict": "When random threading already feels easy, the next stretch is copying a sequence. Picture cards turn the lace into a matching game without asking them to invent the pattern alone. That guided step is why this set suits copying-patterns play beside beads already in the house.",
+          "ember_verdict": "When random threading is already sorted, the next stretch is copying a sequence. Picture cards turn the lace into a matching game without asking them to invent the pattern alone. That guided step is why this set suits copying-patterns play beside beads already in the house.",
           "why_it_fits": "Only buyable UK listing in this run that pairs chunky hardwood beads with pattern cards for copy-shapes play.",
           "caveats": "",
           "buy_borrow_hold_off": "buy",
@@ -4487,7 +4487,7 @@
             "signals": []
           },
           "description": "Chunky beads plus picture cards that invite children to copy a pattern on the lace, turning simple threading into a matching game as their focus grows.",
-          "why_pip_picked_this": "When random threading already feels easy, the next stretch is copying a sequence. Picture cards turn the lace into a matching game without asking them to invent the pattern alone. That guided step is why this set suits copying-patterns play beside beads already in the house."
+          "why_pip_picked_this": "When random threading is already sorted, the next stretch is copying a sequence. Picture cards turn the lace into a matching game without asking them to invent the pattern alone. That guided step is why this set suits copying-patterns play beside beads already in the house."
         },
         {
           "rank": 5,
@@ -5076,7 +5076,7 @@
             "other": "Shows up to 10 cards at once; UK-made brand"
           },
           "product_description_under_30_words": "A wipe-clean set of rearrangeable routine picture cards for home, so morning and bedtime jobs sit in order on a strip and move as each step is done.",
-          "ember_verdict": "Nearly-threes manage everyday jobs better when they can see the shape of the day. Rearrangeable morning and bedtime pictures turn those stretches into a shared plan you build together, with pride as each card moves. That whole-day visibility is why this timetable suits families ready for a fuller strip at home.",
+          "ember_verdict": "Nearly-threes manage everyday jobs better when they can see what comes next across the day. Rearrangeable morning and bedtime pictures turn those stretches into a shared plan you build together, with pride as each card moves. That whole-day visibility is why this timetable suits families ready for a fuller strip at home.",
           "why_it_fits": "Mainstream UK home timetable with rearrangeable cards matching whole-routine independence without school-only symbols.",
           "caveats": "",
           "rating_value": 4.7,
@@ -5098,7 +5098,7 @@
             "signals": []
           },
           "description": "A wipe-clean set of rearrangeable routine picture cards for home, so morning and bedtime jobs sit in order on a strip and move as each step is done.",
-          "why_pip_picked_this": "Nearly-threes manage everyday jobs better when they can see the shape of the day. Rearrangeable morning and bedtime pictures turn those stretches into a shared plan you build together, with pride as each card moves. That whole-day visibility is why this timetable suits families ready for a fuller strip at home."
+          "why_pip_picked_this": "Nearly-threes manage everyday jobs better when they can see what comes next across the day. Rearrangeable morning and bedtime pictures turn those stretches into a shared plan you build together, with pride as each card moves. That whole-day visibility is why this timetable suits families ready for a fuller strip at home."
         },
         {
           "image_url": "",
@@ -5150,7 +5150,7 @@
             "other": "Tasks: get dressed, breakfast, teeth, wash, hair, go / tidy, dinner, pyjamas, sleep"
           },
           "product_description_under_30_words": "Magnetic planner strips with everyday job pictures for the fridge or a metal board, so your child can see the order of the day and tick along as each job finishes.",
-          "ember_verdict": "Fridge doors are where many UK homes already live. Magnetic strips make the plan easy to change without sticky mess, so morning and bedtime jobs can shift as the week changes. That everyday practicality is why magnetic planners suit families who want the routine visible in the kitchen, not only on a nursery wall.",
+          "ember_verdict": "Fridge doors are where many UK homes already live. Magnetic strips make the plan easy to change without sticky mess, so morning and bedtime jobs can shift as the week changes. That everyday practicality is why magnetic planners suit families who want the routine visible in the kitchen, not tucked away in another room.",
           "why_it_fits": "Split AM/PM board with visible progress suits independence pride when whole-day charts feel like too much.",
           "caveats": "Only one on-page review; metal tokens need supervision around babies. Handmade lead time (Craftly ships Wed).",
           "rating_value": 4.95,
@@ -5172,7 +5172,7 @@
             "signals": []
           },
           "description": "Magnetic planner strips with everyday job pictures for the fridge or a metal board, so your child can see the order of the day and tick along as each job finishes.",
-          "why_pip_picked_this": "Fridge doors are where many UK homes already live. Magnetic strips make the plan easy to change without sticky mess, so morning and bedtime jobs can shift as the week changes. That everyday practicality is why magnetic planners suit families who want the routine visible in the kitchen, not only on a nursery wall."
+          "why_pip_picked_this": "Fridge doors are where many UK homes already live. Magnetic strips make the plan easy to change without sticky mess, so morning and bedtime jobs can shift as the week changes. That everyday practicality is why magnetic planners suit families who want the routine visible in the kitchen, not tucked away in another room."
         },
         {
           "image_url": "",

@@ -69,7 +69,7 @@ Run on every Top Pick before `inbox/`. This is the **root-cause** quality gate.
 1. Description **20–40 words** and alone makes the product clear (decode SKU jargon).
 2. Why Pip **40–60 words** = need at this age + why this earns Top 5–10 + how it suits the Best for *idea* — **not** a paraphrase of Description, and **never** say “tag” / “earns that tag”.
 3. Best for comes to life in Description and/or Why Pip without fourth-wall tag talk.
-4. No AI / money tells: low-stakes, quick wins, tight budgets, worth buying, calm as praise, em dashes, Stage X, Fresh 20XX, crisis framing.
+4. No AI / money tells: loop, journey, hook, script, story shape, shape of the day, on-ramp, feel fair / feels busy / when X feels Y, nursery benchmarking, low-stakes, quick wins, tight budgets, worth buying, calm as praise, em dashes, Stage X, Fresh 20XX, crisis framing.
 5. Unique product names across Top 5; at most one lookalike line from the same modular range; **at most two Top Picks from the same brand**.
 6. Prefer products findable on major UK retail / Google Shopping when quality is equal (Browse offers must land on the real pick, not a sea of lookalikes).
 7. Writing Guidelines ship checklist + Conor five tests pass on a read-aloud.

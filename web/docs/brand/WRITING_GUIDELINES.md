@@ -157,12 +157,18 @@ Trust breaks when copy sounds machine-made. Prefer plain rhythm, ordinary verbs,
 - game-changer, unlock, essential, must-have, magic
 - US slang (went sideways, peel off, crush it)
 - Internal product words in parent copy (Stage 1/2/3, cluster, lane, specialist exemption, review thresholds)
+- **AI metaphor / process speak:** loop, journey, hook, script, “story shape”, “shape of the day”, on-ramp
+- **Fake child judgements:** “feel fair”, “feels busy”, “when X feels easy/familiar/covered” — a nearly-three does not decide that a twelve-piece tray “feels fair”
+- **Nursery benchmarking** in Pip’s Picks Description / Why Pip (“already familiar from nursery”, “nursery wall”, “nursery bag”) — do not use nursery as social proof for the product
 
 | Pass | Fail |
 |---|---|
 | A short bedtime story about friendship and sharing. | A story that really lands after a tricky day. |
 | Chunky wooden shapes on a soft lace for little hands. | Filacolor is the calm, carefully curated pick. |
 | Handmade in the UK, easy to wipe clean. | Specialist exemption with thin on-page reviews. |
+| Short rescue puzzles before a fuller twelve-piece set. | Before twelve-piece trays feel fair. That hook is why… |
+| Load, drive and tip out passengers again. | Get-on go-return journey / bus loop / travel script |
+| Keep the routine visible in the kitchen. | Already familiar from nursery / not only on a nursery wall |
 
 ---
 
@@ -241,7 +247,7 @@ There is **one** Description on the card. Do **not** write a separate “What th
 - Paraphrase the Description.
 - Lead with shopping orders.
 - Mention tags (“earns that tag”, “the tag promises”).
-- Use AI tells (low-stakes, quick wins, worth buying, calm as praise, etc.).
+- Use AI tells (loop, journey, hook, script, feel fair, feels like, nursery benchmarking, low-stakes, quick wins, worth buying, calm as praise, etc.).
 - Stay under 40 words when the insight needs room.
 
 **Pass example (20 words):**  
@@ -329,7 +335,7 @@ Parents guide, play, and practise with babies and toddlers. Ember’s voice stay
 6b. Pip’s Picks Description between **20 and 40 words** (one field only)?
 6c. Description alone makes the product clear (no CTA needed to understand it)?
 6d. Why Pip between **40 and 60 words**, earns the Best for *idea* without saying “tag”, and does not echo Description?
-6e. No money-shame labels (“tight budgets”) or AI tells (low-stakes, quick wins, …)?
+6e. No money-shame labels (“tight budgets”) or AI tells (loop, journey, hook, feel fair, nursery benchmarking, low-stakes, quick wins, …)?
 6f. At most two Top Picks from the same brand; findable on major UK retail / Shopping when quality is equal?
 7. No research maths on the page?
 8. Respects the existing home?
@@ -461,3 +467,4 @@ See `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` must-be-true #5.
 | 2026-07-23 | Pip’s Picks: single Description **20–40 words**; removed dual Description / What this is |
 | 2026-07-23 | Pip’s Picks: Best for must land; Description vs Why Pip jobs; decode SKUs; ban tight budgets / low-stakes / quick wins |
 | 2026-07-23 | Why Pip **40–60 words**; never say “tag”; max two same brand; prefer Shopping-findable stockists |
+| 2026-07-23 | Ban AI process speak (loop / journey / hook / script / feel fair / nursery benchmarking) in Pip parent copy |
