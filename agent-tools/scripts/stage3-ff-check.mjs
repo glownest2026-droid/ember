@@ -30,7 +30,29 @@ const BANNED = [
   'must-have',
   'research-backed',
   'developmental domain',
+  'worth buying',
+  'worth it',
+  'worth considering',
+  'carefully curated',
+  'thoughtfully designed',
+  'carefully chosen',
+  'that lands',
+  'really lands',
+  'hits home',
+  'game-changer',
+  'went sideways',
+  'peel off',
+  'stage 1',
+  'stage 2',
+  'stage 3',
+  'stage-based',
 ];
+
+/** Soft adjectives banned as product praise (whole-word). */
+const BANNED_WORD = [/\bcalm\b/i, /\bcalming\b/i, /\bcheerful\b/i, /\bdelightful\b/i];
+
+/** Fresh 20xx sales talk */
+const FRESH_YEAR = /\bfresh 20\d{2}\b/i;
 
 function nonEmpty(v) {
   return String(v ?? '').trim().length > 0;
@@ -244,8 +266,16 @@ function bestForOk(tag, seen) {
 }
 
 function bannedHits(text) {
-  const lower = String(text || '').toLowerCase();
-  return BANNED.filter((b) => lower.includes(b));
+  const raw = String(text || '');
+  const lower = raw.toLowerCase();
+  const hits = BANNED.filter((b) => lower.includes(b));
+  if (raw.includes('—') || raw.includes('–')) hits.push('em_dash');
+  for (const re of BANNED_WORD) {
+    if (re.test(raw)) hits.push(re.source.replace(/\\b/g, '').replace(/^\(|\)$/g, '') || 'banned_word');
+  }
+  if (FRESH_YEAR.test(raw)) hits.push('fresh_year');
+  if (/\breal (playgroup|wobbles|jobs|moments)\b/i.test(raw)) hits.push('real_x_filler');
+  return [...new Set(hits)];
 }
 
 function ratingGate(pick) {
@@ -253,8 +283,13 @@ function ratingGate(pick) {
   const exemption = pick.evidence_exemption === 'specialist' || pick.evidence_tier === 'specialist';
   const rv = pick.rating_value;
   const rc = pick.rating_count;
+  // Thin SKU review counts always fail — specialist may not use brand-store aggregates to excuse <15 on this product.
+  if (rc != null && Number(rc) < MIN_REVIEW_COUNT) {
+    reasons.push(`review_count_below_${MIN_REVIEW_COUNT}`);
+    return reasons;
+  }
   if (exemption) {
-    if (rc != null && rc < 15 && (!pick.evidence_notes || String(pick.evidence_notes).length < 20)) {
+    if (rc == null && (!pick.evidence_notes || String(pick.evidence_notes).length < 40)) {
       reasons.push('specialist_exemption_needs_written_reason');
     }
     return reasons;
@@ -264,7 +299,6 @@ function ratingGate(pick) {
     return reasons;
   }
   if (Number(rv) < MIN_RATING) reasons.push(`rating_below_${MIN_RATING}`);
-  if (Number(rc) < MIN_REVIEW_COUNT) reasons.push(`review_count_below_${MIN_REVIEW_COUNT}`);
   return reasons;
 }
 

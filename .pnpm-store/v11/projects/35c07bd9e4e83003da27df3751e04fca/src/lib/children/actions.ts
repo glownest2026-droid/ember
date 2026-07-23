@@ -1,0 +1,122 @@
+'use server';
+
+import { createClient } from '@/utils/supabase/server';
+import { calculateAgeBand } from '@/lib/ageBand';
+import { redirect } from 'next/navigation';
+
+const NEXT_ADD_CHILDREN = '/add-children';
+const DISCOVER_PAGE = '/discover';
+const FAMILY_PAGE = '/family';
+
+export async function saveChild(formData: FormData, childId?: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/signin?next=${NEXT_ADD_CHILDREN}`);
+  }
+
+  const isUpdate = typeof childId === 'string' && childId.trim() !== '';
+
+  // Deterministic: if the caller passed an existing child_id, this mutation is an edit.
+  const nameValue = String(formData.get('child_name') || formData.get('display_name') || '').trim() || null;
+  const birthdate = String(formData.get('birthdate') || '').trim() || null;
+  const gender = String(formData.get('gender') || '').trim() || null;
+
+  const computedAgeBand = birthdate ? calculateAgeBand(birthdate) : null;
+  const age_band = computedAgeBand || null;
+
+  const childData: Record<string, unknown> = {
+    user_id: user.id,
+    child_name: nameValue,
+    birthdate: birthdate || null,
+    gender: gender || null,
+    age_band: age_band,
+    preferences: {},
+  };
+
+  if (childId) {
+    const { error } = await supabase
+      .from('children')
+      .update(childData)
+      .eq('id', childId)
+      .eq('user_id', user.id);
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return {
+      ok: true,
+      childId,
+      age_band_id: String(age_band ?? ''),
+      action: 'updated' as const,
+    };
+  } else {
+    const { error, data } = await supabase
+      .from('children')
+      .insert(childData)
+      .select('id')
+      .single();
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    if (!data?.id) {
+      return { error: 'Child profile created but no id returned' };
+    }
+
+    childId = data.id;
+
+    return {
+      ok: true,
+      childId,
+      age_band_id: String(age_band ?? ''),
+      action: 'created' as const,
+    };
+  }
+}
+
+export async function deleteChild(childId: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/signin?next=${NEXT_ADD_CHILDREN}`);
+  }
+
+  const { error } = await supabase
+    .from('children')
+    .delete()
+    .eq('id', childId)
+    .eq('user_id', user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  redirect(`${FAMILY_PAGE}?deleted=1`);
+}
+
+/** Soft-remove: set is_suppressed = true so child is hidden from family/subnav/discover. */
+export async function suppressChild(childId: string) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/signin?next=${FAMILY_PAGE}`);
+  }
+
+  const { error } = await supabase
+    .from('children')
+    .update({ is_suppressed: true })
+    .eq('id', childId)
+    .eq('user_id', user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { ok: true };
+}

@@ -1,0 +1,30 @@
+{
+  "age_band_id": "34-36m",
+  "research_date": "2026-07-21",
+  "researcher": "cursor",
+  "methodology": "Full fresh Option B re-run (v4 / ember_picks_research_v2). All Manus outputs replaced.",
+  "categories_complete": 7,
+  "categories_total": 7,
+  "safety_cluster": "quick_check_only",
+  "files": [
+    "ember_picks_34-36m_cat_picture_story_books.json",
+    "ember_picks_34-36m_cat_small_world_figures.json",
+    "ember_picks_34-36m_cat_jigsaw_puzzles.json",
+    "ember_picks_34-36m_cat_feelings_faces_books.json",
+    "ember_picks_34-36m_cat_threading_beads.json",
+    "ember_picks_34-36m_cat_balance_stepping_stones.json",
+    "ember_picks_34-36m_cat_visual_routine_cards.json"
+  ],
+  "founder_preview": "agent-tools/exports/stage3/34-36m/founder-preview/stage3_founder_review_34-36m.html",
+  "registry": "agent-tools/exports/stage3/34-36m/registry/stage3_registry_34-36m.json",
+  "ingestion_status": "founder-review-ready",
+  "qa_flags_summary": [
+    "cat_feelings_faces_books: check_age_fit On Sudden Hill; check_price Can You Share Little Whale",
+    "cat_jigsaw_puzzles: check_age_fit Ravensburger My First (use 4-5 piece only)",
+    "cat_balance_stepping_stones: check_price (several); check_age_fit Gonge Hilltops",
+    "cat_visual_routine_cards: check_claim Out The Door; check_price Sensory Direct timer",
+    "cat_small_world_figures: check_stock London Bus; check_claim DUPLO ambulance reviews",
+    "cat_threading_beads: re-check Learning Resources stock",
+    "cat_picture_story_books: check_price Tell Your Own Story"
+  ]
+}

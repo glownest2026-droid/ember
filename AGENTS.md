@@ -28,6 +28,7 @@ Full reasoning and worked examples: **`web/docs/DEVELOPER_OPERATING_MODEL.md`**.
 - **Pip feature names are locked** — Pathway / Picks / Patch Finds / Seasons / Chapters / Pass-On. Always say **Ember Plus**. Never rename for "clarity."
 - **Do not imply paid checkout is live** until the MVP threshold is met — prefer **Join the waitlist**. See `.cursor/rules/project-rocket.mdc`.
 - **Conor five tests** (Respect, Well Duh, Stage shift, Buying judgement, Human parent) must pass on any parent-facing copy. See `.cursor/rules/conscientious-conor.mdc` + `web/docs/CONSCIENTIOUS_CONOR.md`.
+- **Writing Guidelines** govern how every parent-facing sentence sounds (app, blogs, push). Canonical: `web/docs/brand/WRITING_GUIDELINES.md`.
 - **Always open a PR** for app/product builds and hand off a **green Vercel preview** — never ask whether to open one.
 
 ---
@@ -50,14 +51,16 @@ Full reasoning and worked examples: **`web/docs/DEVELOPER_OPERATING_MODEL.md`**.
 | Progress logging | `.cursor/rules/progress-log.mdc` |
 | Deploy / merge / rollback checklist | `web/docs/DEPLOY-CHECKLIST.md` |
 | Rocket scope, pricing, waitlist | `.cursor/rules/project-rocket.mdc` + `web/docs/PROJECT_ROCKET.md` |
-| Parent persona + copy bar | `.cursor/rules/conscientious-conor.mdc` + `web/docs/CONSCIENTIOUS_CONOR.md` |
+| Parent persona (Conor / Thea) | `.cursor/rules/conscientious-conor.mdc` + `web/docs/brand/PERSONAS.md` + `web/docs/CONSCIENTIOUS_CONOR.md` |
+| Parent-facing writing craft | `web/docs/brand/WRITING_GUIDELINES.md` |
+| Brand system map | `web/docs/brand/README.md` |
 | Stage 3 trust gates (URL / age / ratings) | `web/docs/STAGE3_TRUST_GATES.md` + `$ember-stage3-ff-checker` |
 | Stage 3 research methodology (WHAT + HOW) | `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` |
 | Catalogue / Discover ingestion | `.cursor/rules/conor-grade-catalogue-upload.mdc` |
 | Offline source of truth (Discover content) | Spine 3.0 Bible workbook `discover_projection` tab — see `.cursor/rules/conor-grade-catalogue-upload.mdc` §0 |
 | Category image mapping | `.cursor/rules/ember-image-mapping.mdc` |
-| Marketing names / banned phrases | `web/docs/PRODUCT_MARKETING_LIBRARY.md` |
-| Brand / visual identity | `web/docs/EMBER_BRAND_BOOK.md` |
+| Marketing names / banned phrases | `web/docs/PRODUCT_MARKETING_LIBRARY.md` + `web/docs/brand/PRODUCT_MARKETING.md` |
+| Brand / visual identity | `web/docs/EMBER_BRAND_BOOK.md` + `web/docs/brand/BRAND_BOOK.md` |
 | Required docs (do not delete) | `web/docs/DOCS_MANIFEST.md` |
 | Decision history | `web/docs/FEB_2026_DECISION_LOG.md` |
 

@@ -1,0 +1,161 @@
+{
+  "checked_at": "2026-07-22",
+  "url_count": 22,
+  "ok_count": 15,
+  "results": {
+    "https://www.lego.com/en-gb/product/3-in-1-construction-vehicles-10475": {
+      "url": "https://www.lego.com/en-gb/product/3-in-1-construction-vehicles-10475",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.lego.com/en-gb/product/first-time-at-the-airport-10443": {
+      "url": "https://www.lego.com/en-gb/product/first-time-at-the-airport-10443",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.lego.com/en-gb/product/number-train-learn-to-count-10954": {
+      "url": "https://www.lego.com/en-gb/product/number-train-learn-to-count-10954",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.elc.co.uk/shop-by-age/2-3-years/Happyland-London-Bus-Playset/p/549251": {
+      "url": "https://www.elc.co.uk/shop-by-age/2-3-years/Happyland-London-Bus-Playset/p/549251",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.playmobil.com/en-gb/junior:-airport-shuttle-bus/71682.html": {
+      "url": "https://www.playmobil.com/en-gb/junior:-airport-shuttle-bus/71682.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.toypro.com/gb/product/58991/first-time-at-the-airport": {
+      "url": "https://www.toypro.com/gb/product/58991/first-time-at-the-airport",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.toypro.com/gb/product/61623/3-in-1-construction-vehicles": {
+      "url": "https://www.toypro.com/gb/product/61623/3-in-1-construction-vehicles",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.toypro.com/gb/product/42781/number-train-learn-to-count": {
+      "url": "https://www.toypro.com/gb/product/42781/number-train-learn-to-count",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.toypro.com/gb/product/61622/fire-truck-with-hose-and-firefighter": {
+      "url": "https://www.toypro.com/gb/product/61622/fire-truck-with-hose-and-firefighter",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.playmobil.com/en-gb/junior:-ladder-unit-fire-truck/71683.html": {
+      "url": "https://www.playmobil.com/en-gb/junior:-ladder-unit-fire-truck/71683.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.toypro.com/gb/product/50431/the-bus-ride": {
+      "url": "https://www.toypro.com/gb/product/50431/the-bus-ride",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.lego.com/en-gb/product/alphabet-truck-10421": {
+      "url": "https://www.lego.com/en-gb/product/alphabet-truck-10421",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.toypro.com/gb/product/58992/3in1-animals-on-wheels": {
+      "url": "https://www.toypro.com/gb/product/58992/3in1-animals-on-wheels",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.playmobil.com/en-gb/junior:-dump-truck/71685.html": {
+      "url": "https://www.playmobil.com/en-gb/junior:-dump-truck/71685.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.toypro.com/gb/product/56631/ambulance-driver": {
+      "url": "https://www.toypro.com/gb/product/56631/ambulance-driver",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.toypro.com/gb/product/56629/f1-team-race-cars-drivers": {
+      "url": "https://www.toypro.com/gb/product/56629/f1-team-race-cars-drivers",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.tts-group.co.uk/small-world-mini-wooden-vehicles-5pk/1005916.html": {
+      "url": "https://www.tts-group.co.uk/small-world-mini-wooden-vehicles-5pk/1005916.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.elc.co.uk/shop-by-age/2-3-years/Happyland-Lights-and-Sounds-Farm-Tractor-Playset/p/540437": {
+      "url": "https://www.elc.co.uk/shop-by-age/2-3-years/Happyland-Lights-and-Sounds-Farm-Tractor-Playset/p/540437",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.lego.com/en-gb/product/3-in-1-construction-site-and-vehicles-10476": {
+      "url": "https://www.lego.com/en-gb/product/3-in-1-construction-site-and-vehicles-10476",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.playmobil.com/en-gb/junior:-my-take-along-noahs-ark/71681.html": {
+      "url": "https://www.playmobil.com/en-gb/junior:-my-take-along-noahs-ark/71681.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.playmobil.com/en-gb/junior:-construction-truck-with-garage/71686.html": {
+      "url": "https://www.playmobil.com/en-gb/junior:-construction-truck-with-garage/71686.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.marksandspencer.com/happyland-london-bus-2-yrs-/p/hbp22586078": {
+      "url": "https://www.marksandspencer.com/happyland-london-bus-2-yrs-/p/hbp22586078",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    }
+  }
+}
