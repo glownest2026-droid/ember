@@ -2,16 +2,16 @@
 
 - **Overall:** FAIL
 - **Band:** 34-36m
-- **URL smoke:** 27/27 ok
-- **Availability:** 8/10 buyable
+- **URL smoke:** 0/0 ok
+- **Availability:** 0/0 buyable
 
 | Rank | Product | Pass | Reasons |
 |---:|---|---|---|
-| 1 | Pip and Posy: The New Friend | pass | — |
-| 2 | Can You Share, Little Whale? | pass | — |
-| 3 | That's (Not) Mine | fail | safety_exclusion_under_36_overlaps_band_min_34; min_age_36_excludes_band_months_under_36 |
-| 4 | The Sour Grape | pass | — |
-| 5 | The Squirrels Who Squabbled | pass | — |
+| 1 | Pip and Posy: The New Friend | fail | why_pip_word_count_37_not_40_to_60; best_for_not_reflected_in_description_or_why_pip; banned_copy:em_dash|moment; banned_copy:em_dash; banned_copy:moments; banned_copy:em_dash |
+| 2 | Can You Share, Little Whale? | fail | description_word_count_18_not_20_to_40; why_pip_word_count_31_not_40_to_60; banned_copy:em_dash|fresh_year |
+| 3 | That's (Not) Mine | fail | description_word_count_17_not_20_to_40; why_pip_word_count_27_not_40_to_60; banned_copy:em_dash; banned_copy:script |
+| 4 | The Sour Grape | fail | description_word_count_19_not_20_to_40; why_pip_word_count_33_not_40_to_60; best_for_not_reflected_in_description_or_why_pip; banned_copy:em_dash; banned_copy:loops |
+| 5 | The Squirrels Who Squabbled | fail | description_word_count_16_not_20_to_40; why_pip_word_count_28_not_40_to_60; best_for_not_reflected_in_description_or_why_pip; banned_copy:nursery_benchmarking |
 
 ## Re-research brief (for founder approval)
 

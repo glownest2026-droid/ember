@@ -2,16 +2,16 @@
 
 - **Overall:** FAIL
 - **Band:** 34-36m
-- **URL smoke:** 17/24 ok
-- **Availability:** 7/9 buyable
+- **URL smoke:** 0/0 ok
+- **Availability:** 0/0 buyable
 
 | Rank | Product | Pass | Reasons |
 |---:|---|---|---|
 | 1 | First Farm Friends Jigsaw Puzzles | pass | — |
-| 2 | First Jungle Friends Jigsaw Puzzles | pass | — |
+| 2 | 4 Puzzles in a Box — Farm | pass | — |
 | 3 | On The Farm — My First Jigsaw Puzzles | pass | — |
-| 4 | Safari — 6 Piece Puzzles (3 puzzles) | fail | url_not_ok:http_429; availability_fetch_failed:http_429 |
-| 5 | Rescue Squad Jigsaw Puzzle | pass | — |
+| 4 | Safari — 6 Piece Puzzles (3 puzzles) | pass | — |
+| 5 | Rescue Squad Jigsaw Puzzle | fail | banned_copy:hook|fake_feel_judgement |
 
 ## Re-research brief (for founder approval)
 

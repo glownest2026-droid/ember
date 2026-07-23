@@ -1,0 +1,113 @@
+﻿{
+  "age_band_id": "34-36m",
+  "passed": [
+    "cat_balance_stepping_stones",
+    "cat_feelings_faces_books",
+    "cat_jigsaw_puzzles",
+    "cat_picture_story_books",
+    "cat_small_world_figures",
+    "cat_threading_beads",
+    "cat_visual_routine_cards"
+  ],
+  "failed": [],
+  "details": [
+    {
+      "category_entity_id": "cat_balance_stepping_stones",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_feelings_faces_books",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_jigsaw_puzzles",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_picture_story_books",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_small_world_figures",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_threading_beads",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_visual_routine_cards",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    }
+  ]
+}

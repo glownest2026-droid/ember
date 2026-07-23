@@ -1,0 +1,137 @@
+﻿{
+  "age_band_id": "34-36m",
+  "passed": [
+    "cat_balance_stepping_stones",
+    "cat_picture_story_books",
+    "cat_small_world_figures",
+    "cat_threading_beads",
+    "cat_visual_routine_cards"
+  ],
+  "failed": [
+    "cat_feelings_faces_books",
+    "cat_jigsaw_puzzles"
+  ],
+  "details": [
+    {
+      "category_entity_id": "cat_balance_stepping_stones",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_feelings_faces_books",
+      "overall_pass": false,
+      "category_fails": [],
+      "picks_failed": [
+        {
+          "rank": 3,
+          "product_name": "That's (Not) Mine",
+          "fail_reasons": [
+            "banned_copy:script"
+          ]
+        },
+        {
+          "rank": 4,
+          "product_name": "The Sour Grape",
+          "fail_reasons": [
+            "banned_copy:loops"
+          ]
+        }
+      ],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_jigsaw_puzzles",
+      "overall_pass": false,
+      "category_fails": [],
+      "picks_failed": [
+        {
+          "rank": 5,
+          "product_name": "Rescue Squad Jigsaw Puzzle",
+          "fail_reasons": [
+            "banned_copy:hook|fake_feel_judgement"
+          ]
+        }
+      ],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_picture_story_books",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_small_world_figures",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_threading_beads",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_visual_routine_cards",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    }
+  ]
+}

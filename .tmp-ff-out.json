@@ -1,0 +1,14 @@
+﻿node : SyntaxError: Unexpected non-whitespace character after JSON at position 48939 (line 1012 column 2)
+At C:\Users\timwo\AppData\Local\Temp\ps-script-f3fb432f-fc8a-4c49-8f5e-159f3e9fe241.ps1:80 char:1
++ node agent-tools/scripts/stage3-ff-check.mjs --age-band=34-36m --skip ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (SyntaxError: Un... 1012 column 2):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    at JSON.parse (<anonymous>)
+    at checkDocument (file:///C:/Users/timwo/ember/agent-tools/scripts/stage3-ff-check.mjs:572:20)
+    at main (file:///C:/Users/timwo/ember/agent-tools/scripts/stage3-ff-check.mjs:858:26)
+    at file:///C:/Users/timwo/ember/agent-tools/scripts/stage3-ff-check.mjs:936:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)

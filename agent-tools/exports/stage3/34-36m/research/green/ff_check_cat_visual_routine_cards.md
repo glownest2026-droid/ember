@@ -9,7 +9,7 @@
 |---:|---|---|---|
 | 1 | Visual Timetable for Children at Home | pass | — |
 | 2 | Routine Planners for Kids | pass | — |
-| 3 | Mini Now and Next Board | pass | — |
-| 4 | My Communication Book for Early Years Settings | pass | — |
-| 5 | Out The Door Chart | pass | — |
+| 3 | Now and Next Visual Routine Board | pass | — |
+| 4 | My Communication Book (Early Years) | pass | — |
+| 5 | Children's Daily Routine Board | pass | — |
 

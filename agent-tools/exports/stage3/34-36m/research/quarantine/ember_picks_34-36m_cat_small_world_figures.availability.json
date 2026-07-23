@@ -1,28 +1,8 @@
 {
-  "checked_at": "2026-07-22",
-  "url_count": 8,
-  "buyable_count": 4,
+  "checked_at": "2026-07-23",
+  "url_count": 9,
+  "buyable_count": 5,
   "results": {
-    "https://www.hamleys.com/lego-10988-duplo-the-bus-ride-toy-for-toddlers-aged-2": {
-      "url": "https://www.hamleys.com/lego-10988-duplo-the-bus-ride-toy-for-toddlers-aged-2",
-      "http_status": null,
-      "fetch_ok": false,
-      "product_status": "unknown",
-      "signals": [],
-      "buyable": false,
-      "error": "fetch failed",
-      "checked_at": "2026-07-22"
-    },
-    "https://www.lego.com/en-gb/product/the-bus-ride-10988": {
-      "url": "https://www.lego.com/en-gb/product/the-bus-ride-10988",
-      "http_status": 403,
-      "fetch_ok": false,
-      "product_status": "unknown",
-      "signals": [],
-      "buyable": false,
-      "error": "http_403",
-      "checked_at": "2026-07-22"
-    },
     "https://www.thetoyshop.com/shop-by-age/2-3-years/Happyland-London-Bus-Playset/p/549251": {
       "url": "https://www.thetoyshop.com/shop-by-age/2-3-years/Happyland-London-Bus-Playset/p/549251",
       "http_status": 403,
@@ -31,17 +11,37 @@
       "signals": [],
       "buyable": false,
       "error": "http_403",
-      "checked_at": "2026-07-22"
+      "checked_at": "2026-07-23"
     },
-    "https://www.hamleys.com/lego-duplo-town-3-in-1-construction-vehicles-toys-10475": {
-      "url": "https://www.hamleys.com/lego-duplo-town-3-in-1-construction-vehicles-toys-10475",
-      "http_status": null,
+    "https://www.waylandgames.co.uk/ambulance-driver-lego-duplo-10447-lego-10447": {
+      "url": "https://www.waylandgames.co.uk/ambulance-driver-lego-duplo-10447-lego-10447",
+      "http_status": 403,
       "fetch_ok": false,
       "product_status": "unknown",
       "signals": [],
       "buyable": false,
-      "error": "fetch failed",
-      "checked_at": "2026-07-22"
+      "error": "http_403",
+      "checked_at": "2026-07-23"
+    },
+    "https://www.lego.com/en-gb/product/ambulance-and-driver-10447": {
+      "url": "https://www.lego.com/en-gb/product/ambulance-and-driver-10447",
+      "http_status": 403,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_403",
+      "checked_at": "2026-07-23"
+    },
+    "https://www.playmobil.com/en-gb/junior:-airport-shuttle-bus/71689.html": {
+      "url": "https://www.playmobil.com/en-gb/junior:-airport-shuttle-bus/71689.html",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-23"
     },
     "https://www.playmobil.com/en-gb/junior:-everyday-heroes/71692.html": {
       "url": "https://www.playmobil.com/en-gb/junior:-everyday-heroes/71692.html",
@@ -51,17 +51,7 @@
       "signals": [],
       "buyable": true,
       "error": null,
-      "checked_at": "2026-07-22"
-    },
-    "https://www.playmobil.com/en-gb/junior:-dump-truck/71685.html": {
-      "url": "https://www.playmobil.com/en-gb/junior:-dump-truck/71685.html",
-      "http_status": 200,
-      "fetch_ok": true,
-      "product_status": "buyable",
-      "signals": [],
-      "buyable": true,
-      "error": null,
-      "checked_at": "2026-07-22"
+      "checked_at": "2026-07-23"
     },
     "https://www.moonpig.com/uk/gifts/p/happyland-london-bus-playset/teal-549251/": {
       "url": "https://www.moonpig.com/uk/gifts/p/happyland-london-bus-playset/teal-549251/",
@@ -71,7 +61,17 @@
       "signals": [],
       "buyable": true,
       "error": null,
-      "checked_at": "2026-07-22"
+      "checked_at": "2026-07-23"
+    },
+    "https://www.hamleys.com/lego-duplo-town-3-in-1-construction-vehicles-toys-10475": {
+      "url": "https://www.hamleys.com/lego-duplo-town-3-in-1-construction-vehicles-toys-10475",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-23"
     },
     "https://www.amazon.co.uk/LEGO-10475-tbd-10475/dp/B01MTWBPPI": {
       "url": "https://www.amazon.co.uk/LEGO-10475-tbd-10475/dp/B01MTWBPPI",
@@ -81,7 +81,17 @@
       "signals": [],
       "buyable": true,
       "error": null,
-      "checked_at": "2026-07-22"
+      "checked_at": "2026-07-23"
+    },
+    "https://www.johnlewis.com/lego-duplo-ambulance-and-driver-10447/p113215047": {
+      "url": "https://www.johnlewis.com/lego-duplo-ambulance-and-driver-10447/p113215047",
+      "http_status": null,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "timeout",
+      "checked_at": "2026-07-23"
     }
   }
 }
