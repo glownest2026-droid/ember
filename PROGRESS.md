@@ -1,3 +1,11 @@
+## 2026-07-23 — Raise 1–3m / 28–30m / 31–33m Stage 3 to 34–36m copy bar
+
+- **Why:** Only 34–36m had been swept through Writing Guidelines + shared bans + Why Pip 40–60 / Description 20–40. Other pilot bands were older Manus/batch copy.
+- **What:** Rewrote all Top 5 public fields (Best for / Description / Why Pip) for 9 + 7 + 8 categories; mirrored to `research/green/`; re-ingest with **visible Top 5** (28–30 / 31–33 demote previous ranks 6–10 to backup).
+- **Migrations (applied):** `20260723240000` (1–3m), `20260723240100` (28–30m), `20260723240200` (31–33m); cache `20260723-raise-1-3-28-33-bar`
+- **Not in this pass:** tummy-time mat research (1–3m still 9/10 clusters); full Amazon substance re-smoke on every primary (copy bar first)
+- **Verify:** `/discover/2`, `/discover/29`, `/discover/32` — Why Pip should read like 34–36m; signed-out shows pick 1 only; paid/founder sees 5 (not 10)
+
 ## 2026-07-23 — Stage 3 “reset” ban + dead Amazon CTA root cause (34–36m)
 
 - **Founder catch:** “offers a reset” / “kind reset” still in Why Pip; Communication Book Browse offers landed on a dead Amazon ASIN
