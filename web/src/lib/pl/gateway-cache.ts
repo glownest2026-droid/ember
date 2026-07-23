@@ -22,7 +22,7 @@ import {
 export const GATEWAY_PUBLIC_REVALIDATE_SECONDS = 30 * 60;
 
 /** Bump after catalogue imports so Discover picks up new Stage 2 rows without waiting for TTL. */
-export const GATEWAY_CATALOGUE_CACHE_VERSION = '20260723-founder-feedback-34-36m';
+export const GATEWAY_CATALOGUE_CACHE_VERSION = '20260722-stage3-34-36m-pips';
 
 const gatewayTag = 'gateway-public';
 
