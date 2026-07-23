@@ -1,7 +1,7 @@
 # Stage 3 ingestion bundle QA - 34-36m
 
-Generated: 2026-07-23T06:35:45.300Z
-Migration: `supabase/migrations/20260723160000_ingest_stage3_pips_picks_34_36m.sql`
+Generated: 2026-07-23T07:26:59.640Z
+Migration: `supabase/migrations/20260723180000_ingest_stage3_pips_picks_34_36m.sql`
 
 ## Summary
 
@@ -9,11 +9,11 @@ Migration: `supabase/migrations/20260723160000_ingest_stage3_pips_picks_34_36m.s
 |---|---:|---:|---:|---|---|
 | Balance paths and stepping stones | 5 | 10 | 6 | pass | OK |
 | Feelings and friendship books | 5 | 10 | 7 | pass | OK |
-| First jigsaw puzzles | 5 | 10 | 5 | pass | OK |
+| First jigsaw puzzles | 5 | 9 | 5 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 9 |
 | Picture story books with questions | 5 | 10 | 7 | pass | OK |
-| Small-world people and vehicles | 5 | 9 | 6 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 9 |
+| Small-world people and vehicles | 5 | 8 | 6 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 8 |
 | Threading beads and chunky lacing | 5 | 10 | 6 | pass | OK |
-| Visual routine cards and timers | 5 | 7 | 11 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 7 |
+| Visual routine cards and timers | 5 | 9 | 11 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 9 |
 
 ## Signed-Out API Smoke Template
 

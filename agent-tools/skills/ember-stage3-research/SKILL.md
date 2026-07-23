@@ -313,7 +313,7 @@ Do not reuse generic tags across all picks. Tags must help a parent choose.
 Each Top Pick has **two public copy fields** that match the live card (not two product summaries):
 
 1. **Description** — exactly what the product is (20–40 words)
-2. **Why Pip picked this** — why it earns Top 5–10 now (need at this age + earns the Best for tag)
+2. **Why Pip picked this** — why it earns Top 5–10 now (need at this age + suits the Best for *idea*; never say “tag”)
 
 Do **not** write a separate “What this is” field. The card shows one Description only.
 

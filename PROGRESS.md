@@ -1,4 +1,14 @@
+## 2026-07-23 — Stage 3 Why Pip 40–60 + card height + Browse offers clarity (34–36m)
+
+- **Why:** Founder UX — Why Pip is the paid value (40–60 words); never say “tag”; cards were empty-tall when drawer closed; Create Visual Aids monoculture + Shopping-only CTA left parents unsure which product
+- **Rules:** Writing Guidelines + research ship checklist + FF gates (why length, tag meta-talk, max 2 same brand)
+- **UI:** Browse offers prefers primary `product_url`; glass cards hug content (`h-fit` / `items-center`)
+- **Content:** all 35 Why Pips rewritten; visual routines capped at 2× Create Visual Aids (+ Little Goose + Craftly); jigsaws demote Jungle → Galt; small world Dump Truck → DUPLO ambulance (Argos)
+- **Migration:** `20260723180000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-why-pip-40-60-34-36m`
+- **Verify:** `/discover/35` → open Why Pip (40–60 words, no “tag”); visual routines show ≤2 Create Visual Aids; Browse offers lands on product page not ambiguous Shopping; cards not empty glass under CTA
+
 ## 2026-07-23 — Stage 3 doctrine: fix copy at research (FF validates only)
+
 
 - **Founder rule:** root-cause content fixes live at the highest upstream point — Writing Guidelines + `$ember-stage3-research` ship checklist; FF is a second-pass validator, not the copywriter
 - **Updated:** methodology root-cause rule; research skill ship checklist; FF skill split (evidence-owned vs copy re-validate); TRUST_GATES ownership column; brief v5; `AGENTS.md` map

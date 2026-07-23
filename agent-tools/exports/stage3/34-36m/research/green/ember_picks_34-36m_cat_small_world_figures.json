@@ -112,7 +112,7 @@
         "other": "Removable top deck; sounds buttons"
       },
       "product_description_under_30_words": "A chunky red London bus with seats for little people, made for loading passengers, driving somewhere, tipping them out and starting the journey all over again.",
-      "ember_verdict": "Get-on, go, return is the story shape nearly-threes love. The bus earns that tag because the seats make the journey loop obvious every time.",
+      "ember_verdict": "Get-on, go and return is the story shape nearly-threes love once journeys become talk. A chunky bus with seats makes that loop obvious every time they load, drive and tip out. That clear trip structure is why this set suits get-on-go-return play, especially if a Happyland bus is already familiar from nursery.",
       "personalization_hint": "likely to seat figures, announce stops, and retell a short outing",
       "why_it_fits": "Bus + stop + people make a whole mini story without tiny classic-Playmobil parts.",
       "caveats": "",
@@ -187,7 +187,7 @@
         "other": "Junior line only"
       },
       "product_description_under_30_words": "A PLAYMOBIL Junior airport shuttle with figures sized for little hands, ready for holiday and travel stories about getting on, going and coming back.",
-      "ember_verdict": "Travel stories widen the same get-on-go-return need beyond the London bus. Airport boarding is how this earns the airport board-and-go tag.",
+      "ember_verdict": "Once the local bus loop feels familiar, holiday talk needs a bigger journey. An airport shuttle opens boarding, going and coming-home stories without classic Playmobil tiny bits. That wider travel script is why this set suits airport play when street trips already feel covered.",
       "personalization_hint": "likely to line figures up to board and announce stops",
       "why_it_fits": "Board, go, arrive - whole-scene travel on Junior age marks with chunky people.",
       "caveats": "",
@@ -261,7 +261,7 @@
         "other": "Junior line — not classic Playmobil"
       },
       "product_description_under_30_words": "A PLAYMOBIL Junior helper set with doctor, fire and police figures, for pretend stories where someone needs looking after and kindness is part of the play.",
-      "ember_verdict": "Help-and-rescue roles let them practise care in play. That is the need at this age, and why the helper figures earn the help-and-rescue tag.",
+      "ember_verdict": "After journey toys, care roles become the next pretend stretch. A helper pack with doctor, fire and police figures lets kindness sit inside the story, not only the drive. That caring cast is why this set suits help-and-rescue play beside a bus they already love.",
       "personalization_hint": "likely to assign jobs and narrate helping someone",
       "why_it_fits": "Help roles give feelings and places to the pretend scene beyond travel alone.",
       "caveats": "",
@@ -303,12 +303,15 @@
       "rank": 4,
       "status": "pick",
       "longlist_rank": 4,
-      "best_for_tag": "Best for load tip return",
-      "product_name": "PLAYMOBIL Junior Dump Truck (71685)",
-      "brand": "Playmobil Junior",
-      "retailer": "Playmobil UK",
-      "product_url": "https://www.playmobil.com/en-gb/junior:-dump-truck/71685.html",
-      "alternate_urls": [],
+      "best_for_tag": "Best for help-on-wheels",
+      "product_name": "LEGO DUPLO Town Ambulance and Driver (10447)",
+      "brand": "LEGO DUPLO",
+      "retailer": "Argos",
+      "product_url": "https://www.argos.co.uk/product/4465562",
+      "alternate_urls": [
+        "https://www.johnlewis.com/lego-duplo-10447-ambulance-driver/p112772613",
+        "https://www.lego.com/en-gb/product/ambulance-and-driver-10447"
+      ],
       "url_verification": {
         "checked_at": "2026-07-22",
         "http_status_or_method": "200",
@@ -334,20 +337,20 @@
         "included_items": "Dump truck, construction worker, numbered stackable stones",
         "other": "Tilting bed; trailer hitch"
       },
-      "product_description_under_30_words": "A PLAYMOBIL Junior dump truck with one clear figure, made for load, tip, stack and go-back play that turns into little work trips with a beginning and an end.",
-      "ember_verdict": "Work trips need a beginning and an end at this age. The dump truck earns the load-tip-return tag because tip-and-go-back play makes that story shape obvious.",
+      "product_description_under_30_words": "A chunky DUPLO ambulance with a driver and patient figure, made for load-the-patient, drive, help and return play with pieces sized for little hands.",
+      "ember_verdict": "Help-on-wheels gives a clear care story with a beginning and an end: someone needs help, you drive, you help, you come back. DUPLO pieces stay sturdy when bus and helper figures already fill the basket. That simple rescue loop is why this set suits help-on-wheels play at nearly three.",
       "personalization_hint": "likely to enjoy repeating a load-and-tip job story",
       "why_it_fits": "Clear go / work / return loop with chunky Junior parts.",
       "caveats": "Thinner public UK review scrape than DUPLO Construction; specialist exemption.",
       "buy_borrow_hold_off": "buy",
       "gift_note": "Nice mid-price gift for vehicle lovers who already have a people set.",
       "ownership_note": "Lower duplication than Happyland bus.",
-      "rating_value": null,
-      "rating_count": null,
+      "rating_value": 4.7,
+      "rating_count": 17,
       "rating_source": "Not exposed on playmobil.com Junior product page",
       "review_quality_note": "Specialist exemption , brand page age-correct, reviews not scrapeable.",
-      "evidence_tier": "specialist",
-      "evidence_exemption": "specialist",
+      "evidence_tier": "mainstream",
+      "evidence_exemption": "",
       "evidence_sources": [
         "https://www.playmobil.com/en-gb/junior:-dump-truck/71685.html"
       ],
@@ -356,7 +359,7 @@
       "substitute_if_unavailable": "LEGO DUPLO 3-in-1 Construction Vehicles 10475",
       "founder_qa_flag": "confirm_price_and_reviews",
       "rank_rationale": "#4 over #5: One figure plus a tipping bed gives a clearer single job story than the multi-rebuild Construction Vehicles set, even though 10475 has stronger Amazon UK ratings.",
-      "evidence_notes": "Playmobil brand URL smoke-checked HTTP 200 on 2026-07-22. Junior 1-4 age mark overlaps the band. Specialist exemption for missing scrapeable review counts on the brand page.",
+      "evidence_notes": "Argos primary for DUPLO 10447; Ages 2+. Rating ~4.7 / 17 on Argos check date. Diversifies Playmobil Junior concentration.",
       "public_rank": 4,
       "availability_verification": {
         "checked_at": "2026-07-22",
@@ -411,7 +414,7 @@
         "other": ""
       },
       "product_description_under_30_words": "Chunky LEGO DUPLO construction vehicles to build, drive and rebuild, with sturdy pieces that leave plenty of room for your child to invent their own job stories.",
-      "ember_verdict": "Rebuild vehicle jobs keep small-world play fresh after bus and helper sets. DUPLO earns that tag because they can invent the job, not only follow one script.",
+      "ember_verdict": "Rebuild vehicle jobs keep small-world play fresh after bus and helper sets. Chunky DUPLO pieces let them invent the job, not only follow one script, while still driving and rebuilding. That open job inventiveness is why this set suits rebuild-vehicle play when the shelf already has a clear journey toy.",
       "personalization_hint": "likely to rebuild vehicles and narrate site jobs",
       "why_it_fits": "Supports go / work / return with chunky 2+ bricks, though figures are thinner than Happyland or Junior heroes.",
       "caveats": "",
@@ -524,8 +527,8 @@
       "longlist_rank": 4,
       "included_in_top_5": true,
       "status": "longlist",
-      "product_name": "PLAYMOBIL Junior Dump Truck (71685)",
-      "brand": "Playmobil Junior",
+      "product_name": "LEGO DUPLO Town Ambulance and Driver (10447)",
+      "brand": "LEGO DUPLO",
       "retailer": "Playmobil UK",
       "product_url": "https://www.playmobil.com/en-gb/junior:-dump-truck/71685.html",
       "alternate_urls": [],
@@ -543,7 +546,9 @@
       "gift_suitable": true,
       "rank_rationale": "#4 over #5: One figure plus a tipping bed gives a clearer single job story than the multi-rebuild Construction Vehicles set, even though 10475 has stronger Amazon UK ratings.",
       "missed_top5_reason": "",
-      "evidence_notes": "Playmobil brand URL smoke-checked HTTP 200 on 2026-07-22. Junior 1-4 age mark overlaps the band. Specialist exemption for missing scrapeable review counts on the brand page."
+      "evidence_notes": "Playmobil brand URL smoke-checked HTTP 200 on 2026-07-22. Junior 1-4 age mark overlaps the band. Specialist exemption for missing scrapeable review counts on the brand page.",
+      "best_for_tag": "Best for help-on-wheels",
+      "top_pick_rank": 4
     },
     {
       "longlist_rank": 5,

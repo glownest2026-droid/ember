@@ -76,9 +76,12 @@ These rules are authored and applied in `$ember-stage3-research` + Writing Guide
 
 11. Parent fields pass Writing Guidelines bans — em dash, calm, worth buying, Fresh 20XX, Stage X, low-stakes, quick wins, tight budget(s), etc.
 12. Description word count **20–40** (legacy field name `product_description_under_30_words`; one Description only)
-13. Best for tag reflected in Description and/or Why Pip
-14. Description and Why Pip are not near-paraphrases
-15. Unique Top 5 product names; no near-duplicate product lines (e.g. two Edx Step-A-* SKUs)
+13. Why Pip word count **40–60** (`ember_verdict`)
+14. No “tag” meta-talk in parent copy (“the tag”, “earns that tag”, …)
+15. Best for *idea* reflected in Description and/or Why Pip (without saying “tag”)
+16. Description and Why Pip are not near-paraphrases
+17. Unique Top 5 product names; no near-duplicate product lines (e.g. two Edx Step-A-* SKUs)
+18. Brand concentration — at most **two** Top Picks from the same brand
 
 ## Outcomes
 

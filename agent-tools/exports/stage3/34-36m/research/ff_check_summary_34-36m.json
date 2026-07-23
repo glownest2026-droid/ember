@@ -1,7 +1,8 @@
 {
   "age_band_id": "34-36m",
   "passed": [
-    "cat_feelings_faces_books"
+    "cat_feelings_faces_books",
+    "cat_picture_story_books"
   ],
   "failed": [],
   "details": [
@@ -11,12 +12,26 @@
       "category_fails": [],
       "picks_failed": [],
       "smoke": {
-        "url_count": 27,
-        "ok_count": 27
+        "url_count": 0,
+        "ok_count": 0
       },
       "availability": {
-        "url_count": 10,
-        "buyable_count": 10
+        "url_count": 0,
+        "buyable_count": 0
+      }
+    },
+    {
+      "category_entity_id": "cat_picture_story_books",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      },
+      "availability": {
+        "url_count": 0,
+        "buyable_count": 0
       }
     }
   ]

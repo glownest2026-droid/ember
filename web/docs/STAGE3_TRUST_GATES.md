@@ -40,7 +40,7 @@
 | Age absent | Top Pick must have at least one structured age signal | Missing age → fail (unless founder-waived specialist) | Research captures; FF validates |
 | Schema counts | 5 Top Picks, 15 longlist, ≥5 skips (product categories) | Count mismatch | Research; FF validates |
 | Best-for | Unique tags; `Best for` + ≤6 words after prefix; tag must land in Description/Why Pip | Duplicate / feature-list / orphan tag | **Research (root)**; FF re-checks |
-| Public copy | Description **20–40 words** (legacy field name); Why Pip ≠ Description echo; Writing Guidelines bans; unique Top 5 names; no near-duplicate product lines. Written cleanly in `inbox/` | Empty / outside 20–40 / echo / banned / duplicate | **Research (root)**; FF re-checks |
+| Public copy | Description **20–40 words**; Why Pip **40–60 words**; no “tag” meta-talk; Why Pip ≠ Description echo; max **two** same brand; prefer Shopping-findable primaries; Writing Guidelines bans; unique Top 5 names. Written cleanly in `inbox/` | Empty / outside bands / tag talk / echo / brand monoculture / banned / duplicate | **Research (root)**; FF re-checks |
 
 ## Age signals (all product types)
 

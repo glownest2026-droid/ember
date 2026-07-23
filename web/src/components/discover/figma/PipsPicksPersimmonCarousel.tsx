@@ -900,12 +900,12 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-stretch justify-center self-center py-0 md:h-auto md:max-h-[640px] md:w-[370px] md:flex-[0_0_370px] md:self-center md:py-1"
+                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-center justify-center self-center py-0 md:h-auto md:max-h-[640px] md:w-[370px] md:flex-[0_0_370px] md:self-center md:py-1"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
                   data-pips-card
-                  className={`relative flex h-auto min-h-0 w-full flex-col overflow-hidden rounded-[28px] text-white transition-transform duration-150 md:rounded-[32px] ${styles.glassCard}`}
+                  className={`relative flex h-fit min-h-0 w-full flex-col overflow-hidden rounded-[28px] text-white transition-transform duration-150 md:rounded-[32px] ${styles.glassCard}`}
                   style={
                     {
                       '--accent': accent.accent,

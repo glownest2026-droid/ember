@@ -44,9 +44,9 @@ Banned: tilted/mid-card robins, peach-mush pastels, purple SaaS, static dense ve
 | Track background | `radial-gradient(130% 100% at 50% 0%, #1C2537 0%, #131A28 70%)` |
 | Track radius | `28px` |
 | Track shadow | `0 24px 56px rgba(19, 26, 40, 0.3)` |
-| Track min-height (mobile) | `~560px` (or `max(452px, 100dvh − header − chrome)`) |
-| Track height (desktop) | `min-height ~520px`, grow with content up to ~720px — room for 40–60 word Why Pip without empty glass |
-| Card slot (desktop) | Content-height card (`h-auto`, max ~640px); do not force a fixed tall empty card when the drawer is closed |
+| Track min-height (mobile) | Tall enough for ambient orbs (~560px / viewport chrome); cards must **not** stretch to fill it |
+| Track height (desktop) | `min-height ~520px`, grow with content up to ~720px — room for 40–60 word Why Pip |
+| Card height | **Hug content** (`h-fit` / `items-center`). Never stretch the glass to fill the track when the Why Pip drawer is closed — that left empty dark glass under the CTA |
 | Inactive dots | `rgba(255,255,255,0.25)` |
 | Active dot | `#FF5C34`, width `22px` |
 
