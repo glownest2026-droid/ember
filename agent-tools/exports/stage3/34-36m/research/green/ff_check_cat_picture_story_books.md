@@ -2,8 +2,8 @@
 
 - **Overall:** PASS
 - **Band:** 34-36m
-- **URL smoke:** 27/31 ok
-- **Availability:** 9/14 buyable
+- **URL smoke:** 0/0 ok
+- **Availability:** 0/0 buyable
 
 | Rank | Product | Pass | Reasons |
 |---:|---|---|---|

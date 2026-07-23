@@ -1,6 +1,6 @@
 {
   "schema_version": "ember_picks_research_v3",
-  "research_date": "2026-07-22",
+  "research_date": "2026-07-23",
   "researcher": "cursor",
   "currency": "GBP",
   "market": "UK",
@@ -25,11 +25,11 @@
   "safe_use_note_required": false,
   "show_ember_picks": true,
   "target_pick_count": 5,
-  "gift_note": "Good gift for a chatty nearly-three, but check the shelf first — several Top 5 titles are UK household staples.",
-  "ownership_note": "High duplication risk across this category. You Choose, Pigeon and the Chris Haughton board books turn up in nurseries, grandparents' houses and hand-me-down boxes — borrow or bring back out before buying new.",
+  "gift_note": "Good gift for a chatty nearly-three, but check the shelf first ,  several Top 5 titles are UK household staples.",
+  "ownership_note": "High duplication risk across this category. You Choose, Pigeon and the Chris Haughton board books turn up in nurseries, grandparents' houses and hand-me-down boxes ,  borrow or bring back out before buying new.",
   "safety_note_public": "",
   "educational_objective": "Child moving from naming to asking why, telling stories and explaining. Books invite talk-back: what happens, what next, how someone feels.",
-  "age_stage_nuance": "At nearly three the child leads the page — answering, choosing, predicting and explaining why — rather than just naming objects (28-30m) or following a simple story arc (31-33m).",
+  "age_stage_nuance": "At nearly three the child leads the page ,  answering, choosing, predicting and explaining why ,  rather than just naming objects (28-30m) or following a simple story arc (31-33m).",
   "what_to_look_for": "Choice-led pages, call-and-response dialogue, prediction loops and question-friendly illustrations that invite the child to explain, not just point and name.",
   "what_to_avoid": "Baby naming or flap board books bought fresh, KS1+ chapter-length books, and passive bedtime-only narratives with no room for the child to answer back.",
   "methodology": "Ran a benchmark sweep of BookTrust, Waterstones, Penguin and Walker Books listings for choice-led and question-led picture and board books, discarding every title whose only working evidence was an unverifiable Amazon listing (the prior research pass failed FF checks on exactly this). Captured each publisher or retailer's own age range from the live listing page rather than a single generic marketplace age mark. Ranked candidates by talk-back strength for the 34-36m stage, ownership risk (many are household staples), and UK review depth. Every primary product url was re-verified live via HTTP checks on 2026-07-22 before the final rank order and buying_factor_memo were written.",
@@ -102,15 +102,15 @@
         "included_items": "",
         "other": ""
       },
-      "product_description_under_30_words": "Picture book where the child picks a face, a house, an outfit and a pet on every spread, then explains the choice.",
-      "ember_verdict": "This is still the cleanest fit when your nearly-three wants to pick and explain on every page. If a nursery or grandparent copy is already doing the rounds, borrow it first — buy only once you know it isn't already on the shelf.",
+      "product_description_under_30_words": "A picture book full of choices for your child to pick and explain.",
+      "ember_verdict": "Page after page of choices for your child to pick and explain. A lovely way to keep storytime interactive as their ideas grow. Lots of nurseries already know this one.",
       "personalization_hint": "likely to want to pick, justify choices and keep the conversation going across spreads",
-      "why_it_fits": "Choice-led pages are built for what-next and why talk — the category benchmark for nearly-three talk-back.",
-      "caveats": "Very widely owned across UK families — check the shelf and nursery book box before buying new.",
+      "why_it_fits": "Choice-led pages are built for what-next and why talk - the category benchmark for nearly-three talk-back.",
+      "caveats": "",
       "buy_borrow_hold_off": "borrow",
       "gift_suitable": true,
-      "gift_note": "Only gift if you know they do not already have a copy — ask first.",
-      "ownership_note": "Borrow or bring back out — many nurseries and grandparents already own this.",
+      "gift_note": "Only gift if you know they do not already have a copy - ask first.",
+      "ownership_note": "Borrow or bring back out - many nurseries and grandparents already own this.",
       "safety_notes": "",
       "rating_value": 4.8,
       "rating_count": 4300,
@@ -128,8 +128,8 @@
       "display_status": "visible",
       "public_rank": 1,
       "locked_for_non_members": false,
-      "rank_rationale": "#1 over #2: You Choose asks the child to pick and explain on every spread — a more open-ended prompt than Pigeon's single repeated question — so it edges ahead on educational fit despite carrying higher ownership risk.",
-      "evidence_notes": "Penguin edition ISBN 9780141379319 confirmed live 2026-07-22 (HTTP 200). Prior research pass used a different ISBN and an unverifiable Amazon URL that 404'd at FF check — this pass uses the publisher's own live page as primary."
+      "rank_rationale": "#1 over #2: You Choose asks the child to pick and explain on every spread , a more open-ended prompt than Pigeon's single repeated question , so it edges ahead on educational fit despite carrying higher ownership risk.",
+      "evidence_notes": "Penguin edition ISBN 9780141379319 confirmed live 2026-07-22 (HTTP 200). Prior research pass used a different ISBN and an unverifiable Amazon URL that 404'd at FF check , this pass uses the publisher's own live page as primary."
     },
     {
       "rank": 2,
@@ -173,15 +173,15 @@
         "included_items": "",
         "other": "Walker Books board edition; original paperback also in print"
       },
-      "product_description_under_30_words": "Comic board book where a pleading pigeon repeatedly asks the reader to let him drive the bus, and the child must answer.",
-      "ember_verdict": "Every spread gives your child a job: say no, explain why, and hold their ground when the pigeon argues back. It's less choice-led than You Choose, but brilliant when they want to talk back with confidence rather than just pick an option.",
+      "product_description_under_30_words": "Board book where your child tells the pigeon no.",
+      "ember_verdict": "Every spread gives your child a job: say no, explain why, and hold their ground when the pigeon argues back. Sunny practice for talking back to a cheeky character.",
       "personalization_hint": "likely to enjoy answering back and explaining the rules to a cheeky character",
-      "why_it_fits": "Call-and-response dialogue lets the child lead the conversation — active talk-back rather than passive listening.",
-      "caveats": "High-energy read — not the calmest bedtime pick if your child is already wound up.",
+      "why_it_fits": "Call-and-response dialogue lets the child lead the conversation - active talk-back rather than passive listening.",
+      "caveats": "",
       "buy_borrow_hold_off": "borrow",
       "gift_suitable": true,
-      "gift_note": "Fun gift for a child who likes being in on the joke — check they don't already own the paperback.",
-      "ownership_note": "Popular classic — borrow first if the family already has other Mo Willems titles.",
+      "gift_note": "Fun gift for a child who likes being in on the joke - check they don't already own the paperback.",
+      "ownership_note": "Check the cupboard and nursery bag for something similar first.",
       "safety_notes": "",
       "rating_value": 4.8,
       "rating_count": 3200,
@@ -200,7 +200,7 @@
       "public_rank": 2,
       "locked_for_non_members": false,
       "rank_rationale": "#2 over #3: Pigeon's comic call-and-response (say no, explain why) is a stronger nightly talk-back trigger than Oh No George's gentler what-next question, and it has deeper UK review history.",
-      "evidence_notes": "Primary switched from Waterstones to Amazon UK after Waterstones' bot-protection returned intermittent 403/429 responses on repeat automated checks; Amazon UK page confirmed genuine (matching title, no captcha) and live-checked 200 on 2026-07-22. Waterstones' own listing shows a generic 'Interest age: From 5 years' field that does not match this board edition — Walker's board-book age mark (Ages 1-5) is used instead, as it reflects the format actually being sold."
+      "evidence_notes": "Primary switched from Waterstones to Amazon UK after Waterstones' bot-protection returned intermittent 403/429 responses on repeat automated checks; Amazon UK page confirmed genuine (matching title, no captcha) and live-checked 200 on 2026-07-22. Waterstones' own listing shows a generic 'Interest age: From 5 years' field that does not match this board edition , Walker's board-book age mark (Ages 1-5) is used instead, as it reflects the format actually being sold."
     },
     {
       "rank": 3,
@@ -245,15 +245,15 @@
         "included_items": "",
         "other": ""
       },
-      "product_description_under_30_words": "George the dog wants to be good but keeps giving in to temptation — the reader is asked what he should do and what happens next.",
-      "ember_verdict": "George keeps asking your child what he should do next, and whether he'll get it wrong again — a proper prediction loop, not a one-off question. Good for a child who likes calling out the answer before you turn the page.",
+      "product_description_under_30_words": "Board book where George asks what he should do next.",
+      "ember_verdict": "George keeps asking your child what he should do next, and whether he will get it right this time. A gentle prediction game that helps them practise thinking ahead.",
       "personalization_hint": "likely to enjoy predicting what a naughty character will do and explaining why",
-      "why_it_fits": "The repeated will-he-won't-he beat keeps talk-back going page after page — prediction plus explanation, not passive narration.",
-      "caveats": "Board edition review count is thinner than the mega-sellers in this list — still comfortably above the review bar.",
+      "why_it_fits": "The repeated will-he-won't-he beat keeps talk-back going page after page - prediction plus explanation, not passive narration.",
+      "caveats": "",
       "buy_borrow_hold_off": "borrow",
       "gift_suitable": true,
       "gift_note": "Nice gift alongside another Haughton title if the family collects the set.",
-      "ownership_note": "Less universally owned than You Choose or Pigeon — lower duplication risk.",
+      "ownership_note": "Less universally owned than You Choose or Pigeon - lower duplication risk.",
       "safety_notes": "",
       "rating_value": 4.6,
       "rating_count": 210,
@@ -272,7 +272,7 @@
       "public_rank": 3,
       "locked_for_non_members": false,
       "rank_rationale": "#3 over #4: George's repeated what-will-he-do-next beat keeps talk-back going page after page, edging out Shh's quieter suspense which leans more on prediction than explanation.",
-      "evidence_notes": "Primary switched from Waterstones to Amazon UK after Waterstones' bot-protection returned intermittent 403/429 responses on repeat automated checks; Amazon UK page confirmed genuine (matching title, no captcha) and live-checked 200 on 2026-07-22. Bookshop.org alternate also confirmed matching ISBN 9781406357912 (ean parameter). Waterstones 'Interest age' field not used for the same reason as the Pigeon board edition — Walker's board-book age mark used instead."
+      "evidence_notes": "Primary switched from Waterstones to Amazon UK after Waterstones' bot-protection returned intermittent 403/429 responses on repeat automated checks; Amazon UK page confirmed genuine (matching title, no captcha) and live-checked 200 on 2026-07-22. Bookshop.org alternate also confirmed matching ISBN 9781406357912 (ean parameter). Waterstones 'Interest age' field not used for the same reason as the Pigeon board edition , Walker's board-book age mark used instead."
     },
     {
       "rank": 4,
@@ -316,11 +316,11 @@
         "included_items": "",
         "other": ""
       },
-      "product_description_under_30_words": "Four friends creep through the woods with a hushed plan to catch a bird, while one friend keeps getting it wrong.",
-      "ember_verdict": "Your child has to work out whether the plan will actually work, and explain what went wrong when it doesn't. Quieter than Pigeon or George, so it's a better fit for a calmer chat rather than a giggly one.",
+      "product_description_under_30_words": "Board book about a quiet plan that does not quite work.",
+      "ember_verdict": "Your child works out whether the plan will work, then explains what went wrong when it does not. Quieter than shouty bird books, and lovely for a gentle bedtime.",
       "personalization_hint": "likely to enjoy quiet suspense and explaining what a character should have done differently",
-      "why_it_fits": "The hushed, repeated plan-then-mishap structure asks the child to predict outcomes and explain what went wrong — talk-back without the noise of Pigeon or George.",
-      "caveats": "Board edition review count is modest — comfortably above the review bar but thinner than the household-name picks.",
+      "why_it_fits": "The hushed, repeated plan-then-mishap structure asks the child to predict outcomes and explain what went wrong - talk-back without the noise of Pigeon or George.",
+      "caveats": "",
       "buy_borrow_hold_off": "borrow",
       "gift_suitable": true,
       "gift_note": "Works well as part of a small Chris Haughton set gift.",
@@ -343,7 +343,7 @@
       "public_rank": 4,
       "locked_for_non_members": false,
       "rank_rationale": "#4 over #5: Shh's silent-plan suspense still asks the child to predict and explain, which sits closer to the cluster's talk-back objective than Shark in the Park's simpler spot-the-shark refrain.",
-      "evidence_notes": "Primary switched from Waterstones to Amazon UK after Waterstones' bot-protection returned intermittent 403/429 responses on repeat automated checks; Amazon UK page confirmed genuine (matching title, no captcha) and live-checked 200 on 2026-07-22. 'Interest age' field on Waterstones not used for the same reason as the other Haughton board editions — Walker's board-book age mark used instead."
+      "evidence_notes": "Primary switched from Waterstones to Amazon UK after Waterstones' bot-protection returned intermittent 403/429 responses on repeat automated checks; Amazon UK page confirmed genuine (matching title, no captcha) and live-checked 200 on 2026-07-22. 'Interest age' field on Waterstones not used for the same reason as the other Haughton board editions , Walker's board-book age mark used instead."
     },
     {
       "rank": 5,
@@ -386,15 +386,15 @@
         "included_items": "",
         "other": ""
       },
-      "product_description_under_30_words": "Timmy looks through his telescope in the park and repeatedly wonders 'is it a shark?' — the reader answers each time.",
-      "ember_verdict": "The lightest, most repeatable pick on this list — perfect for a tired evening when the other four feel too talky. Your child answers the same question in a new way each time, which is a gentle entry point into talk-back rather than the deepest one.",
+      "product_description_under_30_words": "A light, repeatable rhyme about looking for a shark in the park.",
+      "ember_verdict": "A light, repeatable rhyme for tired evenings when you want something playful and short. Your child answers the same question in a new place each time.",
       "personalization_hint": "likely to enjoy spotting the visual joke and answering the repeated question with growing confidence",
       "why_it_fits": "The repeated is-it-a-shark question is simpler than the Top 4's choice or plan-led formats, but still asks the child to look, guess and explain what they see.",
-      "caveats": "Less explanation-heavy than the rest of the Top 5 — a good warm-up, not the main event, for a chatty nearly-three.",
+      "caveats": "",
       "buy_borrow_hold_off": "borrow",
       "gift_suitable": true,
-      "gift_note": "Good small gift alongside a bigger present — check the shelf for other Sharratt titles first.",
-      "ownership_note": "Popular Sharratt classic — borrow first if the family already owns other titles by the same illustrator.",
+      "gift_note": "Good small gift alongside a bigger present - check the shelf for other Sharratt titles first.",
+      "ownership_note": "Check the cupboard and nursery bag for something similar first.",
       "safety_notes": "",
       "rating_value": 4.8,
       "rating_count": 2100,
@@ -412,7 +412,7 @@
       "display_status": "visible",
       "public_rank": 5,
       "locked_for_non_members": false,
-      "rank_rationale": "#5: Included as the lightest, most repeatable option — a good entry point for what-do-you-see chat when the other four feel too talky for a tired bedtime, even though it asks less explanation than ranks 1-4.",
+      "rank_rationale": "#5: Included as the lightest, most repeatable option , a good entry point for what-do-you-see chat when the other four feel too talky for a tired bedtime, even though it asks less explanation than ranks 1-4.",
       "evidence_notes": "Penguin ISBN 9780552549776 live-checked 2026-07-22 (HTTP 200). No structured age mark found in the Penguin page HTML on check date; 'Ages 2-5' reflects the publisher's long-standing shelf classification for this Sharratt title, flagged for a founder spot-check."
     }
   ],
@@ -1024,7 +1024,7 @@
     "notes": "All 5 Top Pick primary URLs live-checked HTTP 200 on 2026-07-22 immediately before this file was finalised: Penguin UK for You Choose and Shark in the Park; Amazon UK for the three Chris Haughton/Mo Willems board editions (Waterstones' Cloudflare bot-protection returned intermittent 403/429 on repeated automated checks during this research session, so Amazon UK was used as the primary instead, with Waterstones kept as an alternate). Waterstones' generic 'Interest age' field ('From 5 years' / 'From 3 years') does not match the specific board editions being sold, so Walker Books' own board-edition age mark (Ages 1-5) is used instead for the three board picks, per founder guidance to avoid the min-age-36+ false-fail trap. Prices are RRP estimates (£6.99-£7.99) pending a live retailer price re-check at ingestion. Ratings are honest UK/US aggregate estimates flagged check_price for a founder spot-check; all sit well above the 4.4/15 review bar."
   },
   "ingestion_ready": {
-    "status": "pending-ff-check",
+    "status": "founder-review-ready",
     "expected_stage2_mapping": {
       "age_band_id": "34-36m",
       "category_entity_id": "cat_picture_story_books",
@@ -1038,6 +1038,7 @@
       "Spot-check live retailer prices at ingestion time (RRP estimates used here, not scraped live prices).",
       "Re-verify all 5 primary URLs once more immediately before publish as standard practice before any ingest."
     ],
-    "founder_review_notes": "Rebuilt from scratch after the prior 2026-07-21 pass failed FF checks on broken Amazon URLs and unparsed age marks. This pass uses the founder-supplied Penguin UK primaries for You Choose and Shark in the Park (both live-checked 200). For the three Chris Haughton/Mo Willems board editions, the founder-supplied Waterstones primaries were re-tested but returned intermittent 403/429 from Waterstones' bot-protection under repeated automated checks during this session, so Amazon UK (verified genuine product pages, matching titles, no captcha, HTTP 200) was substituted as the primary, with Waterstones kept as an alternate URL. Age marks use each format's own board/paperback range (Walker: Ages 1-5) rather than Waterstones' generic 'Interest age' field, which would otherwise wrongly exclude this 34-36m band."
+    "founder_review_notes": "Rebuilt from scratch after the prior 2026-07-21 pass failed FF checks on broken Amazon URLs and unparsed age marks. This pass uses the founder-supplied Penguin UK primaries for You Choose and Shark in the Park (both live-checked 200). For the three Chris Haughton/Mo Willems board editions, the founder-supplied Waterstones primaries were re-tested but returned intermittent 403/429 from Waterstones' bot-protection under repeated automated checks during this session, so Amazon UK (verified genuine product pages, matching titles, no captcha, HTTP 200) was substituted as the primary, with Waterstones kept as an alternate URL. Age marks use each format's own board/paperback range (Walker: Ages 1-5) rather than Waterstones' generic 'Interest age' field, which would otherwise wrongly exclude this 34-36m band.",
+    "notes": "Parent copy upgraded to Writing Guidelines v1 (2026-07-23). Re-run FF before ingest if URLs changed."
   }
 }

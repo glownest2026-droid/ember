@@ -7,7 +7,15 @@
 - **FF:** `stage3-ff-check.mjs` (with move) → **PASS** (27/27 URL smoke, 10/10 availability); promoted inbox file to `research/green/`
 - **Verify:** `node agent-tools/scripts/stage3-ff-check.mjs agent-tools/exports/stage3/34-36m/research/inbox/ember_picks_34-36m_cat_feelings_faces_books.json`
 
-## 2026-07-22 — Stage 3: availability gate + 34–36m v3 ingest (7 categories)
+## 2026-07-23 — Brand Writing Guidelines + 34–36m Pip copy upgrade
+
+- **Brand system:** `web/docs/brand/` — PERSONAS, BRAND_BOOK, PRODUCT_MARKETING maps + canonical `WRITING_GUIDELINES.md` (founder signed off)
+- **Enforcement:** FF bans expanded (em dash, calm, worth buying, Fresh 20XX, Stage X); SKU `rating_count < 15` always fails even with specialist exemption
+- **34–36m:** all 7 green categories rewritten to Writing Guidelines; Craftly thin-SKU / under-36 Amazon boards removed from visual Top 5
+- **Migration:** `20260723120000_ingest_stage3_pips_picks_34_36m.sql` (applied); cache `20260723-writing-guidelines-34-36m`
+- **Verify:** `/discover/35` Pip's Picks — Why Pip copy positive, no em dashes / calm / worth buying; visual routines no Craftly 1-review board
+
+
 
 - **Bug fix:** `stage3-availability-check.mjs` + FF integration — rejects retired/discontinued and notify-when-in-stock primaries (e.g. DUPLO Bus Ride 10988)
 - **Small-world fix:** replaced retired Bus Ride with Playmobil Junior Airport Shuttle 71689; DUPLO 10475 primary → Amazon UK (Hamleys bot-block)

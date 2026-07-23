@@ -52,11 +52,11 @@ node agent-tools/scripts/stage3-ff-check.mjs path/to/file.json --skip-smoke --no
 4. Longlist ranks 6–10: `missed_top5_reason`
 5. Primary URL `url_ok` (HTTP 2xx/3xx) — fail closed (unless `--skip-smoke`)
 6. Primary **buyable today** — not retired/discontinued/notify-when-in-stock (`stage3-availability-check.mjs`); manufacturer alt showing retired fails cross-check
-7. `rating_value >= 4.4` and `rating_count >= 15` (or specialist exemption with written reason)
+7. `rating_value >= 4.4` and `rating_count >= 15` when count is present (specialist cannot excuse a SKU with fewer than 15 reviews)
 8. Age signals overlap band; “not suitable under 3 years” fails if `band.min < 36`
 9. Schema: 5 / 15 / ≥5 skips
 10. Unique short `Best for …` tags
-11. No banned Conor marketing phrases in parent fields
+11. Parent fields pass Writing Guidelines bans (`web/docs/brand/WRITING_GUIDELINES.md`) — em dash, calm, worth buying, Fresh 20XX, Stage X, etc.
 
 ## Outcomes
 

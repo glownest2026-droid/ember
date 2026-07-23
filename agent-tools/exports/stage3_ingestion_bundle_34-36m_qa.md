@@ -1,7 +1,7 @@
 # Stage 3 ingestion bundle QA - 34-36m
 
-Generated: 2026-07-22T09:08:04.175Z
-Migration: `supabase/migrations/20260722101500_ingest_stage3_pips_picks_34_36m.sql`
+Generated: 2026-07-23T05:32:49.941Z
+Migration: `supabase/migrations/20260723120000_ingest_stage3_pips_picks_34_36m.sql`
 
 ## Summary
 
@@ -13,7 +13,7 @@ Migration: `supabase/migrations/20260722101500_ingest_stage3_pips_picks_34_36m.s
 | Picture story books with questions | 5 | 10 | 7 | pass | OK |
 | Small-world people and vehicles | 5 | 9 | 6 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 9 |
 | Threading beads and chunky lacing | 5 | 10 | 6 | pass | OK |
-| Visual routine cards and timers | 5 | 10 | 6 | pass | OK |
+| Visual routine cards and timers | 5 | 7 | 11 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 7 |
 
 ## Signed-Out API Smoke Template
 

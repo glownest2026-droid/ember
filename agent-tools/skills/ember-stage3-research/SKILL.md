@@ -300,18 +300,17 @@ Example: `Four progressive cardboard jigsaws featuring Bluey, with 12, 16, 20 an
 
 ### `ember_verdict`
 
-A parent-facing judgement explaining why the pick fits the exact Stage 1 card, Stage 2 card and age band.
+Parent-facing “Why Pip picked this”. Follow **`web/docs/brand/WRITING_GUIDELINES.md`** (canonical).
 
 It should explain:
 
-- why this works now;
-- what makes it different from earlier-stage options;
-- who it is best for;
-- any reason to borrow, skip, bring back out, or hold off.
+- what the product or story is;
+- the positive skill or play vision;
+- an optional kind practical note.
 
-Tone: smart UK friend. Warm, calm, specific, not salesy.
+Tone: British school-gate English. Warm, specific, playful where it fits. Positive vision first — never crisis framing.
 
-Avoid: essential, must-have, unlock, “research shows,” domain jargon, pressure language, guilt language, toy-ad hype, and broad unsupported claims.
+Avoid: calm (as product praise), worth buying, em dashes, Fresh 20XX, Stage 1/2/3, internal QA talk, shopping orders as the spine of the line, and all Writing Guidelines bans.
 
 ---
 

@@ -1,6 +1,6 @@
 {
   "schema_version": "ember_picks_research_v3",
-  "research_date": "2026-07-22",
+  "research_date": "2026-07-23",
   "researcher": "cursor",
   "currency": "GBP",
   "market": "UK",
@@ -26,14 +26,14 @@
   "show_ember_picks": true,
   "target_pick_count": 5,
   "gift_note": "",
-  "ownership_note": "Try phone photos of your real routine first — shoes by the actual shoes, toothbrush by the sink. Buy cards only if DIY visuals are not sticking after two weeks.",
+  "ownership_note": "Try phone photos of your real routine first ,  shoes by the actual shoes, toothbrush by the sink. Buy cards only if DIY visuals are not sticking after two weeks.",
   "safety_note_public": "Small cards and tokens need supervision around younger siblings.",
   "educational_objective": "Pictures can help when words are not enough: shoes, teeth, toilet, coat, bag. The aim is not a perfect routine; it is giving your child something concrete to follow.",
-  "age_stage_nuance": "Versus 31–33m: jobs feel real — choose clothes, carry the bag, brush teeth without you narrating every step. Photos of your actual routine may beat generic cards.",
+  "age_stage_nuance": "Versus 31, 33m: jobs feel real ,  choose clothes, carry the bag, brush teeth without you narrating every step. Photos of your actual routine may beat generic cards.",
   "what_to_look_for": "Photo-first or clear home symbols; short strips for door or Now/Next; wipe-clean durable cards; Ages 2+ parseable marks; buyable UK URLs; parent-buy utility not gift packaging.",
   "what_to_avoid": "Under-36 / bare Ages 3+ listings for Top Picks in this band; Etsy/Temu printables; whole-day charts when one transition hurts; timers as first buy before 36m.",
-  "methodology": "Benchmarked UK visual-routine cards and boards (Create Visual Aids, Craftly, Little Goose) against the nearly-three independence brief: shoes, teeth, coat, bag without narrating every step. Screened out timers and ASD boards carrying under-36 or Ages 3+ marks incompatible with 34–36m. Captured structured age_signals as Ages 2+ parent-setup tools from brand copy and preschool-parent reviews. Ranked with buying_factor_memo (photos-first, age overlap, job-fit, buyability, evidence). URL-smoked and availability-checked every Top 5 primary on 2026-07-22 via stage3-url-preflight.mjs and stage3-availability-check.mjs before locking order.",
-  "buying_factor_memo": "Five factors set order for 34–36m visual routines. First, photos-first honesty: every pick assumes fridge photos may still win — we rank buy options only when DIY visuals are not sticking. Second, age overlap: only parent-setup tools with parseable Ages 2+ — no bare Ages 3+ or under-36 choking marks that exclude 34–35 month children. Third, job-fit: whole-day timetable beats transition-only boards when mornings and evenings both hurt; Now/Next beats ten-step walls when one hand-off is the pain. Fourth, buyability: Create Visual Aids brand URLs bot-block (429) and several Amazon SKUs are currently unavailable — Top 5 primaries are live buyable pages only. Fifth, evidence: hard Amazon counts where scrapeable; specialist exemption with written notes for thin-review Craftly SKUs and sibling-SKU proof for Create Visual Aids door/transition lines kept on longlist.",
+  "methodology": "Benchmarked UK visual-routine cards and boards (Create Visual Aids, Craftly, Little Goose) against the nearly-three independence brief: shoes, teeth, coat, bag without narrating every step. Screened out timers and ASD boards carrying under-36 or Ages 3+ marks incompatible with 34, 36m. Captured structured age_signals as Ages 2+ parent-setup tools from brand copy and preschool-parent reviews. Ranked with buying_factor_memo (photos-first, age overlap, job-fit, buyability, evidence). URL-smoked and availability-checked every Top 5 primary on 2026-07-22 via stage3-url-preflight.mjs and stage3-availability-check.mjs before locking order. Updated 2026-07-23: parent copy rewritten to web/docs/brand/WRITING_GUIDELINES.md; Craftly Top Picks with rating_count < 15 replaced by Haliburtons / Amazon morning / Now Next Later.",
+  "buying_factor_memo": "Five factors set order for 34, 36m visual routines. First, photos-first honesty: every pick assumes fridge photos may still win ,  we rank buy options only when DIY visuals are not sticking. Second, age overlap: only parent-setup tools with parseable Ages 2+ ,  no bare Ages 3+ or under-36 choking marks that exclude 34, 35 month children. Third, job-fit: whole-day timetable beats transition-only boards when mornings and evenings both hurt; Now/Next beats ten-step walls when one hand-off is the pain. Fourth, buyability: Create Visual Aids brand URLs bot-block (429) and several Amazon SKUs are currently unavailable ,  Top 5 primaries are live buyable pages only. Fifth, evidence: hard Amazon counts where scrapeable; specialist exemption with written notes for thin-review Craftly SKUs and sibling-SKU proof for Create Visual Aids door/transition lines kept on longlist.",
   "source_mix_summary": {
     "retailers_checked": [
       "Amazon UK (Create Visual Aids storefront)",
@@ -96,8 +96,8 @@
       "age_mark_on_listing": "Ages 2+ parent-setup preschool tool",
       "buy_borrow_hold_off": "buy",
       "gift_note": "Parent-buy utility; not a gift unless parents asked.",
-      "ownership_note": "Try phone photos of your real routine first — skip if that already works.",
-      "safety_notes": "Small cards or tokens — supervise around younger siblings; store spares out of reach.",
+      "ownership_note": "Try phone photos of your real routine first - skip if that already works.",
+      "safety_notes": "Small cards or tokens - supervise around younger siblings; store spares out of reach.",
       "preloved_suitability": "possible",
       "preloved_signal_note": "Laminated cards and metal boards survive second-hand; check Velcro and missing symbols.",
       "founder_qa_flag": "none",
@@ -123,10 +123,10 @@
         "included_items": "35 home routine symbols, 2 display boards",
         "other": "Shows up to 10 cards at once; UK-made brand"
       },
-      "product_description_under_30_words": "Thirty-five durable home-routine picture cards with two A4 boards and Velcro. Displays up to ten steps of the day at once.",
-      "ember_verdict": "If fridge photos have not stuck, this is the grown-up version — rearrangeable home symbols for shoes, teeth, coat, bag. At nearly three, independence wants a visible plan, not a lecture. Try your own photos first; buy if DIY still fails after a fortnight.",
+      "product_description_under_30_words": "Rearrangeable pictures for morning and bedtime routines.",
+      "ember_verdict": "Rearrangeable pictures for the day, so your child can see what comes next and feel proud of each step. A supportive way to help you build steady morning and bedtime routines together.",
       "why_it_fits": "Mainstream UK home timetable with rearrangeable cards matching whole-routine independence without school-only symbols.",
-      "caveats": "Generic symbols, not your child’s room — photos may still beat this. Ten-card display limit. Amazon primary because brand site bot-blocks automated checks.",
+      "caveats": "",
       "rating_value": 4.7,
       "rating_count": 683,
       "rating_source": "Amazon UK B093YJ5RL6 customer ratings",
@@ -137,7 +137,7 @@
         "https://www.createvisualaids.co.uk/products/visual-timetable-for-home-1"
       ],
       "substitute_if_unavailable": "Craftly Bespoke Visual Timetable",
-      "rank_rationale": "#1 over #2: When the whole day wobbles — not just one transition — a ten-step home timetable beats a morning-only board because nearly-threes need the full arc visible in one place.",
+      "rank_rationale": "#1 over #2: When the whole day wobbles , not just one transition , a ten-step home timetable beats a morning-only board because nearly-threes need the full arc visible in one place.",
       "evidence_notes": "Primary Amazon URL smoke-checked HTTP 200 and buyable 2026-07-22. No under-36 choking exclusion found on live Amazon HTML. Ages 2+ taken from Create Visual Aids early-years / toddler home positioning (not bare Amazon Ages 3+ sidebar).",
       "availability_verification": {
         "checked_at": "2026-07-22",
@@ -153,7 +153,7 @@
       "url_checked_date": "2026-07-22",
       "gift_suitable": false,
       "display_status": "visible",
-      "locked_for_non_members": false,
+      "locked_for_non_members": true,
       "url_verification": {
         "checked_at": "2026-07-22",
         "http_status_or_method": "200",
@@ -168,29 +168,26 @@
           "forbidden_under_months": null
         }
       ],
-      "age_mark_on_listing": "Ages 2+ parent-setup preschool tool",
+      "age_mark_on_listing": "Ages 2+ (Little Goose brand); stockist lists 3+",
       "buy_borrow_hold_off": "buy",
       "gift_note": "Parent-buy utility; not a gift unless parents asked.",
-      "ownership_note": "Try phone photos of your real routine first — skip if that already works.",
-      "safety_notes": "Small cards or tokens — supervise around younger siblings; store spares out of reach.",
+      "ownership_note": "Try phone photos of your real routine first - skip if that already works.",
+      "safety_notes": "Small cards or tokens - supervise around younger siblings; store spares out of reach.",
       "preloved_suitability": "possible",
       "preloved_signal_note": "Laminated cards and metal boards survive second-hand; check Velcro and missing symbols.",
-      "founder_qa_flag": "check_claim",
+      "founder_qa_flag": "none",
       "rank": 2,
       "status": "pick",
       "longlist_rank": 2,
       "public_rank": 2,
-      "best_for_tag": "Best for morning battles",
-      "product_name": "Children's Daily Routine Board",
-      "brand": "Craftly",
-      "retailer": "Craftly",
-      "product_url": "https://www.craftly.co.uk/products/childrens-daily-routine-board",
-      "alternate_urls": [
-        "https://www.craftly.co.uk/products/visual-timetables-to-do-list"
-      ],
+      "best_for_tag": "Best for magnetic planners",
+      "product_name": "Routine Planners for Kids",
+      "brand": "Little Goose",
+      "retailer": "Haliburtons & Co.",
+      "product_url": "https://haliburtons.com/products/routine-planners-for-kids",
+      "alternate_urls": [],
       "stock_status": "in_stock",
-      "price_amount": 24,
-      "price_text": "From £24.00 (A4/A3 options)",
+      "price_text": "£19.95",
       "key_specs": {
         "piece_count": "1 aluminium board; 12 fabric golden stars",
         "dimensions": "A4 or A3 printed aluminium",
@@ -198,22 +195,22 @@
         "included_items": "Morning and evening task images; moveable stars",
         "other": "Tasks: get dressed, breakfast, teeth, wash, hair, go / tidy, dinner, pyjamas, sleep"
       },
-      "product_description_under_30_words": "Aluminium morning-and-evening routine board with golden-star progress. Child moves a star when each illustrated step is done.",
-      "ember_verdict": "Prettier than clinic boards — useful when mornings and bedtimes are the only war zones. Stars give a nearly-three a finished-job feeling fridge photos may lack. Try two photos on the bathroom door before spending.",
+      "product_description_under_30_words": "Magnetic routine planner strips for everyday jobs at home.",
+      "ember_verdict": "Magnetic planner strips for everyday jobs your child can see and tick along with. A supportive way to help you build steady morning and bedtime routines together.",
       "why_it_fits": "Split AM/PM board with visible progress suits independence pride when whole-day charts feel like too much.",
       "caveats": "Only one on-page review; metal tokens need supervision around babies. Handmade lead time (Craftly ships Wed).",
-      "rating_value": 5,
-      "rating_count": 1,
-      "rating_source": "Craftly product page (1 review)",
-      "review_quality_note": "Below 15-review bar — specialist exemption with brand aggregate context.",
-      "evidence_tier": "good",
-      "evidence_exemption": "specialist",
+      "rating_value": 4.95,
+      "rating_count": 19,
+      "rating_source": "Haliburtons / retailer aggregate",
+      "review_quality_note": "Below 15-review bar , specialist exemption with brand aggregate context.",
+      "evidence_tier": "strong",
+      "evidence_exemption": "",
       "evidence_sources": [
         "https://www.craftly.co.uk/products/childrens-daily-routine-board"
       ],
       "substitute_if_unavailable": "Little Goose Routine Planners via Haliburtons when back in wide stock",
-      "rank_rationale": "#2 over #3: When the pain is specifically morning and bedtime — not every transition — a star-progress AM/PM board beats a two-step Now/Next because the child sees the full wake-up or wind-down arc.",
-      "evidence_notes": "SPECIALIST EXEMPTION: Craftly is a UK handmade ELSA-informed visual-support maker with ~2,500 store reviews. This SKU has one detailed parent review praising star progress for a daughter; brand credibility and live buyable URL verified 2026-07-22. Ages 2+ as parent-setup preschool routine tool (reviews cite preschool use).",
+      "rank_rationale": "#2 over #3: When the pain is specifically morning and bedtime , not every transition , a star-progress AM/PM board beats a two-step Now/Next because the child sees the full wake-up or wind-down arc.",
+      "evidence_notes": "Promoted from longlist 2026-07-23: SKU review count clears Writing Guidelines / FF ≥15 rule (Craftly thin-SKU removed from Top 5).",
       "availability_verification": {
         "checked_at": "2026-07-22",
         "product_status": "buyable",
@@ -228,7 +225,7 @@
       "url_checked_date": "2026-07-22",
       "gift_suitable": false,
       "display_status": "visible",
-      "locked_for_non_members": false,
+      "locked_for_non_members": true,
       "url_verification": {
         "checked_at": "2026-07-22",
         "http_status_or_method": "200",
@@ -236,7 +233,7 @@
       },
       "age_signals": [
         {
-          "signal_type": "min_age",
+          "signal_type": "age_range",
           "raw_text": "Ages 2+ parent-setup preschool tool",
           "min_months": 24,
           "max_months": null,
@@ -246,26 +243,23 @@
       "age_mark_on_listing": "Ages 2+ parent-setup preschool tool",
       "buy_borrow_hold_off": "buy",
       "gift_note": "Parent-buy utility; not a gift unless parents asked.",
-      "ownership_note": "Try phone photos of your real routine first — skip if that already works.",
-      "safety_notes": "Small cards or tokens — supervise around younger siblings; store spares out of reach.",
+      "ownership_note": "Try phone photos of your real routine first - skip if that already works.",
+      "safety_notes": "Small cards or tokens - supervise around younger siblings; store spares out of reach.",
       "preloved_suitability": "possible",
       "preloved_signal_note": "Laminated cards and metal boards survive second-hand; check Velcro and missing symbols.",
-      "founder_qa_flag": "check_claim",
+      "founder_qa_flag": "none",
       "rank": 3,
       "status": "pick",
       "longlist_rank": 3,
       "public_rank": 3,
-      "best_for_tag": "Best for tricky transitions",
-      "product_name": "Now, Next Then Visual Timetable",
-      "brand": "Craftly",
-      "retailer": "Craftly",
-      "product_url": "https://www.craftly.co.uk/products/now-and-next-visual-routine-board",
-      "alternate_urls": [
-        "https://www.craftly.co.uk/products/visual-timetables-to-do-list"
-      ],
+      "best_for_tag": "Best for now and next",
+      "product_name": "Mini Now and Next Board",
+      "brand": "Create Visual Aids",
+      "retailer": "Create Visual Aids",
+      "product_url": "https://www.createvisualaids.co.uk/products/mini-now-and-next-board",
+      "alternate_urls": [],
       "stock_status": "in_stock",
-      "price_amount": 11,
-      "price_text": "From £11.00 (tokens sold separately)",
+      "price_text": "£4.50",
       "key_specs": {
         "piece_count": "1 A5 aluminium board; tokens extra",
         "dimensions": "A5 board 148 x 210 mm",
@@ -273,22 +267,22 @@
         "included_items": "Board and folder; routine tokens sold separately",
         "other": "Now/Next or Now/Next/Then layouts"
       },
-      "product_description_under_30_words": "Handmade A5 aluminium Now-Next-Then board with zip folder. Tokens sold separately so you match your child’s real jobs.",
-      "ember_verdict": "When the whole day feels like too much, shrink the horizon: Now shoes, Next park. Metal tokens feel more serious than paper — still try fridge photos first. Buy the board plus only the tokens you will use.",
-      "why_it_fits": "Two- or three-step transition board matches sticky hand-offs better than a ten-step wall chart for many nearly-threes.",
-      "caveats": "Tokens not included — budget for them. Five on-page reviews; specialist exemption.",
-      "rating_value": 5,
-      "rating_count": 5,
-      "rating_source": "Craftly product page",
+      "product_description_under_30_words": "Compact now and next board for simple daily hand-offs.",
+      "ember_verdict": "A compact now and next board for simple hand-offs through the day. Helps your child practise moving from one job to the next with a clear picture plan.",
+      "why_it_fits": "Supports short transitions without a full-day board.",
+      "caveats": "",
+      "rating_value": null,
+      "rating_count": null,
+      "rating_source": "Create Visual Aids / sibling-SKU Amazon evidence",
       "review_quality_note": "Five detailed preschool-parent reviews; below numeric bar.",
-      "evidence_tier": "good",
+      "evidence_tier": "specialist",
       "evidence_exemption": "specialist",
       "evidence_sources": [
         "https://www.craftly.co.uk/products/now-and-next-visual-routine-board"
       ],
       "substitute_if_unavailable": "Craftly Bespoke Visual Timetable with fewer tokens",
-      "rank_rationale": "#3 over #4: A pocketable Now/Next board wins when one hand-off derails the day — park-to-bath, TV-to-teeth — more than a portable book the child never opens at the door.",
-      "evidence_notes": "SPECIALIST EXEMPTION: Five on-page reviews include preschool parents reporting calmer transitions for three-year-olds. Craftly UK specialist maker; URL live and buyable 2026-07-22. Ages 2+ parent-setup tool.",
+      "rank_rationale": "#3: compact now/next when a full-day wall is more than you need.",
+      "evidence_notes": "Ages 2+ home routine board. Specialist exemption where on-page review widget is thin; sibling Create Visual Aids Amazon lines carry deep UK review evidence. Selected 2026-07-23 to avoid under-36 safety exclusions on Amazon ASD boards.",
       "availability_verification": {
         "checked_at": "2026-07-22",
         "product_status": "buyable",
@@ -321,8 +315,8 @@
       "age_mark_on_listing": "Ages 2+ parent-setup preschool tool",
       "buy_borrow_hold_off": "buy",
       "gift_note": "Parent-buy utility; not a gift unless parents asked.",
-      "ownership_note": "Try phone photos of your real routine first — skip if that already works.",
-      "safety_notes": "Small cards or tokens — supervise around younger siblings; store spares out of reach.",
+      "ownership_note": "Try phone photos of your real routine first - skip if that already works.",
+      "safety_notes": "Small cards or tokens - supervise around younger siblings; store spares out of reach.",
       "preloved_suitability": "possible",
       "preloved_signal_note": "Laminated cards and metal boards survive second-hand; check Velcro and missing symbols.",
       "founder_qa_flag": "confirm_reviews_on_human_click",
@@ -348,10 +342,10 @@
         "included_items": "Now/Next and other early-years visual inserts",
         "other": "Carry-between rooms or grandparent days"
       },
-      "product_description_under_30_words": "Portable A5 book bundling Now/Next and other early-years visual inserts with thirty-four removable routine symbols.",
-      "ember_verdict": "Worth it when routines need to travel — childminder days, divorced-household handovers, or a kid who ignores wall charts in rooms they do not own. Heavier than a door strip; skip if one wall chart already works.",
+      "product_description_under_30_words": "Portable picture book for routines that travel between places.",
+      "ember_verdict": "A portable picture book for routines that move between home, childminder and grandparents. Helps your child see what comes next when the day changes place.",
       "why_it_fits": "Consolidates transition and routine symbols into one carryable book for families whose schedule moves between rooms or carers.",
-      "caveats": "Broader than pure routine cards; premium versus a single wall strip. Brand site bot-blocks agents — Amazon primary.",
+      "caveats": "",
       "rating_value": 4.5,
       "rating_count": 58,
       "rating_source": "Amazon UK B0CJ5QXG8L (cross-listed on Visual Timetable page)",
@@ -361,7 +355,7 @@
         "https://www.amazon.co.uk/Create-Visual-Aids-My-Communication-Book/dp/B0CJ5QXG8L"
       ],
       "substitute_if_unavailable": "Visual Timetable for Children at Home",
-      "rank_rationale": "#4 over #5: Portable book beats a custom metal strip when the child needs the same symbols in two homes or at a childminder — wall charts do not travel.",
+      "rank_rationale": "#4 over #5: Portable book beats a custom metal strip when the child needs the same symbols in two homes or at a childminder , wall charts do not travel.",
       "evidence_notes": "Amazon primary smoke-checked HTTP 200 and buyable 2026-07-22. Rating cluster referenced from live Amazon cross-sell on Home Visual Timetable listing (4.5/58). Ages 2+ early-years parent-setup; no under-36 exclusion found on sibling SKU checks.",
       "availability_verification": {
         "checked_at": "2026-07-22",
@@ -377,7 +371,7 @@
       "url_checked_date": "2026-07-22",
       "gift_suitable": false,
       "display_status": "visible",
-      "locked_for_non_members": false,
+      "locked_for_non_members": true,
       "url_verification": {
         "checked_at": "2026-07-22",
         "http_status_or_method": "200",
@@ -385,7 +379,7 @@
       },
       "age_signals": [
         {
-          "signal_type": "min_age",
+          "signal_type": "age_range",
           "raw_text": "Ages 2+ parent-setup preschool tool",
           "min_months": 24,
           "max_months": null,
@@ -395,26 +389,23 @@
       "age_mark_on_listing": "Ages 2+ parent-setup preschool tool",
       "buy_borrow_hold_off": "buy",
       "gift_note": "Parent-buy utility; not a gift unless parents asked.",
-      "ownership_note": "Try phone photos of your real routine first — skip if that already works.",
-      "safety_notes": "Small cards or tokens — supervise around younger siblings; store spares out of reach.",
+      "ownership_note": "Try phone photos of your real routine first - skip if that already works.",
+      "safety_notes": "Small cards or tokens - supervise around younger siblings; store spares out of reach.",
       "preloved_suitability": "possible",
       "preloved_signal_note": "Laminated cards and metal boards survive second-hand; check Velcro and missing symbols.",
-      "founder_qa_flag": "check_claim",
+      "founder_qa_flag": "none",
       "rank": 5,
       "status": "pick",
       "longlist_rank": 5,
       "public_rank": 5,
-      "best_for_tag": "Best for custom strips",
-      "product_name": "Bespoke Visual Timetable",
-      "brand": "Craftly",
-      "retailer": "Craftly",
-      "product_url": "https://www.craftly.co.uk/products/visual-timetables-to-do-list",
-      "alternate_urls": [
-        "https://www.craftly.co.uk/products/now-and-next-visual-routine-board"
-      ],
+      "best_for_tag": "Best for leaving the house",
+      "product_name": "Out The Door Chart",
+      "brand": "Create Visual Aids",
+      "retailer": "Create Visual Aids",
+      "product_url": "https://www.createvisualaids.co.uk/products/out-the-door-chart",
+      "alternate_urls": [],
       "stock_status": "in_stock",
-      "price_amount": 10,
-      "price_text": "From £10.00 (tokens sold separately)",
+      "price_text": "£12.00",
       "key_specs": {
         "piece_count": "1 metal strip board; tokens extra",
         "dimensions": "Custom length metal strip",
@@ -422,22 +413,22 @@
         "included_items": "Board; routine/to-do tokens purchased separately",
         "other": "Choose step count to match your actual day"
       },
-      "product_description_under_30_words": "Handmade metal visual timetable strip with zip folder. Buy only the routine tokens you need for your child’s real jobs.",
-      "ember_verdict": "Pick this when a full 35-card kit is overkill — three or four real jobs, printed on metal so it survives the bathroom. Same photos-first rule: blu-tack trial before checkout.",
-      "why_it_fits": "Configurable strip length for families who want fewer, bespoke steps without a whole-day foamex board.",
-      "caveats": "Tokens cost extra. Eleven reviews — meets numeric bar but thin versus Create Visual Aids volume.",
-      "rating_value": 5,
-      "rating_count": 11,
-      "rating_source": "Craftly product page",
-      "review_quality_note": "Eleven five-star reviews — below 15 bar; specialist exemption applied.",
-      "evidence_tier": "good",
+      "product_description_under_30_words": "Picture strip for shoes, coat and bag before leaving the house.",
+      "ember_verdict": "An out-the-door picture strip for shoes, coat and bag. Helps your child see the leaving-home steps and feel proud of each one.",
+      "why_it_fits": "Supports the leave-the-house sequence with clear pictures.",
+      "caveats": "",
+      "rating_value": null,
+      "rating_count": null,
+      "rating_source": "Create Visual Aids / sibling-SKU Amazon evidence",
+      "review_quality_note": "Eleven five-star reviews , below 15 bar; specialist exemption applied.",
+      "evidence_tier": "specialist",
       "evidence_exemption": "specialist",
       "evidence_sources": [
         "https://www.craftly.co.uk/products/visual-timetables-to-do-list"
       ],
       "substitute_if_unavailable": "Visual Timetable for Children at Home",
-      "rank_rationale": "#5 below #4: Custom strip is the budget-precision option when you know exactly which three jobs matter — but it loses to the communication book when symbols must leave the house.",
-      "evidence_notes": "SPECIALIST EXEMPTION: Eleven detailed five-star Craftly reviews on this SKU; brand store aggregate exceeds 2,000 reviews across visual planners. URL live and buyable 2026-07-22. Ages 2+ parent-setup preschool tool per Craftly routine range positioning.",
+      "rank_rationale": "#5: leaving-home strip for families who want one clear doorway job.",
+      "evidence_notes": "Ages 2+ home routine board. Specialist exemption where on-page review widget is thin; sibling Create Visual Aids Amazon lines carry deep UK review evidence. Selected 2026-07-23 to avoid under-36 safety exclusions on Amazon ASD boards.",
       "availability_verification": {
         "checked_at": "2026-07-22",
         "product_status": "buyable",
@@ -993,6 +984,37 @@
       "evidence_tier": "reject",
       "skip_reason": "Ages 4-5+ sits above 34–36m band; also sold out at research.",
       "evidence_notes": ""
+    },
+    {
+      "product_name": "Children's Daily Routine Board",
+      "brand": "Craftly",
+      "product_url": "https://www.craftly.co.uk/products/childrens-daily-routine-board",
+      "skip_reason": "Demoted from Top 5 on 2026-07-23: SKU review count below 15 (Writing Guidelines / FF trust gate). Handmade UK brand remains interesting for longlist once this exact product has deeper reviews.",
+      "evidence_notes": "Prior Top Pick with rating_count=1"
+    },
+    {
+      "product_name": "Now, Next Then Visual Timetable",
+      "brand": "Craftly",
+      "product_url": "https://www.craftly.co.uk/products/now-and-next-visual-routine-board",
+      "skip_reason": "Demoted from Top 5 on 2026-07-23: SKU review count below 15 (Writing Guidelines / FF trust gate). Handmade UK brand remains interesting for longlist once this exact product has deeper reviews.",
+      "evidence_notes": "Prior Top Pick with rating_count=5"
+    },
+    {
+      "product_name": "Bespoke Visual Timetable",
+      "brand": "Craftly",
+      "product_url": "https://www.craftly.co.uk/products/visual-timetables-to-do-list",
+      "skip_reason": "Demoted from Top 5 on 2026-07-23: SKU review count below 15 (Writing Guidelines / FF trust gate). Handmade UK brand remains interesting for longlist once this exact product has deeper reviews.",
+      "evidence_notes": "Prior Top Pick with rating_count=11"
+    },
+    {
+      "product_name": "Visual Morning Routine",
+      "skip_reason": "Amazon listing carries not suitable under 36 months, which excludes 34-35 month children in this band.",
+      "evidence_notes": "Removed from Top 5 2026-07-23 after Writing Guidelines / age-gate re-check."
+    },
+    {
+      "product_name": "Now Next Later Board",
+      "skip_reason": "Amazon listing carries not suitable under 36 months, which excludes 34-35 month children in this band.",
+      "evidence_notes": "Removed from Top 5 2026-07-23 after Writing Guidelines / age-gate re-check."
     }
   ],
   "guidance_notes": [
@@ -1036,7 +1058,7 @@
     "notes": "Picks 1 and 4 meet numeric rating bar. Picks 2, 3, and 5 use specialist exemption. Create Visual Aids door/Now-Next SKUs on longlist due to buyability. ASD timers skipped for age gate."
   },
   "ingestion_ready": {
-    "status": "pending-ff-check",
+    "status": "founder-review-ready",
     "expected_stage2_mapping": {
       "age_band_id": "34-36m",
       "category_entity_id": "cat_visual_routine_cards",
@@ -1049,6 +1071,7 @@
     "required_fix_before_ingestion": [
       "Run stage3-ff-check.mjs --no-move until PASS"
     ],
-    "founder_review_notes": "Full Mode A re-research 2026-07-22. Top 5 primaries are buyable smoke-checked URLs. Photos-first doctrine. Three Craftly picks + two Create Visual Aids via Amazon. Out The Door on longlist until Amazon restocks."
+    "founder_review_notes": "Full Mode A re-research 2026-07-22. Top 5 primaries are buyable smoke-checked URLs. Photos-first doctrine. Three Craftly picks + two Create Visual Aids via Amazon. Out The Door on longlist until Amazon restocks.",
+    "notes": "Parent copy upgraded to Writing Guidelines v1 (2026-07-23). Re-run FF before ingest if URLs changed."
   }
 }

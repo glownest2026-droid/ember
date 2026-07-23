@@ -7,18 +7,20 @@ alwaysApply: true
 
 Ember is built for **Conscientious Conor**: a tired, thoughtful, first-time UK dad (~30s, full-time, partner shares parenting). His daughter Lily is around her first birthday — mobile, opinionated, past the "baby's first blocks" phase. He has already researched the first year. He pays **£3.99/month** if Ember saves him from 90-minute research holes and makes him feel one step ahead — not patronised or sold to.
 
-**Full persona:** `web/docs/CONSCIENTIOUS_CONOR.md`
+**Full persona:** `web/docs/CONSCIENTIOUS_CONOR.md`  
+**Writing craft (every parent-facing sentence):** `web/docs/brand/WRITING_GUIDELINES.md`  
+**Brand map:** `web/docs/brand/README.md`
 
 ## Agent duty — flag non–Conor-grade work
 
-Before finishing any task involving **copy, Discover content, age-band ingestion, notifications, marketplace picks, or parent-facing UX**, explicitly check against the five tests below. If anything fails, **say so in your response** (do not silently ship weak copy). Offer a Conor-grade rewrite or call out the gap for the founder to fix in source data (e.g. ABI workbook).
+Before finishing any task involving **copy, Discover content, age-band ingestion, notifications, marketplace picks, or parent-facing UX**, explicitly check against the five tests below **and** `web/docs/brand/WRITING_GUIDELINES.md`. If anything fails, **say so in your response** (do not silently ship weak copy). Offer a rewrite or call out the gap for the founder to fix in source data (e.g. ABI workbook).
 
 ## Five tests (all must pass)
 
 1. **Respect** — Assumes the parent lived the previous stage; does not behave as if the home is empty.
 2. **Well Duh** — Would a thoughtful parent who finished year one roll their eyes? ("Try board books", "go for a pram walk", "try blocks" → fail.)
 3. **Stage shift** — Explains what is **different now**, not just that the skill exists.
-4. **Buying judgement** — Buy, borrow, bring back out, or hold off — not a catalogue disguised as guidance.
+4. **Buying judgement** — Help them see fit; do not bark catalogue shopping orders in public Pip copy (see Writing Guidelines).
 5. **Human parent** — Sounds like a smart UK parent friend, not a textbook, toy ad, or generic AI.
 
 ## Ember stage mapping
