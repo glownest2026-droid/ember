@@ -1,18 +1,18 @@
 # Stage 3 ingestion bundle QA - 1-3m
 
-Generated: 2026-07-18T09:49:09.534Z
-Migration: `supabase/migrations/20260718101000_ingest_stage3_pips_picks_1_3m.sql`
+Generated: 2026-07-23T19:56:01.195Z
+Migration: `supabase/migrations/20260723240000_ingest_stage3_pips_picks_1_3m.sql`
 
 ## Summary
 
 | Category | Top picks | Backups | Skips | Ingestion | Notes |
 |---|---:|---:|---:|---|---|
-| Baby-safe mirror for faces | 5 | 7 | 5 | pass | WARN: Expected 10 dormant backups from longlist ranks 6-15, got 7 |
+| Baby-safe mirror for faces | 5 | 7 | 5 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 7 |
 | Board books and face books | 5 | 10 | 6 | pass | OK |
 | Muslins and burp cloths | 5 | 10 | 5 | pass | OK |
-| Firm, flat, waterproof mattress | 5 | 8 | 6 | pass | WARN: Expected 10 dormant backups from longlist ranks 6-15, got 8 |
+| Firm, flat, waterproof mattress | 5 | 8 | 6 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 8 |
 | High-contrast cards and simple patterns | 5 | 10 | 6 | pass | OK |
-| Reach-and-grab toys | 5 | 8 | 6 | pass | WARN: Expected 10 dormant backups from longlist ranks 6-15, got 8 |
+| Reach-and-grab toys | 5 | 8 | 6 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 8 |
 | Rear-facing infant car seat | 5 | 10 | 5 | pass | OK |
 | Soft Carrier Sling | 5 | 10 | 5 | pass | OK |
 | Washable Floor Play Mat | 5 | 10 | 6 | pass | OK |

@@ -140,6 +140,17 @@ export const ALLOWED_HYPHEN_RE = [
   /^rope-linked$/i,
   /^mini-jigsaws?$/i,
   /^grown-up$/i,
+  // Ordinary product English (not invented play-type compounds)
+  /^non-slip$/i,
+  /^non-toxic$/i,
+  /^high-contrast$/i,
+  /^well-known$/i,
+  /^on-the-go$/i,
+  /^easy-grip$/i,
+  /^double-sided$/i,
+  /^water-resistant$/i,
+  /^rear-facing$/i,
+  /^tummy-time$/i,
 ];
 
 const HYPHEN_TOKEN = /\b[a-z0-9]+(?:-[a-z0-9]+)+\b/gi;
