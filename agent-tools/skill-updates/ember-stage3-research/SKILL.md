@@ -41,7 +41,7 @@ Follow:
 Summary:
 
 - **Schema:** `ember_picks_research_v3` only. Older drafts are archaeology.
-- **Public copy at source (blocking):** Before writing any parent-facing field, read Writing Guidelines. `product_description_under_30_words`, `ember_verdict`, and any gift/ownership notes that may surface must already be shippable. Positive vision, British school-gate English, no crisis framing, no em dashes, no shopping-order spine. **Do not** leave voice fixes for FF, founder HTML, or ingestion.
+- **Public copy at source (blocking):** Before writing any parent-facing field, read Writing Guidelines **and** complete the **Research ship checklist** below. `product_description_under_30_words`, `ember_verdict`, and Best for tags must already be shippable. **Do not** leave voice, Best-for alignment, Description depth, or lookalike Top 5 fixes for FF, founder HTML, or ingestion. FF only re-validates.
 - **Never guess URLs.** Prefer brand/publisher/specialist as primary; Amazon/Argos as alternates until smoke-checked.
 - **Reviews:** Top Picks need `rating_value >= 4.4` and `rating_count >= 15`. Specialist exemption needs a written reason, but **cannot** excuse a SKU with `rating_count` present and `< 15`.
 - **Age signals:** Capture structured `age_signals[]` from the live listing (safety exclusion, min age, reading age, age range). Strictest wins. “Not suitable under 3 years” fails for bands whose `min_months < 36`.
@@ -60,7 +60,20 @@ Summary:
 
 Use when live web/research tools are available and the user wants the research completed.
 
-**Before writing parent-facing fields:** open and follow `web/docs/brand/WRITING_GUIDELINES.md` (Principles 1–10 + ship checklist). Write `product_description_under_30_words` and `ember_verdict` as they should appear on `/discover`. Run the Writing Guidelines ship checklist on every Top Pick. Commerce judgement may live in internal fields (`buy_borrow_hold_off`, research notes); do **not** lead Why Pip with buy/borrow/worth-buying orders.
+**Before writing parent-facing fields:** open and follow `web/docs/brand/WRITING_GUIDELINES.md` (Principles 1–10 + ship checklist). Write `product_description_under_30_words` and `ember_verdict` as they should appear on `/discover`. Run the **Research ship checklist** (below) on every Top Pick **before** writing `inbox/`. Commerce judgement may live in internal fields (`buy_borrow_hold_off`, research notes); do **not** lead Why Pip with buy/borrow/worth-buying orders.
+
+### Research ship checklist (blocking — own this here, not in FF)
+
+Run on every Top Pick before `inbox/`. This is the **root-cause** quality gate.
+
+1. Description **20–40 words** and alone makes the product clear (decode SKU jargon).
+2. Why Pip = need at this age + why this earns Top 5–10 + how it earns the Best for tag — **not** a paraphrase of Description.
+3. Best for comes to life in Description and/or Why Pip (implicitly or explicitly).
+4. No AI / money tells: low-stakes, quick wins, tight budgets, worth buying, calm as praise, em dashes, Stage X, Fresh 20XX, crisis framing.
+5. Unique product names across Top 5; at most one lookalike line from the same modular range (e.g. one Edx Step-A-* style title, not two).
+6. Writing Guidelines ship checklist + Conor five tests pass on a read-aloud.
+
+FF may re-fail any of the above later — that means research skipped this checklist, not that FF should become the copywriter.
 
 Output a founder-readable assessment plus files where possible (into **`inbox/`**):
 
@@ -299,7 +312,7 @@ Do not reuse generic tags across all picks. Tags must help a parent choose.
 Each Top Pick has **two public copy fields** that match the live card (not two product summaries):
 
 1. **Description** — exactly what the product is (20–40 words)
-2. **Why Pip picked this** — why it earns Top 5–10 now (Stage 1 need + earns the Best for tag)
+2. **Why Pip picked this** — why it earns Top 5–10 now (need at this age + earns the Best for tag)
 
 Do **not** write a separate “What this is” field. The card shows one Description only.
 

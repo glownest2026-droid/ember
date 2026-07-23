@@ -5,6 +5,18 @@
 **Companion:** `web/docs/STAGE3_TRUST_GATES.md` · `web/docs/brand/WRITING_GUIDELINES.md`  
 **Schema:** `ember_picks_research_v3`
 
+## Root-cause rule (non-negotiable)
+
+**Fix quality at the highest upstream point.**
+
+| Layer | Owns | Does not own |
+|---|---|---|
+| **Writing Guidelines** + **`$ember-stage3-research`** | How parent copy is written; Top 5 shape; Best for ↔ explainer; Description vs Why Pip jobs | Waiting for a later gate to “catch” weak voice |
+| **`$ember-stage3-ff-checker`** | Deterministic **validation** (links, age, ratings, availability, HOW completeness, and a second-pass re-check that research already followed the copy rules) | Inventing or rewriting parent voice |
+| **Founder HTML / ingest** | Preview and faithful publish | Copywriting |
+
+If research leaves weak Description / Why Pip / Best for / lookalike Top 5, the fix is **Mode A re-research** — not a new FF inventiveness, not light polish into green, not ingest rewrite.
+
 ## Five things that must be true (pilot success)
 
 | # | Must be true | In practice |
@@ -13,7 +25,7 @@
 | 2 | **Every product has a working, buyable link** | Primary `product_url` opens the real product (HTTP smoke + availability + researcher `url_verification`). |
 | 3 | **Founder preview = proposed public content** | Age-band HTML shows links, titles, **Description (20–40 words)**, and **Why Pip picked this** (`ember_verdict`). One Description only — no separate “What this is”. |
 | 4 | **Every row stands up to scrutiny** | “Why is this #1?” / “Why these top 5?” is answered from documented DB fields — never invented in chat. |
-| 5 | **Public copy approved at research** | Parent-facing fields in `inbox/` already follow `web/docs/brand/WRITING_GUIDELINES.md`. FF catches banned tells; **ingestion does not rewrite voice**. |
+| 5 | **Public copy approved at research** | Parent-facing fields in `inbox/` already follow `web/docs/brand/WRITING_GUIDELINES.md` **and** the research ship checklist. FF only **re-validates**; **ingestion does not rewrite voice**. |
 
 **WHAT** = 2 + 3 + 5. **HOW** = 1 + 4.
 
@@ -21,14 +33,14 @@
 
 | Step | What happens | Serves # |
 |---|---|---|
-| 0. Voice | Read Writing Guidelines before any parent sentence | 5 |
+| 0. Voice | Read Writing Guidelines; apply research ship checklist **before** any parent sentence | 5 |
 | 1. Bench | Build 15-equal longlist with live URLs | 2, 4 |
 | 2. Age + safety | Capture `age_signals[]` from the listing | 1, 4 |
 | 3. Rank | Write `buying_factor_memo` + per-rank `rank_rationale` | 4 |
-| 4. Public copy | Title, Description (**20–40 words**), Why Pip — **shippable now** | 3, 5 |
+| 4. Public copy | Title, Description (**20–40 words**), Why Pip — **shippable now** (research-owned) | 3, 5 |
 | 5. WHAT proof | Brand/publisher primary; smoke + availability | 2 |
 | 6. Status | `pending-ff-check` only | 1 |
-| 7. FF | Deterministic gates + HOW + copy bans (second pass) | 1, 2, 4, 5 |
+| 7. FF | Second-pass **validator** (evidence + re-check of research copy rules) | 1, 2, 4, 5 |
 | 8. Founder HTML | Proposed public content + HOW trail | 3, 4, 5 |
 | 9. Ingest | Map green JSON → DB/UI **without rewriting voice** | 5 |
 

@@ -1,3 +1,9 @@
+## 2026-07-23 — Stage 3 doctrine: fix copy at research (FF validates only)
+
+- **Founder rule:** root-cause content fixes live at the highest upstream point — Writing Guidelines + `$ember-stage3-research` ship checklist; FF is a second-pass validator, not the copywriter
+- **Updated:** methodology root-cause rule; research skill ship checklist; FF skill split (evidence-owned vs copy re-validate); TRUST_GATES ownership column; brief v5; `AGENTS.md` map
+- **Verify:** next Mode A must complete research ship checklist before `inbox/`; FF fail on copy → Mode A re-research, not light polish
+
 ## 2026-07-23 — Stage 3 founder feedback: voice, Best for, titles, 34–36m reissue
 
 - **Root causes locked:** Writing Guidelines field jobs (Description = what it is; Why Pip = need + earns Best for); FF bans (low-stakes, quick wins, tight budgets); Best-for-must-land + no Description/Why echo; unique Top 5 + max one Step-A line; desktop titles unclamped

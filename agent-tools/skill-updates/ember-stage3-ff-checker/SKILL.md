@@ -9,9 +9,18 @@ description: Validate Ember Stage 3 research JSON against Fastidious Founder tru
 
 Gate Stage 3 research before founder review or ingest. **Never guess** that a URL works or that a product fits the age band. Enforce the must-be-true criteria in `web/docs/STAGE3_RESEARCH_METHODOLOGY.md`.
 
-This is a **second pass**, not the copywriter. Research must already write parent-facing fields to `web/docs/brand/WRITING_GUIDELINES.md`. FF fails banned tells (em dash, calm, worth buying, Fresh 20XX, Stage X, etc.), links, age, ratings, availability, and HOW completeness. Weak voice that still “passes” string bans should be sent back to `$ember-stage3-research` Mode A — do not light-polish into green.
+### Upstream vs this skill (read first)
 
-Canonical rules: `web/docs/STAGE3_TRUST_GATES.md` · `web/docs/brand/WRITING_GUIDELINES.md`
+**Root-cause content rules live in research**, not here:
+
+- How to write Description / Why Pip / Best for → `web/docs/brand/WRITING_GUIDELINES.md` + `$ember-stage3-research`
+- Top 5 shape (unique names, no lookalike SKU lines) → research ship checklist
+
+This skill is a **validator / second pass**. It re-checks that research already followed those rules, and it owns evidence gates (URL smoke, buyability, age, ratings, HOW completeness).
+
+**Do not** treat FF as the place where good parent copy is invented. If copy fails, quarantine and send back to **full Mode A** `$ember-stage3-research` — do not light-polish into green.
+
+Canonical rules: `web/docs/STAGE3_TRUST_GATES.md` · `web/docs/brand/WRITING_GUIDELINES.md` · `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` (root-cause rule)
 
 ## When to use
 
@@ -48,9 +57,11 @@ node agent-tools/scripts/stage3-ff-check.mjs path/to/file.json --skip-smoke --no
 
 ## Hard gates (Top Picks)
 
+### Evidence + HOW (FF-owned)
+
 1. `schema_version` = `ember_picks_research_v3`
 2. Non-empty `buying_factor_memo`; `methodology` names bench → age → rank → URL
-3. Every Top Pick: `rank_rationale`, `age_signals[]`, `url_verification.primary_opens_product=true`, Description (`product_description_under_30_words` **20–40 words**), `ember_verdict`
+3. Every Top Pick: `rank_rationale`, `age_signals[]`, `url_verification.primary_opens_product=true`, non-empty Description + `ember_verdict`
 4. Longlist ranks 6–10: `missed_top5_reason`
 5. Primary URL `url_ok` (HTTP 2xx/3xx) — fail closed (unless `--skip-smoke`)
 6. Primary **buyable today** — not retired/discontinued/notify-when-in-stock (`stage3-availability-check.mjs`); manufacturer alt showing retired fails cross-check
@@ -58,10 +69,15 @@ node agent-tools/scripts/stage3-ff-check.mjs path/to/file.json --skip-smoke --no
 8. Age signals overlap band; “not suitable under 3 years” fails if `band.min < 36`
 9. Schema: 5 / 15 / ≥5 skips
 10. Unique short `Best for …` tags
-11. Parent fields pass Writing Guidelines bans (`web/docs/brand/WRITING_GUIDELINES.md`) — em dash, calm, worth buying, Fresh 20XX, Stage X, low-stakes, quick wins, tight budget(s), etc.
-12. Description word count **20–40** (legacy field name `product_description_under_30_words`; one Description only — no “What this is”)
-13. Best for tag must be reflected in Description and/or Why Pip
-14. Description and Why Pip must not be near-paraphrases of each other
+
+### Public copy (research-owned; FF only re-validates)
+
+These rules are authored and applied in `$ember-stage3-research` + Writing Guidelines. FF fails closed if research skipped them — then **re-research**, do not invent copy here.
+
+11. Parent fields pass Writing Guidelines bans — em dash, calm, worth buying, Fresh 20XX, Stage X, low-stakes, quick wins, tight budget(s), etc.
+12. Description word count **20–40** (legacy field name `product_description_under_30_words`; one Description only)
+13. Best for tag reflected in Description and/or Why Pip
+14. Description and Why Pip are not near-paraphrases
 15. Unique Top 5 product names; no near-duplicate product lines (e.g. two Edx Step-A-* SKUs)
 
 ## Outcomes
@@ -77,6 +93,11 @@ node agent-tools/scripts/stage3-ff-check.mjs path/to/file.json --skip-smoke --no
 
 - `$ember-stage3-founder-review` — build HTML from `green/` only  
 - `$ember-stage3-card-ingestion` — ingest from `green/` only  
+
+## How to verify
+
+1. Put the bad fixture in `agent-tools/exports/stage3/_fixtures/` through the checker with `--skip-smoke --no-move` → expect FAIL (schema/HOW).
+2. Put the good fixture through with smoke → expect PASS fields (or use `--skip-smoke` for HOW-only).
 
 ## How to verify
 
