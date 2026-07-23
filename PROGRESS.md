@@ -1,3 +1,11 @@
+## 2026-07-23 — Stage 3 invented-hyphen purge (34–36m)
+
+- **Founder catch:** named AI flags were cleaned, but invented compounds were still prolific (`get-on-go-return`, `step-pause-turn`, `emergency-vehicle`, `letters-and-lacing`, …)
+- **Root cause:** ban net only listed a few compounds; ordinary spaced English was not enforced
+- **Fix:** `stage3-banned-copy.mjs` allowlist for ordinary English / Ember hyphens only; anything else fails on Description / Why Pip / Best for
+- **Content:** all 7 green categories rewritten to spaced English; FF pass; migration `20260723210000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-hyphen-purge-34-36m`
+- **Verify:** `/discover/35` — Best for and Why Pip read as plain UK English (no invented play-type hyphens)
+
 ## 2026-07-23 — Stage 3 ban-list parity + founder AI-tell round (34–36m)
 
 - **Defect fixed:** Writing Guidelines and FF could ban different things (e.g. `lecture` as a Guidelines fail but missing from the checker). That is illegal — one game, one rulebook.

@@ -71,7 +71,7 @@
       "rank": 1,
       "status": "pick",
       "longlist_rank": 1,
-      "best_for_tag": "Best for get-on go return",
+      "best_for_tag": "Best for get on go return",
       "product_name": "Happyland London Bus Playset",
       "brand": "Early Learning Centre / Happyland",
       "retailer": "Moonpig (TEAL / The Entertainer)",
@@ -112,7 +112,7 @@
         "other": "Removable top deck; sounds buttons"
       },
       "product_description_under_30_words": "A chunky red London bus with seats for little people, made for loading passengers, driving somewhere, tipping them out and starting all over again.",
-      "ember_verdict": "Get on, go and come back is the pretend game nearly-threes love once they start talking about trips. A chunky bus with seats makes that pattern obvious every time they load, drive and tip out. That clear trip structure is why this set suits get-on-go-return play, especially if a Happyland bus is already in the house.",
+      "ember_verdict": "Get on, go and come back is the pretend game nearly-threes love once they start talking about trips. A chunky bus with seats makes that pattern obvious every time they load, drive and tip out. That clear trip structure is why this set suits get on, go and return play, especially if a Happyland bus is already in the house.",
       "personalization_hint": "likely to seat figures, announce stops, and retell a short outing",
       "why_it_fits": "Bus + stop + people make a whole mini story without tiny classic-Playmobil parts.",
       "caveats": "",
@@ -229,7 +229,7 @@
       "rank": 3,
       "status": "pick",
       "longlist_rank": 3,
-      "best_for_tag": "Best for help-and-rescue roles",
+      "best_for_tag": "Best for help and rescue roles",
       "product_name": "PLAYMOBIL Junior Everyday Heroes (71692)",
       "brand": "Playmobil Junior",
       "retailer": "Playmobil UK",
@@ -261,7 +261,7 @@
         "other": "Junior line — not classic Playmobil"
       },
       "product_description_under_30_words": "A PLAYMOBIL Junior helper set with doctor, fire and police figures, for pretend stories where someone needs looking after and kindness is part of the play.",
-      "ember_verdict": "After bus and trip toys, care roles become the next pretend stretch. A helper pack with doctor, fire and police figures lets kindness sit inside the story, not only the drive. That caring cast is why this set suits help-and-rescue play beside a bus they already love.",
+      "ember_verdict": "After bus and trip toys, care roles become the next pretend stretch. A helper pack with doctor, fire and police figures lets kindness sit inside the story, not only the drive. That caring cast is why this set suits help and rescue play beside a bus they already love.",
       "personalization_hint": "likely to assign jobs and narrate helping someone",
       "why_it_fits": "Help roles give feelings and places to the pretend scene beyond travel alone.",
       "caveats": "",
@@ -303,7 +303,7 @@
       "rank": 4,
       "status": "pick",
       "longlist_rank": 4,
-      "best_for_tag": "Best for help-on-wheels",
+      "best_for_tag": "Best for help on wheels",
       "product_name": "LEGO DUPLO Town Ambulance and Driver (10447)",
       "brand": "LEGO DUPLO",
       "retailer": "Argos",
@@ -337,8 +337,8 @@
         "included_items": "Dump truck, construction worker, numbered stackable stones",
         "other": "Tilting bed; trailer hitch"
       },
-      "product_description_under_30_words": "A chunky DUPLO ambulance with a driver and patient figure, made for load-the-patient, drive, help and return play with pieces sized for little hands.",
-      "ember_verdict": "Help-on-wheels gives a clear care story with a beginning and an end: someone needs help, you drive, you help, you come back. DUPLO pieces stay sturdy when bus and helper figures already fill the basket. That simple rescue pattern is why this set suits help-on-wheels play at nearly three.",
+      "product_description_under_30_words": "A chunky DUPLO ambulance with a driver and patient figure, made for load the patient, drive, help and return play with pieces sized for little hands.",
+      "ember_verdict": "Help on wheels gives a clear care story with a beginning and an end: someone needs help, you drive, you help, you come back. DUPLO pieces stay sturdy when bus and helper figures already fill the basket. That simple rescue pattern is why this set suits help on wheels play at nearly three.",
       "personalization_hint": "likely to enjoy repeating a load-and-tip job story",
       "why_it_fits": "Clear go / work / return loop with chunky Junior parts.",
       "caveats": "Thinner public UK review scrape than DUPLO Construction; specialist exemption.",
@@ -471,7 +471,8 @@
       "gift_suitable": true,
       "rank_rationale": "#1 over #2: Happyland hands the child ready-made people and a stop for get-on / go / return with zero build friction, so it edges DUPLO Bus Ride when the brief is whole-scene pretend rather than brick play.",
       "missed_top5_reason": "",
-      "evidence_notes": "Primary Moonpig URL smoke-checked HTTP 200 on 2026-07-22 and opens the TEAL/ELC Happyland London Bus product (SKU 549251), not a category listing. Age taken from Moonpig (12 months+) plus Entertainer Ages 2-5 overlap. Rating widgets were not available on the live primary; ELC returned 403 to agents — specialist exemption declared rather than inventing a review count."
+      "evidence_notes": "Primary Moonpig URL smoke-checked HTTP 200 on 2026-07-22 and opens the TEAL/ELC Happyland London Bus product (SKU 549251), not a category listing. Age taken from Moonpig (12 months+) plus Entertainer Ages 2-5 overlap. Rating widgets were not available on the live primary; ELC returned 403 to agents — specialist exemption declared rather than inventing a review count.",
+      "best_for_tag": "Best for get on go return"
     },
     {
       "longlist_rank": 2,
@@ -521,7 +522,8 @@
       "gift_suitable": true,
       "rank_rationale": "#3 over #4: Help-and-rescue roles match the cluster feelings brief more tightly than dump-truck load/tip play, so Everyday Heroes sits above the Dump Truck despite similar Junior age marks.",
       "missed_top5_reason": "",
-      "evidence_notes": "Playmobil brand URL smoke-checked HTTP 200 on 2026-07-22. Age mark is Junior 1-4 / 1 year and up — overlaps 34-36m. No scrapeable rating_count on the brand page; specialist exemption declared with written reason rather than inventing stars."
+      "evidence_notes": "Playmobil brand URL smoke-checked HTTP 200 on 2026-07-22. Age mark is Junior 1-4 / 1 year and up — overlaps 34-36m. No scrapeable rating_count on the brand page; specialist exemption declared with written reason rather than inventing stars.",
+      "best_for_tag": "Best for help and rescue roles"
     },
     {
       "longlist_rank": 4,
@@ -547,7 +549,7 @@
       "rank_rationale": "#4 over #5: One figure plus a tipping bed gives a clearer single job story than the multi-rebuild Construction Vehicles set, even though 10475 has stronger Amazon UK ratings.",
       "missed_top5_reason": "",
       "evidence_notes": "Playmobil brand URL smoke-checked HTTP 200 on 2026-07-22. Junior 1-4 age mark overlaps the band. Specialist exemption for missing scrapeable review counts on the brand page.",
-      "best_for_tag": "Best for help-on-wheels",
+      "best_for_tag": "Best for help on wheels",
       "top_pick_rank": 4
     },
     {
@@ -575,7 +577,8 @@
       "gift_suitable": true,
       "rank_rationale": "#5 as the ratings-backed rebuild option: it earns the last Top 5 slot on review depth and 2+ age fit, while sitting behind clearer people-scene sets on educational match.",
       "missed_top5_reason": "",
-      "evidence_notes": "Primary switched from Hamleys to Amazon UK after Hamleys blocked automated availability fetch; Amazon UK confirmed buyable 2026-07-22 with 4.8/287 ratings."
+      "evidence_notes": "Primary switched from Hamleys to Amazon UK after Hamleys blocked automated availability fetch; Amazon UK confirmed buyable 2026-07-22 with 4.8/287 ratings.",
+      "best_for_tag": "Best for rebuild vehicle jobs"
     },
     {
       "status": "longlist",

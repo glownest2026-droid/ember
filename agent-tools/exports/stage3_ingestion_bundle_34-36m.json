@@ -1,6 +1,6 @@
 {
   "schema_version": "stage3_ingestion_bundle_v1",
-  "generated_at": "2026-07-23T13:42:15.551Z",
+  "generated_at": "2026-07-23T13:52:56.953Z",
   "age_band_id": "34-36m",
   "visible_count": 5,
   "locked_from_rank": 2,
@@ -36,7 +36,7 @@
           "status": "pick",
           "longlist_rank": 1,
           "public_rank": 1,
-          "best_for_tag": "Best for step-pause-turn paths",
+          "best_for_tag": "Best for step pause turn paths",
           "product_name": "Gonge River Stones (set of 6)",
           "brand": "Gonge",
           "retailer": "Liberty House Toys",
@@ -75,7 +75,7 @@
             "other": "Three steepness sides per triangle; stacks; 100 kg load"
           },
           "product_description_under_30_words": "Six triangular plastic stepping stones with rubber rims you arrange on the floor into a route, so your child can step, pause and turn without climbing high furniture.",
-          "ember_verdict": "At nearly three, movement gets planned: step, pause, turn, rather than random crashing around the room. These stones let you invent little living-room routes with clear rules, so balance practice becomes a game you build together. That is why they suit step-pause-turn paths so well for this age.",
+          "ember_verdict": "At nearly three, movement gets planned: step, pause, turn, rather than random crashing around the room. These stones let you invent little living-room routes with clear rules, so balance practice becomes a game you build together. That is why they suit step, pause and turn paths so well for this age.",
           "personalization_hint": "likely to follow simple movement rules like step, pause and turn rather than random crashing around",
           "why_it_fits": "Variable steepness and two sizes create sequenced, rule-based paths - the core 34 - 36m shift versus earlier throw-and-aim games.",
           "caveats": "",
@@ -109,7 +109,7 @@
             "signals": []
           },
           "description": "Six triangular plastic stepping stones with rubber rims you arrange on the floor into a route, so your child can step, pause and turn without climbing high furniture.",
-          "why_pip_picked_this": "At nearly three, movement gets planned: step, pause, turn, rather than random crashing around the room. These stones let you invent little living-room routes with clear rules, so balance practice becomes a game you build together. That is why they suit step-pause-turn paths so well for this age."
+          "why_pip_picked_this": "At nearly three, movement gets planned: step, pause, turn, rather than random crashing around the room. These stones let you invent little living-room routes with clear rules, so balance practice becomes a game you build together. That is why they suit step, pause and turn paths so well for this age."
         },
         {
           "rank": 2,
@@ -230,7 +230,7 @@
             "other": "Nest together; indoor/outdoor"
           },
           "product_description_under_30_words": "Six colourful plastic platforms in three sizes that you step on like low tree stumps, then nest into one stack with a carry bag so balance kit does not take over a small flat.",
-          "ember_verdict": "Hallways and small flats need kit that packs away. Nesting stump sizes still give a proper step-up path, then collapse into one stack with a carry bag so the living room is free again. That pack-away design is why they suit small spaces while balance practice stays part of everyday play.",
+          "ember_verdict": "Hallways and small flats need kit that packs away. Nesting stump sizes still give a proper step-up path, then collapse into one stack with a carry bag so the living room is free again. That tidy pack away is why they suit small spaces while balance practice stays part of everyday play.",
           "personalization_hint": "likely to pause and look at where feet go before stepping, enjoying textured surfaces",
           "why_it_fits": "Compact nesting plus three size grades supports progressive path difficulty in small rooms without cluttering the flat.",
           "caveats": "",
@@ -264,7 +264,7 @@
             "signals": []
           },
           "description": "Six colourful plastic platforms in three sizes that you step on like low tree stumps, then nest into one stack with a carry bag so balance kit does not take over a small flat.",
-          "why_pip_picked_this": "Hallways and small flats need kit that packs away. Nesting stump sizes still give a proper step-up path, then collapse into one stack with a carry bag so the living room is free again. That pack-away design is why they suit small spaces while balance practice stays part of everyday play."
+          "why_pip_picked_this": "Hallways and small flats need kit that packs away. Nesting stump sizes still give a proper step-up path, then collapse into one stack with a carry bag so the living room is free again. That tidy pack away is why they suit small spaces while balance practice stays part of everyday play."
         },
         {
           "rank": 4,
@@ -1072,7 +1072,7 @@
             "other": ""
           },
           "product_description_under_30_words": "A short funny picture book about friends learning that sharing works better than shouting mine, with a pivot into shared play that stays light rather than heavy.",
-          "ember_verdict": "Mine fights need humour after a sticky playdate more than a talking-to. A funny short book gives you a shared joke to reset the evening without replaying the row. That light reset is why it suits mine-fight nights you may want to open more than once.",
+          "ember_verdict": "Mine fights need humour after a sticky playdate more than a talking-to. A funny short book gives you a shared joke to reset the evening without replaying the row. That light reset is why it suits mine fight nights you may want to open more than once.",
           "personalization_hint": "likely to grab toys and shout 'mine' during parallel play with friends",
           "why_it_fits": "Turn-taking and territory fights between peers - practical social rules, not naming happy/sad.",
           "caveats": "Hachette page lists ebook ISBN; paperback ISBN 9781444918335 confirmed via alternate.",
@@ -1107,13 +1107,13 @@
             "signals": []
           },
           "description": "A short funny picture book about friends learning that sharing works better than shouting mine, with a pivot into shared play that stays light rather than heavy.",
-          "why_pip_picked_this": "Mine fights need humour after a sticky playdate more than a talking-to. A funny short book gives you a shared joke to reset the evening without replaying the row. That light reset is why it suits mine-fight nights you may want to open more than once."
+          "why_pip_picked_this": "Mine fights need humour after a sticky playdate more than a talking-to. A funny short book gives you a shared joke to reset the evening without replaying the row. That light reset is why it suits mine fight nights you may want to open more than once."
         },
         {
           "rank": 4,
           "status": "pick",
           "longlist_rank": 4,
-          "best_for_tag": "Best for stuck-cross nights",
+          "best_for_tag": "Best for stuck cross nights",
           "product_name": "The Sour Grape",
           "brand": "Jory John & Pete Oswald",
           "retailer": "Scholastic Shop",
@@ -1151,7 +1151,7 @@
             "other": ""
           },
           "product_description_under_30_words": "A Food Group picture book about staying cross, saying sorry and moving on, written with enough humour for repeat reads after sticky friend play.",
-          "ember_verdict": "Holding a grudge is new at nearly three, and so is starting again. A Food Group story brings enough humour for repeat reads when the cross feeling has stuck. That kind reset is why it suits stuck-cross nights without turning feelings into homework.",
+          "ember_verdict": "Holding a grudge is new at nearly three, and so is starting again. A Food Group story brings enough humour for repeat reads when the cross feeling has stuck. That kind reset is why it suits stuck cross nights without turning feelings into homework.",
           "personalization_hint": "likely to stay upset after small upsets with friends and need help letting go",
           "why_it_fits": "Forgiveness and fairness in friendships - social repair, not basic emotion naming.",
           "caveats": "",
@@ -1186,7 +1186,7 @@
             "signals": []
           },
           "description": "A Food Group picture book about staying cross, saying sorry and moving on, written with enough humour for repeat reads after sticky friend play.",
-          "why_pip_picked_this": "Holding a grudge is new at nearly three, and so is starting again. A Food Group story brings enough humour for repeat reads when the cross feeling has stuck. That kind reset is why it suits stuck-cross nights without turning feelings into homework."
+          "why_pip_picked_this": "Holding a grudge is new at nearly three, and so is starting again. A Food Group story brings enough humour for repeat reads when the cross feeling has stuck. That kind reset is why it suits stuck cross nights without turning feelings into homework."
         },
         {
           "rank": 5,
@@ -1230,7 +1230,7 @@
             "other": ""
           },
           "product_description_under_30_words": "A lively rhyming chase about two squirrels who both want the same nut, then learn to work as a team in a story about sharing and joining in.",
-          "ember_verdict": "Competitive rows need a team ending once both children want the same prize. A lively rhyme keeps the chase fun while landing on joining in rather than who won. That joining-in finish is why it suits competitive rows without dampening the fun of the race.",
+          "ember_verdict": "Competitive rows need a team ending once both children want the same prize. A lively rhyme keeps the chase fun while landing on joining in rather than who won. That joining in finish is why it suits competitive rows without dampening the fun of the race.",
           "personalization_hint": "likely to race a friend for the same toy and refuse to take turns",
           "why_it_fits": "Competitive sharing resolved through cooperation - adventure plot, not a lecture.",
           "caveats": "",
@@ -1265,7 +1265,7 @@
             "signals": []
           },
           "description": "A lively rhyming chase about two squirrels who both want the same nut, then learn to work as a team in a story about sharing and joining in.",
-          "why_pip_picked_this": "Competitive rows need a team ending once both children want the same prize. A lively rhyme keeps the chase fun while landing on joining in rather than who won. That joining-in finish is why it suits competitive rows without dampening the fun of the race."
+          "why_pip_picked_this": "Competitive rows need a team ending once both children want the same prize. A lively rhyme keeps the chase fun while landing on joining in rather than who won. That joining in finish is why it suits competitive rows without dampening the fun of the race."
         }
       ],
       "backup_picks": [
@@ -1781,7 +1781,7 @@
             "other": "Strong colour/background clues on each piece"
           },
           "product_description_under_30_words": "Two farm-animal jigsaws with chunky interlocking cardboard pieces and clear finished pictures, a step up from peg puzzles when your child is ready for a proper tray.",
-          "ember_verdict": "Nearly-three puzzle play is about turning, comparing and holding a small plan until the picture appears. Two readable twelve-piece farm scenes give that step up from peg puzzles without jumping to adult-style trays. Clear animals and backgrounds keep the plan visible, which is why this suits a first proper twelve-piece job.",
+          "ember_verdict": "Nearly-three puzzle play is about turning, comparing and holding a small plan until the picture appears. Two readable twelve-piece farm scenes give that step up from peg puzzles without jumping to grown-up trays. Clear animals and backgrounds keep the plan visible, which is why this suits a first proper twelve-piece job.",
           "rank_rationale": "#1 over #2: Farm Friends is the clearest 12-piece strategy step-up with the deepest Amazon proof; jungle theme at #2 is the same spec so farm wins as the default first buy.",
           "why_it_fits": "12 pieces hits the strategy brief without jumping to 20+; UK-made Orchard quality; clear picture-first design; strong Amazon and brand-site proof.",
           "caveats": "",
@@ -1815,7 +1815,7 @@
             "signals": []
           },
           "description": "Two farm-animal jigsaws with chunky interlocking cardboard pieces and clear finished pictures, a step up from peg puzzles when your child is ready for a proper tray.",
-          "why_pip_picked_this": "Nearly-three puzzle play is about turning, comparing and holding a small plan until the picture appears. Two readable twelve-piece farm scenes give that step up from peg puzzles without jumping to adult-style trays. Clear animals and backgrounds keep the plan visible, which is why this suits a first proper twelve-piece job."
+          "why_pip_picked_this": "Nearly-three puzzle play is about turning, comparing and holding a small plan until the picture appears. Two readable twelve-piece farm scenes give that step up from peg puzzles without jumping to grown-up trays. Clear animals and backgrounds keep the plan visible, which is why this suits a first proper twelve-piece job."
         },
         {
           "rank": 2,
@@ -2095,8 +2095,8 @@
             "included_items": "Ambulance, fire engine, helicopter and more plus character play pieces",
             "other": "Match driver to vehicle after building"
           },
-          "product_description_under_30_words": "Six small emergency-vehicle jigsaws in one Orchard Toys box, mostly two and three pieces, plus character pieces for matching drivers to ambulance, fire engine and more.",
-          "ember_verdict": "Vehicle fans need a confidence-building set before a fuller twelve-piece tray. Short rescue scenes keep turn, compare and try again going without a table full of bits, and the characters invite a little matching story after the picture is done. That is why this suits rescue vehicle play at this age.",
+          "product_description_under_30_words": "Six small emergency vehicle jigsaws in one Orchard Toys box, mostly two and three pieces, plus character pieces for matching drivers to ambulance, fire engine and more.",
+          "ember_verdict": "Vehicle fans need a confidence building set before a fuller twelve-piece tray. Short rescue scenes keep turn, compare and try again going without a table full of bits, and the characters invite a little matching story after the picture is done. That is why this suits rescue vehicle play at this age.",
           "rank_rationale": "#5 completes the set: Rescue Squad covers cautious starters and vehicle fans when a twelve-piece tray still looks like a stretch; it trails wood and Ravensburger warm-ups on strategy depth but wins on theme and Amazon proof.",
           "why_it_fits": "Real interlocking pieces at 2 - 3 count; huge Amazon review base; distinct emergency-vehicle hook.",
           "caveats": "",
@@ -2129,8 +2129,8 @@
             "buyable": true,
             "signals": []
           },
-          "description": "Six small emergency-vehicle jigsaws in one Orchard Toys box, mostly two and three pieces, plus character pieces for matching drivers to ambulance, fire engine and more.",
-          "why_pip_picked_this": "Vehicle fans need a confidence-building set before a fuller twelve-piece tray. Short rescue scenes keep turn, compare and try again going without a table full of bits, and the characters invite a little matching story after the picture is done. That is why this suits rescue vehicle play at this age."
+          "description": "Six small emergency vehicle jigsaws in one Orchard Toys box, mostly two and three pieces, plus character pieces for matching drivers to ambulance, fire engine and more.",
+          "why_pip_picked_this": "Vehicle fans need a confidence building set before a fuller twelve-piece tray. Short rescue scenes keep turn, compare and try again going without a table full of bits, and the characters invite a little matching story after the picture is done. That is why this suits rescue vehicle play at this age."
         }
       ],
       "backup_picks": [
@@ -2584,7 +2584,7 @@
             "other": ""
           },
           "product_description_under_30_words": "A picture book packed with choices on every page, inviting your child to pick, point and explain as you read together at bedtime or on the sofa.",
-          "ember_verdict": "Talk-back is growing fast at nearly three: choosing and explaining, not only listening. Spread after spread of open choices gives them something to decide and say out loud. That choosing practice is why this book suits open-choice reading on the sofa or at bedtime.",
+          "ember_verdict": "Talk back is growing fast at nearly three: choosing and explaining, not only listening. Spread after spread of open choices gives them something to decide and say out loud. That choosing practice is why this book suits open choice reading on the sofa or at bedtime.",
           "personalization_hint": "likely to want to pick, justify choices and keep the conversation going across spreads",
           "why_it_fits": "Choice-led pages are built for what-next and why talk - the category benchmark for nearly-three talk-back.",
           "caveats": "",
@@ -2612,7 +2612,7 @@
           "rank_rationale": "#1 over #2: You Choose asks the child to pick and explain on every spread , a more open-ended prompt than Pigeon's single repeated question , so it edges ahead on educational fit despite carrying higher ownership risk.",
           "evidence_notes": "Penguin edition ISBN 9780141379319 confirmed live 2026-07-22 (HTTP 200). Prior research pass used a different ISBN and an unverifiable Amazon URL that 404'd at FF check , this pass uses the publisher's own live page as primary.",
           "description": "A picture book packed with choices on every page, inviting your child to pick, point and explain as you read together at bedtime or on the sofa.",
-          "why_pip_picked_this": "Talk-back is growing fast at nearly three: choosing and explaining, not only listening. Spread after spread of open choices gives them something to decide and say out loud. That choosing practice is why this book suits open-choice reading on the sofa or at bedtime."
+          "why_pip_picked_this": "Talk back is growing fast at nearly three: choosing and explaining, not only listening. Spread after spread of open choices gives them something to decide and say out loud. That choosing practice is why this book suits open choice reading on the sofa or at bedtime."
         },
         {
           "rank": 2,
@@ -2657,7 +2657,7 @@
             "other": "Walker Books board edition; original paperback also in print"
           },
           "product_description_under_30_words": "A sturdy board book where the cheeky pigeon keeps asking to drive the bus, and your child gets to say no and explain why on every spread.",
-          "ember_verdict": "Practising a firm, funny no is useful once opinions arrive. The pigeon argues back on every spread, and your child holds the line with a reason. That playful back-and-forth is why this board book suits saying-no practice without turning bedtime into a talking-to.",
+          "ember_verdict": "Practising a firm, funny no is useful once opinions arrive. The pigeon argues back on every spread, and your child holds the line with a reason. That playful back-and-forth is why this board book suits saying no practice without turning bedtime into a talking-to.",
           "personalization_hint": "likely to enjoy answering back and explaining the rules to a cheeky character",
           "why_it_fits": "Call-and-response dialogue lets the child lead the conversation - active talk-back rather than passive listening.",
           "caveats": "",
@@ -2685,7 +2685,7 @@
           "rank_rationale": "#2 over #3: Pigeon's comic call-and-response (say no, explain why) is a stronger nightly talk-back trigger than Oh No George's gentler what-next question, and it has deeper UK review history.",
           "evidence_notes": "Primary switched from Waterstones to Amazon UK after Waterstones' bot-protection returned intermittent 403/429 responses on repeat automated checks; Amazon UK page confirmed genuine (matching title, no captcha) and live-checked 200 on 2026-07-22. Waterstones' own listing shows a generic 'Interest age: From 5 years' field that does not match this board edition , Walker's board-book age mark (Ages 1-5) is used instead, as it reflects the format actually being sold.",
           "description": "A sturdy board book where the cheeky pigeon keeps asking to drive the bus, and your child gets to say no and explain why on every spread.",
-          "why_pip_picked_this": "Practising a firm, funny no is useful once opinions arrive. The pigeon argues back on every spread, and your child holds the line with a reason. That playful back-and-forth is why this board book suits saying-no practice without turning bedtime into a talking-to."
+          "why_pip_picked_this": "Practising a firm, funny no is useful once opinions arrive. The pigeon argues back on every spread, and your child holds the line with a reason. That playful back-and-forth is why this board book suits saying no practice without turning bedtime into a talking-to."
         },
         {
           "rank": 3,
@@ -2731,7 +2731,7 @@
             "other": ""
           },
           "product_description_under_30_words": "A board book where lovable George asks what he should do next, and whether he will get it right this time, turning each page into a gentle prediction game.",
-          "ember_verdict": "Guessing what comes next builds longer talk before bigger plots arrive. Each page invites a prediction from your child, so they stay in the conversation rather than only listening. That forward-looking chat is why this board book suits guessing-what-next reads at nearly three.",
+          "ember_verdict": "Guessing what comes next builds longer talk before bigger plots arrive. Each page invites a prediction from your child, so they stay in the conversation rather than only listening. That forward looking chat is why this board book suits guessing what next reads at nearly three.",
           "personalization_hint": "likely to enjoy predicting what a naughty character will do and explaining why",
           "why_it_fits": "The repeated will-he-won't-he beat keeps talk-back going page after page - prediction plus explanation, not passive narration.",
           "caveats": "",
@@ -2759,7 +2759,7 @@
           "rank_rationale": "#3 over #4: George's repeated what-will-he-do-next beat keeps talk-back going page after page, edging out Shh's quieter suspense which leans more on prediction than explanation.",
           "evidence_notes": "Primary switched from Waterstones to Amazon UK after Waterstones' bot-protection returned intermittent 403/429 responses on repeat automated checks; Amazon UK page confirmed genuine (matching title, no captcha) and live-checked 200 on 2026-07-22. Bookshop.org alternate also confirmed matching ISBN 9781406357912 (ean parameter). Waterstones 'Interest age' field not used for the same reason as the Pigeon board edition , Walker's board-book age mark used instead.",
           "description": "A board book where lovable George asks what he should do next, and whether he will get it right this time, turning each page into a gentle prediction game.",
-          "why_pip_picked_this": "Guessing what comes next builds longer talk before bigger plots arrive. Each page invites a prediction from your child, so they stay in the conversation rather than only listening. That forward-looking chat is why this board book suits guessing-what-next reads at nearly three."
+          "why_pip_picked_this": "Guessing what comes next builds longer talk before bigger plots arrive. Each page invites a prediction from your child, so they stay in the conversation rather than only listening. That forward looking chat is why this board book suits guessing what next reads at nearly three."
         },
         {
           "rank": 4,
@@ -2804,7 +2804,7 @@
             "other": ""
           },
           "product_description_under_30_words": "A quieter board book about a careful plan that does not quite work out, inviting your child to notice what went wrong and what might work better.",
-          "ember_verdict": "Once stories stretch a little longer, spotting a wobbly idea becomes useful talk. This quieter read invites your child to say what went wrong and what to try next, without a noisy bird on every page. That noticing chat is why it suits predicting-plans reads at bedtime.",
+          "ember_verdict": "Once stories stretch a little longer, spotting a wobbly idea becomes useful talk. This quieter read invites your child to say what went wrong and what to try next, without a noisy bird on every page. That noticing chat is why it suits predicting plans reads at bedtime.",
           "personalization_hint": "likely to enjoy quiet suspense and explaining what a character should have done differently",
           "why_it_fits": "The hushed, repeated plan-then-mishap structure asks the child to predict outcomes and explain what went wrong - talk-back without the noise of Pigeon or George.",
           "caveats": "",
@@ -2832,13 +2832,13 @@
           "rank_rationale": "#4 over #5: Shh's silent-plan suspense still asks the child to predict and explain, which sits closer to the cluster's talk-back objective than Shark in the Park's simpler spot-the-shark refrain.",
           "evidence_notes": "Primary switched from Waterstones to Amazon UK after Waterstones' bot-protection returned intermittent 403/429 responses on repeat automated checks; Amazon UK page confirmed genuine (matching title, no captcha) and live-checked 200 on 2026-07-22. 'Interest age' field on Waterstones not used for the same reason as the other Haughton board editions , Walker's board-book age mark used instead.",
           "description": "A quieter board book about a careful plan that does not quite work out, inviting your child to notice what went wrong and what might work better.",
-          "why_pip_picked_this": "Once stories stretch a little longer, spotting a wobbly idea becomes useful talk. This quieter read invites your child to say what went wrong and what to try next, without a noisy bird on every page. That noticing chat is why it suits predicting-plans reads at bedtime."
+          "why_pip_picked_this": "Once stories stretch a little longer, spotting a wobbly idea becomes useful talk. This quieter read invites your child to say what went wrong and what to try next, without a noisy bird on every page. That noticing chat is why it suits predicting plans reads at bedtime."
         },
         {
           "rank": 5,
           "status": "pick",
           "longlist_rank": 5,
-          "best_for_tag": "Best for is-it-a-shark guesses",
+          "best_for_tag": "Best for shark guesses",
           "product_name": "Shark in the Park",
           "brand": "Nick Sharratt",
           "retailer": "Penguin UK",
@@ -2876,7 +2876,7 @@
             "other": ""
           },
           "product_description_under_30_words": "A light, repeatable rhyme about looking for a shark in the park, short enough for tired evenings and playful enough to answer again and again.",
-          "ember_verdict": "Tired evenings need a short call-and-response that still feels playful. Looking for a shark in a new spot each time keeps them answering without a long plot to carry. That light repeat pattern is why this rhyme suits is-it-a-shark guesses when everyone is running on empty.",
+          "ember_verdict": "Tired evenings need a short call-and-response that stays playful. Looking for a shark in a new spot each time keeps them answering without a long plot to carry. That light repeat pattern is why this rhyme suits shark guesses when everyone is running on empty.",
           "personalization_hint": "likely to enjoy spotting the visual joke and answering the repeated question with growing confidence",
           "why_it_fits": "The repeated is-it-a-shark question is simpler than the Top 4's choice or plan-led formats, but still asks the child to look, guess and explain what they see.",
           "caveats": "",
@@ -2904,7 +2904,7 @@
           "rank_rationale": "#5: Included as the lightest, most repeatable option , a good entry point for what-do-you-see chat when the other four feel too talky for a tired bedtime, even though it asks less explanation than ranks 1-4.",
           "evidence_notes": "Penguin ISBN 9780552549776 live-checked 2026-07-22 (HTTP 200). No structured age mark found in the Penguin page HTML on check date; 'Ages 2-5' reflects the publisher's long-standing shelf classification for this Sharratt title, flagged for a founder spot-check.",
           "description": "A light, repeatable rhyme about looking for a shark in the park, short enough for tired evenings and playful enough to answer again and again.",
-          "why_pip_picked_this": "Tired evenings need a short call-and-response that still feels playful. Looking for a shark in a new spot each time keeps them answering without a long plot to carry. That light repeat pattern is why this rhyme suits is-it-a-shark guesses when everyone is running on empty."
+          "why_pip_picked_this": "Tired evenings need a short call-and-response that stays playful. Looking for a shark in a new spot each time keeps them answering without a long plot to carry. That light repeat pattern is why this rhyme suits shark guesses when everyone is running on empty."
         }
       ],
       "backup_picks": [
@@ -3393,7 +3393,7 @@
           "rank": 1,
           "status": "pick",
           "longlist_rank": 1,
-          "best_for_tag": "Best for get-on go return",
+          "best_for_tag": "Best for get on go return",
           "product_name": "Happyland London Bus Playset",
           "brand": "Early Learning Centre / Happyland",
           "retailer": "Moonpig (TEAL / The Entertainer)",
@@ -3434,7 +3434,7 @@
             "other": "Removable top deck; sounds buttons"
           },
           "product_description_under_30_words": "A chunky red London bus with seats for little people, made for loading passengers, driving somewhere, tipping them out and starting all over again.",
-          "ember_verdict": "Get on, go and come back is the pretend game nearly-threes love once they start talking about trips. A chunky bus with seats makes that pattern obvious every time they load, drive and tip out. That clear trip structure is why this set suits get-on-go-return play, especially if a Happyland bus is already in the house.",
+          "ember_verdict": "Get on, go and come back is the pretend game nearly-threes love once they start talking about trips. A chunky bus with seats makes that pattern obvious every time they load, drive and tip out. That clear trip structure is why this set suits get on, go and return play, especially if a Happyland bus is already in the house.",
           "personalization_hint": "likely to seat figures, announce stops, and retell a short outing",
           "why_it_fits": "Bus + stop + people make a whole mini story without tiny classic-Playmobil parts.",
           "caveats": "",
@@ -3465,7 +3465,7 @@
             "signals": []
           },
           "description": "A chunky red London bus with seats for little people, made for loading passengers, driving somewhere, tipping them out and starting all over again.",
-          "why_pip_picked_this": "Get on, go and come back is the pretend game nearly-threes love once they start talking about trips. A chunky bus with seats makes that pattern obvious every time they load, drive and tip out. That clear trip structure is why this set suits get-on-go-return play, especially if a Happyland bus is already in the house."
+          "why_pip_picked_this": "Get on, go and come back is the pretend game nearly-threes love once they start talking about trips. A chunky bus with seats makes that pattern obvious every time they load, drive and tip out. That clear trip structure is why this set suits get on, go and return play, especially if a Happyland bus is already in the house."
         },
         {
           "image_url": "",
@@ -3555,7 +3555,7 @@
           "rank": 3,
           "status": "pick",
           "longlist_rank": 3,
-          "best_for_tag": "Best for help-and-rescue roles",
+          "best_for_tag": "Best for help and rescue roles",
           "product_name": "PLAYMOBIL Junior Everyday Heroes (71692)",
           "brand": "Playmobil Junior",
           "retailer": "Playmobil UK",
@@ -3587,7 +3587,7 @@
             "other": "Junior line — not classic Playmobil"
           },
           "product_description_under_30_words": "A PLAYMOBIL Junior helper set with doctor, fire and police figures, for pretend stories where someone needs looking after and kindness is part of the play.",
-          "ember_verdict": "After bus and trip toys, care roles become the next pretend stretch. A helper pack with doctor, fire and police figures lets kindness sit inside the story, not only the drive. That caring cast is why this set suits help-and-rescue play beside a bus they already love.",
+          "ember_verdict": "After bus and trip toys, care roles become the next pretend stretch. A helper pack with doctor, fire and police figures lets kindness sit inside the story, not only the drive. That caring cast is why this set suits help and rescue play beside a bus they already love.",
           "personalization_hint": "likely to assign jobs and narrate helping someone",
           "why_it_fits": "Help roles give feelings and places to the pretend scene beyond travel alone.",
           "caveats": "",
@@ -3617,7 +3617,7 @@
             "signals": []
           },
           "description": "A PLAYMOBIL Junior helper set with doctor, fire and police figures, for pretend stories where someone needs looking after and kindness is part of the play.",
-          "why_pip_picked_this": "After bus and trip toys, care roles become the next pretend stretch. A helper pack with doctor, fire and police figures lets kindness sit inside the story, not only the drive. That caring cast is why this set suits help-and-rescue play beside a bus they already love."
+          "why_pip_picked_this": "After bus and trip toys, care roles become the next pretend stretch. A helper pack with doctor, fire and police figures lets kindness sit inside the story, not only the drive. That caring cast is why this set suits help and rescue play beside a bus they already love."
         },
         {
           "image_url": "",
@@ -3631,7 +3631,7 @@
           "rank": 4,
           "status": "pick",
           "longlist_rank": 4,
-          "best_for_tag": "Best for help-on-wheels",
+          "best_for_tag": "Best for help on wheels",
           "product_name": "LEGO DUPLO Town Ambulance and Driver (10447)",
           "brand": "LEGO DUPLO",
           "retailer": "Argos",
@@ -3665,8 +3665,8 @@
             "included_items": "Dump truck, construction worker, numbered stackable stones",
             "other": "Tilting bed; trailer hitch"
           },
-          "product_description_under_30_words": "A chunky DUPLO ambulance with a driver and patient figure, made for load-the-patient, drive, help and return play with pieces sized for little hands.",
-          "ember_verdict": "Help-on-wheels gives a clear care story with a beginning and an end: someone needs help, you drive, you help, you come back. DUPLO pieces stay sturdy when bus and helper figures already fill the basket. That simple rescue pattern is why this set suits help-on-wheels play at nearly three.",
+          "product_description_under_30_words": "A chunky DUPLO ambulance with a driver and patient figure, made for load the patient, drive, help and return play with pieces sized for little hands.",
+          "ember_verdict": "Help on wheels gives a clear care story with a beginning and an end: someone needs help, you drive, you help, you come back. DUPLO pieces stay sturdy when bus and helper figures already fill the basket. That simple rescue pattern is why this set suits help on wheels play at nearly three.",
           "personalization_hint": "likely to enjoy repeating a load-and-tip job story",
           "why_it_fits": "Clear go / work / return loop with chunky Junior parts.",
           "caveats": "Thinner public UK review scrape than DUPLO Construction; specialist exemption.",
@@ -3695,8 +3695,8 @@
             "buyable": true,
             "signals": []
           },
-          "description": "A chunky DUPLO ambulance with a driver and patient figure, made for load-the-patient, drive, help and return play with pieces sized for little hands.",
-          "why_pip_picked_this": "Help-on-wheels gives a clear care story with a beginning and an end: someone needs help, you drive, you help, you come back. DUPLO pieces stay sturdy when bus and helper figures already fill the basket. That simple rescue pattern is why this set suits help-on-wheels play at nearly three."
+          "description": "A chunky DUPLO ambulance with a driver and patient figure, made for load the patient, drive, help and return play with pieces sized for little hands.",
+          "why_pip_picked_this": "Help on wheels gives a clear care story with a beginning and an end: someone needs help, you drive, you help, you come back. DUPLO pieces stay sturdy when bus and helper figures already fill the basket. That simple rescue pattern is why this set suits help on wheels play at nearly three."
         },
         {
           "image_url": "",
@@ -4225,7 +4225,7 @@
             "other": "LER7204"
           },
           "product_description_under_30_words": "Oversized letter sweets on a chunky cord, sized for little hands that enjoy a proper threading job at the table rather than tiny jewellery beads.",
-          "ember_verdict": "Letters make the lace into a finished word job, not endless random beads. Oversized sweets keep little hands on a proper threading task while concentration is still growing. Keep them company because the cords tangle easily. That letter-finish pride is why this set suits letters-and-lacing practice at the table.",
+          "ember_verdict": "Letters make the lace into a finished word job, not endless random beads. Oversized sweets keep little hands on a proper threading task while concentration is still growing. Keep them company because the cords tangle easily. That letter finish pride is why this set suits letters and lacing practice at the table.",
           "why_it_fits": "Large bead size and Ages 2 - 6 mark clear the 34 - 36m age gate; letter faces add a light copy-and-name layer without tiny craft pieces.",
           "caveats": "",
           "buy_borrow_hold_off": "buy",
@@ -4257,7 +4257,7 @@
             "signals": []
           },
           "description": "Oversized letter sweets on a chunky cord, sized for little hands that enjoy a proper threading job at the table rather than tiny jewellery beads.",
-          "why_pip_picked_this": "Letters make the lace into a finished word job, not endless random beads. Oversized sweets keep little hands on a proper threading task while concentration is still growing. Keep them company because the cords tangle easily. That letter-finish pride is why this set suits letters-and-lacing practice at the table."
+          "why_pip_picked_this": "Letters make the lace into a finished word job, not endless random beads. Oversized sweets keep little hands on a proper threading task while concentration is still growing. Keep them company because the cords tangle easily. That letter finish pride is why this set suits letters and lacing practice at the table."
         },
         {
           "rank": 2,
@@ -4302,7 +4302,7 @@
             "other": "E1072"
           },
           "product_description_under_30_words": "Large wooden fruit pieces to feed along a caterpillar lace, so threading has a finished line to show you as they practise guiding each piece.",
-          "ember_verdict": "Some children need a story reason to keep lacing, not another loose bead tub. Fruit pieces along a caterpillar give a finished picture to show you, which keeps concentration going to the end. That finish-line pride is why this set suits storybook threading at nearly three.",
+          "ember_verdict": "Some children need a story reason to keep lacing, not another loose bead tub. Fruit pieces along a caterpillar give a finished picture to show you, which keeps concentration going to the end. That finish line pride is why this set suits storybook threading at nearly three.",
           "why_it_fits": "Narrative threading matches the busy-hands cluster without jumping to 3+ jewellery-size beads.",
           "caveats": "Amazon UK listing was out of stock at check; brand page remained buyable. Pair with The Very Hungry Caterpillar only if you already own it.",
           "buy_borrow_hold_off": "buy",
@@ -4334,7 +4334,7 @@
             "signals": []
           },
           "description": "Large wooden fruit pieces to feed along a caterpillar lace, so threading has a finished line to show you as they practise guiding each piece.",
-          "why_pip_picked_this": "Some children need a story reason to keep lacing, not another loose bead tub. Fruit pieces along a caterpillar give a finished picture to show you, which keeps concentration going to the end. That finish-line pride is why this set suits storybook threading at nearly three."
+          "why_pip_picked_this": "Some children need a story reason to keep lacing, not another loose bead tub. Fruit pieces along a caterpillar give a finished picture to show you, which keeps concentration going to the end. That finish line pride is why this set suits storybook threading at nearly three."
         },
         {
           "rank": 3,
@@ -4379,7 +4379,7 @@
             "other": "DJ06160"
           },
           "product_description_under_30_words": "A set of large colourful wooden beads and shapes to thread onto a soft fabric lace, sized for little hands that are ready for a proper threading job.",
-          "ember_verdict": "Chunky first beads are the classic next step after posting toys. Soft lace and big wooden shapes invite a proper threading job while concentration is still growing. Sit with them while they lace. That simple big-bead start is why this set suits chunky first beads without jumping to fiddly jewellery kits.",
+          "ember_verdict": "Chunky first beads are the classic next step after posting toys. Soft lace and big wooden shapes invite a proper threading job while concentration is still growing. Sit with them while they lace. That simple big bead start is why this set suits chunky first beads without jumping to fiddly jewellery kits.",
           "why_it_fits": "True 18m+ chunky wooden threading that clears the band age gate where Melissa & Doug / Bigjigs 3+ sets fail.",
           "caveats": "Fewer mass-market Amazon ratings than Melissa & Doug; buy from a named UK Djeco stockist. Not a pattern-card set.",
           "buy_borrow_hold_off": "buy",
@@ -4412,7 +4412,7 @@
             "signals": []
           },
           "description": "A set of large colourful wooden beads and shapes to thread onto a soft fabric lace, sized for little hands that are ready for a proper threading job.",
-          "why_pip_picked_this": "Chunky first beads are the classic next step after posting toys. Soft lace and big wooden shapes invite a proper threading job while concentration is still growing. Sit with them while they lace. That simple big-bead start is why this set suits chunky first beads without jumping to fiddly jewellery kits."
+          "why_pip_picked_this": "Chunky first beads are the classic next step after posting toys. Soft lace and big wooden shapes invite a proper threading job while concentration is still growing. Sit with them while they lace. That simple big bead start is why this set suits chunky first beads without jumping to fiddly jewellery kits."
         },
         {
           "rank": 4,
@@ -4455,7 +4455,7 @@
             "other": "LER0139"
           },
           "product_description_under_30_words": "Chunky beads plus picture cards that invite children to copy a pattern on the lace, turning simple threading into a matching game as their focus grows.",
-          "ember_verdict": "When random threading is already sorted, the next stretch is copying a sequence. Picture cards turn the lace into a matching game without asking them to invent the pattern alone. That guided step is why this set suits copying-patterns play beside beads already in the house.",
+          "ember_verdict": "When random threading is already sorted, the next stretch is copying a sequence. Picture cards turn the lace into a matching game without asking them to invent the pattern alone. That guided step is why this set suits copying patterns play beside beads already in the house.",
           "why_it_fits": "Only buyable UK listing in this run that pairs chunky hardwood beads with pattern cards for copy-shapes play.",
           "caveats": "",
           "buy_borrow_hold_off": "buy",
@@ -4487,7 +4487,7 @@
             "signals": []
           },
           "description": "Chunky beads plus picture cards that invite children to copy a pattern on the lace, turning simple threading into a matching game as their focus grows.",
-          "why_pip_picked_this": "When random threading is already sorted, the next stretch is copying a sequence. Picture cards turn the lace into a matching game without asking them to invent the pattern alone. That guided step is why this set suits copying-patterns play beside beads already in the house."
+          "why_pip_picked_this": "When random threading is already sorted, the next stretch is copying a sequence. Picture cards turn the lace into a matching game without asking them to invent the pattern alone. That guided step is why this set suits copying patterns play beside beads already in the house."
         },
         {
           "rank": 5,
@@ -4531,8 +4531,8 @@
             "included_items": "10 multi-texture beads, 4 short clip-release laces",
             "other": "TTS EL48306 / Halilit 995013"
           },
-          "product_description_under_30_words": "Large sensory beads on short safety-release laces, for families who want an extra-kind cord design while still practising a chunky threading job together.",
-          "ember_verdict": "Cord ends need care when siblings or pets share the floor. Safety-release laces and large sensory beads keep the threading skill while making pack-away kinder after play. That safer finish is why this set suits safer cord ends without dropping table practice.",
+          "product_description_under_30_words": "Large sensory beads on short safety-release laces, for families who want a kinder cord design while still practising a chunky threading job together.",
+          "ember_verdict": "Siblings and pets make long cords a worry on the floor at this age. A kinder cord end keeps the same table threading practice without the tangle panic after play. That safer finish is why this set suits safer cord ends when you still want proper lace work.",
           "why_it_fits": "Large beads plus safety-release short cords are the safety-forward answer when classic 3+ wooden crates fail the band gate.",
           "caveats": "Less pattern-copy depth than the pattern-card set; fewer beads than a wooden crate. Nursery-channel pricing.",
           "buy_borrow_hold_off": "buy",
@@ -4564,8 +4564,8 @@
             "buyable": true,
             "signals": []
           },
-          "description": "Large sensory beads on short safety-release laces, for families who want an extra-kind cord design while still practising a chunky threading job together.",
-          "why_pip_picked_this": "Cord ends need care when siblings or pets share the floor. Safety-release laces and large sensory beads keep the threading skill while making pack-away kinder after play. That safer finish is why this set suits safer cord ends without dropping table practice."
+          "description": "Large sensory beads on short safety-release laces, for families who want a kinder cord design while still practising a chunky threading job together.",
+          "why_pip_picked_this": "Siblings and pets make long cords a worry on the floor at this age. A kinder cord end keeps the same table threading practice without the tangle panic after play. That safer finish is why this set suits safer cord ends when you still want proper lace work."
         }
       ],
       "backup_picks": [
@@ -5057,7 +5057,7 @@
           "status": "pick",
           "longlist_rank": 1,
           "public_rank": 1,
-          "best_for_tag": "Best for whole-day routines",
+          "best_for_tag": "Best for whole day routines",
           "product_name": "Visual Timetable for Children at Home",
           "brand": "Create Visual Aids",
           "retailer": "Amazon UK (sold by Create Visual Aids)",
@@ -5076,7 +5076,7 @@
             "other": "Shows up to 10 cards at once; UK-made brand"
           },
           "product_description_under_30_words": "A wipe-clean set of rearrangeable routine picture cards for home, so morning and bedtime jobs sit in order on a strip and move as each step is done.",
-          "ember_verdict": "Nearly-threes manage everyday jobs better when they can see what comes next across the day. Rearrangeable morning and bedtime pictures turn those stretches into a shared plan you build together, with pride as each card moves. That whole-day visibility is why this timetable suits families ready for a fuller strip at home.",
+          "ember_verdict": "Nearly-threes manage everyday jobs better when they can see what comes next across the day. Rearrangeable morning and bedtime pictures turn those stretches into a shared plan you build together, with pride as each card moves. That whole day visibility is why this timetable suits families ready for a fuller strip at home.",
           "why_it_fits": "Mainstream UK home timetable with rearrangeable cards matching whole-routine independence without school-only symbols.",
           "caveats": "",
           "rating_value": 4.7,
@@ -5098,7 +5098,7 @@
             "signals": []
           },
           "description": "A wipe-clean set of rearrangeable routine picture cards for home, so morning and bedtime jobs sit in order on a strip and move as each step is done.",
-          "why_pip_picked_this": "Nearly-threes manage everyday jobs better when they can see what comes next across the day. Rearrangeable morning and bedtime pictures turn those stretches into a shared plan you build together, with pride as each card moves. That whole-day visibility is why this timetable suits families ready for a fuller strip at home."
+          "why_pip_picked_this": "Nearly-threes manage everyday jobs better when they can see what comes next across the day. Rearrangeable morning and bedtime pictures turn those stretches into a shared plan you build together, with pride as each card moves. That whole day visibility is why this timetable suits families ready for a fuller strip at home."
         },
         {
           "image_url": "",
@@ -5224,7 +5224,7 @@
             "other": "Now/Next or Now/Next/Then layouts"
           },
           "product_description_under_30_words": "A handmade metal Now and Next board for short hand-offs, with picture tokens sold to match morning and bedtime jobs at home.",
-          "ember_verdict": "Big whole-day boards can overwhelm when all you need is the next hand-off. Showing only a couple of pictures keeps the change clear for nearly-threes still learning transitions. Handmade UK metal and tokens matched to your day are why this suits now-and-next changes without a ten-step wall.",
+          "ember_verdict": "Big whole day boards can overwhelm when all you need is the next hand-off. Showing only a couple of pictures keeps the change clear for nearly-threes still learning transitions. Handmade UK metal and tokens matched to your day are why this suits now and next changes without a ten step wall.",
           "why_it_fits": "Supports short transitions without a full-day board.",
           "caveats": "",
           "rating_value": null,
@@ -5246,7 +5246,7 @@
             "signals": []
           },
           "description": "A handmade metal Now and Next board for short hand-offs, with picture tokens sold to match morning and bedtime jobs at home.",
-          "why_pip_picked_this": "Big whole-day boards can overwhelm when all you need is the next hand-off. Showing only a couple of pictures keeps the change clear for nearly-threes still learning transitions. Handmade UK metal and tokens matched to your day are why this suits now-and-next changes without a ten-step wall."
+          "why_pip_picked_this": "Big whole day boards can overwhelm when all you need is the next hand-off. Showing only a couple of pictures keeps the change clear for nearly-threes still learning transitions. Handmade UK metal and tokens matched to your day are why this suits now and next changes without a ten step wall."
         },
         {
           "image_url": "",
@@ -5301,7 +5301,7 @@
             "other": "Carry-between rooms or grandparent days"
           },
           "product_description_under_30_words": "An A5 picture book with removable early-years routine cards inside, including Now and Next style inserts, designed to travel between home, childminder and grandparents.",
-          "ember_verdict": "Wall charts stay in one room, but many nearly-three days move between home, childminder and grandparents. A portable picture book keeps the same routine symbols in the changing bag, so what comes next stays familiar when the place changes. That take-anywhere design is why this suits portable routines without buying a second wall set.",
+          "ember_verdict": "Wall charts stay in one room, but many nearly-three days move between home, childminder and grandparents. A portable picture book keeps the same routine symbols in the changing bag, so what comes next stays familiar when the place changes. That take anywhere design is why this suits portable routines without buying a second wall set.",
           "why_it_fits": "Consolidates transition and routine symbols into one carryable book for families whose schedule moves between rooms or carers.",
           "caveats": "",
           "rating_value": 4.5,
@@ -5322,7 +5322,7 @@
             "signals": []
           },
           "description": "An A5 picture book with removable early-years routine cards inside, including Now and Next style inserts, designed to travel between home, childminder and grandparents.",
-          "why_pip_picked_this": "Wall charts stay in one room, but many nearly-three days move between home, childminder and grandparents. A portable picture book keeps the same routine symbols in the changing bag, so what comes next stays familiar when the place changes. That take-anywhere design is why this suits portable routines without buying a second wall set."
+          "why_pip_picked_this": "Wall charts stay in one room, but many nearly-three days move between home, childminder and grandparents. A portable picture book keeps the same routine symbols in the changing bag, so what comes next stays familiar when the place changes. That take anywhere design is why this suits portable routines without buying a second wall set."
         },
         {
           "image_url": "",
@@ -5374,7 +5374,7 @@
             "other": "Choose step count to match your actual day"
           },
           "product_description_under_30_words": "A handmade aluminium morning and evening routine board with picture tokens and star progress markers, sized for the jobs that get you out the door and into bed.",
-          "ember_verdict": "Leaving the house is its own nearly-three skill: shoes, coat and bag without a running commentary from you. A clear morning strip makes those doorway jobs visible and movable, so pride replaces nagging. Handmade UK build and tokens matched to your doorway jobs are why this suits getting-out-the-door practice at this age.",
+          "ember_verdict": "Leaving the house is its own nearly-three skill: shoes, coat and bag without a running commentary from you. A clear morning strip makes those doorway jobs visible and movable, so pride replaces nagging. Handmade UK build and tokens matched to your doorway jobs are why this suits getting out the door practice at this age.",
           "why_it_fits": "Supports the leave-the-house sequence with clear pictures.",
           "caveats": "",
           "rating_value": null,
@@ -5396,7 +5396,7 @@
             "signals": []
           },
           "description": "A handmade aluminium morning and evening routine board with picture tokens and star progress markers, sized for the jobs that get you out the door and into bed.",
-          "why_pip_picked_this": "Leaving the house is its own nearly-three skill: shoes, coat and bag without a running commentary from you. A clear morning strip makes those doorway jobs visible and movable, so pride replaces nagging. Handmade UK build and tokens matched to your doorway jobs are why this suits getting-out-the-door practice at this age."
+          "why_pip_picked_this": "Leaving the house is its own nearly-three skill: shoes, coat and bag without a running commentary from you. A clear morning strip makes those doorway jobs visible and movable, so pride replaces nagging. Handmade UK build and tokens matched to your doorway jobs are why this suits getting out the door practice at this age."
         }
       ],
       "backup_picks": [

@@ -109,9 +109,49 @@ export const FAKE_FEEL =
 /** Fresh 20xx sales talk */
 export const FRESH_YEAR = /\bfresh 20\d{2}\b/i;
 
-/** Invented hyphen compounds that smell of AI (not ordinary English like “warm-up” alone). */
+/** Explicit old offenders (kept for clear fail reasons). */
 export const AI_HYPHEN_COMPOUND =
-  /\b(?:try-again|try-first|rescue-vehicle|rebuild-vehicle)\b/i;
+  /\b(?:try-again|try-first|rescue-vehicle|rebuild-vehicle|emergency-vehicle|get-on-go-return|step-pause-turn|help-and-rescue|help-on-wheels|letters-and-lacing|copying-patterns|open-choice|saying-no|guessing-what-next|predicting-plans|is-it-a-shark|stuck-cross|mine-fight|joining-in|talk-back|letter-finish|big-bead|pack-away|take-anywhere|getting-out-the-door|now-and-next|confidence-building|load-the-patient|forward-looking|adult-style|extra-kind|whole-day|ten-step|finish-line)\b/i;
+
+/**
+ * Ordinary English / Ember hyphens allowed in Pip parent copy.
+ * Anything else hyphenated fails as invented AI compound.
+ * Founder 2026-07-23: “rescue-vehicle” / “try-again play” → write spaced English.
+ */
+export const ALLOWED_HYPHEN_RE = [
+  /^nearly-threes?$/i,
+  /^(?:\d+|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)-piece$/i,
+  /^living-room$/i,
+  /^wipe-clean$/i,
+  /^back-and-forth$/i,
+  /^talking-to$/i,
+  /^best-friend$/i,
+  /^safety-release$/i,
+  /^farm-animal$/i,
+  /^early-years$/i,
+  /^small-world$/i,
+  /^step-up$/i,
+  /^step-down$/i,
+  /^hand-offs?$/i,
+  /^call-and-response$/i,
+  /^coming-home$/i,
+  /^rope-linked$/i,
+  /^mini-jigsaws?$/i,
+  /^grown-up$/i,
+];
+
+const HYPHEN_TOKEN = /\b[a-z0-9]+(?:-[a-z0-9]+)+\b/gi;
+
+/** Return invented hyphen tokens not on the ordinary-English allowlist. */
+export function inventedHyphenHits(text) {
+  const raw = String(text || '');
+  const hits = [];
+  for (const token of raw.match(HYPHEN_TOKEN) || []) {
+    if (ALLOWED_HYPHEN_RE.some((re) => re.test(token))) continue;
+    hits.push(token.toLowerCase());
+  }
+  return [...new Set(hits)];
+}
 
 /** Personification of objects / fabricated “honesty” metaphors. */
 export const PERSONIFY_OR_PECULIAR =
@@ -129,8 +169,14 @@ export const NURSERY = /\bnursery\b/i;
 /**
  * Return unique fail tokens for banned parent copy.
  * Empty array = clean.
+ *
+ * @param {string} text
+ * @param {{ publicCopy?: boolean }} [opts]
+ *   publicCopy (default true): also enforce invented-hyphen allowlist.
+ *   Set false for internal HOW fields (rank_rationale) where research shorthand is OK,
+ *   but classic AI/money tells still fail.
  */
-export function bannedHits(text) {
+export function bannedHits(text, { publicCopy = true } = {}) {
   const raw = String(text || '');
   const lower = raw.toLowerCase();
   const hits = [];
@@ -146,8 +192,14 @@ export function bannedHits(text) {
   if (REAL_X_FILLER.test(raw)) hits.push('real_x_filler');
   if (FAKE_FEEL.test(raw)) hits.push('fake_feel_judgement');
   if (NURSERY.test(raw)) hits.push('nursery_benchmarking');
-  if (AI_HYPHEN_COMPOUND.test(raw)) hits.push('ai_hyphen_compound');
   if (PERSONIFY_OR_PECULIAR.test(raw)) hits.push('personify_or_peculiar');
+
+  // Invented hyphen compounds: public Pip fields only (Description / Why Pip / Best for).
+  if (publicCopy) {
+    if (AI_HYPHEN_COMPOUND.test(raw)) hits.push('ai_hyphen_compound');
+    const invented = inventedHyphenHits(raw);
+    if (invented.length) hits.push(`invented_hyphen:${invented.join('|')}`);
+  }
 
   return [...new Set(hits)];
 }
@@ -164,8 +216,11 @@ export function bannedCopyInventory() {
       'fake_feel_judgement',
       'nursery_benchmarking',
       'ai_hyphen_compound',
+      'invented_hyphen',
       'personify_or_peculiar',
     ],
+    allowed_hyphens_note:
+      'Only ordinary English / Ember hyphens (nearly-three, twelve-piece, wipe-clean, …). Invented play-type compounds fail.',
     canonical_module: 'agent-tools/scripts/lib/stage3-banned-copy.mjs',
     human_doc: 'web/docs/brand/WRITING_GUIDELINES.md (Principle 5)',
   };

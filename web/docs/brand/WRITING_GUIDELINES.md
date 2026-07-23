@@ -173,7 +173,7 @@ Trust breaks when copy sounds machine-made. Prefer plain rhythm, ordinary verbs,
 - **Importance filler:** matter / matters (“Warm-up sessions matter”, “Cord ends matter”)
 - **Vague time filler:** moment / moments in Pip’s Picks (“jealous moments”, “now-and-next moments”) — name the real situation (wobbles, evenings, hand-offs)
 - **Fabricated metaphors:** muscle (“choosing muscle”, “talk-stories muscle”); peculiar phrases (“storage honesty”, “travel honesty”)
-- **Odd hyphen compounds:** rescue-vehicle, try-again play, try-first approach; also **warm-up sessions** (toddler “sessions” framing) — write ordinary English (“suits rescue vehicle play”, “gentler starts”)
+- **Odd hyphen compounds:** inventing play-type jargon with hyphens (“rescue-vehicle”, “try-again play”, “get-on-go-return”, “step-pause-turn”, “letters-and-lacing”) — write ordinary spaced English (“suits rescue vehicle play”, “suits get on, go and return play”). Allowed hyphens are ordinary English / Ember only (twelve-piece, living-room, wipe-clean, nearly-three, back-and-forth, …) — see `stage3-banned-copy.mjs` allowlist.
 - **Personification of objects:** “Wood earns its place”, “cords love to tangle”
 - **Adult discipline vocabulary:** lecture, sermon, lesson plan — never for UK parent/toddler dynamics
 - Money-shame and sales tells already listed above (tight budgets, low-stakes, quick wins, worth buying, …)
@@ -186,12 +186,13 @@ Trust breaks when copy sounds machine-made. Prefer plain rhythm, ordinary verbs,
 | Short rescue puzzles before a fuller twelve-piece set. | Before twelve-piece trays feel fair. That hook is why… |
 | Load, drive and tip out passengers again. | Get-on go-return journey / bus loop / travel script |
 | Keep the routine visible in the kitchen. | Already familiar from nursery / not only on a nursery wall |
-| Suits rescue vehicle play at this age. | Suits rescue-vehicle / try-again play |
+| Suits rescue vehicle play at this age. | Suits rescue-vehicle / try-again play / get-on-go-return play |
 | Gentler starts before a twelve-piece tray. | Warm-up sessions matter / warm-up sessions |
-| Packs into one stack with a carry bag. | Storage honesty / travel honesty |
-| Choosing practice on the sofa. | Choosing muscle / talk-stories muscle |
+| Packs into one stack with a carry bag. | Storage honesty / travel honesty / pack-away design |
+| Choosing practice on the sofa. | Choosing muscle / talk-stories muscle / open-choice reading |
 | Without turning bedtime into a talking-to. | Without turning bedtime into a lecture |
 | Distance judgement grows fast around this age. | A real nearly-three shift |
+| Suits step, pause and turn paths. | Suits step-pause-turn paths |
 
 ---
 
@@ -495,3 +496,4 @@ See `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` must-be-true #5.
 | 2026-07-23 | Ban AI process speak (loop / journey / hook / script / feel fair / nursery benchmarking) in Pip parent copy |
 | 2026-07-23 | Ban matter/moment/muscle, lecture, odd hyphen compounds, “A real X”, personification, peculiar “honesty” phrases; optional relational Why Pip |
 | 2026-07-23 | **Ban-list parity:** Principle 5 + FF share `agent-tools/scripts/lib/stage3-banned-copy.mjs` — never diverge |
+| 2026-07-23 | Invented hyphen compounds banned in Pip parent copy (allowlist ordinary English / Ember only) |
