@@ -33,6 +33,7 @@
 | URL | Primary `product_url` returns HTTP 2xx/3xx on smoke check | Dead, timeout, or unverified → cannot be Top Pick |
 | Availability | Primary page is **buyable today** — not retired, discontinued, or notify-when-in-stock | `deprecated` / `unbuyable` / fetch failed → cannot be Top Pick |
 | Alternate cross-check | Manufacturer alt showing **retired product** fails even if retailer primary loads | Retired on brand alt → fail |
+| **UK market (all ranks)** | Primary `product_url` is a **UK-buyable** page: `*.co.uk` / known UK-facing host, **not** US brand catalogs (`kids2.com`, `manhattantoy.com`, `amazon.com`, …), **not** Google Shopping search stubs, **not** Wirecutter affiliate redirects. Price text must not be USD-only (`$` / `USD` without `£`). Applies to **every Top Pick and every longlist/backup row with a URL** — not Top 5 only. Shared module: `agent-tools/scripts/lib/stage3-uk-market.mjs` | US host, `$` price, search URL, missing Top Pick URL, unlisted `.com` fail closed |
 | Reviews | `rating_value >= 4.4` **and** `rating_count >= 15` | Below either threshold |
 | Specialist exemption | Explicit `evidence_exemption: specialist` + written reason; **SKU `rating_count` still must be ≥15 when present** (no brand-aggregate excuse for a 1-review product page) | Brand fame alone / single 5★ with &lt;15 reviews on this SKU |
 | Age overlap | Listing age signals overlap the Ember band (see below) | No overlap or safety exclusion conflicts |

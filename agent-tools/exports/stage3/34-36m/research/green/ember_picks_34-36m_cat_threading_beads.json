@@ -147,14 +147,13 @@
     },
     {
       "rank": 2,
-      "status": "pick",
-      "longlist_rank": 2,
-      "public_rank": 2,
+      "status": "backup",
+      "longlist_rank": 7,
+      "public_rank": null,
       "best_for_tag": "Best for storybook threading",
-      "product_name": "Caterpillar Fruit Feast Set",
-      "brand": "Hape",
-      "retailer": "Hape",
-      "product_url": "https://global.hape.com/caterpillar-fruit-feast-set-e1072",
+      "product_name": "Filacolor Lacing Beads (Daisy Daisy)",
+      "brand": "Djeco",
+      "retailer": "Djeco",
       "alternate_urls": [
         "https://www.amazon.co.uk/dp/B0BB23Y1B7"
       ],
@@ -165,9 +164,9 @@
         "http_status_or_method": "200",
         "primary_opens_product": true
       },
-      "stock_status": "in_stock",
+      "stock_status": "unknown",
       "price_amount": 14.99,
-      "price_text": "about £15",
+      "price_text": "£11.90",
       "currency": "GBP",
       "price_checked_date": "2026-07-22",
       "age_mark_on_listing": "18 months+",
@@ -192,24 +191,23 @@
       "why_it_fits": "Narrative threading matches the busy-hands cluster without jumping to 3+ jewellery-size beads.",
       "caveats": "Amazon UK listing was out of stock at check; brand page remained buyable. Pair with The Very Hungry Caterpillar only if you already own it.",
       "buy_borrow_hold_off": "buy",
-      "gift_suitable": true,
+      "gift_suitable": false,
       "gift_note": "Cute gift angle without feeling like a jewellery kit.",
       "ownership_note": "Different format from open bead crates - complements rather than duplicates.",
       "safety_notes": "Supervised play only. Brand age 18 months+. Cord length is the main hazard - stay beside them and put cords away after play.",
-      "rating_value": 4.8,
-      "rating_count": 223,
+      "rating_value": null,
+      "rating_count": null,
       "rating_source": "Amazon UK global ratings (B0BB23Y1B7)",
       "review_quality_note": "Very strong rating; themes praise wood quality, fruit size and fine-motor focus.",
-      "evidence_tier": "strong",
+      "evidence_tier": "emerging",
       "evidence_sources": [
-        "https://global.hape.com/caterpillar-fruit-feast-set-e1072",
         "https://www.amazon.co.uk/dp/B0BB23Y1B7"
       ],
       "preloved_suitability": "good",
       "preloved_signal_note": "Wooden fruit holds up; check paint and leaf stoppers.",
       "substitute_if_unavailable": "Djeco Filacolor Lacing Beads",
-      "founder_qa_flag": "check_stock",
-      "display_status": "visible",
+      "founder_qa_flag": "check_url",
+      "display_status": "backup",
       "locked_for_non_members": false,
       "rank_rationale": "#2 over #3: narrative fruit threading gives a clearer finished-line job than plain shape beads, and the 4.8/223 rating depth beats specialist-only Djeco evidence.",
       "evidence_notes": "Brand URL smoke 200 and buyable 2026-07-22. Age from Hape 18M+ mark. Ratings from Amazon UK listing.",
@@ -218,7 +216,14 @@
         "product_status": "buyable",
         "buyable": true,
         "signals": []
-      }
+      },
+      "url_status": "cleared_non_uk",
+      "top_pick_rank": 2,
+      "product_url": "https://daisydaisydirect.co.uk/play-time/djeco-filacolour-lacing-beads-dj06160.html",
+      "summary_reason": "Second UK Djeco stockist for pick #3.",
+      "missed_top5_reason": "Duplicate SKU of Top Pick #3 — useful only if Tickety-Boo is out.",
+      "caveat_short": "Second UK Djeco stockist for pick #3.",
+      "included_in_top_5": true
     },
     {
       "rank": 3,
@@ -481,14 +486,13 @@
       "product_name": "Caterpillar Fruit Feast Set",
       "brand": "Hape",
       "retailer": "Hape",
-      "product_url": "https://global.hape.com/caterpillar-fruit-feast-set-e1072",
       "url_checked_date": "2026-07-22",
       "stock_status": "in_stock",
       "price_text": "about £15",
       "age_mark_on_listing": "18 months+",
       "summary_reason": "Narrative threading matches the busy-hands cluster without jumping to 3+ jewellery-size beads.",
       "rank_rationale": "#2 over #3: narrative fruit threading gives a clearer finished-line job than plain shape beads, and the 4.8/223 rating depth beats specialist-only Djeco evidence.",
-      "missed_top5_reason": "",
+      "missed_top5_reason": "Removed from Top 5: no credible UK buyable primary (global.hape.com is not a UK retailer).",
       "best_for_tag": "Best for storybook threading",
       "evidence_tier": "strong",
       "rating_value": 4.8,
@@ -499,7 +503,9 @@
       "included_in_top_5": true,
       "display_status": "visible",
       "public_rank": 2,
-      "locked_for_non_members": false
+      "locked_for_non_members": false,
+      "founder_qa_flag": "check_url",
+      "url_status": "cleared_non_uk"
     },
     {
       "longlist_rank": 3,
@@ -670,7 +676,6 @@
       "product_name": "Les Toupitis Wooden Lacing Beads",
       "brand": "Moulin Roty",
       "retailer": "Moulin Roty",
-      "product_url": "https://pinwheelshop.com/en/baby-toddler-toys/lacing-threading-toys/adorable-colourful-chunky-wooden-lacing-beads-les-toupitis.html",
       "url_checked_date": "2026-07-22",
       "stock_status": "unknown",
       "price_text": "about £28",
@@ -688,7 +693,9 @@
       "included_in_top_5": false,
       "display_status": "backup",
       "public_rank": null,
-      "locked_for_non_members": false
+      "locked_for_non_members": false,
+      "founder_qa_flag": "check_url",
+      "url_status": "cleared_non_uk"
     },
     {
       "longlist_rank": 10,
@@ -1048,5 +1055,6 @@
     ],
     "founder_review_notes": "Mode A re-research after quarantine. Classic 3+ wooden crates moved to skips; Moulin Roty OOS — Primary ICT pattern cards substituted.",
     "notes": "Parent copy upgraded to Writing Guidelines v1 (2026-07-23). Re-run FF before ingest if URLs changed."
-  }
+  },
+  "uk_market_eradication_at": "2026-07-23"
 }

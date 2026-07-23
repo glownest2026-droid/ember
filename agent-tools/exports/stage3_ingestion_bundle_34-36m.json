@@ -1,6 +1,6 @@
 {
   "schema_version": "stage3_ingestion_bundle_v1",
-  "generated_at": "2026-07-23T19:28:22.267Z",
+  "generated_at": "2026-07-23T20:57:57.214Z",
   "age_band_id": "34-36m",
   "visible_count": 5,
   "locked_from_rank": 2,
@@ -325,8 +325,7 @@
           "evidence_tier": "specialist",
           "evidence_exemption": "specialist",
           "evidence_sources": [
-            "https://www.libertyhousetoys.com/gonge-hilltops",
-            "https://www.gonge.com/products/hilltops-nordic"
+            "https://www.libertyhousetoys.com/gonge-hilltops"
           ],
           "preloved_suitability": "good",
           "preloved_signal_note": "Gonge kit holds resale value; inspect rubber feet.",
@@ -404,8 +403,7 @@
           "evidence_tier": "specialist",
           "evidence_exemption": "specialist",
           "evidence_sources": [
-            "https://www.shopedx.co.uk/products/step-a-trails",
-            "https://www.nappaawards.com/product/step-a-trails/"
+            "https://www.shopedx.co.uk/products/step-a-trails"
           ],
           "preloved_suitability": "possible",
           "preloved_signal_note": "Nursery surplus occasionally listed.",
@@ -929,10 +927,7 @@
           "review_quality_note": "Consistent 4.8, 4.9 across UK retailers for this Nosy Crow paperback.",
           "evidence_tier": "strong",
           "evidence_exemption": "",
-          "evidence_sources": [
-            "https://nosycrow.com/book/pip-and-posy-the-new-friend/",
-            "https://www.motherandbaby.com/reviews/toddler-toys/the-best-books-for-teaching-children-to-share/"
-          ],
+          "evidence_sources": [],
           "preloved_suitability": "good",
           "preloved_signal_note": "Picture books hold up well second-hand — check for scribbles on well-loved copies.",
           "substitute_if_unavailable": "Will You Be My Friend?",
@@ -1009,8 +1004,7 @@
           "evidence_tier": "good",
           "evidence_exemption": "",
           "evidence_sources": [
-            "https://littletiger.co.uk/product/can-you-share-little-whale-2",
-            "https://www.motherandbaby.com/reviews/toddler-toys/the-best-books-for-teaching-children-to-share/"
+            "https://littletiger.co.uk/product/can-you-share-little-whale-2"
           ],
           "preloved_suitability": "good",
           "preloved_signal_note": "Picture books hold up well second-hand — check for scribbles on well-loved copies.",
@@ -1088,8 +1082,7 @@
           "evidence_tier": "strong",
           "evidence_exemption": "",
           "evidence_sources": [
-            "https://www.hachette.co.uk/titles/anna-kang/thats-not-mine/9781444923339/",
-            "https://www.motherandbaby.com/reviews/toddler-toys/the-best-books-for-teaching-children-to-share/"
+            "https://www.hachette.co.uk/titles/anna-kang/thats-not-mine/9781444923339/"
           ],
           "preloved_suitability": "good",
           "preloved_signal_note": "Picture books hold up well second-hand — check for scribbles on well-loved copies.",
@@ -1246,8 +1239,7 @@
           "evidence_tier": "strong",
           "evidence_exemption": "",
           "evidence_sources": [
-            "https://shop.scholastic.co.uk/products/117331",
-            "https://www.motherandbaby.com/reviews/toddler-toys/the-best-books-for-teaching-children-to-share/"
+            "https://shop.scholastic.co.uk/products/117331"
           ],
           "preloved_suitability": "good",
           "preloved_signal_note": "Picture books hold up well second-hand — check for scribbles on well-loved copies.",
@@ -2891,8 +2883,7 @@
           "review_quality_note": "Very high review volume; consistently 4.7-4.9 across editions.",
           "evidence_tier": "strong",
           "evidence_sources": [
-            "https://www.penguin.co.uk/books/327168/shark-in-the-park-by-sharratt-nick/9780552549776",
-            "https://www.nicksharratt.com/books/shark-in-the-park"
+            "https://www.penguin.co.uk/books/327168/shark-in-the-park-by-sharratt-nick/9780552549776"
           ],
           "preloved_suitability": "good",
           "preloved_signal_note": "Picture books hold up well second-hand.",
@@ -3448,8 +3439,7 @@
           "evidence_tier": "specialist",
           "evidence_exemption": "specialist",
           "evidence_sources": [
-            "https://www.moonpig.com/uk/gifts/p/happyland-london-bus-playset/teal-549251/",
-            "https://www.thetoyshop.com/shop-by-age/2-3-years/Happyland-London-Bus-Playset/p/549251"
+            "https://www.moonpig.com/uk/gifts/p/happyland-london-bus-playset/teal-549251/"
           ],
           "preloved_suitability": "good",
           "preloved_signal_note": "Common second-hand; check deck latch and figure condition.",
@@ -4261,14 +4251,13 @@
         },
         {
           "rank": 2,
-          "status": "pick",
-          "longlist_rank": 2,
-          "public_rank": 2,
+          "status": "backup",
+          "longlist_rank": 7,
+          "public_rank": null,
           "best_for_tag": "Best for storybook threading",
-          "product_name": "Caterpillar Fruit Feast Set",
-          "brand": "Hape",
-          "retailer": "Hape",
-          "product_url": "https://global.hape.com/caterpillar-fruit-feast-set-e1072",
+          "product_name": "Filacolor Lacing Beads (Daisy Daisy)",
+          "brand": "Djeco",
+          "retailer": "Djeco",
           "alternate_urls": [
             "https://www.amazon.co.uk/dp/B0BB23Y1B7"
           ],
@@ -4279,9 +4268,9 @@
             "http_status_or_method": "200",
             "primary_opens_product": true
           },
-          "stock_status": "in_stock",
+          "stock_status": "unknown",
           "price_amount": 14.99,
-          "price_text": "about £15",
+          "price_text": "£11.90",
           "currency": "GBP",
           "price_checked_date": "2026-07-22",
           "age_mark_on_listing": "18 months+",
@@ -4306,24 +4295,23 @@
           "why_it_fits": "Narrative threading matches the busy-hands cluster without jumping to 3+ jewellery-size beads.",
           "caveats": "Amazon UK listing was out of stock at check; brand page remained buyable. Pair with The Very Hungry Caterpillar only if you already own it.",
           "buy_borrow_hold_off": "buy",
-          "gift_suitable": true,
+          "gift_suitable": false,
           "gift_note": "Cute gift angle without feeling like a jewellery kit.",
           "ownership_note": "Different format from open bead crates - complements rather than duplicates.",
           "safety_notes": "Supervised play only. Brand age 18 months+. Cord length is the main hazard - stay beside them and put cords away after play.",
-          "rating_value": 4.8,
-          "rating_count": 223,
+          "rating_value": null,
+          "rating_count": null,
           "rating_source": "Amazon UK global ratings (B0BB23Y1B7)",
           "review_quality_note": "Very strong rating; themes praise wood quality, fruit size and fine-motor focus.",
-          "evidence_tier": "strong",
+          "evidence_tier": "emerging",
           "evidence_sources": [
-            "https://global.hape.com/caterpillar-fruit-feast-set-e1072",
             "https://www.amazon.co.uk/dp/B0BB23Y1B7"
           ],
           "preloved_suitability": "good",
           "preloved_signal_note": "Wooden fruit holds up; check paint and leaf stoppers.",
           "substitute_if_unavailable": "Djeco Filacolor Lacing Beads",
-          "founder_qa_flag": "check_stock",
-          "display_status": "visible",
+          "founder_qa_flag": "check_url",
+          "display_status": "backup",
           "locked_for_non_members": false,
           "rank_rationale": "#2 over #3: narrative fruit threading gives a clearer finished-line job than plain shape beads, and the 4.8/223 rating depth beats specialist-only Djeco evidence.",
           "evidence_notes": "Brand URL smoke 200 and buyable 2026-07-22. Age from Hape 18M+ mark. Ratings from Amazon UK listing.",
@@ -4333,6 +4321,13 @@
             "buyable": true,
             "signals": []
           },
+          "url_status": "cleared_non_uk",
+          "top_pick_rank": 2,
+          "product_url": "https://daisydaisydirect.co.uk/play-time/djeco-filacolour-lacing-beads-dj06160.html",
+          "summary_reason": "Second UK Djeco stockist for pick #3.",
+          "missed_top5_reason": "Duplicate SKU of Top Pick #3 — useful only if Tickety-Boo is out.",
+          "caveat_short": "Second UK Djeco stockist for pick #3.",
+          "included_in_top_5": true,
           "description": "Large wooden fruit pieces to feed along a caterpillar lace, so threading has a finished line to show you as they practise guiding each piece.",
           "why_pip_picked_this": "Some children need a story reason to keep lacing, not another loose bead tub. Fruit pieces along a caterpillar give a finished picture to show you, which keeps concentration going to the end. Storybook threading at nearly three, with a finish they are proud of."
         },
@@ -4597,33 +4592,6 @@
           "locked_for_non_members": false
         },
         {
-          "longlist_rank": 7,
-          "status": "backup",
-          "top_pick_rank": null,
-          "product_name": "Filacolor Lacing Beads (Daisy Daisy)",
-          "brand": "Djeco",
-          "retailer": "Djeco",
-          "product_url": "https://daisydaisydirect.co.uk/play-time/djeco-filacolour-lacing-beads-dj06160.html",
-          "url_checked_date": "2026-07-22",
-          "stock_status": "unknown",
-          "price_text": "£11.90",
-          "age_mark_on_listing": "18 months+",
-          "summary_reason": "Second UK Djeco stockist for pick #3.",
-          "rank_rationale": "Ranked #7 behind Halilit because it duplicates pick #3 rather than adding a new play format.",
-          "missed_top5_reason": "Duplicate SKU of Top Pick #3 — useful only if Tickety-Boo is out.",
-          "best_for_tag": "Best for alternate stockist",
-          "evidence_tier": "emerging",
-          "rating_value": null,
-          "rating_count": null,
-          "buy_borrow_hold_off": "buy",
-          "gift_suitable": false,
-          "caveat_short": "Second UK Djeco stockist for pick #3.",
-          "included_in_top_5": false,
-          "display_status": "backup",
-          "public_rank": null,
-          "locked_for_non_members": false
-        },
-        {
           "longlist_rank": 8,
           "status": "backup",
           "top_pick_rank": null,
@@ -4657,7 +4625,6 @@
           "product_name": "Les Toupitis Wooden Lacing Beads",
           "brand": "Moulin Roty",
           "retailer": "Moulin Roty",
-          "product_url": "https://pinwheelshop.com/en/baby-toddler-toys/lacing-threading-toys/adorable-colourful-chunky-wooden-lacing-beads-les-toupitis.html",
           "url_checked_date": "2026-07-22",
           "stock_status": "unknown",
           "price_text": "about £28",
@@ -4675,7 +4642,10 @@
           "included_in_top_5": false,
           "display_status": "backup",
           "public_rank": null,
-          "locked_for_non_members": false
+          "locked_for_non_members": false,
+          "founder_qa_flag": "check_url",
+          "url_status": "cleared_non_uk",
+          "product_url": ""
         },
         {
           "longlist_rank": 10,
@@ -4995,7 +4965,9 @@
         }
       ],
       "errors": [],
-      "warnings": [],
+      "warnings": [
+        "Expected at least 10 dormant backups after visible 5, got 9"
+      ],
       "ingestion_ready": "pass"
     },
     {
@@ -5539,7 +5511,6 @@
           "product_name": "Time Timer MOD Home Edition",
           "brand": "Time Timer",
           "retailer": "Time Timer Europe",
-          "product_url": "https://timetimer-europe.com/products/time-timer-mod-home-edition",
           "url_checked_date": "2026-07-22",
           "stock_status": "in_stock",
           "price_text": "EUR 37.95 approx.",
@@ -5556,7 +5527,10 @@
           "included_in_top_5": false,
           "display_status": "backup",
           "public_rank": 12,
-          "locked_for_non_members": false
+          "locked_for_non_members": false,
+          "founder_qa_flag": "check_url",
+          "url_status": "cleared_non_uk",
+          "product_url": ""
         },
         {
           "longlist_rank": 13,

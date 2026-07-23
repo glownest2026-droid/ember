@@ -17,6 +17,7 @@ import {
   checkDocumentAvailability,
 } from './stage3-availability-check.mjs';
 import { bannedHits } from './lib/stage3-banned-copy.mjs';
+import { ukMarketFailReasons } from './lib/stage3-uk-market.mjs';
 
 const repoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -552,6 +553,17 @@ async function checkDocument(filePath, { skipSmoke, skipAvailability, band }) {
       // Top-5 mirrors may omit if top_picks carry rationale; still require for 6-10 backups
       if (lr >= 6) categoryFails.push(`longlist_${lr}_rank_rationale_missing`);
     }
+    // UK market: every longlist/backup row that carries a URL must be UK-buyable (not Top 5 only).
+    const llUrl = row.product_url || row.url;
+    if (nonEmpty(llUrl)) {
+      const ukFails = ukMarketFailReasons(llUrl, {
+        priceText: row.price_text || row.price_gbp || row.price || '',
+        requireUrl: true,
+      });
+      for (const reason of ukFails) {
+        categoryFails.push(`longlist_${lr || 'x'}_${reason}`);
+      }
+    }
   }
 
   const seenTags = new Set();
@@ -587,6 +599,12 @@ async function checkDocument(filePath, { skipSmoke, skipAvailability, band }) {
     fail.push(...ratingGate(pick));
     fail.push(...bestForOk(pick.best_for_tag, seenTags));
     fail.push(...howPickFails(pick));
+    fail.push(
+      ...ukMarketFailReasons(pick.product_url || pick.url, {
+        priceText: pick.price_text || pick.price_gbp || pick.price || '',
+        requireUrl: true,
+      }),
+    );
 
     const ageGate = evaluateAgeGate(pick, months);
     if (ageGate.result === 'fail' || ageGate.result === 'unknown') {

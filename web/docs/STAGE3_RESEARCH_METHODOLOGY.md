@@ -106,6 +106,17 @@ Rules:
 4. If Amazon search no longer returns the ASIN, treat it as dead — swap primary immediately.
 5. **Browse offers CTA:** when `product_url` is a non-Amazon brand/specialist URL, open that URL. Do not force Google Shopping in that case — Shopping often ranks the same dead Amazon ASIN first and recreates the broken journey. Amazon primaries still use Shopping.
 
+### UK market (founder 2026-07-23 — dollars / zero-review US catalogs)
+
+**Every Stage 3 recommendation (Top Picks and longlist/backups with a URL) must be UK-buyable.** US manufacturer catalogs with `$` prices and empty review widgets (e.g. `kids2.com`, `manhattantoy.com`) are trust-busting even when research JSON claims UK ratings elsewhere.
+
+Rules:
+
+1. Primary `product_url` must be `*.co.uk` / known UK-facing host — never US brand shop, `amazon.com`, Google Shopping search stubs, or Wirecutter affiliate redirects.
+2. Price text must not be USD-only (`$` / `USD` without `£` / `GBP`).
+3. FF + ingest enforce via `agent-tools/scripts/lib/stage3-uk-market.mjs` on **all ranks**, not Top 5 only. Audit with `node agent-tools/scripts/stage3-uk-market-audit.mjs`.
+4. If a product has no credible UK buyable page, it cannot stay as a Top Pick — replace from UK longlist or leave empty and re-research. Do not point parents at US `$` pages.
+
 ### Execution
 
 - One full Mode A packet per category (Skill + methodology + trust gates). No compressed “fix the 404s” Tasks.
