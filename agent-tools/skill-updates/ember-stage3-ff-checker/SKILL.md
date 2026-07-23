@@ -50,7 +50,7 @@ node agent-tools/scripts/stage3-ff-check.mjs path/to/file.json --skip-smoke --no
 
 1. `schema_version` = `ember_picks_research_v3`
 2. Non-empty `buying_factor_memo`; `methodology` names bench → age → rank → URL
-3. Every Top Pick: `rank_rationale`, `age_signals[]`, `url_verification.primary_opens_product=true`, description, `ember_verdict`
+3. Every Top Pick: `rank_rationale`, `age_signals[]`, `url_verification.primary_opens_product=true`, Description (`product_description_under_30_words` **20–40 words**), `ember_verdict`
 4. Longlist ranks 6–10: `missed_top5_reason`
 5. Primary URL `url_ok` (HTTP 2xx/3xx) — fail closed (unless `--skip-smoke`)
 6. Primary **buyable today** — not retired/discontinued/notify-when-in-stock (`stage3-availability-check.mjs`); manufacturer alt showing retired fails cross-check
@@ -59,6 +59,7 @@ node agent-tools/scripts/stage3-ff-check.mjs path/to/file.json --skip-smoke --no
 9. Schema: 5 / 15 / ≥5 skips
 10. Unique short `Best for …` tags
 11. Parent fields pass Writing Guidelines bans (`web/docs/brand/WRITING_GUIDELINES.md`) — em dash, calm, worth buying, Fresh 20XX, Stage X, etc.
+12. Description word count **20–40** (legacy field name `product_description_under_30_words`; one Description only — no “What this is”)
 
 ## Outcomes
 

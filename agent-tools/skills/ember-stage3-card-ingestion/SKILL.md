@@ -107,7 +107,7 @@ For product-category Pip's Picks, require:
 - price/stock/source checked dates
 - evidence tiers
 - `best_for_tag`
-- `product_description_under_30_words`
+- `product_description_under_30_words` (**20–40 words**; legacy field name — one Description only)
 - `ember_verdict`
 - safety notes where relevant
 
@@ -128,7 +128,7 @@ Each visible pick should carry through:
 - retailer/source
 - price text when verified
 - product image URL or existing image strategy
-- `product_description_under_30_words` (unchanged)
+- `product_description_under_30_words` (unchanged; must already be 20–40 words)
 - `ember_verdict` (unchanged — Why Pip picked this)
 - gift / ownership / safety notes when present on the research row
 - evidence/QA flags for internal display or admin review, not noisy parent copy

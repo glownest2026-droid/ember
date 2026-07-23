@@ -11,7 +11,7 @@
 |---|---|---|
 | 1 | **FF pass first** | Automated Fastidious Founder gates pass before you spend second eyes. Fail → quarantine, not a soft HTML dump. |
 | 2 | **Every product has a working, buyable link** | Primary `product_url` opens the real product (HTTP smoke + availability + researcher `url_verification`). |
-| 3 | **Founder preview = proposed public content** | Age-band HTML shows links, titles, short descriptions, and **Why Pip picked this** (`ember_verdict`). |
+| 3 | **Founder preview = proposed public content** | Age-band HTML shows links, titles, **Description (20–40 words)**, and **Why Pip picked this** (`ember_verdict`). One Description only — no separate “What this is”. |
 | 4 | **Every row stands up to scrutiny** | “Why is this #1?” / “Why these top 5?” is answered from documented DB fields — never invented in chat. |
 | 5 | **Public copy approved at research** | Parent-facing fields in `inbox/` already follow `web/docs/brand/WRITING_GUIDELINES.md`. FF catches banned tells; **ingestion does not rewrite voice**. |
 
@@ -25,7 +25,7 @@
 | 1. Bench | Build 15-equal longlist with live URLs | 2, 4 |
 | 2. Age + safety | Capture `age_signals[]` from the listing | 1, 4 |
 | 3. Rank | Write `buying_factor_memo` + per-rank `rank_rationale` | 4 |
-| 4. Public copy | Title, short description, Why Pip — **shippable now** | 3, 5 |
+| 4. Public copy | Title, Description (**20–40 words**), Why Pip — **shippable now** | 3, 5 |
 | 5. WHAT proof | Brand/publisher primary; smoke + availability | 2 |
 | 6. Status | `pending-ff-check` only | 1 |
 | 7. FF | Deterministic gates + HOW + copy bans (second pass) | 1, 2, 4, 5 |

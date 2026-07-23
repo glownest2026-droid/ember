@@ -58,6 +58,26 @@ function nonEmpty(v) {
   return String(v ?? '').trim().length > 0;
 }
 
+function wordCount(text) {
+  return String(text || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+}
+
+/** Writing Guidelines: single Description is 20–40 words (field name is legacy). */
+function descriptionWordGate(pick) {
+  const reasons = [];
+  const desc = pick.product_description_under_30_words;
+  if (!nonEmpty(desc)) {
+    reasons.push('description_missing');
+    return reasons;
+  }
+  const n = wordCount(desc);
+  if (n < 20 || n > 40) reasons.push(`description_word_count_${n}_not_20_to_40`);
+  return reasons;
+}
+
 function parseArgs(argv) {
   const args = { ageBand: '', files: [], move: true, skipSmoke: false, skipAvailability: false };
   for (const a of argv) {
@@ -375,7 +395,7 @@ function howPickFails(pick) {
     if (!nonEmpty(uv.checked_at)) fails.push('url_verification_checked_at_missing');
     if (uv.primary_opens_product !== true) fails.push('url_verification_primary_opens_product_false');
   }
-  if (!nonEmpty(pick.product_description_under_30_words)) fails.push('description_missing');
+  fails.push(...descriptionWordGate(pick));
   if (!nonEmpty(pick.ember_verdict)) fails.push('ember_verdict_missing');
   if (!nonEmpty(pick.product_name)) fails.push('product_name_missing');
   return fails;

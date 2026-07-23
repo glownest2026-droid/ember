@@ -27,7 +27,7 @@ If Why Pip / descriptions fail the Writing Guidelines read-aloud test, **do not 
 
 - Working primary link (+ optional alt links)
 - Title / name + Best-for tag
-- Short description
+- **Description** (`product_description_under_30_words`, **20–40 words** — one field only)
 - **Why Pip picked this** (`ember_verdict`)
 - FF green badge
 

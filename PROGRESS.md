@@ -1,3 +1,11 @@
+## 2026-07-23 — Stage 3 Descriptions: 20–40 words (single field)
+
+- **Why:** compact Pip’s Picks card has one Description (not Description + “What this is”); prior copy was ~7–13 words
+- **Rule:** Writing Guidelines + FF + ingest enforce **20–40 words** on `product_description_under_30_words` (legacy name)
+- **Content:** all 35 Top Pick descriptions upgraded for 34–36m green research
+- **Migration:** `20260723140000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-desc-20-40-34-36m`
+- **Verify:** `/discover/35` → open any Pip’s Pick → Description reads as a full sentence or two (not a stub); Why Pip still in the drawer
+
 ## 2026-07-22 — Stage 3 Mode A: cat_feelings_faces_books (34–36m) re-research
 
 - **Why:** prior v2 file quarantined (404 Amazon primaries, unparsed age marks)

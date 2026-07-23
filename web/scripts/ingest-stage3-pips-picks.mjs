@@ -323,8 +323,13 @@ function normalizeResearch(filePath, forcedAgeBand, visibleCount = 5) {
     }
     if (!field(pick, 'product_description_under_30_words')) {
       errors.push(`Top pick missing product_description_under_30_words: ${field(pick, 'product_name', '(unnamed)')}`);
-    } else if (wordCount(pick.product_description_under_30_words) > 35) {
-      warnings.push(`Description over 30 words (soft): ${field(pick, 'product_name', '(unnamed)')}`);
+    } else {
+      const n = wordCount(pick.product_description_under_30_words);
+      if (n < 20 || n > 40) {
+        errors.push(
+          `Description must be 20–40 words (got ${n}): ${field(pick, 'product_name', '(unnamed)')}`,
+        );
+      }
     }
     if (!field(pick, 'ember_verdict')) errors.push(`Top pick missing ember_verdict: ${field(pick, 'product_name', '(unnamed)')}`);
     if (!field(pick, 'product_url') && founderQaFlag(pick) === 'none') {

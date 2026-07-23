@@ -60,7 +60,7 @@ function makePick(rank) {
     age_mark_on_listing: 'Ages 2–5',
     age_signals: ageSignals(),
     key_specs: {},
-    product_description_under_30_words: `Fixture description for product ${rank} used only in self-check.`,
+    product_description_under_30_words: `Fixture description for product ${rank} used only in self-check. It needs twenty to forty words so the Fastidious Founder description depth gate can pass on good fixtures.`,
     ember_verdict: `Why Pip picked fixture ${rank}: stage fit for nearly three talk-back without catalogue speak.`,
     rank_rationale: `Rank ${rank} because it beats rank ${rank + 1} on stage fit and review depth for this fixture category.`,
     why_it_fits: 'Fixture stage fit.',

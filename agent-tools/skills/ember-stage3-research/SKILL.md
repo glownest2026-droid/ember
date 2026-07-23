@@ -296,13 +296,20 @@ Do not reuse generic tags across all picks. Tags must help a parent choose.
 
 ## Copy rules
 
-Each Top Pick must include two descriptions.
+Each Top Pick has **two public copy fields** that match the live card (not two product summaries):
 
-### `product_description_under_30_words`
+1. **Description** — what it is (depth for the compact card body)
+2. **Why Pip picked this** — why it fits now
 
-A factual description of what the product is. Maximum 30 words. No developmental claims unless the product page itself makes them.
+Do **not** write a separate “What this is” field. The card shows one Description only.
 
-Example: `Four progressive cardboard jigsaws featuring Bluey, with 12, 16, 20 and 24 pieces.`
+### `product_description_under_30_words` (Description)
+
+Schema field name is legacy. The writing rule is **20–40 words** (hard). Follow **`web/docs/brand/WRITING_GUIDELINES.md`** Pip’s Picks card fields.
+
+Write what the product or story *is* in plain parent English — enough to picture the object without opening Why Pip. No developmental claims unless the product page itself makes them. Do not duplicate Why Pip.
+
+Example (28 words): `A set of large colourful wooden beads and shapes to thread onto a soft fabric lace, sized for little hands that are ready for a proper threading job at the table.`
 
 ### `ember_verdict`
 
@@ -310,9 +317,11 @@ Parent-facing “Why Pip picked this”. Follow **`web/docs/brand/WRITING_GUIDEL
 
 It should explain:
 
-- what the product or story is;
 - the positive skill or play vision;
+- why this pick fits this Stage 2 card;
 - an optional kind practical note.
+
+Do **not** restate the whole Description.
 
 Tone: British school-gate English. Warm, specific, playful where it fits. Positive vision first — never crisis framing.
 

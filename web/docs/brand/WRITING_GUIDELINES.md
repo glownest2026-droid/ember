@@ -181,7 +181,7 @@ Ember copy appears in many shapes: short UI labels, Discover cards, Pip’s Pick
 
 - **UI / buttons / labels:** shortest true phrase.
 - **Discover cards:** concrete idea + positive stage shift.
-- **Pip’s Picks:** product clarity + warm reason + optional kind practical note.
+- **Pip’s Picks:** see **Pip’s Picks card fields** below (single Description + Why Pip).
 - **Blogs / editorial:** fuller scenes, still school-gate English, still positive vision first.
 - **Notifications:** one helpful nudge, never panic.
 
@@ -191,6 +191,38 @@ Ember copy appears in many shapes: short UI labels, Discover cards, Pip’s Pick
 | Rearrangeable pictures so your child can see what comes next. | Rearrangeable pictures that are carefully designed to unlock independence in a stage-based way. |
 
 **Watch-out:** Repetition in the same setting feels careless. Say it once, well.
+
+---
+
+### Pip’s Picks card fields (match the live card)
+
+The compact Pip’s Picks card shows, in order: Best for · Title · Brand · **Description** · **Why Pip picked this** (drawer) · Browse offers.
+
+There is **one** Description on the card. Do **not** write a separate “What this is” line for research or HTML. Schema field name is still `product_description_under_30_words` (legacy); the writing rule is **20–40 words**.
+
+| Field | Job | Depth |
+|---|---|---|
+| **Description** (`product_description_under_30_words`) | What the product or story *is*, in plain parent English — enough to understand the object without opening Why Pip | **20–40 words** (hard rule) |
+| **Why Pip picked this** (`ember_verdict`) | Why it fits now — positive skill/play vision, warm and specific | Usually 2–4 short sentences; Writing Guidelines voice |
+
+**Description Do**
+
+- Name the object and what happens with it (or in the story).
+- Keep it concrete and recognisable.
+- Land between 20 and 40 words inclusive.
+
+**Description Don’t**
+
+- One short teaser under 20 words.
+- A second “What this is” field.
+- Repeating the Why Pip line almost word for word.
+- Em dashes, banned AI tells, crisis framing.
+
+**Pass example (20 words):**  
+A sensitive picture book about a little girl whose worry grows bigger and bigger until she learns to share it.
+
+**Pass example (threading, ~28 words):**  
+A set of large colourful wooden beads and shapes to thread onto a soft fabric lace, sized for little hands that are ready for a proper threading job.
 
 ---
 
@@ -268,6 +300,7 @@ Parents guide, play, and practise with babies and toddlers. Ember’s voice stay
 4. Fit explained without shopping orders?
 5. Sounds human (no generated tells)?
 6. Right shape for this content form, with no lazy repetition?
+6b. Pip’s Picks Description between **20 and 40 words** (one field only)?
 7. No research maths on the page?
 8. Respects the existing home?
 9. Safety plain and kind if needed?
@@ -278,82 +311,92 @@ Parents guide, play, and practise with babies and toddlers. Ember’s voice stay
 
 ## Part B — Principles in practice (5 full Pip’s Picks cards)
 
-These cards show the principles working together on one Ember surface. The same voice should transfer to blogs and other forms; only the length and structure change.
+These cards match the live compact card: Best for · Title · Brand · **Description (20–40 words)** · **Why Pip picked this**. No separate “What this is” field.
 
 ---
 
 ### Card 1 — Djeco Filacolor
 
-**Title:** Filacolor Lacing Beads
+**Title:** Filacolor Lacing Beads  
 
-**Description:** Chunky wooden shapes on a soft lace for little hands.
+**Brand:** Djeco  
 
-**What this is:** A set of large, colourful wooden beads and shapes to thread onto a fabric lace.
+**Best for:** Best for chunky first beads  
+
+**Description:** A set of large colourful wooden beads and shapes to thread onto a soft fabric lace, sized for little hands that are ready for a proper threading job at the table.  
 
 **Why Pip picked this:** Chunky wooden shapes on a soft lace, sized for little hands that enjoy a proper threading job. A lovely way to keep threading interesting as their concentration grows. Keep them company while they lace, as the cords love to tangle.
 
 **Why this works:**  
-The first sentence shows the product clearly. The second names a positive skill journey (concentration growing). The third adds a kind practical tip with a playful truth about tangle-y cords. A first-time reader can hear the warmth without needing any brand history.
+The Description tells you what is in the box in enough depth to picture it. Why Pip adds the skill journey and the playful cord tip. The two fields do different jobs and do not echo each other.
 
 ---
 
 ### Card 2 — Can You Share, Little Whale?
 
-**Title:** Can You Share, Little Whale?
+**Title:** Can You Share, Little Whale?  
 
-**Description:** Little Whale learns to share snacks, toys and attention with a friend.
+**Brand:** Jonny Lambert  
 
-**What this is:** A short picture book about kindness, turn-taking and joining in.
+**Best for:** Best for sharing rows  
+
+**Description:** A short sunny picture book where Little Whale learns to share snacks, toys and attention with a friend, told in warm words that suit bedtime and playdates.  
 
 **Why Pip picked this:** Little Whale learns to share snacks, toys and attention with a friend. A sunny bedtime read to help your child get better at sharing.
 
 **Why this works:**  
-Description and “What this is” do different jobs: one sketches the plot, the other names the book type and skills. The verdict stays short and positive. Nothing is repeated with a synonym for its own sake.
+Description carries the plot and format. Why Pip names the positive skill without repeating the whole blurb.
 
 ---
 
 ### Card 3 — Pip and Posy: The New Friend
 
-**Title:** Pip and Posy: The New Friend
+**Title:** Pip and Posy: The New Friend  
 
-**Description:** A warm Pip and Posy story about friendship and joining in.
+**Brand:** Camilla Reid & Axel Scheffler  
 
-**What this is:** A picture book where Posy finds Pip playing with someone new, then finds her feet again.
+**Best for:** Best for jealous moments  
+
+**Description:** A warm Pip and Posy picture book where Posy finds Pip playing with someone new, then finds her feet again in a story about friendship and joining in.  
 
 **Why Pip picked this:** Helps your child learn about situations where their best friend scuttles away to play with someone else. Posy finds her feet again, and the story stays warm and light the whole way through.
 
 **Why this works:**  
-The social moment is recognisable and told with playful British English (“scuttles away”). The second sentence keeps the mood kind, so the card feels supportive rather than heavy. The parent learns what the story is for without a shopping command.
+Description sets the scene. Why Pip brings the school-gate moment and the warm tone of the ending.
 
 ---
 
 ### Card 4 — Learning Resources Beads and Pattern Cards
 
-**Title:** Beads and Pattern Card Set
+**Title:** Beads and Pattern Card Set  
 
-**Description:** Threading with picture cards to copy as their focus grows.
+**Brand:** Learning Resources  
 
-**What this is:** Chunky beads plus picture cards that invite children to match a pattern on the lace.
+**Best for:** Best for copying patterns  
+
+**Description:** Chunky beads plus picture cards that invite children to copy a pattern on the lace, turning simple threading into a matching game as their focus grows.  
 
 **Why Pip picked this:** Picture cards turn threading into a matching game, to keep practice interesting as their concentration grows. A nice next step when they already like posting beads on a lace.
 
 **Why this works:**  
-Positive skill language leads. “Next step when they already like…” respects toys already in the home. The card explains fit through play, not through age-border maths or purchase pressure.
+Description explains the kit. Why Pip explains the fit and respects toys already in the home.
 
 ---
 
 ### Card 5 — Create Visual Aids Home Visual Timetable
 
-**Title:** Home Visual Timetable
+**Title:** Home Visual Timetable  
 
-**Description:** Rearrangeable pictures for morning and bedtime routines.
+**Brand:** Create Visual Aids  
 
-**What this is:** A set of rearrangeable routine pictures for the day at home.
+**Best for:** Best for whole-day routines  
+
+**Description:** A set of rearrangeable routine pictures for the day at home, so your child can see morning and bedtime steps in order and move the pieces as each job is done.  
 
 **Why Pip picked this:** Rearrangeable pictures for the day, so your child can see what comes next and feel proud of each step. A supportive way to help you build steady morning and bedtime routines together.
 
 **Why this works:**  
-Child pride and clarity come first. The parent line is partnership (“help you build… together”). The card stays universal and practical, with no talking-down vocabulary and no invented niche setup.
+Description is the product in use. Why Pip is partnership and pride — not a second product summary.
 
 ---
 
@@ -385,3 +428,4 @@ See `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` must-be-true #5.
 |---|---|
 | 2026-07-23 | v1 canonical — founder signed off after virtual copywriting school + Pip’s Picks feedback |
 | 2026-07-23 | Wired into Stage 3 research → FF → ingest (copy at source; ingest copy-faithful) |
+| 2026-07-23 | Pip’s Picks: single Description **20–40 words**; removed dual Description / What this is |

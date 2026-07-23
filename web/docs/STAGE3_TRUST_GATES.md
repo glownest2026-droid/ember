@@ -39,7 +39,7 @@
 | Age absent | Top Pick must have at least one structured age signal | Missing age → fail (unless founder-waived specialist) |
 | Schema counts | 5 Top Picks, 15 longlist, ≥5 skips (product categories) | Count mismatch |
 | Best-for | Unique tags; `Best for` + ≤6 words after prefix | Duplicate / feature-list tags |
-| Public copy | Non-empty title/name, `product_description_under_30_words`, `ember_verdict`; must pass Writing Guidelines bans (see `web/docs/brand/WRITING_GUIDELINES.md`) — incl. em dash, calm, worth buying, Fresh 20XX, Stage X. **Research must write this cleanly at source**; FF only validates. | Empty parent fields or banned phrasing |
+| Public copy | Non-empty title/name, `product_description_under_30_words` (**20–40 words**; legacy field name), `ember_verdict`; must pass Writing Guidelines bans (see `web/docs/brand/WRITING_GUIDELINES.md`) — incl. em dash, calm, worth buying, Fresh 20XX, Stage X. **One Description only** (no “What this is”). **Research must write this cleanly at source**; FF only validates. | Empty / outside 20–40 words / banned phrasing |
 
 ## Age signals (all product types)
 
