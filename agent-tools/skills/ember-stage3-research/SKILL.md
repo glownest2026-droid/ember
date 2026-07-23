@@ -67,11 +67,12 @@ Use when live web/research tools are available and the user wants the research c
 Run on every Top Pick before `inbox/`. This is the **root-cause** quality gate.
 
 1. Description **20–40 words** and alone makes the product clear (decode SKU jargon).
-2. Why Pip = need at this age + why this earns Top 5–10 + how it earns the Best for tag — **not** a paraphrase of Description.
-3. Best for comes to life in Description and/or Why Pip (implicitly or explicitly).
+2. Why Pip **40–60 words** = need at this age + why this earns Top 5–10 + how it suits the Best for *idea* — **not** a paraphrase of Description, and **never** say “tag” / “earns that tag”.
+3. Best for comes to life in Description and/or Why Pip without fourth-wall tag talk.
 4. No AI / money tells: low-stakes, quick wins, tight budgets, worth buying, calm as praise, em dashes, Stage X, Fresh 20XX, crisis framing.
-5. Unique product names across Top 5; at most one lookalike line from the same modular range (e.g. one Edx Step-A-* style title, not two).
-6. Writing Guidelines ship checklist + Conor five tests pass on a read-aloud.
+5. Unique product names across Top 5; at most one lookalike line from the same modular range; **at most two Top Picks from the same brand**.
+6. Prefer products findable on major UK retail / Google Shopping when quality is equal (Browse offers must land on the real pick, not a sea of lookalikes).
+7. Writing Guidelines ship checklist + Conor five tests pass on a read-aloud.
 
 FF may re-fail any of the above later — that means research skipped this checklist, not that FF should become the copywriter.
 
@@ -330,18 +331,21 @@ Parent-facing “Why Pip picked this” — the **rationalisation box**. Follow 
 
 It should:
 
-- ground the pick in the Stage 1 development need for this card;
-- make the **Best for…** tag feel earned (implicitly or explicitly);
-- add fit or a kind practical note the Description did not already say.
+- ground the pick in the need at this age for this card;
+- make the **Best for…** *idea* feel earned in parent language (**never** say “tag”);
+- add fit or a kind practical note the Description did not already say;
+- land at **40–60 words**.
 
 Do **not** restate the Description. Avoid AI tells: low-stakes, quick wins, tight budgets, worth buying, calm as praise, em dashes, Stage X, Fresh 20XX.
 
 ### Best for + Top 5 shape
 
-- Best for tags must come to life in Description and/or Why Pip.
+- Best for ideas must come to life in Description and/or Why Pip — without mentioning tags.
 - Unique product names in Top 5.
-- Do not put two near-identical SKUs from the same range (e.g. two Edx Step-A-* lines) in Top 5 — titles truncate and feel like duplicates.
-- Money tags: never “tight budgets”; prefer kinder UK parent language.
+- At most **two** Top Picks from the same brand.
+- Do not put two near-identical SKUs from the same range in Top 5.
+- Prefer major UK retail / Shopping-findable stockists when quality is equal.
+- Money labels: never “tight budgets”; prefer kinder UK parent language.
 
 ---
 

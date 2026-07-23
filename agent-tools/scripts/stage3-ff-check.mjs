@@ -200,6 +200,47 @@ function descriptionWordGate(pick) {
   return reasons;
 }
 
+/** Writing Guidelines: Why Pip is 40–60 words (research-owned; FF re-validates). */
+function whyPipWordGate(pick) {
+  const reasons = [];
+  const why = pick.ember_verdict;
+  if (!nonEmpty(why)) {
+    reasons.push('ember_verdict_missing');
+    return reasons;
+  }
+  const n = wordCount(why);
+  if (n < 40 || n > 60) reasons.push(`why_pip_word_count_${n}_not_40_to_60`);
+  return reasons;
+}
+
+/** Fourth-wall ban: never talk about “the tag” in parent copy. */
+function tagMetaTalkGate(pick) {
+  const reasons = [];
+  const blob = `${pick.product_description_under_30_words || ''} ${pick.ember_verdict || ''}`;
+  if (/\b(the tag|that tag|this tag|tag promises|earns that tag|earns the .+ tag)\b/i.test(blob)) {
+    reasons.push('tag_meta_talk_in_parent_copy');
+  }
+  return reasons;
+}
+
+/** At most two Top Picks from the same brand. */
+function brandConcentrationGate(topPicks) {
+  const reasons = [];
+  const counts = new Map();
+  for (const pick of topPicks) {
+    const brand = String(pick.brand || '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!brand) continue;
+    counts.set(brand, (counts.get(brand) || 0) + 1);
+  }
+  for (const [brand, n] of counts) {
+    if (n > 2) reasons.push(`brand_concentration_${n}_${brand.replace(/\s+/g, '_')}`);
+  }
+  return reasons;
+}
+
 function parseArgs(argv) {
   const args = { ageBand: '', files: [], move: true, skipSmoke: false, skipAvailability: false };
   for (const a of argv) {
@@ -518,6 +559,8 @@ function howPickFails(pick) {
     if (uv.primary_opens_product !== true) fails.push('url_verification_primary_opens_product_false');
   }
   fails.push(...descriptionWordGate(pick));
+  fails.push(...whyPipWordGate(pick));
+  fails.push(...tagMetaTalkGate(pick));
   fails.push(...bestForLivesGate(pick));
   fails.push(...descriptionVerdictDistinctGate(pick));
   if (!nonEmpty(pick.ember_verdict)) fails.push('ember_verdict_missing');
@@ -543,6 +586,7 @@ async function checkDocument(filePath, { skipSmoke, skipAvailability, band }) {
   if ((doc.skips || []).length < 5) categoryFails.push(`skips_below_5`);
   categoryFails.push(...uniqueTopPickNamesGate(topPicks));
   categoryFails.push(...nearDuplicateProductLineGate(topPicks));
+  categoryFails.push(...brandConcentrationGate(topPicks));
 
   for (const row of doc.longlist || []) {
     const lr = Number(row.longlist_rank);

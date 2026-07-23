@@ -1,38 +1,53 @@
 # Stage 3 research methodology (pilot)
 
-**Status:** locked 2026-07-22  
+**Status:** locked 2026-07-23 (Writing Guidelines at source)  
 **Audience:** founder + research agents  
-**Companion:** `web/docs/STAGE3_TRUST_GATES.md`  
+**Companion:** `web/docs/STAGE3_TRUST_GATES.md` · `web/docs/brand/WRITING_GUIDELINES.md`  
 **Schema:** `ember_picks_research_v3`
 
-## Four things that must be true (pilot success)
+## Root-cause rule (non-negotiable)
+
+**Fix quality at the highest upstream point.**
+
+| Layer | Owns | Does not own |
+|---|---|---|
+| **Writing Guidelines** + **`$ember-stage3-research`** | How parent copy is written; Top 5 shape; Best for ↔ explainer; Description vs Why Pip jobs | Waiting for a later gate to “catch” weak voice |
+| **`$ember-stage3-ff-checker`** | Deterministic **validation** (links, age, ratings, availability, HOW completeness, and a second-pass re-check that research already followed the copy rules) | Inventing or rewriting parent voice |
+| **Founder HTML / ingest** | Preview and faithful publish | Copywriting |
+
+If research leaves weak Description / Why Pip / Best for / lookalike Top 5, the fix is **Mode A re-research** — not a new FF inventiveness, not light polish into green, not ingest rewrite.
+
+## Five things that must be true (pilot success)
 
 | # | Must be true | In practice |
 |---|---|---|
 | 1 | **FF pass first** | Automated Fastidious Founder gates pass before you spend second eyes. Fail → quarantine, not a soft HTML dump. |
-| 2 | **Every product has a working link** | Primary `product_url` opens the real product (HTTP smoke + researcher `url_verification`). |
-| 3 | **Founder preview = proposed public content** | Age-band HTML shows links, titles, short descriptions, and **Why Pip picked this** (`ember_verdict`). |
+| 2 | **Every product has a working, buyable link** | Primary `product_url` opens the real product (HTTP smoke + availability + researcher `url_verification`). |
+| 3 | **Founder preview = proposed public content** | Age-band HTML shows links, titles, **Description (20–40 words)**, and **Why Pip picked this** (`ember_verdict`). One Description only — no separate “What this is”. |
 | 4 | **Every row stands up to scrutiny** | “Why is this #1?” / “Why these top 5?” is answered from documented DB fields — never invented in chat. |
+| 5 | **Public copy approved at research** | Parent-facing fields in `inbox/` already follow `web/docs/brand/WRITING_GUIDELINES.md` **and** the research ship checklist. FF only **re-validates**; **ingestion does not rewrite voice**. |
 
-**WHAT** = 2 + 3. **HOW** = 1 + 4.
+**WHAT** = 2 + 3 + 5. **HOW** = 1 + 4.
 
 ## Operating model
 
 | Step | What happens | Serves # |
 |---|---|---|
+| 0. Voice | Read Writing Guidelines; apply research ship checklist **before** any parent sentence | 5 |
 | 1. Bench | Build 15-equal longlist with live URLs | 2, 4 |
 | 2. Age + safety | Capture `age_signals[]` from the listing | 1, 4 |
 | 3. Rank | Write `buying_factor_memo` + per-rank `rank_rationale` | 4 |
-| 4. Public copy | Title, short description, Why Pip picked this | 3 |
-| 5. WHAT proof | Brand/publisher primary; smoke-ready | 2 |
+| 4. Public copy | Title, Description (**20–40 words**), Why Pip — **shippable now** (research-owned) | 3, 5 |
+| 5. WHAT proof | Brand/publisher primary; smoke + availability | 2 |
 | 6. Status | `pending-ff-check` only | 1 |
-| 7. FF | Deterministic gates + HOW completeness | 1, 2, 4 |
-| 8. Founder HTML | Proposed public content + HOW trail | 3, 4 |
+| 7. FF | Second-pass **validator** (evidence + re-check of research copy rules) | 1, 2, 4, 5 |
+| 8. Founder HTML | Proposed public content + HOW trail | 3, 4, 5 |
+| 9. Ingest | Map green JSON → DB/UI **without rewriting voice** | 5 |
 
 ## Review thresholds (canon)
 
-- Top Picks: `rating_value >= 4.4` **and** `rating_count >= 15`
-- Or `evidence_exemption: specialist` with a written reason (≥20 characters in `evidence_notes`)
+- Top Picks: `rating_value >= 4.4` **and** `rating_count >= 15` when count is present
+- Specialist exemption: written reason allowed when scrape is thin, but **cannot** excuse a SKU page that shows fewer than 15 reviews
 
 ## HOW fields (required documentation)
 
@@ -58,10 +73,12 @@ If the founder asks in chat “why #1 jigsaw?” or “why these five books?”,
 - Self-marking `production-ready` from research
 - Building founder HTML from `inbox/` or `quarantine/`
 - Promoting pre-v3 / `untrusted_drafts/` through FF as the new standard
+- **Rewriting parent voice at ingest** because research left weak copy
+- Leaving “worth buying / calm / em dash / Stage X / crisis framing” for a later pass to clean up
 
 ## Allowed path only
 
-Full Mode A `$ember-stage3-research` → `inbox/` → `$ember-stage3-ff-checker` → `green/` → `$ember-stage3-founder-review` → founder second eyes → (separate GO) ingest.
+Full Mode A `$ember-stage3-research` (Writing Guidelines at source) → `inbox/` → `$ember-stage3-ff-checker` (second pass) → `green/` → `$ember-stage3-founder-review` → founder second eyes → (separate GO) `$ember-stage3-card-ingestion` (**copy-faithful**).
 
 ## Pilot learnings (34–36m picture books → process upgrades)
 

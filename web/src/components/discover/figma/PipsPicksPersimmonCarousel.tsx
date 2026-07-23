@@ -132,11 +132,13 @@ function pickIcon(productName: string, categoryLabel: string): LucideIcon {
 }
 
 /**
- * Founder rule (bug bash 2026-07-19, item 5v): retailer CTAs never deep-link a
- * single retailer. Always send parents to Google Shopping so the journey
- * survives retailer stock/URL churn and shows live offers.
+ * Prefer the researched primary product page so parents land on the exact pick.
+ * Fall back to Google Shopping only when no primary URL exists.
+ * (Founder 2026-07-23: Shopping-only CTAs left niche picks ambiguous.)
  */
-function googleShoppingUrl(product: PipsPickProduct): string {
+function browseOffersUrl(product: PipsPickProduct): string {
+  const primary = String(product.product_url || '').trim();
+  if (/^https?:\/\//i.test(primary)) return primary;
   const query = [product.brand, product.name].filter(Boolean).join(' ');
   return `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(query)}`;
 }
@@ -299,7 +301,7 @@ function PickCardBody({
   return (
     <div
       ref={rootRef}
-      className={`relative z-10 flex min-h-0 w-full flex-1 flex-col overflow-hidden px-4 py-3.5 transition duration-300 md:h-full md:p-[18px] ${
+      className={`relative z-10 flex min-h-0 w-full flex-col overflow-hidden px-4 py-3.5 transition duration-300 md:h-auto md:p-[18px] ${
         locked ? 'pointer-events-none select-none opacity-30 blur-[12px] grayscale' : ''
       }`}
     >
@@ -860,7 +862,7 @@ export function PipsPicksPersimmonCarousel({
         </button>
 
       <div
-        className={`relative min-h-0 flex-1 overflow-hidden rounded-[28px] md:h-[680px] md:max-w-none ${styles.trackShell}`}
+        className={`relative min-h-0 flex-1 overflow-hidden rounded-[28px] md:min-h-[520px] md:h-auto md:max-h-[720px] md:max-w-none ${styles.trackShell}`}
         style={enable3d ? { perspective: '1200px' } : undefined}
       >
         {/* Ambient orbs — recolour with the active pick's accent */}
@@ -881,7 +883,7 @@ export function PipsPicksPersimmonCarousel({
         />
         <div
           ref={trackRef}
-          className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-stretch overflow-x-auto px-[calc(50vw_-_150px)] pt-2 [scrollbar-width:none] md:items-center md:px-[calc(50%_-_185px)] md:pb-10 md:pt-2 ${
+          className={`absolute inset-0 z-10 flex snap-x snap-mandatory items-center overflow-x-auto px-[calc(50vw_-_150px)] pt-2 [scrollbar-width:none] md:items-center md:px-[calc(50%_-_185px)] md:pb-10 md:pt-2 ${
             // Short-phone: keep a thin reserve for dots / Start over — not a dark empty band.
             bottomNavVisible ? 'pb-[72px]' : 'pb-[48px]'
           }`}
@@ -890,7 +892,7 @@ export function PipsPicksPersimmonCarousel({
           {displayPicks.map((pick, index) => {
             const rank = index + 1;
             const locked = lockedFlags[index];
-            const url = googleShoppingUrl(pick.product);
+            const url = browseOffersUrl(pick.product);
             const fields = getDisplayFields(pick, childDisplayLabel);
             const accent = pickAccent(index);
 
@@ -898,12 +900,12 @@ export function PipsPicksPersimmonCarousel({
               <div
                 key={`${pick.product.id}-${rank}`}
                 data-pips-card-wrapper
-                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-stretch justify-center self-stretch py-0 md:h-[600px] md:max-h-[600px] md:w-[370px] md:flex-[0_0_370px] md:self-center md:py-1"
+                className="relative flex w-[300px] flex-[0_0_300px] snap-center items-stretch justify-center self-center py-0 md:h-auto md:max-h-[640px] md:w-[370px] md:flex-[0_0_370px] md:self-center md:py-1"
                 style={enable3d ? { transformStyle: 'preserve-3d' } : undefined}
               >
                 <article
                   data-pips-card
-                  className={`relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[28px] text-white transition-transform duration-150 md:rounded-[32px] ${styles.glassCard}`}
+                  className={`relative flex h-auto min-h-0 w-full flex-col overflow-hidden rounded-[28px] text-white transition-transform duration-150 md:rounded-[32px] ${styles.glassCard}`}
                   style={
                     {
                       '--accent': accent.accent,
@@ -1010,7 +1012,7 @@ export function PipsPicksPersimmonCarousel({
               key={`${pick.product.id}-expanded`}
               fields={{
                 ...getDisplayFields(pick, childDisplayLabel),
-                url: googleShoppingUrl(pick.product),
+                url: browseOffersUrl(pick.product),
                 rank: expandedIndex + 1,
                 total: renderedPicks.length,
               }}

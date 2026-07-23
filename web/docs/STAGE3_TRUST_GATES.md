@@ -21,25 +21,26 @@
 4. **Brand/specialist primary URLs** preferred; Amazon/Argos are alternates until smoke + age attributes pass. **Preflight** candidate URLs before locking Top 5 (`stage3-url-preflight.mjs`); swap primary on 403/429.
 5. **No compressed / light-repair path to green.** Link-only fixes, “fix the 404s” Task packets, and patching quarantine JSON without a full Mode A `$ember-stage3-research` run are **banned**. Prior JSON may be used only as *name hints*; every URL, age signal, rating, and rank must be re-earned under schema v3.
 6. **Age-mark hygiene:** do not store Waterstones-style “Interest age: From 5 years” or bare “Ages 3+” in `age_mark_on_listing` for bands with `min_months < 36` — use structured overlapping `age_signals` (see methodology).
+7. **Root cause upstream:** parent-copy quality (Description, Why Pip, Best for, Top 5 shape, voice bans) is **owned by research + Writing Guidelines**. FF **re-validates** those rules; it does not invent or rewrite voice. See methodology “Root-cause rule”.
 
 ## Hard gates (Top Picks)
 
-| Gate | Pass rule | Fail |
-|---|---|---|
-| Schema | `schema_version` = `ember_picks_research_v3` | Older schema → reject |
-| HOW (category) | Non-empty `buying_factor_memo`; `methodology` names bench → age → rank → URL verify | Missing / vague |
-| HOW (picks) | Every Top Pick has non-empty `rank_rationale`, structured `age_signals[]`, `url_verification` | Missing → fail |
-| HOW (longlist 6–10) | Each has non-empty `missed_top5_reason` | Missing → fail |
-| URL | Primary `product_url` returns HTTP 2xx/3xx on smoke check | Dead, timeout, or unverified → cannot be Top Pick |
-| Availability | Primary page is **buyable today** — not retired, discontinued, or notify-when-in-stock | `deprecated` / `unbuyable` / fetch failed → cannot be Top Pick |
-| Alternate cross-check | Manufacturer alt showing **retired product** fails even if retailer primary loads | Retired on brand alt → fail |
-| Reviews | `rating_value >= 4.4` **and** `rating_count >= 15` | Below either threshold |
-| Specialist exemption | Explicit `evidence_exemption: specialist` + written reason; **SKU `rating_count` still must be ≥15 when present** (no brand-aggregate excuse for a 1-review product page) | Brand fame alone / single 5★ with &lt;15 reviews on this SKU |
-| Age overlap | Listing age signals overlap the Ember band (see below) | No overlap or safety exclusion conflicts |
-| Age absent | Top Pick must have at least one structured age signal | Missing age → fail (unless founder-waived specialist) |
-| Schema counts | 5 Top Picks, 15 longlist, ≥5 skips (product categories) | Count mismatch |
-| Best-for | Unique tags; `Best for` + ≤6 words after prefix | Duplicate / feature-list tags |
-| Public copy | Non-empty title/name, `product_description_under_30_words`, `ember_verdict`; must pass Writing Guidelines bans (see `web/docs/brand/WRITING_GUIDELINES.md`) — incl. em dash, calm, worth buying, Fresh 20XX, Stage X | Empty parent fields or banned phrasing |
+| Gate | Pass rule | Fail | Owned by |
+|---|---|---|---|
+| Schema | `schema_version` = `ember_picks_research_v3` | Older schema → reject | FF |
+| HOW (category) | Non-empty `buying_factor_memo`; `methodology` names bench → age → rank → URL verify | Missing / vague | Research writes; FF validates |
+| HOW (picks) | Every Top Pick has non-empty `rank_rationale`, structured `age_signals[]`, `url_verification` | Missing → fail | Research writes; FF validates |
+| HOW (longlist 6–10) | Each has non-empty `missed_top5_reason` | Missing → fail | Research writes; FF validates |
+| URL | Primary `product_url` returns HTTP 2xx/3xx on smoke check | Dead, timeout, or unverified → cannot be Top Pick | FF |
+| Availability | Primary page is **buyable today** — not retired, discontinued, or notify-when-in-stock | `deprecated` / `unbuyable` / fetch failed → cannot be Top Pick | FF |
+| Alternate cross-check | Manufacturer alt showing **retired product** fails even if retailer primary loads | Retired on brand alt → fail | FF |
+| Reviews | `rating_value >= 4.4` **and** `rating_count >= 15` | Below either threshold | Research selects; FF validates |
+| Specialist exemption | Explicit `evidence_exemption: specialist` + written reason; **SKU `rating_count` still must be ≥15 when present** | Brand fame alone / single 5★ with &lt;15 reviews on this SKU | Research declares; FF validates |
+| Age overlap | Listing age signals overlap the Ember band (see below) | No overlap or safety exclusion conflicts | Research captures; FF validates |
+| Age absent | Top Pick must have at least one structured age signal | Missing age → fail (unless founder-waived specialist) | Research captures; FF validates |
+| Schema counts | 5 Top Picks, 15 longlist, ≥5 skips (product categories) | Count mismatch | Research; FF validates |
+| Best-for | Unique tags; `Best for` + ≤6 words after prefix; tag must land in Description/Why Pip | Duplicate / feature-list / orphan tag | **Research (root)**; FF re-checks |
+| Public copy | Description **20–40 words** (legacy field name); Why Pip ≠ Description echo; Writing Guidelines bans; unique Top 5 names; no near-duplicate product lines. Written cleanly in `inbox/` | Empty / outside 20–40 / echo / banned / duplicate | **Research (root)**; FF re-checks |
 
 ## Age signals (all product types)
 

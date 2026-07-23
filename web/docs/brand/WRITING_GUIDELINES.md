@@ -203,15 +203,17 @@ There is **one** Description on the card. Do **not** write a separate “What th
 | Field | Job | Depth |
 |---|---|---|
 | **Description** (`product_description_under_30_words`) | Explain **exactly what the product is** in plain parent English — object, format, and how you use it. A parent must understand the thing without opening Why Pip or tapping Browse offers. | **20–40 words** (hard rule) |
-| **Why Pip picked this** (`ember_verdict`) | The **rationalisation box**: why this earns a Top 5–10 place now — grounded in the Stage 1 development need for this card, and how it earns the **Best for…** tag. | Usually 2–4 short sentences; Writing Guidelines voice |
+| **Why Pip picked this** (`ember_verdict`) | The **rationalisation box** — the glue members pay for: need at this age → why this product → why it suits the Best for label (without saying “tag”). | **40–60 words** (hard rule) |
 
 **Hard rules (Pip’s Picks)**
 
-1. **Best for must come to life** — the tag’s job must appear in Description and/or Why Pip (implicitly or explicitly). If the tag says “portable routines”, the explainer must make portability feel real.
+1. **Best for must come to life** — explain the idea in Description and/or Why Pip (e.g. open choices, portable routines). Never meta-talk about “the tag”, “earns that tag”, or “what the tag promises” — that breaks the fourth wall.
 2. **No lazy echo** — Description and Why Pip must do different jobs. If Why Pip mostly restates the Description, rewrite Why Pip.
 3. **Ambiguous product names** — if the title is a brand SKU (e.g. Step-A-Stumps), the Description must decode it into ordinary words (nestable plastic platforms you step on, with a carry bag).
 4. **One distinct product per Top 5 slot** — no duplicate titles; avoid two near-identical lines from the same range that only differ by a truncated SKU name.
-5. **Respect on money tags** — never “tight budgets”. Prefer “smaller budgets”, “trying path play first”, or similar kinder UK parent language.
+5. **Respect on money labels** — never “tight budgets”. Prefer “smaller budgets”, “trying path play first”, or similar kinder UK parent language.
+6. **Brand concentration** — at most **two** Top Picks from the same brand. Prefer products parents can find on major UK retail / Google Shopping when quality is equal (Browse offers must not strand them in a sea of lookalikes).
+7. **Why Pip depth** — **40–60 words**. Shorter rarely knits need + product + Best for idea together.
 
 **Description Do**
 
@@ -230,14 +232,17 @@ There is **one** Description on the card. Do **not** write a separate “What th
 
 **Why Pip Do**
 
-- Knit together: Stage 1 need → this product → why the Best for tag is fair.
+- Knit together: need at this age → this product → why the Best for idea is fair (in parent language, not “tag” talk).
 - Add fit, play moment, or a kind practical note the Description did not already say.
+- Land between **40 and 60 words** inclusive.
 
 **Why Pip Don’t**
 
 - Paraphrase the Description.
 - Lead with shopping orders.
+- Mention tags (“earns that tag”, “the tag promises”).
 - Use AI tells (low-stakes, quick wins, worth buying, calm as praise, etc.).
+- Stay under 40 words when the insight needs room.
 
 **Pass example (20 words):**  
 A sensitive picture book about a little girl whose worry grows bigger and bigger until she learns to share it.
@@ -323,8 +328,9 @@ Parents guide, play, and practise with babies and toddlers. Ember’s voice stay
 6. Right shape for this content form, with no lazy repetition?
 6b. Pip’s Picks Description between **20 and 40 words** (one field only)?
 6c. Description alone makes the product clear (no CTA needed to understand it)?
-6d. Why Pip earns the Best for tag and Stage 1 need — without echoing Description?
-6e. No money-shame tags (“tight budgets”) or AI tells (low-stakes, quick wins, …)?
+6d. Why Pip between **40 and 60 words**, earns the Best for *idea* without saying “tag”, and does not echo Description?
+6e. No money-shame labels (“tight budgets”) or AI tells (low-stakes, quick wins, …)?
+6f. At most two Top Picks from the same brand; findable on major UK retail / Shopping when quality is equal?
 7. No research maths on the page?
 8. Respects the existing home?
 9. Safety plain and kind if needed?
@@ -454,3 +460,4 @@ See `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` must-be-true #5.
 | 2026-07-23 | Wired into Stage 3 research → FF → ingest (copy at source; ingest copy-faithful) |
 | 2026-07-23 | Pip’s Picks: single Description **20–40 words**; removed dual Description / What this is |
 | 2026-07-23 | Pip’s Picks: Best for must land; Description vs Why Pip jobs; decode SKUs; ban tight budgets / low-stakes / quick wins |
+| 2026-07-23 | Why Pip **40–60 words**; never say “tag”; max two same brand; prefer Shopping-findable stockists |
