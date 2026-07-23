@@ -53,14 +53,14 @@
       "best_for_tag": "Best for mixed pass games",
       "product_name": "INPODAK Pack of 4 Toddler Balls",
       "brand": "INPODAK",
-      "retailer": "Bigamart",
-      "product_url": "https://bigamart.com/product/inpodak-pack-of-4-toddler-balls-with-pump-mini-basketball-mini-football-mini-playground-ball-mini-rugby-for-kids-toy-sports-ball-suitable-for-toddler-indoor-outdoor-play/",
+      "retailer": "Amazon UK",
+      "product_url": "https://www.amazon.co.uk/dp/B087F8T3S1",
       "alternate_urls": [],
       "image_url": "",
       "url_checked_date": "2026-07-20",
       "stock_status": "in_stock",
       "price_amount": 40.81,
-      "price_text": "£40.81",
+      "price_text": "£17.99",
       "currency": "GBP",
       "price_checked_date": "2026-07-20",
       "age_mark_on_listing": "1-3 years",
@@ -80,17 +80,17 @@
       "rating_source": "Amazon US (via Bigamart)",
       "review_quality_note": "",
       "evidence_tier": "strong",
-      "evidence_sources": [
-        "https://bigamart.com/product/inpodak-pack-of-4-toddler-balls-with-pump-mini-basketball-mini-football-mini-playground-ball-mini-rugby-for-kids-toy-sports-ball-suitable-for-toddler-indoor-outdoor-play/"
-      ],
+      "evidence_sources": [],
       "preloved_suitability": "good",
       "preloved_signal_note": "",
       "substitute_if_unavailable": "Any set of small, soft PVC sports balls.",
-      "founder_qa_flag": "none",
+      "founder_qa_flag": "check_reviews",
       "display_status": "visible",
       "public_rank": 1,
       "locked_for_non_members": false,
-      "evidence_notes": ""
+      "evidence_notes": "",
+      "url": "https://www.amazon.co.uk/dp/B087F8T3S1",
+      "price_gbp": 17.99
     },
     {
       "rank": 2,
@@ -143,10 +143,10 @@
       "status": "pick",
       "longlist_rank": 8,
       "best_for_tag": "Best for gentle kick passes",
-      "product_name": "Soft Foam Football Size 3 Assortment",
-      "brand": "Smyths Toys",
-      "retailer": "Smyths Toys",
-      "product_url": "https://www.smythstoys.com/uk/en-gb/search/?q=soft+foam+football",
+      "product_name": "HTI Fun Sport 20cm Soft Foam Football",
+      "brand": "HTI Fun Sport",
+      "retailer": "Amazon UK",
+      "product_url": "https://www.amazon.co.uk/dp/B0C5MYMN7Y",
       "alternate_urls": [],
       "image_url": "",
       "url_checked_date": "2026-07-20",
@@ -172,17 +172,17 @@
       "rating_source": "Smyths Toys",
       "review_quality_note": "",
       "evidence_tier": "strong",
-      "evidence_sources": [
-        "https://www.smythstoys.com/uk/en-gb/search/?q=soft+foam+football"
-      ],
+      "evidence_sources": [],
       "preloved_suitability": "good",
       "preloved_signal_note": "",
       "substitute_if_unavailable": "Any size 3 soft foam football.",
-      "founder_qa_flag": "none",
+      "founder_qa_flag": "check_reviews",
       "display_status": "visible",
       "public_rank": 3,
       "locked_for_non_members": false,
-      "evidence_notes": ""
+      "evidence_notes": "Replaced Smyths Toys search stub (not a product page) with Amazon UK HTI Fun Sport soft foam football B0C5MYMN7Y.",
+      "url": "https://www.amazon.co.uk/dp/B0C5MYMN7Y",
+      "price_gbp": 4.99
     },
     {
       "rank": 4,
@@ -282,12 +282,16 @@
       "longlist_rank": 1,
       "product_name": "INPODAK Pack of 4 Toddler Balls",
       "brand": "INPODAK",
-      "product_url": "https://bigamart.com/product/inpodak-pack-of-4-toddler-balls-with-pump-mini-basketball-mini-football-mini-playground-ball-mini-rugby-for-kids-toy-sports-ball-suitable-for-toddler-indoor-outdoor-play/",
+      "product_url": "https://www.amazon.co.uk/dp/B087F8T3S1",
       "price_amount": 40.81,
-      "price_text": "£40.81",
+      "price_text": "£17.99",
       "include_status": "top_pick",
       "reason": "Multi-ball set, smaller and lighter, suitable for shared play and easy for toddler hands.",
-      "skip_reason": ""
+      "skip_reason": "",
+      "url": "https://www.amazon.co.uk/dp/B087F8T3S1",
+      "retailer": "Amazon UK",
+      "price_gbp": 17.99,
+      "founder_qa_flag": "check_reviews"
     },
     {
       "longlist_rank": 2,
@@ -357,14 +361,19 @@
     },
     {
       "longlist_rank": 8,
-      "product_name": "Soft Foam Football Size 3 Assortment",
-      "brand": "Smyths Toys",
-      "product_url": "https://www.smythstoys.com/uk/en-gb/search/?q=soft+foam+football",
+      "product_name": "HTI Fun Sport 20cm Soft Foam Football",
+      "brand": "HTI Fun Sport",
+      "product_url": "https://www.amazon.co.uk/dp/B0C5MYMN7Y",
       "price_amount": 4.99,
       "price_text": "£4.99",
       "include_status": "top_pick",
       "reason": "Soft foam, gentle, size 3 is often suitable for younger children.",
-      "skip_reason": ""
+      "skip_reason": "",
+      "url": "https://www.amazon.co.uk/dp/B0C5MYMN7Y",
+      "retailer": "Amazon UK",
+      "price_gbp": 4.99,
+      "founder_qa_flag": "check_reviews",
+      "evidence_notes": "Replaced Smyths Toys search stub (not a product page) with Amazon UK HTI Fun Sport soft foam football B0C5MYMN7Y."
     },
     {
       "longlist_rank": 9,
@@ -535,5 +544,6 @@
     "backups_card_ready": false,
     "required_fix_before_ingestion": [],
     "founder_review_notes": ""
-  }
+  },
+  "uk_market_eradication_at": "2026-07-23"
 }

@@ -79,9 +79,7 @@
       "rating_source": "Amazon UK",
       "review_quality_note": "Highly rated across multiple retailers and editorial sites.",
       "evidence_tier": "strong",
-      "evidence_sources": [
-        "https://www.mumsnet.com/swearsby/best-potties"
-      ],
+      "evidence_sources": [],
       "preloved_suitability": "good",
       "preloved_signal_note": "Hard plastic is easy to sterilise.",
       "substitute_if_unavailable": "BabyBjörn Smart Potty",
@@ -125,9 +123,7 @@
       "rating_source": "Amazon UK",
       "review_quality_note": "Strong reviews for compact size and ease of cleaning.",
       "evidence_tier": "strong",
-      "evidence_sources": [
-        "https://www.mumsnet.com/swearsby/best-potties"
-      ],
+      "evidence_sources": [],
       "preloved_suitability": "good",
       "preloved_signal_note": "Hard plastic is easy to sterilise.",
       "substitute_if_unavailable": "Boots Baby Potty",
@@ -171,9 +167,7 @@
       "rating_source": "Amazon UK",
       "review_quality_note": "Praised for its unique pouring design.",
       "evidence_tier": "strong",
-      "evidence_sources": [
-        "https://www.mumsnet.com/swearsby/best-potties"
-      ],
+      "evidence_sources": [],
       "preloved_suitability": "good",
       "preloved_signal_note": "Hard plastic is easy to sterilise.",
       "substitute_if_unavailable": "Boots Baby Potty",
@@ -218,7 +212,6 @@
       "review_quality_note": "Award-winning and highly recommended by parents for travel.",
       "evidence_tier": "strong",
       "evidence_sources": [
-        "https://www.mumsnet.com/swearsby/best-potties",
         "https://www.johnlewis.com/browse/baby-child/bathing-changing/baby-changing/potties/_/N-nth8Z1z0reba"
       ],
       "preloved_suitability": "good",
@@ -264,9 +257,7 @@
       "rating_source": "Amazon UK",
       "review_quality_note": "Highly rated for portability and dual function.",
       "evidence_tier": "strong",
-      "evidence_sources": [
-        "https://www.mumsnet.com/swearsby/best-potties"
-      ],
+      "evidence_sources": [],
       "preloved_suitability": "good",
       "preloved_signal_note": "Hard plastic is easy to sterilise.",
       "substitute_if_unavailable": "Ingenuity Foldaway Travel Potty",

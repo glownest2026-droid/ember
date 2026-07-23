@@ -1,3 +1,21 @@
+## 2026-07-23 — Eradicate non-UK Stage 3 recommendations (all ranks)
+
+- **Founder catch:** Bright Starts Safari mirror on `kids2.com` ($ / 0 reviews); Manhattan Toy Winkel on `manhattantoy.com` ($ / no reviews). Ordered full eradication — not Top 5-only audit.
+- **Root cause:** research/ingest accepted any https primary; FF had no UK-market gate; brand-monopoly re-assortment introduced Kids2 US catalog as “diversity”
+- **Gate (permanent):** `agent-tools/scripts/lib/stage3-uk-market.mjs` — hard-fail US hosts, USD-only prices, Google/retailer search stubs, Wirecutter redirects, unlisted `.com`. Wired into **FF (Top + every longlist URL)** and **ingest (Top + backups)**. Audit: `node agent-tools/scripts/stage3-uk-market-audit.mjs` (0 fails = pass)
+- **Data:** URL swaps / clears across green research (all 4 pilot bands); scrubbed non-UK `evidence_sources`; re-ingest
+- **Migrations (applied):** `20260723261000`–`20260723261003` (1–3m / 28–30m / 31–33m / 34–36m); cache `20260723-uk-market-eradication`
+- **Docs:** `STAGE3_TRUST_GATES.md`, `STAGE3_RESEARCH_METHODOLOGY.md`, FF skill
+- **Verify:** `/discover/2` — Winkel + Safari mirror CTAs open Amazon UK (£), not US brand sites; `stage3-uk-market-audit.mjs` exits 0; no `kids2.com` / `manhattantoy.com` in latest migrations
+
+## 2026-07-23 — Stage 3 brand monopoly fix (mirrors + learning tower)
+
+- **Founder catch:** Done by Deer 4/5 on 1–3m baby mirrors; Learning Tower Company 4/5 on 31–33m towers — violates max-2-same-brand rule already in Guidelines/FF
+- **Root cause:** early research filled Top 5 from one brand’s SKU line; copy polish kept product identity; ingest did not refuse brand concentration
+- **Fix:** Mode A re-assortment — mirrors now 5 brands (Done by Deer, Taf Toys, Wee Gallery, Infantino, Bright Starts); towers now GLTC, LTC×1, Maxi-Cosi, Tutti Bambini, hauck. Extra same-brand SKUs → longlist. Ingest now **errors** if any brand >2 in Top N.
+- **Migrations (applied):** `20260723250000` (1–3m), `20260723250100` (31–33m); cache `20260723-brand-monopoly-fix`
+- **Verify:** `/discover/2` mirrors + `/discover/32` learning tower — five different brands each
+
 ## 2026-07-23 — Raise 1–3m / 28–30m / 31–33m Stage 3 to 34–36m copy bar
 
 - **Why:** Only 34–36m had been swept through Writing Guidelines + shared bans + Why Pip 40–60 / Description 20–40. Other pilot bands were older Manus/batch copy.

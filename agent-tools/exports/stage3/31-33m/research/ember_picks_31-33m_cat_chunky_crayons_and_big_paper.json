@@ -89,8 +89,7 @@
       "review_quality_note": "",
       "evidence_tier": "strong",
       "evidence_sources": [
-        "https://www.amazon.co.uk/CRAYOLA-MyFirst-Coloring-Toddlers-Multicolored/dp/B00BUIE8OU",
-        "https://www.thebump.com/a/crayons-for-toddlers"
+        "https://www.amazon.co.uk/CRAYOLA-MyFirst-Coloring-Toddlers-Multicolored/dp/B00BUIE8OU"
       ],
       "preloved_suitability": "good",
       "preloved_signal_note": "",
@@ -142,7 +141,6 @@
       "review_quality_note": "",
       "evidence_tier": "strong",
       "evidence_sources": [
-        "https://www.motherandbaby.com/reviews/toddler-toys/crayons-for-toddlers/",
         "https://www.amazon.co.uk/Crayola-Ultra-Clean-Washable-Crayons/dp/B00K44458S"
       ],
       "preloved_suitability": "poor",
@@ -195,8 +193,7 @@
       "review_quality_note": "Based on reviews for similar triangular crayons, as direct reviews for this specific product were limited.",
       "evidence_tier": "good",
       "evidence_sources": [
-        "https://www.hobbycraft.co.uk/happy-triangles-jumbo-crayons-12-pack/6314011000.html",
-        "https://www.thebump.com/a/crayons-for-toddlers"
+        "https://www.hobbycraft.co.uk/happy-triangles-jumbo-crayons-12-pack/6314011000.html"
       ],
       "preloved_suitability": "poor",
       "preloved_signal_note": "Crayons are consumables and often well-used; pre-loved might not offer the same quality or hygiene.",
@@ -297,8 +294,7 @@
       "review_quality_note": "",
       "evidence_tier": "strong",
       "evidence_sources": [
-        "https://www.amazon.co.uk/Honeysticks-100-Pure-Beeswax-Crayons/dp/B01I2GNSWU",
-        "https://www.motherandbaby.com/reviews/toddler-toys/crayons-for-toddlers/"
+        "https://www.amazon.co.uk/Honeysticks-100-Pure-Beeswax-Crayons/dp/B01I2GNSWU"
       ],
       "preloved_suitability": "poor",
       "preloved_signal_note": "Consumable item.",
@@ -414,12 +410,13 @@
       "longlist_rank": 10,
       "product_name": "Ooly Stars of the Sea Crayons",
       "brand": "Ooly",
-      "product_url": "https://www.ooly.com/products/stars-of-the-sea-crayons-set-of-6",
       "price_amount": 5.95,
       "price_text": "£5.95",
       "include_status": "longlist",
       "reason": "Novelty star shape can be engaging for toddlers, encouraging creative exploration.",
-      "skip_reason": ""
+      "skip_reason": "",
+      "founder_qa_flag": "check_url",
+      "url_status": "cleared_non_uk"
     },
     {
       "longlist_rank": 11,
@@ -541,5 +538,6 @@
     "backups_card_ready": false,
     "required_fix_before_ingestion": [],
     "founder_review_notes": ""
-  }
+  },
+  "uk_market_eradication_at": "2026-07-23"
 }

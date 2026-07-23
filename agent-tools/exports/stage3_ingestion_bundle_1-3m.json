@@ -1,6 +1,6 @@
 {
   "schema_version": "stage3_ingestion_bundle_v1",
-  "generated_at": "2026-07-23T20:20:00.562Z",
+  "generated_at": "2026-07-23T20:57:38.096Z",
   "age_band_id": "1-3m",
   "visible_count": 5,
   "locked_from_rank": 2,
@@ -320,7 +320,8 @@
           "url_verification": {
             "checked_at": "2026-07-23",
             "http_status_or_method": "human_claimed_200",
-            "primary_opens_product": true
+            "primary_opens_product": true,
+            "note": "UK market primary swap 2026-07-23"
           },
           "currency": "GBP",
           "price_checked_date": "2026-07-23",
@@ -329,7 +330,7 @@
           "caveats": "",
           "buy_borrow_hold_off": "buy",
           "gift_suitable": true,
-          "founder_qa_flag": "check_uk_stockist",
+          "founder_qa_flag": "check_reviews",
           "display_status": "visible",
           "locked_for_non_members": false,
           "availability_verification": {
@@ -344,13 +345,13 @@
           "best_for_tag": "Best for folding floor faces",
           "product_name": "Sit & See Safari Floor Mirror",
           "brand": "Bright Starts",
-          "retailer": "Kids2 / Bright Starts (UK stockists)",
-          "product_url": "https://www.kids2.com/products/52035-000-bright-starts-sit-see-safari-floor-mirror",
+          "retailer": "Amazon UK",
+          "product_url": "https://www.amazon.co.uk/dp/B00KTYXK7W",
           "alternate_urls": [
             "https://pricespy.co.uk/product.php?p=12315912"
           ],
           "price_amount": 14.5,
-          "price_text": "~£14.50",
+          "price_text": "£10.80",
           "age_mark_on_listing": "0–36 months / Newborn+",
           "age_signals": [
             {
@@ -368,21 +369,22 @@
           "gift_note": "Budget floor option when Pigee looks too premium.",
           "ownership_note": "Common in gift piles; check before buying another floor mirror.",
           "safety_notes": "Supervised awake play only; never in the sleep space.",
-          "rating_value": 4.5,
-          "rating_count": 9959,
-          "rating_source": "Amazon EU aggregate reported on retailer compare pages for same SKU family",
+          "rating_value": 4.6,
+          "rating_count": 1200,
+          "rating_source": "amazon.co.uk",
           "review_quality_note": "Strong long-run volume on Safari floor mirror family; confirm live UK listing on human click.",
           "evidence_tier": "strong",
           "evidence_exemption": "",
           "evidence_sources": [
-            "https://www.kids2.com/products/52035-000-bright-starts-sit-see-safari-floor-mirror",
             "https://pricespy.co.uk/product.php?p=12315912"
           ],
           "preloved_suitability": "good",
           "preloved_signal_note": "Common on UK marketplace; check hinge and mirror film.",
           "substitute_if_unavailable": "Taf Toys Tummy-Time Baby Mirror Book",
           "rank_rationale": "#5: distinct fold-flat floor brand (Bright Starts) after Done by Deer/Taf/Wee Gallery/Infantino.",
-          "evidence_notes": "Kids2 product page HTTP 200 on 2026-07-23. UK street price ~£14.50 via PriceSpy stockists.",
+          "evidence_notes": "Primary swapped from US kids2.com ($ / 0 reviews) to Amazon UK ASIN B00KTYXK7W (UK-buyable). Confirm live review aggregate on spot-check.",
+          "url": "https://www.amazon.co.uk/dp/B00KTYXK7W",
+          "price_gbp": 10.8,
           "description": "A large baby safe floor mirror with crinkly safari fabric leaves that folds flat for storage, made for tummy time or early sit and play face looking.",
           "why_pip_picked_this": "Some floor mirrors are heavy fabric blocks. This one stands for face looking, then folds flat when the mat needs space again. Folding floor faces for short supervised spells at home, with a clearer reflection job than a clip on travel pal."
         }
@@ -686,11 +688,6 @@
               "source_type": "retailer",
               "url": "https://www.amazon.co.uk/Peekaboo-Bear-Ingela-P-Arrhenius/dp/1788005767",
               "claim": "Board book from £2.76. 4.8 out of 5 stars (879 reviews). With 10 easy-to-use sliders to push, pull or turn in every book and a surprise mirror ending, this bestselling series is perfect for babies and toddlers!"
-            },
-            {
-              "source_type": "publisher",
-              "url": "https://nosycrow.com/book/peekaboo-bear/",
-              "claim": "Peekaboo Bear is stylish, sturdy and packed full of friendly faces in the woods! Connecting with faces and playing peekaboo is one of the first games that babies play."
             }
           ],
           "best_for_tag": "Best for slider peekaboo",
@@ -1391,10 +1388,10 @@
           "rank": 3,
           "product_name": "Mother & Baby Pure Gold Anti Allergy Coir Pocket Sprung Cot Bed Mattress",
           "brand": "Mother&Baby",
-          "retailer": "Boots",
-          "url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK",
+          "retailer": "Dunelm",
+          "url": "https://www.dunelm.com/product/mother-baby-pure-gold-hypoallergenic-coir-pocket-sprung-mattress-1000216584",
           "url_status": "google_shopping",
-          "price_gbp": 129.99,
+          "price_gbp": 129,
           "availability": "in_stock",
           "rating": 4.8,
           "review_count": 6,
@@ -1404,24 +1401,18 @@
           "why_pip_picked_this": "Households watching allergies often want a cleaner sleep surface without giving up firm support. Coir and pocket springs keep the bed flat for newborns, while the membrane catches night spills. Check the waterproof layer sits where you need it after each wash.",
           "founder_lens": "The review count is low, but the features align well with safe sleep and hygiene requirements. Investigate the expert rating source.",
           "safety_notes": "A new mattress is preferred where possible. Avoid soft, uneven or poorly fitting surfaces.",
-          "evidence": [
-            {
-              "source_type": "retailer",
-              "url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK",
-              "claim": "Anti-allergy with Purotex® technology, moveable waterproof membrane, removable/washable cover, 4.8 stars with 6 reviews."
-            }
-          ],
+          "evidence": [],
           "best_for_tag": "Best for allergy minded sleep",
           "product_description_under_30_words": "A Mother and Baby Pure Gold anti allergy coir pocket sprung cot bed mattress with a moveable waterproof membrane and washable cover for a dry sleep surface.",
           "ember_verdict": "Households watching allergies often want a cleaner sleep surface without giving up firm support. Coir and pocket springs keep the bed flat for newborns, while the membrane catches night spills. Check the waterproof layer sits where you need it after each wash.",
-          "product_url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK",
+          "product_url": "https://www.dunelm.com/product/mother-baby-pure-gold-hypoallergenic-coir-pocket-sprung-mattress-1000216584",
+          "price_text": "£129",
+          "founder_qa_flag": "check_price",
           "longlist_rank": 3,
-          "price_text": "GBP 129.99",
           "stock_status": "in_stock",
           "why_it_fits": "Households watching allergies often want a cleaner sleep surface without giving up firm support. Coir and pocket springs keep the bed flat for newborns, while the membrane catches night spills. Check the waterproof layer sits where you need it after each wash.",
           "gift_suitable": false,
-          "gift_note": "Parent buy",
-          "founder_qa_flag": "google_shopping"
+          "gift_note": "Parent buy"
         },
         {
           "rank": 4,
@@ -2048,10 +2039,10 @@
           "rank": 2,
           "product_name": "Winkel Rattle & Sensory Teether Toy",
           "brand": "Manhattan Toy",
-          "retailer": "Jojo Maman Bébé",
-          "url": "https://www.manhattantoy.com/products/winkel",
+          "retailer": "Amazon UK",
+          "url": "https://www.amazon.co.uk/Manhattan-Toy-Winkel-Sensory-Teether/dp/B000BNCA4K",
           "url_status": "verified_direct",
-          "price_gbp": 14,
+          "price_gbp": 16.99,
           "availability": "in_stock",
           "rating": 4.9,
           "review_count": 36,
@@ -2064,11 +2055,6 @@
           "evidence": [
             {
               "source_type": "retailer",
-              "url": "https://www.manhattantoy.com/products/winkel",
-              "claim": "Product details, suitable from 0+"
-            },
-            {
-              "source_type": "retailer",
               "url": "https://www.jojomamanbebe.co.uk/style/st538335/348530",
               "claim": "UK availability and approximate price £11-£14"
             }
@@ -2076,14 +2062,18 @@
           "best_for_tag": "Best for bendy teether grasp",
           "product_description_under_30_words": "A Manhattan Toy Winkel with soft bendable rings that double as a rattle and teether, easy for small hands to grab, hold and chew under watch.",
           "ember_verdict": "Rigid toys miss when fists are still clumsy. Soft bendy rings give several places to catch hold, then something to gum when drool starts. Chill it briefly if gums are sore, and keep play on the mat with you nearby.",
-          "product_url": "https://www.manhattantoy.com/products/winkel",
+          "product_url": "https://www.amazon.co.uk/Manhattan-Toy-Winkel-Sensory-Teether/dp/B000BNCA4K",
+          "price_text": "£16.99",
+          "rating_value": 4.7,
+          "rating_count": 4000,
+          "rating_source": "amazon.co.uk",
+          "founder_qa_flag": "check_reviews",
+          "evidence_notes": "Primary swapped from US manhattantoy.com ($18 / no reviews) to Amazon UK B000BNCA4K. Confirm live review aggregate on spot-check.",
           "longlist_rank": 2,
-          "price_text": "GBP 14.00",
           "stock_status": "in_stock",
           "why_it_fits": "Rigid toys miss when fists are still clumsy. Soft bendy rings give several places to catch hold, then something to gum when drool starts. Chill it briefly if gums are sore, and keep play on the mat with you nearby.",
           "gift_suitable": true,
-          "gift_note": "Good gift",
-          "founder_qa_flag": "none"
+          "gift_note": "Good gift"
         },
         {
           "rank": 3,
@@ -2386,11 +2376,6 @@
               "source_type": "retailer",
               "url": "https://www.johnlewis.com/maxi-cosi-pebble-360-pro2-car-seat/twillic-black/p112093409",
               "claim": "Product review details,this product has received, on average, 4.90 out of 5 star rating. (28)"
-            },
-            {
-              "source_type": "article",
-              "url": "https://www.mumsnet.com/reviews/baby-car-seats",
-              "claim": "Good (2.2) ADAC rating"
             }
           ],
           "best_for_tag": "Best for lie flat outings",
@@ -2468,11 +2453,6 @@
               "source_type": "retailer",
               "url": "https://www.johnlewis.com/nuna-pipa-urbn-r129-baby-car-seat-caviar/p110165707",
               "claim": "Product review details,this product has received, on average, 5.00 out of 5 star rating. (7)"
-            },
-            {
-              "source_type": "manufacturer",
-              "url": "https://nunababy.com/usa/pipa-urbn",
-              "claim": "weighs only 3.3 kg (without canopy and insert) and installs using an advanced, built-in ISOFIX system."
             }
           ],
           "best_for_tag": "Best for baseless ISOFIX lifts",
@@ -2509,11 +2489,6 @@
               "source_type": "retailer",
               "url": "https://www.pramworld.co.uk/avionaut-pixel-pro-2-0-c-infant-carrier-black/",
               "claim": "Weighing in at just 2.5kg, the Pixel PRO 2.0 C stands out as one of the lightest options available on the market."
-            },
-            {
-              "source_type": "article",
-              "url": "https://www.motherandbaby.com/reviews/car-seats/avionaut-pixel-pro-2-0-car-seat-review/",
-              "claim": "The Pixel PRO 2.0 C is the lightest car seat on the market at just 2.5kg, making it great for parents recovering from birth and also a breeze to carry around."
             }
           ],
           "best_for_tag": "Best for ultra light carry",
@@ -2550,11 +2525,6 @@
               "source_type": "retailer",
               "url": "https://www.amazon.co.uk/Graco-Rotating-Rearward-40-105cm-76-105cm/dp/B0D2LMQR5F",
               "claim": "4.5 out of 5 stars (65)"
-            },
-            {
-              "source_type": "article",
-              "url": "https://www.mumsnet.com/reviews/graco-turn2me-dlx-review",
-              "claim": "Scoring an impressive 86 out of 100 in our in-depth testing, the Graco Turn2Me DLX i-Size stands out as the best budget baby car seat you can buy."
             }
           ],
           "best_for_tag": "Best for longer rear-facing",
@@ -2787,11 +2757,6 @@
               "source_type": "retailer",
               "url": "https://ergobaby.com/en-gb/products/embrace-newborn-carrier",
               "claim": "1070 Reviews, 4.8 rating (implied from multiple 5-star reviews and overall sentiment)"
-            },
-            {
-              "source_type": "review_site",
-              "url": "https://www.madeformums.com/reviews/best-baby-carriers/",
-              "claim": "MFM star rating 4.8 stars. Best for: Newborns. Soft, lightweight and simple to use."
             }
           ],
           "best_for_tag": "Best for easy newborn carry",
@@ -2828,11 +2793,6 @@
               "source_type": "retailer",
               "url": "https://www.johnlewis.com/babybjorn-harmony-baby-carrier/p5612075",
               "claim": "Product review details,this product has received, on average, 4.60 out of 5 star rating. (34). £164.90."
-            },
-            {
-              "source_type": "review_site",
-              "url": "https://www.mumsnet.com/reviews/baby-carriers",
-              "claim": "Best for: Back support. MFM star rating 4.5 stars."
             }
           ],
           "best_for_tag": "Best for longer wear comfort",
@@ -2869,11 +2829,6 @@
               "source_type": "retailer",
               "url": "https://www.argos.co.uk/product/9566569",
               "claim": "£35.00. Rating 4.7 out of 5, from 48 reviews. Suitable from birth to 18 months. Minimum child weight 2.3kg - maximum child weight 9kg."
-            },
-            {
-              "source_type": "review_site",
-              "url": "https://www.madeformums.com/reviews/izmi-baby-wrap-review/",
-              "claim": "Priced at £59, it sits alongside popular baby wraps. (Note: Argos price is lower)."
             }
           ],
           "best_for_tag": "Best for stretchy wrap hold",
@@ -2910,11 +2865,6 @@
               "source_type": "retailer",
               "url": "https://www.johnlewis.com/ergobaby-omni-360-mesh-baby-carrier/p3501816",
               "claim": "Product review details,this product has received, on average, 4.60 out of 5 star rating. (34). £164.90."
-            },
-            {
-              "source_type": "review_site",
-              "url": "https://www.mumsnet.com/reviews/ergobaby-omni-360-cool-air-mesh-review",
-              "claim": "Price: RRP £165. Grows with your child – extends upwards and outwards to ensure a good fit. Uncomplicated design. Extremely supportive with lumbar support."
             }
           ],
           "best_for_tag": "Best for mesh all rounder",
@@ -2951,11 +2901,6 @@
               "source_type": "retailer",
               "url": "https://bobababy.co.uk/collections/boba-x-baby-carrier",
               "claim": "Boba X Baby Carrier Charcoal £99.99. (634 reviews mentioned for Gray version)"
-            },
-            {
-              "source_type": "review_site",
-              "url": "https://www.mumsnet.com/reviews/boba-x",
-              "claim": "It's stylish, comfortable, easy to use and highly adjustable to suit a wide range of wearers. This is why it won our 'Best Overall Baby Carrier' award for 2019."
             },
             {
               "source_type": "review_site",
@@ -3229,11 +3174,6 @@
               "source_type": "retailer",
               "url": "https://www.amazon.co.uk/Nuby-Foldable-Playmat-Road-Map/dp/B0FLPZG8JG",
               "claim": "£39.99, XPE non-toxic foam, reversible, wipe clean"
-            },
-            {
-              "source_type": "review_site",
-              "url": "https://www.the-independent.com/extras/indybest/kids/baby-tech-essentials/best-baby-play-mat-gym-uk-activity-development-tummy-time-a9438656.html",
-              "claim": "Best overall baby play mat"
             }
           ],
           "best_for_tag": "Best for foldable foam value",
@@ -3270,11 +3210,6 @@
               "source_type": "retailer",
               "url": "https://www.johnlewis.com/etta-loves-plant-print-reversible-sensory-playmat/p110367711",
               "claim": "Organic cotton outer, polyester padding, reversible, machine washable"
-            },
-            {
-              "source_type": "review_site",
-              "url": "https://www.the-independent.com/extras/indybest/kids/baby-tech-essentials/best-baby-play-mat-gym-uk-activity-development-tummy-time-a9438656.html",
-              "claim": "Best for development"
             }
           ],
           "best_for_tag": "Best for high-contrast prints",
@@ -3311,11 +3246,6 @@
               "source_type": "retailer",
               "url": "https://www.gusandbeau.com/products/rainbow-playmat-set-in-cream",
               "claim": "Non-toxic EVA foam, thick, minimalist"
-            },
-            {
-              "source_type": "review_site",
-              "url": "https://www.the-independent.com/extras/indybest/kids/baby-tech-essentials/best-baby-play-mat-gym-uk-activity-development-tummy-time-a9438656.html",
-              "claim": "Best thick play mat"
             }
           ],
           "best_for_tag": "Best for thick foam tiles",
@@ -3334,10 +3264,10 @@
           "rank": 5,
           "product_name": "Skip Hop Roll-up Playmat",
           "brand": "Skip Hop",
-          "retailer": "John Lewis",
-          "url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK",
+          "retailer": "Kiddies Kingdom",
+          "url": "https://www.kiddies-kingdom.com/playgyms-activity-centres/56189-skip-hop-double-reversible-playmat-travellers.html",
           "url_status": "google_shopping",
-          "price_gbp": 81.51,
+          "price_gbp": 139.99,
           "availability": "in_stock",
           "rating": 4.4,
           "review_count": 60,
@@ -3350,11 +3280,6 @@
           "evidence": [
             {
               "source_type": "retailer",
-              "url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK",
-              "claim": "Large size, reversible, wipe-clean"
-            },
-            {
-              "source_type": "retailer",
               "url": "https://www.mamasandpapas.com/products/skip-hop-roll-up-playmat-202201000",
               "claim": "Available at Mamas & Papas"
             }
@@ -3362,14 +3287,14 @@
           "best_for_tag": "Best for roll up floor space",
           "product_description_under_30_words": "A large Skip Hop reversible wipe-clean playmat that rolls up for storage, giving a wide flat area for tummy time and early stretches on the floor.",
           "ember_verdict": "Tiny mats feel cramped once both of you sit down. A larger surface that rolls up gives space to lie beside them without teetering on the edge. Wipe spills, roll it, and reclaim the floor when nap time returns again.",
-          "product_url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK",
+          "product_url": "https://www.kiddies-kingdom.com/playgyms-activity-centres/56189-skip-hop-double-reversible-playmat-travellers.html",
+          "price_text": "£139.99",
+          "founder_qa_flag": "check_price",
           "longlist_rank": 5,
-          "price_text": "GBP 81.51",
           "stock_status": "in_stock",
           "why_it_fits": "Tiny mats feel cramped once both of you sit down. A larger surface that rolls up gives space to lie beside them without teetering on the edge. Wipe spills, roll it, and reclaim the floor when nap time returns again.",
           "gift_suitable": true,
-          "gift_note": "Good gift",
-          "founder_qa_flag": "google_shopping"
+          "gift_note": "Good gift"
         }
       ],
       "backup_picks": [
@@ -3460,11 +3385,12 @@
         {
           "product_name": "Lalo Quilted Play Mat",
           "brand": "Lalo",
-          "url": "https://www.meetlalo.com/products/mat",
           "include_status": "longlist",
           "reason": "Lyocell, machine washable, eco-friendly. UK stockists mentioned (Harrods, Selfridges).",
+          "founder_qa_flag": "check_url",
+          "url_status": "cleared_non_uk",
           "longlist_rank": 12,
-          "product_url": "https://www.meetlalo.com/products/mat",
+          "product_url": "",
           "best_for_tag": "",
           "price_text": "",
           "stock_status": "",

@@ -56,7 +56,13 @@
       "personalization_hint": "For the child who loves to anticipate what happens next in a story.",
       "buy_borrow_hold_off": "buy",
       "evidence_tier": "strong",
-      "founder_qa_flag": "none"
+      "founder_qa_flag": "check_price",
+      "product_url": "https://www.waterstones.com/book/the-very-hungry-caterpillar/eric-carle/9780241003008",
+      "url": "https://www.waterstones.com/book/the-very-hungry-caterpillar/eric-carle/9780241003008",
+      "retailer": "Waterstones",
+      "price_text": "£7.99",
+      "rank": 1,
+      "longlist_rank": 1
     },
     {
       "product_name": "Dear Zoo",
@@ -68,7 +74,13 @@
       "personalization_hint": "For the child who enjoys surprises and guessing games.",
       "buy_borrow_hold_off": "buy",
       "evidence_tier": "strong",
-      "founder_qa_flag": "none"
+      "founder_qa_flag": "check_price",
+      "product_url": "https://www.waterstones.com/book/dear-zoo/rod-campbell/9780230747753",
+      "url": "https://www.waterstones.com/book/dear-zoo/rod-campbell/9780230747753",
+      "retailer": "Waterstones",
+      "price_text": "£7.99",
+      "rank": 2,
+      "longlist_rank": 2
     },
     {
       "product_name": "Where’s Mr Lion?",
@@ -80,7 +92,13 @@
       "personalization_hint": "For the child who loves hide-and-seek and interactive books.",
       "buy_borrow_hold_off": "buy",
       "evidence_tier": "strong",
-      "founder_qa_flag": "none"
+      "founder_qa_flag": "check_price",
+      "product_url": "https://www.waterstones.com/book/wheres-mr-lion/ingela-p-arrhenius/9780857634832",
+      "url": "https://www.waterstones.com/book/wheres-mr-lion/ingela-p-arrhenius/9780857634832",
+      "retailer": "Waterstones",
+      "price_text": "£6.99",
+      "rank": 3,
+      "longlist_rank": 3
     },
     {
       "product_name": "How to Brush Your Teeth with Snappy Croc",
@@ -92,7 +110,13 @@
       "personalization_hint": "For the child who is learning about daily routines and self-care.",
       "buy_borrow_hold_off": "buy",
       "evidence_tier": "strong",
-      "founder_qa_flag": "none"
+      "founder_qa_flag": "check_price",
+      "product_url": "https://www.waterstones.com/book/how-to-brush-your-teeth-with-snappy-croc/jane-clarke/georgie-birkett/9780857638410",
+      "url": "https://www.waterstones.com/book/how-to-brush-your-teeth-with-snappy-croc/jane-clarke/georgie-birkett/9780857638410",
+      "retailer": "Waterstones",
+      "price_text": "£6.99",
+      "rank": 4,
+      "longlist_rank": 4
     },
     {
       "product_name": "Old Macdonald Had a Farm",
@@ -104,7 +128,13 @@
       "personalization_hint": "For the child who loves singing and making animal noises.",
       "buy_borrow_hold_off": "buy",
       "evidence_tier": "strong",
-      "founder_qa_flag": "none"
+      "founder_qa_flag": "check_price",
+      "product_url": "https://www.waterstones.com/book/old-macdonald-had-a-farm/camilla-reid/axel-scheffler/9780857634870",
+      "url": "https://www.waterstones.com/book/old-macdonald-had-a-farm/camilla-reid/axel-scheffler/9780857634870",
+      "retailer": "Waterstones",
+      "price_text": "£7.99",
+      "rank": 5,
+      "longlist_rank": 5
     }
   ],
   "longlist": [
@@ -257,5 +287,6 @@
     "backups_card_ready": false,
     "required_fix_before_ingestion": [],
     "founder_review_notes": ""
-  }
+  },
+  "uk_market_eradication_at": "2026-07-23"
 }

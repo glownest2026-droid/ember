@@ -86,11 +86,6 @@
           "source_type": "retailer",
           "url": "https://www.amazon.co.uk/Nuby-Foldable-Playmat-Road-Map/dp/B0FLPZG8JG",
           "claim": "£39.99, XPE non-toxic foam, reversible, wipe clean"
-        },
-        {
-          "source_type": "review_site",
-          "url": "https://www.the-independent.com/extras/indybest/kids/baby-tech-essentials/best-baby-play-mat-gym-uk-activity-development-tummy-time-a9438656.html",
-          "claim": "Best overall baby play mat"
         }
       ],
       "best_for_tag": "Best for foldable foam value",
@@ -120,11 +115,6 @@
           "source_type": "retailer",
           "url": "https://www.johnlewis.com/etta-loves-plant-print-reversible-sensory-playmat/p110367711",
           "claim": "Organic cotton outer, polyester padding, reversible, machine washable"
-        },
-        {
-          "source_type": "review_site",
-          "url": "https://www.the-independent.com/extras/indybest/kids/baby-tech-essentials/best-baby-play-mat-gym-uk-activity-development-tummy-time-a9438656.html",
-          "claim": "Best for development"
         }
       ],
       "best_for_tag": "Best for high-contrast prints",
@@ -154,11 +144,6 @@
           "source_type": "retailer",
           "url": "https://www.gusandbeau.com/products/rainbow-playmat-set-in-cream",
           "claim": "Non-toxic EVA foam, thick, minimalist"
-        },
-        {
-          "source_type": "review_site",
-          "url": "https://www.the-independent.com/extras/indybest/kids/baby-tech-essentials/best-baby-play-mat-gym-uk-activity-development-tummy-time-a9438656.html",
-          "claim": "Best thick play mat"
         }
       ],
       "best_for_tag": "Best for thick foam tiles",
@@ -170,10 +155,10 @@
       "rank": 5,
       "product_name": "Skip Hop Roll-up Playmat",
       "brand": "Skip Hop",
-      "retailer": "John Lewis",
-      "url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK",
+      "retailer": "Kiddies Kingdom",
+      "url": "https://www.kiddies-kingdom.com/playgyms-activity-centres/56189-skip-hop-double-reversible-playmat-travellers.html",
       "url_status": "google_shopping",
-      "price_gbp": 81.51,
+      "price_gbp": 139.99,
       "availability": "in_stock",
       "rating": 4.4,
       "review_count": 60,
@@ -186,11 +171,6 @@
       "evidence": [
         {
           "source_type": "retailer",
-          "url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK",
-          "claim": "Large size, reversible, wipe-clean"
-        },
-        {
-          "source_type": "retailer",
           "url": "https://www.mamasandpapas.com/products/skip-hop-roll-up-playmat-202201000",
           "claim": "Available at Mamas & Papas"
         }
@@ -198,7 +178,9 @@
       "best_for_tag": "Best for roll up floor space",
       "product_description_under_30_words": "A large Skip Hop reversible wipe-clean playmat that rolls up for storage, giving a wide flat area for tummy time and early stretches on the floor.",
       "ember_verdict": "Tiny mats feel cramped once both of you sit down. A larger surface that rolls up gives space to lie beside them without teetering on the edge. Wipe spills, roll it, and reclaim the floor when nap time returns again.",
-      "product_url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK"
+      "product_url": "https://www.kiddies-kingdom.com/playgyms-activity-centres/56189-skip-hop-double-reversible-playmat-travellers.html",
+      "price_text": "£139.99",
+      "founder_qa_flag": "check_price"
     }
   ],
   "longlist": [
@@ -233,9 +215,14 @@
     {
       "product_name": "Skip Hop Roll-up Playmat",
       "brand": "Skip Hop",
-      "url": "https://www.google.com/search?tbm=shop&q=Skip+Hop+Roll-up+Playmat+UK",
+      "url": "https://www.kiddies-kingdom.com/playgyms-activity-centres/56189-skip-hop-double-reversible-playmat-travellers.html",
       "include_status": "top_pick",
-      "reason": "Large size, reversible, wipe-clean. Portable and spacious."
+      "reason": "Large size, reversible, wipe-clean. Portable and spacious.",
+      "product_url": "https://www.kiddies-kingdom.com/playgyms-activity-centres/56189-skip-hop-double-reversible-playmat-travellers.html",
+      "retailer": "Kiddies Kingdom",
+      "price_text": "£139.99",
+      "price_gbp": 139.99,
+      "founder_qa_flag": "check_price"
     },
     {
       "product_name": "Tiny Love Meadow Days Super Play Mat",
@@ -282,9 +269,10 @@
     {
       "product_name": "Lalo Quilted Play Mat",
       "brand": "Lalo",
-      "url": "https://www.meetlalo.com/products/mat",
       "include_status": "longlist",
-      "reason": "Lyocell, machine washable, eco-friendly. UK stockists mentioned (Harrods, Selfridges)."
+      "reason": "Lyocell, machine washable, eco-friendly. UK stockists mentioned (Harrods, Selfridges).",
+      "founder_qa_flag": "check_url",
+      "url_status": "cleared_non_uk"
     },
     {
       "product_name": "Totter + Tumble Morris & Co. The Bullerswood Stone Woad Playmat",
@@ -350,5 +338,6 @@
     "For Totter + Tumble products, verify specific model availability and pricing on John Lewis as their website sometimes has different stock/offers. Ensure the 'washable' aspect is clearly communicated, as some are wipe-clean only, which is acceptable but should be noted.",
     "For products listed as 'wipe-clean' rather than 'machine washable', ensure this distinction is clear in the product description to manage parent expectations.",
     "Consider adding a note about the importance of checking dimensions for playmats, as 'standard' or 'compact' can vary significantly between brands and impact suitability for different home sizes."
-  ]
+  ],
+  "uk_market_eradication_at": "2026-07-23"
 }

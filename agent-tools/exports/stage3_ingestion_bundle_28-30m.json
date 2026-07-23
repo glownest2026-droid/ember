@@ -1,6 +1,6 @@
 {
   "schema_version": "stage3_ingestion_bundle_v1",
-  "generated_at": "2026-07-23T19:56:06.352Z",
+  "generated_at": "2026-07-23T20:57:38.347Z",
   "age_band_id": "28-30m",
   "visible_count": 5,
   "locked_from_rank": 2,
@@ -66,7 +66,6 @@
           "evidence_tier": "good",
           "evidence_sources": [
             "https://www.amazon.co.uk/When-Feel-Surprised-First-Feelings/dp/1786287498",
-            "https://www.goodreads.com/en/book/show/127563582-when-i-feel-surprised",
             "https://www.waterstones.com/book/when-i-feel-surprised/paula-bowles/childs-play/9781786287496"
           ],
           "preloved_suitability": "good",
@@ -521,8 +520,7 @@
           "review_quality_note": "",
           "evidence_tier": "strong",
           "evidence_sources": [
-            "https://www.waterstones.com/book/press-here/herve-tullet/9781452178592",
-            "https://www.mumsnet.com/swearsby/best-books-for-two-year-olds"
+            "https://www.waterstones.com/book/press-here/herve-tullet/9781452178592"
           ],
           "preloved_suitability": "good",
           "preloved_signal_note": "",
@@ -618,8 +616,7 @@
           "review_quality_note": "",
           "evidence_tier": "good",
           "evidence_sources": [
-            "https://www.amazon.co.uk/Very-First-Things-Spot-Home/dp/147492209X",
-            "https://www.mumsnet.com/swearsby/best-books-for-two-year-olds"
+            "https://www.amazon.co.uk/Very-First-Things-Spot-Home/dp/147492209X"
           ],
           "preloved_suitability": "good",
           "preloved_signal_note": "",
@@ -667,8 +664,7 @@
           "review_quality_note": "",
           "evidence_tier": "strong",
           "evidence_sources": [
-            "https://www.amazon.co.uk/Oi-Frog-Friends/dp/1444910868",
-            "https://www.mumsnet.com/swearsby/best-books-for-two-year-olds"
+            "https://www.amazon.co.uk/Oi-Frog-Friends/dp/1444910868"
           ],
           "preloved_suitability": "good",
           "preloved_signal_note": "",
@@ -716,8 +712,7 @@
           "review_quality_note": "",
           "evidence_tier": "good",
           "evidence_sources": [
-            "https://www.amazon.co.uk/Tickle-Book-Ian-Whybrow/dp/0230747092",
-            "https://www.mumsnet.com/swearsby/best-books-for-two-year-olds"
+            "https://www.amazon.co.uk/Tickle-Book-Ian-Whybrow/dp/0230747092"
           ],
           "preloved_suitability": "good",
           "preloved_signal_note": "",
@@ -1059,8 +1054,8 @@
           "best_for_tag": "Best for busy helper detail",
           "product_name": "KidKraft Vintage Play Kitchen - White",
           "brand": "KidKraft",
-          "retailer": "KidKraft (direct)",
-          "product_url": "https://www.kidkraft.com/products/vintage-play-kitchen-white",
+          "retailer": "Amazon UK",
+          "product_url": "https://www.amazon.co.uk/dp/B004A2QTRC",
           "alternate_urls": [
             "https://www.wayfair.co.uk/children-nursery/sb1/kidkraft-play-kitchen-sets-c477003-a5843~6481.html"
           ],
@@ -1068,7 +1063,7 @@
           "url_checked_date": "2026-07-20",
           "stock_status": "in_stock",
           "price_amount": 259.99,
-          "price_text": "£259.99",
+          "price_text": "£119.99",
           "currency": "GBP",
           "price_checked_date": "2026-07-20",
           "age_mark_on_listing": "3+",
@@ -1092,18 +1087,17 @@
           "rating_source": "Amazon US (representative of global reviews)",
           "review_quality_note": "Extremely high volume of positive reviews globally, indicating widespread satisfaction and proven durability.",
           "evidence_tier": "strong",
-          "evidence_sources": [
-            "https://www.kidkraft.com/products/vintage-play-kitchen-white",
-            "https://www.parents.com/best-play-kitchens-8421405"
-          ],
+          "evidence_sources": [],
           "preloved_suitability": "excellent",
           "preloved_signal_note": "Very popular on second-hand markets due to its quality and longevity.",
           "substitute_if_unavailable": "Hape Wooden Play Kitchen",
-          "founder_qa_flag": "none",
+          "founder_qa_flag": "check_reviews",
           "display_status": "visible",
           "public_rank": 3,
           "locked_for_non_members": false,
           "evidence_notes": "",
+          "url": "https://www.amazon.co.uk/dp/B004A2QTRC",
+          "price_gbp": 119.99,
           "description": "A classic wooden play kitchen with hob, oven, sink, ice maker and phone details, so pretend cooking can stretch into longer helper scenes with storage for pots and pans.",
           "why_pip_picked_this": "Once short tea parties stick at nearly two and a half, extra detail keeps scenes going. Phone and ice maker bits invite more roles without you directing every step. Busy helper detail for children who already like standing at a pretend hob."
         },
@@ -1457,9 +1451,7 @@
           "rating_source": "Amazon UK",
           "review_quality_note": "Highly rated across multiple retailers and editorial sites.",
           "evidence_tier": "strong",
-          "evidence_sources": [
-            "https://www.mumsnet.com/swearsby/best-potties"
-          ],
+          "evidence_sources": [],
           "preloved_suitability": "good",
           "preloved_signal_note": "Hard plastic is easy to sterilise.",
           "substitute_if_unavailable": "BabyBjörn Smart Potty",
@@ -1505,9 +1497,7 @@
           "rating_source": "Amazon UK",
           "review_quality_note": "Strong reviews for compact size and ease of cleaning.",
           "evidence_tier": "strong",
-          "evidence_sources": [
-            "https://www.mumsnet.com/swearsby/best-potties"
-          ],
+          "evidence_sources": [],
           "preloved_suitability": "good",
           "preloved_signal_note": "Hard plastic is easy to sterilise.",
           "substitute_if_unavailable": "Boots Baby Potty",
@@ -1553,9 +1543,7 @@
           "rating_source": "Amazon UK",
           "review_quality_note": "Praised for its unique pouring design.",
           "evidence_tier": "strong",
-          "evidence_sources": [
-            "https://www.mumsnet.com/swearsby/best-potties"
-          ],
+          "evidence_sources": [],
           "preloved_suitability": "good",
           "preloved_signal_note": "Hard plastic is easy to sterilise.",
           "substitute_if_unavailable": "Boots Baby Potty",
@@ -1602,7 +1590,6 @@
           "review_quality_note": "Award-winning and highly recommended by parents for travel.",
           "evidence_tier": "strong",
           "evidence_sources": [
-            "https://www.mumsnet.com/swearsby/best-potties",
             "https://www.johnlewis.com/browse/baby-child/bathing-changing/baby-changing/potties/_/N-nth8Z1z0reba"
           ],
           "preloved_suitability": "good",
@@ -1650,9 +1637,7 @@
           "rating_source": "Amazon UK",
           "review_quality_note": "Highly rated for portability and dual function.",
           "evidence_tier": "strong",
-          "evidence_sources": [
-            "https://www.mumsnet.com/swearsby/best-potties"
-          ],
+          "evidence_sources": [],
           "preloved_suitability": "good",
           "preloved_signal_note": "Hard plastic is easy to sterilise.",
           "substitute_if_unavailable": "Ingenuity Foldaway Travel Potty",

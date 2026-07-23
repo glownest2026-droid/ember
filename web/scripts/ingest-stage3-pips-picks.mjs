@@ -13,6 +13,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { ukMarketFailReasons } from '../../agent-tools/scripts/lib/stage3-uk-market.mjs';
 
 const repoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const DEFAULT_OUT_DIR = path.join(repoRoot, 'agent-tools', 'exports');
@@ -330,6 +331,15 @@ function normalizeResearch(filePath, forcedAgeBand, visibleCount = 5) {
     if (!field(pick, 'product_url') && founderQaFlag(pick) === 'none') {
       errors.push(`Top pick missing product_url without founder_qa_flag: ${field(pick, 'product_name', '(unnamed)')}`);
     }
+    if (field(pick, 'product_url')) {
+      const ukFails = ukMarketFailReasons(field(pick, 'product_url'), {
+        priceText: field(pick, 'price_text') || pick.price_gbp || pick.price || '',
+        requireUrl: true,
+      });
+      for (const reason of ukFails) {
+        errors.push(`UK market (${field(pick, 'product_name', '(unnamed)')}): ${reason}`);
+      }
+    }
     if (!longlistRanks.has(Number(pick.longlist_rank))) {
       warnings.push(`Top pick not matched to longlist_rank ${pick.longlist_rank}: ${field(pick, 'product_name', '(unnamed)')}`);
     }
@@ -375,6 +385,18 @@ function normalizeResearch(filePath, forcedAgeBand, visibleCount = 5) {
   const expectedBackupFloor = Math.max(0, 15 - visibleCount);
   if (backups.length < expectedBackupFloor) {
     warnings.push(`Expected at least ${expectedBackupFloor} dormant backups after visible ${visibleCount}, got ${backups.length}`);
+  }
+
+  for (const item of backups) {
+    const url = firstField(item, ['product_url', 'url']);
+    if (!url) continue;
+    const ukFails = ukMarketFailReasons(url, {
+      priceText: firstField(item, ['price_text', 'price_gbp', 'price'], ''),
+      requireUrl: true,
+    });
+    for (const reason of ukFails) {
+      errors.push(`UK market backup (${field(item, 'product_name', '(unnamed)')}): ${reason}`);
+    }
   }
 
   return {

@@ -88,8 +88,7 @@
       "review_quality_note": "",
       "evidence_tier": "strong",
       "evidence_sources": [
-        "https://www.amazon.co.uk/Baby-Annabell-Functions-Accessories-711002/dp/B0CWS6BSL5",
-        "https://www.mumsnet.com/swearsby/best-dolls"
+        "https://www.amazon.co.uk/Baby-Annabell-Functions-Accessories-711002/dp/B0CWS6BSL5"
       ],
       "preloved_suitability": "good",
       "preloved_signal_note": "",
@@ -138,8 +137,7 @@
       "review_quality_note": "",
       "evidence_tier": "good",
       "evidence_sources": [
-        "https://www.johnlewis.com/john-lewis-my-first-baby-girl-doll/p5740683",
-        "https://www.mumsnet.com/swearsby/best-dolls"
+        "https://www.johnlewis.com/john-lewis-my-first-baby-girl-doll/p5740683"
       ],
       "preloved_suitability": "good",
       "preloved_signal_note": "",
@@ -158,13 +156,13 @@
       "product_name": "Mon Grand Poupon Chérie",
       "brand": "Corolle",
       "retailer": "Amazon UK",
-      "product_url": "https://www.nytimes.com/wirecutter/out/link/76051/228653/4/236094?merchant=Amazon",
+      "product_url": "https://www.amazon.co.uk/dp/B082PGXXTW",
       "alternate_urls": [],
       "image_url": "",
       "url_checked_date": "2026-07-20",
       "stock_status": "in_stock",
       "price_amount": 73,
-      "price_text": "£73",
+      "price_text": "£50.91",
       "currency": "GBP",
       "price_checked_date": "2026-07-20",
       "age_mark_on_listing": "2 years plus",
@@ -188,18 +186,17 @@
       "rating_source": "Mumsnet (implied)",
       "review_quality_note": "Mumsnet users spoke highly of Corolle dolls for their premium finish and authentic designs.",
       "evidence_tier": "good",
-      "evidence_sources": [
-        "https://www.nytimes.com/wirecutter/reviews/best-dolls/",
-        "https://www.mumsnet.com/swearsby/best-dolls"
-      ],
+      "evidence_sources": [],
       "preloved_suitability": "good",
       "preloved_signal_note": "",
       "substitute_if_unavailable": "Baby Annabell Hannah Let's Play",
-      "founder_qa_flag": "check_price",
+      "founder_qa_flag": "check_reviews",
       "display_status": "visible",
       "public_rank": 3,
       "locked_for_non_members": false,
-      "evidence_notes": "Price from Mumsnet, Wirecutter mentions it as a top pick."
+      "evidence_notes": "Price from Mumsnet, Wirecutter mentions it as a top pick.",
+      "url": "https://www.amazon.co.uk/dp/B082PGXXTW",
+      "price_gbp": 50.91
     },
     {
       "rank": 4,
@@ -238,9 +235,7 @@
       "rating_source": "Argos (implied)",
       "review_quality_note": "Mumsnet users highly recommend Tiny Treasures for their softness and cuddliness.",
       "evidence_tier": "strong",
-      "evidence_sources": [
-        "https://www.mumsnet.com/swearsby/best-dolls"
-      ],
+      "evidence_sources": [],
       "preloved_suitability": "good",
       "preloved_signal_note": "",
       "substitute_if_unavailable": "Miniland Dolls",
@@ -348,12 +343,16 @@
       "longlist_rank": 5,
       "product_name": "Mon Grand Poupon Chérie",
       "brand": "Corolle",
-      "product_url": "https://www.nytimes.com/wirecutter/out/link/76051/228653/4/236094?merchant=Amazon",
+      "product_url": "https://www.amazon.co.uk/dp/B082PGXXTW",
       "price_amount": 73,
-      "price_text": "£73",
+      "price_text": "£50.91",
       "include_status": "top_pick",
       "reason": "Premium interactive doll with multiple functions for rich nurturing scenarios, supporting elaborate pretend play.",
-      "skip_reason": ""
+      "skip_reason": "",
+      "url": "https://www.amazon.co.uk/dp/B082PGXXTW",
+      "retailer": "Amazon UK",
+      "price_gbp": 50.91,
+      "founder_qa_flag": "check_reviews"
     },
     {
       "longlist_rank": 6,
@@ -529,5 +528,6 @@
       "Re-verify safety warnings and age suitability for 'Baby Annabell Hannah Let's Play' and 'John Lewis My First Baby Girl Doll' to ensure they meet the 31-33m age band criteria."
     ],
     "founder_review_notes": ""
-  }
+  },
+  "uk_market_eradication_at": "2026-07-23"
 }

@@ -92,10 +92,10 @@
       "rank": 3,
       "product_name": "Mother & Baby Pure Gold Anti Allergy Coir Pocket Sprung Cot Bed Mattress",
       "brand": "Mother&Baby",
-      "retailer": "Boots",
-      "url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK",
+      "retailer": "Dunelm",
+      "url": "https://www.dunelm.com/product/mother-baby-pure-gold-hypoallergenic-coir-pocket-sprung-mattress-1000216584",
       "url_status": "google_shopping",
-      "price_gbp": 129.99,
+      "price_gbp": 129,
       "availability": "in_stock",
       "rating": 4.8,
       "review_count": 6,
@@ -105,17 +105,13 @@
       "why_pip_picked_this": "This mattress stands out for its anti-allergy properties and the innovative moveable waterproof membrane, which provides excellent protection without compromising breathability. The pocket springs offer good support, and the washable cover adds to its practicality.",
       "founder_lens": "The review count is low, but the features align well with safe sleep and hygiene requirements. Investigate the expert rating source.",
       "safety_notes": [],
-      "evidence": [
-        {
-          "source_type": "retailer",
-          "url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK",
-          "claim": "Anti-allergy with Purotex® technology, moveable waterproof membrane, removable/washable cover, 4.8 stars with 6 reviews."
-        }
-      ],
+      "evidence": [],
       "best_for_tag": "Best for allergy minded sleep",
       "product_description_under_30_words": "A Mother and Baby Pure Gold anti allergy coir pocket sprung cot bed mattress with a moveable waterproof membrane and washable cover for a dry sleep surface.",
       "ember_verdict": "Households watching allergies often want a cleaner sleep surface without giving up firm support. Coir and pocket springs keep the bed flat for newborns, while the membrane catches night spills. Check the waterproof layer sits where you need it after each wash.",
-      "product_url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK"
+      "product_url": "https://www.dunelm.com/product/mother-baby-pure-gold-hypoallergenic-coir-pocket-sprung-mattress-1000216584",
+      "price_text": "£129",
+      "founder_qa_flag": "check_price"
     },
     {
       "rank": 4,
@@ -201,9 +197,14 @@
     {
       "product_name": "Mother & Baby Pure Gold Anti Allergy Coir Pocket Sprung Cot Bed Mattress",
       "brand": "Mother&Baby",
-      "url": "https://www.google.com/search?tbm=shop&q=Mother+%26+Baby+Pure+Gold+Anti+Allergy+Coir+Pocket+Sprung+Cot+Bed+Mattress+UK",
+      "url": "https://www.dunelm.com/product/mother-baby-pure-gold-hypoallergenic-coir-pocket-sprung-mattress-1000216584",
       "include_status": "top_pick",
-      "reason": "Anti-allergy with Purotex® technology, moveable waterproof membrane, removable/washable cover, 4.8 stars with 6 reviews."
+      "reason": "Anti-allergy with Purotex® technology, moveable waterproof membrane, removable/washable cover, 4.8 stars with 6 reviews.",
+      "product_url": "https://www.dunelm.com/product/mother-baby-pure-gold-hypoallergenic-coir-pocket-sprung-mattress-1000216584",
+      "retailer": "Dunelm",
+      "price_text": "£129",
+      "price_gbp": 129,
+      "founder_qa_flag": "check_price"
     },
     {
       "product_name": "SnuzSurface Duo Dual Sided Cot Bed Mattress SnuzKot",
@@ -327,5 +328,6 @@
     "Balancing Reviews and Expert Endorsements: Some highly-rated products by experts (e.g., Mother&Baby, Made For Mums) have fewer customer reviews. When selecting top picks, we should consider the weight given to expert awards versus a high volume of customer reviews, especially for newer or specialist products.",
     "Value Proposition of Dual-Sided Mattresses: Dual-sided mattresses offer extended use from baby to toddler, which is a strong selling point. However, it's crucial to ensure the 'baby side' unequivocally meets the firm and flat requirements for newborns without compromise.",
     "Price vs. Integrated Features: The research shows that some budget-friendly options offer integrated waterproofing, while more expensive natural options often require separate waterproof protectors. This highlights that a higher price doesn't always guarantee all desired features, and the integrated waterproofing is a key differentiator for value."
-  ]
+  ],
+  "uk_market_eradication_at": "2026-07-23"
 }

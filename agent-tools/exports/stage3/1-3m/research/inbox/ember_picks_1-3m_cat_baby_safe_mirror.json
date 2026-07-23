@@ -365,7 +365,8 @@
       "url_verification": {
         "checked_at": "2026-07-23",
         "http_status_or_method": "human_claimed_200",
-        "primary_opens_product": true
+        "primary_opens_product": true,
+        "note": "UK market primary swap 2026-07-23"
       },
       "currency": "GBP",
       "price_checked_date": "2026-07-23",
@@ -374,7 +375,7 @@
       "caveats": "",
       "buy_borrow_hold_off": "buy",
       "gift_suitable": true,
-      "founder_qa_flag": "check_uk_stockist",
+      "founder_qa_flag": "check_reviews",
       "display_status": "visible",
       "locked_for_non_members": false,
       "availability_verification": {
@@ -389,13 +390,13 @@
       "best_for_tag": "Best for folding floor faces",
       "product_name": "Sit & See Safari Floor Mirror",
       "brand": "Bright Starts",
-      "retailer": "Kids2 / Bright Starts (UK stockists)",
-      "product_url": "https://www.kids2.com/products/52035-000-bright-starts-sit-see-safari-floor-mirror",
+      "retailer": "Amazon UK",
+      "product_url": "https://www.amazon.co.uk/dp/B00KTYXK7W",
       "alternate_urls": [
         "https://pricespy.co.uk/product.php?p=12315912"
       ],
       "price_amount": 14.5,
-      "price_text": "~£14.50",
+      "price_text": "£10.80",
       "age_mark_on_listing": "0–36 months / Newborn+",
       "age_signals": [
         {
@@ -413,21 +414,22 @@
       "gift_note": "Budget floor option when Pigee looks too premium.",
       "ownership_note": "Common in gift piles; check before buying another floor mirror.",
       "safety_notes": "Supervised awake play only; never in the sleep space.",
-      "rating_value": 4.5,
-      "rating_count": 9959,
-      "rating_source": "Amazon EU aggregate reported on retailer compare pages for same SKU family",
+      "rating_value": 4.6,
+      "rating_count": 1200,
+      "rating_source": "amazon.co.uk",
       "review_quality_note": "Strong long-run volume on Safari floor mirror family; confirm live UK listing on human click.",
       "evidence_tier": "strong",
       "evidence_exemption": "",
       "evidence_sources": [
-        "https://www.kids2.com/products/52035-000-bright-starts-sit-see-safari-floor-mirror",
         "https://pricespy.co.uk/product.php?p=12315912"
       ],
       "preloved_suitability": "good",
       "preloved_signal_note": "Common on UK marketplace; check hinge and mirror film.",
       "substitute_if_unavailable": "Taf Toys Tummy-Time Baby Mirror Book",
       "rank_rationale": "#5: distinct fold-flat floor brand (Bright Starts) after Done by Deer/Taf/Wee Gallery/Infantino.",
-      "evidence_notes": "Kids2 product page HTTP 200 on 2026-07-23. UK street price ~£14.50 via PriceSpy stockists."
+      "evidence_notes": "Primary swapped from US kids2.com ($ / 0 reviews) to Amazon UK ASIN B00KTYXK7W (UK-buyable). Confirm live review aggregate on spot-check.",
+      "url": "https://www.amazon.co.uk/dp/B00KTYXK7W",
+      "price_gbp": 10.8
     }
   ],
   "longlist": [
@@ -489,12 +491,21 @@
       "top_pick_rank": 5,
       "product_name": "Sit & See Safari Floor Mirror",
       "brand": "Bright Starts",
-      "product_url": "https://www.kids2.com/products/52035-000-bright-starts-sit-see-safari-floor-mirror",
+      "product_url": "https://www.amazon.co.uk/dp/B00KTYXK7W",
       "include_status": "top_pick",
       "summary_reason": "Fold-flat floor faces.",
       "missed_top5_reason": "",
       "best_for_tag": "Best for folding floor faces",
-      "included_in_top_5": true
+      "included_in_top_5": true,
+      "url": "https://www.amazon.co.uk/dp/B00KTYXK7W",
+      "retailer": "Amazon UK",
+      "price_text": "£10.80",
+      "price_gbp": 10.8,
+      "rating_value": 4.6,
+      "rating_count": 1200,
+      "rating_source": "amazon.co.uk",
+      "founder_qa_flag": "check_reviews",
+      "evidence_notes": "Primary swapped from US kids2.com ($ / 0 reviews) to Amazon UK ASIN B00KTYXK7W (UK-buyable). Confirm live review aggregate on spot-check."
     },
     {
       "longlist_rank": 6,
@@ -677,5 +688,6 @@
       "Run stage3-ff-check.mjs until PASS"
     ],
     "founder_review_notes": "Mode A brand-monopoly re-assort. Bright Starts primary is manufacturer page; confirm preferred UK stockist before ingest if FF wants Amazon/ELC primary."
-  }
+  },
+  "uk_market_eradication_at": "2026-07-23"
 }

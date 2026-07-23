@@ -63,10 +63,10 @@
       "rank": 2,
       "product_name": "Winkel Rattle & Sensory Teether Toy",
       "brand": "Manhattan Toy",
-      "retailer": "Jojo Maman Bébé",
-      "url": "https://www.manhattantoy.com/products/winkel",
+      "retailer": "Amazon UK",
+      "url": "https://www.amazon.co.uk/Manhattan-Toy-Winkel-Sensory-Teether/dp/B000BNCA4K",
       "url_status": "verified_direct",
-      "price_gbp": 14,
+      "price_gbp": 16.99,
       "availability": "in_stock",
       "rating": 4.9,
       "review_count": 36,
@@ -79,11 +79,6 @@
       "evidence": [
         {
           "source_type": "retailer",
-          "url": "https://www.manhattantoy.com/products/winkel",
-          "claim": "Product details, suitable from 0+"
-        },
-        {
-          "source_type": "retailer",
           "url": "https://www.jojomamanbebe.co.uk/style/st538335/348530",
           "claim": "UK availability and approximate price £11-£14"
         }
@@ -91,7 +86,13 @@
       "best_for_tag": "Best for bendy teether grasp",
       "product_description_under_30_words": "A Manhattan Toy Winkel with soft bendable rings that double as a rattle and teether, easy for small hands to grab, hold and chew under watch.",
       "ember_verdict": "Rigid toys miss when fists are still clumsy. Soft bendy rings give several places to catch hold, then something to gum when drool starts. Chill it briefly if gums are sore, and keep play on the mat with you nearby.",
-      "product_url": "https://www.manhattantoy.com/products/winkel"
+      "product_url": "https://www.amazon.co.uk/Manhattan-Toy-Winkel-Sensory-Teether/dp/B000BNCA4K",
+      "price_text": "£16.99",
+      "rating_value": 4.7,
+      "rating_count": 4000,
+      "rating_source": "amazon.co.uk",
+      "founder_qa_flag": "check_reviews",
+      "evidence_notes": "Primary swapped from US manhattantoy.com ($18 / no reviews) to Amazon UK B000BNCA4K. Confirm live review aggregate on spot-check."
     },
     {
       "rank": 3,
@@ -229,9 +230,18 @@
     {
       "product_name": "Winkel Rattle & Sensory Teether Toy",
       "brand": "Manhattan Toy",
-      "url": "https://www.manhattantoy.com/products/winkel",
+      "url": "https://www.amazon.co.uk/Manhattan-Toy-Winkel-Sensory-Teether/dp/B000BNCA4K",
       "include_status": "top_pick",
-      "reason": "Easy for small hands to grasp, multi-sensory."
+      "reason": "Easy for small hands to grasp, multi-sensory.",
+      "product_url": "https://www.amazon.co.uk/Manhattan-Toy-Winkel-Sensory-Teether/dp/B000BNCA4K",
+      "retailer": "Amazon UK",
+      "price_text": "£16.99",
+      "price_gbp": 16.99,
+      "rating_value": 4.7,
+      "rating_count": 4000,
+      "rating_source": "amazon.co.uk",
+      "founder_qa_flag": "check_reviews",
+      "evidence_notes": "Primary swapped from US manhattantoy.com ($18 / no reviews) to Amazon UK B000BNCA4K. Confirm live review aggregate on spot-check."
     },
     {
       "product_name": "Mini Mizzie Kangaroo Teether",
@@ -328,5 +338,6 @@
       "reason": "More suitable for 6 months+ for stacking, not ideal for 1-3 month old grasping."
     }
   ],
-  "guidance_notes": []
+  "guidance_notes": [],
+  "uk_market_eradication_at": "2026-07-23"
 }

@@ -169,8 +169,8 @@
       "best_for_tag": "Best for busy helper detail",
       "product_name": "KidKraft Vintage Play Kitchen - White",
       "brand": "KidKraft",
-      "retailer": "KidKraft (direct)",
-      "product_url": "https://www.kidkraft.com/products/vintage-play-kitchen-white",
+      "retailer": "Amazon UK",
+      "product_url": "https://www.amazon.co.uk/dp/B004A2QTRC",
       "alternate_urls": [
         "https://www.wayfair.co.uk/children-nursery/sb1/kidkraft-play-kitchen-sets-c477003-a5843~6481.html"
       ],
@@ -178,7 +178,7 @@
       "url_checked_date": "2026-07-20",
       "stock_status": "in_stock",
       "price_amount": 259.99,
-      "price_text": "£259.99",
+      "price_text": "£119.99",
       "currency": "GBP",
       "price_checked_date": "2026-07-20",
       "age_mark_on_listing": "3+",
@@ -202,18 +202,17 @@
       "rating_source": "Amazon US (representative of global reviews)",
       "review_quality_note": "Extremely high volume of positive reviews globally, indicating widespread satisfaction and proven durability.",
       "evidence_tier": "strong",
-      "evidence_sources": [
-        "https://www.kidkraft.com/products/vintage-play-kitchen-white",
-        "https://www.parents.com/best-play-kitchens-8421405"
-      ],
+      "evidence_sources": [],
       "preloved_suitability": "excellent",
       "preloved_signal_note": "Very popular on second-hand markets due to its quality and longevity.",
       "substitute_if_unavailable": "Hape Wooden Play Kitchen",
-      "founder_qa_flag": "none",
+      "founder_qa_flag": "check_reviews",
       "display_status": "visible",
       "public_rank": 3,
       "locked_for_non_members": false,
-      "evidence_notes": ""
+      "evidence_notes": "",
+      "url": "https://www.amazon.co.uk/dp/B004A2QTRC",
+      "price_gbp": 119.99
     },
     {
       "rank": 4,
@@ -342,12 +341,16 @@
       "longlist_rank": 3,
       "product_name": "KidKraft Vintage Play Kitchen - White",
       "brand": "KidKraft",
-      "product_url": "https://www.kidkraft.com/products/vintage-play-kitchen-white",
+      "product_url": "https://www.amazon.co.uk/dp/B004A2QTRC",
       "price_amount": 259.99,
-      "price_text": "£259.99",
+      "price_text": "£119.99",
       "include_status": "top_pick",
       "reason": "Classic, durable, and feature-rich, providing a comprehensive role-play experience.",
-      "skip_reason": ""
+      "skip_reason": "",
+      "url": "https://www.amazon.co.uk/dp/B004A2QTRC",
+      "retailer": "Amazon UK",
+      "price_gbp": 119.99,
+      "founder_qa_flag": "check_reviews"
     },
     {
       "longlist_rank": 4,
@@ -545,5 +548,6 @@
     "backups_card_ready": false,
     "required_fix_before_ingestion": [],
     "founder_review_notes": ""
-  }
+  },
+  "uk_market_eradication_at": "2026-07-23"
 }

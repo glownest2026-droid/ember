@@ -734,7 +734,6 @@
       "product_name": "Time Timer MOD Home Edition",
       "brand": "Time Timer",
       "retailer": "Time Timer Europe",
-      "product_url": "https://timetimer-europe.com/products/time-timer-mod-home-edition",
       "url_checked_date": "2026-07-22",
       "stock_status": "in_stock",
       "price_text": "EUR 37.95 approx.",
@@ -751,7 +750,9 @@
       "included_in_top_5": false,
       "display_status": "backup",
       "public_rank": 12,
-      "locked_for_non_members": false
+      "locked_for_non_members": false,
+      "founder_qa_flag": "check_url",
+      "url_status": "cleared_non_uk"
     },
     {
       "longlist_rank": 13,
@@ -1071,5 +1072,6 @@
     ],
     "founder_review_notes": "Full Mode A re-research 2026-07-22. Top 5 primaries are buyable smoke-checked URLs. Photos-first doctrine. Three Craftly picks + two Create Visual Aids via Amazon. Out The Door on longlist until Amazon restocks.",
     "notes": "Parent copy upgraded to Writing Guidelines v1 (2026-07-23). Re-run FF before ingest if URLs changed."
-  }
+  },
+  "uk_market_eradication_at": "2026-07-23"
 }
