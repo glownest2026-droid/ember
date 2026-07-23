@@ -1,0 +1,68 @@
+{
+  "ff_check_pass": true,
+  "checked_at": "2026-07-23",
+  "ingestion_ready_status": "founder-review-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "Happyland London Bus Playset",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "PLAYMOBIL Junior Airport Shuttle Bus (71689)",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "PLAYMOBIL Junior Everyday Heroes (71692)",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "LEGO DUPLO Town Ambulance and Driver (10447)",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "LEGO DUPLO 3-in-1 Construction Vehicles (10475)",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": []
+}

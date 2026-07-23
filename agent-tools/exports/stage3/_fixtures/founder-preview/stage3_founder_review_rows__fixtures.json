@@ -1,0 +1,771 @@
+{
+  "age_band_id": "_fixtures",
+  "rows": [
+    {
+      "age_band_id": "_fixtures",
+      "stage_1_rank": 1,
+      "stage_1_card_label": "Questions, stories and bigger chats",
+      "cluster_entity_id": "ent_cluster_talk_stories_questions",
+      "stage_2_card_label": "Fixture good category",
+      "category_entity_id": "cat_fixture_good",
+      "content_type": "product_category",
+      "ff_pass_badge": "green",
+      "rank": 1,
+      "product_or_action_name": "Ember Fixture — Fixture Product 1",
+      "url": "https://www.gov.uk/",
+      "alternate_urls": [],
+      "url_status": "verified_direct",
+      "ui_title": "Best for case 1",
+      "ui_description": "Fixture description for product 1 used only in self-check.",
+      "why_pip_picked_this": "Why Pip picked fixture 1: stage fit for nearly three talk-back without catalogue speak.",
+      "buy_borrow_hold_off": "buy",
+      "rank_rationale": "Rank 1 because it beats rank 2 on stage fit and review depth for this fixture category.",
+      "buying_factor_memo": "For this fixture: (1) stage talk-back fit, (2) age overlap, (3) review depth, (4) ownership risk, (5) URL trust, (6) distinct parent jobs across the Top 5.",
+      "how_trail": {
+        "buying_factor_memo": "For this fixture: (1) stage talk-back fit, (2) age overlap, (3) review depth, (4) ownership risk, (5) URL trust, (6) distinct parent jobs across the Top 5.",
+        "methodology": "Bench of 15 equal candidates with live URLs; age signals captured from listings; rank using buying_factor_memo; URL verify on every Top Pick primary.",
+        "ranks_1_to_10": [
+          {
+            "rank": 1,
+            "role": "top_pick",
+            "product_name": "Fixture Product 1",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 1 because it beats rank 2 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 2,
+            "role": "top_pick",
+            "product_name": "Fixture Product 2",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 2 because it beats rank 3 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 3,
+            "role": "top_pick",
+            "product_name": "Fixture Product 3",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 3 because it beats rank 4 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 4,
+            "role": "top_pick",
+            "product_name": "Fixture Product 4",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 4 because it beats rank 5 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 5,
+            "role": "top_pick",
+            "product_name": "Fixture Product 5",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 5 because it beats rank 6 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 6,
+            "role": "longlist",
+            "product_name": "Fixture Product 6",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 6 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 7,
+            "role": "longlist",
+            "product_name": "Fixture Product 7",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 7 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 8,
+            "role": "longlist",
+            "product_name": "Fixture Product 8",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 8 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 9,
+            "role": "longlist",
+            "product_name": "Fixture Product 9",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 9 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 10,
+            "role": "longlist",
+            "product_name": "Fixture Product 10",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 10 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          }
+        ]
+      },
+      "qa_note": "",
+      "researcher": "cursor",
+      "ingestion_ready_status": "pending-ff-check"
+    },
+    {
+      "age_band_id": "_fixtures",
+      "stage_1_rank": 1,
+      "stage_1_card_label": "Questions, stories and bigger chats",
+      "cluster_entity_id": "ent_cluster_talk_stories_questions",
+      "stage_2_card_label": "Fixture good category",
+      "category_entity_id": "cat_fixture_good",
+      "content_type": "product_category",
+      "ff_pass_badge": "green",
+      "rank": 2,
+      "product_or_action_name": "Ember Fixture — Fixture Product 2",
+      "url": "https://www.gov.uk/browse/childcare-parenting",
+      "alternate_urls": [],
+      "url_status": "verified_direct",
+      "ui_title": "Best for case 2",
+      "ui_description": "Fixture description for product 2 used only in self-check.",
+      "why_pip_picked_this": "Why Pip picked fixture 2: stage fit for nearly three talk-back without catalogue speak.",
+      "buy_borrow_hold_off": "buy",
+      "rank_rationale": "Rank 2 because it beats rank 3 on stage fit and review depth for this fixture category.",
+      "buying_factor_memo": "For this fixture: (1) stage talk-back fit, (2) age overlap, (3) review depth, (4) ownership risk, (5) URL trust, (6) distinct parent jobs across the Top 5.",
+      "how_trail": {
+        "buying_factor_memo": "For this fixture: (1) stage talk-back fit, (2) age overlap, (3) review depth, (4) ownership risk, (5) URL trust, (6) distinct parent jobs across the Top 5.",
+        "methodology": "Bench of 15 equal candidates with live URLs; age signals captured from listings; rank using buying_factor_memo; URL verify on every Top Pick primary.",
+        "ranks_1_to_10": [
+          {
+            "rank": 1,
+            "role": "top_pick",
+            "product_name": "Fixture Product 1",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 1 because it beats rank 2 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 2,
+            "role": "top_pick",
+            "product_name": "Fixture Product 2",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 2 because it beats rank 3 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 3,
+            "role": "top_pick",
+            "product_name": "Fixture Product 3",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 3 because it beats rank 4 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 4,
+            "role": "top_pick",
+            "product_name": "Fixture Product 4",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 4 because it beats rank 5 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 5,
+            "role": "top_pick",
+            "product_name": "Fixture Product 5",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 5 because it beats rank 6 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 6,
+            "role": "longlist",
+            "product_name": "Fixture Product 6",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 6 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 7,
+            "role": "longlist",
+            "product_name": "Fixture Product 7",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 7 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 8,
+            "role": "longlist",
+            "product_name": "Fixture Product 8",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 8 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 9,
+            "role": "longlist",
+            "product_name": "Fixture Product 9",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 9 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 10,
+            "role": "longlist",
+            "product_name": "Fixture Product 10",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 10 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          }
+        ]
+      },
+      "qa_note": "",
+      "researcher": "cursor",
+      "ingestion_ready_status": "pending-ff-check"
+    },
+    {
+      "age_band_id": "_fixtures",
+      "stage_1_rank": 1,
+      "stage_1_card_label": "Questions, stories and bigger chats",
+      "cluster_entity_id": "ent_cluster_talk_stories_questions",
+      "stage_2_card_label": "Fixture good category",
+      "category_entity_id": "cat_fixture_good",
+      "content_type": "product_category",
+      "ff_pass_badge": "green",
+      "rank": 3,
+      "product_or_action_name": "Ember Fixture — Fixture Product 3",
+      "url": "https://www.gov.uk/child-car-seats-the-rules",
+      "alternate_urls": [],
+      "url_status": "verified_direct",
+      "ui_title": "Best for case 3",
+      "ui_description": "Fixture description for product 3 used only in self-check.",
+      "why_pip_picked_this": "Why Pip picked fixture 3: stage fit for nearly three talk-back without catalogue speak.",
+      "buy_borrow_hold_off": "buy",
+      "rank_rationale": "Rank 3 because it beats rank 4 on stage fit and review depth for this fixture category.",
+      "buying_factor_memo": "For this fixture: (1) stage talk-back fit, (2) age overlap, (3) review depth, (4) ownership risk, (5) URL trust, (6) distinct parent jobs across the Top 5.",
+      "how_trail": {
+        "buying_factor_memo": "For this fixture: (1) stage talk-back fit, (2) age overlap, (3) review depth, (4) ownership risk, (5) URL trust, (6) distinct parent jobs across the Top 5.",
+        "methodology": "Bench of 15 equal candidates with live URLs; age signals captured from listings; rank using buying_factor_memo; URL verify on every Top Pick primary.",
+        "ranks_1_to_10": [
+          {
+            "rank": 1,
+            "role": "top_pick",
+            "product_name": "Fixture Product 1",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 1 because it beats rank 2 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 2,
+            "role": "top_pick",
+            "product_name": "Fixture Product 2",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 2 because it beats rank 3 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 3,
+            "role": "top_pick",
+            "product_name": "Fixture Product 3",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 3 because it beats rank 4 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 4,
+            "role": "top_pick",
+            "product_name": "Fixture Product 4",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 4 because it beats rank 5 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 5,
+            "role": "top_pick",
+            "product_name": "Fixture Product 5",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 5 because it beats rank 6 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 6,
+            "role": "longlist",
+            "product_name": "Fixture Product 6",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 6 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 7,
+            "role": "longlist",
+            "product_name": "Fixture Product 7",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 7 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 8,
+            "role": "longlist",
+            "product_name": "Fixture Product 8",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 8 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 9,
+            "role": "longlist",
+            "product_name": "Fixture Product 9",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 9 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 10,
+            "role": "longlist",
+            "product_name": "Fixture Product 10",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 10 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          }
+        ]
+      },
+      "qa_note": "",
+      "researcher": "cursor",
+      "ingestion_ready_status": "pending-ff-check"
+    },
+    {
+      "age_band_id": "_fixtures",
+      "stage_1_rank": 1,
+      "stage_1_card_label": "Questions, stories and bigger chats",
+      "cluster_entity_id": "ent_cluster_talk_stories_questions",
+      "stage_2_card_label": "Fixture good category",
+      "category_entity_id": "cat_fixture_good",
+      "content_type": "product_category",
+      "ff_pass_badge": "green",
+      "rank": 4,
+      "product_or_action_name": "Ember Fixture — Fixture Product 4",
+      "url": "https://www.gov.uk/help",
+      "alternate_urls": [],
+      "url_status": "verified_direct",
+      "ui_title": "Best for case 4",
+      "ui_description": "Fixture description for product 4 used only in self-check.",
+      "why_pip_picked_this": "Why Pip picked fixture 4: stage fit for nearly three talk-back without catalogue speak.",
+      "buy_borrow_hold_off": "buy",
+      "rank_rationale": "Rank 4 because it beats rank 5 on stage fit and review depth for this fixture category.",
+      "buying_factor_memo": "For this fixture: (1) stage talk-back fit, (2) age overlap, (3) review depth, (4) ownership risk, (5) URL trust, (6) distinct parent jobs across the Top 5.",
+      "how_trail": {
+        "buying_factor_memo": "For this fixture: (1) stage talk-back fit, (2) age overlap, (3) review depth, (4) ownership risk, (5) URL trust, (6) distinct parent jobs across the Top 5.",
+        "methodology": "Bench of 15 equal candidates with live URLs; age signals captured from listings; rank using buying_factor_memo; URL verify on every Top Pick primary.",
+        "ranks_1_to_10": [
+          {
+            "rank": 1,
+            "role": "top_pick",
+            "product_name": "Fixture Product 1",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 1 because it beats rank 2 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 2,
+            "role": "top_pick",
+            "product_name": "Fixture Product 2",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 2 because it beats rank 3 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 3,
+            "role": "top_pick",
+            "product_name": "Fixture Product 3",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 3 because it beats rank 4 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 4,
+            "role": "top_pick",
+            "product_name": "Fixture Product 4",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 4 because it beats rank 5 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 5,
+            "role": "top_pick",
+            "product_name": "Fixture Product 5",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 5 because it beats rank 6 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 6,
+            "role": "longlist",
+            "product_name": "Fixture Product 6",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 6 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 7,
+            "role": "longlist",
+            "product_name": "Fixture Product 7",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 7 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 8,
+            "role": "longlist",
+            "product_name": "Fixture Product 8",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 8 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 9,
+            "role": "longlist",
+            "product_name": "Fixture Product 9",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 9 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 10,
+            "role": "longlist",
+            "product_name": "Fixture Product 10",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 10 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          }
+        ]
+      },
+      "qa_note": "",
+      "researcher": "cursor",
+      "ingestion_ready_status": "pending-ff-check"
+    },
+    {
+      "age_band_id": "_fixtures",
+      "stage_1_rank": 1,
+      "stage_1_card_label": "Questions, stories and bigger chats",
+      "cluster_entity_id": "ent_cluster_talk_stories_questions",
+      "stage_2_card_label": "Fixture good category",
+      "category_entity_id": "cat_fixture_good",
+      "content_type": "product_category",
+      "ff_pass_badge": "green",
+      "rank": 5,
+      "product_or_action_name": "Ember Fixture — Fixture Product 5",
+      "url": "https://www.gov.uk/search/all",
+      "alternate_urls": [],
+      "url_status": "verified_direct",
+      "ui_title": "Best for case 5",
+      "ui_description": "Fixture description for product 5 used only in self-check.",
+      "why_pip_picked_this": "Why Pip picked fixture 5: stage fit for nearly three talk-back without catalogue speak.",
+      "buy_borrow_hold_off": "buy",
+      "rank_rationale": "Rank 5 because it beats rank 6 on stage fit and review depth for this fixture category.",
+      "buying_factor_memo": "For this fixture: (1) stage talk-back fit, (2) age overlap, (3) review depth, (4) ownership risk, (5) URL trust, (6) distinct parent jobs across the Top 5.",
+      "how_trail": {
+        "buying_factor_memo": "For this fixture: (1) stage talk-back fit, (2) age overlap, (3) review depth, (4) ownership risk, (5) URL trust, (6) distinct parent jobs across the Top 5.",
+        "methodology": "Bench of 15 equal candidates with live URLs; age signals captured from listings; rank using buying_factor_memo; URL verify on every Top Pick primary.",
+        "ranks_1_to_10": [
+          {
+            "rank": 1,
+            "role": "top_pick",
+            "product_name": "Fixture Product 1",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 1 because it beats rank 2 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 2,
+            "role": "top_pick",
+            "product_name": "Fixture Product 2",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 2 because it beats rank 3 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 3,
+            "role": "top_pick",
+            "product_name": "Fixture Product 3",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 3 because it beats rank 4 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 4,
+            "role": "top_pick",
+            "product_name": "Fixture Product 4",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 4 because it beats rank 5 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 5,
+            "role": "top_pick",
+            "product_name": "Fixture Product 5",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Rank 5 because it beats rank 6 on stage fit and review depth for this fixture category.",
+            "missed_top5_reason": ""
+          },
+          {
+            "rank": 6,
+            "role": "longlist",
+            "product_name": "Fixture Product 6",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 6 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 7,
+            "role": "longlist",
+            "product_name": "Fixture Product 7",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 7 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 8,
+            "role": "longlist",
+            "product_name": "Fixture Product 8",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 8 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 9,
+            "role": "longlist",
+            "product_name": "Fixture Product 9",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 9 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          },
+          {
+            "rank": 10,
+            "role": "longlist",
+            "product_name": "Fixture Product 10",
+            "brand": "Ember Fixture",
+            "rank_rationale": "Longlist rank 10 ordered by stage fit then evidence for the fixture bench.",
+            "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+          }
+        ]
+      },
+      "qa_note": "",
+      "researcher": "cursor",
+      "ingestion_ready_status": "pending-ff-check"
+    },
+    {
+      "age_band_id": "_fixtures",
+      "stage_1_rank": 8,
+      "stage_1_card_label": "The safety reset for a taller, stronger toddler",
+      "cluster_entity_id": "ent_cluster_safer_spaces_bigger_curiosity",
+      "stage_2_card_label": "Quick safety checks (no shopping)",
+      "category_entity_id": "safety_quick_checks",
+      "content_type": "safety_check",
+      "ff_pass_badge": "green",
+      "rank": 1,
+      "product_or_action_name": "Car-seat fit and harness check",
+      "url": "https://www.gov.uk/child-car-seats-the-rules",
+      "alternate_urls": [],
+      "url_status": "official_guidance",
+      "ui_title": "Car-seat fit and harness check",
+      "ui_description": "Re-check height, weight, harness position and vehicle fit before assuming the seat still fits.",
+      "why_pip_picked_this": "Near three, it is easy to assume the car seat is still doing its job — this is a reset check, not a shopping list.",
+      "buy_borrow_hold_off": "hold_off",
+      "rank_rationale": "",
+      "buying_factor_memo": "",
+      "how_trail": null,
+      "qa_note": "Quick Check only — not a Pip product pick",
+      "researcher": "n/a",
+      "ingestion_ready_status": "not_applicable"
+    },
+    {
+      "age_band_id": "_fixtures",
+      "stage_1_rank": 8,
+      "stage_1_card_label": "The safety reset for a taller, stronger toddler",
+      "cluster_entity_id": "ent_cluster_safer_spaces_bigger_curiosity",
+      "stage_2_card_label": "Quick safety checks (no shopping)",
+      "category_entity_id": "safety_quick_checks",
+      "content_type": "safety_check",
+      "ff_pass_badge": "green",
+      "rank": 2,
+      "product_or_action_name": "Button battery and magnet check",
+      "url": "https://www.capt.org.uk/button-batteries",
+      "alternate_urls": [],
+      "url_status": "official_guidance",
+      "ui_title": "Button battery and magnet check",
+      "ui_description": "Check compartments on cards, remotes, scales and older-child toys; keep spares locked away.",
+      "why_pip_picked_this": "Birthday gifts and older siblings can bring button batteries into reach without you noticing.",
+      "buy_borrow_hold_off": "hold_off",
+      "rank_rationale": "",
+      "buying_factor_memo": "",
+      "how_trail": null,
+      "qa_note": "Quick Check only — not a Pip product pick",
+      "researcher": "n/a",
+      "ingestion_ready_status": "not_applicable"
+    },
+    {
+      "age_band_id": "_fixtures",
+      "stage_1_rank": 8,
+      "stage_1_card_label": "The safety reset for a taller, stronger toddler",
+      "cluster_entity_id": "ent_cluster_safer_spaces_bigger_curiosity",
+      "stage_2_card_label": "Quick safety checks (no shopping)",
+      "category_entity_id": "safety_quick_checks",
+      "content_type": "safety_check",
+      "ff_pass_badge": "green",
+      "rank": 3,
+      "product_or_action_name": "Water and paddling-pool reset",
+      "url": "https://www.rospa.com/leisure-safety/water-safety/",
+      "alternate_urls": [],
+      "url_status": "official_guidance",
+      "ui_title": "Water and paddling-pool reset",
+      "ui_description": "Empty paddling pools, buckets and bowls after use; keep bathroom water supervised.",
+      "why_pip_picked_this": "Shallow water still needs full attention as copying and reach improve.",
+      "buy_borrow_hold_off": "hold_off",
+      "rank_rationale": "",
+      "buying_factor_memo": "",
+      "how_trail": null,
+      "qa_note": "Quick Check only — not a Pip product pick",
+      "researcher": "n/a",
+      "ingestion_ready_status": "not_applicable"
+    },
+    {
+      "age_band_id": "_fixtures",
+      "stage_1_rank": 8,
+      "stage_1_card_label": "The safety reset for a taller, stronger toddler",
+      "cluster_entity_id": "ent_cluster_safer_spaces_bigger_curiosity",
+      "stage_2_card_label": "Quick safety checks (no shopping)",
+      "category_entity_id": "safety_quick_checks",
+      "content_type": "safety_check",
+      "ff_pass_badge": "green",
+      "rank": 4,
+      "product_or_action_name": "Blind cord and window-climb check",
+      "url": "https://www.rospa.com/home-safety/advice/blind-cord-safety/",
+      "alternate_urls": [],
+      "url_status": "official_guidance",
+      "ui_title": "Blind cord and window-climb check",
+      "ui_description": "Check blind cords, windows and furniture they could climb to reach them.",
+      "why_pip_picked_this": "A taller toddler can reach things that felt safely out of range months ago.",
+      "buy_borrow_hold_off": "hold_off",
+      "rank_rationale": "",
+      "buying_factor_memo": "",
+      "how_trail": null,
+      "qa_note": "Quick Check only — not a Pip product pick",
+      "researcher": "n/a",
+      "ingestion_ready_status": "not_applicable"
+    },
+    {
+      "age_band_id": "_fixtures",
+      "stage_1_rank": 8,
+      "stage_1_card_label": "The safety reset for a taller, stronger toddler",
+      "cluster_entity_id": "ent_cluster_safer_spaces_bigger_curiosity",
+      "stage_2_card_label": "Quick safety checks (no shopping)",
+      "category_entity_id": "safety_quick_checks",
+      "content_type": "safety_check",
+      "ff_pass_badge": "green",
+      "rank": 5,
+      "product_or_action_name": "36-month toy-warning check",
+      "url": "https://www.gov.uk/toy-safety-regulations",
+      "alternate_urls": [],
+      "url_status": "official_guidance",
+      "ui_title": "36-month toy-warning check",
+      "ui_description": "Check age warnings, small parts and younger siblings before gifts go in.",
+      "why_pip_picked_this": "Turning three changes packaging labels — it does not make every small part safe for every home.",
+      "buy_borrow_hold_off": "hold_off",
+      "rank_rationale": "",
+      "buying_factor_memo": "",
+      "how_trail": null,
+      "qa_note": "Quick Check only — not a Pip product pick",
+      "researcher": "n/a",
+      "ingestion_ready_status": "not_applicable"
+    }
+  ],
+  "category_how": [
+    {
+      "category_entity_id": "cat_fixture_good",
+      "stage_2_card_label": "Fixture good category",
+      "stage_1_card_label": "Questions, stories and bigger chats",
+      "buying_factor_memo": "For this fixture: (1) stage talk-back fit, (2) age overlap, (3) review depth, (4) ownership risk, (5) URL trust, (6) distinct parent jobs across the Top 5.",
+      "methodology": "Bench of 15 equal candidates with live URLs; age signals captured from listings; rank using buying_factor_memo; URL verify on every Top Pick primary.",
+      "ranks_1_to_10": [
+        {
+          "rank": 1,
+          "role": "top_pick",
+          "product_name": "Fixture Product 1",
+          "brand": "Ember Fixture",
+          "rank_rationale": "Rank 1 because it beats rank 2 on stage fit and review depth for this fixture category.",
+          "missed_top5_reason": ""
+        },
+        {
+          "rank": 2,
+          "role": "top_pick",
+          "product_name": "Fixture Product 2",
+          "brand": "Ember Fixture",
+          "rank_rationale": "Rank 2 because it beats rank 3 on stage fit and review depth for this fixture category.",
+          "missed_top5_reason": ""
+        },
+        {
+          "rank": 3,
+          "role": "top_pick",
+          "product_name": "Fixture Product 3",
+          "brand": "Ember Fixture",
+          "rank_rationale": "Rank 3 because it beats rank 4 on stage fit and review depth for this fixture category.",
+          "missed_top5_reason": ""
+        },
+        {
+          "rank": 4,
+          "role": "top_pick",
+          "product_name": "Fixture Product 4",
+          "brand": "Ember Fixture",
+          "rank_rationale": "Rank 4 because it beats rank 5 on stage fit and review depth for this fixture category.",
+          "missed_top5_reason": ""
+        },
+        {
+          "rank": 5,
+          "role": "top_pick",
+          "product_name": "Fixture Product 5",
+          "brand": "Ember Fixture",
+          "rank_rationale": "Rank 5 because it beats rank 6 on stage fit and review depth for this fixture category.",
+          "missed_top5_reason": ""
+        },
+        {
+          "rank": 6,
+          "role": "longlist",
+          "product_name": "Fixture Product 6",
+          "brand": "Ember Fixture",
+          "rank_rationale": "Longlist rank 6 ordered by stage fit then evidence for the fixture bench.",
+          "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+        },
+        {
+          "rank": 7,
+          "role": "longlist",
+          "product_name": "Fixture Product 7",
+          "brand": "Ember Fixture",
+          "rank_rationale": "Longlist rank 7 ordered by stage fit then evidence for the fixture bench.",
+          "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+        },
+        {
+          "rank": 8,
+          "role": "longlist",
+          "product_name": "Fixture Product 8",
+          "brand": "Ember Fixture",
+          "rank_rationale": "Longlist rank 8 ordered by stage fit then evidence for the fixture bench.",
+          "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+        },
+        {
+          "rank": 9,
+          "role": "longlist",
+          "product_name": "Fixture Product 9",
+          "brand": "Ember Fixture",
+          "rank_rationale": "Longlist rank 9 ordered by stage fit then evidence for the fixture bench.",
+          "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+        },
+        {
+          "rank": 10,
+          "role": "longlist",
+          "product_name": "Fixture Product 10",
+          "brand": "Ember Fixture",
+          "rank_rationale": "Longlist rank 10 ordered by stage fit then evidence for the fixture bench.",
+          "missed_top5_reason": "Missed Top 5: weaker talk-back fit than ranks 1–5 for this fixture category."
+        }
+      ]
+    }
+  ]
+}

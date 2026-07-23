@@ -225,7 +225,14 @@ Flag:
 
 ## Handoff to Stage 3 Research And Ingestion
 
-Use this skill to produce the shortlist only. For each selected Stage 2 card that the founder chooses to pilot, use `$ember-stage3-research` to run or prepare the deeper product research.
+Use this skill to produce the shortlist only. For each selected Stage 2 card that the founder chooses to pilot:
+
+1. `$ember-stage3-research` → write to `research/inbox/` (`pending-ff-check`)
+2. `$ember-stage3-ff-checker` → `green/` or `quarantine/` (URL / rating / age gates)
+3. `$ember-stage3-founder-review` → HTML from `green/` only
+4. `$ember-stage3-card-ingestion` → ingest from `green/` only
+
+Gates: `web/docs/STAGE3_TRUST_GATES.md`.
 
 After the founder chooses researched cards to publish, use `$ember-stage3-card-ingestion` to convert approved Stage 3 research outputs into live `/discover` Pip's Picks cards.
 

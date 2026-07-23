@@ -1,0 +1,79 @@
+﻿{
+  "age_band_id": "34-36m",
+  "passed": [],
+  "failed": [
+    "cat_fixture_bad"
+  ],
+  "details": [
+    {
+      "category_entity_id": "cat_fixture_bad",
+      "overall_pass": false,
+      "category_fails": [
+        "schema_version_not_ember_picks_research_v3",
+        "buying_factor_memo_missing",
+        "methodology_missing_steps:bench|age|rank|url",
+        "longlist_6_missed_top5_reason_missing",
+        "longlist_6_rank_rationale_missing",
+        "longlist_7_missed_top5_reason_missing",
+        "longlist_7_rank_rationale_missing",
+        "longlist_8_missed_top5_reason_missing",
+        "longlist_8_rank_rationale_missing",
+        "longlist_9_missed_top5_reason_missing",
+        "longlist_9_rank_rationale_missing",
+        "longlist_10_missed_top5_reason_missing",
+        "longlist_10_rank_rationale_missing"
+      ],
+      "picks_failed": [
+        {
+          "rank": 1,
+          "product_name": "Bad Fixture Product 1",
+          "fail_reasons": [
+            "rank_rationale_missing",
+            "age_signals_missing",
+            "url_verification_missing"
+          ]
+        },
+        {
+          "rank": 2,
+          "product_name": "Bad Fixture Product 2",
+          "fail_reasons": [
+            "rank_rationale_missing",
+            "age_signals_missing",
+            "url_verification_missing"
+          ]
+        },
+        {
+          "rank": 3,
+          "product_name": "Bad Fixture Product 3",
+          "fail_reasons": [
+            "rank_rationale_missing",
+            "age_signals_missing",
+            "url_verification_missing"
+          ]
+        },
+        {
+          "rank": 4,
+          "product_name": "Bad Fixture Product 4",
+          "fail_reasons": [
+            "rank_rationale_missing",
+            "age_signals_missing",
+            "url_verification_missing"
+          ]
+        },
+        {
+          "rank": 5,
+          "product_name": "Bad Fixture Product 5",
+          "fail_reasons": [
+            "rank_rationale_missing",
+            "age_signals_missing",
+            "url_verification_missing"
+          ]
+        }
+      ],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      }
+    }
+  ]
+}

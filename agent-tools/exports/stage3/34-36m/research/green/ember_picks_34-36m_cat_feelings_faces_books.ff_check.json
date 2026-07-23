@@ -1,0 +1,68 @@
+{
+  "ff_check_pass": true,
+  "checked_at": "2026-07-23",
+  "ingestion_ready_status": "founder-review-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "Pip and Posy: The New Friend",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "Can You Share, Little Whale?",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "That's (Not) Mine",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "The Sour Grape",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "The Squirrels Who Squabbled",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": []
+}

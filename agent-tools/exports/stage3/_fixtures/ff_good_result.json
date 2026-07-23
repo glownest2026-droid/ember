@@ -1,0 +1,19 @@
+﻿{
+  "age_band_id": "34-36m",
+  "passed": [
+    "cat_fixture_good"
+  ],
+  "failed": [],
+  "details": [
+    {
+      "category_entity_id": "cat_fixture_good",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 0,
+        "ok_count": 0
+      }
+    }
+  ]
+}

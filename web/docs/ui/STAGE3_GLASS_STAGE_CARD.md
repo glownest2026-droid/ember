@@ -111,7 +111,7 @@ Leave `padding-right: ~52px` on kicker / rank / tag so type never runs under the
 1. **Corner robin** (top-right)
 2. **Rank** — ghost-stroke numeral (`font-size ~42px`, `-webkit-text-stroke: 1.5px var(--accent)`, fill transparent) + “of N” caption
 3. **Best-for tag** — pill, uppercase ~10.5–11px / 800, border + fill from accent
-4. **Title** — ~22px / 800, white, max 2 lines; keep width ~78% so glass feels open
+4. **Title** — ~22px / 800, white. Mobile: up to 2 lines. **Desktop: show the full title** (no clamp) unless the name is genuinely extreme; prefer wrapping over ellipsis. Keep right padding clear of the robin.
 5. **Brand** — uppercase ~12px / 700, white 60%
 6. **Description** — ~13.5–14px / 500, white 90%, clamp 2–3 lines; dims when drawer open
 7. **Why Pip picked this — DRAWER** (required addictive component — see §4)
@@ -154,7 +154,8 @@ Founder rule: drive **addictive browsing** on the sofa — every card gives the 
 
 - Copy comes from ingested Stage 3 data (`best_for` / tag, title, brand, description, verdict).
 - Voice: smart UK parent friend. No magic / win / unlock / essential / “research shows”.
-- Retailer CTA → **Google Shopping** search for `brand + title` — never one retailer deep-link.
+- Retailer CTA → **Google Shopping** search for `brand + title` when the stored primary is Amazon (or missing) — never deep-link a single marketplace ASIN.
+- Exception (2026-07-23): when research stores a **non-Amazon brand/specialist** `product_url` (Amazon failed substance / dead ASIN), Browse offers opens that URL so parents are not dumped onto a dead Shopping→Amazon result.
 - **Browse offers always opens in a new tab/window** (`target="_blank"` + `openOutboundRetailerUrl`) so Discover stays in place on mobile.
 - Free members: pick 1 unlocked + one locked upsell card (existing product rule) — preserve when wiring.
 

@@ -1,0 +1,42 @@
+{
+  "checked_at": "2026-07-22",
+  "url_count": 5,
+  "ok_count": 1,
+  "results": {
+    "https://www.gov.uk/toy-safety-regulations": {
+      "url": "https://www.gov.uk/toy-safety-regulations",
+      "http_status": 404,
+      "url_ok": false,
+      "error": "http_404",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.gov.uk/child-car-seats-the-rules": {
+      "url": "https://www.gov.uk/child-car-seats-the-rules",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.capt.org.uk/button-batteries": {
+      "url": "https://www.capt.org.uk/button-batteries",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.rospa.com/home-safety/advice/blind-cord-safety/": {
+      "url": "https://www.rospa.com/home-safety/advice/blind-cord-safety/",
+      "http_status": 404,
+      "url_ok": false,
+      "error": "http_404",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.rospa.com/leisure-safety/water-safety/": {
+      "url": "https://www.rospa.com/leisure-safety/water-safety/",
+      "http_status": 404,
+      "url_ok": false,
+      "error": "http_404",
+      "checked_at": "2026-07-22"
+    }
+  }
+}

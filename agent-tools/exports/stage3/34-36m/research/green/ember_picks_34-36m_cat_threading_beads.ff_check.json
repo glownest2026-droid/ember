@@ -1,0 +1,68 @@
+{
+  "ff_check_pass": true,
+  "checked_at": "2026-07-23",
+  "ingestion_ready_status": "founder-review-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "Smart Snacks ABC Lacing Sweets",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "Caterpillar Fruit Feast Set",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "Filacolor Lacing Beads",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "Beads & Pattern Card Set",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "Edushape Sensory Baby Beads",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": []
+}

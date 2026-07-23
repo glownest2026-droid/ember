@@ -7,13 +7,16 @@ description: Turn Ember Stage 3 research outputs into live /discover Pip's Picks
 
 ## Purpose
 
-Use this skill to convert approved or near-approved `$ember-stage3-research` outputs into real parent-facing Pip's Picks cards in `/discover`.
+Use this skill to convert **green-folder** `$ember-stage3-research` outputs into real parent-facing Pip's Picks cards in `/discover`.
 
-This is the third step in the workflow:
+This is the fourth step in the workflow:
 
 1. `$ember-stage2-pilot-converter` chooses which Stage 2 cards should be piloted first.
-2. `$ember-stage3-research` produces evidence-backed Top 5 picks, longlist backups, skips, and guidance.
-3. `$ember-stage3-card-ingestion` turns the research into live Discover cards, QA'd against Ember brand standards and ready for founder review on a Vercel PR preview.
+2. `$ember-stage3-research` produces evidence-backed Top Picks **with Writing-Guidelines-clean public copy** into `research/inbox/` (`pending-ff-check`).
+3. `$ember-stage3-ff-checker` smoke-checks URLs, ratings, age, availability, and copy bans → `green/` or `quarantine/` (**second pass**, not the copywriter).
+4. `$ember-stage3-card-ingestion` turns **`green/`** research into live Discover cards **without rewriting voice**.
+
+**Refuse inputs outside `…/research/green/`.** Run `node agent-tools/scripts/stage3-ff-check.mjs --age-band={AGE_BAND}` first if needed. Gates: `web/docs/STAGE3_TRUST_GATES.md`. Voice: `web/docs/brand/WRITING_GUIDELINES.md` (already applied at research).
 
 ## Core Product Rules
 
@@ -49,7 +52,8 @@ Also inspect the current repo implementation before editing:
 
 - Discover routes/pages/components under `web/src/app/discover`, `web/src/components/discover`, and adjacent data loaders.
 - Existing database migrations and seed/import patterns under `supabase/`, `web/scripts/`, and any Stage 2/Discover scripts.
-- Brand rules in `web/docs/EMBER_BRAND_BOOK.md`.
+- Brand rules in `web/docs/EMBER_BRAND_BOOK.md` and `web/docs/brand/README.md`.
+- **Writing craft:** `web/docs/brand/WRITING_GUIDELINES.md` (research must already comply; ingest does not rewrite).
 - Product marketing names in `web/docs/PRODUCT_MARKETING_LIBRARY.md`.
 - Persona bar in `web/docs/CONSCIENTIOUS_CONOR.md` and `.cursor/rules/conscientious-conor.mdc`.
 
@@ -62,7 +66,7 @@ When working inside the Ember repo, prefer the deterministic generator before ha
 ```bash
 node web/scripts/ingest-stage3-pips-picks.mjs \
   --age-band={AGE_BAND} \
-  --inputs=agent-tools/exports/ember_picks_{AGE_BAND}_*.json
+  --inputs=agent-tools/exports/stage3/{AGE_BAND}/research/green/ember_picks_{AGE_BAND}_*.json
 ```
 
 Use `--dry-run` first. If validation passes, rerun without `--dry-run` to create:
@@ -93,7 +97,8 @@ Do not create orphan Stage 3 content.
 
 For product-category Pip's Picks, require:
 
-- schema version `ember_picks_research_v2`, or a clearly compatible output
+- schema version `ember_picks_research_v3` (or clearly compatible green output)
+- file from `…/research/green/` only
 - exactly 5 Top Picks
 - 15 longlist entries where possible
 - at least 5 skips, or an explanation
@@ -102,20 +107,19 @@ For product-category Pip's Picks, require:
 - price/stock/source checked dates
 - evidence tiers
 - `best_for_tag`
-- `product_description_under_30_words`
+- `product_description_under_30_words` (**20–40 words**; legacy field name — one Description only)
 - `ember_verdict`
 - safety notes where relevant
-- buy/borrow/bring-back/hold-off judgement
 
-If this fails because the research is weak, stale, incomplete, generic, unsafe, or not Conor-grade, automatically rerun `$ember-stage3-research` and tell the founder what triggered the rerun.
+If public copy fails Writing Guidelines / Conor bar, **do not rewrite at ingest**. Send back to `$ember-stage3-research` Mode A (or Mode C after FF) and tell the founder what failed.
 
 If the missing input is not research-fixable, ask one concise clarification question.
 
-### 3. Convert Research To Card-Ready Content
+### 3. Map Research To Card Fields (copy-faithful)
 
-Create parent-facing card content from the research. The card should feel like Ember, not like raw research.
+Map green JSON into card/DB fields. The card should feel like Ember **because research already wrote it that way** — not because ingest rewrote it.
 
-Each visible pick should have:
+Each visible pick should carry through:
 
 - rank
 - `best_for_tag`
@@ -124,47 +128,26 @@ Each visible pick should have:
 - retailer/source
 - price text when verified
 - product image URL or existing image strategy
-- one short factual product description
-- one Ember verdict
-- buy/borrow/hold-off/pre-loved/new-only judgement
-- gift suitability where relevant
-- ownership/duplication note where relevant
-- safety note where relevant
+- `product_description_under_30_words` (unchanged; must already be 20–40 words)
+- `ember_verdict` (unchanged — Why Pip picked this)
+- gift / ownership / safety notes when present on the research row
 - evidence/QA flags for internal display or admin review, not noisy parent copy
 
-Use the research JSON for product facts. Rewrite only the parent-facing copy. Do not invent facts, ratings, awards, prices, age marks, or safety warnings.
+**Hard rule:** Use the research JSON for product facts **and** parent-facing sentences. Do **not** invent facts, ratings, awards, prices, age marks, or safety warnings. Do **not** “improve” Why Pip or descriptions at ingest. If voice is wrong, fail back to research.
 
-### 4. Apply Brand And Conor QA
+### 4. Spot-check Brand / Conor / Writing Guidelines
 
-Read `web/docs/EMBER_BRAND_BOOK.md` before writing or editing parent-facing copy.
+Confirm green inputs still read as Ember (spot-check, not a rewrite pass):
 
-Every parent-facing card must pass:
+1. **Respect**
+2. **Well Duh**
+3. **Stage shift** (parent language — no “Stage 2” on the card)
+4. **Fit** without shopping-order spine on Why Pip
+5. **Human parent** + Writing Guidelines ship checklist
 
-1. **Respect:** assumes the parent lived the previous stage.
-2. **Well Duh:** avoids obvious advice.
-3. **Stage shift:** explains why this pick fits now.
-4. **Buying judgement:** helps decide buy, borrow, bring back out, hold off, pre-loved, or new-only.
-5. **Human parent:** sounds like a smart UK parent friend.
+If a card fails, quarantine/re-research — do not silently polish in this skill.
 
-Reject or rewrite any card that contains:
-
-- `magic`
-- `unlock`
-- `optimise`
-- `essential`
-- `must-have`
-- `research-backed`
-- `developmental domain`
-- `stage-based`
-- `proactive parenting`
-- `accelerate development`
-- `another spiral`
-- `endless tabs`
-- `40 tabs`
-- `six months behind`
-- guilt, shame, or lag framing
-- toy-ad hype
-- generic AI tone
+Reject inputs that still contain banned tells (em dash, calm as praise, worth buying, Fresh 20XX, Stage X, etc.). Prefer re-running FF; do not hand-edit voice in the migration.
 
 If the content cannot be made fantastic without better evidence, rerun `$ember-stage3-research`.
 
@@ -245,10 +228,10 @@ Use a concise founder-readable PR body:
 ## Founder test plan
 - Logged out: open the Vercel preview and check pick 1 is clear, picks 2-5 are blurred.
 - Logged in as `timwd23@gmail.com`: check all five picks are visible.
-- Check copy feels like Ember: specific, useful, no guilt, no toy-ad hype.
+- Check copy still feels like Ember (spot-check Writing Guidelines — do not rewrite at ingest).
 
 ## QA
-- Brand book / Conor tests: pass
+- Writing Guidelines / Conor tests: pass (from green research)
 - Research input: pass / rerun completed
 - Tests run: ...
 - Known caveats: ...
@@ -276,14 +259,15 @@ Stop and ask for help if:
 - paid/founder auth state cannot be determined after inspecting the repo
 - product/safety claims cannot be verified even after rerunning research
 - GitHub or Vercel access is unavailable and no workaround exists
+- green copy fails Writing Guidelines and would require an ingest rewrite (send back to research instead)
 
 ## Acceptance Checks
 
 Before final delivery:
 
-- Stage 3 research is valid or rerun.
-- Parent-facing copy follows `web/docs/EMBER_BRAND_BOOK.md`.
-- Every card passes the five Conor tests.
+- Stage 3 research is valid green output (Writing Guidelines already applied at research).
+- Parent-facing copy was **not** rewritten at ingest; it maps from green JSON.
+- Every card spot-checks against Conor + Writing Guidelines.
 - Top 5 picks are represented.
 - Longlist backups are stored or intentionally preserved in an import artifact.
 - Stage 3 content maps to the correct Stage 2 card.

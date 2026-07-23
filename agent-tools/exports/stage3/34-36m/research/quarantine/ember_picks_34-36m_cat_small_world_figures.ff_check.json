@@ -1,0 +1,61 @@
+{
+  "ff_check_pass": false,
+  "checked_at": "2026-07-22",
+  "ingestion_ready_status": "not-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "Happyland London Bus Playset",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "LEGO DUPLO The Bus Ride (10988)",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "PLAYMOBIL Junior Everyday Heroes (71692)",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "PLAYMOBIL Junior Dump Truck (71685)",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "LEGO DUPLO 3-in-1 Construction Vehicles (10475)",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": [
+    "longlist_count_10",
+    "skips_below_5"
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 name: ember-stage3-research
-description: Run or prepare Ember Stage 3 product research for any Stage 2 card, producing evidence-backed Top Picks (default 5, up to 10 for high-breadth categories), longlist, skips, and structured JSON/CSV outputs.
+description: Run or prepare Ember Stage 3 product research for any Stage 2 card, producing evidence-backed Top 5 picks, longlist, skips, and structured JSON/CSV outputs.
 ---
 
 # Ember Stage 3 Research Skill
@@ -30,37 +30,68 @@ Do not use this Skill for broad Stage 1/Stage 2 content generation. Use it only 
 
 ---
 
+## Trust gates + methodology (mandatory)
+
+Follow:
+
+- `web/docs/brand/WRITING_GUIDELINES.md` — **every parent-facing sentence** (write approved copy at source)
+- `web/docs/STAGE3_TRUST_GATES.md`
+- `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` (must-be-trues: FF pass, working links, public preview content, scrutiny DB, **approved public copy at research**)
+
+Summary:
+
+- **Schema:** `ember_picks_research_v3` only. Older drafts are archaeology.
+- **Public copy at source (blocking):** Before writing any parent-facing field, read Writing Guidelines **and** complete the **Research ship checklist** below. `product_description_under_30_words`, `ember_verdict`, and Best for tags must already be shippable. **Do not** leave voice, Best-for alignment, Description depth, or lookalike Top 5 fixes for FF, founder HTML, or ingestion. FF only re-validates.
+- **Never guess URLs.** Prefer brand/publisher/specialist as primary; Amazon/Argos as alternates until smoke-checked.
+- **Reviews:** Top Picks need `rating_value >= 4.4` and `rating_count >= 15`. Specialist exemption needs a written reason, but **cannot** excuse a SKU with `rating_count` present and `< 15`.
+- **Age signals:** Capture structured `age_signals[]` from the live listing (safety exclusion, min age, reading age, age range). Strictest wins. “Not suitable under 3 years” fails for bands whose `min_months < 36`.
+- **HOW fields (blocking):** category `buying_factor_memo` + `methodology` (bench → age → rank → URL verify); every Top Pick `rank_rationale` + `url_verification`; longlist ranks 6–10 `missed_top5_reason`.
+- **Output path:** write only to `agent-tools/exports/stage3/{AGE_BAND}/research/inbox/`
+- **Status:** set `ingestion_ready.status` to `pending-ff-check` or `not-ready` only — never `production-ready`. Promotion is `$ember-stage3-ff-checker` only.
+- **Ban:** compressed “fix the 404s” / light-repair Task packets. Prior JSON may be **name hints only**; every URL, age signal, rating, rank, and parent sentence must be re-earned. If asked to light-repair into green, **refuse** and run full Mode A instead.
+- **URL preflight:** before locking Top 5, smoke 2–3 candidates per product (`stage3-url-preflight.mjs`). Prefer brand/publisher; if 403/429, swap primary to a working UK retailer; Amazon last. See methodology “Pilot learnings”.
+- **Availability preflight:** run `stage3-availability-check.mjs` on every Top 5 primary (and manufacturer alts). Reject retired/discontinued SKUs and primaries showing notify-when-in-stock or sold out. If Hamleys/ELC block bots, use a buyable Amazon UK primary and document why.
+- **Age-mark hygiene:** for bands with `min_months < 36`, never put bare “Ages 3+” / “From 5 years” / Waterstones “Interest age: From 5 years” in `age_mark_on_listing`. Use structured overlapping `age_signals` (e.g. Ages 1–5 → 12–60 months).
+- **Rating honesty:** do not invent review counts; if widgets won’t scrape, say so in `rating_source` and flag founder QA.
+
 ## Modes
 
 ### Mode A — Run research now
 
 Use when live web/research tools are available and the user wants the research completed.
 
-Output a founder-readable assessment plus files where possible:
+**Before writing parent-facing fields:** open and follow `web/docs/brand/WRITING_GUIDELINES.md` (Principles 1–10 + ship checklist). Write `product_description_under_30_words` and `ember_verdict` as they should appear on `/discover`. Run the **Research ship checklist** (below) on every Top Pick **before** writing `inbox/`. Commerce judgement may live in internal fields (`buy_borrow_hold_off`, research notes); do **not** lead Why Pip with buy/borrow/worth-buying orders.
+
+### Research ship checklist (blocking — own this here, not in FF)
+
+Run on every Top Pick before `inbox/`. This is the **root-cause** quality gate.
+
+1. Description **20–40 words** and alone makes the product clear (decode SKU jargon).
+2. Why Pip = need at this age + why this earns Top 5–10 + how it earns the Best for tag — **not** a paraphrase of Description.
+3. Best for comes to life in Description and/or Why Pip (implicitly or explicitly).
+4. No AI / money tells: low-stakes, quick wins, tight budgets, worth buying, calm as praise, em dashes, Stage X, Fresh 20XX, crisis framing.
+5. Unique product names across Top 5; at most one lookalike line from the same modular range (e.g. one Edx Step-A-* style title, not two).
+6. Writing Guidelines ship checklist + Conor five tests pass on a read-aloud.
+
+FF may re-fail any of the above later — that means research skipped this checklist, not that FF should become the copywriter.
+
+Output a founder-readable assessment plus files where possible (into **`inbox/`**):
 
 1. `ember_picks_{age_band_id}_{category_entity_id}.json`
 2. `ember_picks_{age_band_id}_{category_entity_id}.csv`
 3. `ember_picks_{age_band_id}_{category_entity_id}_summary.md`
 
-When working inside the Ember repo, store completed or received Stage 3 outputs in the central age-band research location:
-
-`agent-tools/exports/stage3/{AGE_BAND}/research/`
-
-Also update or create the Stage 3 registry/founder-preview artifacts via `$ember-stage3-founder-review` whenever a complete output is produced or detected.
+Then tell the founder to run `$ember-stage3-ff-checker` (or run it if asked). FF is a **second pass** (links, age, ratings, availability, banned-string gates) — not the place where good voice is invented.
 
 ### Mode B — Generate a research brief
 
 Use when the user wants to hand off the work to Manus, Cursor, another agent, or a human researcher.
 
-Output a ready-to-run Markdown research brief using the same inputs, workflow, evidence rules and schema.
-
-For Manus handoff, the brief must be tool-agnostic and self-contained: include the selected Stage 2 row, Stage 1 context, age-band metadata, source/evidence IDs, required output filenames, canonical JSON schema, CSV header, quality thresholds, and explicit instruction to return the full JSON/CSV/summary bundle. Do not assume Manus can inspect the local repo unless source files are attached or pasted.
+Start from **`agent-tools/prompts/ember-stage3-research-brief-v5.md`**. Fill Section 0 completely. Include trust gates, methodology, **Writing Guidelines**, inbox path, schema v3, and HOW field requirements. State explicitly: public copy must be Writing-Guidelines-clean in `inbox/`.
 
 ### Mode C — QA an existing Stage 3 output
 
-Use when the user uploads or pastes an existing Stage 3 output and asks whether it is good enough.
-
-Assess against: source mix, educational fit, ranking quality, top-pick distinctness, review evidence, safety accuracy, URL validity, schema compliance, and MLP value.
+Prefer `$ember-stage3-ff-checker` for deterministic URL/rating/age/copy-ban gates. Use this mode for a qualitative second read against Writing Guidelines + Conor five tests **after** the scripted check — fail back to full Mode A re-research if voice is weak. Do not “light polish” into green.
 
 ---
 
@@ -70,13 +101,14 @@ Do not produce “five popular products”. Produce a small, stage-aware decisio
 
 A strong Ember Pick explains:
 
-- why this item or option fits this age moment;
-- what child behaviour it is most likely to fit, so the app can later personalize the reasoning for a named child;
-- what is different from earlier age bands;
+- why this item fits this age moment (positive skill or play vision);
+- what is different from earlier age bands (in parent language — never “Stage 1/2/3” on the card);
 - who it is best for;
-- who should skip it;
-- whether to buy, borrow, bring back out, buy pre-loved, buy new only, or hold off;
+- who should skip it (skips / longlist reasons — may be internal);
+- fit and ownership hints without barking buy/borrow/worth-buying as the spine of Why Pip;
 - what safety, size, frustration, ownership, availability, and quality caveats matter.
+
+Parent-facing sentences follow `web/docs/brand/WRITING_GUIDELINES.md`. Internal research fields may hold commerce notes; public cards must already sound shippable in `inbox/`.
 
 ---
 
@@ -128,7 +160,6 @@ If a value is missing but can be inferred safely from the brief, infer it and ma
 | `known_bad_examples` | Optional exclusions | Founder supplied |
 | `preferred_retailers` | Retailer preference set | Founder supplied or category default |
 | `excluded_retailers_or_sources` | Sources to avoid | Founder supplied plus default exclusions |
-| `target_pick_count` | Number of Top Picks to deliver (default 5, max 10) | Founder supplied, or judged from category breadth (see “Pick depth”) |
 
 ---
 
@@ -174,13 +205,13 @@ Do not recommend pre-loved for categories marked `new_only` or `restricted`.
 
 ## Evidence quality thresholds
 
-A Top 5 Ember Pick should normally meet at least one of these standards:
+A Top 5 Ember Pick should normally meet at least one of these standards (canon aligned with trust gates):
 
-1. Strong retail proof: average rating `>= 4.4` with `>= 50` customer reviews on at least one reputable UK retailer.
+1. Strong retail proof: average rating `>= 4.4` with `>= 15` customer reviews on at least one reputable UK retailer.
 2. Multi-source proof: credible support from at least two source types, for example retailer + brand, retailer + editorial, or retailer + community.
-3. Specialist proof: a respected specialist retailer or reputable brand, clear product specs, and strong fit to the educational objective.
+3. Specialist proof: a respected specialist retailer or reputable brand, clear product specs, strong fit to the educational objective, plus `evidence_exemption: specialist` and a written reason in `evidence_notes`.
 
-Hidden gems can be included, but must be labelled honestly. A hidden gem can enter Top 5 only if it has rating `>= 4.5` with at least `20` reviews, or strong specialist/editorial support, a reputable seller, and a specific reason it beats mainstream options for the Stage 2 objective.
+Hidden gems can be included, but must be labelled honestly. A hidden gem can enter Top 5 only if it meets the ≥4.4 / ≥15 bar, or the specialist exemption with a written reason, and a specific reason it beats mainstream options for the Stage 2 objective.
 
 Use these evidence tiers:
 
@@ -198,7 +229,7 @@ Do not force shopping picks onto every Stage 2 card.
 
 | Content type | Output behaviour |
 |---|---|
-| `product_category` | Produce `target_pick_count` product picks (default 5), 15-item longlist, skips, guidance notes |
+| `product_category` | Produce Top 5 product picks, 15-item longlist, skips, guidance notes |
 | `activity` | Produce Top 5 activity variants, suggested supplies if useful, and “don’t buy if…” guidance |
 | `setup` | Produce setup approaches and optional product categories, with space/storage/friction caveats |
 | `safety_check` | Produce safety guidance, official source checks, do/avoid steps, and no shopping-first CTAs |
@@ -223,7 +254,16 @@ Rank candidates by this order:
 7. Circularity, borrowability, and pre-loved suitability.
 8. Distinctness from other picks.
 
-Avoid near-duplicates. A good Top Picks set should help different parent situations — this is also the test for whether a category deserves more than 5 picks.
+Avoid five near-duplicates. A good Top 5 should help different parent situations.
+
+### Document the ranking (HOW — blocking)
+
+Before claiming `pending-ff-check`:
+
+1. Write `buying_factor_memo` (4–6 sentences) naming the factors that decided order *for this category*.
+2. Write `rank_rationale` on every Top Pick and every longlist row ranks 1–10 (why this beat the next).
+3. Write `missed_top5_reason` on longlist ranks 6–10 (required) and 11–15 (recommended).
+4. If any of those are empty → set `ingestion_ready.status = not-ready` and do not pretend the file is FF-ready.
 
 ---
 
@@ -232,19 +272,10 @@ Avoid near-duplicates. A good Top Picks set should help different parent situati
 For a product-category Stage 3 run, produce:
 
 - exactly 15 ranked longlist candidates;
-- `target_pick_count` Top Picks selected from the longlist (default 5, maximum 10);
+- exactly 5 Top Picks selected from the longlist;
 - at least 5 skips, unless fewer credible rejects exist;
 - at least 1 guidance note covering buy, borrow, bring back out, pre-loved, or hold off;
-- substitute recommendations from remaining longlist ranks for any Top Pick at risk of stock/price volatility.
-
-### Pick depth (`target_pick_count`)
-
-Default is 5. Go deeper (up to 10) only when the category genuinely supports it — the test is whether pick 10 still helps a different parent situation than picks 1-9:
-
-- **10 justified**: huge-catalogue categories where variety is the point — books (board books, song/rhyme books, tummy-time books), story collections, flashcard sets.
-- **Stay at 5**: focused-object categories that dilute fast — baby mirror, play gym, room thermometer, mattress, carrier; and all safety-led categories, where a tight curated list preserves trust.
-
-Every Top Pick beyond rank 5 must meet the same card-ready bar as picks 1-5 (best_for_tag, under-30-words description, ember_verdict, personalization_hint, live URL). Do not pad with backup-grade rows: if only 5 picks are card-ready, deliver 5.
+- substitute recommendations from longlist ranks 6-15 for any Top Pick at risk of stock/price volatility.
 
 If the category is non-product, preserve the same spirit but adapt the unit of recommendation.
 
@@ -254,62 +285,63 @@ If the category is non-product, preserve the same spirit but adapt the unit of r
 
 Every Top Pick needs one specific parent-facing `best_for_tag`.
 
-**Hard format rule (founder, 2026-07-19): every tag starts with `Best for` and names a parent/child situation in 6 words or fewer after the prefix.** Never a feature list ("Highly absorbent and NICU trusted" fails), never bare adjectives ("sensory development" fails), never ALL CAPS in the data (the UI handles casing).
-
 Examples:
 
+- `Best low-frustration starter`
+- `Best proper first step-up`
+- `Best value pick`
+- `Best small-space option`
+- `Best premium pick`
+- `Best travel option`
+- `Best borrow-first option`
+- `Best gift`
 - `Best for cautious starters`
 - `Best for confident toddlers`
-- `Best for the newborn weeks`
-- `Best for budgets`
-- `Best for small spaces`
-- `Best for travel`
-- `Best for borrowing first`
-- `Best for gifting`
-- `Best for sensitive skin`
-- `Best for growing with your baby`
-- `Best for most families`
+- `Best if they already love characters`
+- `Best pre-loved buy`
+- `Best parent sanity saver`
+- `Best setup upgrade`
+- `Best quick check`
 
-Do not reuse generic tags across all picks. Tags must help a parent choose between the picks in one glance.
+Do not reuse generic tags across all picks. Tags must help a parent choose.
 
 ---
 
 ## Copy rules
 
-Each Top Pick must include two descriptions.
+Each Top Pick has **two public copy fields** that match the live card (not two product summaries):
 
-### `product_description_under_30_words`
+1. **Description** — exactly what the product is (20–40 words)
+2. **Why Pip picked this** — why it earns Top 5–10 now (need at this age + earns the Best for tag)
 
-A factual description of what the product is. Maximum 30 words. No developmental claims unless the product page itself makes them.
+Do **not** write a separate “What this is” field. The card shows one Description only.
 
-Example: `Four progressive cardboard jigsaws featuring Bluey, with 12, 16, 20 and 24 pieces.`
+### `product_description_under_30_words` (Description)
+
+Schema field name is legacy. The writing rule is **20–40 words** (hard). Follow **`web/docs/brand/WRITING_GUIDELINES.md`** Pip’s Picks card fields.
+
+Explain exactly what is in the box in plain parent English. Decode brand SKUs. A parent must understand the product without opening Why Pip or Browse offers. Do not duplicate Why Pip.
+
+Example (28 words): `A set of large colourful wooden beads and shapes to thread onto a soft fabric lace, sized for little hands that are ready for a proper threading job at the table.`
 
 ### `ember_verdict`
 
-A parent-facing judgement explaining why the pick fits the exact Stage 1 card, Stage 2 card and age band.
+Parent-facing “Why Pip picked this” — the **rationalisation box**. Follow **`web/docs/brand/WRITING_GUIDELINES.md`** (canonical).
 
-It should explain:
+It should:
 
-- why this works now;
-- what makes it different from earlier-stage options;
-- who it is best for;
-- any reason to borrow, skip, bring back out, or hold off.
+- ground the pick in the Stage 1 development need for this card;
+- make the **Best for…** tag feel earned (implicitly or explicitly);
+- add fit or a kind practical note the Description did not already say.
 
-Tone: smart UK friend. Warm, calm, specific, not salesy.
+Do **not** restate the Description. Avoid AI tells: low-stakes, quick wins, tight budgets, worth buying, calm as praise, em dashes, Stage X, Fresh 20XX.
 
-Avoid: essential, must-have, unlock, “research shows,” domain jargon, pressure language, guilt language, toy-ad hype, and broad unsupported claims.
+### Best for + Top 5 shape
 
-### `personalization_hint`
-
-Add one short personalization hint for each Top Pick. Do not use a real child name. Describe the likely child pattern the UI can angle toward when a signed-in child profile is known.
-
-Examples:
-
-- `likely to be watching faces and turning toward familiar voices`
-- `likely to be using short awake windows for floor play`
-- `likely to be building stories from everyday routines`
-
-The ingestion/UI layer can then render named copy such as `suitable for Lily, who is likely to be building stories from everyday routines`.
+- Best for tags must come to life in Description and/or Why Pip.
+- Unique product names in Top 5.
+- Do not put two near-identical SKUs from the same range (e.g. two Edx Step-A-* lines) in Top 5 — titles truncate and feel like duplicates.
+- Money tags: never “tight budgets”; prefer kinder UK parent language.
 
 ---
 
@@ -341,7 +373,7 @@ Use this schema unless the founder asks for a different one.
 
 ```json
 {
-  "schema_version": "ember_picks_research_v2",
+  "schema_version": "ember_picks_research_v3",
   "research_date": "YYYY-MM-DD",
   "researcher": "chatgpt | manus | cursor | human | other",
   "currency": "GBP",
@@ -368,7 +400,8 @@ Use this schema unless the founder asks for a different one.
   "age_stage_nuance": "",
   "what_to_look_for": "",
   "what_to_avoid": "",
-  "methodology": "2-6 sentences explaining search, filter, verification and ranking method.",
+  "methodology": "Name the steps run: bench → age capture → rank with buying_factor_memo → URL verify. 2-6 sentences.",
+  "buying_factor_memo": "4-6 sentences: which factors decided order for THIS category (e.g. talk-back strength, ownership risk, review depth, freshness, age fit).",
   "source_mix_summary": {
     "retailers_checked": [],
     "brand_sites_checked": [],
@@ -391,10 +424,11 @@ Use this schema unless the founder asks for a different one.
     "safety_check": "pass | partial | fail | not_applicable",
     "rating_threshold_check": "pass | partial | fail | not_applicable",
     "source_mix_check": "pass | partial | fail",
+    "how_trail_check": "pass | fail",
     "notes": ""
   },
   "ingestion_ready": {
-    "status": "production-ready | founder-review-ready | not-ready",
+    "status": "pending-ff-check | not-ready",
     "expected_stage2_mapping": {
       "age_band_id": "",
       "category_entity_id": "",
@@ -425,12 +459,26 @@ For each object in `top_picks`, include:
   "alternate_urls": [],
   "image_url": "",
   "url_checked_date": "YYYY-MM-DD",
+  "url_verification": {
+    "checked_at": "YYYY-MM-DD",
+    "http_status_or_method": "200 | browser_ok | unknown",
+    "primary_opens_product": true
+  },
   "stock_status": "in_stock | low_stock | out_of_stock | preorder | unknown",
   "price_amount": 0.0,
   "price_text": "£0.00",
   "currency": "GBP",
   "price_checked_date": "YYYY-MM-DD",
   "age_mark_on_listing": "",
+  "age_signals": [
+    {
+      "signal_type": "min_age | age_range | safety_exclusion | interest_age",
+      "raw_text": "",
+      "min_months": null,
+      "max_months": null,
+      "forbidden_under_months": null
+    }
+  ],
   "key_specs": {
     "piece_count": "",
     "dimensions": "",
@@ -440,7 +488,7 @@ For each object in `top_picks`, include:
   },
   "product_description_under_30_words": "",
   "ember_verdict": "",
-  "personalization_hint": "",
+  "rank_rationale": "1-3 sentences: why this rank vs the next (e.g. why #1 beat #2).",
   "why_it_fits": "",
   "caveats": "",
   "buy_borrow_hold_off": "buy | borrow | bring_back_out | hold_off | buy_pre_loved | buy_new_only",
@@ -453,6 +501,7 @@ For each object in `top_picks`, include:
   "rating_source": "",
   "review_quality_note": "",
   "evidence_tier": "strong | good | emerging | weak | reject",
+  "evidence_exemption": "",
   "evidence_sources": [],
   "preloved_suitability": "good | possible | avoid | new_only | unknown",
   "preloved_signal_note": "",
@@ -481,6 +530,8 @@ For each object in `longlist`, include at minimum:
   "price_text": "",
   "age_mark_on_listing": "",
   "summary_reason": "",
+  "rank_rationale": "Required for ranks 1-10: why this order vs neighbours.",
+  "missed_top5_reason": "Required for ranks 6-10: why it did not make Top 5.",
   "best_for_tag": "",
   "evidence_tier": "strong | good | emerging | weak | reject",
   "rating_value": 0.0,
@@ -531,12 +582,12 @@ For each object in `skips`, include at minimum:
 If producing a CSV, use this exact header row:
 
 ```text
-schema_version,research_date,researcher,age_band_id,age_band_id_spine,category_entity_id,category_label,cluster_label,content_type,status,rank,longlist_rank,top_pick_rank,best_for_tag,product_name,brand,retailer,product_url,alternate_urls,image_url,url_checked_date,stock_status,price_amount,price_text,currency,price_checked_date,age_mark_on_listing,key_specs,product_description_under_30_words,ember_verdict,personalization_hint,why_it_fits,caveats,buy_borrow_hold_off,gift_suitable,gift_note,ownership_note,safety_notes,rating_value,rating_count,rating_source,review_quality_note,evidence_tier,evidence_sources,preloved_suitability,preloved_signal_note,substitute_if_unavailable,founder_qa_flag,skip_reason,evidence_notes
+schema_version,research_date,researcher,age_band_id,age_band_id_spine,category_entity_id,category_label,cluster_label,content_type,status,rank,longlist_rank,top_pick_rank,best_for_tag,product_name,brand,retailer,product_url,alternate_urls,image_url,url_checked_date,stock_status,price_amount,price_text,currency,price_checked_date,age_mark_on_listing,key_specs,product_description_under_30_words,ember_verdict,rank_rationale,missed_top5_reason,why_it_fits,caveats,buy_borrow_hold_off,gift_suitable,gift_note,ownership_note,safety_notes,rating_value,rating_count,rating_source,review_quality_note,evidence_tier,evidence_sources,preloved_suitability,preloved_signal_note,substitute_if_unavailable,founder_qa_flag,skip_reason,evidence_notes,buying_factor_memo
 ```
 
 Rules:
 
-- `schema_version` = `ember_picks_research_v2` on every row.
+- `schema_version` = `ember_picks_research_v3` on every row.
 - `alternate_urls`: join with ` | `.
 - `evidence_sources`: join source names/URLs compactly with ` | `.
 - `gift_suitable`: `true` or `false`.
@@ -551,7 +602,7 @@ Create a concise Markdown summary with:
 
 1. `# Pip’s Picks: {stage_2_card_label} ({age_band_label})`
 2. `## Educational shift`
-3. `## Top Ember Picks`
+3. `## Top 5 Ember Picks`
 4. `## Ranked longlist summary`
 5. `## Best substitutes if unavailable`
 6. `## What we skipped and why`
@@ -562,27 +613,19 @@ The JSON is the source of truth. The summary is for founder review.
 
 ## Handoff to Stage 3 Card Ingestion
 
-When the founder wants to publish researched picks into `/discover`, pass the JSON output to `$ember-stage3-card-ingestion`.
-
-Before ingestion, run or update `$ember-stage3-founder-review` for the target age band so the founder can review one unified HTML table containing every Stage 1 card, the selected pilot Stage 2 card, five Stage 3 products/actions, clickable URLs, proposed UI title, proposed UI description, and "Why Pip picked this" copy.
+When the founder wants to publish researched picks into `/discover`, pass **green-folder** JSON (FF-passed) to `$ember-stage3-card-ingestion`.
 
 For fast ingestion, make the JSON compatible with `web/scripts/ingest-stage3-pips-picks.mjs`:
 
-- `top_picks` must contain exactly `target_pick_count` card-ready rows (default 5, max 10).
+- `top_picks` must contain exactly 5 card-ready rows.
 - `longlist` must contain ranks 1-15.
-- Longlist ranks beyond the Top Picks must be usable as dormant backups.
+- Longlist ranks 6-15 must be usable as dormant backups.
 - `category_entity_id` must equal the Stage 2 category slug used in `pl_category_types.slug`.
 - `founder_qa_flag` must be explicit on every Top Pick.
 - `ingestion_ready.expected_stage2_mapping` must name the target Stage 2 card.
-- Use `ingestion_ready.status = not-ready` when the generator should fail rather than publish.
+- Research may only set `ingestion_ready.status` to `pending-ff-check` or `not-ready`. FF sets `founder-review-ready` after a green pass.
 
-Before handoff, be explicit about whether the research is:
-
-- `production-ready`: clean enough for immediate card ingestion;
-- `founder-review-ready`: strong but has caveats the founder should understand;
-- `not-ready`: needs more research before ingestion.
-
-Do not hide weak URLs, stale prices, uncertain stock, safety uncertainty, generic copy, or low evidence behind polished wording. `$ember-stage3-card-ingestion` should rerun this skill automatically when these issues prevent excellent parent-facing Pip's Picks cards.
+Do not hide weak URLs, stale prices, uncertain stock, safety uncertainty, generic copy, thin HOW trails, or low evidence behind polished wording.
 
 ---
 
@@ -591,25 +634,26 @@ Do not hide weak URLs, stale prices, uncertain stock, safety uncertainty, generi
 Before final delivery, self-check:
 
 - JSON parses.
-- `schema_version` is `ember_picks_research_v2`.
-- Top Picks count equals `target_pick_count` (default 5, max 10) for product categories.
+- `schema_version` is `ember_picks_research_v3`.
+- `buying_factor_memo` is non-empty and category-specific.
+- `methodology` names bench → age → rank → URL verify.
+- Top 5 count is exactly 5 for product categories.
 - Longlist count is exactly 15 for product categories.
-- Top Picks are present in the longlist.
+- Every Top Pick has `rank_rationale`, `age_signals[]`, `url_verification`, description, Ember Verdict.
+- Longlist ranks 6–10 have `missed_top5_reason`.
+- Top 5 are present in the longlist.
 - Longlist ranks have no gaps.
 - At least 5 skips are included, or a clear explanation is given.
 - Every product pick, backup and skip has a live `https://` URL.
 - Every URL, price and source has a checked date.
 - All dates use `YYYY-MM-DD`.
 - Every Top Pick has a specific `best_for_tag`.
-- Every Top Pick has a product description under 30 words.
-- Every Top Pick has an Ember Verdict.
-- Every Top Pick has a personalization hint that can be safely adapted to a known child name at ingestion/render time.
 - Evidence tiers are honest.
 - Safety-sensitive claims are supported by retailer, manufacturer or official sources.
-- Hidden gems meet the hidden-gem threshold or are marked `emerging`.
 - No invented products, URLs, ratings, prices, warnings, awards or editorial mentions.
 - CSV headers match exactly when CSV is produced.
 - Founder summary is consistent with JSON.
+- `ingestion_ready.status` is `pending-ff-check` or `not-ready` only.
 
 ---
 
@@ -632,7 +676,7 @@ Do not say work will be done later. Either run it now, generate a handoff brief,
 When reviewing an existing Stage 3 output, use this structure:
 
 - Verdict: production-ready / founder-review-ready / promising but not ready / reject.
-- Quantity: Top Picks (against `target_pick_count`), longlist, skips, guidance notes.
+- Quantity: Top 5, longlist, skips, guidance notes.
 - Quality: educational fit, source mix, evidence tiers, ranking logic.
 - MLP value: whether it justifies Ember Plus-style value when repeated across Stage 2 cards.
 - Fit to brief: does it solve the exact Stage 1 / Stage 2 objective?

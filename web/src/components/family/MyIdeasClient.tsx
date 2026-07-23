@@ -46,12 +46,14 @@ export interface ListItemRow {
   pl_stage3_picks: {
     product_name: string;
     brand?: string | null;
+    product_url?: string | null;
     image_url?: string | null;
     category_type_id?: string | null;
     age_band_id?: string | null;
   } | {
     product_name: string;
     brand?: string | null;
+    product_url?: string | null;
     image_url?: string | null;
     category_type_id?: string | null;
     age_band_id?: string | null;
@@ -76,9 +78,23 @@ function itemTitle(row: ListItemRow): string {
   return '—';
 }
 
-/** Retailer CTAs never deep-link one retailer — Google Shopping only (founder rule). */
-function stage3GoogleShoppingUrl(row: ListItemRow): string {
+/** Prefer brand/specialist product_url when non-Amazon; else Google Shopping. */
+function stage3BrowseOffersUrl(row: ListItemRow): string {
   const s = _first(row.pl_stage3_picks);
+  const primary = s?.product_url || null;
+  if (primary && /^https:\/\//i.test(primary)) {
+    try {
+      const host = new URL(primary).hostname.toLowerCase();
+      const amazon =
+        host === 'amazon.co.uk' ||
+        host.endsWith('.amazon.co.uk') ||
+        host === 'amazon.com' ||
+        host.endsWith('.amazon.com');
+      if (!amazon) return primary;
+    } catch {
+      /* fall through to Shopping */
+    }
+  }
   const query = [s?.brand, s?.product_name].filter(Boolean).join(' ');
   return `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(query)}`;
 }
@@ -237,7 +253,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
     const supabase = createClient();
     const { data, error } = await supabase
       .from('user_list_items')
-      .select('id, kind, want, have, gift, product_id, category_type_id, ux_wrapper_id, stage3_pick_id, child_id, created_at, products(name, image_url), pl_category_types(name, label, image_url), pl_ux_wrappers(ux_label, ux_slug), pl_stage3_picks(product_name, brand, image_url, category_type_id, age_band_id)')
+      .select('id, kind, want, have, gift, product_id, category_type_id, ux_wrapper_id, stage3_pick_id, child_id, created_at, products(name, image_url), pl_category_types(name, label, image_url), pl_ux_wrappers(ux_label, ux_slug), pl_stage3_picks(product_name, brand, product_url, image_url, category_type_id, age_band_id)')
       .order('created_at', { ascending: false });
     if (!error && data != null) {
       const rows = (data as unknown as (ListItemRow & { child_id?: string | null })[]).map((r) => ({
@@ -750,7 +766,7 @@ export function MyIdeasClient({ initialChildId, initialTab }: { initialChildId?:
                                 </a>
                               ) : row.kind === 'stage3_pick' && row.stage3_pick_id ? (
                                 <a
-                                  href={stage3GoogleShoppingUrl(row)}
+                                  href={stage3BrowseOffersUrl(row)}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   onClick={(e) => openOutboundRetailerUrl(e.currentTarget.href, e)}

@@ -1,0 +1,68 @@
+{
+  "ff_check_pass": true,
+  "checked_at": "2026-07-23",
+  "ingestion_ready_status": "founder-review-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "Gonge River Stones (set of 6)",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "Tippi Sensory Stepping Stones",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "Edx Nesting Balance Stumps (set of 6)",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "Gonge Hilltops (set of 3)",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "Edx Rope-Gap Stepping Stones",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": false,
+      "http_status": null,
+      "buyable": false,
+      "product_status": "",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": []
+}

@@ -1,0 +1,83 @@
+{
+  "ff_check_pass": false,
+  "checked_at": "2026-07-22",
+  "ingestion_ready_status": "not-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "Beads and Pattern Cards Activity Set",
+      "ff_pass": false,
+      "fail_reasons": [
+        "url_not_ok:fetch failed",
+        "rating_missing",
+        "age_signal_unparsed"
+      ],
+      "url_ok": false,
+      "http_status": null,
+      "age_gate": "unknown",
+      "age_fail_reasons": [
+        "age_signal_unparsed"
+      ]
+    },
+    {
+      "rank": 2,
+      "product_name": "Primary Lacing Beads",
+      "ff_pass": false,
+      "fail_reasons": [
+        "url_not_ok:http_403",
+        "age_signal_unparsed"
+      ],
+      "url_ok": false,
+      "http_status": 403,
+      "age_gate": "unknown",
+      "age_fail_reasons": [
+        "age_signal_unparsed"
+      ]
+    },
+    {
+      "rank": 3,
+      "product_name": "Crate of Lacing Beads",
+      "ff_pass": false,
+      "fail_reasons": [
+        "age_signal_unparsed"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "age_gate": "unknown",
+      "age_fail_reasons": [
+        "age_signal_unparsed"
+      ]
+    },
+    {
+      "rank": 4,
+      "product_name": "Let's Play Threading Beads",
+      "ff_pass": false,
+      "fail_reasons": [
+        "age_signal_unparsed"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "age_gate": "unknown",
+      "age_fail_reasons": [
+        "age_signal_unparsed"
+      ]
+    },
+    {
+      "rank": 5,
+      "product_name": "First Lacing Pictures",
+      "ff_pass": false,
+      "fail_reasons": [
+        "url_not_ok:http_404",
+        "rating_missing",
+        "age_signal_unparsed"
+      ],
+      "url_ok": false,
+      "http_status": 404,
+      "age_gate": "unknown",
+      "age_fail_reasons": [
+        "age_signal_unparsed"
+      ]
+    }
+  ],
+  "category_fails": []
+}

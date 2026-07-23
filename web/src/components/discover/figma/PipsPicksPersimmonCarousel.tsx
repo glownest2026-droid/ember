@@ -132,13 +132,35 @@ function pickIcon(productName: string, categoryLabel: string): LucideIcon {
 }
 
 /**
- * Founder rule (bug bash 2026-07-19, item 5v): retailer CTAs never deep-link a
- * single retailer. Always send parents to Google Shopping so the journey
- * survives retailer stock/URL churn and shows live offers.
+ * Founder rule (bug bash 2026-07-19, item 5v): prefer Google Shopping so the
+ * journey survives retailer stock/URL churn and shows live offers.
+ *
+ * Exception (founder 2026-07-23 — dead Amazon ASIN lesson): when research stores
+ * a non-Amazon brand/specialist `product_url` as primary (Amazon failed substance
+ * gate or ASIN is dead), Browse offers must open that URL. Shopping often ranks
+ * the same dead Amazon listing first and recreates the broken journey.
  */
+function isAmazonProductUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return host === 'amazon.co.uk' || host.endsWith('.amazon.co.uk') || host === 'amazon.com' || host.endsWith('.amazon.com');
+  } catch {
+    return false;
+  }
+}
+
 function googleShoppingUrl(product: PipsPickProduct): string {
   const query = [product.brand, product.name].filter(Boolean).join(' ');
   return `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(query)}`;
+}
+
+function browseOffersUrl(product: PipsPickProduct): string {
+  const primary = product.product_url || product.canonical_url || null;
+  if (primary && /^https:\/\//i.test(primary) && !isAmazonProductUrl(primary)) {
+    return primary;
+  }
+  return googleShoppingUrl(product);
 }
 
 function getDisplayFields(pick: PipsPick, childName?: string | null) {
@@ -318,7 +340,7 @@ function PickCardBody({
         </span>
       ) : null}
 
-      <h3 className="m-0 mb-1 shrink-0 pr-[96px] text-[19px] font-extrabold leading-[1.2] tracking-normal text-white line-clamp-2 md:text-[22px] md:leading-[1.18]">
+      <h3 className="m-0 mb-1 shrink-0 pr-[96px] text-[19px] font-extrabold leading-[1.2] tracking-normal text-white line-clamp-2 md:line-clamp-none md:text-[22px] md:leading-[1.18]">
         {fields.title}
       </h3>
       {fields.brand ? (
@@ -890,7 +912,7 @@ export function PipsPicksPersimmonCarousel({
           {displayPicks.map((pick, index) => {
             const rank = index + 1;
             const locked = lockedFlags[index];
-            const url = googleShoppingUrl(pick.product);
+            const url = browseOffersUrl(pick.product);
             const fields = getDisplayFields(pick, childDisplayLabel);
             const accent = pickAccent(index);
 
@@ -1010,7 +1032,7 @@ export function PipsPicksPersimmonCarousel({
               key={`${pick.product.id}-expanded`}
               fields={{
                 ...getDisplayFields(pick, childDisplayLabel),
-                url: googleShoppingUrl(pick.product),
+                url: browseOffersUrl(pick.product),
                 rank: expandedIndex + 1,
                 total: renderedPicks.length,
               }}

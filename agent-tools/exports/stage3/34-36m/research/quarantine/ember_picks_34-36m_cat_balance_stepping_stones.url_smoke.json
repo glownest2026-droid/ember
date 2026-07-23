@@ -1,0 +1,182 @@
+{
+  "checked_at": "2026-07-22",
+  "url_count": 25,
+  "ok_count": 16,
+  "results": {
+    "https://www.libertyhousetoys.com/gonge-river-stones": {
+      "url": "https://www.libertyhousetoys.com/gonge-river-stones",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.goodplayguide.com/reviews/national-geographic-balance-stepping-stones/": {
+      "url": "https://www.goodplayguide.com/reviews/national-geographic-balance-stepping-stones/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.very.co.uk/liberty-house-gonge-river-stones-set-of-6-stones-nordic/1601058729.prd": {
+      "url": "https://www.very.co.uk/liberty-house-gonge-river-stones-set-of-6-stones-nordic/1601058729.prd",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/Gonge-1137385-River-Stones/dp/B000ANIVRG": {
+      "url": "https://www.amazon.co.uk/Gonge-1137385-River-Stones/dp/B000ANIVRG",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.libertyhousetoys.com/gonge-hilltops": {
+      "url": "https://www.libertyhousetoys.com/gonge-hilltops",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/NATIONAL-GEOGRAPHIC-Durable-Non-Slip-Stepping/dp/B0C95HPFHM": {
+      "url": "https://www.amazon.co.uk/NATIONAL-GEOGRAPHIC-Durable-Non-Slip-Stepping/dp/B0C95HPFHM",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.thedyslexiashop.co.uk/products/step-a-stumps-6-piece-modular-balance-stepping-stones-for-sensory-play": {
+      "url": "https://www.thedyslexiashop.co.uk/products/step-a-stumps-6-piece-modular-balance-stepping-stones-for-sensory-play",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.sensoryeducation.co.uk/products/gonge-nordic-hill-tops-set-of-3": {
+      "url": "https://www.sensoryeducation.co.uk/products/gonge-nordic-hill-tops-set-of-3",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.toyrific.co.uk/products/stepping-stones-balancing-game": {
+      "url": "https://www.toyrific.co.uk/products/stepping-stones-balancing-game",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.shopedx.co.uk/products/step-a-stumps": {
+      "url": "https://www.shopedx.co.uk/products/step-a-stumps",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/NATIONAL-GEOGRAPHIC-Stepping-Stones-Durable-Non-Slip/dp/B0C95JJC33": {
+      "url": "https://www.amazon.co.uk/NATIONAL-GEOGRAPHIC-Stepping-Stones-Durable-Non-Slip/dp/B0C95JJC33",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.thedyslexiashop.co.uk/products/step-a-trails-6-piece-modular-balance-beam-set-for-sensory-play": {
+      "url": "https://www.thedyslexiashop.co.uk/products/step-a-trails-6-piece-modular-balance-beam-set-for-sensory-play",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.shopedx.co.uk/products/step-a-stones": {
+      "url": "https://www.shopedx.co.uk/products/step-a-stones",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.sensoryeducation.co.uk/products/abili-sensory-stepping-stones": {
+      "url": "https://www.sensoryeducation.co.uk/products/abili-sensory-stepping-stones",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.shopedx.co.uk/products/step-a-trails": {
+      "url": "https://www.shopedx.co.uk/products/step-a-trails",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.aosom.co.uk/item/aiyaplay-balance-stepping-stones-for-kids-with-non-slip-bottom-indoor-outdoor-obstacle-course-for-ages-3-8-years~1SECH27OHNG01.html": {
+      "url": "https://www.aosom.co.uk/item/aiyaplay-balance-stepping-stones-for-kids-with-non-slip-bottom-indoor-outdoor-obstacle-course-for-ages-3-8-years~1SECH27OHNG01.html",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://learningspace.co.uk/products/river-stones-set-of-6-great-balance-and-vestibular-aid": {
+      "url": "https://learningspace.co.uk/products/river-stones-set-of-6-great-balance-and-vestibular-aid",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.aosom.co.uk/item/outsunny-kids-stepping-stones-set~1": {
+      "url": "https://www.aosom.co.uk/item/outsunny-kids-stepping-stones-set~1",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-22"
+    },
+    "https://stapelstein.com/en/products/original": {
+      "url": "https://stapelstein.com/en/products/original",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://pricespy.co.uk/product.php?p=6930773": {
+      "url": "https://pricespy.co.uk/product.php?p=6930773",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.smythstoys.com/": {
+      "url": "https://www.smythstoys.com/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://ee-supplies.co.uk/products/bouncing-river-stone": {
+      "url": "https://ee-supplies.co.uk/products/bouncing-river-stone",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-22"
+    },
+    "https://www.temu.com/": {
+      "url": "https://www.temu.com/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.amazon.co.uk/s?k=toddler+wobble+balance+board": {
+      "url": "https://www.amazon.co.uk/s?k=toddler+wobble+balance+board",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    },
+    "https://www.costway.co.uk/9-pieces-non-slip-toddler-stepping-stones-for-kids-aged-3.html": {
+      "url": "https://www.costway.co.uk/9-pieces-non-slip-toddler-stepping-stones-for-kids-aged-3.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-22"
+    }
+  }
+}

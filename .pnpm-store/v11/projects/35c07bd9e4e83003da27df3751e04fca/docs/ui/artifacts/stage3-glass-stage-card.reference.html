@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ember UI artifact — Stage 3 Glass Stage (canonical)</title>
+<!--
+  CANONICAL VISUAL REFERENCE — Glass Stage Stage 3 card
+  Spec: web/docs/ui/STAGE3_GLASS_STAGE_CARD.md
+  Founder-selected 2026-07-19 (R2 Glass Stage + Why Pip drawer).
+  Mobile-first. Open at phone width. Agents: match this precisely.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #253044;
+    --persimmon: #FF5C34;
+    --page: #FBFAF7;
+    --muted: #66717D;
+  }
+  html, body {
+    background: #D8D1CA;
+    font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--navy);
+  }
+  body { display: flex; justify-content: center; min-height: 100dvh; padding: 16px 0 40px; }
+  .phone {
+    width: 100%;
+    max-width: 390px;
+    background: var(--page);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(37,48,68,.2);
+    padding: 20px 16px 28px;
+  }
+  .badge {
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--navy);
+    color: #FFB199;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .head { text-align: center; margin-bottom: 14px; }
+  .head .row { display: inline-flex; align-items: center; gap: 10px; }
+  .head img { width: 40px; height: 40px; }
+  .head h1 { font-size: 22px; font-weight: 800; }
+  .head p { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+
+  .track-shell {
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    min-height: 560px;
+    background: radial-gradient(130% 100% at 50% 0%, #1C2537 0%, #131A28 70%);
+    box-shadow: 0 24px 56px rgba(19, 26, 40, 0.3);
+  }
+  .orb { position: absolute; border-radius: 50%; filter: blur(48px); pointer-events: none; transition: background 400ms; }
+  .orb.a { width: 240px; height: 240px; left: -50px; top: 35%; background: rgba(255,92,52,.45); }
+  .orb.b { width: 190px; height: 190px; right: -30px; top: -20px; background: rgba(255,224,216,.22); }
+  .orb.c { width: 160px; height: 160px; right: 12%; bottom: -50px; background: rgba(255,92,52,.2); }
+
+  .track {
+    position: absolute; inset: 0; z-index: 10;
+    display: flex; align-items: center;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    padding: 16px calc(50% - 150px);
+    scrollbar-width: none;
+  }
+  .track::-webkit-scrollbar { display: none; }
+  .card-wrap {
+    flex: 0 0 300px; width: 300px; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    scroll-snap-align: center; position: relative;
+  }
+  .dots {
+    position: absolute; bottom: 10px; left: 0; right: 0; z-index: 30;
+    display: flex; justify-content: center; gap: 8px;
+  }
+  .dots button {
+    height: 8px; width: 8px; border: 0; border-radius: 999px;
+    background: rgba(255,255,255,.25); padding: 0; cursor: pointer; transition: all 150ms;
+  }
+  .dots button.active { width: 22px; background: var(--persimmon); }
+
+  .glass {
+    --accent: #FF5C34;
+    --accent-soft: #FFB199;
+    position: absolute;
+    width: 100%; height: 100%; max-height: 500px;
+    display: flex; flex-direction: column;
+    overflow: hidden; border-radius: 28px; color: #fff;
+    background: linear-gradient(170deg, rgba(56,70,98,.52), rgba(28,36,54,.65));
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    border: 1px solid rgba(255,255,255,.14);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 28px 56px rgba(10,14,24,.48);
+    transition: transform 150ms;
+  }
+  .glass::before {
+    content: '';
+    position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: .3;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .corner-robin {
+    pointer-events: none; position: absolute; top: 10px; right: 10px; z-index: 40;
+    width: 44px; height: 44px; object-fit: contain;
+    transform: none !important;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,.3));
+  }
+  .body {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column; height: 100%; min-height: 0; padding: 18px;
+  }
+  .body.drawer-open .desc { opacity: .35; }
+  .rank .big {
+    font-size: 42px; font-weight: 800; line-height: 1; letter-spacing: -.04em;
+    color: transparent; -webkit-text-stroke: 1.5px var(--accent);
+  }
+  .rank .of {
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,.5);
+    letter-spacing: .06em; text-transform: uppercase; padding-right: 52px;
+  }
+  .tag {
+    display: inline-flex; align-self: flex-start; margin: 12px 0 10px;
+    max-width: calc(100% - 52px); padding: 6px 12px; border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    color: var(--accent-soft); font-size: 10.5px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: .1em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .title {
+    margin-bottom: 4px; max-width: 78%; font-size: 22px; font-weight: 800; line-height: 1.18;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .brand {
+    margin-bottom: 10px; color: rgba(255,255,255,.6); font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .06em;
+  }
+  .desc {
+    margin-bottom: 12px; max-width: 72%; color: rgba(255,255,255,.9);
+    font-size: 13.5px; font-weight: 500; line-height: 1.55;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    transition: opacity 250ms;
+  }
+
+  /* Addictive component — Why Pip drawer */
+  .drawer {
+    margin-top: auto;
+    border-radius: 18px;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    overflow: hidden; flex-shrink: 0;
+  }
+  .drawer button.head {
+    display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 10px;
+    min-height: 46px; padding: 12px 14px; border: 0; background: transparent;
+    color: var(--accent-soft); font: inherit; font-size: 12px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: .06em; cursor: pointer; text-align: left;
+  }
+  .drawer button.head svg { flex-shrink: 0; transition: transform 250ms; }
+  .drawer .panel { max-height: 0; overflow: hidden; transition: max-height 320ms ease; }
+  .drawer .panel p {
+    padding: 0 14px 14px; color: rgba(255,255,255,.94);
+    font-size: 13px; font-weight: 600; line-height: 1.55;
+  }
+  .drawer.open { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+  .drawer.open .panel { max-height: 220px; }
+  .drawer.open button.head svg { transform: rotate(180deg); }
+
+  .thumbs { display: flex; align-items: center; gap: 8px; margin-top: 14px; flex-shrink: 0; }
+  .browse {
+    flex: 1; display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px; border-radius: 999px; padding: 12px 16px;
+    background: var(--persimmon); color: #fff; text-decoration: none;
+    font-size: 14px; font-weight: 800;
+    box-shadow: 0 14px 36px rgba(255,92,52,.4), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .icon {
+    height: 44px; width: 44px; flex-shrink: 0; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.1);
+    color: #fff; display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .note {
+    margin-top: 16px; font-size: 12px; font-weight: 500; line-height: 1.5; color: var(--muted);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .drawer .panel, .drawer button.head svg, .glass { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <span class="badge">UI artifact · glass-stage · canonical</span>
+  <div class="head">
+    <div class="row">
+      <img src="https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png" alt="" />
+      <h1>Pip&rsquo;s Picks</h1>
+    </div>
+    <p>Glass Stage + Why Pip drawer. Swipe · tap the drawer.</p>
+  </div>
+
+  <div class="track-shell">
+    <div class="orb a" id="oa"></div>
+    <div class="orb b" id="ob"></div>
+    <div class="orb c" id="oc"></div>
+    <div class="track" id="track"></div>
+    <div class="dots" id="dots"></div>
+  </div>
+  <p class="note">Spec: <code>web/docs/ui/STAGE3_GLASS_STAGE_CARD.md</code>. Production ingest: follow <code>agent-tools/prompts/ingest-stage3-glass-stage-into-discover.md</code>.</p>
+</div>
+<script>
+  const ROBIN = 'https://shjccflwlayacppuyskl.supabase.co/storage/v1/object/public/brand-assets/logos/Ember_Logo_Robin1.png';
+  const PICKS = [
+    { tag: 'Best for style that lasts', title: 'The Mariner Playmat', brand: 'Totter + Tumble',
+      description: 'A high-density, cushioned, and reversible playmat that is easy to wipe clean and designed to complement modern interiors.',
+      verdict: 'Offers excellent cushioning and a wipe-clean surface, crucial for early movements and easy maintenance. The reversible design provides versatility and aesthetic appeal, making it a long-term investment.',
+      accent: '#FF5C34', soft: '#FFB199', orb: 'rgba(255,92,52,0.45)', orb2: 'rgba(255,224,216,0.22)' },
+    { tag: 'Best for budget buyers', title: 'Nuby Foldable Playmat Road Map', brand: 'Nuby',
+      description: 'A lightweight, reversible XPE foam playmat with an engaging road map design, perfect for tummy time and easy storage.',
+      verdict: 'Highly practical and affordable, offering a safe and stimulating surface for early play. Its foldable nature makes it convenient for small spaces and travel.',
+      accent: '#E8A05A', soft: '#F5D0A8', orb: 'rgba(232,160,90,0.42)', orb2: 'rgba(255,236,210,0.2)' },
+    { tag: 'Best for sensory-friendly print', title: 'Etta Loves Plant Print Reversible Playmat', brand: 'Etta Loves',
+      description: 'An organic cotton playmat with scientifically inspired patterns designed to support babies\u2019 visual development.',
+      verdict: 'Its focus on sensory development with high-contrast patterns is ideal for newborns. The organic, machine-washable material ensures comfort and hygiene.',
+      accent: '#FF7A55', soft: '#FFC4B0', orb: 'rgba(255,122,85,0.44)', orb2: 'rgba(255,200,180,0.22)' },
+    { tag: 'Best for cushioned comfort', title: 'Gus + Beau Rainbow Playmat', brand: 'Gus + Beau',
+      description: 'A thick, non-toxic EVA foam puzzle playmat with a minimalist rainbow design, providing excellent cushioning for hard floors.',
+      verdict: 'Offers superior cushioning for safety and comfort during active play, while its minimalist design blends well with modern home decor.',
+      accent: '#D9785C', soft: '#F0C4B4', orb: 'rgba(217,120,92,0.40)', orb2: 'rgba(240,200,188,0.2)' },
+    { tag: 'Best for portability', title: 'Skip Hop Roll-up Playmat', brand: 'Skip Hop',
+      description: 'A large, reversible, wipe-clean playmat that easily rolls up for storage and portability.',
+      verdict: 'Its large size provides plenty of room for babies to explore and move, while its roll-up design makes it highly convenient for storage and travel.',
+      accent: '#F0A07A', soft: '#FFE0D0', orb: 'rgba(240,160,122,0.42)', orb2: 'rgba(255,230,216,0.22)' },
+  ];
+  const CHEV = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>';
+  const EXP = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>';
+  const SAVE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>';
+
+  function shop(p) {
+    return 'https://www.google.com/search?tbm=shop&q=' + encodeURIComponent(p.brand + ' ' + p.title);
+  }
+
+  window.toggleDrawer = function (btn) {
+    const drawer = btn.closest('.drawer');
+    const body = btn.closest('.body');
+    const open = drawer.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+    body.classList.toggle('drawer-open', open);
+  };
+
+  const track = document.getElementById('track');
+  const dots = document.getElementById('dots');
+  track.innerHTML = PICKS.map((p, i) => {
+    const rank = i + 1;
+    return `<div class="card-wrap" data-wrap data-orb="${p.orb}" data-orb2="${p.orb2}">
+      <article class="glass" data-card style="--accent:${p.accent};--accent-soft:${p.soft}">
+        <img class="corner-robin" src="${ROBIN}" alt="" />
+        <div class="body">
+          <div class="rank"><div class="big">${rank}</div><div class="of">of ${PICKS.length}</div></div>
+          <span class="tag">${p.tag}</span>
+          <h3 class="title">${p.title}</h3>
+          <p class="brand">${p.brand}</p>
+          <p class="desc">${p.description}</p>
+          <div class="drawer">
+            <button type="button" class="head" aria-expanded="false" onclick="toggleDrawer(this)">Why Pip picked this ${CHEV}</button>
+            <div class="panel"><p>${p.verdict}</p></div>
+          </div>
+          <div class="thumbs">
+            <a class="browse" href="${shop(p)}" target="_blank" rel="noopener noreferrer">Browse offers</a>
+            <button type="button" class="icon" aria-label="Expand">${EXP}</button>
+            <button type="button" class="icon" aria-label="Save">${SAVE}</button>
+          </div>
+        </div>
+      </article>
+    </div>`;
+  }).join('');
+  dots.innerHTML = PICKS.map((_, i) =>
+    `<button type="button" class="${i === 0 ? 'active' : ''}" aria-label="Pick ${i + 1}"></button>`
+  ).join('');
+
+  const wraps = track.querySelectorAll('[data-wrap]');
+  const dotBtns = dots.querySelectorAll('button');
+  let active = 0;
+
+  function orbs(wrap) {
+    if (!wrap) return;
+    document.getElementById('oa').style.background = wrap.dataset.orb;
+    document.getElementById('ob').style.background = wrap.dataset.orb2;
+    document.getElementById('oc').style.background = wrap.dataset.orb;
+  }
+
+  function physics() {
+    const center = track.scrollLeft + track.clientWidth / 2;
+    let closest = Infinity, next = 0;
+    wraps.forEach((wrap, i) => {
+      const card = wrap.querySelector('[data-card]');
+      const c = wrap.offsetLeft + wrap.clientWidth / 2;
+      const abs = Math.abs(Math.max(-2.5, Math.min(2.5, (c - center) / wrap.clientWidth)));
+      card.style.transform = `scale(${1 - abs * 0.08})`;
+      card.style.zIndex = String(Math.round(100 - abs * 10));
+      if (Math.abs(c - center) < closest) { closest = Math.abs(c - center); next = i; }
+    });
+    if (next !== active) {
+      active = next;
+      dotBtns.forEach((d, i) => d.classList.toggle('active', i === active));
+      orbs(wraps[active]);
+    }
+  }
+
+  dotBtns.forEach((btn, i) => btn.addEventListener('click', () => {
+    const w = wraps[i];
+    track.scrollTo({ left: w.offsetLeft - (track.clientWidth - w.clientWidth) / 2, behavior: 'smooth' });
+  }));
+  track.addEventListener('scroll', () => requestAnimationFrame(physics), { passive: true });
+  orbs(wraps[0]);
+  physics();
+</script>
+</body>
+</html>

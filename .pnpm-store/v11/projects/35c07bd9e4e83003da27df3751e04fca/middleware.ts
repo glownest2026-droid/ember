@@ -1,0 +1,69 @@
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { updateSession } from "./src/utils/supabase/middleware";
+
+export async function middleware(req: NextRequest) {
+  const url = req.nextUrl;
+  const pathname = url.pathname;
+
+  // Refresh session on protected/CMS routes only (matcher is explicit; see config below)
+  const { supabase, response } = await updateSession(req);
+  
+  // Add pathname to headers so server components can read it
+  response.headers.set('x-pathname', pathname);
+
+  // 1) Protect /app/*, /add-children, and /account - require authentication
+  if (pathname.startsWith("/app") || pathname.startsWith("/add-children") || pathname === "/account") {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      const signInUrl = new URL("/signin", url.origin);
+      signInUrl.searchParams.set("next", pathname + url.search);
+      return NextResponse.redirect(signInUrl);
+    }
+
+    return response;
+  }
+
+  // 2) Handle /cms and /api/preview routes (Builder CMS)
+  // Add CSP for Builder iframe
+  if (pathname === "/api/preview" || pathname === "/cms" || pathname.startsWith("/cms/")) {
+    response.headers.set(
+      "Content-Security-Policy",
+      "frame-ancestors 'self' https://*.builder.io https://builder.io https://app.builder.io"
+    );
+  }
+
+  // Handle preview redirect logic for /cms...
+  if (pathname.startsWith("/cms")) {
+    const secret = url.searchParams.get("secret");
+    const pathParam = url.searchParams.get("path");
+
+    if (secret) {
+      const needsFallback = !pathParam || /[{]/.test(pathParam);
+      const effectivePath = needsFallback ? pathname : pathParam!;
+      const normalizedPath = effectivePath.startsWith("/") ? effectivePath : `/${effectivePath}`;
+
+      const dest = new URL("/api/preview", url);
+      dest.searchParams.set("secret", secret);
+      dest.searchParams.set("path", normalizedPath);
+
+      return NextResponse.redirect(dest, 307);
+    }
+  }
+
+  return response;
+}
+
+export const config = {
+  matcher: [
+    // Auth-gated app surfaces (redirect to /signin when unauthenticated)
+    "/app/:path*",
+    "/add-children/:path*",
+    "/account",
+    // Builder CMS preview + CSP (exclude public diagnostics)
+    "/api/preview",
+    "/cms",
+    "/cms/((?!diag|_diag).*)",
+  ],
+};

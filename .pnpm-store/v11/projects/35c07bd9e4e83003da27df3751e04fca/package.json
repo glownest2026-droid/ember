@@ -1,0 +1,53 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "prebuild": "node scripts/check-required-docs.js && node scripts/check-no-conflict-markers.js",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "check:conflicts": "node scripts/check-no-conflict-markers.js",
+    "test:marketplace-pr6": "node scripts/marketplace-pr6-smoke.mjs",
+    "test:marketplace-pr7": "node scripts/marketplace-pr7-smoke.mjs",
+    "test:marketplace-pr8": "node scripts/marketplace-pr8-smoke.mjs",
+    "test:marketplace-pr9": "node scripts/marketplace-pr9-smoke.mjs",
+    "test:marketplace-pr10": "node scripts/marketplace-pr10-smoke.mjs",
+    "test:auth-callback": "node scripts/auth-callback-smoke.mjs"
+  },
+  "dependencies": {
+    "@builder.io/react": "^9.0.0",
+    "@builder.io/sdk-react": "^4.2.4",
+    "@builder.io/sdk-react-nextjs": "^0.22.2",
+    "@google/generative-ai": "^0.24.1",
+    "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.78.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "embla-carousel-react": "8.6.0",
+    "lucide-react": "^0.563.0",
+    "mapbox-gl": "^3.24.0",
+    "motion": "^12.33.0",
+    "next": "16.0.7",
+    "posthog-js": "^1.363.5",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-onesignal": "^3.5.1",
+    "tailwind-merge": "^3.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^18.3.26",
+    "@types/react-dom": "^18.3.7",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.0",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "packageManager": "pnpm@10.13.1"
+}

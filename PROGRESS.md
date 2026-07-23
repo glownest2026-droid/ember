@@ -1,4 +1,111 @@
-﻿## 2026-07-21 — fix(stage3): desktop carousel taller so Why Pip doesn’t clip
+## 2026-07-23 — Stage 3 “reset” ban + dead Amazon CTA root cause (34–36m)
+
+- **Founder catch:** “offers a reset” / “kind reset” still in Why Pip; Communication Book Browse offers landed on a dead Amazon ASIN
+- **Root cause (copy):** therapy filler `reset` not on the shared ban list
+- **Root cause (URL):** Amazon HTTP **200** on bot-wall stubs counted as `url_ok`; dead ASIN `B0CJ5QXG8L` shipped. Separately, Browse offers used Google Shopping (`brand + title`), which often ranks the same dead Amazon listing first even after a brand primary is stored
+- **Fix:** ban `reset`/`resets` in `stage3-banned-copy.mjs` + Writing Guidelines; Amazon substance gate in `stage3-url-smoke.mjs`; brand primary for Visual Timetable + Communication Book; Browse offers opens non-Amazon brand/specialist `product_url` when present (Shopping still used for Amazon primaries)
+- **Migration:** `20260723230000_ingest_stage3_pips_picks_34_36m.sql` (applied); cache `20260723-reset-amazon-34-36m`
+- **Verify:** `/discover/35` — no “reset” in Why Pip; Communication Book Browse offers opens Create Visual Aids, not Amazon `B0CJ5QXG8L`
+
+## 2026-07-23 — Stage 3 formulaic Why Pip closer purge (34–36m)
+
+- **Founder catch:** robotic repeated cadence “That is why XX suits XX when XX” across cards
+- **Root cause:** research/rewrite templates taught that closer; FF did not ban it
+- **Fix:** `stage3-banned-copy.mjs` fails `That is why` / `That [noun] is why` / `which is why` on public fields; Why Pip also bans `suit/suits` as rationalisation verb; Writing Guidelines + research ship checklist updated
+- **Content:** all 35 Why Pips rewritten with varied endings; FF pass; migration `20260723220000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-formulaic-closers-34-36m`
+- **Verify:** `/discover/35` — open several Why Pips; none should end with “That is why… suits…”
+
+## 2026-07-23 — Stage 3 invented-hyphen purge (34–36m)
+
+- **Founder catch:** named AI flags were cleaned, but invented compounds were still prolific (`get-on-go-return`, `step-pause-turn`, `emergency-vehicle`, `letters-and-lacing`, …)
+- **Root cause:** ban net only listed a few compounds; ordinary spaced English was not enforced
+- **Fix:** `stage3-banned-copy.mjs` allowlist for ordinary English / Ember hyphens only; anything else fails on Description / Why Pip / Best for
+- **Content:** all 7 green categories rewritten to spaced English; FF pass; migration `20260723210000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-hyphen-purge-34-36m`
+- **Verify:** `/discover/35` — Best for and Why Pip read as plain UK English (no invented play-type hyphens)
+
+## 2026-07-23 — Stage 3 ban-list parity + founder AI-tell round (34–36m)
+
+- **Defect fixed:** Writing Guidelines and FF could ban different things (e.g. `lecture` as a Guidelines fail but missing from the checker). That is illegal — one game, one rulebook.
+- **Canonical machine list:** `agent-tools/scripts/lib/stage3-banned-copy.mjs` — FF imports it; Principle 5 + research ship checklist must stay in parity (update both in the same change).
+- **New shared bans:** matter/moment/muscle, lecture/sermon, odd hyphen compounds (rescue-vehicle, try-again…), warm-up sessions, “A real X”, personification, peculiar “honesty” phrases.
+- **Process:** optional relational Why Pip (join dots when natural; never force) documented in methodology + Writing Guidelines + research skill.
+- **Content:** 34–36m green Why Pip / Best for scrubbed (21 picks); all 7 categories FF pass (`--skip-smoke --skip-availability --no-move`).
+- **Migration:** `20260723200000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-ban-parity-34-36m`
+- **Verify:** open `/discover/35` Pip’s Picks after deploy — no lecture/matter/moment/muscle/warm-up sessions/storage honesty/rescue-vehicle; small-world still shows bus→holiday→care progression.
+
+## 2026-07-23 — Stage 3 AI-tell purge (loop / journey / hook / nursery) on 34–36m
+
+- **Why:** Founder: Pip’s Picks still ~80% AI — fake “feel fair / feels busy”, process nouns (loop, journey, hook, script), nursery benchmarking
+- **Upstream:** Writing Guidelines Principle 5 + research ship checklist + FF auto-fail patterns
+- **Content:** 34–36m Why Pip / Description / Best for rewrites; tag “grudge loops” → “stuck-cross nights”
+- **Migration:** `20260723190000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-ai-tells-34-36m`
+- **Verify:** `/discover/35` — no “loop/journey/hook/feel fair/from nursery” in Description or Why Pip; read aloud should sound like a UK parent friend
+
+## 2026-07-23 — Stage 3 Why Pip 40–60 + card height + Browse offers clarity (34–36m)
+
+
+- **Why:** Founder UX — Why Pip is the paid value (40–60 words); never say “tag”; cards were empty-tall when drawer closed; Create Visual Aids monoculture + Shopping-only CTA left parents unsure which product
+- **Rules:** Writing Guidelines + research ship checklist + FF gates (why length, tag meta-talk, max 2 same brand)
+- **UI:** Browse offers prefers primary `product_url`; glass cards hug content (`h-fit` / `items-center`)
+- **Content:** all 35 Why Pips rewritten; visual routines capped at 2× Create Visual Aids (+ Little Goose + Craftly); jigsaws demote Jungle → Galt; small world Dump Truck → DUPLO ambulance (Argos)
+- **Migration:** `20260723180000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-why-pip-40-60-34-36m`
+- **Verify:** `/discover/35` → open Why Pip (40–60 words, no “tag”); visual routines show ≤2 Create Visual Aids; Browse offers lands on product page not ambiguous Shopping; cards not empty glass under CTA
+
+## 2026-07-23 — Stage 3 doctrine: fix copy at research (FF validates only)
+
+
+- **Founder rule:** root-cause content fixes live at the highest upstream point — Writing Guidelines + `$ember-stage3-research` ship checklist; FF is a second-pass validator, not the copywriter
+- **Updated:** methodology root-cause rule; research skill ship checklist; FF skill split (evidence-owned vs copy re-validate); TRUST_GATES ownership column; brief v5; `AGENTS.md` map
+- **Verify:** next Mode A must complete research ship checklist before `inbox/`; FF fail on copy → Mode A re-research, not light polish
+
+## 2026-07-23 — Stage 3 founder feedback: voice, Best for, titles, 34–36m reissue
+
+- **Root causes locked:** Writing Guidelines field jobs (Description = what it is; Why Pip = need + earns Best for); FF bans (low-stakes, quick wins, tight budgets); Best-for-must-land + no Description/Why echo; unique Top 5 + max one Step-A line; desktop titles unclamped
+- **Balance:** demoted Step-A-Trails (lookalike card); #5 → Edx Rope-Gap Stepping Stones; kinder “smaller budgets”; decoded nesting stumps
+- **Migration:** `20260723160000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-founder-feedback-34-36m`
+- **Verify:** `/discover/35` balance paths — five distinct titles on desktop; Tippi tag not “tight”; Stumps description explains platforms; no low-stakes/quick wins on jigsaws
+
+## 2026-07-23 — Stage 3 Descriptions: 20–40 words (single field)
+
+- **Why:** compact Pip’s Picks card has one Description (not Description + “What this is”); prior copy was ~7–13 words
+- **Rule:** Writing Guidelines + FF + ingest enforce **20–40 words** on `product_description_under_30_words` (legacy name)
+- **Content:** all 35 Top Pick descriptions upgraded for 34–36m green research
+- **Migration:** `20260723140000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-desc-20-40-34-36m`
+- **Verify:** `/discover/35` → open any Pip’s Pick → Description reads as a full sentence or two (not a stub); Why Pip still in the drawer
+
+## 2026-07-22 — Stage 3 Mode A: cat_feelings_faces_books (34–36m) re-research
+
+- **Why:** prior v2 file quarantined (404 Amazon primaries, unparsed age marks)
+- **Output:** `agent-tools/exports/stage3/34-36m/research/green/ember_picks_34-36m_cat_feelings_faces_books.{json,csv,summary.md}`
+- **Top 5:** Pip & Posy New Friend, Can You Share Little Whale, That's (Not) Mine, Sour Grape, Squirrels Who Squabbled — all primaries buyable on 2026-07-22
+- **Note:** On Sudden Hill demoted to longlist #6 (Scholastic OOS on stable primary)
+- **FF:** `stage3-ff-check.mjs` (with move) → **PASS** (27/27 URL smoke, 10/10 availability); promoted inbox file to `research/green/`
+- **Verify:** `node agent-tools/scripts/stage3-ff-check.mjs agent-tools/exports/stage3/34-36m/research/inbox/ember_picks_34-36m_cat_feelings_faces_books.json`
+
+## 2026-07-23 — Stage 3: Writing Guidelines wired at source (research → ingest)
+
+- **Operating model:** research writes approved public copy into `inbox/`; FF is second pass (bans + evidence); ingest is copy-faithful (no voice rewrite)
+- **Updated:** `$ember-stage3-research`, brief v5, methodology (5th must-be-true), FF + founder-review + card-ingestion skills, skill-updates sync, `AGENTS.md` map
+- **Verify:** Next new-band Mode A (e.g. 4–6m) must open `web/docs/brand/WRITING_GUIDELINES.md` before writing `ember_verdict`; ingest skill must not say “rewrite parent copy”
+
+## 2026-07-23 — Brand Writing Guidelines + 34–36m Pip copy upgrade
+
+- **Brand system:** `web/docs/brand/` — PERSONAS, BRAND_BOOK, PRODUCT_MARKETING maps + canonical `WRITING_GUIDELINES.md` (founder signed off)
+- **Enforcement:** FF bans expanded (em dash, calm, worth buying, Fresh 20XX, Stage X); SKU `rating_count < 15` always fails even with specialist exemption
+- **34–36m:** all 7 green categories rewritten to Writing Guidelines; Craftly thin-SKU / under-36 Amazon boards removed from visual Top 5
+- **Migration:** `20260723120000_ingest_stage3_pips_picks_34_36m.sql` (applied); cache `20260723-writing-guidelines-34-36m`
+- **Verify:** `/discover/35` Pip's Picks — Why Pip copy positive, no em dashes / calm / worth buying; visual routines no Craftly 1-review board
+
+
+
+- **Bug fix:** `stage3-availability-check.mjs` + FF integration — rejects retired/discontinued and notify-when-in-stock primaries (e.g. DUPLO Bus Ride 10988)
+- **Small-world fix:** replaced retired Bus Ride with Playmobil Junior Airport Shuttle 71689; DUPLO 10475 primary → Amazon UK (Hamleys bot-block)
+- **Research:** all 7 product categories green under v3 (picture books, small-world, jigsaws, feelings books, threading, balance stones, routine cards)
+- **Migration:** `20260722101500_ingest_stage3_pips_picks_34_36m.sql` (applied via `supabase db push`)
+- **Cache:** `GATEWAY_CATALOGUE_CACHE_VERSION` → `20260722-stage3-34-36m-pips`
+- **Verify:** `/discover/35` → Pip's Picks on each Stage 2 card with Ember Picks; pick 1 unlocked, 2–5 blurred signed out; founder HTML `agent-tools/exports/stage3/34-36m/founder-preview/stage3_founder_review_34-36m.html`
+
+## 2026-07-21 — fix(stage3): desktop carousel taller so Why Pip doesn’t clip
 
 - **Issue:** on desktop, opening Why Pip pushed the card past the 500px track — rank/header cut off at the top
 - **Fix:** desktop track `680px`, card slot `600px`, card always fills height so the drawer scrolls inside instead of growing out of frame

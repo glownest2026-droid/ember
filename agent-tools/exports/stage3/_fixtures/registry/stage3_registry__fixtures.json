@@ -1,0 +1,42 @@
+[
+  {
+    "age_band_id": "_fixtures",
+    "stage_1_rank": 1,
+    "cluster_entity_id": "ent_cluster_talk_stories_questions",
+    "stage_1_card_label": "Questions, stories and bigger chats",
+    "category_entity_id": "cat_fixture_good",
+    "stage_2_card_label": "Fixture good category",
+    "content_type": "product_category",
+    "research_status": "complete",
+    "researcher": "cursor",
+    "source_artifact_path": "agent-tools\\exports\\stage3\\_fixtures\\research\\green\\ember_picks__fixtures_cat_fixture_good.json",
+    "json_path": "agent-tools\\exports\\stage3\\_fixtures\\research\\green\\ember_picks__fixtures_cat_fixture_good.json",
+    "csv_path": "agent-tools\\exports\\stage3\\_fixtures\\research\\green\\ember_picks__fixtures_cat_fixture_good.csv",
+    "summary_path": "agent-tools\\exports\\stage3\\_fixtures\\research\\green\\ember_picks__fixtures_cat_fixture_good_summary.md",
+    "founder_preview_path": "agent-tools\\exports\\stage3\\_fixtures\\founder-preview\\stage3_founder_review__fixtures.html",
+    "top_pick_count": 5,
+    "url_status_summary": "verified_direct, verified_direct, verified_direct, verified_direct, verified_direct",
+    "ingestion_ready_status": "founder-review-ready",
+    "qa_notes": ""
+  },
+  {
+    "age_band_id": "_fixtures",
+    "stage_1_rank": 8,
+    "cluster_entity_id": "ent_cluster_safer_spaces_bigger_curiosity",
+    "stage_1_card_label": "The safety reset for a taller, stronger toddler",
+    "category_entity_id": "safety_quick_checks",
+    "stage_2_card_label": "Quick safety checks (no shopping)",
+    "content_type": "safety_check",
+    "research_status": "quick_check",
+    "researcher": "n/a",
+    "source_artifact_path": "supabase migration discover_projection",
+    "json_path": "",
+    "csv_path": "",
+    "summary_path": "",
+    "founder_preview_path": "agent-tools\\exports\\stage3\\_fixtures\\founder-preview\\stage3_founder_review__fixtures.html",
+    "top_pick_count": 5,
+    "url_status_summary": "official_guidance",
+    "ingestion_ready_status": "not_applicable",
+    "qa_notes": "Safety cluster — no product picks"
+  }
+]
