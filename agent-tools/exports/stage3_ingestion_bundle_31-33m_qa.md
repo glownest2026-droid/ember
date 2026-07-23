@@ -1,7 +1,7 @@
 # Stage 3 ingestion bundle QA - 31-33m
 
-Generated: 2026-07-23T19:56:06.521Z
-Migration: `supabase/migrations/20260723240200_ingest_stage3_pips_picks_31_33m.sql`
+Generated: 2026-07-23T20:20:00.721Z
+Migration: `supabase/migrations/20260723250100_ingest_stage3_pips_picks_31_33m.sql`
 
 ## Summary
 
@@ -13,7 +13,7 @@ Migration: `supabase/migrations/20260723240200_ingest_stage3_pips_picks_31_33m.s
 | Hoops, beanbags and jump markers | 5 | 10 | 11 | fail | ERROR: Expected at least 15 longlist entries, got 10<br>WARN: Top pick not matched to longlist_rank 1: Jump-In Hoops & Bean Bags (part of The Researcher Play Kit)<br>WARN: Top pick not matched to longlist_rank 2: Plastic Hula Hoop Set (45.7cm)<br>WARN: Top pick not matched to longlist_rank 3: Play Bean Bags Pack Of 4<br>WARN: Top pick not matched to longlist_rank 4: Sequencing Floor Marker Spots (Pack of 6)<br>WARN: Top pick not matched to longlist_rank 5: Deluxe Hoop (60cm) |
 | Picture books with little stories | 5 | 10 | 5 | pass | OK |
 | Pouring cups and water lab | 5 | 10 | 5 | pass | OK |
-| Safe step-up stool or learning tower | 5 | 6 | 5 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 6 |
+| Safe step-up stool or learning tower | 5 | 10 | 5 | pass | OK |
 | Soft doll or teddy care play | 5 | 9 | 5 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 9 |
 
 ## Signed-Out API Smoke Template

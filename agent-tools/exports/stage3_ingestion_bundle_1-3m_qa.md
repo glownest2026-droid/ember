@@ -1,13 +1,13 @@
 # Stage 3 ingestion bundle QA - 1-3m
 
-Generated: 2026-07-23T19:56:01.195Z
-Migration: `supabase/migrations/20260723240000_ingest_stage3_pips_picks_1_3m.sql`
+Generated: 2026-07-23T20:20:00.562Z
+Migration: `supabase/migrations/20260723250000_ingest_stage3_pips_picks_1_3m.sql`
 
 ## Summary
 
 | Category | Top picks | Backups | Skips | Ingestion | Notes |
 |---|---:|---:|---:|---|---|
-| Baby-safe mirror for faces | 5 | 7 | 5 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 7 |
+| Baby-safe mirror for faces | 5 | 10 | 5 | pass | OK |
 | Board books and face books | 5 | 10 | 6 | pass | OK |
 | Muslins and burp cloths | 5 | 10 | 5 | pass | OK |
 | Firm, flat, waterproof mattress | 5 | 8 | 6 | pass | WARN: Expected at least 10 dormant backups after visible 5, got 8 |

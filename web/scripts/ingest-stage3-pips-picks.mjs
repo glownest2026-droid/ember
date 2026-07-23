@@ -347,6 +347,21 @@ function normalizeResearch(filePath, forcedAgeBand, visibleCount = 5) {
     if (banned.length) errors.push(`Banned copy in ${field(pick, 'product_name', '(unnamed)')}: ${banned.join(', ')}`);
   }
 
+  const brandCounts = new Map();
+  for (const pick of topPicks) {
+    const brand = String(pick.brand || '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!brand) continue;
+    brandCounts.set(brand, (brandCounts.get(brand) || 0) + 1);
+  }
+  for (const [brand, n] of brandCounts) {
+    if (n > 2) {
+      errors.push(`Brand concentration: ${brand} appears ${n} times in Top ${visibleCount} (max 2)`);
+    }
+  }
+
   const backups = longlist
     .filter((item) => {
       const rank = Number(item.longlist_rank);
