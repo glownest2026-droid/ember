@@ -34,19 +34,21 @@ Do not use this Skill for broad Stage 1/Stage 2 content generation. Use it only 
 
 Follow:
 
+- `web/docs/brand/WRITING_GUIDELINES.md` — **every parent-facing sentence** (write approved copy at source)
 - `web/docs/STAGE3_TRUST_GATES.md`
-- `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` (four must-be-true: FF pass, working links, public preview content, scrutiny DB)
+- `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` (must-be-trues: FF pass, working links, public preview content, scrutiny DB, **approved public copy at research**)
 
 Summary:
 
 - **Schema:** `ember_picks_research_v3` only. Older drafts are archaeology.
+- **Public copy at source (blocking):** Before writing any parent-facing field, read Writing Guidelines. `product_description_under_30_words`, `ember_verdict`, and any gift/ownership notes that may surface must already be shippable. Positive vision, British school-gate English, no crisis framing, no em dashes, no shopping-order spine. **Do not** leave voice fixes for FF, founder HTML, or ingestion.
 - **Never guess URLs.** Prefer brand/publisher/specialist as primary; Amazon/Argos as alternates until smoke-checked.
-- **Reviews:** Top Picks need `rating_value >= 4.4` and `rating_count >= 15` (or explicit specialist exemption + written reason).
+- **Reviews:** Top Picks need `rating_value >= 4.4` and `rating_count >= 15`. Specialist exemption needs a written reason, but **cannot** excuse a SKU with `rating_count` present and `< 15`.
 - **Age signals:** Capture structured `age_signals[]` from the live listing (safety exclusion, min age, reading age, age range). Strictest wins. “Not suitable under 3 years” fails for bands whose `min_months < 36`.
 - **HOW fields (blocking):** category `buying_factor_memo` + `methodology` (bench → age → rank → URL verify); every Top Pick `rank_rationale` + `url_verification`; longlist ranks 6–10 `missed_top5_reason`.
 - **Output path:** write only to `agent-tools/exports/stage3/{AGE_BAND}/research/inbox/`
 - **Status:** set `ingestion_ready.status` to `pending-ff-check` or `not-ready` only — never `production-ready`. Promotion is `$ember-stage3-ff-checker` only.
-- **Ban:** compressed “fix the 404s” / light-repair Task packets. Prior JSON may be **name hints only**; every URL, age signal, rating, and rank must be re-earned. If asked to light-repair into green, **refuse** and run full Mode A instead.
+- **Ban:** compressed “fix the 404s” / light-repair Task packets. Prior JSON may be **name hints only**; every URL, age signal, rating, rank, and parent sentence must be re-earned. If asked to light-repair into green, **refuse** and run full Mode A instead.
 - **URL preflight:** before locking Top 5, smoke 2–3 candidates per product (`stage3-url-preflight.mjs`). Prefer brand/publisher; if 403/429, swap primary to a working UK retailer; Amazon last. See methodology “Pilot learnings”.
 - **Availability preflight:** run `stage3-availability-check.mjs` on every Top 5 primary (and manufacturer alts). Reject retired/discontinued SKUs and primaries showing notify-when-in-stock or sold out. If Hamleys/ELC block bots, use a buyable Amazon UK primary and document why.
 - **Age-mark hygiene:** for bands with `min_months < 36`, never put bare “Ages 3+” / “From 5 years” / Waterstones “Interest age: From 5 years” in `age_mark_on_listing`. Use structured overlapping `age_signals` (e.g. Ages 1–5 → 12–60 months).
@@ -58,23 +60,25 @@ Summary:
 
 Use when live web/research tools are available and the user wants the research completed.
 
+**Before writing parent-facing fields:** open and follow `web/docs/brand/WRITING_GUIDELINES.md` (Principles 1–10 + ship checklist). Write `product_description_under_30_words` and `ember_verdict` as they should appear on `/discover`. Run the Writing Guidelines ship checklist on every Top Pick. Commerce judgement may live in internal fields (`buy_borrow_hold_off`, research notes); do **not** lead Why Pip with buy/borrow/worth-buying orders.
+
 Output a founder-readable assessment plus files where possible (into **`inbox/`**):
 
 1. `ember_picks_{age_band_id}_{category_entity_id}.json`
 2. `ember_picks_{age_band_id}_{category_entity_id}.csv`
 3. `ember_picks_{age_band_id}_{category_entity_id}_summary.md`
 
-Then tell the founder to run `$ember-stage3-ff-checker` (or run it if asked).
+Then tell the founder to run `$ember-stage3-ff-checker` (or run it if asked). FF is a **second pass** (links, age, ratings, availability, banned-string gates) — not the place where good voice is invented.
 
 ### Mode B — Generate a research brief
 
 Use when the user wants to hand off the work to Manus, Cursor, another agent, or a human researcher.
 
-Start from **`agent-tools/prompts/ember-stage3-research-brief-v5.md`**. Fill Section 0 completely. Include trust gates, methodology (four must-be-true), inbox path, schema v3, and HOW field requirements.
+Start from **`agent-tools/prompts/ember-stage3-research-brief-v5.md`**. Fill Section 0 completely. Include trust gates, methodology, **Writing Guidelines**, inbox path, schema v3, and HOW field requirements. State explicitly: public copy must be Writing-Guidelines-clean in `inbox/`.
 
 ### Mode C — QA an existing Stage 3 output
 
-Prefer `$ember-stage3-ff-checker` for deterministic URL/rating/age gates. Use this mode only for qualitative Conor/FF copy review after the scripted check.
+Prefer `$ember-stage3-ff-checker` for deterministic URL/rating/age/copy-ban gates. Use this mode for a qualitative second read against Writing Guidelines + Conor five tests **after** the scripted check — fail back to full Mode A re-research if voice is weak. Do not “light polish” into green.
 
 ---
 
@@ -84,12 +88,14 @@ Do not produce “five popular products”. Produce a small, stage-aware decisio
 
 A strong Ember Pick explains:
 
-- why this item or option fits this age moment;
-- what is different from earlier age bands;
+- why this item fits this age moment (positive skill or play vision);
+- what is different from earlier age bands (in parent language — never “Stage 1/2/3” on the card);
 - who it is best for;
-- who should skip it;
-- whether to buy, borrow, bring back out, buy pre-loved, buy new only, or hold off;
+- who should skip it (skips / longlist reasons — may be internal);
+- fit and ownership hints without barking buy/borrow/worth-buying as the spine of Why Pip;
 - what safety, size, frustration, ownership, availability, and quality caveats matter.
+
+Parent-facing sentences follow `web/docs/brand/WRITING_GUIDELINES.md`. Internal research fields may hold commerce notes; public cards must already sound shippable in `inbox/`.
 
 ---
 

@@ -366,6 +366,17 @@ Child pride and clarity come first. The parent line is partnership (“help you 
 | [PRODUCT_MARKETING](./PRODUCT_MARKETING.md) | What we call things, and commercial bans |
 | Writing Guidelines (this file) | How every parent-facing sentence must sound |
 
+## Stage 3 pipeline (approved at source)
+
+| Step | Role for this bible |
+|---|---|
+| `$ember-stage3-research` | **Writes** parent fields to this bar into `inbox/` |
+| `$ember-stage3-ff-checker` | **Second pass** — fails banned tells + evidence gates; does not invent voice |
+| `$ember-stage3-founder-review` | Shows proposed public content as researched |
+| `$ember-stage3-card-ingestion` | **Copy-faithful** map to DB/UI — no voice rewrite |
+
+See `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` must-be-true #5.
+
 ---
 
 ## Changelog
@@ -373,3 +384,4 @@ Child pride and clarity come first. The parent line is partnership (“help you 
 | Date | Change |
 |---|---|
 | 2026-07-23 | v1 canonical — founder signed off after virtual copywriting school + Pip’s Picks feedback |
+| 2026-07-23 | Wired into Stage 3 research → FF → ingest (copy at source; ingest copy-faithful) |

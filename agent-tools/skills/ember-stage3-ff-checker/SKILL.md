@@ -7,9 +7,11 @@ description: Validate Ember Stage 3 research JSON against Fastidious Founder tru
 
 ## Purpose
 
-Gate Stage 3 research before founder review or ingest. **Never guess** that a URL works or that a product fits the age band. Enforce the four must-be-true criteria in `web/docs/STAGE3_RESEARCH_METHODOLOGY.md`.
+Gate Stage 3 research before founder review or ingest. **Never guess** that a URL works or that a product fits the age band. Enforce the must-be-true criteria in `web/docs/STAGE3_RESEARCH_METHODOLOGY.md`.
 
-Canonical rules: `web/docs/STAGE3_TRUST_GATES.md`
+This is a **second pass**, not the copywriter. Research must already write parent-facing fields to `web/docs/brand/WRITING_GUIDELINES.md`. FF fails banned tells (em dash, calm, worth buying, Fresh 20XX, Stage X, etc.), links, age, ratings, availability, and HOW completeness. Weak voice that still “passes” string bans should be sent back to `$ember-stage3-research` Mode A — do not light-polish into green.
+
+Canonical rules: `web/docs/STAGE3_TRUST_GATES.md` · `web/docs/brand/WRITING_GUIDELINES.md`
 
 ## When to use
 

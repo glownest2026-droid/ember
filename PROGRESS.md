@@ -7,6 +7,12 @@
 - **FF:** `stage3-ff-check.mjs` (with move) → **PASS** (27/27 URL smoke, 10/10 availability); promoted inbox file to `research/green/`
 - **Verify:** `node agent-tools/scripts/stage3-ff-check.mjs agent-tools/exports/stage3/34-36m/research/inbox/ember_picks_34-36m_cat_feelings_faces_books.json`
 
+## 2026-07-23 — Stage 3: Writing Guidelines wired at source (research → ingest)
+
+- **Operating model:** research writes approved public copy into `inbox/`; FF is second pass (bans + evidence); ingest is copy-faithful (no voice rewrite)
+- **Updated:** `$ember-stage3-research`, brief v5, methodology (5th must-be-true), FF + founder-review + card-ingestion skills, skill-updates sync, `AGENTS.md` map
+- **Verify:** Next new-band Mode A (e.g. 4–6m) must open `web/docs/brand/WRITING_GUIDELINES.md` before writing `ember_verdict`; ingest skill must not say “rewrite parent copy”
+
 ## 2026-07-23 — Brand Writing Guidelines + 34–36m Pip copy upgrade
 
 - **Brand system:** `web/docs/brand/` — PERSONAS, BRAND_BOOK, PRODUCT_MARKETING maps + canonical `WRITING_GUIDELINES.md` (founder signed off)

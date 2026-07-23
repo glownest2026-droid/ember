@@ -7,9 +7,11 @@ description: Validate Ember Stage 3 research JSON against Fastidious Founder tru
 
 ## Purpose
 
-Gate Stage 3 research before founder review or ingest. **Never guess** that a URL works or that a product fits the age band. Enforce the four must-be-true criteria in `web/docs/STAGE3_RESEARCH_METHODOLOGY.md`.
+Gate Stage 3 research before founder review or ingest. **Never guess** that a URL works or that a product fits the age band. Enforce the must-be-true criteria in `web/docs/STAGE3_RESEARCH_METHODOLOGY.md`.
 
-Canonical rules: `web/docs/STAGE3_TRUST_GATES.md`
+This is a **second pass**, not the copywriter. Research must already write parent-facing fields to `web/docs/brand/WRITING_GUIDELINES.md`. FF fails banned tells (em dash, calm, worth buying, Fresh 20XX, Stage X, etc.), links, age, ratings, availability, and HOW completeness. Weak voice that still “passes” string bans should be sent back to `$ember-stage3-research` Mode A — do not light-polish into green.
+
+Canonical rules: `web/docs/STAGE3_TRUST_GATES.md` · `web/docs/brand/WRITING_GUIDELINES.md`
 
 ## When to use
 
@@ -52,11 +54,11 @@ node agent-tools/scripts/stage3-ff-check.mjs path/to/file.json --skip-smoke --no
 4. Longlist ranks 6–10: `missed_top5_reason`
 5. Primary URL `url_ok` (HTTP 2xx/3xx) — fail closed (unless `--skip-smoke`)
 6. Primary **buyable today** — not retired/discontinued/notify-when-in-stock (`stage3-availability-check.mjs`); manufacturer alt showing retired fails cross-check
-7. `rating_value >= 4.4` and `rating_count >= 15` (or specialist exemption with written reason)
+7. `rating_value >= 4.4` and `rating_count >= 15` when count is present (specialist cannot excuse a SKU with fewer than 15 reviews)
 8. Age signals overlap band; “not suitable under 3 years” fails if `band.min < 36`
 9. Schema: 5 / 15 / ≥5 skips
 10. Unique short `Best for …` tags
-11. No banned Conor marketing phrases in parent fields
+11. Parent fields pass Writing Guidelines bans (`web/docs/brand/WRITING_GUIDELINES.md`) — em dash, calm, worth buying, Fresh 20XX, Stage X, etc.
 
 ## Outcomes
 

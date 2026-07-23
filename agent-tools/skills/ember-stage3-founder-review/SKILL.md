@@ -15,8 +15,11 @@ If empty, run `$ember-stage3-ff-checker` first. Rules:
 
 - `web/docs/STAGE3_TRUST_GATES.md`
 - `web/docs/STAGE3_RESEARCH_METHODOLOGY.md`
+- `web/docs/brand/WRITING_GUIDELINES.md` (public copy should already be clean in green)
 
 Never build “proposed public” HTML from `inbox/`, `quarantine/`, or `untrusted_drafts/`.
+
+If Why Pip / descriptions fail the Writing Guidelines read-aloud test, **do not rewrite in the HTML builder**. Flag for `$ember-stage3-research` re-run.
 
 ## What the HTML must show
 

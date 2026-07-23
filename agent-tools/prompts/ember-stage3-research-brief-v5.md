@@ -1,32 +1,36 @@
 # Ember Stage 3 research brief — v5 (external / Manus / human)
 
-**Canon:** follow `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` and `web/docs/STAGE3_TRUST_GATES.md`.  
+**Canon:** follow `web/docs/STAGE3_RESEARCH_METHODOLOGY.md`, `web/docs/STAGE3_TRUST_GATES.md`, and **`web/docs/brand/WRITING_GUIDELINES.md`**.  
 **Schema:** `ember_picks_research_v3`  
 **Output folder:** `agent-tools/exports/stage3/{AGE_BAND}/research/inbox/`  
 **Max status from research:** `pending-ff-check` (never self-green / production-ready)
 
 ## Pilot success (must all be true)
 
-1. Results will pass FF Checker (ratings ≥4.4 / ≥15, age overlap, working primary URL, HOW fields).
-2. Every Top Pick primary link opens the real product.
-3. Parent-facing fields ready for founder HTML: title, short description, Why Pip picked this (`ember_verdict`).
+1. Results will pass FF Checker (ratings ≥4.4 / ≥15 when count present, age overlap, working primary URL, availability, HOW fields, Writing Guidelines ban strings).
+2. Every Top Pick primary link opens the real product and is buyable today.
+3. Parent-facing fields are **already Writing-Guidelines-clean** for founder HTML and `/discover`: title, short description, Why Pip picked this (`ember_verdict`).
 4. Ranking is documented: `buying_factor_memo`, per-rank `rank_rationale`, longlist 6–10 `missed_top5_reason`.
 
 ## Required workflow
 
-1. **Bench** — 15-equal longlist with live URLs (brand/publisher primary preferred).
-2. **Age** — capture `age_signals[]` from each Top Pick listing (strictest wins).
-3. **Rank** — apply factor order; write category `buying_factor_memo` and each `rank_rationale`.
-4. **Public copy** — description + Ember Verdict (Conor five tests).
-5. **URL verify** — fill `url_verification`; do not guess.
-6. Write JSON/CSV/summary to **inbox/** only.
-7. Stop. Founder/agent runs `$ember-stage3-ff-checker`.
+1. **Read voice first** — open `web/docs/brand/WRITING_GUIDELINES.md`. Public copy is written to that bar **in this research step**, not later at FF or ingest.
+2. **Bench** — 15-equal longlist with live URLs (brand/publisher primary preferred).
+3. **Age** — capture `age_signals[]` from each Top Pick listing (strictest wins).
+4. **Rank** — apply factor order; write category `buying_factor_memo` and each `rank_rationale`.
+5. **Public copy** — `product_description_under_30_words` + `ember_verdict` (Writing Guidelines + Conor five tests). Positive vision; British school-gate English; no em dashes; no crisis framing; no shopping-order spine on Why Pip.
+6. **URL + availability verify** — fill `url_verification`; run availability check; do not guess.
+7. **Self-check** — Writing Guidelines ship checklist on every Top Pick.
+8. Write JSON/CSV/summary to **inbox/** only.
+9. Stop. Founder/agent runs `$ember-stage3-ff-checker` as a **second pass** (mechanical gates), not as the copywriter.
 
 ## Banned
 
 - Light repair / “fix the 404s” without re-ranking and re-documenting HOW.
 - Inventing URLs, ratings, age marks, or editorial mentions.
 - Self-marking production-ready.
+- Leaving weak voice for ingest or founder HTML to “fix later.”
+- Specialist exemption used to excuse a SKU with fewer than 15 reviews when `rating_count` is present.
 
 ## Section 0 — fill per category
 

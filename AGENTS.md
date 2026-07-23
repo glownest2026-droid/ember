@@ -54,8 +54,8 @@ Full reasoning and worked examples: **`web/docs/DEVELOPER_OPERATING_MODEL.md`**.
 | Parent persona (Conor / Thea) | `.cursor/rules/conscientious-conor.mdc` + `web/docs/brand/PERSONAS.md` + `web/docs/CONSCIENTIOUS_CONOR.md` |
 | Parent-facing writing craft | `web/docs/brand/WRITING_GUIDELINES.md` |
 | Brand system map | `web/docs/brand/README.md` |
-| Stage 3 trust gates (URL / age / ratings) | `web/docs/STAGE3_TRUST_GATES.md` + `$ember-stage3-ff-checker` |
-| Stage 3 research methodology (WHAT + HOW) | `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` |
+| Stage 3 trust gates (URL / age / ratings / copy bans) | `web/docs/STAGE3_TRUST_GATES.md` + `$ember-stage3-ff-checker` |
+| Stage 3 research methodology (WHAT + HOW + copy at source) | `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` + `web/docs/brand/WRITING_GUIDELINES.md` |
 | Catalogue / Discover ingestion | `.cursor/rules/conor-grade-catalogue-upload.mdc` |
 | Offline source of truth (Discover content) | Spine 3.0 Bible workbook `discover_projection` tab — see `.cursor/rules/conor-grade-catalogue-upload.mdc` §0 |
 | Category image mapping | `.cursor/rules/ember-image-mapping.mdc` |
