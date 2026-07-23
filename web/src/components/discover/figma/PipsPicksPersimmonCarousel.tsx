@@ -318,7 +318,7 @@ function PickCardBody({
         </span>
       ) : null}
 
-      <h3 className="m-0 mb-1 shrink-0 pr-[96px] text-[19px] font-extrabold leading-[1.2] tracking-normal text-white line-clamp-2 md:text-[22px] md:leading-[1.18]">
+      <h3 className="m-0 mb-1 shrink-0 pr-[96px] text-[19px] font-extrabold leading-[1.2] tracking-normal text-white line-clamp-2 md:line-clamp-none md:text-[22px] md:leading-[1.18]">
         {fields.title}
       </h3>
       {fields.brand ? (

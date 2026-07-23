@@ -46,6 +46,13 @@ const BANNED = [
   'stage 2',
   'stage 3',
   'stage-based',
+  'low-stakes',
+  'low stakes',
+  'quick wins',
+  'quick win',
+  'tight budget',
+  'tight budgets',
+  'feeling like a win',
 ];
 
 /** Soft adjectives banned as product praise (whole-word). */
@@ -53,6 +60,121 @@ const BANNED_WORD = [/\bcalm\b/i, /\bcalming\b/i, /\bcheerful\b/i, /\bdelightful
 
 /** Fresh 20xx sales talk */
 const FRESH_YEAR = /\bfresh 20\d{2}\b/i;
+
+const STOP_WORDS = new Set([
+  'best',
+  'for',
+  'the',
+  'a',
+  'an',
+  'and',
+  'or',
+  'of',
+  'to',
+  'in',
+  'on',
+  'with',
+  'your',
+  'child',
+  'this',
+  'that',
+  'from',
+  'into',
+  'as',
+  'at',
+  'by',
+  'is',
+  'are',
+  'be',
+  'when',
+  'they',
+  'them',
+  'their',
+  'you',
+]);
+
+function contentTokens(text) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .split(/[\s-]+/)
+    .filter((w) => w.length >= 4 && !STOP_WORDS.has(w));
+}
+
+function tokenOverlapRatio(a, b) {
+  const A = new Set(contentTokens(a));
+  const B = contentTokens(b);
+  if (!A.size || !B.length) return 0;
+  let hit = 0;
+  for (const w of B) if (A.has(w)) hit += 1;
+  return hit / B.length;
+}
+
+/** Best-for tag must surface in Description and/or Why Pip. */
+function bestForLivesGate(pick) {
+  const reasons = [];
+  const tag = String(pick.best_for_tag || '');
+  const after = tag.replace(/^best for\s+/i, '').trim();
+  const tagTokens = contentTokens(after);
+  if (!tagTokens.length) return reasons;
+  const blob = `${pick.product_description_under_30_words || ''} ${pick.ember_verdict || ''}`;
+  const blobTokens = new Set(contentTokens(blob));
+  const hits = tagTokens.filter((t) => blobTokens.has(t));
+  // Also allow multi-word phrase match (e.g. "now and next")
+  const phraseOk = after.length >= 4 && blob.toLowerCase().includes(after.toLowerCase());
+  if (!phraseOk && hits.length < Math.min(1, tagTokens.length)) {
+    reasons.push('best_for_not_reflected_in_description_or_why_pip');
+  }
+  return reasons;
+}
+
+/** Description and Why Pip must not be near-paraphrases. */
+function descriptionVerdictDistinctGate(pick) {
+  const reasons = [];
+  const desc = pick.product_description_under_30_words;
+  const why = pick.ember_verdict;
+  if (!nonEmpty(desc) || !nonEmpty(why)) return reasons;
+  const overlap = Math.max(tokenOverlapRatio(desc, why), tokenOverlapRatio(why, desc));
+  if (overlap >= 0.55) reasons.push(`description_why_pip_overlap_${overlap.toFixed(2)}`);
+  return reasons;
+}
+
+/** Top 5 product names must be unique (case-insensitive). */
+function uniqueTopPickNamesGate(topPicks) {
+  const reasons = [];
+  const seen = new Map();
+  for (const pick of topPicks) {
+    const key = String(pick.product_name || '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!key) continue;
+    if (seen.has(key)) reasons.push(`duplicate_top_pick_name:${key}`);
+    else seen.set(key, pick.rank);
+  }
+  return reasons;
+}
+
+/**
+ * Near-duplicate catalogue lines that collapse into the same visible title
+ * (e.g. two "Edx … Step-A-…" SKUs). Allow at most one Step-A / Step A line in Top 5.
+ */
+function nearDuplicateProductLineGate(topPicks) {
+  const reasons = [];
+  const stepA = [];
+  for (const pick of topPicks) {
+    const name = String(pick.product_name || '');
+    if (/\bstep[\s-]?a[\s-]/i.test(name)) {
+      stepA.push({ rank: pick.rank, name });
+    }
+  }
+  if (stepA.length > 1) {
+    reasons.push(
+      `near_duplicate_product_line:step-a(${stepA.map((x) => `#${x.rank}`).join(',')})`,
+    );
+  }
+  return reasons;
+}
 
 function nonEmpty(v) {
   return String(v ?? '').trim().length > 0;
@@ -396,6 +518,8 @@ function howPickFails(pick) {
     if (uv.primary_opens_product !== true) fails.push('url_verification_primary_opens_product_false');
   }
   fails.push(...descriptionWordGate(pick));
+  fails.push(...bestForLivesGate(pick));
+  fails.push(...descriptionVerdictDistinctGate(pick));
   if (!nonEmpty(pick.ember_verdict)) fails.push('ember_verdict_missing');
   if (!nonEmpty(pick.product_name)) fails.push('product_name_missing');
   return fails;
@@ -417,6 +541,8 @@ async function checkDocument(filePath, { skipSmoke, skipAvailability, band }) {
   if (topPicks.length !== 5) categoryFails.push(`top_picks_count_${topPicks.length}`);
   if ((doc.longlist || []).length !== 15) categoryFails.push(`longlist_count_${(doc.longlist || []).length}`);
   if ((doc.skips || []).length < 5) categoryFails.push(`skips_below_5`);
+  categoryFails.push(...uniqueTopPickNamesGate(topPicks));
+  categoryFails.push(...nearDuplicateProductLineGate(topPicks));
 
   for (const row of doc.longlist || []) {
     const lr = Number(row.longlist_rank);

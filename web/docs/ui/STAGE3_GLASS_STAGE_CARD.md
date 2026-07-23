@@ -111,7 +111,7 @@ Leave `padding-right: ~52px` on kicker / rank / tag so type never runs under the
 1. **Corner robin** (top-right)
 2. **Rank** — ghost-stroke numeral (`font-size ~42px`, `-webkit-text-stroke: 1.5px var(--accent)`, fill transparent) + “of N” caption
 3. **Best-for tag** — pill, uppercase ~10.5–11px / 800, border + fill from accent
-4. **Title** — ~22px / 800, white, max 2 lines; keep width ~78% so glass feels open
+4. **Title** — ~22px / 800, white. Mobile: up to 2 lines. **Desktop: show the full title** (no clamp) unless the name is genuinely extreme; prefer wrapping over ellipsis. Keep right padding clear of the robin.
 5. **Brand** — uppercase ~12px / 700, white 60%
 6. **Description** — ~13.5–14px / 500, white 90%, clamp 2–3 lines; dims when drawer open
 7. **Why Pip picked this — DRAWER** (required addictive component — see §4)

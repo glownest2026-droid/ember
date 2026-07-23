@@ -58,8 +58,11 @@ node agent-tools/scripts/stage3-ff-check.mjs path/to/file.json --skip-smoke --no
 8. Age signals overlap band; “not suitable under 3 years” fails if `band.min < 36`
 9. Schema: 5 / 15 / ≥5 skips
 10. Unique short `Best for …` tags
-11. Parent fields pass Writing Guidelines bans (`web/docs/brand/WRITING_GUIDELINES.md`) — em dash, calm, worth buying, Fresh 20XX, Stage X, etc.
+11. Parent fields pass Writing Guidelines bans (`web/docs/brand/WRITING_GUIDELINES.md`) — em dash, calm, worth buying, Fresh 20XX, Stage X, low-stakes, quick wins, tight budget(s), etc.
 12. Description word count **20–40** (legacy field name `product_description_under_30_words`; one Description only — no “What this is”)
+13. Best for tag must be reflected in Description and/or Why Pip
+14. Description and Why Pip must not be near-paraphrases of each other
+15. Unique Top 5 product names; no near-duplicate product lines (e.g. two Edx Step-A-* SKUs)
 
 ## Outcomes
 

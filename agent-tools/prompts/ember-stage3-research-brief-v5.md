@@ -18,7 +18,7 @@
 2. **Bench** — 15-equal longlist with live URLs (brand/publisher primary preferred).
 3. **Age** — capture `age_signals[]` from each Top Pick listing (strictest wins).
 4. **Rank** — apply factor order; write category `buying_factor_memo` and each `rank_rationale`.
-5. **Public copy** — `product_description_under_30_words` (**20–40 words**; one Description only) + `ember_verdict` (Writing Guidelines + Conor five tests). Positive vision; British school-gate English; no em dashes; no crisis framing; no shopping-order spine on Why Pip. Do **not** write a separate “What this is”.
+5. **Public copy** — `product_description_under_30_words` (**20–40 words**; one Description that explains the product) + `ember_verdict` (Why Pip = need at this age + earns Best for; not a Description echo). Writing Guidelines + Conor five tests. No em dashes; no crisis framing; no shopping-order spine; no low-stakes / quick wins / tight budgets. Unique Top 5; max one Step-A-style near-duplicate line.
 6. **URL + availability verify** — fill `url_verification`; run availability check; do not guess.
 7. **Self-check** — Writing Guidelines ship checklist on every Top Pick.
 8. Write JSON/CSV/summary to **inbox/** only.

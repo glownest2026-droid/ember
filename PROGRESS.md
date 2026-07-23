@@ -1,3 +1,10 @@
+## 2026-07-23 — Stage 3 founder feedback: voice, Best for, titles, 34–36m reissue
+
+- **Root causes locked:** Writing Guidelines field jobs (Description = what it is; Why Pip = need + earns Best for); FF bans (low-stakes, quick wins, tight budgets); Best-for-must-land + no Description/Why echo; unique Top 5 + max one Step-A line; desktop titles unclamped
+- **Balance:** demoted Step-A-Trails (lookalike card); #5 → Edx Rope-Gap Stepping Stones; kinder “smaller budgets”; decoded nesting stumps
+- **Migration:** `20260723160000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-founder-feedback-34-36m`
+- **Verify:** `/discover/35` balance paths — five distinct titles on desktop; Tippi tag not “tight”; Stumps description explains platforms; no low-stakes/quick wins on jigsaws
+
 ## 2026-07-23 — Stage 3 Descriptions: 20–40 words (single field)
 
 - **Why:** compact Pip’s Picks card has one Description (not Description + “What this is”); prior copy was ~7–13 words

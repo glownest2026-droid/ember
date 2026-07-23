@@ -33,6 +33,12 @@ const BANNED_COPY = [
   'endless tabs',
   '40 tabs',
   'six months behind',
+  'low-stakes',
+  'low stakes',
+  'quick wins',
+  'quick win',
+  'tight budget',
+  'tight budgets',
 ];
 
 function parseArgs(argv) {

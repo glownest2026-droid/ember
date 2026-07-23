@@ -202,12 +202,21 @@ There is **one** Description on the card. Do **not** write a separate “What th
 
 | Field | Job | Depth |
 |---|---|---|
-| **Description** (`product_description_under_30_words`) | What the product or story *is*, in plain parent English — enough to understand the object without opening Why Pip | **20–40 words** (hard rule) |
-| **Why Pip picked this** (`ember_verdict`) | Why it fits now — positive skill/play vision, warm and specific | Usually 2–4 short sentences; Writing Guidelines voice |
+| **Description** (`product_description_under_30_words`) | Explain **exactly what the product is** in plain parent English — object, format, and how you use it. A parent must understand the thing without opening Why Pip or tapping Browse offers. | **20–40 words** (hard rule) |
+| **Why Pip picked this** (`ember_verdict`) | The **rationalisation box**: why this earns a Top 5–10 place now — grounded in the Stage 1 development need for this card, and how it earns the **Best for…** tag. | Usually 2–4 short sentences; Writing Guidelines voice |
+
+**Hard rules (Pip’s Picks)**
+
+1. **Best for must come to life** — the tag’s job must appear in Description and/or Why Pip (implicitly or explicitly). If the tag says “portable routines”, the explainer must make portability feel real.
+2. **No lazy echo** — Description and Why Pip must do different jobs. If Why Pip mostly restates the Description, rewrite Why Pip.
+3. **Ambiguous product names** — if the title is a brand SKU (e.g. Step-A-Stumps), the Description must decode it into ordinary words (nestable plastic platforms you step on, with a carry bag).
+4. **One distinct product per Top 5 slot** — no duplicate titles; avoid two near-identical lines from the same range that only differ by a truncated SKU name.
+5. **Respect on money tags** — never “tight budgets”. Prefer “smaller budgets”, “trying path play first”, or similar kinder UK parent language.
 
 **Description Do**
 
 - Name the object and what happens with it (or in the story).
+- Decode catalogue jargon into school-gate English.
 - Keep it concrete and recognisable.
 - Land between 20 and 40 words inclusive.
 
@@ -216,7 +225,19 @@ There is **one** Description on the card. Do **not** write a separate “What th
 - One short teaser under 20 words.
 - A second “What this is” field.
 - Repeating the Why Pip line almost word for word.
+- Leaving the parent unsure what is in the box.
 - Em dashes, banned AI tells, crisis framing.
+
+**Why Pip Do**
+
+- Knit together: Stage 1 need → this product → why the Best for tag is fair.
+- Add fit, play moment, or a kind practical note the Description did not already say.
+
+**Why Pip Don’t**
+
+- Paraphrase the Description.
+- Lead with shopping orders.
+- Use AI tells (low-stakes, quick wins, worth buying, calm as praise, etc.).
 
 **Pass example (20 words):**  
 A sensitive picture book about a little girl whose worry grows bigger and bigger until she learns to share it.
@@ -301,6 +322,9 @@ Parents guide, play, and practise with babies and toddlers. Ember’s voice stay
 5. Sounds human (no generated tells)?
 6. Right shape for this content form, with no lazy repetition?
 6b. Pip’s Picks Description between **20 and 40 words** (one field only)?
+6c. Description alone makes the product clear (no CTA needed to understand it)?
+6d. Why Pip earns the Best for tag and Stage 1 need — without echoing Description?
+6e. No money-shame tags (“tight budgets”) or AI tells (low-stakes, quick wins, …)?
 7. No research maths on the page?
 8. Respects the existing home?
 9. Safety plain and kind if needed?
@@ -429,3 +453,4 @@ See `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` must-be-true #5.
 | 2026-07-23 | v1 canonical — founder signed off after virtual copywriting school + Pip’s Picks feedback |
 | 2026-07-23 | Wired into Stage 3 research → FF → ingest (copy at source; ingest copy-faithful) |
 | 2026-07-23 | Pip’s Picks: single Description **20–40 words**; removed dual Description / What this is |
+| 2026-07-23 | Pip’s Picks: Best for must land; Description vs Why Pip jobs; decode SKUs; ban tight budgets / low-stakes / quick wins |

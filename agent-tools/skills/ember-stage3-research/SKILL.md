@@ -298,8 +298,8 @@ Do not reuse generic tags across all picks. Tags must help a parent choose.
 
 Each Top Pick has **two public copy fields** that match the live card (not two product summaries):
 
-1. **Description** — what it is (depth for the compact card body)
-2. **Why Pip picked this** — why it fits now
+1. **Description** — exactly what the product is (20–40 words)
+2. **Why Pip picked this** — why it earns Top 5–10 now (Stage 1 need + earns the Best for tag)
 
 Do **not** write a separate “What this is” field. The card shows one Description only.
 
@@ -307,25 +307,28 @@ Do **not** write a separate “What this is” field. The card shows one Descrip
 
 Schema field name is legacy. The writing rule is **20–40 words** (hard). Follow **`web/docs/brand/WRITING_GUIDELINES.md`** Pip’s Picks card fields.
 
-Write what the product or story *is* in plain parent English — enough to picture the object without opening Why Pip. No developmental claims unless the product page itself makes them. Do not duplicate Why Pip.
+Explain exactly what is in the box in plain parent English. Decode brand SKUs. A parent must understand the product without opening Why Pip or Browse offers. Do not duplicate Why Pip.
 
 Example (28 words): `A set of large colourful wooden beads and shapes to thread onto a soft fabric lace, sized for little hands that are ready for a proper threading job at the table.`
 
 ### `ember_verdict`
 
-Parent-facing “Why Pip picked this”. Follow **`web/docs/brand/WRITING_GUIDELINES.md`** (canonical).
+Parent-facing “Why Pip picked this” — the **rationalisation box**. Follow **`web/docs/brand/WRITING_GUIDELINES.md`** (canonical).
 
-It should explain:
+It should:
 
-- the positive skill or play vision;
-- why this pick fits this Stage 2 card;
-- an optional kind practical note.
+- ground the pick in the Stage 1 development need for this card;
+- make the **Best for…** tag feel earned (implicitly or explicitly);
+- add fit or a kind practical note the Description did not already say.
 
-Do **not** restate the whole Description.
+Do **not** restate the Description. Avoid AI tells: low-stakes, quick wins, tight budgets, worth buying, calm as praise, em dashes, Stage X, Fresh 20XX.
 
-Tone: British school-gate English. Warm, specific, playful where it fits. Positive vision first — never crisis framing.
+### Best for + Top 5 shape
 
-Avoid: calm (as product praise), worth buying, em dashes, Fresh 20XX, Stage 1/2/3, internal QA talk, shopping orders as the spine of the line, and all Writing Guidelines bans.
+- Best for tags must come to life in Description and/or Why Pip.
+- Unique product names in Top 5.
+- Do not put two near-identical SKUs from the same range (e.g. two Edx Step-A-* lines) in Top 5 — titles truncate and feel like duplicates.
+- Money tags: never “tight budgets”; prefer kinder UK parent language.
 
 ---
 
