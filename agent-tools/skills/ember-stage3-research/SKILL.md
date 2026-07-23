@@ -67,9 +67,9 @@ Use when live web/research tools are available and the user wants the research c
 Run on every Top Pick before `inbox/`. This is the **root-cause** quality gate.
 
 1. Description **20–40 words** and alone makes the product clear (decode SKU jargon).
-2. Why Pip **40–60 words** = need at this age + why this earns Top 5–10 + how it suits the Best for *idea* — **not** a paraphrase of Description, and **never** say “tag” / “earns that tag”.
+2. Why Pip **40–60 words** = need at this age + why this earns Top 5–10 + how the Best for *idea* comes to life — **not** a paraphrase of Description, **never** say “tag” / “earns that tag”, and **never** end with “That is why X suits Y” (or “That [noun] is why it suits…”). Vary openings and endings across the Top 5.
 3. Best for comes to life in Description and/or Why Pip without fourth-wall tag talk.
-4. No AI / money tells — must match `agent-tools/scripts/lib/stage3-banned-copy.mjs` (same list FF uses). Includes: loop, journey, hook, script, feel fair, nursery, lecture/sermon, matter/moment/muscle, odd hyphen compounds, “A real X”, personification, peculiar “honesty” phrases, low-stakes, quick wins, tight budgets, worth buying, calm, em dashes, Stage X, Fresh 20XX, crisis framing.
+4. No AI / money tells — must match `agent-tools/scripts/lib/stage3-banned-copy.mjs` (same list FF uses). Includes: loop, journey, hook, script, feel fair, nursery, lecture/sermon, matter/moment/muscle, odd hyphen compounds, “A real X”, personification, peculiar “honesty” phrases, **formulaic “That is why… suits…” closers**, low-stakes, quick wins, tight budgets, worth buying, calm, em dashes, Stage X, Fresh 20XX, crisis framing.
 5. Unique product names across Top 5; at most one lookalike line from the same modular range; **at most two Top Picks from the same brand**.
 6. Prefer products findable on major UK retail / Google Shopping when quality is equal (Browse offers must land on the real pick, not a sea of lookalikes).
 7. **Optional relational Why Pip:** where Top 5 naturally ladders, lightly join dots; never force when picks are independent situations.

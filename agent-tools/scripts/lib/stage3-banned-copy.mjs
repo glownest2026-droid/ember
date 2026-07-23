@@ -167,16 +167,31 @@ export const REAL_X_FILLER =
 export const NURSERY = /\bnursery\b/i;
 
 /**
+ * Formulaic AI closer: “That is why X suits Y” / “That gentle recovery is why it suits…”
+ * Founder 2026-07-23: robotic, repetitive card cadence across Top 5.
+ */
+export const FORMULAIC_WHY_CLOSER = [
+  /\bthat is why\b/i,
+  /\bwhich is why\b/i,
+  /\bthat\s+\w+(?:\s+\w+){0,8}\s+is why\b/i,
+  /\bis why (?:this|it|they|these|the)\b/i,
+  /\bare why (?:this|it|they|these|the)\b/i,
+];
+
+/** Rationalisation verb overused in Why Pip templates — ban on ember_verdict only. */
+export const SUIT_AS_RATIONALE = /\bsuits?\b/i;
+
+/**
  * Return unique fail tokens for banned parent copy.
  * Empty array = clean.
  *
  * @param {string} text
- * @param {{ publicCopy?: boolean }} [opts]
- *   publicCopy (default true): also enforce invented-hyphen allowlist.
- *   Set false for internal HOW fields (rank_rationale) where research shorthand is OK,
- *   but classic AI/money tells still fail.
+ * @param {{ publicCopy?: boolean, field?: string }} [opts]
+ *   publicCopy (default true): also enforce invented-hyphen allowlist + formulaic closers.
+ *   field: when `ember_verdict`, also ban suit/suits as the rationalisation verb.
+ *   Set publicCopy false for internal HOW fields (rank_rationale).
  */
-export function bannedHits(text, { publicCopy = true } = {}) {
+export function bannedHits(text, { publicCopy = true, field = null } = {}) {
   const raw = String(text || '');
   const lower = raw.toLowerCase();
   const hits = [];
@@ -194,11 +209,20 @@ export function bannedHits(text, { publicCopy = true } = {}) {
   if (NURSERY.test(raw)) hits.push('nursery_benchmarking');
   if (PERSONIFY_OR_PECULIAR.test(raw)) hits.push('personify_or_peculiar');
 
-  // Invented hyphen compounds: public Pip fields only (Description / Why Pip / Best for).
+  // Invented hyphen compounds + formulaic closers: public Pip fields only.
   if (publicCopy) {
     if (AI_HYPHEN_COMPOUND.test(raw)) hits.push('ai_hyphen_compound');
     const invented = inventedHyphenHits(raw);
     if (invented.length) hits.push(`invented_hyphen:${invented.join('|')}`);
+    for (const re of FORMULAIC_WHY_CLOSER) {
+      if (re.test(raw)) {
+        hits.push('formulaic_why_closer');
+        break;
+      }
+    }
+    if ((field === 'ember_verdict' || field === 'why') && SUIT_AS_RATIONALE.test(raw)) {
+      hits.push('suit_as_rationale');
+    }
   }
 
   return [...new Set(hits)];
@@ -218,9 +242,12 @@ export function bannedCopyInventory() {
       'ai_hyphen_compound',
       'invented_hyphen',
       'personify_or_peculiar',
+      'formulaic_why_closer',
     ],
     allowed_hyphens_note:
       'Only ordinary English / Ember hyphens (nearly-three, twelve-piece, wipe-clean, …). Invented play-type compounds fail.',
+    formulaic_closer_note:
+      'Never end Why Pip with “That is why X suits Y” / “That [noun] is why it suits…”. Vary endings; land Best for without a template.',
     canonical_module: 'agent-tools/scripts/lib/stage3-banned-copy.mjs',
     human_doc: 'web/docs/brand/WRITING_GUIDELINES.md (Principle 5)',
   };

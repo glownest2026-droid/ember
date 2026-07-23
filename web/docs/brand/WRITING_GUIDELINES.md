@@ -173,10 +173,11 @@ Trust breaks when copy sounds machine-made. Prefer plain rhythm, ordinary verbs,
 - **Importance filler:** matter / matters (“Warm-up sessions matter”, “Cord ends matter”)
 - **Vague time filler:** moment / moments in Pip’s Picks (“jealous moments”, “now-and-next moments”) — name the real situation (wobbles, evenings, hand-offs)
 - **Fabricated metaphors:** muscle (“choosing muscle”, “talk-stories muscle”); peculiar phrases (“storage honesty”, “travel honesty”)
-- **Odd hyphen compounds:** inventing play-type jargon with hyphens (“rescue-vehicle”, “try-again play”, “get-on-go-return”, “step-pause-turn”, “letters-and-lacing”) — write ordinary spaced English (“suits rescue vehicle play”, “suits get on, go and return play”). Allowed hyphens are ordinary English / Ember only (twelve-piece, living-room, wipe-clean, nearly-three, back-and-forth, …) — see `stage3-banned-copy.mjs` allowlist.
+- **Odd hyphen compounds:** inventing play-type jargon with hyphens (“rescue-vehicle”, “try-again play”, “get-on-go-return”, “step-pause-turn”, “letters-and-lacing”) — write ordinary spaced English (“good for rescue vehicle play”, “made for get on, go and return”). Allowed hyphens are ordinary English / Ember only (twelve-piece, living-room, wipe-clean, nearly-three, back-and-forth, …) — see `stage3-banned-copy.mjs` allowlist.
 - **Personification of objects:** “Wood earns its place”, “cords love to tangle”
 - **Adult discipline vocabulary:** lecture, sermon, lesson plan — never for UK parent/toddler dynamics
 - Money-shame and sales tells already listed above (tight budgets, low-stakes, quick wins, worth buying, …)
+- **Formulaic Why Pip closers:** “That is why X suits Y”, “That gentle recovery is why it suits…”, “which is why this suits…” — never end cards on the same template. Vary openings and endings. Do not lean on “suit/suits” as the rationalisation verb.
 
 | Pass | Fail |
 |---|---|
@@ -186,13 +187,14 @@ Trust breaks when copy sounds machine-made. Prefer plain rhythm, ordinary verbs,
 | Short rescue puzzles before a fuller twelve-piece set. | Before twelve-piece trays feel fair. That hook is why… |
 | Load, drive and tip out passengers again. | Get-on go-return journey / bus loop / travel script |
 | Keep the routine visible in the kitchen. | Already familiar from nursery / not only on a nursery wall |
-| Suits rescue vehicle play at this age. | Suits rescue-vehicle / try-again play / get-on-go-return play |
+| Good for rescue vehicle play at this age. | That is why this suits rescue-vehicle play |
 | Gentler starts before a twelve-piece tray. | Warm-up sessions matter / warm-up sessions |
 | Packs into one stack with a carry bag. | Storage honesty / travel honesty / pack-away design |
 | Choosing practice on the sofa. | Choosing muscle / talk-stories muscle / open-choice reading |
 | Without turning bedtime into a talking-to. | Without turning bedtime into a lecture |
 | Distance judgement grows fast around this age. | A real nearly-three shift |
-| Suits step, pause and turn paths. | Suits step-pause-turn paths |
+| Step, pause and turn paths you invent together. | That is why they suit step-pause-turn paths so well |
+| Keep jealous wobbles light at bedtime. | That gentle recovery is why it suits jealous wobbles |
 
 ---
 
@@ -264,7 +266,8 @@ There is **one** Description on the card. Do **not** write a separate “What th
 
 - Knit together: need at this age → this product → why the Best for idea is fair (in parent language, not “tag” talk).
 - Add fit, a concrete play situation, or a kind practical note the Description did not already say.
-- **Optional Top 5 progression:** where picks naturally form a ladder (e.g. bus → holiday trip → care roles → help-on-wheels), Why Pip may lightly join the dots so the shortlist reads as a set. Never invent a progression; never force link language when picks serve distinct parent situations.
+- **Optional Top 5 progression:** where picks naturally form a ladder (e.g. bus → holiday trip → care roles), Why Pip may lightly join the dots so the shortlist reads as a set. Never invent a progression; never force link language when picks serve distinct parent situations.
+- **Vary the cadence** — change how sentences open and close across a Top 5. End on a scene, a practical note, or what the parent notices — not the same rationalisation template every time.
 - Land between **40 and 60 words** inclusive.
 
 **Why Pip Don’t**
@@ -273,6 +276,8 @@ There is **one** Description on the card. Do **not** write a separate “What th
 - Lead with shopping orders.
 - Mention tags (“earns that tag”, “the tag promises”).
 - Use AI tells (loop, journey, hook, script, feel fair, feels like, nursery benchmarking, low-stakes, quick wins, worth buying, calm as praise, etc.).
+- **Formulaic closers:** “That is why…”, “That [noun] is why…”, “which is why…”, or ending every card with “suits [Best for]”.
+- Lean on “suit/suits” as the rationalisation verb.
 - Stay under 40 words when the insight needs room.
 
 **Pass example (20 words):**  
@@ -497,3 +502,4 @@ See `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` must-be-true #5.
 | 2026-07-23 | Ban matter/moment/muscle, lecture, odd hyphen compounds, “A real X”, personification, peculiar “honesty” phrases; optional relational Why Pip |
 | 2026-07-23 | **Ban-list parity:** Principle 5 + FF share `agent-tools/scripts/lib/stage3-banned-copy.mjs` — never diverge |
 | 2026-07-23 | Invented hyphen compounds banned in Pip parent copy (allowlist ordinary English / Ember only) |
+| 2026-07-23 | Ban formulaic Why Pip closers (“That is why X suits Y”); vary cadence; no “suit/suits” rationalisation verb |

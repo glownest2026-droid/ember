@@ -595,8 +595,9 @@ async function checkDocument(filePath, { skipSmoke, skipAvailability, band }) {
 
     for (const field of ['ember_verdict', 'product_description_under_30_words', 'best_for_tag', 'rank_rationale']) {
       const hits = bannedHits(pick[field], {
-        // Invented hyphen allowlist is for parent-facing Pip fields only.
+        // Invented hyphen allowlist + formulaic closers: parent-facing Pip fields only.
         publicCopy: field !== 'rank_rationale',
+        field,
       });
       if (hits.length) fail.push(`banned_copy:${hits.join('|')}`);
     }

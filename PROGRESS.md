@@ -1,3 +1,11 @@
+## 2026-07-23 — Stage 3 formulaic Why Pip closer purge (34–36m)
+
+- **Founder catch:** robotic repeated cadence “That is why XX suits XX when XX” across cards
+- **Root cause:** research/rewrite templates taught that closer; FF did not ban it
+- **Fix:** `stage3-banned-copy.mjs` fails `That is why` / `That [noun] is why` / `which is why` on public fields; Why Pip also bans `suit/suits` as rationalisation verb; Writing Guidelines + research ship checklist updated
+- **Content:** all 35 Why Pips rewritten with varied endings; FF pass; migration `20260723220000_ingest_stage3_pips_picks_34_36m.sql`; cache `20260723-formulaic-closers-34-36m`
+- **Verify:** `/discover/35` — open several Why Pips; none should end with “That is why… suits…”
+
 ## 2026-07-23 — Stage 3 invented-hyphen purge (34–36m)
 
 - **Founder catch:** named AI flags were cleaned, but invented compounds were still prolific (`get-on-go-return`, `step-pause-turn`, `emergency-vehicle`, `letters-and-lacing`, …)
