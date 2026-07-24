@@ -1,0 +1,107 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 10,
+  "buyable_count": 10,
+  "results": {
+    "https://www.penguin.co.uk/books/312672/ten-minutes-to-bed-little-dinosaur-by-fielding-rhiannon/9780241532676": {
+      "url": "https://www.penguin.co.uk/books/312672/ten-minutes-to-bed-little-dinosaur-by-fielding-rhiannon/9780241532676",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/312671/ten-minutes-to-bed-little-unicorn-by-fielding-rhiannon/9780241348918": {
+      "url": "https://www.penguin.co.uk/books/312671/ten-minutes-to-bed-little-unicorn-by-fielding-rhiannon/9780241348918",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/108935/goodnight-moon-by-brown-margaret-wise/9781509831975": {
+      "url": "https://www.penguin.co.uk/books/108935/goodnight-moon-by-brown-margaret-wise/9781509831975",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/guess-how-much-i-love-you-sam-mcbratney/9781406359781": {
+      "url": "https://uk.bookshop.org/p/books/guess-how-much-i-love-you-sam-mcbratney/9781406359781",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/goodnight-gorilla-peggy-rathmann/9781909263499": {
+      "url": "https://uk.bookshop.org/p/books/goodnight-gorilla-peggy-rathmann/9781909263499",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/305833/the-going-to-bed-book-by-boynton-sandra/9780689847127": {
+      "url": "https://www.penguin.co.uk/books/305833/the-going-to-bed-book-by-boynton-sandra/9780689847127",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/111646/time-for-bed-by-mem-fox/9780152010485": {
+      "url": "https://www.penguin.co.uk/books/111646/time-for-bed-by-mem-fox/9780152010485",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/on-the-night-you-were-born-nancy-tillman/9780312601553": {
+      "url": "https://uk.bookshop.org/p/books/on-the-night-you-were-born-nancy-tillman/9780312601553",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/peace-at-last-jill-murphy/9781509862726": {
+      "url": "https://uk.bookshop.org/p/books/peace-at-last-jill-murphy/9781509862726",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/can-t-you-sleep-little-bear-martin-waddell/9780744578362": {
+      "url": "https://uk.bookshop.org/p/books/can-t-you-sleep-little-bear-martin-waddell/9780744578362",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

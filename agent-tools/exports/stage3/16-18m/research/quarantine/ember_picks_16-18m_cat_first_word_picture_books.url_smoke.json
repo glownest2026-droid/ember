@@ -1,0 +1,197 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 27,
+  "ok_count": 24,
+  "results": {
+    "https://uk.bookshop.org/p/books/baby-touch-words-ladybird/9780241361634": {
+      "url": "https://uk.bookshop.org/p/books/baby-touch-words-ladybird/9780241361634",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/dear-zoo-rod-campbell/9781407030678": {
+      "url": "https://uk.bookshop.org/p/books/dear-zoo-rod-campbell/9781407030678",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/122792/wheres-spot-by-hill-eric/9780723263661": {
+      "url": "https://www.penguin.co.uk/books/122792/wheres-spot-by-hill-eric/9780723263661",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/313409/baby-touch-faces-a-black-and-white-book-by-ladybird/9780241391723": {
+      "url": "https://www.penguin.co.uk/books/313409/baby-touch-faces-a-black-and-white-book-by-ladybird/9780241391723",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/that-s-not-my-dinosaur-fiona-watt/9781474916222": {
+      "url": "https://uk.bookshop.org/p/books/that-s-not-my-dinosaur-fiona-watt/9781474916222",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/global-babies-the-global-fund-for-children/9781580891745": {
+      "url": "https://uk.bookshop.org/p/books/global-babies-the-global-fund-for-children/9781580891745",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/see-touch-feel-first-words/": {
+      "url": "https://priddybooks.com/gb/books/see-touch-feel-first-words/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/hello-baby-faces/": {
+      "url": "https://priddybooks.com/gb/books/hello-baby-faces/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/that-s-not-my-puppy-fiona-watt/9780746047866": {
+      "url": "https://uk.bookshop.org/p/books/that-s-not-my-puppy-fiona-watt/9780746047866",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/see-touch-feel-words/": {
+      "url": "https://priddybooks.com/gb/books/see-touch-feel-words/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/first-100-words/": {
+      "url": "https://priddybooks.com/gb/books/first-100-words/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://barefootbooks.com/uk/babys-first-words/": {
+      "url": "https://barefootbooks.com/uk/babys-first-words/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/first-100-trucks/": {
+      "url": "https://priddybooks.com/gb/books/first-100-trucks/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/first-100-animals/": {
+      "url": "https://priddybooks.com/gb/books/first-100-animals/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/first-100-soft-to-touch/": {
+      "url": "https://priddybooks.com/gb/books/first-100-soft-to-touch/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/289967/faces-baby-touch-first-focus-by-ladybird/9780241243251": {
+      "url": "https://www.penguin.co.uk/books/289967/faces-baby-touch-first-focus-by-ladybird/9780241243251",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/313409/baby-touch-faces-a-black and white-book-by-ladybird/9780241391723": {
+      "url": "https://www.penguin.co.uk/books/313409/baby-touch-faces-a-black and white-book-by-ladybird/9780241391723",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/farm-take-a-peek/": {
+      "url": "https://priddybooks.com/gb/books/farm-take-a-peek/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/bright-baby-words/": {
+      "url": "https://priddybooks.com/gb/books/bright-baby-words/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/baby-touch-colours-ladybird/9780241288382": {
+      "url": "https://uk.bookshop.org/p/books/baby-touch-colours-ladybird/9780241288382",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/see-touch-feel-guess-who/": {
+      "url": "https://priddybooks.com/gb/books/see-touch-feel-guess-who/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/diggers-take-a-peek/": {
+      "url": "https://priddybooks.com/gb/books/diggers-take-a-peek/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/s?k=first+100+words": {
+      "url": "https://www.amazon.co.uk/s?k=first+100+words",
+      "http_status": 200,
+      "url_ok": false,
+      "error": "amazon_stub_page",
+      "amazon_gate": "stub",
+      "checked_at": "2026-07-24"
+    },
+    "https://usborne.com/gb/": {
+      "url": "https://usborne.com/gb/",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.waterstones.com/book/first-100-words/roger-priddy/9781843322924": {
+      "url": "https://www.waterstones.com/book/first-100-words/roger-priddy/9781843322924",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/111111/baby-touch-words-by-ladybird/9780241361634": {
+      "url": "https://www.penguin.co.uk/books/111111/baby-touch-words-by-ladybird/9780241361634",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/teddys-colours/": {
+      "url": "https://priddybooks.com/gb/books/teddys-colours/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

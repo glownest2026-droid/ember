@@ -1,0 +1,119 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 16,
+  "ok_count": 14,
+  "results": {
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-fruit-chopping-board/p/189194": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-fruit-chopping-board/p/189194",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/bigjigs-toys-breakfast-set/p/189291": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/bigjigs-toys-breakfast-set/p/189291",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-vegetable-chopping-board/p/189195": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-vegetable-chopping-board/p/189195",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.bigjigstoys.co.uk/products/wooden-breakfast-set": {
+      "url": "https://www.bigjigstoys.co.uk/products/wooden-breakfast-set",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/bigjigs-toys-butchers-crate/p/160294": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/bigjigs-toys-butchers-crate/p/160294",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/melissa-doug-food-groups/p/193000": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/melissa-doug-food-groups/p/193000",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.bigjigstoys.co.uk/products/butchers-crate": {
+      "url": "https://www.bigjigstoys.co.uk/products/butchers-crate",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-breakfast-set/p/189197": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-breakfast-set/p/189197",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-tea-set/p/189196": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-tea-set/p/189196",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-cookware-set/p/189198": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-cookware-set/p/189198",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/duktig-play-kitchen-birch-60319972/": {
+      "url": "https://www.ikea.com/gb/en/p/duktig-play-kitchen-birch-60319972/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/duktig-14-piece-vegetables-set-10185748/": {
+      "url": "https://www.ikea.com/gb/en/p/duktig-14-piece-vegetables-set-10185748/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.thetoyshop.com/dress-up/kitchen/Busy-Me-Slice-and-Play-Fruit-Set/p/560259": {
+      "url": "https://www.thetoyshop.com/dress-up/kitchen/Busy-Me-Slice-and-Play-Fruit-Set/p/560259",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.scandiborn.co.uk/products/little-dutch-wooden-play-kitchen-mint": {
+      "url": "https://www.scandiborn.co.uk/products/little-dutch-wooden-play-kitchen-mint",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/john-lewis-wood-deluxe-toy-kitchen-with-fridge-freezer-play-set/p112571896": {
+      "url": "https://www.johnlewis.com/john-lewis-wood-deluxe-toy-kitchen-with-fridge-freezer-play-set/p112571896",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.argos.co.uk/product/7658747": {
+      "url": "https://www.argos.co.uk/product/7658747",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 11,
+  "buyable_count": 8,
+  "results": {
+    "https://www.amazon.co.uk/Lamaze-Freddie-Firefly-Clip-Toys/dp/B00B0A3R2A": {
+      "url": "https://www.amazon.co.uk/Lamaze-Freddie-Firefly-Clip-Toys/dp/B00B0A3R2A",
+      "http_status": 404,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_404",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/lamaze-freddie-the-firefly-soft-toy": {
+      "url": "https://www.hamleys.com/lamaze-freddie-the-firefly-soft-toy",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/lamaze-captain-calamari": {
+      "url": "https://www.hamleys.com/lamaze-captain-calamari",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ocado.com/products/lamaze-captain-calamari-buggy-toy-0mths/353093011": {
+      "url": "https://www.ocado.com/products/lamaze-captain-calamari-buggy-toy-0mths/353093011",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/sophie-la-girafe-original-teether": {
+      "url": "https://www.hamleys.com/sophie-la-girafe-original-teether",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ocado.com/products/sophie-la-girafe-original-teether/78496011": {
+      "url": "https://www.ocado.com/products/sophie-la-girafe-original-teether/78496011",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/sophie-la-girafe-multi-textured-teether": {
+      "url": "https://www.hamleys.com/sophie-la-girafe-multi-textured-teether",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/sophie-la-girafe-so-pure-teether-soft-200318/A4G7JH/": {
+      "url": "https://www.coolshop.co.uk/product/sophie-la-girafe-so-pure-teether-soft-200318/A4G7JH/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/playgro-jungle-friends-gift-pack-10182436/AD6X5Q/": {
+      "url": "https://www.coolshop.co.uk/product/playgro-jungle-friends-gift-pack-10182436/AD6X5Q/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/lamaze-freddie-the-firefly-activity-toy/p109915929": {
+      "url": "https://www.johnlewis.com/lamaze-freddie-the-firefly-activity-toy/p109915929",
+      "http_status": null,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "timeout",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/lamaze-play-and-grow-captain-calamari/p230887080": {
+      "url": "https://www.johnlewis.com/lamaze-play-and-grow-captain-calamari/p230887080",
+      "http_status": null,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "timeout",
+      "checked_at": "2026-07-24"
+    }
+  }
+}

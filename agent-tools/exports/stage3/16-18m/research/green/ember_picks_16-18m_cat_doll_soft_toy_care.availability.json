@@ -1,0 +1,57 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 5,
+  "buyable_count": 5,
+  "results": {
+    "https://www.adventuretoys.co.uk/corolle-miss-floral-sweet-dreams-soft-doll/": {
+      "url": "https://www.adventuretoys.co.uk/corolle-miss-floral-sweet-dreams-soft-doll/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/goki-dolls-bed/": {
+      "url": "https://toytastic.co.uk/product/goki-dolls-bed/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/corolle-rag-doll-blandine-sweet-dreams/": {
+      "url": "https://www.adventuretoys.co.uk/corolle-rag-doll-blandine-sweet-dreams/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/bigjigs-doll-cradle-blue-wooden/": {
+      "url": "https://www.adventuretoys.co.uk/bigjigs-doll-cradle-blue-wooden/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/tidlo-dolls-rocking-cradle/": {
+      "url": "https://www.adventuretoys.co.uk/tidlo-dolls-rocking-cradle/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "age_band_id": "19-21m",
+  "approved_at": "2026-07-24",
+  "rule": "strict-default-single-books-multiple",
+  "stop_at": "founder-html",
+  "categories": [
+    {
+      "category_entity_id": "cat_first_word_picture_books",
+      "category_label": "First-word books to point at",
+      "cluster_label": "I’m finding my words",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "49.1"
+    },
+    {
+      "category_entity_id": "cat_doll_soft_toy_care",
+      "category_label": "A doll or teddy to care for",
+      "cluster_label": "I’m copying everyday life",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "48.95"
+    },
+    {
+      "category_entity_id": "cat_shape_sorters_puzzles",
+      "category_label": "Shape sorters and first puzzles",
+      "cluster_label": "My hands are busy now",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "48.8"
+    },
+    {
+      "category_entity_id": "cat_soft_graspable_balls",
+      "category_label": "Soft balls to kick and chase",
+      "cluster_label": "I’m moving with purpose",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "47.15"
+    },
+    {
+      "category_entity_id": "cat_pouring_jug_cups",
+      "category_label": "Pouring jugs and water cups",
+      "cluster_label": "I’m learning to feed myself",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "44.75"
+    },
+    {
+      "category_entity_id": "cat_feelings_faces_books",
+      "category_label": "Feelings and faces books",
+      "cluster_label": "I’m having big feelings",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "49.1"
+    },
+    {
+      "category_entity_id": "cat_potty_books",
+      "category_label": "Potty and bathroom books",
+      "cluster_label": "I’m noticing bathroom routines",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "43.2"
+    },
+    {
+      "category_entity_id": "cat_safety_gates",
+      "category_label": "Safety gates for stairs",
+      "cluster_label": "Make exploring safer",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "42.8"
+    }
+  ],
+  "counts": {
+    "total": 8,
+    "single": 5,
+    "multiple": 3
+  }
+}

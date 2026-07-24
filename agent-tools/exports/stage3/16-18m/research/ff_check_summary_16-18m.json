@@ -1,0 +1,23 @@
+{
+  "age_band_id": "16-18m",
+  "passed": [
+    "cat_first_word_picture_books"
+  ],
+  "failed": [],
+  "details": [
+    {
+      "category_entity_id": "cat_first_word_picture_books",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 27,
+        "ok_count": 24
+      },
+      "availability": {
+        "url_count": 11,
+        "buyable_count": 11
+      }
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "age_band_id": "25-27m",
+  "approved_at": "2026-07-24",
+  "rule": "strict-default-single-books-multiple",
+  "stop_at": "founder-html",
+  "categories": [
+    {
+      "category_entity_id": "cat_picture_story_books",
+      "category_label": "Books that start little chats",
+      "cluster_label": "I’m telling you more",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "44.6"
+    },
+    {
+      "category_entity_id": "cat_play_kitchen_household_props",
+      "category_label": "A play kitchen for everyday copying",
+      "cluster_label": "I’m copying the everyday",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "50.7"
+    },
+    {
+      "category_entity_id": "cat_shape_sorters_puzzles",
+      "category_label": "Chunky puzzles and shape sorters",
+      "cluster_label": "My hands are getting busy",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "46.55"
+    },
+    {
+      "category_entity_id": "cat_soft_graspable_balls",
+      "category_label": "Soft balls to kick and chase",
+      "cluster_label": "I’m moving with more confidence",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "46.9"
+    },
+    {
+      "category_entity_id": "cat_feelings_faces_books",
+      "category_label": "Books about faces and feelings",
+      "cluster_label": "I’m learning to play with others",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "44.25"
+    },
+    {
+      "category_entity_id": "cat_step_stool",
+      "category_label": "A steady step for helping",
+      "cluster_label": "I want to do it myself",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "45.1"
+    },
+    {
+      "category_entity_id": "cat_potty",
+      "category_label": "A potty to practise sitting",
+      "cluster_label": "I’m noticing potty signs",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "43.7"
+    },
+    {
+      "category_entity_id": "cat_bedtime_board_books",
+      "category_label": "Bedtime books with familiar steps",
+      "cluster_label": "Keep curious days safer",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "36.55"
+    }
+  ],
+  "counts": {
+    "total": 8,
+    "single": 5,
+    "multiple": 3
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "ff_check_pass": true,
+  "checked_at": "2026-07-24",
+  "ingestion_ready_status": "founder-review-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "ELC Wooden Fruit Chopping Board",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "ELC Wooden Vegetable Chopping Board",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "Bigjigs Wooden Breakfast Set",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "Bigjigs Butchers Crate",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "Melissa & Doug Food Groups Play Set",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": []
+}

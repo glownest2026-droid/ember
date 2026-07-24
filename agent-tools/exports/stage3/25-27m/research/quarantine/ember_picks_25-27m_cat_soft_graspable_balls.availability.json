@@ -1,0 +1,57 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 5,
+  "buyable_count": 5,
+  "results": {
+    "https://www.gompels.co.uk/sponge-football-20cm.html": {
+      "url": "https://www.gompels.co.uk/sponge-football-20cm.html",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/sparka-soft-toy-football-green-70302645/": {
+      "url": "https://www.ikea.com/gb/en/p/sparka-soft-toy-football-green-70302645/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.gompels.co.uk/soft-football.html": {
+      "url": "https://www.gompels.co.uk/soft-football.html",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/sparka-soft-toy-football-mini-blue-red-20506758/": {
+      "url": "https://www.ikea.com/gb/en/p/sparka-soft-toy-football-mini-blue-red-20506758/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.networldsports.co.uk/forza-foam-pe-balls.html": {
+      "url": "https://www.networldsports.co.uk/forza-foam-pe-balls.html",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

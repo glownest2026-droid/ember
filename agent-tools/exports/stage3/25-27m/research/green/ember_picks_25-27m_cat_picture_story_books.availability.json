@@ -1,0 +1,147 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 14,
+  "buyable_count": 14,
+  "results": {
+    "https://www.penguin.co.uk/books/111124/peepo-by-ahlberg-janet/9780141337425": {
+      "url": "https://www.penguin.co.uk/books/111124/peepo-by-ahlberg-janet/9780141337425",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/108934/dear-zoo-by-campbell-rod/9780230747890": {
+      "url": "https://www.penguin.co.uk/books/108934/dear-zoo-by-campbell-rod/9780230747890",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/57304/each-peach-pear-plum-by-ahlberg-janet/9780140506396": {
+      "url": "https://www.penguin.co.uk/books/57304/each-peach-pear-plum-by-ahlberg-janet/9780140506396",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hachette.co.uk/titles/herve-tullet/press-here/9781854379571/": {
+      "url": "https://www.hachette.co.uk/titles/herve-tullet/press-here/9781854379571/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/122792/wheres-spot-by-hill-eric/9780723263661": {
+      "url": "https://www.penguin.co.uk/books/122792/wheres-spot-by-hill-eric/9780723263661",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/press-here-herve-tullet/9781452142275": {
+      "url": "https://uk.bookshop.org/p/books/press-here-herve-tullet/9781452142275",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.booktrust.org.uk/book-recommendations/bookfinder/dear-zoo/": {
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/dear-zoo/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.booktrust.org.uk/book-recommendations/bookfinder/peepo/": {
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/peepo/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/the-very-hungry-caterpillar-eric-carle/9780241003008": {
+      "url": "https://uk.bookshop.org/p/books/the-very-hungry-caterpillar-eric-carle/9780241003008",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/spot-goes-to-the-farm-eric-hill/9780723263708": {
+      "url": "https://uk.bookshop.org/p/books/spot-goes-to-the-farm-eric-hill/9780723263708",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/that-s-not-my-dinosaur-fiona-watt/9781474916222": {
+      "url": "https://uk.bookshop.org/p/books/that-s-not-my-dinosaur-fiona-watt/9781474916222",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/that-s-not-my-puppy-fiona-watt/9780746047866": {
+      "url": "https://uk.bookshop.org/p/books/that-s-not-my-puppy-fiona-watt/9780746047866",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/brown-bear-brown-bear-what-do-you-see-bill-martin-jr/9780241135815": {
+      "url": "https://uk.bookshop.org/p/books/brown-bear-brown-bear-what-do-you-see-bill-martin-jr/9780241135815",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.booktrust.org.uk/book-recommendations/bookfinder/wheres-spot/": {
+      "url": "https://www.booktrust.org.uk/book-recommendations/bookfinder/wheres-spot/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

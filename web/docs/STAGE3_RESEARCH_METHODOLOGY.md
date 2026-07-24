@@ -20,7 +20,7 @@
 
 | Step | What happens | Serves # |
 |---|---|---|
-| 1. Bench | Build 15-equal longlist with live URLs | 2, 4 |
+| 1. Bench | Build equal longlist with live URLs — **15** for single-ownership categories; **25** for multiple-ownership (books shelf) | 2, 4 |
 | 2. Age + safety | Capture `age_signals[]` from the listing | 1, 4 |
 | 3. Rank | Write `buying_factor_memo` + per-rank `rank_rationale` | 4 |
 | 4. Public copy | Title, short description, Why Pip picked this | 3 |
@@ -41,7 +41,8 @@
 | `buying_factor_memo` | Category root | 4–6 factors used to rank *this* category |
 | `methodology` | Category root | Must name steps: bench → age → rank → URL verify |
 | `rank_rationale` | Top Picks + longlist 1–10 | Why this rank vs the one below |
-| `missed_top5_reason` | Longlist 6–10 (req); 11–15 (rec) | Why it did not make Top 5 |
+| `missed_top5_reason` (or `missed_shown_reason`) | First 5 non-shown longlist rows (req) | Why it did not make the shown Top N (5 or 10) |
+| `ownership_class` | Category JSON | `single` (default → Top 5 / longlist 15) or `multiple` (books → Top 10 / longlist 25). Founder 2026-07-24. |
 | `age_signals[]` | Top Picks | Structured listing age (strictest wins) |
 | `url_verification` | Top Picks | `{ checked_at, http_status_or_method, primary_opens_product }` |
 

@@ -1,0 +1,296 @@
+{
+  "peeks": [
+    {
+      "url": "https://totterandtumble.co.uk/products/the-mariner-playmat",
+      "status": 200,
+      "len": 864141,
+      "soft": false,
+      "ok": true,
+      "title": "The Mariner Luxury Stylish One-piece seagrass Playmat &ndash; Totter + Tumble",
+      "h1": "The Mariner Playmat"
+    },
+    {
+      "url": "https://lovevery.co.uk/products/the-play-gym",
+      "status": 200,
+      "len": 546714,
+      "soft": false,
+      "ok": true,
+      "title": "The Play Gym | Baby Activity &amp; Tummy Time Mat | Lovevery UK"
+    },
+    {
+      "url": "https://www.gusandbeau.com/products/rainbow-playmat-set-in-cream",
+      "status": 200,
+      "len": 595959,
+      "soft": false,
+      "ok": true,
+      "title": "Gus and Beau Premium Baby Playmat in Rainbow Design &ndash; gus + beau",
+      "h1": "Rainbow Playmat Set in Cream"
+    },
+    {
+      "url": "https://totterandtumble.co.uk/products/the-scout-playmat",
+      "status": 404,
+      "len": 263029,
+      "soft": false,
+      "ok": false,
+      "title": "404 Not Found &ndash; Totter + Tumble"
+    },
+    {
+      "url": "https://totterandtumble.co.uk/products/the-aster-playmat",
+      "status": 200,
+      "len": 895985,
+      "soft": false,
+      "ok": true,
+      "title": "The Aster Playmat | Floral Foam Playmat for Family Homes &ndash; Totter + Tumble",
+      "h1": "The Aster Playmat"
+    },
+    {
+      "url": "https://www.gusandbeau.com/products/cloud-playmat-set",
+      "status": 404,
+      "len": 282843,
+      "soft": true,
+      "ok": false,
+      "title": "404 Not Found &ndash; gus + beau",
+      "h1": "404 Page Not Found"
+    },
+    {
+      "url": "https://www.hamleys.com/sophie-la-girafe-original-teether",
+      "status": 200,
+      "len": 398068,
+      "soft": false,
+      "ok": true,
+      "title": "Sophie La Girafe in Classic Gift Box",
+      "h1": "Sophie La Girafe® - Original Teether"
+    },
+    {
+      "url": "https://www.hamleys.com/sophie-la-girafe-multi-textured-teether",
+      "status": 200,
+      "len": 377346,
+      "soft": false,
+      "ok": true,
+      "title": "Sophie Pure Texture Teether",
+      "h1": "Sophie La Girafe® - Multi-Textured Teether"
+    },
+    {
+      "url": "https://www.hamleys.com/sophie-la-girafe-natural-rubber-teething-ring",
+      "status": 200,
+      "len": 374872,
+      "soft": false,
+      "ok": true,
+      "title": "Sophie la girafe - IUEF Teething Ring Soft",
+      "h1": "Sophie La Girafe® - Natural Rubber Teething Ring"
+    },
+    {
+      "url": "https://www.hamleys.com/matchstick-monkey-original-teething-toy",
+      "status": 404,
+      "len": 365441,
+      "soft": true,
+      "ok": false,
+      "title": "404 Error"
+    },
+    {
+      "url": "https://www.hamleys.com/matchstick-monkey-teething-toy",
+      "status": 404,
+      "len": 365432,
+      "soft": true,
+      "ok": false,
+      "title": "404 Error"
+    },
+    {
+      "url": "https://www.hamleys.com/nuby-iced-teether-keys",
+      "status": 404,
+      "len": 365424,
+      "soft": true,
+      "ok": false,
+      "title": "404 Error"
+    },
+    {
+      "url": "https://www.hamleys.com/oball-classic",
+      "status": 404,
+      "len": 365415,
+      "soft": true,
+      "ok": false,
+      "title": "404 Error"
+    },
+    {
+      "url": "https://www.hamleys.com/bright-starts-oball-classic",
+      "status": 404,
+      "len": 365429,
+      "soft": true,
+      "ok": false,
+      "title": "404 Error"
+    },
+    {
+      "url": "https://www.hamleys.com/manhattan-toy-winkel",
+      "status": 404,
+      "len": 365422,
+      "soft": true,
+      "ok": false,
+      "title": "404 Error"
+    },
+    {
+      "url": "https://www.hamleys.com/lamaze-freddie-firefly",
+      "status": 404,
+      "len": 365424,
+      "soft": true,
+      "ok": false,
+      "title": "404 Error"
+    },
+    {
+      "url": "https://www.hamleys.com/lamaze-gardenbug-wrist-rattle-foot-finder",
+      "status": 404,
+      "len": 365443,
+      "soft": true,
+      "ok": false,
+      "title": "404 Error"
+    },
+    {
+      "url": "https://www.hamleys.com/playgro-jungle-friends-wrist-rattle-and-foot-finder",
+      "status": 404,
+      "len": 365453,
+      "soft": true,
+      "ok": false,
+      "title": "404 Error"
+    },
+    {
+      "url": "https://www.mamasandpapas.com/products/joie-mimzy-snacker-16392j700",
+      "status": 429,
+      "len": 18,
+      "soft": false,
+      "ok": false
+    },
+    {
+      "url": "https://uk.joiebaby.com/mimzy-snacker",
+      "status": 200,
+      "len": 699539,
+      "soft": false,
+      "ok": true,
+      "title": "Joie Baby UK – Safe Car Seats, Stylish Pushchairs &amp; more",
+      "h1": ""
+    },
+    {
+      "url": "https://www.hamleys.com/joie-mimzy-snacker-highchair",
+      "status": 404,
+      "len": 365430,
+      "soft": true,
+      "ok": false,
+      "title": "404 Error"
+    },
+    {
+      "url": "https://www.lovereading4kids.co.uk/book/9780689835605/isbn/Where-Is-Baby-s-Belly-Button-by-Karen-Katz.html",
+      "status": 200,
+      "len": 69884,
+      "soft": false,
+      "ok": true,
+      "title": "Where Is Baby's Belly Button? by Karen Katz (9780689835605/Board book) | LoveReading4Kids",
+      "h1": "Where Is Baby's Belly Button?"
+    },
+    {
+      "url": "https://www.lovereading4kids.co.uk/book/9781782703402/isbn/Head-Shoulders-Knees-and-Toes-by-Angela-Hewitt.html",
+      "status": 200,
+      "len": 78701,
+      "soft": false,
+      "ok": true,
+      "title": "Head, Shoulders, Knees and Toes by Angela Hewitt (9781782703402/Board book) | LoveReading4Kids",
+      "h1": "Head, Shoulders, Knees and Toes"
+    },
+    {
+      "url": "https://www.lovereading4kids.co.uk/book/9781406357936/isbn/Hug-by-Jez-Alborough.html",
+      "status": 200,
+      "len": 71674,
+      "soft": false,
+      "ok": true,
+      "title": "Before After by AnneMargot Ramstein, Matthias Arégui (9781406357936/Hardback) | LoveReading4Kids",
+      "h1": "Before After"
+    },
+    {
+      "url": "https://www.lovereading4kids.co.uk/book/9780241137291/isbn/Brown-Bear-Brown-Bear-What-Do-You-See-by-Bill-Martin.html",
+      "status": 200,
+      "len": 81900,
+      "soft": false,
+      "ok": true,
+      "title": "Brown Bear, Brown Bear, What Do You See? by Bill Martin, Eric Carle (9780241137291/Board book) | LoveReading4Kids",
+      "h1": "Brown Bear, Brown Bear, What Do You See?"
+    },
+    {
+      "url": "https://www.lovereading4kids.co.uk/book/9781406331264/isbn/Ten-Little-Fingers-and-Ten-Little-Toes-by-Mem-Fox.html",
+      "status": 200,
+      "len": 87116,
+      "soft": false,
+      "ok": true,
+      "title": "Ten Little Fingers and Ten Little Toes by Mem Fox (9781406331264/Board book) | LoveReading4Kids",
+      "h1": "Ten Little Fingers and Ten Little Toes"
+    },
+    {
+      "url": "https://www.lovereading4kids.co.uk/book/9780140563788/isbn/From-Head-to-Toe-by-Eric-Carle.html",
+      "status": 200,
+      "len": 76454,
+      "soft": false,
+      "ok": true,
+      "title": "From Head to Toe by Eric Carle (9780140563788/Paperback) | LoveReading4Kids",
+      "h1": "From Head to Toe"
+    },
+    {
+      "url": "https://www.lovereading4kids.co.uk/book/9780744578362/isbn/Eyes-Nose-Fingers-and-Toes-by-Judy-Hindley.html",
+      "status": 200,
+      "len": 75936,
+      "soft": false,
+      "ok": true,
+      "title": "Once There Were Giants by Martin Waddell, Penny Dale (9780744578362/Paperback) | LoveReading4Kids",
+      "h1": "Once There Were Giants"
+    },
+    {
+      "url": "https://www.penguin.co.uk/books/313409/baby-touch-faces-a-black-and-white-book-by-ladybird/9780241391723",
+      "status": 200,
+      "len": 412870,
+      "soft": false,
+      "ok": true,
+      "title": "Baby Touch: Faces: a black-and white-book",
+      "h1": "Baby Touch: Faces: a black-and white-book"
+    },
+    {
+      "url": "https://uk.bookshop.org/p/books/baby-touch-faces-a-black-and-white-book-ladybird/9780241391723",
+      "status": 403,
+      "len": 5978,
+      "soft": true,
+      "ok": false,
+      "title": "Just a moment..."
+    }
+  ],
+  "searches": [
+    {
+      "query": "Dear Zoo",
+      "status": 404,
+      "links": []
+    },
+    {
+      "query": "That's Not My Puppy",
+      "status": 404,
+      "links": []
+    },
+    {
+      "query": "Peekaboo Dog Arrhenius",
+      "status": 404,
+      "links": []
+    },
+    {
+      "query": "Where Is Babys Belly Button",
+      "status": 404,
+      "links": []
+    },
+    {
+      "query": "Baby Touch Colours",
+      "status": 404,
+      "links": []
+    },
+    {
+      "query": "Each Peach Pear Plum",
+      "status": 404,
+      "links": []
+    },
+    {
+      "query": "Hairy Maclary",
+      "status": 404,
+      "links": []
+    }
+  ]
+}

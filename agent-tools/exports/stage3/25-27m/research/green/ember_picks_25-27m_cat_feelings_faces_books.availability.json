@@ -1,0 +1,117 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 11,
+  "buyable_count": 10,
+  "results": {
+    "https://uk.bookshop.org/p/books/the-colour-monster-a-story-about-emotions-anna-llenas/9781787410213": {
+      "url": "https://uk.bookshop.org/p/books/the-colour-monster-a-story-about-emotions-anna-llenas/9781787410213",
+      "http_status": 404,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_404",
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/in-my-heart-a-book-of-feelings-jo-witek/9720855": {
+      "url": "https://uk.bookshop.org/p/books/in-my-heart-a-book-of-feelings-jo-witek/9720855",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/1110604/grumpy-frog-by-vere-ed/9780141366128": {
+      "url": "https://www.penguin.co.uk/books/1110604/grumpy-frog-by-vere-ed/9780141366128",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/111060/the-feelings-book-by-parr-todd/9780316043465": {
+      "url": "https://www.penguin.co.uk/books/111060/the-feelings-book-by-parr-todd/9780316043465",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/the-huge-bag-of-worries-virginia-ironside/9780340903179": {
+      "url": "https://uk.bookshop.org/p/books/the-huge-bag-of-worries-virginia-ironside/9780340903179",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/441877/the-colour-monster-a-story-about-emotions-by-llenas-anna/9781787410213": {
+      "url": "https://www.penguin.co.uk/books/441877/the-colour-monster-a-story-about-emotions-by-llenas-anna/9781787410213",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/baby-faces-dk/9780241188750": {
+      "url": "https://uk.bookshop.org/p/books/baby-faces-dk/9780241188750",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/happy-emma-dodd/9781788006989": {
+      "url": "https://uk.bookshop.org/p/books/happy-emma-dodd/9781788006989",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/451838/the-colour-monster-goes-to-school-by-llenas-anna/9781787415263": {
+      "url": "https://www.penguin.co.uk/books/451838/the-colour-monster-goes-to-school-by-llenas-anna/9781787415263",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/313409/baby-touch-faces-a-black-and-white-book-by-ladybird/9780241391723": {
+      "url": "https://www.penguin.co.uk/books/313409/baby-touch-faces-a-black-and-white-book-by-ladybird/9780241391723",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/289967/faces-baby-touch-first-focus-by-ladybird/9780241243251": {
+      "url": "https://www.penguin.co.uk/books/289967/faces-baby-touch-first-focus-by-ladybird/9780241243251",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

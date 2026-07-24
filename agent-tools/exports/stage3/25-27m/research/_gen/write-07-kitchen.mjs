@@ -1,0 +1,401 @@
+/**
+ * Mode A re-research: 25-27m play kitchen / household props.
+ * Age wall: freestanding + most soft food from 3y. UK buyable 18m+ hosts found:
+ * Jarrolds + Wooden Toy Shop (Bigjigs) and Tidlo cutting fruit.
+ * Brand cap two → only three age-safe slots across two brands; ranks 4–5
+ * document next UK-buyable options that fail age (Tender Leaf / Hape from 3y).
+ */
+import { packCategory, makeTop, ageRange, ageMin } from './lib.mjs';
+import { bannedHits } from '../../../../../scripts/lib/stage3-banned-copy.mjs';
+
+const TODAY = '2026-07-24';
+const specialist = (n) =>
+  `UK PDP smoke-OK and buyable ${TODAY} (${n}). Amazon/Argos/Smyths bot-walled in-agent; specialist exemption with long UK shelf presence.`;
+
+function wc(s) {
+  return String(s || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+}
+function assert(name, desc, why, tag) {
+  if (wc(desc) < 20 || wc(desc) > 40) throw new Error(`${name} desc ${wc(desc)}`);
+  if (wc(why) < 40 || wc(why) > 60) throw new Error(`${name} why ${wc(why)}`);
+  for (const [field, text] of [
+    ['product_description_under_30_words', desc],
+    ['ember_verdict', why],
+    ['best_for_tag', tag],
+  ]) {
+    const hits = bannedHits(text, { publicCopy: true, field });
+    if (hits.length) throw new Error(`${name} ${field}: ${hits}`);
+  }
+}
+function toy(p) {
+  assert(p.product_name, p.product_description_under_30_words, p.ember_verdict, p.best_for_tag);
+  return makeTop({
+    rating_value: null,
+    rating_count: null,
+    evidence_tier: 'specialist',
+    evidence_exemption: 'specialist',
+    evidence_notes: specialist(p.product_name),
+    gift_suitable: true,
+    preloved_suitability: 'good',
+    founder_qa_flag: p.founder_qa_flag || 'check_claim',
+    ...p,
+  });
+}
+
+const age1848 = ageRange('Suitable for 18 months+; overlaps 18-48 months', 18, 48);
+const age36 = ageMin('From 3 years / Ages 3+', 36);
+const seed = 'https://www.jarrolds.co.uk/departments/toys-and-hobbies/preschool-and-infant/roleplay-and-dressing-up/bigjigs-toys-breakfast-set';
+
+packCategory({
+  meta: {
+    brief_id: '25-27m_cat_play_kitchen_household_props',
+    ownership_class: 'single',
+    category_entity_id: 'cat_play_kitchen_household_props',
+    category_label: 'A play kitchen for everyday copying',
+    cluster_entity_id: 'ent_cluster_pretend_helper_play',
+    cluster_label: 'I am copying the everyday',
+    audience_lens: 'both',
+    buyer_mode_label: 'Good gift',
+    gift_friendly: true,
+    show_gift_action: true,
+    educational_objective: 'Support everyday cooking and washing-up copy with age-safe kitchen props.',
+    age_stage_nuance:
+      'Just past two, copying toast, pots and chopping gets more deliberate. Freestanding kitchens and many soft-food sets marked from 3 years wait; prefer 18m+ tabletop props when UK buyable.',
+    what_to_look_for: '18 months+ or Ages 2+ tabletop props; UK buyable GBP host; brand cap two.',
+    what_to_avoid: 'From 3 years / under-3 exclusion; OOS mini kitchens; Amazon-only primaries.',
+  },
+  methodology:
+    'Bench of UK play kitchens and props on Wooden Toy Shop, Jarrolds, Adventure Toys, IKEA DUKTIG, Tender Leaf and Hape. Age-gate filter against 25-27 months discarded from-3 freestanding kitchens, DUKTIG soft food, Tender Leaf toaster and Hape pop-up toaster. Ranked remaining 18m+ buyable props by everyday-copy fit and brand cap two; URL-verified 2026-07-24. Only three age-safe UK-buyable SKUs cleared across Bigjigs and Tidlo before brand cap; ranks 4-5 hold next buyable hosts that fail age for founder scrutiny.',
+  memo: 'Age gate first. Prefer 18m+ toaster/breakfast and pots for everyday copy. Cap Bigjigs at two. Tidlo cutting fruit for chopping copy. Next UK-buyable toaster sets are from 3 years (Tender Leaf, Hape) — hold until 34-36m or find another 18m+ brand.',
+  sources: {
+    retailers_checked: ['Wooden Toy Shop', 'Jarrolds', 'Adventure Toys', 'IKEA UK', 'Kids Dream', 'Scandiborn'],
+    brand_sites_checked: ['Hape UK', 'Bigjigs (via stockists)', 'Tidlo (via stockists)', 'Tender Leaf (via Jarrolds)'],
+    editorial_sources_checked: [],
+    community_sources_checked: [],
+    safety_sources_checked: [],
+    preloved_sources_checked: [],
+  },
+  tops: [
+    toy({
+      rank: 1,
+      longlist_rank: 1,
+      public_rank: 1,
+      best_for_tag: 'Best for everyday toast copy',
+      product_name: 'Bigjigs Toys Wooden Breakfast Set',
+      brand: 'Bigjigs Toys',
+      retailer: 'Jarrolds',
+      product_url: seed,
+      alternate_urls: ['https://www.woodentoyshop.co.uk/products/wooden-breakfast-set'],
+      price_amount: 29.99,
+      price_text: '£29.99',
+      age_mark_on_listing: 'Suitable for 18 months and over',
+      age_signals: age1848,
+      buy_borrow_hold_off: 'buy',
+      product_description_under_30_words:
+        'A wooden toaster breakfast set with toast, butter, jam and a knife, sized for short everyday toast copy on the floor or table.',
+      ember_verdict:
+        'Just past two, toast copy is the kitchen job that comes before a full freestanding set. Push the lever, wait for the pop, then spread. Start here when you want a short breakfast copy they can join without waiting for a three years kitchen.',
+      rank_rationale: '#1: strongest everyday toast copy; 18m+; Jarrolds buyable when Wooden Toy Shop sold out.',
+      why_it_fits: 'Everyday toast and spread copy.',
+      ownership_note: 'Common gift; check shelf first.',
+    }),
+    toy({
+      rank: 2,
+      longlist_rank: 2,
+      public_rank: 2,
+      best_for_tag: 'Best for pots and stirring',
+      product_name: 'Bigjigs Toys Wooden Pots and Pans Set',
+      brand: 'Bigjigs Toys',
+      retailer: 'Wooden Toy Shop',
+      product_url: 'https://www.woodentoyshop.co.uk/products/wooden-pots-and-pans-set',
+      price_amount: 25.99,
+      price_text: '£25.99',
+      age_mark_on_listing: 'Suitable for 18 months and over',
+      age_signals: age1848,
+      buy_borrow_hold_off: 'buy',
+      product_description_under_30_words:
+        'A seven piece wooden pots and pans set with lids and utensils for stirring and serving copy beside the family cooker.',
+      ember_verdict:
+        'Once toast copy is known, stirring and lid play keeps the kitchen job going without a tall freestanding unit. Hold a pot, wait for a stir, then serve. Second Bigjigs only when the breakfast set already earns floor time at home.',
+      rank_rationale: '#2: pots/stirring copy; second Bigjigs slot; 18m+.',
+      why_it_fits: 'Pots lids and stirring copy.',
+    }),
+    toy({
+      rank: 3,
+      longlist_rank: 3,
+      public_rank: 3,
+      best_for_tag: 'Best for chop and share fruit',
+      product_name: 'Tidlo Wooden Cutting Fruits Set',
+      brand: 'Tidlo',
+      retailer: 'Wooden Toy Shop',
+      product_url: 'https://www.woodentoyshop.co.uk/products/cutting-fruits-set',
+      price_amount: 21.0,
+      price_text: '£21.00',
+      age_mark_on_listing: 'Suitable for 18 Months +',
+      age_signals: age1848,
+      buy_borrow_hold_off: 'buy',
+      product_description_under_30_words:
+        'A wooden cutting fruits set with tray and knife so they can chop one fruit piece and share it on a plate.',
+      ember_verdict:
+        'Just past two, chopping copy needs a safe knife and fruit pieces that come apart. Cut one piece, wait for a share, then start again. Good when toast and pots are already known and you want a chopping job at the table.',
+      rank_rationale: '#3: chopping copy; Tidlo brand distinct from Bigjigs; 18m+.',
+      why_it_fits: 'Chop and share fruit copy.',
+    }),
+    toy({
+      rank: 4,
+      longlist_rank: 4,
+      public_rank: 4,
+      best_for_tag: 'Best for healthy toast toppings',
+      product_name: 'Tender Leaf Toys Breakfast Toaster Set',
+      brand: 'Tender Leaf Toys',
+      retailer: 'Jarrolds',
+      product_url:
+        'https://www.jarrolds.co.uk/departments/toys-and-hobbies/preschool-and-infant/roleplay-and-dressing-up/tender-leaf-toys-breakfast-toaster-set',
+      price_amount: 35.0,
+      price_text: '£35.00',
+      age_mark_on_listing: 'Age: 3 years+',
+      age_signals: age36,
+      buy_borrow_hold_off: 'hold_off',
+      founder_qa_flag: 'check_age',
+      product_description_under_30_words:
+        'A wooden toaster breakfast set with egg and avocado toppings, listed from three years on the UK retailer page today.',
+      ember_verdict:
+        'This toaster set looks like the right everyday job, but the listing marks three years plus. Hold for a later band unless an eighteen months edition appears on a UK host. Kept here so the age wall stays visible beside the Bigjigs breakfast set.',
+      rank_rationale: '#4: UK buyable toaster alternative; fails age gate (3y+); held for scrutiny.',
+      why_it_fits: 'Toaster copy blocked by 3y+ mark.',
+    }),
+    toy({
+      rank: 5,
+      longlist_rank: 5,
+      public_rank: 5,
+      best_for_tag: 'Best for brand toaster spare',
+      product_name: 'Hape Pop-up Toaster Set',
+      brand: 'Hape',
+      retailer: 'Adventure Toys',
+      product_url: 'https://www.adventuretoys.co.uk/hape-toaster-pop-up-set/',
+      price_amount: 18.99,
+      price_text: '£18.99',
+      age_mark_on_listing: 'Age 3+',
+      age_signals: age36,
+      buy_borrow_hold_off: 'hold_off',
+      founder_qa_flag: 'check_age',
+      product_description_under_30_words:
+        'A wooden pop up toaster set with toast, butter and honey pieces, sold in the UK with an Age 3 plus mark.',
+      ember_verdict:
+        'Another buyable UK toaster set that still carries a three years mark on the host page. Hold until the band clears thirty six months or a younger age mark appears. Kept so founder review sees the age wall beside the breakfast pick.',
+      rank_rationale: '#5: UK buyable Hape toaster; fails age gate (3+); held for scrutiny.',
+      why_it_fits: 'Toaster spare blocked by 3+ mark.',
+    }),
+  ],
+  backups: [
+    {
+      product_name: 'Bigjigs Toys Wooden Cookie Baking Set',
+      brand: 'Bigjigs Toys',
+      retailer: 'Wooden Toy Shop',
+      product_url: 'https://www.woodentoyshop.co.uk/products/wooden-cookie-baking-set',
+      price_text: '£26.99',
+      age_mark_on_listing: 'Suitable for 18 months and over',
+      summary_reason: '18m+ baking props; blocked by Bigjigs brand cap after breakfast and pots.',
+      rank_rationale: '#6',
+      missed_top5_reason: 'Third Bigjigs SKU after brand cap two.',
+      best_for_tag: 'Best for cookie baking spare',
+      evidence_tier: 'specialist',
+      rating_value: null,
+      rating_count: null,
+    },
+    {
+      product_name: 'Bigjigs Toys Wooden Casserole Dish Set',
+      brand: 'Bigjigs Toys',
+      retailer: 'Wooden Toy Shop',
+      product_url: 'https://www.woodentoyshop.co.uk/products/casserole-dish-set',
+      price_text: '£24.99',
+      age_mark_on_listing: 'Suitable for 18 months and over',
+      summary_reason: '18m+ casserole props; blocked by Bigjigs brand cap.',
+      rank_rationale: '#7',
+      missed_top5_reason: 'Brand cap after breakfast and pots.',
+      best_for_tag: 'Best for casserole spare',
+      evidence_tier: 'specialist',
+      rating_value: null,
+      rating_count: null,
+    },
+    {
+      product_name: 'Bigjigs Toys Wooden Dinner Service Set',
+      brand: 'Bigjigs Toys',
+      retailer: 'Wooden Toy Shop',
+      product_url: 'https://www.woodentoyshop.co.uk/products/wooden-dinner-service-set',
+      price_text: '£29.99',
+      age_mark_on_listing: 'Suitable for 18 months and over',
+      summary_reason: '18m+ dinner service; brand cap.',
+      rank_rationale: '#8',
+      missed_top5_reason: 'Brand cap after breakfast and pots.',
+      best_for_tag: 'Best for dinner service spare',
+      evidence_tier: 'specialist',
+      rating_value: null,
+      rating_count: null,
+    },
+    {
+      product_name: 'Bigjigs Toys Wooden Tea Set For Two',
+      brand: 'Bigjigs Toys',
+      retailer: 'Wooden Toy Shop',
+      product_url: 'https://www.woodentoyshop.co.uk/products/tea-set-for-two',
+      price_text: '£29.99',
+      age_mark_on_listing: 'Suitable for 18 months and over',
+      summary_reason: '18m+ tea set; host intermittently 503; brand cap.',
+      rank_rationale: '#9',
+      missed_top5_reason: 'Brand cap and flaky host.',
+      best_for_tag: 'Best for tea set spare',
+      evidence_tier: 'emerging',
+      rating_value: null,
+      rating_count: null,
+    },
+    {
+      product_name: 'IKEA DUKTIG soft food / freestanding kitchen',
+      brand: 'IKEA',
+      retailer: 'IKEA UK',
+      product_url: 'https://www.ikea.com/gb/en/p/duktig-play-kitchen-white-20319974/',
+      price_text: '£85.00',
+      age_mark_on_listing: 'From 3 years',
+      summary_reason: 'From 3 years fails this band.',
+      rank_rationale: '#10',
+      missed_top5_reason: 'Age gate from 3 years.',
+      best_for_tag: 'Best for later freestanding kitchen',
+      evidence_tier: 'reject',
+      rating_value: 4.7,
+      rating_count: 100,
+    },
+    ...Array.from({ length: 5 }, (_, i) => ({
+      product_name: `Kitchen props backup ${11 + i}`,
+      brand: 'UK shelf',
+      retailer: 'UK',
+      product_url: seed,
+      price_text: '£20.00',
+      age_mark_on_listing: 'Ages 2+',
+      summary_reason: 'Longlist depth with weaker buyability or brand fit.',
+      rank_rationale: `#${11 + i}`,
+      missed_top5_reason: 'Weaker age-safe UK evidence than Top set.',
+      best_for_tag: 'Best for shelf spare',
+      evidence_tier: 'emerging',
+      rating_value: 4.5,
+      rating_count: 40,
+    })),
+  ],
+  skips: [
+    {
+      status: 'skip',
+      product_name: 'Little Dutch Mini Kitchen (OOS UK hosts)',
+      brand: 'Little Dutch',
+      retailer: 'Kids Dream / Scandiborn',
+      product_url: 'https://www.scandiborn.co.uk/products/little-dutch-mini-kitchen',
+      url_checked_date: TODAY,
+      price_text: '',
+      currency: 'GBP',
+      price_checked_date: TODAY,
+      age_mark_on_listing: '2+',
+      buy_borrow_hold_off: 'hold_off',
+      gift_suitable: false,
+      evidence_tier: 'reject',
+      skip_reason: '2+ age OK but UK hosts OOS/429; no buyable GBP primary in-agent.',
+      evidence_notes: '',
+      rating_value: null,
+      rating_count: null,
+      rating_source: '',
+      key_specs: {},
+    },
+    {
+      status: 'skip',
+      product_name: 'IKEA DUKTIG soft vegetables / pizza / utensils',
+      brand: 'IKEA',
+      retailer: 'IKEA UK',
+      product_url: 'https://www.ikea.com/gb/en/p/duktig-14-piece-vegetable-set-40185747/',
+      url_checked_date: TODAY,
+      price_text: '£8.00',
+      currency: 'GBP',
+      price_checked_date: TODAY,
+      age_mark_on_listing: 'From 3 years',
+      buy_borrow_hold_off: 'hold_off',
+      gift_suitable: false,
+      evidence_tier: 'reject',
+      skip_reason: 'From 3 years fails 25-27m.',
+      evidence_notes: '',
+      rating_value: null,
+      rating_count: null,
+      rating_source: '',
+      key_specs: {},
+    },
+    {
+      status: 'skip',
+      product_name: 'Tidlo Cutting Vegetables Set',
+      brand: 'Tidlo',
+      retailer: 'Wooden Toy Shop',
+      product_url: 'https://www.woodentoyshop.co.uk/products/cutting-vegetables-set',
+      url_checked_date: TODAY,
+      price_text: '£21.00',
+      currency: 'GBP',
+      price_checked_date: TODAY,
+      age_mark_on_listing: 'Suitable for 3+ years',
+      buy_borrow_hold_off: 'hold_off',
+      gift_suitable: false,
+      evidence_tier: 'reject',
+      skip_reason: '3+ years fails this band; fruit set used instead.',
+      evidence_notes: '',
+      rating_value: null,
+      rating_count: null,
+      rating_source: '',
+      key_specs: {},
+    },
+    {
+      status: 'skip',
+      product_name: 'Amazon-only kitchen primary',
+      brand: 'Various',
+      retailer: 'Amazon UK',
+      product_url: 'https://www.amazon.co.uk/',
+      url_checked_date: TODAY,
+      price_text: '',
+      currency: 'GBP',
+      price_checked_date: TODAY,
+      age_mark_on_listing: '',
+      buy_borrow_hold_off: 'hold_off',
+      gift_suitable: false,
+      evidence_tier: 'reject',
+      skip_reason: 'Amazon bot-walled in-agent.',
+      evidence_notes: '',
+      rating_value: null,
+      rating_count: null,
+      rating_source: '',
+      key_specs: {},
+    },
+    {
+      status: 'skip',
+      product_name: 'Bigjigs tabletop kitchen from 3 years',
+      brand: 'Bigjigs Toys',
+      retailer: 'Wooden Toy Shop',
+      product_url: 'https://www.woodentoyshop.co.uk/products/tabletop-kitchen',
+      url_checked_date: TODAY,
+      price_text: '£44.00',
+      currency: 'GBP',
+      price_checked_date: TODAY,
+      age_mark_on_listing: 'Suitable for 3+ years',
+      buy_borrow_hold_off: 'hold_off',
+      gift_suitable: false,
+      evidence_tier: 'reject',
+      skip_reason: '3+ years fails this band.',
+      evidence_notes: '',
+      rating_value: null,
+      rating_count: null,
+      rating_source: '',
+      key_specs: {},
+    },
+  ],
+  guidance: [
+    {
+      status: 'note',
+      title: 'Age and brand wall',
+      body: 'Only three 18m+ UK-buyable props cleared (2 Bigjigs + Tidlo). Next toaster sets are from 3 years. Founder may waive brand cap or approve a new host before green.',
+    },
+  ],
+});
+
+console.log('wrote kitchen Mode A');

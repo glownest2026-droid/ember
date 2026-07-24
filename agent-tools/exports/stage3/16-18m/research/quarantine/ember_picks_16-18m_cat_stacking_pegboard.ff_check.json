@@ -1,0 +1,70 @@
+{
+  "ff_check_pass": false,
+  "checked_at": "2026-07-24",
+  "ingestion_ready_status": "not-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "Hape Stacking Jack",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "Goki Rainbow Wobble Stacker",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_not_reflected_in_description_or_why_pip"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "Goki Stacking Bear Wobble Tower",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "Hape Wooden Musical Instrument Stacking Set",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "Quercetti Spiral Tower Baby Ball Run",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": []
+}

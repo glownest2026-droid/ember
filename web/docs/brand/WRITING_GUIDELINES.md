@@ -178,7 +178,8 @@ Trust breaks when copy sounds machine-made. Prefer plain rhythm, ordinary verbs,
 - **Personification of objects:** “Wood earns its place”, “cords love to tangle”
 - **Adult discipline vocabulary:** lecture, sermon, lesson plan — never for UK parent/toddler dynamics
 - Money-shame and sales tells already listed above (tight budgets, low-stakes, quick wins, worth buying, …)
-- **Formulaic Why Pip closers:** “That is why X suits Y”, “That gentle recovery is why it suits…”, “which is why this suits…” — never end cards on the same template. Vary openings and endings. Do not lean on “suit/suits” as the rationalisation verb.
+- **Formulaic Why Pip closers:** “That is why X suits Y”, “That gentle recovery is why it suits…”, “which is why this suits…”, **“That is the practical shift parents notice in daily play”** — never end cards on the same template. **Never reuse the same closing sentence across a Top N.** Vary openings and endings. Do not lean on “suit/suits” as the rationalisation verb.
+- **Stamp endings (also banned as exact strings):** “Shared play on the living-room floor keeps it kind for tired parents.” / “That is enough for one short shared sit before the evening runs on.” / “Keep it nearby so they can choose it themselves.” / “Share it together for a few minutes, then let them lead.” / “Share it at a quiet time on the sofa.”
 
 | Pass | Fail |
 |---|---|
@@ -277,7 +278,7 @@ There is **one** Description on the card. Do **not** write a separate “What th
 - Lead with shopping orders.
 - Mention tags (“earns that tag”, “the tag promises”).
 - Use AI tells (loop, journey, hook, script, feel fair, feels like, nursery benchmarking, low-stakes, quick wins, worth buying, calm as praise, etc.).
-- **Formulaic closers:** “That is why…”, “That [noun] is why…”, “which is why…”, or ending every card with “suits [Best for]”.
+- **Formulaic closers:** “That is why…”, “That [noun] is why…”, “which is why…”, “That is the practical shift…”, or ending every card with the same stock sentence (“Shared play on the living-room floor…”, “Keep it nearby so they can choose it themselves.”, …).
 - Lean on “suit/suits” as the rationalisation verb.
 - Stay under 40 words when the insight needs room.
 
@@ -503,4 +504,5 @@ See `web/docs/STAGE3_RESEARCH_METHODOLOGY.md` must-be-true #5.
 | 2026-07-23 | Ban matter/moment/muscle, lecture, odd hyphen compounds, “A real X”, personification, peculiar “honesty” phrases; optional relational Why Pip |
 | 2026-07-23 | **Ban-list parity:** Principle 5 + FF share `agent-tools/scripts/lib/stage3-banned-copy.mjs` — never diverge |
 | 2026-07-23 | Invented hyphen compounds banned in Pip parent copy (allowlist ordinary English / Ember only) |
+| 2026-07-24 | Ban stamp Why Pip closers (“practical shift parents notice…”, repeated living-room / sofa endings); FF fails identical closers within a Top N |
 | 2026-07-23 | Ban formulaic Why Pip closers (“That is why X suits Y”); vary cadence; no “suit/suits” rationalisation verb |

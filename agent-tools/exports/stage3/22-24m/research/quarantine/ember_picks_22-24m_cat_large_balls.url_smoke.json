@@ -1,0 +1,70 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 9,
+  "ok_count": 7,
+  "results": {
+    "https://www.forza.com/uk/forza-recreational-garden-football+forza_match_football_size-Size~1~Mini+pack_size-Pack~of~1": {
+      "url": "https://www.forza.com/uk/forza-recreational-garden-football+forza_match_football_size-Size~1~Mini+pack_size-Pack~of~1",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/outdoor-toys/sports-toys/balls/soft-play-ball/p/201000": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/outdoor-toys/sports-toys/balls/soft-play-ball/p/201000",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.sportsdirect.com/sports-directory-foam-football-857872": {
+      "url": "https://www.sportsdirect.com/sports-directory-foam-football-857872",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/outdoor-toys/sports-toys/balls/inch-worm-ball/p/201001": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/outdoor-toys/sports-toys/balls/inch-worm-ball/p/201001",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.decathlon.co.uk/p/foam-ball-size-3-red/326607/c354m8932901": {
+      "url": "https://www.decathlon.co.uk/p/foam-ball-size-3-red/326607/c354m8932901",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/sparka-soft-toy-football-patterned-multicolo-40302182/": {
+      "url": "https://www.ikea.com/gb/en/p/sparka-soft-toy-football-patterned-multicolo-40302182/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.target.com/": {
+      "url": "https://www.target.com/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.argos.co.uk/product/6791650": {
+      "url": "https://www.argos.co.uk/product/6791650",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/hamleys-giant-football": {
+      "url": "https://www.hamleys.com/hamleys-giant-football",
+      "http_status": null,
+      "url_ok": false,
+      "error": "timeout",
+      "checked_at": "2026-07-24"
+    }
+  }
+}

@@ -59,6 +59,7 @@ export const UK_FACING_HOSTS = new Set([
   'mothercare.com',
   'kiddicare.com',
   'theenterainer.com',
+  'thetoyshop.com', // The Entertainer live storefront
   'decathlon.co.uk',
   'uk.bookshop.org',
   // Specialist / indie UK stockists commonly used in research
@@ -118,6 +119,8 @@ export const UK_FACING_HOSTS = new Set([
   'pandalondon.com',
   'simbasleep.com',
   'priddybooks.com',
+  'usborne.com',
+  'barefootbooks.com',
   'priyaandpeanut.com',
   'gusandbeau.com',
   'playmobil.com',
@@ -168,6 +171,22 @@ export const UK_FACING_HOSTS = new Set([
   'first-play.com',
   'm3csports.com',
   'cuddleco.com',
+  'munchkin.co.uk',
+  'smallkind.co.uk',
+  'planethappytoys.co.uk',
+  'samueljohnston.com',
+  'nosycrow.com',
+  'walker.co.uk',
+  'lovereading4kids.co.uk',
+  'mrbsemporium.com',
+  'wordery.com',
+  'hachette.co.uk',
+  'babydan.co.uk',
+  'gompels.co.uk',
+  'rexlondon.com',
+  'superdrug.com',
+  'vitalbaby.com',
+  'growingsmiles.co.uk',
 ]);
 
 export function hostnameOf(url) {

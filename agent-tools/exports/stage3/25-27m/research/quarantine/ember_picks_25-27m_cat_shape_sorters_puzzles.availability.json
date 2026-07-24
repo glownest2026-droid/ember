@@ -1,0 +1,57 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 5,
+  "buyable_count": 5,
+  "results": {
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool/educational-toys/melissa-and-doug-chunky-puzzle-pets/p/186194": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool/educational-toys/melissa-and-doug-chunky-puzzle-pets/p/186194",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool/educational-toys/melissa-and-doug-shape-sorting-cube/p/159210": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool/educational-toys/melissa-and-doug-shape-sorting-cube/p/159210",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool/educational-toys/galt-toys-chunky-farm-puzzle/p/159212": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool/educational-toys/galt-toys-chunky-farm-puzzle/p/159212",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/uppsta-building-beakers-multicolour-70513884/": {
+      "url": "https://www.ikea.com/gb/en/p/uppsta-building-beakers-multicolour-70513884/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/uppsta-shape-sorter-multicolour-90592088/": {
+      "url": "https://www.ikea.com/gb/en/p/uppsta-shape-sorter-multicolour-90592088/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

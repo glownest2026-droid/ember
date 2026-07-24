@@ -1,0 +1,68 @@
+{
+  "ff_check_pass": true,
+  "checked_at": "2026-07-24",
+  "ingestion_ready_status": "founder-review-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "FLÅDIS basket, seagrass, 25 cm",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "Lamaze Freddie the Firefly",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "DRÖNA box, white",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "Bigjigs Egg Shaker",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "The Buddy Stroller",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": []
+}

@@ -1,0 +1,99 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 13,
+  "ok_count": 8,
+  "results": {
+    "https://www.boots.com/lamaze-freddie-the-firefly-10065234": {
+      "url": "https://www.boots.com/lamaze-freddie-the-firefly-10065234",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.lovevery.co.uk/products/the-buddy-stroller": {
+      "url": "https://www.lovevery.co.uk/products/the-buddy-stroller",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.elyswimbledon.co.uk/products/jellycat-rumpletum-bear": {
+      "url": "https://www.elyswimbledon.co.uk/products/jellycat-rumpletum-bear",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/dp/B07N81G68N": {
+      "url": "https://www.amazon.co.uk/dp/B07N81G68N",
+      "http_status": 200,
+      "url_ok": false,
+      "error": "amazon_bot_wall_unverified",
+      "amazon_gate": "bot_wall",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/dolls-and-soft-toys/soft-toys/jellycat-bashful-bunny-medium-beige/p/176543": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/dolls-and-soft-toys/soft-toys/jellycat-bashful-bunny-medium-beige/p/176543",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.elyswimbledon.co.uk/products/baby-annabell-my-first-annabell": {
+      "url": "https://www.elyswimbledon.co.uk/products/baby-annabell-my-first-annabell",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.elyswimbledon.co.uk/products/bumbly-bear-medium": {
+      "url": "https://www.elyswimbledon.co.uk/products/bumbly-bear-medium",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/baby-annabell-sweetie-for-babies-30cm-soft-doll/p3390000": {
+      "url": "https://www.johnlewis.com/baby-annabell-sweetie-for-babies-30cm-soft-doll/p3390000",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.scandiborn.co.uk/products/olli-ella-carrie-convertible-changing-set": {
+      "url": "https://www.scandiborn.co.uk/products/olli-ella-carrie-convertible-changing-set",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.lovevery.co.uk/products/the-pull-pup": {
+      "url": "https://www.lovevery.co.uk/products/the-pull-pup",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.scandiborn.co.uk/products/olli-ella-dinkum-doll-rainbow-carrier": {
+      "url": "https://www.scandiborn.co.uk/products/olli-ella-dinkum-doll-rainbow-carrier",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.manhattantoy.com/": {
+      "url": "https://www.manhattantoy.com/",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.argos.co.uk/product/2178916": {
+      "url": "https://www.argos.co.uk/product/2178916",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-24"
+    }
+  }
+}

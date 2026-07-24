@@ -1,0 +1,57 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 5,
+  "buyable_count": 5,
+  "results": {
+    "https://www.babybjorn.co.uk/products/bathroom/step-stool/": {
+      "url": "https://www.babybjorn.co.uk/products/bathroom/step-stool/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.babybjorn.co.uk/products/bathroom/toilet-training-seat/": {
+      "url": "https://www.babybjorn.co.uk/products/bathroom/toilet-training-seat/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/bumbo-step-n-potty": {
+      "url": "https://www.boots.com/bumbo-step-n-potty",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/foersiktig-childrens-stool-white-turquoise-10591318/": {
+      "url": "https://www.ikea.com/gb/en/p/foersiktig-childrens-stool-white-turquoise-10591318/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/trogen-childrens-step-stool-yellow-80371520/": {
+      "url": "https://www.ikea.com/gb/en/p/trogen-childrens-step-stool-yellow-80371520/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

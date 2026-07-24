@@ -1,0 +1,107 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 10,
+  "buyable_count": 10,
+  "results": {
+    "https://www.penguin.co.uk/books/122792/wheres-spot-by-hill-eric/9780723263661": {
+      "url": "https://www.penguin.co.uk/books/122792/wheres-spot-by-hill-eric/9780723263661",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/180564/ladybird-lift-the-flap-book-busy-farm-by-ladybird/9781409308560": {
+      "url": "https://www.penguin.co.uk/books/180564/ladybird-lift-the-flap-book-busy-farm-by-ladybird/9781409308560",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/456451/the-very-hungry-caterpillars-lift-and-learn-farm-by-carle-eric/9780241648926": {
+      "url": "https://www.penguin.co.uk/books/456451/the-very-hungry-caterpillars-lift-and-learn-farm-by-carle-eric/9780241648926",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/445500/peppa-pig-peppa-at-the-farm-by-pig-peppa/9780241543443": {
+      "url": "https://www.penguin.co.uk/books/445500/peppa-pig-peppa-at-the-farm-by-pig-peppa/9780241543443",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/11124/dear-zoo-by-campbell-rod/9780230749672": {
+      "url": "https://www.penguin.co.uk/books/11124/dear-zoo-by-campbell-rod/9780230749672",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/462962/who-is-on-the-farm-spot-by-hill-eric/9780241720998": {
+      "url": "https://www.penguin.co.uk/books/462962/who-is-on-the-farm-spot-by-hill-eric/9780241720998",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/452400/spots-nature-fun-by-hill-eric/9780241618356": {
+      "url": "https://www.penguin.co.uk/books/452400/spots-nature-fun-by-hill-eric/9780241618356",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/11125/spots-first-walk-by-hill-eric/9780723263678": {
+      "url": "https://www.penguin.co.uk/books/11125/spots-first-walk-by-hill-eric/9780723263678",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/11126/spots-birthday-party-by-hill-eric/9780723263685": {
+      "url": "https://www.penguin.co.uk/books/11126/spots-birthday-party-by-hill-eric/9780723263685",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/hello-baby-faces/": {
+      "url": "https://priddybooks.com/gb/books/hello-baby-faces/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

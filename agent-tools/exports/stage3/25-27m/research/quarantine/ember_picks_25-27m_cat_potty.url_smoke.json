@@ -1,0 +1,92 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 12,
+  "ok_count": 11,
+  "results": {
+    "https://www.ikea.com/gb/en/p/lockig-childrens-potty-white-turquoise-40591581/": {
+      "url": "https://www.ikea.com/gb/en/p/lockig-childrens-potty-white-turquoise-40591581/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/bumbo-step-n-potty": {
+      "url": "https://www.boots.com/bumbo-step-n-potty",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/babybjorn-potty-chair-white-grey-10220695": {
+      "url": "https://www.boots.com/babybjorn-potty-chair-white-grey-10220695",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.babybjorn.co.uk/products/bathroom/potty-chair/": {
+      "url": "https://www.babybjorn.co.uk/products/bathroom/potty-chair/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/my-carry-potty-dino-10285341": {
+      "url": "https://www.boots.com/my-carry-potty-dino-10285341",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.com/": {
+      "url": "https://www.amazon.com/",
+      "http_status": 202,
+      "url_ok": false,
+      "error": "amazon_stub_page",
+      "amazon_gate": "stub",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.babybjorn.co.uk/products/bathroom/toilet-training-seat/": {
+      "url": "https://www.babybjorn.co.uk/products/bathroom/toilet-training-seat/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.babybjorn.co.uk/products/bathroom/smart-potty/": {
+      "url": "https://www.babybjorn.co.uk/products/bathroom/smart-potty/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/duktig-14-piece-vegetables-set-10185748/": {
+      "url": "https://www.ikea.com/gb/en/p/duktig-14-piece-vegetables-set-10185748/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/duktig-play-kitchen-birch-60319972/": {
+      "url": "https://www.ikea.com/gb/en/p/duktig-play-kitchen-birch-60319972/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hachettechildrens.co.uk/titles/kes-gray/oi-frog/9781444910865/": {
+      "url": "https://www.hachettechildrens.co.uk/titles/kes-gray/oi-frog/9781444910865/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.sportsdirect.com/sports-directory-foam-football-857872": {
+      "url": "https://www.sportsdirect.com/sports-directory-foam-football-857872",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}
