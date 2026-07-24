@@ -1,0 +1,57 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 5,
+  "buyable_count": 5,
+  "results": {
+    "https://www.hamleys.com/sophie-la-girafe-original-teether": {
+      "url": "https://www.hamleys.com/sophie-la-girafe-original-teether",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/lamaze-gardenbug-foot-finder-and-wrist-rattle-set": {
+      "url": "https://www.hamleys.com/lamaze-gardenbug-foot-finder-and-wrist-rattle-set",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/playgro-wrist-rattle-and-foot-fingers-10188406/23HW6J/": {
+      "url": "https://www.coolshop.co.uk/product/playgro-wrist-rattle-and-foot-fingers-10188406/23HW6J/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/playgro-jungle-friends-gift-pack-10182436/AD6X5Q/": {
+      "url": "https://www.coolshop.co.uk/product/playgro-jungle-friends-gift-pack-10182436/AD6X5Q/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/lamaze-jacques-peacock-941-27013/AM29SQ/": {
+      "url": "https://www.coolshop.co.uk/product/lamaze-jacques-peacock-941-27013/AM29SQ/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

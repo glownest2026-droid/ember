@@ -1,3 +1,12 @@
+## 2026-07-24 — Stage 3 4–6m: research → FF green → founder HTML (stop)
+
+- **Band:** `4-6m` · 7 manifest categories (5 single / 2 multiple books)
+- **Result:** **7/7 green**, 0 live quarantine research JSON
+- **Founder HTML:** `agent-tools/exports/stage3/4-6m/founder-preview/stage3_founder_review_4-6m.html` (50 rows / 7 HOW panels)
+- **STATUS:** `agent-tools/exports/stage3/4-6m/STATUS.md`
+- **Stop:** no ingest, no PR — founder review next
+- **Flags:** Writing Guidelines / en-dash scrub on `rank_rationale`; Hamleys/JL availability timeouts → Ocado/Coolshop; Matchstick via Ocado mint (Argos 403 / brand 429 under bots)
+
 ## 2026-07-24 — Stage 3 25–27m: research → FF → founder HTML (stop)
 
 - **Band:** `25-27m` · 8 manifest categories (5 single / 3 multiple books)

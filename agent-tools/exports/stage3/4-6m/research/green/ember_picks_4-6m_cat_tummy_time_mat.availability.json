@@ -1,0 +1,67 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 6,
+  "buyable_count": 5,
+  "results": {
+    "https://lovevery.co.uk/products/the-play-gym": {
+      "url": "https://lovevery.co.uk/products/the-play-gym",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://totterandtumble.co.uk/products/the-mariner-playmat": {
+      "url": "https://totterandtumble.co.uk/products/the-mariner-playmat",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://totterandtumble.co.uk/products/the-ludo-playmat": {
+      "url": "https://totterandtumble.co.uk/products/the-ludo-playmat",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.gusandbeau.com/products/rainbow-playmat-set-in-cream": {
+      "url": "https://www.gusandbeau.com/products/rainbow-playmat-set-in-cream",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.gusandbeau.com/products/plain-playmat-set-in-navy-sage-cream": {
+      "url": "https://www.gusandbeau.com/products/plain-playmat-set-in-navy-sage-cream",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/totter-tumble-mariner-and-roamer-compact-reversible-playmat-multi/p5069108": {
+      "url": "https://www.johnlewis.com/totter-tumble-mariner-and-roamer-compact-reversible-playmat-multi/p5069108",
+      "http_status": null,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "timeout",
+      "checked_at": "2026-07-24"
+    }
+  }
+}

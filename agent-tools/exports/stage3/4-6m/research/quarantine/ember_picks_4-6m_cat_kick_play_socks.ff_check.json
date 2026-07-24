@@ -1,0 +1,85 @@
+{
+  "ff_check_pass": false,
+  "checked_at": "2026-07-24",
+  "ingestion_ready_status": "not-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "Lamaze Gardenbug Foot Finder and Wrist Rattle Set",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_not_reflected_in_description_or_why_pip"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "Playgro Jungle Friends Gift Pack",
+      "ff_pass": false,
+      "fail_reasons": [
+        "banned_copy:invented_hyphen:sock-style",
+        "banned_copy:invented_hyphen:foot-and-wrist"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "Playgro Wrist Rattle and Foot Fingers",
+      "ff_pass": false,
+      "fail_reasons": [
+        "banned_copy:em_dash|invented_hyphen:cause-and-effect",
+        "banned_copy:cheerful"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "Lamaze Flip Flap Dragon Rattle",
+      "ff_pass": false,
+      "fail_reasons": [
+        "banned_copy:invented_hyphen:foot-finder|kick-discovery",
+        "banned_copy:invented_hyphen:pull-flap",
+        "banned_copy:em_dash"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "Sophie La Girafe Original Teether",
+      "ff_pass": false,
+      "fail_reasons": [
+        "banned_copy:invented_hyphen:post-kick",
+        "banned_copy:em_dash"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": [
+    "methodology_missing_steps:age"
+  ]
+}

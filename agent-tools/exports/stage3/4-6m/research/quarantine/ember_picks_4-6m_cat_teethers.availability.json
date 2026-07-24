@@ -1,0 +1,97 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 9,
+  "buyable_count": 7,
+  "results": {
+    "https://matchstickmonkey.co.uk/products/green-original-teething-toy": {
+      "url": "https://matchstickmonkey.co.uk/products/green-original-teething-toy",
+      "http_status": 429,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.argos.co.uk/product/7460131": {
+      "url": "https://www.argos.co.uk/product/7460131",
+      "http_status": 403,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_403",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/sophie-la-girafe-original-teether": {
+      "url": "https://www.hamleys.com/sophie-la-girafe-original-teether",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ocado.com/products/sophie-la-girafe-original-teether/78496011": {
+      "url": "https://www.ocado.com/products/sophie-la-girafe-original-teether/78496011",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/sophie-la-girafe-multi-textured-teether": {
+      "url": "https://www.hamleys.com/sophie-la-girafe-multi-textured-teether",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/sophie-la-girafe-so-pure-teether-soft-200318/A4G7JH/": {
+      "url": "https://www.coolshop.co.uk/product/sophie-la-girafe-so-pure-teether-soft-200318/A4G7JH/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/playgro-jungle-friends-gift-pack-10182436/AD6X5Q/": {
+      "url": "https://www.coolshop.co.uk/product/playgro-jungle-friends-gift-pack-10182436/AD6X5Q/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/lamaze-flip-flap-dragon-rattle-941-275651/AM3X6F/": {
+      "url": "https://www.coolshop.co.uk/product/lamaze-flip-flap-dragon-rattle-941-275651/AM3X6F/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/Matchstick-Monkey-Teething-Toy-Green/dp/B079G4DGP6": {
+      "url": "https://www.amazon.co.uk/Matchstick-Monkey-Teething-Toy-Green/dp/B079G4DGP6",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

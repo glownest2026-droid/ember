@@ -1,0 +1,77 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 10,
+  "ok_count": 8,
+  "results": {
+    "https://www.coolshop.co.uk/product/lamaze-flip-flap-dragon-rattle-941-275651/AM3X6F/": {
+      "url": "https://www.coolshop.co.uk/product/lamaze-flip-flap-dragon-rattle-941-275651/AM3X6F/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/lamaze-gardenbug-foot-finder-and-wrist-rattle-set": {
+      "url": "https://www.hamleys.com/lamaze-gardenbug-foot-finder-and-wrist-rattle-set",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/playgro-jungle-friends-gift-pack-10182436/AD6X5Q/": {
+      "url": "https://www.coolshop.co.uk/product/playgro-jungle-friends-gift-pack-10182436/AD6X5Q/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/playgro-wrist-rattle-and-foot-fingers-10188406/23HW6J/": {
+      "url": "https://www.coolshop.co.uk/product/playgro-wrist-rattle-and-foot-fingers-10188406/23HW6J/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/lamaze-freddie-the-firefly-soft-toy": {
+      "url": "https://www.hamleys.com/lamaze-freddie-the-firefly-soft-toy",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/sophie-la-girafe-original-teether": {
+      "url": "https://www.hamleys.com/sophie-la-girafe-original-teether",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/lamaze-jacques-peacock-941-27013/AM29SQ/": {
+      "url": "https://www.coolshop.co.uk/product/lamaze-jacques-peacock-941-27013/AM29SQ/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/lamaze-captain-calamari": {
+      "url": "https://www.hamleys.com/lamaze-captain-calamari",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://matchstickmonkey.co.uk/products/green-original-teething-toy": {
+      "url": "https://matchstickmonkey.co.uk/products/green-original-teething-toy",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/sophie-la-girafe-multi-textured-teether": {
+      "url": "https://www.hamleys.com/sophie-la-girafe-multi-textured-teether",
+      "http_status": null,
+      "url_ok": false,
+      "error": "timeout",
+      "checked_at": "2026-07-24"
+    }
+  }
+}

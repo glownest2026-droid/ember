@@ -1,0 +1,98 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 13,
+  "ok_count": 12,
+  "results": {
+    "https://matchstickmonkey.co.uk/products/green-original-teething-toy": {
+      "url": "https://matchstickmonkey.co.uk/products/green-original-teething-toy",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ocado.com/products/sophie-la-girafe-original-teether/78496011": {
+      "url": "https://www.ocado.com/products/sophie-la-girafe-original-teether/78496011",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ocado.com/products/matchstick-monkey-original-teether-mint-green/619524011": {
+      "url": "https://www.ocado.com/products/matchstick-monkey-original-teether-mint-green/619524011",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/sophie-la-girafe-so-pure-teether-soft-200318/A4G7JH/": {
+      "url": "https://www.coolshop.co.uk/product/sophie-la-girafe-so-pure-teether-soft-200318/A4G7JH/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.argos.co.uk/product/7460131": {
+      "url": "https://www.argos.co.uk/product/7460131",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/playgro-jungle-friends-gift-pack-10182436/AD6X5Q/": {
+      "url": "https://www.coolshop.co.uk/product/playgro-jungle-friends-gift-pack-10182436/AD6X5Q/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/lamaze-flip-flap-dragon-rattle-941-275651/AM3X6F/": {
+      "url": "https://www.coolshop.co.uk/product/lamaze-flip-flap-dragon-rattle-941-275651/AM3X6F/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/playgro-wrist-rattle-and-foot-fingers-10188406/23HW6J/": {
+      "url": "https://www.coolshop.co.uk/product/playgro-wrist-rattle-and-foot-fingers-10188406/23HW6J/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/sophie-la-girafe-natural-rubber-teething-ring": {
+      "url": "https://www.hamleys.com/sophie-la-girafe-natural-rubber-teething-ring",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.coolshop.co.uk/product/lamaze-jacques-peacock-941-27013/AM29SQ/": {
+      "url": "https://www.coolshop.co.uk/product/lamaze-jacques-peacock-941-27013/AM29SQ/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/lamaze-freddie-the-firefly-activity-toy/p109915929": {
+      "url": "https://www.johnlewis.com/lamaze-freddie-the-firefly-activity-toy/p109915929",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/oball-rattle": {
+      "url": "https://www.hamleys.com/oball-rattle",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/sophie-la-girafe-original-teether": {
+      "url": "https://www.hamleys.com/sophie-la-girafe-original-teether",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

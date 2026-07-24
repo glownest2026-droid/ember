@@ -1,0 +1,38 @@
+{
+  "age_band_id": "4-6m",
+  "passed": [
+    "cat_reach_grab_toys",
+    "cat_teethers"
+  ],
+  "failed": [],
+  "details": [
+    {
+      "category_entity_id": "cat_reach_grab_toys",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 13,
+        "ok_count": 13
+      },
+      "availability": {
+        "url_count": 7,
+        "buyable_count": 5
+      }
+    },
+    {
+      "category_entity_id": "cat_teethers",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 13,
+        "ok_count": 12
+      },
+      "availability": {
+        "url_count": 7,
+        "buyable_count": 5
+      }
+    }
+  ]
+}
