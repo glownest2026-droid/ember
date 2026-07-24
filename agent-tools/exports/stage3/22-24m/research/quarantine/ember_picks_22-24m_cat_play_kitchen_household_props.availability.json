@@ -1,0 +1,77 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 7,
+  "buyable_count": 5,
+  "results": {
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/bigjigs-toys-breakfast-set/p/189291": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/bigjigs-toys-breakfast-set/p/189291",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.bigjigstoys.co.uk/products/wooden-breakfast-set": {
+      "url": "https://www.bigjigstoys.co.uk/products/wooden-breakfast-set",
+      "http_status": 429,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-vegetable-chopping-board/p/189195": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-vegetable-chopping-board/p/189195",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-fruit-chopping-board/p/189194": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/elc-wooden-fruit-chopping-board/p/189194",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/bigjigs-toys-butchers-crate/p/160294": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/bigjigs-toys-butchers-crate/p/160294",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/melissa-doug-food-groups/p/193000": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/preschool-toys/role-play-and-dress-up/play-kitchens-and-shops/melissa-doug-food-groups/p/193000",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.bigjigstoys.co.uk/products/butchers-crate": {
+      "url": "https://www.bigjigstoys.co.uk/products/butchers-crate",
+      "http_status": 429,
+      "fetch_ok": false,
+      "product_status": "unknown",
+      "signals": [],
+      "buyable": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    }
+  }
+}

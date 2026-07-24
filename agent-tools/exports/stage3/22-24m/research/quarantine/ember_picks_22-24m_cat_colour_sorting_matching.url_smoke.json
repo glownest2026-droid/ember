@@ -1,0 +1,84 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 11,
+  "ok_count": 10,
+  "results": {
+    "https://www.shopedx.co.uk/products/sorting-bears-with-matching-bowls": {
+      "url": "https://www.shopedx.co.uk/products/sorting-bears-with-matching-bowls",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.shopedx.co.uk/products/fun-play-geo-pegs": {
+      "url": "https://www.shopedx.co.uk/products/fun-play-geo-pegs",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.shopedx.co.uk/products/junior-rainbow-pebbles": {
+      "url": "https://www.shopedx.co.uk/products/junior-rainbow-pebbles",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smartoys.co.uk/product/brightly-coloured-shape-block-sorter-bucket-for-toddler-kids-by-dolu/": {
+      "url": "https://www.smartoys.co.uk/product/brightly-coloured-shape-block-sorter-bucket-for-toddler-kids-by-dolu/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smartoys.co.uk/product/melissa-doug-stack-and-sort-board-wooden-educational-toy-with-15-solid-wood-pieces/": {
+      "url": "https://www.smartoys.co.uk/product/melissa-doug-stack-and-sort-board-wooden-educational-toy-with-15-solid-wood-pieces/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.orchardtoys.com/shop/colour-match": {
+      "url": "https://www.orchardtoys.com/shop/colour-match",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.shopedx.co.uk/products/attribute-blocks": {
+      "url": "https://www.shopedx.co.uk/products/attribute-blocks",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smartoys.co.uk/product/fisher-price-ffc84-baby-s-first-blocks/": {
+      "url": "https://www.smartoys.co.uk/product/fisher-price-ffc84-baby-s-first-blocks/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.shopedx.co.uk/products/geo-pegs-board-set": {
+      "url": "https://www.shopedx.co.uk/products/geo-pegs-board-set",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.target.com/p/edx": {
+      "url": "https://www.target.com/p/edx",
+      "http_status": 404,
+      "url_ok": false,
+      "error": "http_404",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.charlies.co.uk/melissa-doug-shape-sorting-cube/": {
+      "url": "https://www.charlies.co.uk/melissa-doug-shape-sorting-cube/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

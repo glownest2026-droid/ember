@@ -1,3 +1,28 @@
+## 2026-07-24 — Stage 3 22–24m: research → FF green → founder HTML (stop)
+
+- **Band:** `22-24m` · 7 manifest categories (5 single / 2 multiple books)
+- **Result:** **7/7 green**, 0 live quarantine fails
+- **Founder HTML:** `agent-tools/exports/stage3/22-24m/founder-preview/stage3_founder_review_22-24m.html`
+- **STATUS:** `agent-tools/exports/stage3/22-24m/STATUS.md`
+- **Stop:** no ingest, no PR — founder review next
+- **Flags:** thinner enclosed-tower depth (LTC/Maxi-Cosi bot blocks); bookshop 403 → Hachette/Penguin primaries; Bigjigs via Smyths; SPARKA for soft ball
+
+## 2026-07-24 — Stage 3 wave: 4–6m → 25–27m (research → founder HTML)
+
+
+- **Scope:** 8 bands after live 1–3m pilots; full MVP shortlist (one Stage 2 pilot per Stage 1 cluster) = **62** categories
+- **Ownership depth (founder-approved, strict):** default **single** → 15 longlist / show top 5; **multiple = books only** → 25 longlist / show top 10 (47 single / 15 multiple)
+- **Stop:** founder HTML only — **no ingest** until founder signs off
+- **Artifacts:** shortlists under `agent-tools/exports/stage3/{band}/registry/`; ownership matrix `ownership_depth_proposal_4-27m.md`; per-band `ownership_depth_manifest.json`
+- **Tooling:** FF accepts dual schema counts via `ownership_class` on research JSON
+- **Next:** 8 parallel band agents → Mode A research → FF → founder HTML
+
+## 2026-07-23 — Grant Ember Plus: rachel@creaser.com
+
+- Set `auth.users.raw_app_meta_data.membership_type = ember_plus` for `rachel@creaser.com` (id `e7ff630f-9c36-4ca3-b8a8-afd1a87cb90d`)
+- She must **sign out and sign back in** (or refresh session) so the JWT picks up the new claim
+- DIY path for founder: Supabase → Authentication → Users → user → **App Metadata** → `{ "membership_type": "ember_plus" }`
+
 ## 2026-07-23 — Eradicate non-UK Stage 3 recommendations (all ranks)
 
 - **Founder catch:** Bright Starts Safari mirror on `kids2.com` ($ / 0 reviews); Manhattan Toy Winkel on `manhattantoy.com` ($ / no reviews). Ordered full eradication — not Top 5-only audit.

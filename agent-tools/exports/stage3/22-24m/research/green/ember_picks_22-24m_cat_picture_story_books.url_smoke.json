@@ -1,0 +1,190 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 26,
+  "ok_count": 25,
+  "results": {
+    "https://www.penguin.co.uk/books/108950/were-going-on-a-bear-hunt-by-rosen-michael/9781406363074": {
+      "url": "https://www.penguin.co.uk/books/108950/were-going-on-a-bear-hunt-by-rosen-michael/9781406363074",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/451946/dear-zoo-by-campbell-rod/9780230743076": {
+      "url": "https://www.penguin.co.uk/books/451946/dear-zoo-by-campbell-rod/9780230743076",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/we-re-going-on-a-bear-hunt-michael-rosen/9781406363074": {
+      "url": "https://uk.bookshop.org/p/books/we-re-going-on-a-bear-hunt-michael-rosen/9781406363074",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/dear-zoo-rod-campbell/9780230743076": {
+      "url": "https://uk.bookshop.org/p/books/dear-zoo-rod-campbell/9780230743076",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hachette.co.uk/titles/kes-gray/oi-frog/9781444910865/": {
+      "url": "https://www.hachette.co.uk/titles/kes-gray/oi-frog/9781444910865/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/oi-frog-kes-gray/9781444910865": {
+      "url": "https://uk.bookshop.org/p/books/oi-frog-kes-gray/9781444910865",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.lovereading4kids.co.uk/book/Press-Here-by-Herve-Tullet.html": {
+      "url": "https://www.lovereading4kids.co.uk/book/Press-Here-by-Herve-Tullet.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/the-tickle-book-ian-whybrow/9780230747098": {
+      "url": "https://uk.bookshop.org/p/books/the-tickle-book-ian-whybrow/9780230747098",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/57093/the-very-hungry-caterpillar-by-carle-eric/9780241003008": {
+      "url": "https://www.penguin.co.uk/books/57093/the-very-hungry-caterpillar-by-carle-eric/9780241003008",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hachette.co.uk/titles/herve-tullet/press-here/9780811879545/": {
+      "url": "https://www.hachette.co.uk/titles/herve-tullet/press-here/9780811879545/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/108950/brown-bear-brown-bear-what-do-you-see-by-martin-bill/9780805047905": {
+      "url": "https://www.penguin.co.uk/books/108950/brown-bear-brown-bear-what-do-you-see-by-martin-bill/9780805047905",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hachette.co.uk/titles/ian-whybrow/the-tickle-book/9780230747098/": {
+      "url": "https://www.hachette.co.uk/titles/ian-whybrow/the-tickle-book/9780230747098/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.lovereading4kids.co.uk/book/The-Very-Hungry-Caterpillar-by-Eric-Carle.html": {
+      "url": "https://www.lovereading4kids.co.uk/book/The-Very-Hungry-Caterpillar-by-Eric-Carle.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hachette.co.uk/titles/mo-willems/don-t-let-the-pigeon-drive-the-bus/9781406386073/": {
+      "url": "https://www.hachette.co.uk/titles/mo-willems/don-t-let-the-pigeon-drive-the-bus/9781406386073/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hachette.co.uk/titles/nick-sharratt/shark-in-the-park/9780552549776/": {
+      "url": "https://www.hachette.co.uk/titles/nick-sharratt/shark-in-the-park/9780552549776/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/brown-bear-brown-bear-what-do-you-see-bill-martin-jr/9780805047905": {
+      "url": "https://uk.bookshop.org/p/books/brown-bear-brown-bear-what-do-you-see-bill-martin-jr/9780805047905",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/don-t-let-the-pigeon-drive-the-bus-mo-willems/9781406386073": {
+      "url": "https://uk.bookshop.org/p/books/don-t-let-the-pigeon-drive-the-bus-mo-willems/9781406386073",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/305040/you-choose-by-goodhart-pippa/9780141379319": {
+      "url": "https://www.penguin.co.uk/books/305040/you-choose-by-goodhart-pippa/9780141379319",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/hugless-douglas-david-melling/9780340999080": {
+      "url": "https://uk.bookshop.org/p/books/hugless-douglas-david-melling/9780340999080",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.lovereading4kids.co.uk/book/Shark-in-the-Park-by-Nick-Sharratt.html": {
+      "url": "https://www.lovereading4kids.co.uk/book/Shark-in-the-Park-by-Nick-Sharratt.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/peek-a-who-nina-laden/9780811826020": {
+      "url": "https://uk.bookshop.org/p/books/peek-a-who-nina-laden/9780811826020",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/oh-no-george-chris-haughton/9781406342314": {
+      "url": "https://uk.bookshop.org/p/books/oh-no-george-chris-haughton/9781406342314",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/you-choose-pippa-goodhart/9780141379319": {
+      "url": "https://uk.bookshop.org/p/books/you-choose-pippa-goodhart/9780141379319",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.com/": {
+      "url": "https://www.amazon.com/",
+      "http_status": 200,
+      "url_ok": false,
+      "error": "amazon_stub_page",
+      "amazon_gate": "stub",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hachette.co.uk/titles/david-melling/hugless-douglas/9780340999080/": {
+      "url": "https://www.hachette.co.uk/titles/david-melling/hugless-douglas/9780340999080/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/press-here-herve-tullet/9780811879545": {
+      "url": "https://uk.bookshop.org/p/books/press-here-herve-tullet/9780811879545",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

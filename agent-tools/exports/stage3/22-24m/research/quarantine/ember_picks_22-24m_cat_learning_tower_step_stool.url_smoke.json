@@ -1,0 +1,84 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 11,
+  "ok_count": 10,
+  "results": {
+    "https://www.boots.com/hauck-learn-n-explore-learning-tower": {
+      "url": "https://www.boots.com/hauck-learn-n-explore-learning-tower",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.tuttibambini.com/products/helping-hands-montessori-toddler-learning-tower-sea-mist": {
+      "url": "https://www.tuttibambini.com/products/helping-hands-montessori-toddler-learning-tower-sea-mist",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/babybjorn-step-stool-white-10220346": {
+      "url": "https://www.boots.com/babybjorn-step-stool-white-10220346",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.argos.co.uk/product/7445163": {
+      "url": "https://www.argos.co.uk/product/7445163",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.dunelm.com/product/hauck-learn-n-explore-learning-tower-1000249847": {
+      "url": "https://www.dunelm.com/product/hauck-learn-n-explore-learning-tower-1000249847",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.babybjorn.co.uk/products/bathroom/step-stool/": {
+      "url": "https://www.babybjorn.co.uk/products/bathroom/step-stool/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/foersiktig-childrens-stool-white-turquoise-10591318/": {
+      "url": "https://www.ikea.com/gb/en/p/foersiktig-childrens-stool-white-turquoise-10591318/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://learningtowers.co.uk/products/the-original-convertible-learning-tower": {
+      "url": "https://learningtowers.co.uk/products/the-original-convertible-learning-tower",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/trogen-children-s-step-stool-white-40353767/": {
+      "url": "https://www.ikea.com/gb/en/p/trogen-children-s-step-stool-white-40353767/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/forsiktig-children-s-stool-white-green-60248418/": {
+      "url": "https://www.ikea.com/gb/en/p/forsiktig-children-s-stool-white-green-60248418/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.target.com/": {
+      "url": "https://www.target.com/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

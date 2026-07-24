@@ -1,0 +1,76 @@
+{
+  "age_band_id": "22-24m",
+  "approved_at": "2026-07-24",
+  "rule": "strict-default-single-books-multiple",
+  "stop_at": "founder-html",
+  "categories": [
+    {
+      "category_entity_id": "cat_play_kitchen_household_props",
+      "category_label": "Play kitchen and household props",
+      "cluster_label": "Pretend play gets richer",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "50.85"
+    },
+    {
+      "category_entity_id": "cat_picture_story_books",
+      "category_label": "Picture books with a little story",
+      "cluster_label": "Words are joining up",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "48.2"
+    },
+    {
+      "category_entity_id": "cat_colour_sorting_matching",
+      "category_label": "Colour sorting and matching games",
+      "cluster_label": "Sorting, matching and building",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "45.55"
+    },
+    {
+      "category_entity_id": "cat_large_balls",
+      "category_label": "Large balls for kicking and chasing",
+      "cluster_label": "Running, kicking and climbing",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "45.4"
+    },
+    {
+      "category_entity_id": "cat_learning_tower_step_stool",
+      "category_label": "Learning tower or safe step stool",
+      "cluster_label": "Little independence at home",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "42.5"
+    },
+    {
+      "category_entity_id": "cat_potty_chair",
+      "category_label": "Potty chair for practice sitting",
+      "cluster_label": "Meals, potty and body signals",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "42.85"
+    },
+    {
+      "category_entity_id": "cat_feelings_faces_books",
+      "category_label": "Feeling stories and face books",
+      "cluster_label": "Feelings, choices and turn-taking",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "44.95"
+    }
+  ],
+  "counts": {
+    "total": 7,
+    "single": 5,
+    "multiple": 2
+  }
+}
