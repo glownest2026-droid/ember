@@ -1,0 +1,76 @@
+{
+  "age_band_id": "9-12m",
+  "approved_at": "2026-07-24",
+  "rule": "strict-default-single-books-multiple",
+  "stop_at": "founder-html",
+  "categories": [
+    {
+      "category_entity_id": "cat_push_pull_toys",
+      "category_label": "Stable push and pull toys",
+      "cluster_label": "I’m getting ready to move",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "41.35"
+    },
+    {
+      "category_entity_id": "cat_pincer_puzzle",
+      "category_label": "Pincer puzzles and peg drops",
+      "cluster_label": "I’m busy with both hands",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "45.2"
+    },
+    {
+      "category_entity_id": "cat_peekaboo_scarf",
+      "category_label": "Peekaboo cloths and scarves",
+      "cluster_label": "I’m finding hidden things",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "44.3"
+    },
+    {
+      "category_entity_id": "cat_board_books",
+      "category_label": "Books with pauses",
+      "cluster_label": "I’m chatting, clapping and waving",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "44.15"
+    },
+    {
+      "category_entity_id": "cat_highchair",
+      "category_label": "Highchair or upright feeding seat",
+      "cluster_label": "Mealtimes are changing",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "37.25"
+    },
+    {
+      "category_entity_id": "cat_feelings_faces_books",
+      "category_label": "Faces and feelings books",
+      "cluster_label": "I’m noticing faces and feelings",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "42.95"
+    },
+    {
+      "category_entity_id": "cat_bubbles",
+      "category_label": "Bubbles for watching and reaching",
+      "cluster_label": "Make the day feel easier",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "34.3"
+    }
+  ],
+  "counts": {
+    "total": 7,
+    "single": 5,
+    "multiple": 2
+  }
+}

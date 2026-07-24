@@ -9,7 +9,8 @@
  */
 import fs from 'node:fs';
 
-const TIMEOUT_MS = 15000;
+// JL / heavy retailer PDPs often need >15s in cloud agents; 45s keeps fail-closed semantics.
+const TIMEOUT_MS = Number(process.env.STAGE3_AVAIL_TIMEOUT_MS || 45000);
 const MAX_BODY_CHARS = 250_000;
 const USER_AGENT =
   'Mozilla/5.0 (compatible; EmberStage3Availability/1.0; +https://github.com/glownest2026-droid/ember)';
@@ -49,6 +50,11 @@ function stripHtml(html) {
   return String(html || '')
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    // IKEA and similar PDPs embed i18n dictionaries as quoted label strings
+    // ("Currently unavailable for delivery") that are not product stock state.
+    .replace(/"[^"]{0,120}(?:currently\s+unavailable|unavailable\s+online|out\s+of\s+stock|sold\s+out)[^"]{0,120}"/gi, ' ')
+    // Site-wide range banners are not SKU-level unbuyable signals.
+    .replace(/some parts of our range are currently unavailable online[^.]{0,80}\./gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

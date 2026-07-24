@@ -1,0 +1,78 @@
+{
+  "ff_check_pass": false,
+  "checked_at": "2026-07-24",
+  "ingestion_ready_status": "not-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "Melissa & Doug Stack and Sort Board",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "Edx Sorting Bears with Matching Bowls",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "Dolu Shape Block Sorter Bucket",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "Edx Fun Play Geo Pegs Board Set",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "Junior Rainbow Pebbles",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": []
+}

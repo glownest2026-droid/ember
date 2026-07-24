@@ -1,0 +1,23 @@
+{
+  "age_band_id": "13-15m",
+  "passed": [
+    "cat_two_block_towers"
+  ],
+  "failed": [],
+  "details": [
+    {
+      "category_entity_id": "cat_two_block_towers",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 17,
+        "ok_count": 9
+      },
+      "availability": {
+        "url_count": 5,
+        "buyable_count": 5
+      }
+    }
+  ]
+}

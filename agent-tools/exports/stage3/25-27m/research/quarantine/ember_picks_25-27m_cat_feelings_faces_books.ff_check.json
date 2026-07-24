@@ -1,0 +1,151 @@
+{
+  "ff_check_pass": false,
+  "checked_at": "2026-07-24",
+  "ingestion_ready_status": "not-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "The Colour Monster",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "In My Heart: A Book of Feelings",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "The Feelings Book",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "Grumpy Frog",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "The Colour Monster Goes to School",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 6,
+      "product_name": "The Huge Bag of Worries",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 7,
+      "product_name": "Happy",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 8,
+      "product_name": "Baby Faces",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix",
+        "description_why_pip_overlap_0.58"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 9,
+      "product_name": "Baby Touch: Faces",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 10,
+      "product_name": "Baby Touch First Focus: Faces",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": [
+    "methodology_missing_steps:age"
+  ]
+}

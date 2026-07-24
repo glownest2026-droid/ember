@@ -16,7 +16,7 @@ import {
   availabilityGateFromPick,
   checkDocumentAvailability,
 } from './stage3-availability-check.mjs';
-import { bannedHits } from './lib/stage3-banned-copy.mjs';
+import { bannedHits, repeatedWhyPipCloserFails } from './lib/stage3-banned-copy.mjs';
 import { ukMarketFailReasons } from './lib/stage3-uk-market.mjs';
 
 const repoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -208,6 +208,22 @@ function brandConcentrationGate(topPicks) {
     if (n > 2) reasons.push(`brand_concentration_${n}_${brand.replace(/\s+/g, '_')}`);
   }
   return reasons;
+}
+
+/**
+ * Founder 2026-07-24 ownership-depth rule:
+ * - single (default): Top 5 / longlist 15
+ * - multiple (books shelf): Top 10 / longlist 25
+ * Set `ownership_class` on research JSON (`single` | `multiple`).
+ */
+function resolveResearchDepth(doc) {
+  const raw = String(doc.ownership_class || doc.research_depth || 'single')
+    .trim()
+    .toLowerCase();
+  if (raw === 'multiple' || raw === 'collection' || raw === 'books') {
+    return { ownership: 'multiple', topN: 10, longlistN: 25 };
+  }
+  return { ownership: 'single', topN: 5, longlistN: 15 };
 }
 
 function parseArgs(argv) {
@@ -536,22 +552,33 @@ async function checkDocument(filePath, { skipSmoke, skipAvailability, band }) {
     : await checkDocumentAvailability(doc);
 
   const categoryFails = [...howCategoryFails(doc)];
+  const depth = resolveResearchDepth(doc);
   const topPicks = [...(doc.top_picks || [])].sort((a, b) => a.rank - b.rank);
-  if (topPicks.length !== 5) categoryFails.push(`top_picks_count_${topPicks.length}`);
-  if ((doc.longlist || []).length !== 15) categoryFails.push(`longlist_count_${(doc.longlist || []).length}`);
+  if (topPicks.length !== depth.topN) {
+    categoryFails.push(`top_picks_count_${topPicks.length}_expected_${depth.topN}_${depth.ownership}`);
+  }
+  if ((doc.longlist || []).length !== depth.longlistN) {
+    categoryFails.push(
+      `longlist_count_${(doc.longlist || []).length}_expected_${depth.longlistN}_${depth.ownership}`,
+    );
+  }
   if ((doc.skips || []).length < 5) categoryFails.push(`skips_below_5`);
   categoryFails.push(...uniqueTopPickNamesGate(topPicks));
   categoryFails.push(...nearDuplicateProductLineGate(topPicks));
   categoryFails.push(...brandConcentrationGate(topPicks));
+  categoryFails.push(...repeatedWhyPipCloserFails(topPicks));
 
+  const backupLo = depth.topN + 1;
+  const backupHi = depth.topN + 5; // first five non-shown longlist rows need miss reasons
   for (const row of doc.longlist || []) {
     const lr = Number(row.longlist_rank);
-    if (lr >= 6 && lr <= 10 && !nonEmpty(row.missed_top5_reason)) {
-      categoryFails.push(`longlist_${lr}_missed_top5_reason_missing`);
+    const missed =
+      nonEmpty(row.missed_top5_reason) || nonEmpty(row.missed_shown_reason);
+    if (lr >= backupLo && lr <= backupHi && !missed) {
+      categoryFails.push(`longlist_${lr}_missed_shown_reason_missing`);
     }
-    if (lr >= 1 && lr <= 10 && !nonEmpty(row.rank_rationale) && !row.included_in_top_5) {
-      // Top-5 mirrors may omit if top_picks carry rationale; still require for 6-10 backups
-      if (lr >= 6) categoryFails.push(`longlist_${lr}_rank_rationale_missing`);
+    if (lr >= backupLo && lr <= backupHi && !nonEmpty(row.rank_rationale) && !row.included_in_top_5) {
+      categoryFails.push(`longlist_${lr}_rank_rationale_missing`);
     }
     // UK market: every longlist/backup row that carries a URL must be UK-buyable (not Top 5 only).
     const llUrl = row.product_url || row.url;

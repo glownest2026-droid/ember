@@ -1,0 +1,84 @@
+{
+  "ff_check_pass": false,
+  "checked_at": "2026-07-24",
+  "ingestion_ready_status": "not-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "Bigjigs Toys Wooden Breakfast Set",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "Bigjigs Toys Wooden Pots and Pans Set",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "Tidlo Wooden Cutting Fruits Set",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "Tender Leaf Toys Breakfast Toaster Set",
+      "ff_pass": false,
+      "fail_reasons": [
+        "min_age_36_excludes_band_months_under_36",
+        "safety_exclusion_under_36_overlaps_band_min_25",
+        "min_age_36_excludes_band_months_under_36"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "fail",
+      "age_fail_reasons": [
+        "min_age_36_excludes_band_months_under_36",
+        "safety_exclusion_under_36_overlaps_band_min_25",
+        "min_age_36_excludes_band_months_under_36"
+      ]
+    },
+    {
+      "rank": 5,
+      "product_name": "Hape Pop-up Toaster Set",
+      "ff_pass": false,
+      "fail_reasons": [
+        "min_age_36_excludes_band_months_under_36",
+        "safety_exclusion_under_36_overlaps_band_min_25",
+        "min_age_36_excludes_band_months_under_36"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "fail",
+      "age_fail_reasons": [
+        "min_age_36_excludes_band_months_under_36",
+        "safety_exclusion_under_36_overlaps_band_min_25",
+        "min_age_36_excludes_band_months_under_36"
+      ]
+    }
+  ],
+  "category_fails": []
+}

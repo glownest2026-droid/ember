@@ -38,7 +38,7 @@
 | Specialist exemption | Explicit `evidence_exemption: specialist` + written reason; **SKU `rating_count` still must be ≥15 when present** (no brand-aggregate excuse for a 1-review product page) | Brand fame alone / single 5★ with &lt;15 reviews on this SKU |
 | Age overlap | Listing age signals overlap the Ember band (see below) | No overlap or safety exclusion conflicts |
 | Age absent | Top Pick must have at least one structured age signal | Missing age → fail (unless founder-waived specialist) |
-| Schema counts | 5 Top Picks, 15 longlist, ≥5 skips (product categories) | Count mismatch |
+| Schema counts | **Single ownership (default):** 5 Top Picks, 15 longlist. **Multiple ownership (books shelf):** 10 Top Picks, 25 longlist. Set `ownership_class` on research JSON. ≥5 skips either way. | Count mismatch for the declared ownership class |
 | Best-for | Unique tags; `Best for` + ≤6 words after prefix | Duplicate / feature-list tags |
 | Public copy | Non-empty title/name, `product_description_under_30_words`, `ember_verdict`; must pass Writing Guidelines bans (see `web/docs/brand/WRITING_GUIDELINES.md`) — incl. em dash, calm, worth buying, Fresh 20XX, Stage X | Empty parent fields or banned phrasing |
 

@@ -1,3 +1,96 @@
+## 2026-07-24 — Stage 3 4–6m: research → FF green → founder HTML (stop)
+
+- **Band:** `4-6m` · 7 manifest categories (5 single / 2 multiple books)
+- **Result:** **7/7 green**, 0 live quarantine research JSON
+- **Founder HTML:** `agent-tools/exports/stage3/4-6m/founder-preview/stage3_founder_review_4-6m.html` (50 rows / 7 HOW panels)
+- **STATUS:** `agent-tools/exports/stage3/4-6m/STATUS.md`
+- **Stop:** no ingest, no PR — founder review next
+- **Flags:** Writing Guidelines / en-dash scrub on `rank_rationale`; Hamleys/JL availability timeouts → Ocado/Coolshop; Matchstick via Ocado mint (Argos 403 / brand 429 under bots)
+
+## 2026-07-24 — Stage 3 25–27m: research → FF → founder HTML (stop)
+
+- **Band:** `25-27m` · 8 manifest categories (5 single / 3 multiple books)
+- **Result:** **7 green**, **1 quarantine** (`cat_play_kitchen_household_props`)
+- **Founder HTML:** `agent-tools/exports/stage3/25-27m/founder-preview/stage3_founder_review_25-27m.html` (55 rows / 7 HOW panels)
+- **STATUS:** `agent-tools/exports/stage3/25-27m/STATUS.md`
+- **Stop:** no ingest, no PR — founder review next
+- **Kitchen blocker:** only three 18m+ UK-buyable props cleared (2× Bigjigs + Tidlo); ranks 4–5 are buyable 3+ toasters (Tender Leaf / Hape); need a fifth age-safe brand or brand-cap waiver
+
+## 2026-07-24 — Stage 3 16–18m: research → FF green → founder HTML (stop)
+
+- **Band:** `16-18m` · 7 manifest categories (6 single / 1 multiple books)
+- **Result:** **7/7 green**, 0 quarantine research JSON
+- **Founder HTML:** `agent-tools/exports/stage3/16-18m/founder-preview/stage3_founder_review_16-18m.html`
+- **STATUS:** `agent-tools/exports/stage3/16-18m/STATUS.md`
+- **Stop:** no ingest, no PR — founder review next
+- **Flags:** Amazon avoided; Bookshop/Barefoot/Priddy intermittent 403/404 mid-run then re-verified; UK allowlist +`vitalbaby.com`/`superdrug.com`/`growingsmiles.co.uk`; 18m+ FlipCar/Migoga + Cerda Bing → `check_age_fit`
+
+## 2026-07-24 — Stage 3 13–15m: research → FF green → founder HTML (stop)
+
+- **Band:** `13-15m` · 10 manifest categories (9 single / 1 multiple books)
+- **Result:** **10/10 green**, 0 quarantine research JSON
+- **Founder HTML:** `agent-tools/exports/stage3/13-15m/founder-preview/stage3_founder_review_13-15m.html`
+- **STATUS:** `agent-tools/exports/stage3/13-15m/STATUS.md`
+- **Stop:** no ingest, no PR — founder review next
+- **Flags:** JL availability timeouts → Boots/Bebeco/IKEA/Lovevery/specialist swaps; brand-cap re-assortment on IKEA/Dreambaby/ezpz; Boots interruption pages need click-check; founder-rows generator now excludes `*.availability.json`
+
+## 2026-07-24 — Stage 3 22–24m: research → FF green → founder HTML (stop)
+
+- **Band:** `22-24m` · 7 manifest categories (5 single / 2 multiple books)
+- **Result:** **7/7 green**, 0 live quarantine fails
+- **Founder HTML:** `agent-tools/exports/stage3/22-24m/founder-preview/stage3_founder_review_22-24m.html`
+- **STATUS:** `agent-tools/exports/stage3/22-24m/STATUS.md`
+- **Stop:** no ingest, no PR — founder review next
+- **Flags:** thinner enclosed-tower depth (LTC/Maxi-Cosi bot blocks); bookshop 403 → Hachette/Penguin primaries; Bigjigs via Smyths; SPARKA for soft ball
+
+## 2026-07-24 — Ingest Stage 3 Pip's Picks: 4–6m → 25–27m (8 bands)
+
+- **Scope:** Full MVP shortlist green research → live `pl_stage3_picks` (stop was founder HTML; founder approved ingest)
+- **Migrations (applied):** `20260724120001`–`20260724120008` (`4_6m` … `25_27m`)
+- **Counts:** 4–6m 7 · 6–9m 8 · 9–12m 7 · 13–15m 10 · 16–18m 7 · 19–21m 8 · 22–24m 7 · 25–27m 7 green (kitchen still quarantined)
+- **Ownership depth:** single → visible Top 5; books/multiple → visible Top 10 (ingest auto from `ownership_class`)
+- **Cache:** `GATEWAY_CATALOGUE_CACHE_VERSION` → `20260724-stage3-4-27m-pips`
+- **Tooling:** ingest supports mixed visible counts per category in one band migration
+- **Verify:** `/discover/5`, `/discover/8`, `/discover/11`, `/discover/14`, `/discover/17`, `/discover/20`, `/discover/23`, `/discover/26` — Pip's Picks on pilot Stage 2 cards; signed-out pick 1 only
+
+## 2026-07-24 — FF harden: ban stamp Why Pip closers (never twice)
+
+- **Founder catch:** formulaic closer “That is the practical shift parents notice in daily play.” (and other stock endings) slipped through green research
+- **Gate:** `stage3-banned-copy.mjs` — exact stamp phrases + `practical shift` pattern; FF now fails **identical Why Pip closing sentences within a Top N** (`repeated_why_pip_closer`)
+- **Docs:** Writing Guidelines Principle 5 updated in parity
+- **Scrub:** `scrub-stage3-stamp-closers.mjs` across 4–27m green (142 picks rewritten); copy-only pass `stage3-ff-copy-pass.mjs` → **0 fails** / 380 Top Picks
+- **HTML rebuilt:** per-band founder previews + combined `founder-preview/stage3_founder_review_4-27m.html`
+- **Verify:** combined HTML must contain **zero** “practical shift parents notice”; open a Top 10 books tab and confirm endings vary
+
+## 2026-07-24 — Combined founder HTML (tabbed 4–27m)
+
+- **File:** `agent-tools/exports/stage3/founder-preview/stage3_founder_review_4-27m.html`
+- **Builder:** `node agent-tools/scripts/combine-stage3-founder-html.mjs` (tabs per band; keys 1–8)
+- **Why:** founder asked for one easy review surface instead of eight separate HTML files
+
+## 2026-07-24 — Stage 3 wave complete through founder HTML (4–6m → 25–27m)
+
+- **8/8 bands** have founder HTML (no ingest yet)
+- **Resumed stuck agents:** 4–6m (7/7 green) + 25–27m (7 green / 1 quarantine kitchen props — need fifth age-safe brand under brand cap)
+- **HTML paths:** `agent-tools/exports/stage3/{band}/founder-preview/stage3_founder_review_{band}.html`
+- **Next:** founder review → approve → ingest per band
+
+## 2026-07-24 — Stage 3 wave: 4–6m → 25–27m (research → founder HTML)
+
+
+- **Scope:** 8 bands after live 1–3m pilots; full MVP shortlist (one Stage 2 pilot per Stage 1 cluster) = **62** categories
+- **Ownership depth (founder-approved, strict):** default **single** → 15 longlist / show top 5; **multiple = books only** → 25 longlist / show top 10 (47 single / 15 multiple)
+- **Stop:** founder HTML only — **no ingest** until founder signs off
+- **Artifacts:** shortlists under `agent-tools/exports/stage3/{band}/registry/`; ownership matrix `ownership_depth_proposal_4-27m.md`; per-band `ownership_depth_manifest.json`
+- **Tooling:** FF accepts dual schema counts via `ownership_class` on research JSON
+- **Next:** 8 parallel band agents → Mode A research → FF → founder HTML
+
+## 2026-07-23 — Grant Ember Plus: rachel@creaser.com
+
+- Set `auth.users.raw_app_meta_data.membership_type = ember_plus` for `rachel@creaser.com` (id `e7ff630f-9c36-4ca3-b8a8-afd1a87cb90d`)
+- She must **sign out and sign back in** (or refresh session) so the JWT picks up the new claim
+- DIY path for founder: Supabase → Authentication → Users → user → **App Metadata** → `{ "membership_type": "ember_plus" }`
+
 ## 2026-07-23 — Eradicate non-UK Stage 3 recommendations (all ranks)
 
 - **Founder catch:** Bright Starts Safari mirror on `kids2.com` ($ / 0 reviews); Manhattan Toy Winkel on `manhattantoy.com` ($ / no reviews). Ordered full eradication — not Top 5-only audit.

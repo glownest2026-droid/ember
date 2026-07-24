@@ -1,0 +1,135 @@
+{
+  "ff_check_pass": false,
+  "checked_at": "2026-07-24",
+  "ingestion_ready_status": "not-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "The Colour Monster",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "The Feelings Book",
+      "ff_pass": false,
+      "fail_reasons": [
+        "availability_fetch_failed:http_403"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": false,
+      "product_status": "unknown",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "In My Heart: A Book of Feelings",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "When I Feel Happy",
+      "ff_pass": false,
+      "fail_reasons": [
+        "availability_fetch_failed:http_403",
+        "why_pip_word_count_35_not_40_to_60"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": false,
+      "product_status": "unknown",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "When I Feel Sad",
+      "ff_pass": false,
+      "fail_reasons": [
+        "availability_fetch_failed:http_403"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": false,
+      "product_status": "unknown",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 6,
+      "product_name": "Grumpy Frog",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 7,
+      "product_name": "That's (Not) Mine",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 8,
+      "product_name": "The Way I Feel",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 9,
+      "product_name": "Glad Monster, Sad Monster",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 10,
+      "product_name": "Llama Llama Mad at Mama",
+      "ff_pass": true,
+      "fail_reasons": [],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": []
+}

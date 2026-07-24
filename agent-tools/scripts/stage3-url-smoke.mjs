@@ -121,7 +121,8 @@ export async function smokeUrl(url) {
         signal: controller.signal,
         headers: { 'User-Agent': USER_AGENT, Accept: '*/*' },
       });
-      if (res.status === 405 || res.status === 403 || res.status === 501) {
+      // Some CDNs (notably IKEA) answer HEAD with 404 while GET is a live PDP.
+      if (res.status === 405 || res.status === 403 || res.status === 501 || res.status === 404) {
         res = await fetch(url, {
           method: 'GET',
           redirect: 'follow',

@@ -1,0 +1,78 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 10,
+  "ok_count": 9,
+  "results": {
+    "https://www.boots.com/bumbo-step-n-potty": {
+      "url": "https://www.boots.com/bumbo-step-n-potty",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/foersiktig-childrens-stool-white-turquoise-10591318/": {
+      "url": "https://www.ikea.com/gb/en/p/foersiktig-childrens-stool-white-turquoise-10591318/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.babybjorn.co.uk/products/bathroom/step-stool/": {
+      "url": "https://www.babybjorn.co.uk/products/bathroom/step-stool/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.com/": {
+      "url": "https://www.amazon.com/",
+      "http_status": 202,
+      "url_ok": false,
+      "error": "amazon_stub_page",
+      "amazon_gate": "stub",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/trogen-childrens-step-stool-yellow-80371520/": {
+      "url": "https://www.ikea.com/gb/en/p/trogen-childrens-step-stool-yellow-80371520/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.babybjorn.co.uk/products/bathroom/toilet-training-seat/": {
+      "url": "https://www.babybjorn.co.uk/products/bathroom/toilet-training-seat/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/bolmen-step-stool-white-70574429/": {
+      "url": "https://www.ikea.com/gb/en/p/bolmen-step-stool-white-70574429/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hachettechildrens.co.uk/titles/kes-gray/oi-frog/9781444910865/": {
+      "url": "https://www.hachettechildrens.co.uk/titles/kes-gray/oi-frog/9781444910865/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/duktig-play-kitchen-birch-60319972/": {
+      "url": "https://www.ikea.com/gb/en/p/duktig-play-kitchen-birch-60319972/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.sportsdirect.com/sports-directory-foam-football-857872": {
+      "url": "https://www.sportsdirect.com/sports-directory-foam-football-857872",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 15,
+  "ok_count": 10,
+  "results": {
+    "https://uk.bookshop.org/p/books/in-my-heart-a-book-of-feelings-jo-witek/9720855": {
+      "url": "https://uk.bookshop.org/p/books/in-my-heart-a-book-of-feelings-jo-witek/9720855",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/the-colour-monster-a-story-about-emotions-anna-llenas/9781787410213": {
+      "url": "https://uk.bookshop.org/p/books/the-colour-monster-a-story-about-emotions-anna-llenas/9781787410213",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/441877/the-colour-monster-a-story-about-emotions-by-llenas-anna/9781787410213": {
+      "url": "https://www.penguin.co.uk/books/441877/the-colour-monster-a-story-about-emotions-by-llenas-anna/9781787410213",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/111060/the-feelings-book-by-parr-todd/9780316043465": {
+      "url": "https://www.penguin.co.uk/books/111060/the-feelings-book-by-parr-todd/9780316043465",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/451838/the-colour-monster-goes-to-school-by-llenas-anna/9781787415263": {
+      "url": "https://www.penguin.co.uk/books/451838/the-colour-monster-goes-to-school-by-llenas-anna/9781787415263",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/1110604/grumpy-frog-by-vere-ed/9780141366128": {
+      "url": "https://www.penguin.co.uk/books/1110604/grumpy-frog-by-vere-ed/9780141366128",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/happy-emma-dodd/9781788006989": {
+      "url": "https://uk.bookshop.org/p/books/happy-emma-dodd/9781788006989",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/the-huge-bag-of-worries-virginia-ironside/9780340903179": {
+      "url": "https://uk.bookshop.org/p/books/the-huge-bag-of-worries-virginia-ironside/9780340903179",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/": {
+      "url": "https://www.amazon.co.uk/",
+      "http_status": 202,
+      "url_ok": false,
+      "error": "amazon_stub_page",
+      "amazon_gate": "stub",
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/baby-faces-dk/9780241188750": {
+      "url": "https://uk.bookshop.org/p/books/baby-faces-dk/9780241188750",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/313409/baby-touch-faces-a-black-and-white-book-by-ladybird/9780241391723": {
+      "url": "https://www.penguin.co.uk/books/313409/baby-touch-faces-a-black-and-white-book-by-ladybird/9780241391723",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/289967/faces-baby-touch-first-focus-by-ladybird/9780241243251": {
+      "url": "https://www.penguin.co.uk/books/289967/faces-baby-touch-first-focus-by-ladybird/9780241243251",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.waterstones.com/": {
+      "url": "https://www.waterstones.com/",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.bloomsbury.com/uk/ruby-finds-a-worry-9781408899953/": {
+      "url": "https://www.bloomsbury.com/uk/ruby-finds-a-worry-9781408899953/",
+      "http_status": 403,
+      "url_ok": false,
+      "error": "http_403",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.dk.com/uk/book/9780241533482-how-do-i-feel-a-dictionary-of-emotions-for-children/": {
+      "url": "https://www.dk.com/uk/book/9780241533482-how-do-i-feel-a-dictionary-of-emotions-for-children/",
+      "http_status": 404,
+      "url_ok": false,
+      "error": "http_404",
+      "checked_at": "2026-07-24"
+    }
+  }
+}

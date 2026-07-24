@@ -1,0 +1,77 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 10,
+  "ok_count": 10,
+  "results": {
+    "https://www.boots.com/my-carry-potty-dino-10204700": {
+      "url": "https://www.boots.com/my-carry-potty-dino-10204700",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/pourty-easy-pour-potty-white-10204787": {
+      "url": "https://www.boots.com/pourty-easy-pour-potty-white-10204787",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.babybjorn.co.uk/products/bathroom/potty-chair/": {
+      "url": "https://www.babybjorn.co.uk/products/bathroom/potty-chair/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/babybjorn-smart-potty-white-10220347": {
+      "url": "https://www.boots.com/babybjorn-smart-potty-white-10220347",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/pourty-potty-training-seat-white-10204788": {
+      "url": "https://www.boots.com/pourty-potty-training-seat-white-10204788",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.babybjorn.co.uk/products/bathroom/smart-potty/": {
+      "url": "https://www.babybjorn.co.uk/products/bathroom/smart-potty/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/babybjorn-potty-chair-white-grey-10220345": {
+      "url": "https://www.boots.com/babybjorn-potty-chair-white-grey-10220345",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/my-carry-potty-travel-potty-dino/p5521669": {
+      "url": "https://www.johnlewis.com/my-carry-potty-travel-potty-dino/p5521669",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.walmart.com/": {
+      "url": "https://www.walmart.com/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.jojomamanbebe.com/babybjorn-potty-chair": {
+      "url": "https://www.jojomamanbebe.com/babybjorn-potty-chair",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

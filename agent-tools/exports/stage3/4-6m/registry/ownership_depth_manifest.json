@@ -1,0 +1,76 @@
+{
+  "age_band_id": "4-6m",
+  "approved_at": "2026-07-24",
+  "rule": "strict-default-single-books-multiple",
+  "stop_at": "founder-html",
+  "categories": [
+    {
+      "category_entity_id": "cat_tummy_time_mat",
+      "category_label": "A clean floor-play mat",
+      "cluster_label": "The floor is my little gym",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "45.1"
+    },
+    {
+      "category_entity_id": "cat_reach_grab_toys",
+      "category_label": "Reach-and-grab toys",
+      "cluster_label": "My hands can do more now",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "42.95"
+    },
+    {
+      "category_entity_id": "cat_teethers",
+      "category_label": "Teethers and chew-safe toys",
+      "cluster_label": "Everything goes in my mouth",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "46.3"
+    },
+    {
+      "category_entity_id": "cat_board_books",
+      "category_label": "Chunky board books",
+      "cluster_label": "Talk to me",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "43.65"
+    },
+    {
+      "category_entity_id": "cat_kick_play_socks",
+      "category_label": "Kick-and-discover socks",
+      "cluster_label": "I can make things happen",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "43.25"
+    },
+    {
+      "category_entity_id": "cat_parts_of_me_books",
+      "category_label": "Body-part board books",
+      "cluster_label": "I’m finding my body",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "41.6"
+    },
+    {
+      "category_entity_id": "cat_highchair",
+      "category_label": "A supportive highchair",
+      "cluster_label": "First tastes are getting close",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "39.95"
+    }
+  ],
+  "counts": {
+    "total": 7,
+    "single": 5,
+    "multiple": 2
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 7,
+  "buyable_count": 7,
+  "results": {
+    "https://www.boots.com/doidy-cup-10150006": {
+      "url": "https://www.boots.com/doidy-cup-10150006",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/tommee-tippee-explora-easy-drink-cup": {
+      "url": "https://www.boots.com/tommee-tippee-explora-easy-drink-cup",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://vitalbaby.com/products/445081": {
+      "url": "https://vitalbaby.com/products/445081",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/tommee-tippee-first-cup-10202516": {
+      "url": "https://www.boots.com/tommee-tippee-first-cup-10202516",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/tommee-tippee-explora-first-cup-2-pack-10202518": {
+      "url": "https://www.boots.com/tommee-tippee-explora-first-cup-2-pack-10202518",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/philips-avent-natural-response-trainer-cup-150ml-10275508": {
+      "url": "https://www.boots.com/philips-avent-natural-response-trainer-cup-150ml-10275508",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://growingsmiles.co.uk/shop/doidy-cup/": {
+      "url": "https://growingsmiles.co.uk/shop/doidy-cup/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

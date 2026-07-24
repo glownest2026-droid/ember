@@ -72,6 +72,14 @@ export const BANNED_PHRASES = [
   'lesson plan',
   'choosing muscle',
   'talk-stories muscle',
+  // Stamp Why Pip closers (founder 2026-07-24) — never reuse across cards
+  'that is the practical shift parents notice in daily play',
+  'practical shift parents notice',
+  'shared play on the living-room floor keeps it kind for tired parents',
+  'that is enough for one short shared sit before the evening runs on',
+  'keep it nearby so they can choose it themselves',
+  'share it together for a few minutes, then let them lead',
+  'share it at a quiet time on the sofa',
 ];
 
 /**
@@ -182,6 +190,7 @@ export const NURSERY = /\bnursery\b/i;
 /**
  * Formulaic AI closer: “That is why X suits Y” / “That gentle recovery is why it suits…”
  * Founder 2026-07-23: robotic, repetitive card cadence across Top 5.
+ * Founder 2026-07-24: also ban “That is the practical shift…” stamp closers.
  */
 export const FORMULAIC_WHY_CLOSER = [
   /\bthat is why\b/i,
@@ -189,10 +198,49 @@ export const FORMULAIC_WHY_CLOSER = [
   /\bthat\s+\w+(?:\s+\w+){0,8}\s+is why\b/i,
   /\bis why (?:this|it|they|these|the)\b/i,
   /\bare why (?:this|it|they|these|the)\b/i,
+  /\bthat is the practical shift\b/i,
+  /\bpractical shift parents notice\b/i,
 ];
 
 /** Rationalisation verb overused in Why Pip templates — ban on ember_verdict only. */
 export const SUIT_AS_RATIONALE = /\bsuits?\b/i;
+
+/** Last sentence of Why Pip, normalised for stamp / repeat detection. */
+export function whyPipClosingSentence(text) {
+  const t = String(text || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!t) return '';
+  const parts = t.split(/(?<=[.!?])\s+/).filter(Boolean);
+  return String(parts[parts.length - 1] || '')
+    .toLowerCase()
+    .replace(/[.!?]+$/g, '')
+    .trim();
+}
+
+/**
+ * Within one category Top N: identical Why Pip closing sentences fail.
+ * Founder 2026-07-24 — stamp endings must never repeat inside a shortlist.
+ *
+ * @param {Array<{ rank?: number, ember_verdict?: string }>} topPicks
+ * @returns {string[]} fail tokens
+ */
+export function repeatedWhyPipCloserFails(topPicks) {
+  const fails = [];
+  const byClose = new Map();
+  for (const pick of topPicks || []) {
+    const close = whyPipClosingSentence(pick.ember_verdict);
+    if (!close || close.split(/\s+/).length < 4) continue;
+    if (!byClose.has(close)) byClose.set(close, []);
+    byClose.get(close).push(pick.rank ?? '?');
+  }
+  for (const [close, ranks] of byClose) {
+    if (ranks.length < 2) continue;
+    const snip = close.slice(0, 48).replace(/\s+/g, '_');
+    fails.push(`repeated_why_pip_closer:${snip}(ranks_${ranks.join('-')})`);
+  }
+  return fails;
+}
 
 /**
  * Return unique fail tokens for banned parent copy.
@@ -260,7 +308,7 @@ export function bannedCopyInventory() {
     allowed_hyphens_note:
       'Only ordinary English / Ember hyphens (nearly-three, twelve-piece, wipe-clean, …). Invented play-type compounds fail.',
     formulaic_closer_note:
-      'Never end Why Pip with “That is why X suits Y” / “That [noun] is why it suits…”. Vary endings; land Best for without a template.',
+      'Never end Why Pip with “That is why X suits Y”, “That is the practical shift…”, or any identical closing sentence reused across a Top N. Vary endings; land Best for without a template.',
     canonical_module: 'agent-tools/scripts/lib/stage3-banned-copy.mjs',
     human_doc: 'web/docs/brand/WRITING_GUIDELINES.md (Principle 5)',
   };

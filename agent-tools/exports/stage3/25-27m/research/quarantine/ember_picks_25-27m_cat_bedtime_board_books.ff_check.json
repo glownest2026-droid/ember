@@ -1,0 +1,150 @@
+{
+  "ff_check_pass": false,
+  "checked_at": "2026-07-24",
+  "ingestion_ready_status": "not-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "Ten Minutes to Bed: Little Unicorn",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "Ten Minutes to Bed: Little Dinosaur",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "Goodnight Moon",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "Guess How Much I Love You",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "Goodnight Gorilla",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 6,
+      "product_name": "The Going to Bed Book",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 7,
+      "product_name": "Time for Bed",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 8,
+      "product_name": "On the Night You Were Born",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 9,
+      "product_name": "Peace at Last",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 10,
+      "product_name": "Can't You Sleep, Little Bear?",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": [
+    "methodology_missing_steps:age"
+  ]
+}

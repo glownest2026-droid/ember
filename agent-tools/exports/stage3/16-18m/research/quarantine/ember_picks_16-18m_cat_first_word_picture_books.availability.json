@@ -1,0 +1,117 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 11,
+  "buyable_count": 11,
+  "results": {
+    "https://www.penguin.co.uk/books/122792/wheres-spot-by-hill-eric/9780723263661": {
+      "url": "https://www.penguin.co.uk/books/122792/wheres-spot-by-hill-eric/9780723263661",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/dear-zoo-rod-campbell/9781407030678": {
+      "url": "https://uk.bookshop.org/p/books/dear-zoo-rod-campbell/9781407030678",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/baby-touch-words-ladybird/9780241361634": {
+      "url": "https://uk.bookshop.org/p/books/baby-touch-words-ladybird/9780241361634",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.penguin.co.uk/books/313409/baby-touch-faces-a-black-and-white-book-by-ladybird/9780241391723": {
+      "url": "https://www.penguin.co.uk/books/313409/baby-touch-faces-a-black-and-white-book-by-ladybird/9780241391723",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/that-s-not-my-dinosaur-fiona-watt/9781474916222": {
+      "url": "https://uk.bookshop.org/p/books/that-s-not-my-dinosaur-fiona-watt/9781474916222",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/global-babies-the-global-fund-for-children/9781580891745": {
+      "url": "https://uk.bookshop.org/p/books/global-babies-the-global-fund-for-children/9781580891745",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.bookshop.org/p/books/that-s-not-my-puppy-fiona-watt/9780746047866": {
+      "url": "https://uk.bookshop.org/p/books/that-s-not-my-puppy-fiona-watt/9780746047866",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/see-touch-feel-first-words/": {
+      "url": "https://priddybooks.com/gb/books/see-touch-feel-first-words/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/first-100-words/": {
+      "url": "https://priddybooks.com/gb/books/first-100-words/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://barefootbooks.com/uk/babys-first-words/": {
+      "url": "https://barefootbooks.com/uk/babys-first-words/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/hello-baby-faces/": {
+      "url": "https://priddybooks.com/gb/books/hello-baby-faces/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

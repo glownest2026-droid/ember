@@ -1,0 +1,127 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 17,
+  "ok_count": 16,
+  "results": {
+    "https://lovevery.co.uk/products/the-play-gym": {
+      "url": "https://lovevery.co.uk/products/the-play-gym",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/totter-tumble-mariner-and-roamer-compact-reversible-playmat-multi/p5069108": {
+      "url": "https://www.johnlewis.com/totter-tumble-mariner-and-roamer-compact-reversible-playmat-multi/p5069108",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://totterandtumble.co.uk/products/the-mariner-playmat": {
+      "url": "https://totterandtumble.co.uk/products/the-mariner-playmat",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.gusandbeau.com/products/rainbow-playmat-set-in-cream": {
+      "url": "https://www.gusandbeau.com/products/rainbow-playmat-set-in-cream",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.gusandbeau.com/products/plain-playmat-set-in-navy-sage-cream": {
+      "url": "https://www.gusandbeau.com/products/plain-playmat-set-in-navy-sage-cream",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://totterandtumble.co.uk/products/the-ludo-playmat": {
+      "url": "https://totterandtumble.co.uk/products/the-ludo-playmat",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hamleys.com/lamaze-freddie-the-firefly-gym": {
+      "url": "https://www.hamleys.com/lamaze-freddie-the-firefly-gym",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/skip-hop-celestial-dreams-activity-gym/p5954010": {
+      "url": "https://www.johnlewis.com/skip-hop-celestial-dreams-activity-gym/p5954010",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://totterandtumble.co.uk/products/the-aster-playmat": {
+      "url": "https://totterandtumble.co.uk/products/the-aster-playmat",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://totterandtumble.co.uk/products/the-fable-playmat": {
+      "url": "https://totterandtumble.co.uk/products/the-fable-playmat",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.gusandbeau.com/products/plain-playmat-set-in-burnt-ochre": {
+      "url": "https://www.gusandbeau.com/products/plain-playmat-set-in-burnt-ochre",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/baby-einstein-4-in-1-kickin-tunes-music-and-language-discovery-activity-gym/p3845072": {
+      "url": "https://www.johnlewis.com/baby-einstein-4-in-1-kickin-tunes-music-and-language-discovery-activity-gym/p3845072",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/Nuby-Foldable-Playmat-Road-Map/dp/B0FLPZG8JG": {
+      "url": "https://www.amazon.co.uk/Nuby-Foldable-Playmat-Road-Map/dp/B0FLPZG8JG",
+      "http_status": 200,
+      "url_ok": false,
+      "error": "amazon_bot_wall_unverified",
+      "amazon_gate": "bot_wall",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/mothercare-milestone-play-mat-10316591": {
+      "url": "https://www.boots.com/mothercare-milestone-play-mat-10316591",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/etta-loves-plant-print-reversible-sensory-playmat/p110367711": {
+      "url": "https://www.johnlewis.com/etta-loves-plant-print-reversible-sensory-playmat/p110367711",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://totterandtumble.co.uk/products/the-roamer-playmat": {
+      "url": "https://totterandtumble.co.uk/products/the-roamer-playmat",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://lovevery.com/products/the-play-gym": {
+      "url": "https://lovevery.com/products/the-play-gym",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

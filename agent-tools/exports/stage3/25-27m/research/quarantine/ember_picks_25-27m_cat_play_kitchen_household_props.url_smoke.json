@@ -1,0 +1,120 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 16,
+  "ok_count": 14,
+  "results": {
+    "https://www.woodentoyshop.co.uk/products/wooden-breakfast-set": {
+      "url": "https://www.woodentoyshop.co.uk/products/wooden-breakfast-set",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.woodentoyshop.co.uk/products/wooden-pots-and-pans-set": {
+      "url": "https://www.woodentoyshop.co.uk/products/wooden-pots-and-pans-set",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.woodentoyshop.co.uk/products/cutting-fruits-set": {
+      "url": "https://www.woodentoyshop.co.uk/products/cutting-fruits-set",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.woodentoyshop.co.uk/products/wooden-cookie-baking-set": {
+      "url": "https://www.woodentoyshop.co.uk/products/wooden-cookie-baking-set",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.jarrolds.co.uk/departments/toys-and-hobbies/preschool-and-infant/roleplay-and-dressing-up/bigjigs-toys-breakfast-set": {
+      "url": "https://www.jarrolds.co.uk/departments/toys-and-hobbies/preschool-and-infant/roleplay-and-dressing-up/bigjigs-toys-breakfast-set",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.jarrolds.co.uk/departments/toys-and-hobbies/preschool-and-infant/roleplay-and-dressing-up/tender-leaf-toys-breakfast-toaster-set": {
+      "url": "https://www.jarrolds.co.uk/departments/toys-and-hobbies/preschool-and-infant/roleplay-and-dressing-up/tender-leaf-toys-breakfast-toaster-set",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/hape-toaster-pop-up-set/": {
+      "url": "https://www.adventuretoys.co.uk/hape-toaster-pop-up-set/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.woodentoyshop.co.uk/products/casserole-dish-set": {
+      "url": "https://www.woodentoyshop.co.uk/products/casserole-dish-set",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.woodentoyshop.co.uk/products/tea-set-for-two": {
+      "url": "https://www.woodentoyshop.co.uk/products/tea-set-for-two",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.woodentoyshop.co.uk/products/wooden-dinner-service-set": {
+      "url": "https://www.woodentoyshop.co.uk/products/wooden-dinner-service-set",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.scandiborn.co.uk/products/little-dutch-mini-kitchen": {
+      "url": "https://www.scandiborn.co.uk/products/little-dutch-mini-kitchen",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.woodentoyshop.co.uk/products/cutting-vegetables-set": {
+      "url": "https://www.woodentoyshop.co.uk/products/cutting-vegetables-set",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/": {
+      "url": "https://www.amazon.co.uk/",
+      "http_status": 202,
+      "url_ok": false,
+      "error": "amazon_stub_page",
+      "amazon_gate": "stub",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.woodentoyshop.co.uk/products/tabletop-kitchen": {
+      "url": "https://www.woodentoyshop.co.uk/products/tabletop-kitchen",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/duktig-play-kitchen-white-20319974/": {
+      "url": "https://www.ikea.com/gb/en/p/duktig-play-kitchen-white-20319974/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/duktig-14-piece-vegetable-set-40185747/": {
+      "url": "https://www.ikea.com/gb/en/p/duktig-14-piece-vegetable-set-40185747/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

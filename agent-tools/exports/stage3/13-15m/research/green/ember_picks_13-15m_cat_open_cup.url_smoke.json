@@ -1,0 +1,120 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 16,
+  "ok_count": 15,
+  "results": {
+    "https://www.ikea.com/gb/en/p/kalas-mug-mixed-colours-00461379/": {
+      "url": "https://www.ikea.com/gb/en/p/kalas-mug-mixed-colours-00461379/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.bebeco.co.uk/products/doidy-cup-yellow": {
+      "url": "https://www.bebeco.co.uk/products/doidy-cup-yellow",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.bebeco.co.uk/products/ezpz-tiny-cup-sage": {
+      "url": "https://www.bebeco.co.uk/products/ezpz-tiny-cup-sage",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.bebeco.co.uk/products/ezpz-mini-cup-sage": {
+      "url": "https://www.bebeco.co.uk/products/ezpz-mini-cup-sage",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/dp/B07DWR1Y8H": {
+      "url": "https://www.amazon.co.uk/dp/B07DWR1Y8H",
+      "http_status": 200,
+      "url_ok": false,
+      "error": "amazon_bot_wall_unverified",
+      "amazon_gate": "bot_wall",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/vital-baby-hydrate-free-flow-cup-200ml-natural-moss/p112856634": {
+      "url": "https://www.johnlewis.com/vital-baby-hydrate-free-flow-cup-200ml-natural-moss/p112856634",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/munchkin-bambou-open-cup-mint/p110225515": {
+      "url": "https://www.johnlewis.com/munchkin-bambou-open-cup-mint/p110225515",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/grejsimojs-20-piece-toy-building-blocks-mix-and-match-5-figurines-60602036/": {
+      "url": "https://www.ikea.com/gb/en/p/grejsimojs-20-piece-toy-building-blocks-mix-and-match-5-figurines-60602036/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/mala-paper-roll-holder-with-storage-70488969/": {
+      "url": "https://www.ikea.com/gb/en/p/mala-paper-roll-holder-with-storage-70488969/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.bebeco.co.uk/products/doidy-cup-blue": {
+      "url": "https://www.bebeco.co.uk/products/doidy-cup-blue",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://vitalbaby.com/products/445081": {
+      "url": "https://vitalbaby.com/products/445081",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.lovevery.co.uk/products/the-pull-pup": {
+      "url": "https://www.lovevery.co.uk/products/the-pull-pup",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/munchkin-miracle-no spill-sippy-cup-10oz/blue/p112360901": {
+      "url": "https://www.johnlewis.com/munchkin-miracle-no spill-sippy-cup-10oz/blue/p112360901",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/": {
+      "url": "https://www.johnlewis.com/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/bickiepegs-doidy-cup-red/p230409356": {
+      "url": "https://www.johnlewis.com/bickiepegs-doidy-cup-red/p230409356",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://ezpzfun.com/products/tiny-cup": {
+      "url": "https://ezpzfun.com/products/tiny-cup",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

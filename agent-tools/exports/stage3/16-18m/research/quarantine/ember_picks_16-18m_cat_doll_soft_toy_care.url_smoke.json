@@ -1,0 +1,119 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 16,
+  "ok_count": 15,
+  "results": {
+    "https://www.adventuretoys.co.uk/corolle-miss-floral-sweet-dreams-soft-doll/": {
+      "url": "https://www.adventuretoys.co.uk/corolle-miss-floral-sweet-dreams-soft-doll/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/bigjigs-doll-cradle-blue-wooden/": {
+      "url": "https://www.adventuretoys.co.uk/bigjigs-doll-cradle-blue-wooden/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/corolle-rag-doll-blandine-sweet-dreams/": {
+      "url": "https://www.adventuretoys.co.uk/corolle-rag-doll-blandine-sweet-dreams/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/corolle-bath-alyzee-baby-doll/": {
+      "url": "https://www.adventuretoys.co.uk/corolle-bath-alyzee-baby-doll/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/tidlo-dolls-rocking-cradle/": {
+      "url": "https://www.adventuretoys.co.uk/tidlo-dolls-rocking-cradle/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/goki-dolls-carry-cradle-mosses-basket-with-bedding/": {
+      "url": "https://www.adventuretoys.co.uk/goki-dolls-carry-cradle-mosses-basket-with-bedding/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/corolle-mini-cotton-flower-doll-age-0-years/": {
+      "url": "https://www.adventuretoys.co.uk/corolle-mini-cotton-flower-doll-age-0-years/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/scrunch-ball/": {
+      "url": "https://www.adventuretoys.co.uk/scrunch-ball/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/hape-stacking-jack/": {
+      "url": "https://www.adventuretoys.co.uk/hape-stacking-jack/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/doidy-cup-10150006": {
+      "url": "https://www.boots.com/doidy-cup-10150006",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/goki-dolls-bed/": {
+      "url": "https://toytastic.co.uk/product/goki-dolls-bed/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/goki-dolls-cradle/": {
+      "url": "https://toytastic.co.uk/product/goki-dolls-cradle/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/s?k=soft+baby+doll": {
+      "url": "https://www.amazon.co.uk/s?k=soft+baby+doll",
+      "http_status": 503,
+      "url_ok": false,
+      "error": "http_503",
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/ses-creative-my-first-colourball/": {
+      "url": "https://toytastic.co.uk/product/ses-creative-my-first-colourball/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://priddybooks.com/gb/books/first-100-words/": {
+      "url": "https://priddybooks.com/gb/books/first-100-words/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/quercetti-flipcar-racetrack/": {
+      "url": "https://toytastic.co.uk/product/quercetti-flipcar-racetrack/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

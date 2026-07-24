@@ -1,0 +1,67 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 6,
+  "buyable_count": 6,
+  "results": {
+    "https://www.boots.com/joie-mimzy-snacker-highchair-abc-charcoal-10220635": {
+      "url": "https://www.boots.com/joie-mimzy-snacker-highchair-abc-charcoal-10220635",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/stokke-tripp-trapp-high-chair-natural-10116308": {
+      "url": "https://www.boots.com/stokke-tripp-trapp-high-chair-natural-10116308",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/cosatto-noodle-0-highchair-mister-fox-10285197": {
+      "url": "https://www.boots.com/cosatto-noodle-0-highchair-mister-fox-10285197",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/bugaboo-giraffe-high-chair-white-10320750": {
+      "url": "https://www.boots.com/bugaboo-giraffe-high-chair-white-10320750",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/antilop-seat-shell-for-highchair-70279942/": {
+      "url": "https://www.ikea.com/gb/en/p/antilop-seat-shell-for-highchair-70279942/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/antilop-highchair-tray-white-40076093/": {
+      "url": "https://www.ikea.com/gb/en/p/antilop-highchair-tray-white-40076093/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

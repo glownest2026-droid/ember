@@ -1,0 +1,23 @@
+{
+  "age_band_id": "22-24m",
+  "passed": [
+    "cat_picture_story_books"
+  ],
+  "failed": [],
+  "details": [
+    {
+      "category_entity_id": "cat_picture_story_books",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 26,
+        "ok_count": 25
+      },
+      "availability": {
+        "url_count": 20,
+        "buyable_count": 15
+      }
+    }
+  ]
+}

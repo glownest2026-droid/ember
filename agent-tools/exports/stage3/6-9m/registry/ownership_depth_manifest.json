@@ -1,0 +1,85 @@
+{
+  "age_band_id": "6-9m",
+  "approved_at": "2026-07-24",
+  "rule": "strict-default-single-books-multiple",
+  "stop_at": "founder-html",
+  "categories": [
+    {
+      "category_entity_id": "cat_reach_grab_toys",
+      "category_label": "Reach-and-grab toys",
+      "cluster_label": "I’m sitting and reaching",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "42.35"
+    },
+    {
+      "category_entity_id": "cat_tummy_time_wobbler",
+      "category_label": "Wobbly tummy-time toys",
+      "cluster_label": "I’m getting ready to move",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "43.45"
+    },
+    {
+      "category_entity_id": "cat_peekaboo_scarf",
+      "category_label": "Peekaboo scarves",
+      "cluster_label": "I’m finding hidden things",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "45.8"
+    },
+    {
+      "category_entity_id": "cat_stacking_nesting_cups",
+      "category_label": "Stacking and nesting cups",
+      "cluster_label": "I’m putting things in and out",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "43.4"
+    },
+    {
+      "category_entity_id": "cat_teethers",
+      "category_label": "Teethers and chew-safe toys",
+      "cluster_label": "I’m exploring with my mouth",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "43.25"
+    },
+    {
+      "category_entity_id": "cat_highchair",
+      "category_label": "A supportive highchair",
+      "cluster_label": "I’m trying first tastes",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "38.6"
+    },
+    {
+      "category_entity_id": "cat_safety_gates",
+      "category_label": "Safety gates",
+      "cluster_label": "Keep little hands safer",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "37.7"
+    },
+    {
+      "category_entity_id": "cat_board_books",
+      "category_label": "Board books and face books",
+      "cluster_label": "I’m listening and joining in",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "45.55"
+    }
+  ],
+  "counts": {
+    "total": 8,
+    "single": 7,
+    "multiple": 1
+  }
+}
