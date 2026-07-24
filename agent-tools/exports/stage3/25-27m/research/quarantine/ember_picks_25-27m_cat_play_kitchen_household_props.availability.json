@@ -1,0 +1,69 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 6,
+  "buyable_count": 5,
+  "results": {
+    "https://www.jarrolds.co.uk/departments/toys-and-hobbies/preschool-and-infant/roleplay-and-dressing-up/bigjigs-toys-breakfast-set": {
+      "url": "https://www.jarrolds.co.uk/departments/toys-and-hobbies/preschool-and-infant/roleplay-and-dressing-up/bigjigs-toys-breakfast-set",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.jarrolds.co.uk/departments/toys-and-hobbies/preschool-and-infant/roleplay-and-dressing-up/tender-leaf-toys-breakfast-toaster-set": {
+      "url": "https://www.jarrolds.co.uk/departments/toys-and-hobbies/preschool-and-infant/roleplay-and-dressing-up/tender-leaf-toys-breakfast-toaster-set",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.woodentoyshop.co.uk/products/wooden-pots-and-pans-set": {
+      "url": "https://www.woodentoyshop.co.uk/products/wooden-pots-and-pans-set",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.woodentoyshop.co.uk/products/cutting-fruits-set": {
+      "url": "https://www.woodentoyshop.co.uk/products/cutting-fruits-set",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.woodentoyshop.co.uk/products/wooden-breakfast-set": {
+      "url": "https://www.woodentoyshop.co.uk/products/wooden-breakfast-set",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "unbuyable",
+      "signals": [
+        "Sold out"
+      ],
+      "buyable": false,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/hape-toaster-pop-up-set/": {
+      "url": "https://www.adventuretoys.co.uk/hape-toaster-pop-up-set/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

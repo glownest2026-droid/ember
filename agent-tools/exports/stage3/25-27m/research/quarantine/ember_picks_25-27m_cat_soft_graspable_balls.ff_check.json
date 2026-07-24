@@ -1,0 +1,79 @@
+{
+  "ff_check_pass": false,
+  "checked_at": "2026-07-24",
+  "ingestion_ready_status": "not-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "SPARKA soft toy football mini",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "SPARKA soft toy football",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "Gompels Soft Football 125mm",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix",
+        "banned_copy:nursery_benchmarking"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "Gompels Sponge Football 20cm",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "FORZA Soft Foam PE Ball",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": []
+}

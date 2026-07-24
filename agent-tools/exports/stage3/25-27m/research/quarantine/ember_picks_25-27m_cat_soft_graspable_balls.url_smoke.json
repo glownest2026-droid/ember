@@ -1,0 +1,85 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 11,
+  "ok_count": 10,
+  "results": {
+    "https://www.ikea.com/gb/en/p/sparka-soft-toy-football-mini-blue-red-20506758/": {
+      "url": "https://www.ikea.com/gb/en/p/sparka-soft-toy-football-mini-blue-red-20506758/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/sparka-soft-toy-football-green-70302645/": {
+      "url": "https://www.ikea.com/gb/en/p/sparka-soft-toy-football-green-70302645/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.networldsports.co.uk/forza-foam-pe-balls.html": {
+      "url": "https://www.networldsports.co.uk/forza-foam-pe-balls.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.com/": {
+      "url": "https://www.amazon.com/",
+      "http_status": 202,
+      "url_ok": false,
+      "error": "amazon_stub_page",
+      "amazon_gate": "stub",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.gompels.co.uk/sponge-football-20cm.html": {
+      "url": "https://www.gompels.co.uk/sponge-football-20cm.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/duktig-play-kitchen-birch-60319972/": {
+      "url": "https://www.ikea.com/gb/en/p/duktig-play-kitchen-birch-60319972/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.gompels.co.uk/soft-rugby-ball.html": {
+      "url": "https://www.gompels.co.uk/soft-rugby-ball.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.gompels.co.uk/soft-football.html": {
+      "url": "https://www.gompels.co.uk/soft-football.html",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/duktig-14-piece-vegetables-set-10185748/": {
+      "url": "https://www.ikea.com/gb/en/p/duktig-14-piece-vegetables-set-10185748/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.hachettechildrens.co.uk/titles/kes-gray/oi-frog/9781444910865/": {
+      "url": "https://www.hachettechildrens.co.uk/titles/kes-gray/oi-frog/9781444910865/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.sportsdirect.com/sports-directory-foam-football-857872": {
+      "url": "https://www.sportsdirect.com/sports-directory-foam-football-857872",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

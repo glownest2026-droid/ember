@@ -1,3 +1,12 @@
+## 2026-07-24 — Stage 3 25–27m: research → FF → founder HTML (stop)
+
+- **Band:** `25-27m` · 8 manifest categories (5 single / 3 multiple books)
+- **Result:** **7 green**, **1 quarantine** (`cat_play_kitchen_household_props`)
+- **Founder HTML:** `agent-tools/exports/stage3/25-27m/founder-preview/stage3_founder_review_25-27m.html` (55 rows / 7 HOW panels)
+- **STATUS:** `agent-tools/exports/stage3/25-27m/STATUS.md`
+- **Stop:** no ingest, no PR — founder review next
+- **Kitchen blocker:** only three 18m+ UK-buyable props cleared (2× Bigjigs + Tidlo); ranks 4–5 are buyable 3+ toasters (Tender Leaf / Hape); need a fifth age-safe brand or brand-cap waiver
+
 ## 2026-07-24 — Stage 3 16–18m: research → FF green → founder HTML (stop)
 
 - **Band:** `16-18m` · 7 manifest categories (6 single / 1 multiple books)

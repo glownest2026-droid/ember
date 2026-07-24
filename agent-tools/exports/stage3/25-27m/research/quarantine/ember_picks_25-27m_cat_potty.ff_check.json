@@ -1,0 +1,78 @@
+{
+  "ff_check_pass": false,
+  "checked_at": "2026-07-24",
+  "ingestion_ready_status": "not-ready",
+  "pick_results": [
+    {
+      "rank": 1,
+      "product_name": "BabyBjörn Potty Chair",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 2,
+      "product_name": "LOCKIG children potty",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 3,
+      "product_name": "Bumbo Step 'n' Potty",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 4,
+      "product_name": "BabyBjörn Toilet Training Seat",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    },
+    {
+      "rank": 5,
+      "product_name": "My Carry Potty Dino",
+      "ff_pass": false,
+      "fail_reasons": [
+        "best_for_missing_prefix"
+      ],
+      "url_ok": true,
+      "http_status": 200,
+      "buyable": true,
+      "product_status": "buyable",
+      "age_gate": "pass",
+      "age_fail_reasons": []
+    }
+  ],
+  "category_fails": []
+}

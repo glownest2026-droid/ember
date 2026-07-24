@@ -1,0 +1,58 @@
+{
+  "age_band_id": "25-27m",
+  "passed": [
+    "cat_step_stool"
+  ],
+  "failed": [
+    "cat_play_kitchen_household_props"
+  ],
+  "details": [
+    {
+      "category_entity_id": "cat_play_kitchen_household_props",
+      "overall_pass": false,
+      "category_fails": [],
+      "picks_failed": [
+        {
+          "rank": 4,
+          "product_name": "Tender Leaf Toys Breakfast Toaster Set",
+          "fail_reasons": [
+            "min_age_36_excludes_band_months_under_36",
+            "safety_exclusion_under_36_overlaps_band_min_25",
+            "min_age_36_excludes_band_months_under_36"
+          ]
+        },
+        {
+          "rank": 5,
+          "product_name": "Hape Pop-up Toaster Set",
+          "fail_reasons": [
+            "min_age_36_excludes_band_months_under_36",
+            "safety_exclusion_under_36_overlaps_band_min_25",
+            "min_age_36_excludes_band_months_under_36"
+          ]
+        }
+      ],
+      "smoke": {
+        "url_count": 16,
+        "ok_count": 14
+      },
+      "availability": {
+        "url_count": 6,
+        "buyable_count": 5
+      }
+    },
+    {
+      "category_entity_id": "cat_step_stool",
+      "overall_pass": true,
+      "category_fails": [],
+      "picks_failed": [],
+      "smoke": {
+        "url_count": 10,
+        "ok_count": 9
+      },
+      "availability": {
+        "url_count": 5,
+        "buyable_count": 5
+      }
+    }
+  ]
+}
