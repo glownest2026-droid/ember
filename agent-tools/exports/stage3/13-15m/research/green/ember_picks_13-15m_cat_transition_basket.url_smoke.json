@@ -1,0 +1,114 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 15,
+  "ok_count": 13,
+  "results": {
+    "https://www.ikea.com/gb/en/p/knipsa-basket-seagrass-20110540/": {
+      "url": "https://www.ikea.com/gb/en/p/knipsa-basket-seagrass-20110540/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/lamaze-freddie-the-firefly-10065234": {
+      "url": "https://www.boots.com/lamaze-freddie-the-firefly-10065234",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/fladis-basket-60322173/": {
+      "url": "https://www.ikea.com/gb/en/p/fladis-basket-60322173/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.lovevery.co.uk/products/the-buddy-stroller": {
+      "url": "https://www.lovevery.co.uk/products/the-buddy-stroller",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/littlelife-toddler-turtle-backpack-green/p4927242": {
+      "url": "https://www.johnlewis.com/littlelife-toddler-turtle-backpack-green/p4927242",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/john-lewis-kids-shark-swim-bag-multi/p113048924": {
+      "url": "https://www.johnlewis.com/john-lewis-kids-shark-swim-bag-multi/p113048924",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/droena-box-white-40217955/": {
+      "url": "https://www.ikea.com/gb/en/p/droena-box-white-40217955/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/gnabbas-basket-60400298/": {
+      "url": "https://www.ikea.com/gb/en/p/gnabbas-basket-60400298/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/dp/B07DWR1Y8H": {
+      "url": "https://www.amazon.co.uk/dp/B07DWR1Y8H",
+      "http_status": 200,
+      "url_ok": false,
+      "error": "amazon_bot_wall_unverified",
+      "amazon_gate": "bot_wall",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/mala-paper-roll-holder-with-storage-70488969/": {
+      "url": "https://www.ikea.com/gb/en/p/mala-paper-roll-holder-with-storage-70488969/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/": {
+      "url": "https://www.ikea.com/gb/en/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/us/": {
+      "url": "https://www.ikea.com/us/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.lovevery.co.uk/products/the-pull-pup": {
+      "url": "https://www.lovevery.co.uk/products/the-pull-pup",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/": {
+      "url": "https://www.amazon.co.uk/",
+      "http_status": 200,
+      "url_ok": false,
+      "error": "amazon_stub_page",
+      "amazon_gate": "stub",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.thetoytree.co.uk/product/egg-shaker/": {
+      "url": "https://www.thetoytree.co.uk/product/egg-shaker/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

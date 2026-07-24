@@ -1,0 +1,57 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 5,
+  "buyable_count": 5,
+  "results": {
+    "https://www.thetoytree.co.uk/product/egg-shaker/": {
+      "url": "https://www.thetoytree.co.uk/product/egg-shaker/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.wiseowltoys.co.uk/p/egg-shaker": {
+      "url": "https://www.wiseowltoys.co.uk/p/egg-shaker",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/lamaze-freddie-the-firefly-10065234": {
+      "url": "https://www.boots.com/lamaze-freddie-the-firefly-10065234",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://nuttreetoys.co.uk/product/hape-beaded-raindrops-blue/": {
+      "url": "https://nuttreetoys.co.uk/product/hape-beaded-raindrops-blue/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.hape.com/beaded-raindrops-red-e0327": {
+      "url": "https://uk.hape.com/beaded-raindrops-red-e0327",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

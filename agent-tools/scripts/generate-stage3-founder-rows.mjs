@@ -87,7 +87,8 @@ function loadResearchFiles() {
         f.endsWith('.json') &&
         !f.includes('manifest') &&
         !f.includes('ff_check') &&
-        !f.includes('url_smoke'),
+        !f.includes('url_smoke') &&
+        !f.includes('availability'),
     );
   if (!files.length) {
     throw new Error(`No green research JSON in ${greenDir}. Run stage3-ff-check.mjs first.`);

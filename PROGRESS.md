@@ -1,3 +1,12 @@
+## 2026-07-24 — Stage 3 13–15m: research → FF green → founder HTML (stop)
+
+- **Band:** `13-15m` · 10 manifest categories (9 single / 1 multiple books)
+- **Result:** **10/10 green**, 0 quarantine research JSON
+- **Founder HTML:** `agent-tools/exports/stage3/13-15m/founder-preview/stage3_founder_review_13-15m.html`
+- **STATUS:** `agent-tools/exports/stage3/13-15m/STATUS.md`
+- **Stop:** no ingest, no PR — founder review next
+- **Flags:** JL availability timeouts → Boots/Bebeco/IKEA/Lovevery/specialist swaps; brand-cap re-assortment on IKEA/Dreambaby/ezpz; Boots interruption pages need click-check; founder-rows generator now excludes `*.availability.json`
+
 ## 2026-07-24 — Stage 3 22–24m: research → FF green → founder HTML (stop)
 
 - **Band:** `22-24m` · 7 manifest categories (5 single / 2 multiple books)

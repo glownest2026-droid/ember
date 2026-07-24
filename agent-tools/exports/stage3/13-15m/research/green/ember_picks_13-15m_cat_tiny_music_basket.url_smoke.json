@@ -1,0 +1,107 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 14,
+  "ok_count": 11,
+  "results": {
+    "https://www.wiseowltoys.co.uk/p/egg-shaker": {
+      "url": "https://www.wiseowltoys.co.uk/p/egg-shaker",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/lamaze-freddie-the-firefly-10065234": {
+      "url": "https://www.boots.com/lamaze-freddie-the-firefly-10065234",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/dp/B07DWR1Y8H": {
+      "url": "https://www.amazon.co.uk/dp/B07DWR1Y8H",
+      "http_status": 200,
+      "url_ok": false,
+      "error": "amazon_bot_wall_unverified",
+      "amazon_gate": "bot_wall",
+      "checked_at": "2026-07-24"
+    },
+    "https://nuttreetoys.co.uk/product/hape-beaded-raindrops-blue/": {
+      "url": "https://nuttreetoys.co.uk/product/hape-beaded-raindrops-blue/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.lovevery.co.uk/products/the-pull-pup": {
+      "url": "https://www.lovevery.co.uk/products/the-pull-pup",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.hape.com/beaded-raindrops-red-e0327": {
+      "url": "https://uk.hape.com/beaded-raindrops-red-e0327",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/grejsimojs-20-piece-toy-building-blocks-mix-and-match-5-figurines-60602036/": {
+      "url": "https://www.ikea.com/gb/en/p/grejsimojs-20-piece-toy-building-blocks-mix-and-match-5-figurines-60602036/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/mala-paper-roll-holder-with-storage-70488969/": {
+      "url": "https://www.ikea.com/gb/en/p/mala-paper-roll-holder-with-storage-70488969/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.argos.co.uk/": {
+      "url": "https://www.argos.co.uk/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toys.hape.com/products/beaded-raindrops-blue": {
+      "url": "https://toys.hape.com/products/beaded-raindrops-blue",
+      "http_status": 429,
+      "url_ok": false,
+      "error": "http_429",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/": {
+      "url": "https://www.amazon.co.uk/",
+      "http_status": 200,
+      "url_ok": false,
+      "error": "amazon_stub_page",
+      "amazon_gate": "stub",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.johnlewis.com/vital-baby-hydrate-free-flow-cup-200ml-natural-moss/p112856634": {
+      "url": "https://www.johnlewis.com/vital-baby-hydrate-free-flow-cup-200ml-natural-moss/p112856634",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.thetoytree.co.uk/product/egg-shaker/": {
+      "url": "https://www.thetoytree.co.uk/product/egg-shaker/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://uk.hape.com/": {
+      "url": "https://uk.hape.com/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

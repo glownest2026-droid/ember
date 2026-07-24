@@ -1,0 +1,57 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 5,
+  "buyable_count": 5,
+  "results": {
+    "https://www.oliversbabycare.co.uk/product/dreambaby-electrical-cord-shortener/": {
+      "url": "https://www.oliversbabycare.co.uk/product/dreambaby-electrical-cord-shortener/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.oliversbabycare.co.uk/product/dreambaby-adjustable-strap-latch/": {
+      "url": "https://www.oliversbabycare.co.uk/product/dreambaby-adjustable-strap-latch/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/droena-box-white-40217955/": {
+      "url": "https://www.ikea.com/gb/en/p/droena-box-white-40217955/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/fladis-basket-60322173/": {
+      "url": "https://www.ikea.com/gb/en/p/fladis-basket-60322173/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://nuttreetoys.co.uk/product/hape-beaded-raindrops-blue/": {
+      "url": "https://nuttreetoys.co.uk/product/hape-beaded-raindrops-blue/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "age_band_id": "13-15m",
+  "approved_at": "2026-07-24",
+  "rule": "strict-default-single-books-multiple",
+  "stop_at": "founder-html",
+  "categories": [
+    {
+      "category_entity_id": "cat_two_block_towers",
+      "category_label": "Blocks for stacking and crashing",
+      "cluster_label": "I’m working things out",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "40.6"
+    },
+    {
+      "category_entity_id": "cat_books_with_pauses",
+      "category_label": "Lift-the-flap books",
+      "cluster_label": "I’m telling you things",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "42.7"
+    },
+    {
+      "category_entity_id": "cat_teddy_care_play",
+      "category_label": "Teddies and soft dolls for caring play",
+      "cluster_label": "I’m copying your day",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "42.55"
+    },
+    {
+      "category_entity_id": "cat_push_pull_play",
+      "category_label": "Push and pull toys",
+      "cluster_label": "I’m getting braver on my feet",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "40.9"
+    },
+    {
+      "category_entity_id": "cat_open_cup",
+      "category_label": "Small open cups",
+      "cluster_label": "I’m taking charge at meals",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "38.5"
+    },
+    {
+      "category_entity_id": "cat_big_paper_floor",
+      "category_label": "Large paper pads",
+      "cluster_label": "I’m making my first marks",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "40.1"
+    },
+    {
+      "category_entity_id": "cat_tiny_music_basket",
+      "category_label": "Simple shakers and first instruments",
+      "cluster_label": "I’m joining in properly now",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "40.95"
+    },
+    {
+      "category_entity_id": "cat_cupboard_locks_cable_tidy",
+      "category_label": "Cupboard locks and cable tidies",
+      "cluster_label": "I’m suddenly into everything",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "29.55"
+    },
+    {
+      "category_entity_id": "cat_transition_basket",
+      "category_label": "Small transition basket",
+      "cluster_label": "I’m between baby and toddler",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "35.9"
+    },
+    {
+      "category_entity_id": "cat_out_and_about_kit",
+      "category_label": "Out-and-about toy pouch",
+      "cluster_label": "I’m ready for a change of scene",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "36.75"
+    }
+  ],
+  "counts": {
+    "total": 10,
+    "single": 9,
+    "multiple": 1
+  }
+}

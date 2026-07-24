@@ -1,0 +1,57 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 5,
+  "buyable_count": 5,
+  "results": {
+    "https://www.boots.com/lamaze-freddie-the-firefly-10065234": {
+      "url": "https://www.boots.com/lamaze-freddie-the-firefly-10065234",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.lovevery.co.uk/products/the-buddy-stroller": {
+      "url": "https://www.lovevery.co.uk/products/the-buddy-stroller",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.elyswimbledon.co.uk/products/baby-annabell-my-first-annabell": {
+      "url": "https://www.elyswimbledon.co.uk/products/baby-annabell-my-first-annabell",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.elyswimbledon.co.uk/products/jellycat-rumpletum-bear": {
+      "url": "https://www.elyswimbledon.co.uk/products/jellycat-rumpletum-bear",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.elyswimbledon.co.uk/products/bumbly-bear-medium": {
+      "url": "https://www.elyswimbledon.co.uk/products/bumbly-bear-medium",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}
