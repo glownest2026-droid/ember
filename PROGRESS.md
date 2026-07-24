@@ -1,3 +1,12 @@
+## 2026-07-24 — Stage 3 16–18m: research → FF green → founder HTML (stop)
+
+- **Band:** `16-18m` · 7 manifest categories (6 single / 1 multiple books)
+- **Result:** **7/7 green**, 0 quarantine research JSON
+- **Founder HTML:** `agent-tools/exports/stage3/16-18m/founder-preview/stage3_founder_review_16-18m.html`
+- **STATUS:** `agent-tools/exports/stage3/16-18m/STATUS.md`
+- **Stop:** no ingest, no PR — founder review next
+- **Flags:** Amazon avoided; Bookshop/Barefoot/Priddy intermittent 403/404 mid-run then re-verified; UK allowlist +`vitalbaby.com`/`superdrug.com`/`growingsmiles.co.uk`; 18m+ FlipCar/Migoga + Cerda Bing → `check_age_fit`
+
 ## 2026-07-24 — Stage 3 13–15m: research → FF green → founder HTML (stop)
 
 - **Band:** `13-15m` · 10 manifest categories (9 single / 1 multiple books)

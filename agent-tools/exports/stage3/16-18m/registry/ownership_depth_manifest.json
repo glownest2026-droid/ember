@@ -1,0 +1,76 @@
+{
+  "age_band_id": "16-18m",
+  "approved_at": "2026-07-24",
+  "rule": "strict-default-single-books-multiple",
+  "stop_at": "founder-html",
+  "categories": [
+    {
+      "category_entity_id": "cat_soft_graspable_balls",
+      "category_label": "Soft balls to roll and chase",
+      "cluster_label": "I’m off on little adventures",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "50.85"
+    },
+    {
+      "category_entity_id": "cat_stacking_pegboard",
+      "category_label": "Stacking pegboards and block towers",
+      "cluster_label": "My hands are busy now",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "47.45"
+    },
+    {
+      "category_entity_id": "cat_ramp_rolling_toys",
+      "category_label": "Ramp and rolling toys",
+      "cluster_label": "I’m testing what happens",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "49.8"
+    },
+    {
+      "category_entity_id": "cat_first_word_picture_books",
+      "category_label": "First-word picture books",
+      "cluster_label": "I’m finding my words",
+      "ownership_class": "multiple",
+      "top_n": 10,
+      "longlist_n": 25,
+      "priority_score": "44.4"
+    },
+    {
+      "category_entity_id": "cat_doll_soft_toy_care",
+      "category_label": "Soft toy and doll care play",
+      "cluster_label": "I’m copying real life",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "50.25"
+    },
+    {
+      "category_entity_id": "cat_chunky_crayons",
+      "category_label": "Chunky crayons and first scribbles",
+      "cluster_label": "I’m making my mark",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "50.1"
+    },
+    {
+      "category_entity_id": "cat_open_cup",
+      "category_label": "Open or free-flow cup",
+      "cluster_label": "I’m taking charge at meals",
+      "ownership_class": "single",
+      "top_n": 5,
+      "longlist_n": 15,
+      "priority_score": "40.45"
+    }
+  ],
+  "counts": {
+    "total": 7,
+    "single": 6,
+    "multiple": 1
+  }
+}

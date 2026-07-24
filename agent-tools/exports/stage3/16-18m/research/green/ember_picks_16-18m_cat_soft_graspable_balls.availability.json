@@ -1,0 +1,57 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 5,
+  "buyable_count": 5,
+  "results": {
+    "https://toytastic.co.uk/product/quercetti-spiral-tower-06501/": {
+      "url": "https://toytastic.co.uk/product/quercetti-spiral-tower-06501/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/les-deglingos-activity-ball-melimelos-the-deer/": {
+      "url": "https://toytastic.co.uk/product/les-deglingos-activity-ball-melimelos-the-deer/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/big-jigs-activity-balls/": {
+      "url": "https://www.adventuretoys.co.uk/big-jigs-activity-balls/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/scrunch-ball/": {
+      "url": "https://www.adventuretoys.co.uk/scrunch-ball/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/quercetti-migoga-tower-sound/": {
+      "url": "https://toytastic.co.uk/product/quercetti-migoga-tower-sound/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

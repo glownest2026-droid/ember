@@ -1,0 +1,133 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 18,
+  "ok_count": 17,
+  "results": {
+    "https://www.smythstoys.com/uk/en-gb/toys/arts-and-crafts/crayons-and-pastels/crayola-my-first-jumbo-crayons-8-pack/p/195185": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/arts-and-crafts/crayons-and-pastels/crayola-my-first-jumbo-crayons-8-pack/p/195185",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/crayola-my-first-washable-crayons-8-pack-10289001": {
+      "url": "https://www.boots.com/crayola-my-first-washable-crayons-8-pack-10289001",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/arts-and-crafts/crayons-and-pastels/crayola-my-first-washable-crayons/p/189012": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/arts-and-crafts/crayons-and-pastels/crayola-my-first-washable-crayons/p/189012",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/ses-creative-my-first-colourball/": {
+      "url": "https://toytastic.co.uk/product/ses-creative-my-first-colourball/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/ses-creative-my-first-crayon-beads/": {
+      "url": "https://toytastic.co.uk/product/ses-creative-my-first-crayon-beads/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/cerda-bing-wax-crayons/": {
+      "url": "https://toytastic.co.uk/product/cerda-bing-wax-crayons/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/ses-my-first-crayons/": {
+      "url": "https://toytastic.co.uk/product/ses-my-first-crayons/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/ses-creative-my-first-fingerpaint-4-pack/": {
+      "url": "https://toytastic.co.uk/product/ses-creative-my-first-fingerpaint-4-pack/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.smythstoys.com/uk/en-gb/toys/arts-and-crafts/crayons-and-pastels/crayola-my-first-tripod-grip-crayons/p/203441": {
+      "url": "https://www.smythstoys.com/uk/en-gb/toys/arts-and-crafts/crayons-and-pastels/crayola-my-first-tripod-grip-crayons/p/203441",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/ses-creative-my-first-colouring-with-water-dinos/": {
+      "url": "https://toytastic.co.uk/product/ses-creative-my-first-colouring-with-water-dinos/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/ses-creative-my-first-crayons-animal-cards/": {
+      "url": "https://toytastic.co.uk/product/ses-creative-my-first-crayons-animal-cards/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/mala-wax-crayon-mixed-colours-00455547/": {
+      "url": "https://www.ikea.com/gb/en/p/mala-wax-crayon-mixed-colours-00455547/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.boots.com/doidy-cup-10150006": {
+      "url": "https://www.boots.com/doidy-cup-10150006",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/corolle-miss-floral-sweet-dreams-soft-doll/": {
+      "url": "https://www.adventuretoys.co.uk/corolle-miss-floral-sweet-dreams-soft-doll/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.amazon.co.uk/s?k=toddler+chunky+crayons": {
+      "url": "https://www.amazon.co.uk/s?k=toddler+chunky+crayons",
+      "http_status": 503,
+      "url_ok": false,
+      "error": "http_503",
+      "checked_at": "2026-07-24"
+    },
+    "https://www.ikea.com/gb/en/p/mala-coloured-pencil-mixed-colours-70456586/": {
+      "url": "https://www.ikea.com/gb/en/p/mala-coloured-pencil-mixed-colours-70456586/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/scrunch-ball/": {
+      "url": "https://www.adventuretoys.co.uk/scrunch-ball/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/moxy-colouring-case-86-piece-fsc-wood/": {
+      "url": "https://toytastic.co.uk/product/moxy-colouring-case-86-piece-fsc-wood/",
+      "http_status": 200,
+      "url_ok": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}

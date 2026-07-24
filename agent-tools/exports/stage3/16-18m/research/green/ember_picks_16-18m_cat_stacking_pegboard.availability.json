@@ -1,0 +1,57 @@
+{
+  "checked_at": "2026-07-24",
+  "url_count": 5,
+  "buyable_count": 5,
+  "results": {
+    "https://toytastic.co.uk/product/goki-rainbow-wobble-stacker/": {
+      "url": "https://toytastic.co.uk/product/goki-rainbow-wobble-stacker/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/goki-stacking-bear-wobble-tower/": {
+      "url": "https://toytastic.co.uk/product/goki-stacking-bear-wobble-tower/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/hape-stacking-jack/": {
+      "url": "https://www.adventuretoys.co.uk/hape-stacking-jack/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://www.adventuretoys.co.uk/hape-wooden-musical-instrument-stacking-set/": {
+      "url": "https://www.adventuretoys.co.uk/hape-wooden-musical-instrument-stacking-set/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    },
+    "https://toytastic.co.uk/product/quercetti-spiral-tower-06501/": {
+      "url": "https://toytastic.co.uk/product/quercetti-spiral-tower-06501/",
+      "http_status": 200,
+      "fetch_ok": true,
+      "product_status": "buyable",
+      "signals": [],
+      "buyable": true,
+      "error": null,
+      "checked_at": "2026-07-24"
+    }
+  }
+}
